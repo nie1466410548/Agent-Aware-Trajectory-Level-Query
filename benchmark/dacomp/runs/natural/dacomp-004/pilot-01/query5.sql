@@ -1,0 +1,1 @@
+SELECT "Sales Month" AS month, "Product Code" AS product_code, MAX("Sales Amount") AS max_single_sale FROM sheet1 GROUP BY "Sales Month" ORDER BY month;

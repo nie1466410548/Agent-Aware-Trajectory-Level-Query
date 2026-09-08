@@ -1,0 +1,46 @@
+{
+  "task_id": "dacomp-004",
+  "build_before": "Q2",
+  "build_sql": "SELECT \"Sales Month\", \"Product Code\", \"Customer ID\", COUNT(*) AS n, SUM(\"Sales Amount\") AS sales_sum, MAX(\"Specification/Model\") AS spec_max, MAX(\"Minor Category Name\") AS minor_max, MAX(\"Middle Category Name\") AS middle_max FROM sheet1 GROUP BY \"Sales Month\", \"Product Code\", \"Customer ID\"",
+  "covered_queries": [
+    "Q2",
+    "Q3",
+    "Q4"
+  ],
+  "future_queries_after_trigger": [
+    "Q3",
+    "Q4"
+  ],
+  "rewritten_queries": {
+    "Q2": "SELECT \"Sales Month\" AS month, SUM(n) AS rows, COUNT(DISTINCT \"Product Code\") AS products, ROUND(SUM(sales_sum),2) AS total_sales FROM reuse_candidate GROUP BY \"Sales Month\" ORDER BY month",
+    "Q3": "SELECT \"Sales Month\" AS month, \"Product Code\" AS product_code, MAX(spec_max) AS spec, MAX(minor_max) AS minor_category, MAX(middle_max) AS middle_category, SUM(n) AS txn_count, COUNT(DISTINCT \"Customer ID\") AS n_customers, ROUND(SUM(sales_sum),2) AS total_sales FROM reuse_candidate GROUP BY \"Sales Month\", \"Product Code\" ORDER BY month, total_sales DESC",
+    "Q4": "SELECT \"Product Code\" AS product_code, \"Sales Month\" AS month, COUNT(*) AS repeat_customers FROM reuse_candidate WHERE n >= 2 GROUP BY \"Product Code\", \"Sales Month\""
+  },
+  "view_rows": 39800,
+  "checks": [
+    {
+      "query_id": "Q2",
+      "rewritten_sql": "SELECT \"Sales Month\" AS month, SUM(n) AS rows, COUNT(DISTINCT \"Product Code\") AS products, ROUND(SUM(sales_sum),2) AS total_sales FROM reuse_candidate GROUP BY \"Sales Month\" ORDER BY month",
+      "row_count": 4,
+      "columns_match": true,
+      "rows_match_exactly": true
+    },
+    {
+      "query_id": "Q3",
+      "rewritten_sql": "SELECT \"Sales Month\" AS month, \"Product Code\" AS product_code, MAX(spec_max) AS spec, MAX(minor_max) AS minor_category, MAX(middle_max) AS middle_category, SUM(n) AS txn_count, COUNT(DISTINCT \"Customer ID\") AS n_customers, ROUND(SUM(sales_sum),2) AS total_sales FROM reuse_candidate GROUP BY \"Sales Month\", \"Product Code\" ORDER BY month, total_sales DESC",
+      "row_count": 12041,
+      "columns_match": true,
+      "rows_match_exactly": true
+    },
+    {
+      "query_id": "Q4",
+      "rewritten_sql": "SELECT \"Product Code\" AS product_code, \"Sales Month\" AS month, COUNT(*) AS repeat_customers FROM reuse_candidate WHERE n >= 2 GROUP BY \"Product Code\", \"Sales Month\"",
+      "row_count": 1088,
+      "columns_match": true,
+      "rows_match_exactly": true
+    }
+  ],
+  "all_results_equal": true,
+  "all_results_match_exactly_or_with_declared_tolerance": true,
+  "interpretation": "Offline selected candidate; future queries were known to the analyst. No latency benefit or online frontier prediction demonstrated."
+}

@@ -1,0 +1,75 @@
+{
+  "task_id": "dacomp-005",
+  "build_before": "Q4",
+  "build_sql": "SELECT \"Destination\" AS dest, CASE WHEN \"Profit Margin\" < 0.3976434082191792 THEN 'low' ELSE 'normal' END AS grp, COUNT(*) AS n, SUM(CASE WHEN \"Profit\" < 0 THEN 1 ELSE 0 END) AS n_loss, SUM(\"Sales Quantity\") AS s_qty, COUNT(\"Sales Quantity\") AS c_qty, SUM(\"Total Logistics Revenue\") AS s_rev, COUNT(\"Total Logistics Revenue\") AS c_rev, SUM(\"Profit\") AS s_profit, COUNT(\"Profit\") AS c_profit, SUM(\"List Price Revenue\") AS s_list, COUNT(\"List Price Revenue\") AS c_list, SUM(\"Logistics Value-Added Service Revenue\") AS s_vas, COUNT(\"Logistics Value-Added Service Revenue\") AS c_vas, SUM(\"Discount Amount\") AS s_disc, COUNT(\"Discount Amount\") AS c_disc, SUM(\"Discount Amount\"/\"List Price Revenue\") AS s_disc_rate, COUNT(\"Discount Amount\"/\"List Price Revenue\") AS c_disc_rate, SUM(\"Freight Cost\") AS s_freight, COUNT(\"Freight Cost\") AS c_freight, SUM(\"Warehousing Cost\") AS s_wh, COUNT(\"Warehousing Cost\") AS c_wh, SUM(\"Other Operating Costs\") AS s_other, COUNT(\"Other Operating Costs\") AS c_other, SUM(\"Total Logistics Cost\") AS s_cost, COUNT(\"Total Logistics Cost\") AS c_cost, SUM(\"Total Logistics Cost\"/\"Sales Quantity\") AS s_cpu, COUNT(\"Total Logistics Cost\"/\"Sales Quantity\") AS c_cpu, SUM(\"Customer Age\") AS s_age, COUNT(\"Customer Age\") AS c_age, SUM(\"Profit Margin\") AS s_margin, COUNT(\"Profit Margin\") AS c_margin FROM sheet1 GROUP BY dest, grp",
+  "covered_queries": [
+    "Q4",
+    "Q6",
+    "Q8"
+  ],
+  "future_queries_after_trigger": [
+    "Q6",
+    "Q8"
+  ],
+  "rewritten_queries": {
+    "Q4": "SELECT grp, SUM(n) AS n, SUM(s_qty) * 1.0 / SUM(c_qty) AS avg_qty, SUM(s_rev) * 1.0 / SUM(c_rev) AS avg_rev, SUM(s_rev) AS sum_rev, SUM(s_profit) AS sum_profit, SUM(s_profit) * 1.0 / SUM(c_profit) AS avg_profit, SUM(s_list) * 1.0 / SUM(c_list) AS avg_list, SUM(s_vas) * 1.0 / SUM(c_vas) AS avg_vas, SUM(s_disc) * 1.0 / SUM(c_disc) AS avg_disc, SUM(s_disc_rate) * 1.0 / SUM(c_disc_rate) AS avg_disc_rate, SUM(s_freight) * 1.0 / SUM(c_freight) AS avg_freight, SUM(s_wh) * 1.0 / SUM(c_wh) AS avg_wh, SUM(s_other) * 1.0 / SUM(c_other) AS avg_other, SUM(s_cost) * 1.0 / SUM(c_cost) AS avg_cost, SUM(s_cpu) * 1.0 / SUM(c_cpu) AS cost_per_unit, SUM(s_age) * 1.0 / SUM(c_age) AS avg_age, SUM(n_loss) AS n_loss FROM reuse_candidate GROUP BY grp",
+    "Q6": "SELECT dest, SUM(n) AS n, SUM(CASE WHEN grp='low' THEN n ELSE 0 END) AS n_low, ROUND(SUM(CASE WHEN grp='low' THEN n ELSE 0 END) * 1.0 / SUM(n)*100,2) AS low_pct, ROUND(SUM(s_qty) * 1.0 / SUM(c_qty),1) AS avg_qty, ROUND(SUM(s_freight) * 1.0 / SUM(c_freight),1) AS avg_freight, ROUND(SUM(s_cost) * 1.0 / SUM(c_cost),1) AS avg_cost FROM reuse_candidate GROUP BY dest ORDER BY low_pct DESC",
+    "Q8": "SELECT SUBSTR(dest,1,INSTR(dest,'-')-1) AS region, SUM(n) AS n, SUM(CASE WHEN grp='low' THEN n ELSE 0 END) AS n_low, ROUND(SUM(CASE WHEN grp='low' THEN n ELSE 0 END) * 1.0 / SUM(n)*100,2) AS low_pct, ROUND(SUM(s_qty) * 1.0 / SUM(c_qty),1) AS avg_qty, ROUND(SUM(s_freight) * 1.0 / SUM(c_freight),1) AS avg_freight, ROUND(SUM(s_cost) * 1.0 / SUM(c_cost),1) AS avg_cost, ROUND(SUM(s_margin) * 1.0 / SUM(c_margin),3) AS avg_margin FROM reuse_candidate GROUP BY region ORDER BY low_pct DESC"
+  },
+  "comparison_keys": {
+    "Q4": [
+      "grp"
+    ],
+    "Q6": [
+      "dest"
+    ],
+    "Q8": [
+      "region"
+    ]
+  },
+  "view_rows": 506,
+  "checks": [
+    {
+      "query_id": "Q4",
+      "rewritten_sql": "SELECT grp, SUM(n) AS n, SUM(s_qty) * 1.0 / SUM(c_qty) AS avg_qty, SUM(s_rev) * 1.0 / SUM(c_rev) AS avg_rev, SUM(s_rev) AS sum_rev, SUM(s_profit) AS sum_profit, SUM(s_profit) * 1.0 / SUM(c_profit) AS avg_profit, SUM(s_list) * 1.0 / SUM(c_list) AS avg_list, SUM(s_vas) * 1.0 / SUM(c_vas) AS avg_vas, SUM(s_disc) * 1.0 / SUM(c_disc) AS avg_disc, SUM(s_disc_rate) * 1.0 / SUM(c_disc_rate) AS avg_disc_rate, SUM(s_freight) * 1.0 / SUM(c_freight) AS avg_freight, SUM(s_wh) * 1.0 / SUM(c_wh) AS avg_wh, SUM(s_other) * 1.0 / SUM(c_other) AS avg_other, SUM(s_cost) * 1.0 / SUM(c_cost) AS avg_cost, SUM(s_cpu) * 1.0 / SUM(c_cpu) AS cost_per_unit, SUM(s_age) * 1.0 / SUM(c_age) AS avg_age, SUM(n_loss) AS n_loss FROM reuse_candidate GROUP BY grp",
+      "row_count": 2,
+      "columns_match": true,
+      "rows_match_exactly": false,
+      "rows_match_numeric_tolerance": true,
+      "numeric_tolerance": {
+        "relative": 1e-12,
+        "absolute": 1e-09
+      },
+      "max_absolute_numeric_difference": 4.470348358154297e-08
+    },
+    {
+      "query_id": "Q6",
+      "rewritten_sql": "SELECT dest, SUM(n) AS n, SUM(CASE WHEN grp='low' THEN n ELSE 0 END) AS n_low, ROUND(SUM(CASE WHEN grp='low' THEN n ELSE 0 END) * 1.0 / SUM(n)*100,2) AS low_pct, ROUND(SUM(s_qty) * 1.0 / SUM(c_qty),1) AS avg_qty, ROUND(SUM(s_freight) * 1.0 / SUM(c_freight),1) AS avg_freight, ROUND(SUM(s_cost) * 1.0 / SUM(c_cost),1) AS avg_cost FROM reuse_candidate GROUP BY dest ORDER BY low_pct DESC",
+      "row_count": 277,
+      "columns_match": true,
+      "rows_match_exactly": true,
+      "rows_match_numeric_tolerance": true,
+      "numeric_tolerance": {
+        "relative": 1e-12,
+        "absolute": 1e-09
+      },
+      "max_absolute_numeric_difference": 0
+    },
+    {
+      "query_id": "Q8",
+      "rewritten_sql": "SELECT SUBSTR(dest,1,INSTR(dest,'-')-1) AS region, SUM(n) AS n, SUM(CASE WHEN grp='low' THEN n ELSE 0 END) AS n_low, ROUND(SUM(CASE WHEN grp='low' THEN n ELSE 0 END) * 1.0 / SUM(n)*100,2) AS low_pct, ROUND(SUM(s_qty) * 1.0 / SUM(c_qty),1) AS avg_qty, ROUND(SUM(s_freight) * 1.0 / SUM(c_freight),1) AS avg_freight, ROUND(SUM(s_cost) * 1.0 / SUM(c_cost),1) AS avg_cost, ROUND(SUM(s_margin) * 1.0 / SUM(c_margin),3) AS avg_margin FROM reuse_candidate GROUP BY region ORDER BY low_pct DESC",
+      "row_count": 6,
+      "columns_match": true,
+      "rows_match_exactly": true,
+      "rows_match_numeric_tolerance": true,
+      "numeric_tolerance": {
+        "relative": 1e-12,
+        "absolute": 1e-09
+      },
+      "max_absolute_numeric_difference": 0
+    }
+  ],
+  "all_results_equal": false,
+  "all_results_match_exactly_or_with_declared_tolerance": true,
+  "interpretation": "Offline selected candidate; future queries were known to the analyst. No latency benefit or online frontier prediction demonstrated."
+}

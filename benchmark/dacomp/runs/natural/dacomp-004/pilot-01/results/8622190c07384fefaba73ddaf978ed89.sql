@@ -1,0 +1,1 @@
+SELECT "Product Code" AS product_code, "Sales Month" AS month, "Is Promotional" AS is_promotional, COUNT(*) AS txn, ROUND(SUM("Sales Amount"),2) AS sales FROM sheet1 WHERE "Product Code" IN ('DW-1001040125','DW-2316020016','DW-1203130446','DW-1518040045') GROUP BY "Product Code", "Sales Month", "Is Promotional" ORDER BY product_code, month, is_promotional;

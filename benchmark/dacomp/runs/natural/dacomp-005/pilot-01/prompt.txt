@@ -1,0 +1,41 @@
+You are a data analysis agent. Complete the task independently using the supplied SQLite database. Do not delegate or ask the user questions. Finish within 20 minutes and at most 80 database query attempts. Submit the best supported report if you reach a limit.
+
+ORIGINAL TASK:
+Orders whose `Profit Margin` in `sheet1` is lower than 50% of the dataset average are defined as low-margin orders. Analyze the salient characteristics that distinguish these orders from the broader population (e.g., by `Sales Quantity`, `Total Logistics Revenue`, discount behavior, cost components such as `Freight Cost`, `Warehousing Cost`, `Other Operating Costs`, geographic distribution in `Destination`, time trends in `Date`, customer segments based on `Customer Age`, `Age Range`, `Customer Gender`, and product composition by `Consigned Product`), and then propose concrete, data-backed remedies that cover both cost-control (beating down expense) and revenue/profit uplift (improving efficiency and effectiveness). Keep every description precise, reference the English column names from the authoritative schema, and ensure thresholds or quantifiable insights stay aligned with the provided dataset.
+
+DATABASE SCHEMA:
+CREATE TABLE "sheet1" (
+"Date" TIMESTAMP,
+  "Waybill Number" TEXT,
+  "Postal Code" INTEGER,
+  "Destination" TEXT,
+  "Consignee" TEXT,
+  "Customer Gender" TEXT,
+  "Customer Age" INTEGER,
+  "Age Range" TEXT,
+  "Consigned Product" TEXT,
+  "Sales Quantity" INTEGER,
+  "Logistics Unit Price" REAL,
+  "List Price Revenue" REAL,
+  "Logistics Value-Added Service Revenue" REAL,
+  "Discount Amount" REAL,
+  "Total Logistics Revenue" REAL,
+  "Freight Cost" REAL,
+  "Warehousing Cost" REAL,
+  "Other Operating Costs" REAL,
+  "Total Logistics Cost" REAL,
+  "Profit" REAL,
+  "Profit Margin" REAL
+)
+
+DATA TOOLS (invoke via Bash):
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/dacomp/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/dacomp/tools/tool.py list-db
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/dacomp/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/dacomp/tools/tool.py query-db --sql-file query.sql
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/dacomp/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/dacomp/tools/tool.py python --file analysis.py
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/dacomp/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/dacomp/tools/tool.py answer --file report.md
+
+Use Write or Bash to create files in this working directory. All database access must go through list-db or query-db; submit exactly one SQLite statement per query call. Use distinct output aliases. Each response includes a preview and a result_file containing the complete JSON list of row objects. Python can read these result files and your own generated files; available packages include pandas, numpy, scipy, matplotlib and seaborn. Execute analysis Python through the python tool. Choose how to divide computation between SQL and Python naturally. Make any charts needed for your analysis and save them in this directory, referencing them by relative paths in your report.
+
+Use only the task, schema, tools, returned data and files you create. Do not access parent directories, benchmark source, tool implementation, reference reports, evaluation files, prior runs, external websites or credentials. Do not install packages or open a database directly in Python or shell. These are evaluation integrity requirements, not a security sandbox.
+
+When finished, write a Markdown report with data-backed findings and limitations, submit it using the answer tool, and stop. Do not generate future-access predictions. Do not add computations solely to increase the number of queries.

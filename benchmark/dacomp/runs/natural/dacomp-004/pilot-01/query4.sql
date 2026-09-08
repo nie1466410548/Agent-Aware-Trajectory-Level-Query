@@ -1,0 +1,1 @@
+SELECT "Product Code" AS product_code, "Sales Month" AS month, COUNT(*) AS repeat_customers FROM (SELECT "Product Code", "Sales Month", "Customer ID", COUNT(*) AS c FROM sheet1 GROUP BY "Product Code", "Sales Month", "Customer ID" HAVING c >= 2) GROUP BY "Product Code", "Sales Month";

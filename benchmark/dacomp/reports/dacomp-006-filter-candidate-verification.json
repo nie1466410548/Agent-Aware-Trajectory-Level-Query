@@ -1,0 +1,59 @@
+{
+  "task_id": "dacomp-006",
+  "build_before": "Q4",
+  "build_sql": "SELECT * FROM sheet1 WHERE \"Destination\" LIKE 'South China%' ",
+  "covered_queries": [
+    "Q4",
+    "Q5",
+    "Q6",
+    "Q7",
+    "Q8"
+  ],
+  "future_queries_after_trigger": [
+    "Q5",
+    "Q6",
+    "Q7",
+    "Q8"
+  ],
+  "view_rows": 6785,
+  "checks": [
+    {
+      "query_id": "Q4",
+      "rewritten_sql": "SELECT\n  strftime('%Y-%m', \"Date\") AS month,\n  COUNT(*) AS orders,\n  SUM(\"Sales Quantity\") AS qty,\n  ROUND(SUM(\"List Price Revenue\"),2) AS list_rev,\n  ROUND(SUM(\"Logistics Value-Added Service Revenue\"),2) AS vas_rev,\n  ROUND(SUM(\"Discount Amount\"),2) AS discount,\n  ROUND(SUM(\"Total Logistics Revenue\"),2) AS revenue,\n  ROUND(SUM(\"Freight Cost\"),2) AS freight,\n  ROUND(SUM(\"Warehousing Cost\"),2) AS warehousing,\n  ROUND(SUM(\"Other Operating Costs\"),2) AS other_cost,\n  ROUND(SUM(\"Total Logistics Cost\"),2) AS cost,\n  ROUND(SUM(\"Profit\"),2) AS profit,\n  ROUND(AVG(\"Profit Margin\"),4) AS avg_margin\nFROM reuse_candidate\nWHERE \"Destination\" LIKE 'South China%'\nGROUP BY month\nORDER BY month",
+      "row_count": 12,
+      "columns_match": true,
+      "rows_match_exactly": true
+    },
+    {
+      "query_id": "Q5",
+      "rewritten_sql": "SELECT\n  COUNT(*) AS n,\n  SUM(CASE WHEN \"Profit\" < 0 THEN 1 ELSE 0 END) AS neg_profit,\n  SUM(CASE WHEN \"Profit Margin\" > 1 OR \"Profit Margin\" < 0 THEN 1 ELSE 0 END) AS bad_margin,\n  ROUND(MIN(\"Profit\"),2) AS min_profit,\n  ROUND(MAX(\"Profit\"),2) AS max_profit,\n  ROUND(MIN(\"Profit Margin\"),4) AS min_margin,\n  ROUND(MAX(\"Profit Margin\"),4) AS max_margin,\n  ROUND(AVG(\"Profit\"),2) AS avg_profit\nFROM reuse_candidate\nWHERE \"Destination\" LIKE 'South China%'",
+      "row_count": 1,
+      "columns_match": true,
+      "rows_match_exactly": true
+    },
+    {
+      "query_id": "Q6",
+      "rewritten_sql": "SELECT \"Consigned Product\" AS product,\n  strftime('%Y-%m', \"Date\") AS month,\n  COUNT(*) AS orders,\n  ROUND(SUM(\"Profit\"),2) AS profit,\n  SUM(CASE WHEN \"Profit\" < 0 THEN 1 ELSE 0 END) AS neg_orders,\n  ROUND(SUM(CASE WHEN \"Profit\" < 0 THEN \"Profit\" ELSE 0 END),2) AS neg_profit_sum\nFROM reuse_candidate\nWHERE \"Destination\" LIKE 'South China%'\nGROUP BY product, month\nORDER BY product, month",
+      "row_count": 96,
+      "columns_match": true,
+      "rows_match_exactly": true
+    },
+    {
+      "query_id": "Q7",
+      "rewritten_sql": "SELECT\n  SUBSTR(SUBSTR(\"Destination\", INSTR(\"Destination\",'-')+1), 1,\n         INSTR(SUBSTR(\"Destination\", INSTR(\"Destination\",'-')+1),'-')-1) AS province,\n  strftime('%Y-%m', \"Date\") AS month,\n  COUNT(*) AS orders,\n  SUM(\"Sales Quantity\") AS qty,\n  ROUND(SUM(\"Total Logistics Revenue\"),2) AS revenue,\n  ROUND(SUM(\"Profit\"),2) AS profit\nFROM reuse_candidate\nWHERE \"Destination\" LIKE 'South China%'\nGROUP BY province, month\nORDER BY province, month",
+      "row_count": 72,
+      "columns_match": true,
+      "rows_match_exactly": true
+    },
+    {
+      "query_id": "Q8",
+      "rewritten_sql": "SELECT\n  strftime('%Y-%m', \"Date\") AS month,\n  ROUND(AVG(\"Logistics Unit Price\"),2) AS avg_unit_price,\n  ROUND(AVG(\"Sales Quantity\"),1) AS avg_qty_per_order,\n  ROUND(AVG(\"List Price Revenue\"),2) AS avg_list_rev_per_order,\n  ROUND(AVG(\"Discount Amount\"),2) AS avg_discount,\n  ROUND(AVG(\"Freight Cost\"),2) AS avg_freight,\n  ROUND(SUM(\"Discount Amount\")/SUM(\"List Price Revenue\")*100,3) AS discount_rate_pct,\n  ROUND(SUM(\"Freight Cost\")/SUM(\"Total Logistics Revenue\")*100,3) AS freight_ratio_pct\nFROM reuse_candidate\nWHERE \"Destination\" LIKE 'South China%'\nGROUP BY month\nORDER BY month",
+      "row_count": 12,
+      "columns_match": true,
+      "rows_match_exactly": true
+    }
+  ],
+  "all_results_equal": true,
+  "all_results_match_exactly_or_with_declared_tolerance": true,
+  "interpretation": "Offline selected candidate; future queries were known to the analyst. No latency benefit or online frontier prediction demonstrated."
+}

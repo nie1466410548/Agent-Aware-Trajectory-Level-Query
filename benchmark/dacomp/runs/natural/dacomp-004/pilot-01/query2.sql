@@ -1,0 +1,1 @@
+SELECT "Sales Month" AS month, COUNT(*) AS rows, COUNT(DISTINCT "Product Code") AS products, ROUND(SUM("Sales Amount"),2) AS total_sales FROM sheet1 GROUP BY "Sales Month" ORDER BY month;
