@@ -1,0 +1,102 @@
+import json, re
+from collections import Counter, defaultdict
+
+meta = json.load(open("/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/natural/agnews/query4/full-01/results/ccdd38c5f55b4e35b63c4db19bddbd6e.json"))
+arts = json.load(open("/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/natural/agnews/query4/full-01/results/21c0a2afc9be488e89290abbfd5bf3d3.json"))
+region = {r["article_id"]: r["region"] for r in meta}
+
+# Weighted keyword scores for AG News categories
+KW = {
+ "Sports": {
+  "nfl":3,"nba":3,"nhl":3,"mlb":3,"olympics":3,"olympic":2,"soccer":3,"football":2,"baseball":3,
+  "touchdown":3,"quarterback":3,"playoff":3,"playoffs":3,"championship":2,"coach":2,"stadium":2,
+  "athens 2004":3,"tour de france":3,"grand slam":3,"wimbledon":3,"world series":3,"super bowl":3,
+  "goalkeeper":3,"innings":3,"homer":2,"home run":3,"yankees":3,"red sox":3,"lakers":3,"marathon":2,
+  "tennis":2,"golf":2,"golfer":3,"boxer":3,"boxing":2,"hockey":3,"racing":2,"race course":3,"fillies":3,
+  "defeated":1,"beat":1,"scored":1,"score":1,"game":1,"season":1,"team":1,"league":2,"cup":1,"win":1,
+  "victory":1,"sports":3,"athlete":2,"medal":2,"gold medal":3,"sprinter":3,"swimming":2,"finals":1,
+  "first round":1,"seeded":2,"suspended":0,"steroids":2,"doping":3,"pitcher":3,"batter":3,"halftime":3,
+ },
+ "Business": {
+  "stock":2,"stocks":2,"shares":2,"share price":3,"earnings":3,"profit":2,"profits":2,"quarter":1,
+  "quarterly":3,"ipo":3,"merger":3,"acquisition":3,"takeover":3,"sales":1,"revenue":3,"revenues":3,
+  "wall street":3,"nasdaq":3,"dow jones":3,"analyst":1,"analysts":2,"investor":2,"investors":2,
+  "ceo":2,"chief executive":2,"economy":2,"economic":1,"growth":1,"inflation":3,"interest rate":3,
+  "interest rates":3,"federal reserve":3,"oil prices":3,"crude oil":2,"trade deficit":3,"unemployment":2,
+  "jobs report":3,"retail":2,"consumer":1,"bank":1,"banking":2,"bankruptcy":3,"debt":1,"bond":2,"bonds":2,
+  "market":1,"markets":2,"forecast":1,"outlook":1,"dividend":3,"fiscal":2,"billion":1,"million":1,
+  "company":1,"corp.":1,"inc.":1,"ltd.":1,"buyout":3,"layoff":3,"layoffs":3,"job cuts":3,"auction":1,
+ },
+ "Sci/Tech": {
+  "software":3,"microsoft":2,"google":2,"yahoo":2,"apple computer":2,"linux":3,"open source":3,"open-source":3,
+  "computer":2,"computers":2,"internet":2,"online":1,"web":1,"website":2,"broadband":3,"spam":3,"spyware":3,
+  "virus":2,"hackers":3,"hacker":3,"security flaw":3,"chip":2,"chips":2,"intel":2,"amd":3,"ibm":2,"dell":2,
+  "hewlett-packard":3,"hp ":1,"sun microsystems":3,"oracle":2,"sap ":2,"nasa":3,"space":2,"spacecraft":3,
+  "shuttle":2,"satellite":2,"mars":2,"titan":2,"asteroid":3,"telescope":3,"scientists":2,"researchers":2,
+  "study":1,"dna":2,"gene":2,"genes":2,"stem cell":3,"climate change":2,"global warming":3,"fossil":2,
+  "technology":2,"tech":1,"it ":1,"wireless":2,"broadband":3,"voip":3,"cell phone":2,"mobile phone":2,
+  "e-mail":2,"email":2,"browser":3,"search engine":3,"antitrust":1,"digital":1,"gadget":2,"robot":2,
+  "astronaut":3,"solar system":3,"universe":2,"planet":2,"species":1,"evolution":2,"brain":1,"vaccine":2,
+ },
+ "World": {
+  "iraq":2,"iraqi":3,"baghdad":3,"afghanistan":3,"afghan":2,"taliban":3,"al-qaeda":3,"qaeda":3,"terrorist":2,
+  "terrorism":2,"bomb":2,"bombed":2,"bombing":2,"blast":2,"explosion":1,"killed":2,"kills":2,"death toll":3,
+  "troops":2,"soldiers":2,"army":1,"military":1,"war":1,"insurgent":3,"insurgents":3,"hostage":3,"kidnap":2,
+  "kidnapped":3,"president":1,"prime minister":3,"minister":1,"parliament":2,"election":2,"elections":2,
+  "vote":1,"voters":1,"campaign":1,"kerry":2,"bush":1,"democrat":1,"republican":1,"senate":1,"congress":1,
+  "white house":2,"pentagon":2,"u.n.":2,"united nations":3,"nato":2,"european union":2,"government":1,
+  "police":1,"arrest":1,"arrested":1,"court":1,"trial":1,"judge":1,"prosecutor":2,"charged":1,"indicted":2,
+  "protest":1,"protesters":2,"demonstration":1,"riot":2,"strike":1,"ceasefire":3,"peace talks":3,"treaty":2,
+  "sanctions":2,"nuclear":1,"missile":2,"weapons":1,"israel":2,"israeli":3,"palestinian":3,"gaza":3,
+  "north korea":3,"iran":2,"syria":2,"russia":1,"putin":3,"china":1,"india":1,"pakistan":2,"japan":1,
+  "france":1,"germany":1,"britain":1,"london":1,"paris":1,"moscow":2,"beijing":2,"tokyo":2,"seoul":2,
+  "kyoto":2,"tsunami":3,"hurricane":2,"flood":1,"earthquake":3,"kashmir":3,"saddam":3,"hussein":2,
+  "arafat":3,"sharon":3,"blair":2,"chirac":3,"annan":3,"diplomat":1,"embassy":2,"summit":2,"talks":1,
+  "border":1,"refugees":2,"aid":1,"relief":1,"independence day":1,"parade":1,"separatist":3,"rebel":2,
+  "rebels":2,"opposition":1,"candidate":1,"rally":1,"abuse":1,"prison":1,"prisoners":1,"detainees":2,
+  "guantanamo":3,"abu ghraib":3,"allah":1,"islamic":2,"muslim":1,"cleric":2,"shiite":2,"sunni":2,
+ },
+}
+
+def classify(text):
+    t = " " + text.lower() + " "
+    scores = {}
+    for cat, kws in KW.items():
+        s = 0
+        for k, w in kws.items():
+            if k in t:
+                s += w
+        scores[cat] = s
+    best = max(scores, key=scores.get)
+    if scores[best] == 0:
+        return "Unknown", scores
+    return best, scores
+
+cat_count = Counter()
+world_by_region = Counter()
+all_by_region = defaultdict(Counter)
+conf = Counter()
+unknown_samples = []
+for a in arts:
+    text = (a.get("title") or "") + " . " + (a.get("description") or "")
+    cat, sc = classify(text)
+    cat_count[cat] += 1
+    r = region[a["article_id"]]
+    all_by_region[r][cat] += 1
+    if cat == "World":
+        world_by_region[r] += 1
+    if cat == "Unknown":
+        if len(unknown_samples) < 8:
+            unknown_samples.append(a.get("title"))
+
+print("Category distribution:", dict(cat_count))
+print()
+print("World articles by region (2015):")
+for r, c in world_by_region.most_common():
+    print(f"  {r}: {c}")
+print()
+print("Full matrix:")
+for r in all_by_region:
+    print(" ", r, dict(all_by_region[r]))
+print()
+print("Unknown samples:", unknown_samples)

@@ -1,0 +1,1 @@
+SELECT SUM(filing_date LIKE '%200%') AS y200x, SUM(filing_date LIKE '%2010%') AS y2010, SUM(filing_date LIKE '%2011%') AS y2011, SUM(filing_date LIKE '%2012%') AS y2012, SUM(filing_date LIKE '%2013%') AS y2013, SUM(filing_date LIKE '%2014%') AS y2014, SUM(filing_date LIKE '%2025%') AS y2025, SUM(filing_date NOT LIKE '%20%') AS no20 FROM publicationinfo

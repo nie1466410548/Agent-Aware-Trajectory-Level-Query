@@ -1,0 +1,958 @@
+{
+  "summary": {
+    "task_id": "bookreview/query2",
+    "run_id": "full-01",
+    "model": "kimi-code/k3",
+    "group": "fad",
+    "adapter_version": "fullbench-v1",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 207.39332628250122,
+    "answer_submitted": true,
+    "validator_passed": true,
+    "validator_reason": "All book titles found in LLM output.",
+    "tool_calls": 15,
+    "sql_calls": 7,
+    "mongo_calls": 0,
+    "failed_calls": 0,
+    "mongo_queries": 0,
+    "mongo_metadata_queries": 0,
+    "data_queries": 5,
+    "metadata_queries": 2,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 5,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 0,
+    "later_queries_sharing_tables": 3,
+    "later_queries_sharing_table_columns": 3,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 1,
+    "shared_join_consumers": 0,
+    "shared_aggregate_consumers": 0,
+    "data_query_adapter_ms": 190.4654991813004,
+    "fad_submissions": 5,
+    "python_calls": 2,
+    "assistant_turns": 16
+  },
+  "queries": [
+    {
+      "call_id": "b9cee0f6fdef442a9ac00e86c9edb9ee",
+      "tool": "list-db",
+      "database": "books_database",
+      "sql": "SELECT table_name FROM information_schema.tables WHERE table_schema='public'",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788787111.3528104,
+      "duration_ms": 43.74222923070192,
+      "dialect": "postgres",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "tables"
+      ],
+      "columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "table_schema = 'public'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'",
+      "simple_ranges": {
+        "table_schema": {
+          "type": "text",
+          "lo": [
+            "public",
+            true
+          ],
+          "hi": [
+            "public",
+            true
+          ]
+        }
+      },
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "table_schema = 'public'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "table_name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "3f61812338b64485881582cab0a279cd",
+      "tool": "list-db",
+      "database": "review_database",
+      "sql": "SELECT name FROM sqlite_master WHERE type='table'",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788787111.4845812,
+      "duration_ms": 15.887021087110043,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "sqlite_master"
+      ],
+      "columns": [
+        "name",
+        "type"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "type = 'table'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT name FROM sqlite_master WHERE type = 'table'",
+      "simple_ranges": {
+        "type": {
+          "type": "text",
+          "lo": [
+            "table",
+            true
+          ],
+          "hi": [
+            "table",
+            true
+          ]
+        }
+      },
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "type = 'table'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "4d84fc26606e4114805c94670d86a9a2",
+      "tool": "query-db",
+      "database": "books_database",
+      "sql": "SELECT book_id, title, categories, details FROM books_info LIMIT 5\n",
+      "success": true,
+      "row_count": 5,
+      "start_time": 1788787126.6109233,
+      "duration_ms": 41.27751290798187,
+      "dialect": "postgres",
+      "fad_id": "bb5c1dff859542a88f8f97d7642f129e",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "books_info"
+      ],
+      "columns": [
+        "book_id",
+        "categories",
+        "details",
+        "title"
+      ],
+      "operations": [
+        "limit",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT book_id, title, categories, details FROM books_info LIMIT 5",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "book_id",
+        "categories",
+        "details",
+        "title"
+      ],
+      "limit": "LIMIT 5"
+    },
+    {
+      "call_id": "081a7ca6b6084c78b026a5719530f397",
+      "tool": "query-db",
+      "database": "books_database",
+      "sql": "SELECT\n  count(*) AS total_lit_fiction,\n  count(*) FILTER (WHERE details ILIKE '%english%') AS with_english,\n  count(*) FILTER (WHERE details NOT ILIKE '%english%') AS without_english\nFROM books_info\nWHERE categories LIKE '%Literature & Fiction%'\n",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788787166.3264942,
+      "duration_ms": 42.96009708195925,
+      "dialect": "postgres",
+      "fad_id": "1cca99ee23e740ac943c5f600db240d8",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "books_info"
+      ],
+      "columns": [
+        "categories",
+        "details"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "categories LIKE '%Literature & Fiction%'",
+        "details ILIKE '%english%'",
+        "details NOT ILIKE '%english%'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT COUNT(*) AS total_lit_fiction, COUNT(*) FILTER(WHERE details ILIKE '%english%') AS with_english, COUNT(*) FILTER(WHERE details NOT ILIKE '%english%') AS without_english FROM books_info WHERE categories LIKE '%Literature & Fiction%'",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "categories LIKE '%Literature & Fiction%'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "38e30bb3230740d381cf2de5dea8b7dc",
+      "tool": "query-db",
+      "database": "books_database",
+      "sql": "SELECT book_id, title, author, details\nFROM books_info\nWHERE categories LIKE '%Literature & Fiction%'\n",
+      "success": true,
+      "row_count": 40,
+      "start_time": 1788787183.2467608,
+      "duration_ms": 45.19268684089184,
+      "dialect": "postgres",
+      "fad_id": "2aeaf170684b4e94bca0e45da1a8095b",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "books_info"
+      ],
+      "columns": [
+        "author",
+        "book_id",
+        "categories",
+        "details",
+        "title"
+      ],
+      "operations": [
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "categories LIKE '%Literature & Fiction%'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT book_id, title, author, details FROM books_info WHERE categories LIKE '%Literature & Fiction%'",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "categories LIKE '%Literature & Fiction%'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "author",
+        "book_id",
+        "details",
+        "title"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "e417efefc15645cba444b7de1e46d7a1",
+      "tool": "query-db",
+      "database": "review_database",
+      "sql": "SELECT purchase_id, COUNT(*) AS num_reviews, AVG(rating) AS avg_rating\nFROM review\nGROUP BY purchase_id\nHAVING AVG(rating) = 5.0\n",
+      "success": true,
+      "row_count": 83,
+      "start_time": 1788787202.2513387,
+      "duration_ms": 18.946961034089327,
+      "dialect": "sqlite",
+      "fad_id": "dbff7c026f9440378275701c62f7a0db",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "review"
+      ],
+      "columns": [
+        "purchase_id",
+        "rating"
+      ],
+      "operations": [
+        "aggregate",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "AVG(rating)",
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT purchase_id, COUNT(*) AS num_reviews, AVG(rating) AS avg_rating FROM review GROUP BY purchase_id HAVING AVG(rating) = 5.0",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "purchase_id"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "a6e7a80bbcdd4eb0a8c4042a39345ce2",
+      "tool": "query-db",
+      "database": "books_database",
+      "sql": "SELECT book_id, title, rating_number\nFROM books_info\nWHERE book_id IN ('bookid_9','bookid_38','bookid_39','bookid_74','bookid_82','bookid_84','bookid_98','bookid_101','bookid_122','bookid_144','bookid_171','bookid_177','bookid_180','bookid_182','bookid_195')\nORDER BY book_id\n",
+      "success": true,
+      "row_count": 15,
+      "start_time": 1788787265.4370394,
+      "duration_ms": 42.08824131637812,
+      "dialect": "postgres",
+      "fad_id": "a22b8823b1c44de9bef06cd832747c06",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "books_info"
+      ],
+      "columns": [
+        "book_id",
+        "rating_number",
+        "title"
+      ],
+      "operations": [
+        "filter",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "book_id IN ('bookid_9', 'bookid_38', 'bookid_39', 'bookid_74', 'bookid_82', 'bookid_84', 'bookid_98', 'bookid_101', 'bookid_122', 'bookid_144', 'bookid_171', 'bookid_177', 'bookid_180', 'bookid_182', 'bookid_195')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT book_id, title, rating_number FROM books_info WHERE book_id IN ('bookid_9', 'bookid_38', 'bookid_39', 'bookid_74', 'bookid_82', 'bookid_84', 'bookid_98', 'bookid_101', 'bookid_122', 'bookid_144', 'bookid_171', 'bookid_177', 'bookid_180', 'bookid_182', 'bookid_195') ORDER BY book_id NULLS LAST",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "book_id IN ('bookid_9', 'bookid_38', 'bookid_39', 'bookid_74', 'bookid_82', 'bookid_84', 'bookid_98', 'bookid_101', 'bookid_122', 'bookid_144', 'bookid_171', 'bookid_177', 'bookid_180', 'bookid_182', 'bookid_195')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "book_id",
+        "rating_number",
+        "title"
+      ],
+      "limit": null
+    }
+  ],
+  "mongo_queries": [],
+  "pairs": [
+    {
+      "producer": "4d84fc26606e4114805c94670d86a9a2",
+      "consumer": "081a7ca6b6084c78b026a5719530f397",
+      "producer_index": 1,
+      "consumer_index": 2,
+      "shared_tables": [
+        "books_info"
+      ],
+      "shared_columns": [
+        "categories",
+        "details"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT book_id, title, categories, details FROM books_info LIMIT 5\n",
+      "consumer_sql": "SELECT\n  count(*) AS total_lit_fiction,\n  count(*) FILTER (WHERE details ILIKE '%english%') AS with_english,\n  count(*) FILTER (WHERE details NOT ILIKE '%english%') AS without_english\nFROM books_info\nWHERE categories LIKE '%Literature & Fiction%'\n"
+    },
+    {
+      "producer": "4d84fc26606e4114805c94670d86a9a2",
+      "consumer": "38e30bb3230740d381cf2de5dea8b7dc",
+      "producer_index": 1,
+      "consumer_index": 3,
+      "shared_tables": [
+        "books_info"
+      ],
+      "shared_columns": [
+        "book_id",
+        "categories",
+        "details",
+        "title"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 40,
+      "producer_sql": "SELECT book_id, title, categories, details FROM books_info LIMIT 5\n",
+      "consumer_sql": "SELECT book_id, title, author, details\nFROM books_info\nWHERE categories LIKE '%Literature & Fiction%'\n"
+    },
+    {
+      "producer": "081a7ca6b6084c78b026a5719530f397",
+      "consumer": "38e30bb3230740d381cf2de5dea8b7dc",
+      "producer_index": 2,
+      "consumer_index": 3,
+      "shared_tables": [
+        "books_info"
+      ],
+      "shared_columns": [
+        "categories",
+        "details"
+      ],
+      "same_filters": [
+        "categories LIKE '%Literature & Fiction%'"
+      ],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 40,
+      "producer_sql": "SELECT\n  count(*) AS total_lit_fiction,\n  count(*) FILTER (WHERE details ILIKE '%english%') AS with_english,\n  count(*) FILTER (WHERE details NOT ILIKE '%english%') AS without_english\nFROM books_info\nWHERE categories LIKE '%Literature & Fiction%'\n",
+      "consumer_sql": "SELECT book_id, title, author, details\nFROM books_info\nWHERE categories LIKE '%Literature & Fiction%'\n"
+    },
+    {
+      "producer": "4d84fc26606e4114805c94670d86a9a2",
+      "consumer": "a6e7a80bbcdd4eb0a8c4042a39345ce2",
+      "producer_index": 1,
+      "consumer_index": 5,
+      "shared_tables": [
+        "books_info"
+      ],
+      "shared_columns": [
+        "book_id",
+        "title"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 15,
+      "producer_sql": "SELECT book_id, title, categories, details FROM books_info LIMIT 5\n",
+      "consumer_sql": "SELECT book_id, title, rating_number\nFROM books_info\nWHERE book_id IN ('bookid_9','bookid_38','bookid_39','bookid_74','bookid_82','bookid_84','bookid_98','bookid_101','bookid_122','bookid_144','bookid_171','bookid_177','bookid_180','bookid_182','bookid_195')\nORDER BY book_id\n"
+    },
+    {
+      "producer": "081a7ca6b6084c78b026a5719530f397",
+      "consumer": "a6e7a80bbcdd4eb0a8c4042a39345ce2",
+      "producer_index": 2,
+      "consumer_index": 5,
+      "shared_tables": [
+        "books_info"
+      ],
+      "shared_columns": [],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 15,
+      "producer_sql": "SELECT\n  count(*) AS total_lit_fiction,\n  count(*) FILTER (WHERE details ILIKE '%english%') AS with_english,\n  count(*) FILTER (WHERE details NOT ILIKE '%english%') AS without_english\nFROM books_info\nWHERE categories LIKE '%Literature & Fiction%'\n",
+      "consumer_sql": "SELECT book_id, title, rating_number\nFROM books_info\nWHERE book_id IN ('bookid_9','bookid_38','bookid_39','bookid_74','bookid_82','bookid_84','bookid_98','bookid_101','bookid_122','bookid_144','bookid_171','bookid_177','bookid_180','bookid_182','bookid_195')\nORDER BY book_id\n"
+    },
+    {
+      "producer": "38e30bb3230740d381cf2de5dea8b7dc",
+      "consumer": "a6e7a80bbcdd4eb0a8c4042a39345ce2",
+      "producer_index": 3,
+      "consumer_index": 5,
+      "shared_tables": [
+        "books_info"
+      ],
+      "shared_columns": [
+        "book_id",
+        "title"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 40,
+      "consumer_rows": 15,
+      "producer_sql": "SELECT book_id, title, author, details\nFROM books_info\nWHERE categories LIKE '%Literature & Fiction%'\n",
+      "consumer_sql": "SELECT book_id, title, rating_number\nFROM books_info\nWHERE book_id IN ('bookid_9','bookid_38','bookid_39','bookid_74','bookid_82','bookid_84','bookid_98','bookid_101','bookid_122','bookid_144','bookid_171','bookid_177','bookid_180','bookid_182','bookid_195')\nORDER BY book_id\n"
+    }
+  ],
+  "fads": [
+    {
+      "call_id": "bb5c1dff859542a88f8f97d7642f129e",
+      "accesses": [
+        {
+          "database": "books_database",
+          "tables": [
+            "books_info"
+          ],
+          "columns": [
+            "title",
+            "categories",
+            "details",
+            "book_id"
+          ],
+          "filters": [],
+          "operations": [
+            "scan",
+            "limit"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "books_database",
+          "books_info"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "4d84fc26606e4114805c94670d86a9a2",
+        "081a7ca6b6084c78b026a5719530f397",
+        "38e30bb3230740d381cf2de5dea8b7dc"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 7.671564817428589,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": null
+    },
+    {
+      "call_id": "1cca99ee23e740ac943c5f600db240d8",
+      "accesses": [
+        {
+          "database": "books_database",
+          "tables": [
+            "books_info"
+          ],
+          "columns": [
+            "categories",
+            "details"
+          ],
+          "filters": [
+            "categories LIKE '%Literature & Fiction%'"
+          ],
+          "operations": [
+            "filter",
+            "aggregate"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "books_database",
+          "tables": [
+            "books_info"
+          ],
+          "columns": [
+            "book_id",
+            "title",
+            "author",
+            "details"
+          ],
+          "filters": [
+            "categories LIKE '%Literature & Fiction%'",
+            "details LIKE '%English%'"
+          ],
+          "operations": [
+            "filter",
+            "scan"
+          ],
+          "horizon": 2
+        },
+        {
+          "database": "review_database",
+          "tables": [
+            "review"
+          ],
+          "columns": [
+            "purchase_id",
+            "rating"
+          ],
+          "filters": [],
+          "operations": [
+            "aggregate",
+            "filter"
+          ],
+          "horizon": 3
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "books_database",
+          "books_info"
+        ],
+        [
+          "review_database",
+          "review"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "081a7ca6b6084c78b026a5719530f397",
+        "38e30bb3230740d381cf2de5dea8b7dc",
+        "e417efefc15645cba444b7de1e46d7a1"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "books_database",
+          "books_info"
+        ],
+        [
+          "review_database",
+          "review"
+        ]
+      ],
+      "later_table_precision": 1.0,
+      "later_table_recall": 1.0,
+      "later_has_consumer": true,
+      "table_precision_1": 0.5,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "review_database",
+          "review"
+        ]
+      ],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 0.6666666666666666,
+      "filter_exact_precision_1": 1.0,
+      "filter_exact_recall_1": 0.3333333333333333,
+      "predicted_filter_atoms": [
+        "categories LIKE '%Literature & Fiction%'"
+      ],
+      "actual_filter_atoms": [
+        "categories LIKE '%Literature & Fiction%'",
+        "details ILIKE '%english%'",
+        "details NOT ILIKE '%english%'"
+      ],
+      "lead_s": 7.462125301361084,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 1.0
+    },
+    {
+      "call_id": "2aeaf170684b4e94bca0e45da1a8095b",
+      "accesses": [
+        {
+          "database": "books_database",
+          "tables": [
+            "books_info"
+          ],
+          "columns": [
+            "book_id",
+            "title",
+            "author",
+            "details"
+          ],
+          "filters": [
+            "categories LIKE '%Literature & Fiction%'"
+          ],
+          "operations": [
+            "filter",
+            "scan"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "review_database",
+          "tables": [
+            "review"
+          ],
+          "columns": [
+            "purchase_id",
+            "rating"
+          ],
+          "filters": [],
+          "operations": [
+            "aggregate",
+            "filter"
+          ],
+          "horizon": 2
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "books_database",
+          "books_info"
+        ],
+        [
+          "review_database",
+          "review"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "38e30bb3230740d381cf2de5dea8b7dc",
+        "e417efefc15645cba444b7de1e46d7a1",
+        "a6e7a80bbcdd4eb0a8c4042a39345ce2"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "review_database",
+          "review"
+        ]
+      ],
+      "later_table_precision": 1.0,
+      "later_table_recall": 0.5,
+      "later_has_consumer": true,
+      "table_precision_1": 0.5,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "review_database",
+          "review"
+        ]
+      ],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.8,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": 1.0,
+      "filter_exact_recall_1": 1.0,
+      "predicted_filter_atoms": [
+        "categories LIKE '%Literature & Fiction%'"
+      ],
+      "actual_filter_atoms": [
+        "categories LIKE '%Literature & Fiction%'"
+      ],
+      "lead_s": 5.046175479888916,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 1.0
+    },
+    {
+      "call_id": "dbff7c026f9440378275701c62f7a0db",
+      "accesses": [
+        {
+          "database": "review_database",
+          "tables": [
+            "review"
+          ],
+          "columns": [
+            "purchase_id",
+            "rating"
+          ],
+          "filters": [
+            "avg(rating) = 5.0 per purchase_id"
+          ],
+          "operations": [
+            "aggregate",
+            "filter"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "review_database",
+          "review"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "e417efefc15645cba444b7de1e46d7a1",
+        "a6e7a80bbcdd4eb0a8c4042a39345ce2"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 0.5,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 0.5,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 0.5,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [
+        "UNPARSED:avg(rating) = 5.0 per purchase_id"
+      ],
+      "actual_filter_atoms": [],
+      "lead_s": 7.396450519561768,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    },
+    {
+      "call_id": "a22b8823b1c44de9bef06cd832747c06",
+      "accesses": [
+        {
+          "database": "books_database",
+          "tables": [
+            "books_info"
+          ],
+          "columns": [
+            "book_id",
+            "title",
+            "rating_number"
+          ],
+          "filters": [
+            "book_id IN (15 matched ids)"
+          ],
+          "operations": [
+            "filter",
+            "scan"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "books_database",
+          "books_info"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "a6e7a80bbcdd4eb0a8c4042a39345ce2"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": false,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 0.6666666666666666,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "UNPARSED:book_id IN (15 matched ids)"
+      ],
+      "actual_filter_atoms": [
+        "book_id IN ('bookid_9', 'bookid_38', 'bookid_39', 'bookid_74', 'bookid_82', 'bookid_84', 'bookid_98', 'bookid_101', 'bookid_122', 'bookid_144', 'bookid_171', 'bookid_177', 'bookid_180', 'bookid_182', 'bookid_195')"
+      ],
+      "lead_s": 7.803080797195435,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    }
+  ],
+  "audit": {
+    "assistant_turns": 16,
+    "sql_order_checks": {
+      "4d84fc26606e4114805c94670d86a9a2": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "081a7ca6b6084c78b026a5719530f397": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "38e30bb3230740d381cf2de5dea8b7dc": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "e417efefc15645cba444b7de1e46d7a1": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "a6e7a80bbcdd4eb0a8c4042a39345ce2": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      }
+    },
+    "review_flags": []
+  }
+}

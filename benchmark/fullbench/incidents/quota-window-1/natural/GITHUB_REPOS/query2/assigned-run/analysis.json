@@ -1,0 +1,1025 @@
+{
+  "summary": {
+    "task_id": "GITHUB_REPOS/query2",
+    "run_id": "full-01",
+    "model": "kimi-code/k3",
+    "group": "natural",
+    "adapter_version": "fullbench-v2-bound-run",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 1,
+    "timed_out": false,
+    "duration_s": 179.25649237632751,
+    "answer_submitted": false,
+    "validator_passed": false,
+    "validator_reason": "No answer submitted",
+    "tool_calls": 12,
+    "sql_calls": 12,
+    "mongo_calls": 0,
+    "failed_calls": 0,
+    "mongo_queries": 0,
+    "mongo_metadata_queries": 0,
+    "data_queries": 10,
+    "metadata_queries": 2,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 10,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 1,
+    "later_queries_sharing_tables": 7,
+    "later_queries_sharing_table_columns": 7,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 2,
+    "shared_join_consumers": 0,
+    "shared_aggregate_consumers": 3,
+    "data_query_adapter_ms": 3093.4274685569108,
+    "fad_submissions": 0,
+    "python_calls": 0,
+    "assistant_turns": 8
+  },
+  "queries": [
+    {
+      "call_id": "22f3e0d2fb14455e8b6126b673d98947",
+      "tool": "list-db",
+      "database": "metadata_database",
+      "sql": "SELECT name FROM sqlite_master WHERE type='table'",
+      "success": true,
+      "row_count": 3,
+      "start_time": 1788790845.6925313,
+      "duration_ms": 16.015997622162104,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "sqlite_master"
+      ],
+      "columns": [
+        "name",
+        "type"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "type = 'table'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT name FROM sqlite_master WHERE type = 'table'",
+      "simple_ranges": {
+        "type": {
+          "type": "text",
+          "lo": [
+            "table",
+            true
+          ],
+          "hi": [
+            "table",
+            true
+          ]
+        }
+      },
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "type = 'table'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "1c25a1513a9c44ecac6781348e10f79a",
+      "tool": "list-db",
+      "database": "artifacts_database",
+      "sql": "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog')",
+      "success": true,
+      "row_count": 3,
+      "start_time": 1788790845.7959452,
+      "duration_ms": 65.98363118246198,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "tables"
+      ],
+      "columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT table_schema, table_name FROM information_schema.tables WHERE NOT table_schema IN ('information_schema', 'pg_catalog')",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "c49dce0bdab04e64bf6d0a67b297e9d3",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT language_description, COUNT(*) AS n FROM languages WHERE lower(language_description) LIKE '%swift%' GROUP BY language_description ORDER BY n DESC LIMIT 20;\n",
+      "success": true,
+      "row_count": 20,
+      "start_time": 1788790854.5928915,
+      "duration_ms": 1318.3245458640158,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages"
+      ],
+      "columns": [
+        "language_description",
+        "n"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "limit",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "LOWER(language_description) LIKE '%swift%'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT language_description, COUNT(*) AS n FROM languages WHERE LOWER(language_description) LIKE '%swift%' GROUP BY language_description ORDER BY n DESC LIMIT 20",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "LOWER(language_description) LIKE '%swift%'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "language_description"
+      ],
+      "limit": "LIMIT 20"
+    },
+    {
+      "call_id": "c50dea52c78b489db8066019072a5f67",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT repo_data_description FROM contents WHERE sample_path LIKE '%.swift' LIMIT 5;\n",
+      "success": true,
+      "row_count": 5,
+      "start_time": 1788790855.9986389,
+      "duration_ms": 55.8974901214242,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contents"
+      ],
+      "columns": [
+        "repo_data_description",
+        "sample_path"
+      ],
+      "operations": [
+        "filter",
+        "limit",
+        "scan"
+      ],
+      "filters": [
+        "sample_path LIKE '%.swift'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT repo_data_description FROM contents WHERE sample_path LIKE '%.swift' LIMIT 5",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "sample_path LIKE '%.swift'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "repo_data_description"
+      ],
+      "limit": "LIMIT 5"
+    },
+    {
+      "call_id": "85394c755954467d99df8653b7b1dd34",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT COUNT(*) AS total_files, COUNT(*) FILTER (WHERE path LIKE '%.swift') AS swift_files FROM files;\n",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788790880.2602878,
+      "duration_ms": 79.49277991428971,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "files"
+      ],
+      "columns": [
+        "path"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "path LIKE '%.swift'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT COUNT(*) AS total_files, COUNT(*) FILTER(WHERE path LIKE '%.swift') AS swift_files FROM files",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "1bec35d998af48b3a96c743b0ce0dc85",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT id, COUNT(*) AS copies, COUNT(DISTINCT repo_name) AS repos, MIN(path) AS sample_path, MIN(repo_name) AS sample_repo\nFROM files\nWHERE path LIKE '%.swift'\nGROUP BY id\nORDER BY copies DESC\nLIMIT 20;\n",
+      "success": true,
+      "row_count": 20,
+      "start_time": 1788790887.1254427,
+      "duration_ms": 91.05601301416755,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "files"
+      ],
+      "columns": [
+        "copies",
+        "id",
+        "path",
+        "repo_name"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "limit",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "path LIKE '%.swift'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)",
+        "COUNT(DISTINCT repo_name)",
+        "MIN(path)",
+        "MIN(repo_name)"
+      ],
+      "canonical": "SELECT id, COUNT(*) AS copies, COUNT(DISTINCT repo_name) AS repos, MIN(path) AS sample_path, MIN(repo_name) AS sample_repo FROM files WHERE path LIKE '%.swift' GROUP BY id ORDER BY copies DESC LIMIT 20",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "path LIKE '%.swift'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "id"
+      ],
+      "limit": "LIMIT 20"
+    },
+    {
+      "call_id": "2627bc82536a4b758a86dd6de469aab7",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT f.id, f.repo_name, f.path, f.mode, c.repo_data_description, c.sample_repo_name, c.sample_path\nFROM files f LEFT JOIN contents c ON c.id = f.id\nWHERE f.id = 'a6fb31fa1e4b1647e8862580703add8c6205c6d1';\n",
+      "success": true,
+      "row_count": 4,
+      "start_time": 1788790910.709692,
+      "duration_ms": 76.38488197699189,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contents",
+        "files"
+      ],
+      "columns": [
+        "id",
+        "mode",
+        "path",
+        "repo_data_description",
+        "repo_name",
+        "sample_path",
+        "sample_repo_name"
+      ],
+      "operations": [
+        "filter",
+        "join",
+        "scan"
+      ],
+      "filters": [
+        "f.id = 'a6fb31fa1e4b1647e8862580703add8c6205c6d1'"
+      ],
+      "joins": [
+        "LEFT JOIN contents AS c ON c.id = f.id"
+      ],
+      "aggregates": [],
+      "canonical": "SELECT f.id, f.repo_name, f.path, f.mode, c.repo_data_description, c.sample_repo_name, c.sample_path FROM files AS f LEFT JOIN contents AS c ON c.id = f.id WHERE f.id = 'a6fb31fa1e4b1647e8862580703add8c6205c6d1'",
+      "simple_ranges": {
+        "id": {
+          "type": "text",
+          "lo": [
+            "a6fb31fa1e4b1647e8862580703add8c6205c6d1",
+            true
+          ],
+          "hi": [
+            "a6fb31fa1e4b1647e8862580703add8c6205c6d1",
+            true
+          ]
+        }
+      },
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "id = 'a6fb31fa1e4b1647e8862580703add8c6205c6d1'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "id",
+        "mode",
+        "path",
+        "repo_data_description",
+        "repo_name",
+        "sample_path",
+        "sample_repo_name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "0e2bd0a43e1f462e9b9f7223661cdd60",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('othierry/future','bartekchlebek/SwiftHelpers','MoralAlberto/ExpandableTextView','gregttn/CheckmarkSegmentedControl');\n",
+      "success": true,
+      "row_count": 4,
+      "start_time": 1788790940.4673083,
+      "duration_ms": 619.2663591355085,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages"
+      ],
+      "columns": [
+        "language_description",
+        "repo_name"
+      ],
+      "operations": [
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "repo_name IN ('othierry/future', 'bartekchlebek/SwiftHelpers', 'MoralAlberto/ExpandableTextView', 'gregttn/CheckmarkSegmentedControl')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('othierry/future', 'bartekchlebek/SwiftHelpers', 'MoralAlberto/ExpandableTextView', 'gregttn/CheckmarkSegmentedControl')",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "repo_name IN ('othierry/future', 'bartekchlebek/SwiftHelpers', 'MoralAlberto/ExpandableTextView', 'gregttn/CheckmarkSegmentedControl')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "language_description",
+        "repo_name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "411c5f3d37604c6ba560b273f98befd7",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT id, sample_repo_name, sample_path, repo_data_description\nFROM contents\nWHERE sample_path LIKE '%.swift' AND lower(repo_data_description) LIKE '%non-binary%'\nORDER BY CAST(regexp_extract(repo_data_description, '(\\d+) times', 1) AS INTEGER) DESC\nLIMIT 10;\n",
+      "success": true,
+      "row_count": 10,
+      "start_time": 1788790941.1743631,
+      "duration_ms": 63.10320273041725,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contents"
+      ],
+      "columns": [
+        "id",
+        "repo_data_description",
+        "sample_path",
+        "sample_repo_name"
+      ],
+      "operations": [
+        "filter",
+        "limit",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "sample_path LIKE '%.swift' AND LOWER(repo_data_description) LIKE '%non-binary%'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT id, sample_repo_name, sample_path, repo_data_description FROM contents WHERE sample_path LIKE '%.swift' AND LOWER(repo_data_description) LIKE '%non-binary%' ORDER BY CAST(REGEXP_EXTRACT(repo_data_description, '(\\d+) times', 1) AS INT) DESC LIMIT 10",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "LOWER(repo_data_description) LIKE '%non-binary%'",
+        "sample_path LIKE '%.swift'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "id",
+        "repo_data_description",
+        "sample_path",
+        "sample_repo_name"
+      ],
+      "limit": "LIMIT 10"
+    },
+    {
+      "call_id": "2db996a864a44f9b8834523bc768c8b2",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT id, COUNT(*) AS copies_in_files, COUNT(DISTINCT repo_name) AS repos, MIN(repo_name) AS r, MIN(path) AS p\nFROM files\nWHERE id IN ('6f4cdb70f044b0486a24a07403600cb964a02672','a34c3d906831a12ffffa1b5d0fc30505126e9b69','c4d6ced29fbff41f82c1e9ebd9d4e5fe0c4fd795')\nGROUP BY id;\n",
+      "success": true,
+      "row_count": 0,
+      "start_time": 1788790968.752742,
+      "duration_ms": 95.8558339625597,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "files"
+      ],
+      "columns": [
+        "id",
+        "path",
+        "repo_name"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "id IN ('6f4cdb70f044b0486a24a07403600cb964a02672', 'a34c3d906831a12ffffa1b5d0fc30505126e9b69', 'c4d6ced29fbff41f82c1e9ebd9d4e5fe0c4fd795')"
+      ],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)",
+        "COUNT(DISTINCT repo_name)",
+        "MIN(path)",
+        "MIN(repo_name)"
+      ],
+      "canonical": "SELECT id, COUNT(*) AS copies_in_files, COUNT(DISTINCT repo_name) AS repos, MIN(repo_name) AS r, MIN(path) AS p FROM files WHERE id IN ('6f4cdb70f044b0486a24a07403600cb964a02672', 'a34c3d906831a12ffffa1b5d0fc30505126e9b69', 'c4d6ced29fbff41f82c1e9ebd9d4e5fe0c4fd795') GROUP BY id",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "id IN ('6f4cdb70f044b0486a24a07403600cb964a02672', 'a34c3d906831a12ffffa1b5d0fc30505126e9b69', 'c4d6ced29fbff41f82c1e9ebd9d4e5fe0c4fd795')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "id"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "13526bc476814886b81a0e658971e1c9",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('uacaps/PageMenu','kostiakoval/Mirror','apple/swift');\n",
+      "success": true,
+      "row_count": 3,
+      "start_time": 1788790968.938141,
+      "duration_ms": 569.3077798932791,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages"
+      ],
+      "columns": [
+        "language_description",
+        "repo_name"
+      ],
+      "operations": [
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "repo_name IN ('uacaps/PageMenu', 'kostiakoval/Mirror', 'apple/swift')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('uacaps/PageMenu', 'kostiakoval/Mirror', 'apple/swift')",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "repo_name IN ('uacaps/PageMenu', 'kostiakoval/Mirror', 'apple/swift')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "language_description",
+        "repo_name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "3a8d274d897a41d9a4b8ebd682cb020a",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT id, COUNT(*) AS total_copies,\n       COUNT(*) FILTER (WHERE path LIKE '%.swift') AS swift_copies,\n       COUNT(DISTINCT repo_name) AS n_repos,\n       MIN(path) AS sample_path\nFROM files\nWHERE id IN (SELECT DISTINCT id FROM files WHERE path LIKE '%.swift')\nGROUP BY id\nORDER BY total_copies DESC, id\nLIMIT 10;\n",
+      "success": true,
+      "row_count": 10,
+      "start_time": 1788791003.0117586,
+      "duration_ms": 124.73858194425702,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "files"
+      ],
+      "columns": [
+        "id",
+        "path",
+        "repo_name",
+        "total_copies"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "limit",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "id IN (SELECT DISTINCT id FROM files WHERE path LIKE '%.swift')",
+        "path LIKE '%.swift'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)",
+        "COUNT(DISTINCT repo_name)",
+        "MIN(path)"
+      ],
+      "canonical": "SELECT id, COUNT(*) AS total_copies, COUNT(*) FILTER(WHERE path LIKE '%.swift') AS swift_copies, COUNT(DISTINCT repo_name) AS n_repos, MIN(path) AS sample_path FROM files WHERE id IN (SELECT DISTINCT id FROM files WHERE path LIKE '%.swift') GROUP BY id ORDER BY total_copies DESC, id NULLS LAST LIMIT 10",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "id IN (SELECT DISTINCT id FROM files WHERE path LIKE '%.swift')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "id"
+      ],
+      "limit": "LIMIT 10"
+    }
+  ],
+  "mongo_queries": [],
+  "pairs": [
+    {
+      "producer": "85394c755954467d99df8653b7b1dd34",
+      "consumer": "1bec35d998af48b3a96c743b0ce0dc85",
+      "producer_index": 3,
+      "consumer_index": 4,
+      "shared_tables": [
+        "files"
+      ],
+      "shared_columns": [
+        "path"
+      ],
+      "same_filters": [
+        "path LIKE '%.swift'"
+      ],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 20,
+      "producer_sql": "SELECT COUNT(*) AS total_files, COUNT(*) FILTER (WHERE path LIKE '%.swift') AS swift_files FROM files;\n",
+      "consumer_sql": "SELECT id, COUNT(*) AS copies, COUNT(DISTINCT repo_name) AS repos, MIN(path) AS sample_path, MIN(repo_name) AS sample_repo\nFROM files\nWHERE path LIKE '%.swift'\nGROUP BY id\nORDER BY copies DESC\nLIMIT 20;\n"
+    },
+    {
+      "producer": "c50dea52c78b489db8066019072a5f67",
+      "consumer": "2627bc82536a4b758a86dd6de469aab7",
+      "producer_index": 2,
+      "consumer_index": 5,
+      "shared_tables": [
+        "contents"
+      ],
+      "shared_columns": [
+        "repo_data_description",
+        "sample_path"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 4,
+      "producer_sql": "SELECT repo_data_description FROM contents WHERE sample_path LIKE '%.swift' LIMIT 5;\n",
+      "consumer_sql": "SELECT f.id, f.repo_name, f.path, f.mode, c.repo_data_description, c.sample_repo_name, c.sample_path\nFROM files f LEFT JOIN contents c ON c.id = f.id\nWHERE f.id = 'a6fb31fa1e4b1647e8862580703add8c6205c6d1';\n"
+    },
+    {
+      "producer": "85394c755954467d99df8653b7b1dd34",
+      "consumer": "2627bc82536a4b758a86dd6de469aab7",
+      "producer_index": 3,
+      "consumer_index": 5,
+      "shared_tables": [
+        "files"
+      ],
+      "shared_columns": [
+        "path"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 4,
+      "producer_sql": "SELECT COUNT(*) AS total_files, COUNT(*) FILTER (WHERE path LIKE '%.swift') AS swift_files FROM files;\n",
+      "consumer_sql": "SELECT f.id, f.repo_name, f.path, f.mode, c.repo_data_description, c.sample_repo_name, c.sample_path\nFROM files f LEFT JOIN contents c ON c.id = f.id\nWHERE f.id = 'a6fb31fa1e4b1647e8862580703add8c6205c6d1';\n"
+    },
+    {
+      "producer": "1bec35d998af48b3a96c743b0ce0dc85",
+      "consumer": "2627bc82536a4b758a86dd6de469aab7",
+      "producer_index": 4,
+      "consumer_index": 5,
+      "shared_tables": [
+        "files"
+      ],
+      "shared_columns": [
+        "id",
+        "path",
+        "repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 20,
+      "consumer_rows": 4,
+      "producer_sql": "SELECT id, COUNT(*) AS copies, COUNT(DISTINCT repo_name) AS repos, MIN(path) AS sample_path, MIN(repo_name) AS sample_repo\nFROM files\nWHERE path LIKE '%.swift'\nGROUP BY id\nORDER BY copies DESC\nLIMIT 20;\n",
+      "consumer_sql": "SELECT f.id, f.repo_name, f.path, f.mode, c.repo_data_description, c.sample_repo_name, c.sample_path\nFROM files f LEFT JOIN contents c ON c.id = f.id\nWHERE f.id = 'a6fb31fa1e4b1647e8862580703add8c6205c6d1';\n"
+    },
+    {
+      "producer": "c49dce0bdab04e64bf6d0a67b297e9d3",
+      "consumer": "0e2bd0a43e1f462e9b9f7223661cdd60",
+      "producer_index": 1,
+      "consumer_index": 6,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 20,
+      "consumer_rows": 4,
+      "producer_sql": "SELECT language_description, COUNT(*) AS n FROM languages WHERE lower(language_description) LIKE '%swift%' GROUP BY language_description ORDER BY n DESC LIMIT 20;\n",
+      "consumer_sql": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('othierry/future','bartekchlebek/SwiftHelpers','MoralAlberto/ExpandableTextView','gregttn/CheckmarkSegmentedControl');\n"
+    },
+    {
+      "producer": "c50dea52c78b489db8066019072a5f67",
+      "consumer": "411c5f3d37604c6ba560b273f98befd7",
+      "producer_index": 2,
+      "consumer_index": 7,
+      "shared_tables": [
+        "contents"
+      ],
+      "shared_columns": [
+        "repo_data_description",
+        "sample_path"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 10,
+      "producer_sql": "SELECT repo_data_description FROM contents WHERE sample_path LIKE '%.swift' LIMIT 5;\n",
+      "consumer_sql": "SELECT id, sample_repo_name, sample_path, repo_data_description\nFROM contents\nWHERE sample_path LIKE '%.swift' AND lower(repo_data_description) LIKE '%non-binary%'\nORDER BY CAST(regexp_extract(repo_data_description, '(\\d+) times', 1) AS INTEGER) DESC\nLIMIT 10;\n"
+    },
+    {
+      "producer": "2627bc82536a4b758a86dd6de469aab7",
+      "consumer": "411c5f3d37604c6ba560b273f98befd7",
+      "producer_index": 5,
+      "consumer_index": 7,
+      "shared_tables": [
+        "contents"
+      ],
+      "shared_columns": [
+        "id",
+        "repo_data_description",
+        "sample_path",
+        "sample_repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 4,
+      "consumer_rows": 10,
+      "producer_sql": "SELECT f.id, f.repo_name, f.path, f.mode, c.repo_data_description, c.sample_repo_name, c.sample_path\nFROM files f LEFT JOIN contents c ON c.id = f.id\nWHERE f.id = 'a6fb31fa1e4b1647e8862580703add8c6205c6d1';\n",
+      "consumer_sql": "SELECT id, sample_repo_name, sample_path, repo_data_description\nFROM contents\nWHERE sample_path LIKE '%.swift' AND lower(repo_data_description) LIKE '%non-binary%'\nORDER BY CAST(regexp_extract(repo_data_description, '(\\d+) times', 1) AS INTEGER) DESC\nLIMIT 10;\n"
+    },
+    {
+      "producer": "85394c755954467d99df8653b7b1dd34",
+      "consumer": "2db996a864a44f9b8834523bc768c8b2",
+      "producer_index": 3,
+      "consumer_index": 8,
+      "shared_tables": [
+        "files"
+      ],
+      "shared_columns": [
+        "path"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 0,
+      "producer_sql": "SELECT COUNT(*) AS total_files, COUNT(*) FILTER (WHERE path LIKE '%.swift') AS swift_files FROM files;\n",
+      "consumer_sql": "SELECT id, COUNT(*) AS copies_in_files, COUNT(DISTINCT repo_name) AS repos, MIN(repo_name) AS r, MIN(path) AS p\nFROM files\nWHERE id IN ('6f4cdb70f044b0486a24a07403600cb964a02672','a34c3d906831a12ffffa1b5d0fc30505126e9b69','c4d6ced29fbff41f82c1e9ebd9d4e5fe0c4fd795')\nGROUP BY id;\n"
+    },
+    {
+      "producer": "1bec35d998af48b3a96c743b0ce0dc85",
+      "consumer": "2db996a864a44f9b8834523bc768c8b2",
+      "producer_index": 4,
+      "consumer_index": 8,
+      "shared_tables": [
+        "files"
+      ],
+      "shared_columns": [
+        "id",
+        "path",
+        "repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)",
+        "COUNT(DISTINCT repo_name)",
+        "MIN(path)",
+        "MIN(repo_name)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 20,
+      "consumer_rows": 0,
+      "producer_sql": "SELECT id, COUNT(*) AS copies, COUNT(DISTINCT repo_name) AS repos, MIN(path) AS sample_path, MIN(repo_name) AS sample_repo\nFROM files\nWHERE path LIKE '%.swift'\nGROUP BY id\nORDER BY copies DESC\nLIMIT 20;\n",
+      "consumer_sql": "SELECT id, COUNT(*) AS copies_in_files, COUNT(DISTINCT repo_name) AS repos, MIN(repo_name) AS r, MIN(path) AS p\nFROM files\nWHERE id IN ('6f4cdb70f044b0486a24a07403600cb964a02672','a34c3d906831a12ffffa1b5d0fc30505126e9b69','c4d6ced29fbff41f82c1e9ebd9d4e5fe0c4fd795')\nGROUP BY id;\n"
+    },
+    {
+      "producer": "2627bc82536a4b758a86dd6de469aab7",
+      "consumer": "2db996a864a44f9b8834523bc768c8b2",
+      "producer_index": 5,
+      "consumer_index": 8,
+      "shared_tables": [
+        "files"
+      ],
+      "shared_columns": [
+        "id",
+        "path",
+        "repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 4,
+      "consumer_rows": 0,
+      "producer_sql": "SELECT f.id, f.repo_name, f.path, f.mode, c.repo_data_description, c.sample_repo_name, c.sample_path\nFROM files f LEFT JOIN contents c ON c.id = f.id\nWHERE f.id = 'a6fb31fa1e4b1647e8862580703add8c6205c6d1';\n",
+      "consumer_sql": "SELECT id, COUNT(*) AS copies_in_files, COUNT(DISTINCT repo_name) AS repos, MIN(repo_name) AS r, MIN(path) AS p\nFROM files\nWHERE id IN ('6f4cdb70f044b0486a24a07403600cb964a02672','a34c3d906831a12ffffa1b5d0fc30505126e9b69','c4d6ced29fbff41f82c1e9ebd9d4e5fe0c4fd795')\nGROUP BY id;\n"
+    },
+    {
+      "producer": "c49dce0bdab04e64bf6d0a67b297e9d3",
+      "consumer": "13526bc476814886b81a0e658971e1c9",
+      "producer_index": 1,
+      "consumer_index": 9,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 20,
+      "consumer_rows": 3,
+      "producer_sql": "SELECT language_description, COUNT(*) AS n FROM languages WHERE lower(language_description) LIKE '%swift%' GROUP BY language_description ORDER BY n DESC LIMIT 20;\n",
+      "consumer_sql": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('uacaps/PageMenu','kostiakoval/Mirror','apple/swift');\n"
+    },
+    {
+      "producer": "0e2bd0a43e1f462e9b9f7223661cdd60",
+      "consumer": "13526bc476814886b81a0e658971e1c9",
+      "producer_index": 6,
+      "consumer_index": 9,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description",
+        "repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 4,
+      "consumer_rows": 3,
+      "producer_sql": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('othierry/future','bartekchlebek/SwiftHelpers','MoralAlberto/ExpandableTextView','gregttn/CheckmarkSegmentedControl');\n",
+      "consumer_sql": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('uacaps/PageMenu','kostiakoval/Mirror','apple/swift');\n"
+    },
+    {
+      "producer": "85394c755954467d99df8653b7b1dd34",
+      "consumer": "3a8d274d897a41d9a4b8ebd682cb020a",
+      "producer_index": 3,
+      "consumer_index": 10,
+      "shared_tables": [
+        "files"
+      ],
+      "shared_columns": [
+        "path"
+      ],
+      "same_filters": [
+        "path LIKE '%.swift'"
+      ],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 10,
+      "producer_sql": "SELECT COUNT(*) AS total_files, COUNT(*) FILTER (WHERE path LIKE '%.swift') AS swift_files FROM files;\n",
+      "consumer_sql": "SELECT id, COUNT(*) AS total_copies,\n       COUNT(*) FILTER (WHERE path LIKE '%.swift') AS swift_copies,\n       COUNT(DISTINCT repo_name) AS n_repos,\n       MIN(path) AS sample_path\nFROM files\nWHERE id IN (SELECT DISTINCT id FROM files WHERE path LIKE '%.swift')\nGROUP BY id\nORDER BY total_copies DESC, id\nLIMIT 10;\n"
+    },
+    {
+      "producer": "1bec35d998af48b3a96c743b0ce0dc85",
+      "consumer": "3a8d274d897a41d9a4b8ebd682cb020a",
+      "producer_index": 4,
+      "consumer_index": 10,
+      "shared_tables": [
+        "files"
+      ],
+      "shared_columns": [
+        "id",
+        "path",
+        "repo_name"
+      ],
+      "same_filters": [
+        "path LIKE '%.swift'"
+      ],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)",
+        "COUNT(DISTINCT repo_name)",
+        "MIN(path)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 20,
+      "consumer_rows": 10,
+      "producer_sql": "SELECT id, COUNT(*) AS copies, COUNT(DISTINCT repo_name) AS repos, MIN(path) AS sample_path, MIN(repo_name) AS sample_repo\nFROM files\nWHERE path LIKE '%.swift'\nGROUP BY id\nORDER BY copies DESC\nLIMIT 20;\n",
+      "consumer_sql": "SELECT id, COUNT(*) AS total_copies,\n       COUNT(*) FILTER (WHERE path LIKE '%.swift') AS swift_copies,\n       COUNT(DISTINCT repo_name) AS n_repos,\n       MIN(path) AS sample_path\nFROM files\nWHERE id IN (SELECT DISTINCT id FROM files WHERE path LIKE '%.swift')\nGROUP BY id\nORDER BY total_copies DESC, id\nLIMIT 10;\n"
+    },
+    {
+      "producer": "2627bc82536a4b758a86dd6de469aab7",
+      "consumer": "3a8d274d897a41d9a4b8ebd682cb020a",
+      "producer_index": 5,
+      "consumer_index": 10,
+      "shared_tables": [
+        "files"
+      ],
+      "shared_columns": [
+        "id",
+        "path",
+        "repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 4,
+      "consumer_rows": 10,
+      "producer_sql": "SELECT f.id, f.repo_name, f.path, f.mode, c.repo_data_description, c.sample_repo_name, c.sample_path\nFROM files f LEFT JOIN contents c ON c.id = f.id\nWHERE f.id = 'a6fb31fa1e4b1647e8862580703add8c6205c6d1';\n",
+      "consumer_sql": "SELECT id, COUNT(*) AS total_copies,\n       COUNT(*) FILTER (WHERE path LIKE '%.swift') AS swift_copies,\n       COUNT(DISTINCT repo_name) AS n_repos,\n       MIN(path) AS sample_path\nFROM files\nWHERE id IN (SELECT DISTINCT id FROM files WHERE path LIKE '%.swift')\nGROUP BY id\nORDER BY total_copies DESC, id\nLIMIT 10;\n"
+    },
+    {
+      "producer": "2db996a864a44f9b8834523bc768c8b2",
+      "consumer": "3a8d274d897a41d9a4b8ebd682cb020a",
+      "producer_index": 8,
+      "consumer_index": 10,
+      "shared_tables": [
+        "files"
+      ],
+      "shared_columns": [
+        "id",
+        "path",
+        "repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)",
+        "COUNT(DISTINCT repo_name)",
+        "MIN(path)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 0,
+      "consumer_rows": 10,
+      "producer_sql": "SELECT id, COUNT(*) AS copies_in_files, COUNT(DISTINCT repo_name) AS repos, MIN(repo_name) AS r, MIN(path) AS p\nFROM files\nWHERE id IN ('6f4cdb70f044b0486a24a07403600cb964a02672','a34c3d906831a12ffffa1b5d0fc30505126e9b69','c4d6ced29fbff41f82c1e9ebd9d4e5fe0c4fd795')\nGROUP BY id;\n",
+      "consumer_sql": "SELECT id, COUNT(*) AS total_copies,\n       COUNT(*) FILTER (WHERE path LIKE '%.swift') AS swift_copies,\n       COUNT(DISTINCT repo_name) AS n_repos,\n       MIN(path) AS sample_path\nFROM files\nWHERE id IN (SELECT DISTINCT id FROM files WHERE path LIKE '%.swift')\nGROUP BY id\nORDER BY total_copies DESC, id\nLIMIT 10;\n"
+    }
+  ],
+  "fads": [],
+  "audit": {
+    "assistant_turns": 8,
+    "sql_order_checks": {},
+    "review_flags": []
+  }
+}

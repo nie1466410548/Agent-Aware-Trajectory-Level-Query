@@ -1,0 +1,1 @@
+SELECT * FROM authors LIMIT 20

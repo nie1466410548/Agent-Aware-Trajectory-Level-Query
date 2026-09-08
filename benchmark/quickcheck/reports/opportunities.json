@@ -1,0 +1,998 @@
+{
+  "method": "manual trajectory review + source/schema-reference checks; not exhaustive, not performance validation",
+  "summary": {
+    "natural": {
+      "A": {
+        "families": 5,
+        "tasks": 5,
+        "covered_calls": 20,
+        "covered_fraction": 0.3076923076923077,
+        "later_calls": 15,
+        "families_with_two_later": 4,
+        "successful_calls": 65
+      },
+      "B": {
+        "families": 3,
+        "tasks": 2,
+        "covered_calls": 7,
+        "covered_fraction": 0.1076923076923077,
+        "later_calls": 4,
+        "families_with_two_later": 1,
+        "successful_calls": 65
+      },
+      "all": {
+        "families": 8,
+        "tasks": 6,
+        "covered_calls": 27,
+        "covered_fraction": 0.4153846153846154,
+        "later_calls": 19,
+        "families_with_two_later": 5,
+        "successful_calls": 65
+      }
+    },
+    "fad": {
+      "A": {
+        "families": 6,
+        "tasks": 5,
+        "covered_calls": 15,
+        "covered_fraction": 0.35714285714285715,
+        "later_calls": 9,
+        "families_with_two_later": 3,
+        "successful_calls": 42
+      },
+      "B": {
+        "families": 1,
+        "tasks": 1,
+        "covered_calls": 3,
+        "covered_fraction": 0.07142857142857142,
+        "later_calls": 2,
+        "families_with_two_later": 1,
+        "successful_calls": 42
+      },
+      "all": {
+        "families": 7,
+        "tasks": 5,
+        "covered_calls": 18,
+        "covered_fraction": 0.42857142857142855,
+        "later_calls": 11,
+        "families_with_two_later": 4,
+        "successful_calls": 42
+      }
+    }
+  },
+  "candidates": [
+    {
+      "id": "N01",
+      "group": "natural",
+      "task": "bookreview/query1",
+      "tier": "A",
+      "kind": "derived",
+      "database": "books_database",
+      "members": [
+        4,
+        5
+      ],
+      "tables": [
+        "books_info"
+      ],
+      "title": "出版年份正则提取",
+      "prepare": "为 books_info 保留 book_id、details，并逐行计算 substring(details from 'on [A-Z][a-z]+ \\d{1,2}, (\\d{4})') 为 pub_year_text。",
+      "uses": "Q4 从派生列计算非空数量；Q5 用派生列 IS NULL 筛选原始记录。",
+      "constraints": "不是缓存 Q4 的计数结果来回答 Q5；需保存行级派生列，保留 NULL 和原始文本语义。只有两次使用。",
+      "evidence": "两条 SQL 对同一 details 列使用完全相同的正则提取；无 WHERE 限制输入。",
+      "partial": [],
+      "consumers": [
+        {
+          "number": 4,
+          "call_id": "52ed6163f9954d51aad68a2abd03c4f2",
+          "sql_file": "runs/natural/bookreview/query1/quick-01/sql/004-52ed6163f9954d51aad68a2abd03c4f2.sql",
+          "sql": "SELECT\n  COUNT(*) AS total,\n  COUNT(substring(details from 'on [A-Z][a-z]+ \\d{1,2}, (\\d{4})')) AS with_year\nFROM books_info;\n",
+          "tables": [
+            "books_info"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 5,
+          "call_id": "d57a24858a8b4dedbab82d80f8cce074",
+          "sql_file": "runs/natural/bookreview/query1/quick-01/sql/005-d57a24858a8b4dedbab82d80f8cce074.sql",
+          "sql": "SELECT book_id, details FROM books_info\nWHERE substring(details from 'on [A-Z][a-z]+ \\d{1,2}, (\\d{4})') IS NULL;\n",
+          "tables": [
+            "books_info"
+          ],
+          "statement_count": 1,
+          "partial": false
+        }
+      ],
+      "consumer_count": 2,
+      "later_count": 1,
+      "task_passed": true
+    },
+    {
+      "id": "N02",
+      "group": "natural",
+      "task": "bookreview/query2",
+      "tier": "A",
+      "kind": "filter",
+      "database": "books_database",
+      "members": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "tables": [
+        "books_info"
+      ],
+      "title": "文学类别筛选与布尔标记",
+      "prepare": "对 books_info 计算 categories LIKE '%Literature & Fiction%' 标记，准备满足条件的完整行子集，保留 book_id/title/author/rating_number/details/categories。",
+      "uses": "Q5/Q7/Q8 使用类别子集，保留各自 LIMIT、英语条件及投影；Q6 的 lit_fic 与 lit_fic_english 使用该子集，total 仍需全表总数。",
+      "constraints": "Q6 仅部分计算受益；Q5 样本结果本身不够；NOT ILIKE 的 NULL 语义必须保留。预备完整子集可能比首次 LIMIT 查询贵。",
+      "evidence": "四次调用都出现完全相同的类别 LIKE 条件，包括 Q6 的 FILTER 子表达式。",
+      "partial": [
+        6
+      ],
+      "consumers": [
+        {
+          "number": 5,
+          "call_id": "7e9526581d4c417eadfae0208f45163f",
+          "sql_file": "runs/natural/bookreview/query2/quick-01/sql/005-7e9526581d4c417eadfae0208f45163f.sql",
+          "sql": "SELECT book_id, title, categories, details FROM books_info WHERE categories LIKE '%Literature & Fiction%' LIMIT 5",
+          "tables": [
+            "books_info"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 6,
+          "call_id": "b06b68bba09d4a76bd6bba69e922dba7",
+          "sql_file": "runs/natural/bookreview/query2/quick-01/sql/006-b06b68bba09d4a76bd6bba69e922dba7.sql",
+          "sql": "SELECT count(*) AS total, count(*) FILTER (WHERE categories LIKE '%Literature & Fiction%') AS lit_fic, count(*) FILTER (WHERE categories LIKE '%Literature & Fiction%' AND details ILIKE '%english%') AS lit_fic_english FROM books_info",
+          "tables": [
+            "books_info"
+          ],
+          "statement_count": 1,
+          "partial": true
+        },
+        {
+          "number": 7,
+          "call_id": "2977eb4f431849288ac3dbc0621a2454",
+          "sql_file": "runs/natural/bookreview/query2/quick-01/sql/007-2977eb4f431849288ac3dbc0621a2454.sql",
+          "sql": "SELECT details FROM books_info WHERE categories LIKE '%Literature & Fiction%' AND details NOT ILIKE '%english%' LIMIT 10",
+          "tables": [
+            "books_info"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 8,
+          "call_id": "ef73e65452a14ec8867b4517ab36a87b",
+          "sql_file": "runs/natural/bookreview/query2/quick-01/sql/008-ef73e65452a14ec8867b4517ab36a87b.sql",
+          "sql": "SELECT book_id, title, author, rating_number, details FROM books_info WHERE categories LIKE '%Literature & Fiction%'",
+          "tables": [
+            "books_info"
+          ],
+          "statement_count": 1,
+          "partial": false
+        }
+      ],
+      "consumer_count": 4,
+      "later_count": 3,
+      "task_passed": true
+    },
+    {
+      "id": "N03",
+      "group": "natural",
+      "task": "bookreview/query3",
+      "tier": "B",
+      "kind": "profile",
+      "database": "review_database",
+      "members": [
+        5,
+        6,
+        8
+      ],
+      "tables": [
+        "review"
+      ],
+      "title": "评论表的一次扫描统计准备",
+      "prepare": "一次完整扫描 purchase_id/review_time，同时维护总数、ID 前缀计数、日期极值、ID 数字后缀极值和精确 distinct ID 集合/计数。",
+      "uses": "分别供应 Q5、Q6、Q8 的全表诊断统计；不把任何一个分组结果当成另一个结果。",
+      "constraints": "弱候选：主要共享扫描，不是已经识别的相同聚合状态；需要提前知道要准备哪些统计，distinct 有内存成本。",
+      "evidence": "三条都是 review 上无 WHERE 的完整输入统计，Q5/Q8 共同需要 purchase_id；Q5/Q6 重复全表 COUNT。",
+      "partial": [],
+      "consumers": [
+        {
+          "number": 5,
+          "call_id": "aa49c2a70ea74daca5268a1e881f9722",
+          "sql_file": "runs/natural/bookreview/query3/quick-01/sql/005-aa49c2a70ea74daca5268a1e881f9722.sql",
+          "sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN purchase_id LIKE 'bookid%' THEN 1 ELSE 0 END) AS bookid_style, SUM(CASE WHEN purchase_id LIKE 'purchaseid%' THEN 1 ELSE 0 END) AS purchaseid_style FROM review;\n",
+          "tables": [
+            "review"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 6,
+          "call_id": "a0811fb2b84c490e8e201bfa38ba17bc",
+          "sql_file": "runs/natural/bookreview/query3/quick-01/sql/006-a0811fb2b84c490e8e201bfa38ba17bc.sql",
+          "sql": "SELECT MIN(review_time), MAX(review_time), COUNT(*) FROM review;\n",
+          "tables": [
+            "review"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 8,
+          "call_id": "20fb955d245145ba8e72c96eb802fcb0",
+          "sql_file": "runs/natural/bookreview/query3/quick-01/sql/008-20fb955d245145ba8e72c96eb802fcb0.sql",
+          "sql": "SELECT MAX(CAST(SUBSTR(purchase_id, 12) AS INTEGER)) AS max_num, MIN(CAST(SUBSTR(purchase_id, 12) AS INTEGER)) AS min_num, COUNT(DISTINCT purchase_id) AS distinct_pid FROM review;\n",
+          "tables": [
+            "review"
+          ],
+          "statement_count": 1,
+          "partial": false
+        }
+      ],
+      "consumer_count": 3,
+      "later_count": 2,
+      "task_passed": true
+    },
+    {
+      "id": "N04",
+      "group": "natural",
+      "task": "bookreview/query3",
+      "tier": "B",
+      "kind": "profile",
+      "database": "books_database",
+      "members": [
+        7,
+        9
+      ],
+      "tables": [
+        "books_info"
+      ],
+      "title": "书籍 ID 的一次扫描统计准备",
+      "prepare": "一次扫描 book_id，维护总数、字符串 MIN/MAX、前缀计数与数字后缀 MAX。",
+      "uses": "供应 Q7 的 ID 诊断和 Q9 的数字后缀上界。",
+      "constraints": "弱候选：复用同列扫描而非相同聚合；不能把字符串 MAX 当成数字后缀 MAX；表仅 200 行。",
+      "evidence": "两条都完整扫描 books_info.book_id 且没有 WHERE。",
+      "partial": [],
+      "consumers": [
+        {
+          "number": 7,
+          "call_id": "26786887ff154a15bb8586d7a260b314",
+          "sql_file": "runs/natural/bookreview/query3/quick-01/sql/007-26786887ff154a15bb8586d7a260b314.sql",
+          "sql": "SELECT COUNT(*) AS total, MIN(book_id), MAX(book_id), SUM(CASE WHEN book_id LIKE 'purchaseid%' THEN 1 ELSE 0 END) AS pid_style FROM books_info;\n",
+          "tables": [
+            "books_info"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 9,
+          "call_id": "98af14d6a9524409b499548823b7fe57",
+          "sql_file": "runs/natural/bookreview/query3/quick-01/sql/009-98af14d6a9524409b499548823b7fe57.sql",
+          "sql": "SELECT MAX(CAST(SUBSTRING(book_id FROM 8) AS INTEGER)) AS max_num FROM books_info;\n",
+          "tables": [
+            "books_info"
+          ],
+          "statement_count": 1,
+          "partial": false
+        }
+      ],
+      "consumer_count": 2,
+      "later_count": 1,
+      "task_passed": true
+    },
+    {
+      "id": "N05",
+      "group": "natural",
+      "task": "crmarenapro/query8",
+      "tier": "A",
+      "kind": "filter",
+      "database": "support",
+      "members": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        10
+      ],
+      "tables": [
+        "casehistory__c"
+      ],
+      "title": "Owner Assignment 历史子集",
+      "prepare": "准备 casehistory__c WHERE field__c='Owner Assignment'，保留 id/caseid__c/createddate/oldvalue__c/newvalue__c 的完整重复行。",
+      "uses": "Q4/Q7 在此基础上继续连接 Case；Q5/Q6/Q10 的 CTE 从子集读取后保留各自窗口、分组与 Join；Q8 继续过滤 oldvalue。",
+      "constraints": "日期窗口不同，不能复用某一个窗口的聚合结果；这里共享不带日期约束的共同输入。保留 < 与 <= 差异和重复行。",
+      "evidence": "六次调用均显式包含同表同值的 field__c 等值筛选，包括 CTE 中的筛选。",
+      "partial": [],
+      "consumers": [
+        {
+          "number": 4,
+          "call_id": "8b3740b813a94f5f8bc06013e72bd7ae",
+          "sql_file": "runs/natural/crmarenapro/query8/quick-01/sql/004-8b3740b813a94f5f8bc06013e72bd7ae.sql",
+          "sql": "SELECT h.caseid__c, h.createddate, h.oldvalue__c, h.newvalue__c,\n       c.ownerid AS current_ownerid, c.createddate AS case_createddate\nFROM casehistory__c h\nJOIN \"Case\" c ON c.id = h.caseid__c\nWHERE h.field__c = 'Owner Assignment'\n  AND h.createddate >= '2022-04-10'\n  AND h.createddate <= '2023-04-10'\nORDER BY h.caseid__c, h.createddate, h.id;\n",
+          "tables": [
+            "case",
+            "casehistory__c"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 5,
+          "call_id": "24086fdaa6bd49cca3f142608ca584d7",
+          "sql_file": "runs/natural/crmarenapro/query8/quick-01/sql/005-24086fdaa6bd49cca3f142608ca584d7.sql",
+          "sql": "WITH owner_assignments AS (\n  SELECT caseid__c, createddate, oldvalue__c, newvalue__c\n  FROM casehistory__c\n  WHERE field__c = 'Owner Assignment'\n    AND createddate >= '2022-04-01'\n    AND createddate < '2023-04-01'\n), handled AS (\n  SELECT newvalue__c AS agent_id, COUNT(DISTINCT caseid__c) AS handled_cases\n  FROM owner_assignments\n  WHERE newvalue__c IS NOT NULL\n  GROUP BY newvalue__c\n), transfers AS (\n  SELECT oldvalue__c AS agent_id, COUNT(*) AS transfer_count\n  FROM owner_assignments\n  WHERE oldvalue__c IS NOT NULL\n  GROUP BY oldvalue__c\n)\nSELECT h.agent_id, h.handled_cases, COALESCE(t.transfer_count, 0) AS transfer_count\nFROM handled h\nLEFT JOIN transfers t ON t.agent_id = h.agent_id\nORDER BY transfer_count ASC, handled_cases ASC, agent_id ASC;\n",
+          "tables": [
+            "casehistory__c"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 6,
+          "call_id": "ca91cee2d9624bb9ab4910b001039252",
+          "sql_file": "runs/natural/crmarenapro/query8/quick-01/sql/006-ca91cee2d9624bb9ab4910b001039252.sql",
+          "sql": "WITH a AS (\n  SELECT caseid__c, createddate, oldvalue__c, newvalue__c,\n         SUBSTR(createddate, 1, 4) AS yr,\n         CAST(SUBSTR(createddate, 6, 2) AS INTEGER) AS mo\n  FROM casehistory__c\n  WHERE field__c = 'Owner Assignment'\n), q AS (\n  SELECT *, yr || '-Q' || CAST(((mo - 1) / 3 + 1) AS TEXT) AS quarter FROM a\n), handled AS (\n  SELECT newvalue__c agent_id, COUNT(DISTINCT caseid__c) handled_cases_all\n  FROM a WHERE newvalue__c IS NOT NULL GROUP BY newvalue__c\n), transfers AS (\n  SELECT oldvalue__c agent_id, COUNT(*) transfer_count_all\n  FROM a WHERE oldvalue__c IS NOT NULL GROUP BY oldvalue__c\n), quarter_transfers AS (\n  SELECT quarter, oldvalue__c agent_id, COUNT(*) transfers\n  FROM q WHERE oldvalue__c IS NOT NULL GROUP BY quarter, oldvalue__c\n)\nSELECT h.agent_id, h.handled_cases_all, COALESCE(t.transfer_count_all, 0) transfer_count_all,\n       COALESCE(STRING_AGG(qt.quarter || ':' || qt.transfers, ', ' ORDER BY qt.quarter), '') AS transfers_by_quarter\nFROM handled h\nLEFT JOIN transfers t ON t.agent_id=h.agent_id\nLEFT JOIN quarter_transfers qt ON qt.agent_id=h.agent_id\nGROUP BY h.agent_id, h.handled_cases_all, t.transfer_count_all\nORDER BY transfer_count_all DESC, agent_id;\n",
+          "tables": [
+            "casehistory__c"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 7,
+          "call_id": "9f7c8ef90f5e48838c4e4c5e5af8138e",
+          "sql_file": "runs/natural/crmarenapro/query8/quick-01/sql/007-9f7c8ef90f5e48838c4e4c5e5af8138e.sql",
+          "sql": "SELECT h.caseid__c, h.createddate, h.oldvalue__c AS from_agent, h.newvalue__c AS to_agent,\n       c.createddate AS case_createddate\nFROM casehistory__c h\nJOIN \"Case\" c ON c.id=h.caseid__c\nWHERE h.field__c='Owner Assignment'\n  AND h.oldvalue__c IS NOT NULL\nORDER BY h.createddate, h.caseid__c;\n",
+          "tables": [
+            "case",
+            "casehistory__c"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 8,
+          "call_id": "1b8576518f714f07ae709c0b590dfbc4",
+          "sql_file": "runs/natural/crmarenapro/query8/quick-01/sql/008-1b8576518f714f07ae709c0b590dfbc4.sql",
+          "sql": "SELECT caseid__c, createddate, oldvalue__c AS from_agent, newvalue__c AS to_agent\nFROM casehistory__c\nWHERE field__c='Owner Assignment'\n  AND oldvalue__c IS NOT NULL\nORDER BY createddate, caseid__c;\n",
+          "tables": [
+            "casehistory__c"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 10,
+          "call_id": "dda8e43c7d6d48a4a2a15518a7b5d82d",
+          "sql_file": "runs/natural/crmarenapro/query8/quick-01/sql/010-dda8e43c7d6d48a4a2a15518a7b5d82d.sql",
+          "sql": "WITH period_owner_assignments AS (\n  SELECT caseid__c, createddate, oldvalue__c, newvalue__c\n  FROM casehistory__c\n  WHERE field__c = 'Owner Assignment'\n    AND createddate >= '2022-04-10'\n    AND createddate <= '2023-04-10'\n), transferred_cases AS (\n  SELECT caseid__c\n  FROM period_owner_assignments\n  GROUP BY caseid__c\n  HAVING COUNT(*) > 1\n), handling_agents AS (\n  SELECT DISTINCT p.newvalue__c AS agent_id\n  FROM period_owner_assignments p\n  JOIN transferred_cases t ON t.caseid__c = p.caseid__c\n  WHERE p.newvalue__c IS NOT NULL\n), transfer_counts AS (\n  SELECT oldvalue__c AS agent_id, COUNT(*) AS transfer_count\n  FROM period_owner_assignments\n  WHERE oldvalue__c IS NOT NULL\n  GROUP BY oldvalue__c\n)\nSELECT a.agent_id, COALESCE(t.transfer_count, 0) AS transfer_count\nFROM handling_agents a\nLEFT JOIN transfer_counts t ON t.agent_id = a.agent_id\nORDER BY transfer_count ASC, a.agent_id ASC\nLIMIT 1;\n",
+          "tables": [
+            "casehistory__c"
+          ],
+          "statement_count": 1,
+          "partial": false
+        }
+      ],
+      "consumer_count": 6,
+      "later_count": 5,
+      "task_passed": false
+    },
+    {
+      "id": "N06",
+      "group": "natural",
+      "task": "crmarenapro/query12",
+      "tier": "A",
+      "kind": "join",
+      "database": "sales_pipeline",
+      "members": [
+        3,
+        4,
+        5,
+        8,
+        10
+      ],
+      "tables": [
+        "opportunity",
+        "contract"
+      ],
+      "title": "原始 ID 的 Opportunity–Contract 公共 Join",
+      "prepare": "准备 Opportunity o INNER JOIN Contract c ON o.ContractID__c=c.Id 的行级结果，保留 o.Id/OwnerId/CreatedDate/CloseDate/ContractID__c 和 c.Id/CompanySignedDate。",
+      "uses": "Q3/Q4/Q5/Q10 在公共 Join 上保留各自日期条件与聚合/投影；Q8 仅 apr_close_with_contract 子查询可使用它。",
+      "constraints": "Q8 其他两个独立表统计不能用此 Join 代替；须保留 Join 多重性。全量 Join 可能比各查询谓词下推更贵；本任务未通过答案验证。",
+      "evidence": "五次调用的相关分支均是相同两表、相同原始等值键的 INNER JOIN。",
+      "partial": [
+        8
+      ],
+      "consumers": [
+        {
+          "number": 3,
+          "call_id": "36973557214b43df99082a9acece1394",
+          "sql_file": "runs/natural/crmarenapro/query12/quick-01/sql/003-36973557214b43df99082a9acece1394.sql",
+          "sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(substr(o.CreatedDate,1,10) AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' AND c.CompanySignedDate IS NOT NULL GROUP BY o.OwnerId ORDER BY avg_days ASC",
+          "tables": [
+            "contract",
+            "opportunity"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 4,
+          "call_id": "90615943ec654c9394fcdb8f7e8041fc",
+          "sql_file": "runs/natural/crmarenapro/query12/quick-01/sql/004-90615943ec654c9394fcdb8f7e8041fc.sql",
+          "sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(c.CompanySignedDate AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' GROUP BY o.OwnerId ORDER BY avg_days ASC",
+          "tables": [
+            "contract",
+            "opportunity"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 5,
+          "call_id": "56d875618d494449b8ede6da9d81e7a2",
+          "sql_file": "runs/natural/crmarenapro/query12/quick-01/sql/005-56d875618d494449b8ede6da9d81e7a2.sql",
+          "sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(o.CloseDate AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' AND c.CompanySignedDate IS NOT NULL GROUP BY o.OwnerId ORDER BY avg_days ASC",
+          "tables": [
+            "contract",
+            "opportunity"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 8,
+          "call_id": "462cefe033d8463baac401b0e4673a36",
+          "sql_file": "runs/natural/crmarenapro/query12/quick-01/sql/008-462cefe033d8463baac401b0e4673a36.sql",
+          "sql": "SELECT (SELECT COUNT(*) FROM Opportunity WHERE CloseDate BETWEEN '2023-04-01' AND '2023-04-30') AS apr_close, (SELECT COUNT(*) FROM Opportunity o JOIN Contract c ON o.ContractID__c=c.Id WHERE o.CloseDate BETWEEN '2023-04-01' AND '2023-04-30' AND c.CompanySignedDate IS NOT NULL) AS apr_close_with_contract, (SELECT COUNT(*) FROM Contract WHERE CompanySignedDate BETWEEN '2023-04-01' AND '2023-04-30') AS apr_signed",
+          "tables": [
+            "contract",
+            "opportunity"
+          ],
+          "statement_count": 1,
+          "partial": true
+        },
+        {
+          "number": 10,
+          "call_id": "e39f3371a12c4cfe84d70d0c6b4b7d98",
+          "sql_file": "runs/natural/crmarenapro/query12/quick-01/sql/010-e39f3371a12c4cfe84d70d0c6b4b7d98.sql",
+          "sql": "SELECT o.Id, o.OwnerId, substr(o.CreatedDate,1,10) AS created, o.CloseDate, o.ContractID__c, c.CompanySignedDate FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE substr(o.CreatedDate,1,10) BETWEEN '2023-04-01' AND '2023-04-30' AND c.CompanySignedDate IS NOT NULL",
+          "tables": [
+            "contract",
+            "opportunity"
+          ],
+          "statement_count": 1,
+          "partial": false
+        }
+      ],
+      "consumer_count": 5,
+      "later_count": 4,
+      "task_passed": false
+    },
+    {
+      "id": "N07",
+      "group": "natural",
+      "task": "crmarenapro/query13",
+      "tier": "A",
+      "kind": "filter_join",
+      "database": "products_orders",
+      "members": [
+        11,
+        13,
+        14
+      ],
+      "tables": [
+        "order",
+        "orderitem"
+      ],
+      "title": "同一订单窗口及订单明细 Join",
+      "prepare": "先准备 Order.EffectiveDate 在 '2022-06-25' 至 '2022-11-25'（含端点）的订单子集；另准备该子集与 OrderItem 的 OrderItem.OrderId=Order.Id Join，保留明细及原始 OwnerId，可派生 Quantity*UnitPrice。",
+      "uses": "Q13 用订单子集；Q11/Q14 用明细 Join 分别按原始 OwnerId、去 # 后 OwnerId 聚合。",
+      "constraints": "这是一个两层准备方案，筛选和 Join 不重复算两次机会。Q13 不能从明细 Join 去重恢复订单（可能有无明细订单）。失败 Q9 不计入；不直接复用不同分组的 SUM。",
+      "evidence": "Q11/Q13/Q14 使用相同闭区间；Q11/Q14 使用相同 INNER JOIN 与行金额表达式。",
+      "partial": [],
+      "consumers": [
+        {
+          "number": 11,
+          "call_id": "b4d5bd62d74e46eebb29ad9ed73e9670",
+          "sql_file": "runs/natural/crmarenapro/query13/quick-01/sql/011-b4d5bd62d74e46eebb29ad9ed73e9670.sql",
+          "sql": "SELECT o.OwnerId, SUM(oi.Quantity * oi.UnitPrice) AS total_sales, COUNT(DISTINCT o.Id) AS n_orders FROM \"Order\" o JOIN OrderItem oi ON oi.OrderId = o.Id WHERE o.EffectiveDate >= '2022-06-25' AND o.EffectiveDate <= '2022-11-25' GROUP BY o.OwnerId ORDER BY total_sales DESC LIMIT 10",
+          "tables": [
+            "order",
+            "orderitem"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 13,
+          "call_id": "990a07634f204458809ef4845c1f2d4d",
+          "sql_file": "runs/natural/crmarenapro/query13/quick-01/sql/013-990a07634f204458809ef4845c1f2d4d.sql",
+          "sql": "SELECT Id, AccountId, OwnerId, EffectiveDate FROM \"Order\" WHERE EffectiveDate >= '2022-06-25' AND EffectiveDate <= '2022-11-25'",
+          "tables": [
+            "order"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 14,
+          "call_id": "4836ecd5a6d94949ace5656f2098a7ed",
+          "sql_file": "runs/natural/crmarenapro/query13/quick-01/sql/014-4836ecd5a6d94949ace5656f2098a7ed.sql",
+          "sql": "SELECT REPLACE(o.OwnerId,'#','') AS owner, ROUND(SUM(oi.Quantity * oi.UnitPrice),2) AS total_sales FROM \"Order\" o JOIN OrderItem oi ON oi.OrderId = o.Id WHERE o.EffectiveDate >= '2022-06-25' AND o.EffectiveDate <= '2022-11-25' GROUP BY REPLACE(o.OwnerId,'#','') ORDER BY total_sales DESC LIMIT 5",
+          "tables": [
+            "order",
+            "orderitem"
+          ],
+          "statement_count": 1,
+          "partial": false
+        }
+      ],
+      "consumer_count": 3,
+      "later_count": 2,
+      "task_passed": true
+    },
+    {
+      "id": "N08",
+      "group": "natural",
+      "task": "crmarenapro/query13",
+      "tier": "B",
+      "kind": "profile",
+      "database": "sales_pipeline",
+      "members": [
+        6,
+        10
+      ],
+      "tables": [
+        "opportunity"
+      ],
+      "title": "商机的全表与账户维度统计准备",
+      "prepare": "一次扫描 AccountId/ContractID__c/OwnerId，分别维护全局精确 distinct 状态和按 AccountId 的计数、distinct ContractID 状态。",
+      "uses": "供应 Q6 的全局统计和 Q10 的账户分组统计。",
+      "constraints": "弱候选：共享扫描与部分状态准备；不能将每账户 distinct 计数直接相加得到全局 distinct，必须单独维护并处理 NULL。",
+      "evidence": "两条都完整读取 Opportunity 的 AccountId/ContractID__c，无 WHERE；分组层次不同。",
+      "partial": [],
+      "consumers": [
+        {
+          "number": 6,
+          "call_id": "4b888f4c13004a43986ff88031205063",
+          "sql_file": "runs/natural/crmarenapro/query13/quick-01/sql/006-4b888f4c13004a43986ff88031205063.sql",
+          "sql": "SELECT COUNT(*) AS n_opp, COUNT(DISTINCT AccountId) AS accts, COUNT(DISTINCT ContractID__c) AS contracts, COUNT(DISTINCT OwnerId) AS owners FROM Opportunity",
+          "tables": [
+            "opportunity"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 10,
+          "call_id": "87ec80621e674725b4709099e349d1a5",
+          "sql_file": "runs/natural/crmarenapro/query13/quick-01/sql/010-87ec80621e674725b4709099e349d1a5.sql",
+          "sql": "SELECT o.AccountId, COUNT(*) AS n_opp, COUNT(DISTINCT o.ContractID__c) AS n_con FROM Opportunity o GROUP BY o.AccountId ORDER BY n_opp DESC LIMIT 5",
+          "tables": [
+            "opportunity"
+          ],
+          "statement_count": 1,
+          "partial": false
+        }
+      ],
+      "consumer_count": 2,
+      "later_count": 1,
+      "task_passed": true
+    },
+    {
+      "id": "F01",
+      "group": "fad",
+      "task": "crmarenapro/query8",
+      "tier": "A",
+      "kind": "filter",
+      "database": "support",
+      "members": [
+        3,
+        4,
+        6
+      ],
+      "tables": [
+        "casehistory__c"
+      ],
+      "title": "Owner Assignment 历史子集",
+      "prepare": "准备 field__c='Owner Assignment' 的完整行子集，保留 caseid__c/createddate/oldvalue__c/newvalue__c。",
+      "uses": "Q3/Q6 施加同一日期窗口；Q4 单独施加 oldvalue 非空；保留不同排序和聚合。",
+      "constraints": "不能直接把 Q3 的有界结果供给不限日期的 Q4；共同准备必须覆盖三者。",
+      "evidence": "三条调用的直接查询或 CTE 均有同表同值 field__c 等值条件。",
+      "partial": [],
+      "consumers": [
+        {
+          "number": 3,
+          "call_id": "2b8e4f5207854706adad96225f32edbf",
+          "sql_file": "runs/fad/crmarenapro/query8/quick-01/sql/003-2b8e4f5207854706adad96225f32edbf.sql",
+          "sql": "SELECT caseid__c, oldvalue__c, newvalue__c, createddate\nFROM casehistory__c\nWHERE field__c = 'Owner Assignment'\n  AND createddate >= '2022-04-10'\n  AND createddate < '2023-04-10'\nORDER BY caseid__c, createddate;\n",
+          "tables": [
+            "casehistory__c"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 4,
+          "call_id": "a387634c961943e0adab45fbcd5ee7d9",
+          "sql_file": "runs/fad/crmarenapro/query8/quick-01/sql/004-a387634c961943e0adab45fbcd5ee7d9.sql",
+          "sql": "SELECT caseid__c, oldvalue__c, newvalue__c, createddate\nFROM casehistory__c\nWHERE field__c = 'Owner Assignment' AND oldvalue__c IS NOT NULL\nORDER BY createddate;\n",
+          "tables": [
+            "casehistory__c"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 6,
+          "call_id": "dc13858a46704f5d803a8fcc574224bf",
+          "sql_file": "runs/fad/crmarenapro/query8/quick-01/sql/006-dc13858a46704f5d803a8fcc574224bf.sql",
+          "sql": "WITH w AS (\n  SELECT caseid__c, oldvalue__c, newvalue__c, createddate\n  FROM casehistory__c\n  WHERE field__c = 'Owner Assignment'\n    AND createddate >= '2022-04-10' AND createddate < '2023-04-10'\n),\nhandled AS (\n  SELECT newvalue__c AS agent, COUNT(DISTINCT caseid__c) AS cases_handled\n  FROM w GROUP BY newvalue__c\n),\ntransfers AS (\n  SELECT oldvalue__c AS agent, COUNT(*) AS transfer_count\n  FROM w WHERE oldvalue__c IS NOT NULL\n  GROUP BY oldvalue__c\n)\nSELECT t.agent, t.transfer_count, h.cases_handled\nFROM transfers t\nJOIN handled h ON h.agent = t.agent\nWHERE h.cases_handled > 0\nORDER BY t.transfer_count ASC\nLIMIT 5;\n",
+          "tables": [
+            "casehistory__c"
+          ],
+          "statement_count": 1,
+          "partial": false
+        }
+      ],
+      "consumer_count": 3,
+      "later_count": 2,
+      "task_passed": true
+    },
+    {
+      "id": "F02",
+      "group": "fad",
+      "task": "crmarenapro/query12",
+      "tier": "A",
+      "kind": "join",
+      "database": "sales_pipeline",
+      "members": [
+        1,
+        2,
+        5
+      ],
+      "tables": [
+        "opportunity",
+        "contract"
+      ],
+      "title": "原始 ID 的 Opportunity–Contract Join",
+      "prepare": "准备原始 ContractID__c=Id 的 INNER JOIN 明细，保留 OwnerId、机会原始日期、合同签署日期和 ID。",
+      "uses": "Q1/Q2 分别按创建和签署日期筛选聚合；Q5 按关闭日期筛选后返回明细。",
+      "constraints": "不把 Q7 的 LEFT JOIN 诊断纳入此 INNER JOIN 候选；不与去 # 的键归一化 Join 混合。答案未通过。",
+      "evidence": "三条使用相同原始等值键 INNER JOIN，日期口径不同。",
+      "partial": [],
+      "consumers": [
+        {
+          "number": 1,
+          "call_id": "d50925ad9c8b4ffdaa8b344ef3f68e81",
+          "sql_file": "runs/fad/crmarenapro/query12/quick-01/sql/001-d50925ad9c8b4ffdaa8b344ef3f68e81.sql",
+          "sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC\nLIMIT 10;\n",
+          "tables": [
+            "contract",
+            "opportunity"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 2,
+          "call_id": "9e6aa8e4e69a4900aa19221f8f16c2a9",
+          "sql_file": "runs/fad/crmarenapro/query12/quick-01/sql/002-9e6aa8e4e69a4900aa19221f8f16c2a9.sql",
+          "sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC\nLIMIT 10;\n",
+          "tables": [
+            "contract",
+            "opportunity"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 5,
+          "call_id": "3b2146be0b8845aa814455c3306686bd",
+          "sql_file": "runs/fad/crmarenapro/query12/quick-01/sql/005-3b2146be0b8845aa814455c3306686bd.sql",
+          "sql": "SELECT\n  o.Id AS opp_id, o.OwnerId, o.CreatedDate, o.CloseDate, c.CompanySignedDate,\n  CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE) AS cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(o.CloseDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CloseDate AS DATE) < DATE '2023-05-01'\nORDER BY o.OwnerId;\n",
+          "tables": [
+            "contract",
+            "opportunity"
+          ],
+          "statement_count": 1,
+          "partial": false
+        }
+      ],
+      "consumer_count": 3,
+      "later_count": 2,
+      "task_passed": false
+    },
+    {
+      "id": "F03",
+      "group": "fad",
+      "task": "crmarenapro/query12",
+      "tier": "A",
+      "kind": "key_join",
+      "database": "sales_pipeline",
+      "members": [
+        7,
+        8,
+        9
+      ],
+      "tables": [
+        "opportunity",
+        "contract"
+      ],
+      "title": "去 # 的连接键与归一化 Join",
+      "prepare": "分别预计算 Contract.Id 和 Opportunity.ContractID__c 的 replace(...,'#','')；以归一键构建关联访问结构，并可准备归一键 INNER JOIN 行结果。",
+      "uses": "Q7 的 c2 LEFT JOIN 分支使用预计算键/访问结构，保留外连接；Q8/Q9 可用归一键 INNER JOIN 明细。",
+      "constraints": "Q7 只部分受益，不能用 INNER JOIN 改写整个 LEFT JOIN 诊断；归一化可能产生重复键，必须保留多重性。这是一个关联准备方案，不把键与 Join 另算两个机会。",
+      "evidence": "三条均在相同两表的相同键列使用相同 replace 去 # 连接表达式。",
+      "partial": [
+        7
+      ],
+      "consumers": [
+        {
+          "number": 7,
+          "call_id": "2aa9db066b664ff2bba1dba9fcdaa74c",
+          "sql_file": "runs/fad/crmarenapro/query12/quick-01/sql/007-2aa9db066b664ff2bba1dba9fcdaa74c.sql",
+          "sql": "SELECT\n  COUNT(*) AS opp_with_contract,\n  SUM(CASE WHEN c1.Id IS NOT NULL THEN 1 ELSE 0 END) AS matched_raw,\n  SUM(CASE WHEN c2.Id IS NOT NULL THEN 1 ELSE 0 END) AS matched_stripped\nFROM Opportunity o\nLEFT JOIN Contract c1 ON c1.Id = o.ContractID__c\nLEFT JOIN Contract c2 ON replace(c2.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE o.ContractID__c IS NOT NULL;\n",
+          "tables": [
+            "contract",
+            "opportunity"
+          ],
+          "statement_count": 1,
+          "partial": true
+        },
+        {
+          "number": 8,
+          "call_id": "c5e7dcacc4c94f32a110248f073138cf",
+          "sql_file": "runs/fad/crmarenapro/query12/quick-01/sql/008-c5e7dcacc4c94f32a110248f073138cf.sql",
+          "sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days,\n  MIN(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS min_cycle,\n  MAX(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS max_cycle\nFROM Opportunity o\nJOIN Contract c ON replace(c.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC;\n",
+          "tables": [
+            "contract",
+            "opportunity"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 9,
+          "call_id": "5d11c21e0e624339b325b42b7a91c8a4",
+          "sql_file": "runs/fad/crmarenapro/query12/quick-01/sql/009-5d11c21e0e624339b325b42b7a91c8a4.sql",
+          "sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON replace(c.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC;\n",
+          "tables": [
+            "contract",
+            "opportunity"
+          ],
+          "statement_count": 1,
+          "partial": false
+        }
+      ],
+      "consumer_count": 3,
+      "later_count": 2,
+      "task_passed": false
+    },
+    {
+      "id": "F04",
+      "group": "fad",
+      "task": "crmarenapro/query12",
+      "tier": "B",
+      "kind": "profile",
+      "database": "sales_pipeline",
+      "members": [
+        3,
+        4,
+        6
+      ],
+      "tables": [
+        "opportunity"
+      ],
+      "title": "商机诊断的一次扫描统计准备",
+      "prepare": "对 Opportunity 无过滤完整输入，一次维护日期极值、总数、合同非空计数、月份和 # 前缀诊断计数。",
+      "uses": "Q3 第一条语句、Q4 和 Q6 第一条语句使用其统计；Q3/Q6 的 Contract 语句仍独立执行。",
+      "constraints": "Q3/Q6 是多语句调用，不能把合同统计与商机统计混合；末条结果才被适配器返回，因此前面的统计工作是否值得保留本身也存疑。弱候选。",
+      "evidence": "三次调用中的 Opportunity 统计分支均无 WHERE；Q3/Q4 有完全相同的 MIN/MAX、COUNT 和非空计数。",
+      "partial": [
+        3,
+        6
+      ],
+      "consumers": [
+        {
+          "number": 3,
+          "call_id": "598f0ac9f96143c0ab93e4082625127d",
+          "sql_file": "runs/fad/crmarenapro/query12/quick-01/sql/003-598f0ac9f96143c0ab93e4082625127d.sql",
+          "sql": "SELECT\n  MIN(o.CreatedDate) AS min_created, MAX(o.CreatedDate) AS max_created,\n  MIN(o.CloseDate) AS min_close, MAX(o.CloseDate) AS max_close,\n  COUNT(*) AS n_opp,\n  SUM(CASE WHEN o.ContractID__c IS NOT NULL THEN 1 ELSE 0 END) AS n_with_contract\nFROM Opportunity o;\n\nSELECT\n  MIN(c.CompanySignedDate) AS min_signed, MAX(c.CompanySignedDate) AS max_signed,\n  COUNT(*) AS n_contract\nFROM Contract c;\n",
+          "tables": [
+            "contract",
+            "opportunity"
+          ],
+          "statement_count": 2,
+          "partial": true
+        },
+        {
+          "number": 4,
+          "call_id": "e66fde8c074e4abd8e16e6bc1008c1c7",
+          "sql_file": "runs/fad/crmarenapro/query12/quick-01/sql/004-e66fde8c074e4abd8e16e6bc1008c1c7.sql",
+          "sql": "SELECT\n  MIN(CreatedDate) AS min_created, MAX(CreatedDate) AS max_created,\n  MIN(CloseDate) AS min_close, MAX(CloseDate) AS max_close,\n  COUNT(*) AS n_opp,\n  SUM(CASE WHEN ContractID__c IS NOT NULL THEN 1 ELSE 0 END) AS n_with_contract,\n  SUM(CASE WHEN CAST(CreatedDate AS DATE) >= DATE '2023-04-01' AND CAST(CreatedDate AS DATE) < DATE '2023-05-01' THEN 1 ELSE 0 END) AS n_created_apr2023,\n  SUM(CASE WHEN CAST(CloseDate AS DATE) >= DATE '2023-04-01' AND CAST(CloseDate AS DATE) < DATE '2023-05-01' THEN 1 ELSE 0 END) AS n_closed_apr2023\nFROM Opportunity;\n",
+          "tables": [
+            "opportunity"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 6,
+          "call_id": "3313c6d48e5d4b26ae1bb68613adadbf",
+          "sql_file": "runs/fad/crmarenapro/query12/quick-01/sql/006-3313c6d48e5d4b26ae1bb68613adadbf.sql",
+          "sql": "SELECT\n  SUM(CASE WHEN ContractID__c LIKE '#%' THEN 1 ELSE 0 END) AS hash_contract,\n  SUM(CASE WHEN OwnerId LIKE '#%' THEN 1 ELSE 0 END) AS hash_owner,\n  COUNT(*) AS total\nFROM Opportunity;\n\nSELECT\n  SUM(CASE WHEN Id LIKE '#%' THEN 1 ELSE 0 END) AS hash_id,\n  COUNT(*) AS total\nFROM Contract;\n",
+          "tables": [
+            "contract",
+            "opportunity"
+          ],
+          "statement_count": 2,
+          "partial": true
+        }
+      ],
+      "consumer_count": 3,
+      "later_count": 2,
+      "task_passed": false
+    },
+    {
+      "id": "F05",
+      "group": "fad",
+      "task": "crmarenapro/query13",
+      "tier": "A",
+      "kind": "filter_join",
+      "database": "products_orders",
+      "members": [
+        3,
+        4
+      ],
+      "tables": [
+        "order",
+        "orderitem"
+      ],
+      "title": "多个销售时间窗口的共同明细",
+      "prepare": "准备日期 '2022-06-01' 至 '2022-11-30' 的订单及其 OrderItem 等值 Join，保留 OwnerId/Order.Id/EffectiveDate/Quantity/UnitPrice。",
+      "uses": "Q3 保留滚动窗口筛选；Q4 三个 UNION ALL 分支分别筛选各自窗口后分组。",
+      "constraints": "只算两次跨调用使用，不将 Q4 三个分支算三条未来 SQL。Q3 的 LIMIT 10 聚合结果不能代替 Q4 全分组；共同明细可以。",
+      "evidence": "两次调用各分支 Join 键相同，三个日期窗口都包含于六月至十一月共同范围，滚动窗口分支还相同。",
+      "partial": [],
+      "consumers": [
+        {
+          "number": 3,
+          "call_id": "fdb801d358584ee9a60aa7247afbfe25",
+          "sql_file": "runs/fad/crmarenapro/query13/quick-01/sql/003-fdb801d358584ee9a60aa7247afbfe25.sql",
+          "sql": "SELECT o.OwnerId AS agent_id,\n       SUM(oi.Quantity * oi.UnitPrice) AS total_sales,\n       COUNT(DISTINCT o.Id) AS n_orders\nFROM \"Order\" o\nJOIN OrderItem oi ON oi.OrderId = o.Id\nWHERE o.EffectiveDate >= '2022-06-25' AND o.EffectiveDate <= '2022-11-25'\nGROUP BY o.OwnerId\nORDER BY total_sales DESC\nLIMIT 10;\n",
+          "tables": [
+            "order",
+            "orderitem"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 4,
+          "call_id": "c36250a3c302443a844f7c4b2359f4f1",
+          "sql_file": "runs/fad/crmarenapro/query13/quick-01/sql/004-c36250a3c302443a844f7c4b2359f4f1.sql",
+          "sql": "SELECT 'rolling_2022-06-25_to_2022-11-25' AS variant, o.OwnerId, SUM(oi.Quantity*oi.UnitPrice) AS total\nFROM \"Order\" o JOIN OrderItem oi ON oi.OrderId=o.Id\nWHERE o.EffectiveDate >= '2022-06-25' AND o.EffectiveDate <= '2022-11-25'\nGROUP BY o.OwnerId\nUNION ALL\nSELECT 'cal_months_jun_to_nov', o.OwnerId, SUM(oi.Quantity*oi.UnitPrice)\nFROM \"Order\" o JOIN OrderItem oi ON oi.OrderId=o.Id\nWHERE o.EffectiveDate >= '2022-06-01' AND o.EffectiveDate <= '2022-11-30'\nGROUP BY o.OwnerId\nUNION ALL\nSELECT 'last5_full_months_jun_to_oct', o.OwnerId, SUM(oi.Quantity*oi.UnitPrice)\nFROM \"Order\" o JOIN OrderItem oi ON oi.OrderId=o.Id\nWHERE o.EffectiveDate >= '2022-06-01' AND o.EffectiveDate <= '2022-10-31'\nGROUP BY o.OwnerId\nORDER BY variant, total DESC;\n",
+          "tables": [
+            "order",
+            "orderitem"
+          ],
+          "statement_count": 1,
+          "partial": false
+        }
+      ],
+      "consumer_count": 2,
+      "later_count": 1,
+      "task_passed": true
+    },
+    {
+      "id": "F06",
+      "group": "fad",
+      "task": "stockindex/query1",
+      "tier": "A",
+      "kind": "derived",
+      "database": "indextrade_database",
+      "members": [
+        8,
+        9
+      ],
+      "tables": [
+        "index_trade"
+      ],
+      "title": "股票日期解析及共同分析输入",
+      "prepare": "对 index_trade 预计算两条 CTE 中完全相同的 COALESCE(try_strptime(...))::DATE，保留 Index/High/Low/Open/Close；可进一步准备相同六个指数且解析日期 >=2020-01-01 的行子集。",
+      "uses": "Q8 从该输入计算 close 分母波动率及日期统计；Q9 计算 open/mid 等其他波动指标。",
+      "constraints": "只计 Q8/Q9；Q6 使用原始日期字符串比较，与解析日期过滤不等价，不能合并。保留 try_strptime 的 NULL 行为。",
+      "evidence": "Q8/Q9 日期解析表达式、解析后日期下界和指数集合完全相同；仅额外投影及最终统计不同。",
+      "partial": [],
+      "consumers": [
+        {
+          "number": 8,
+          "call_id": "4bb579f1f33d49aa8938451a46e68da1",
+          "sql_file": "runs/fad/stockindex/query1/quick-01/sql/008-4bb579f1f33d49aa8938451a46e68da1.sql",
+          "sql": "WITH parsed AS (SELECT \"Index\", COALESCE(try_strptime(\"Date\", '%Y-%m-%d %H:%M:%S'), try_strptime(\"Date\", '%B %d, %Y at %I:%M %p'), try_strptime(\"Date\", '%d %b %Y, %H:%M'))::DATE AS d, \"High\", \"Low\", \"Close\" FROM index_trade) SELECT \"Index\", COUNT(*) AS n_days, MIN(d) AS first_date, MAX(d) AS last_date, AVG((\"High\" - \"Low\") / \"Close\") AS avg_intraday_vol FROM parsed WHERE d >= DATE '2020-01-01' AND \"Index\" IN ('000001.SS','399001.SZ','HSI','N225','NSEI','TWII') GROUP BY \"Index\" ORDER BY avg_intraday_vol DESC;",
+          "tables": [
+            "index_trade"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 9,
+          "call_id": "7f7a16a1a51142e68eb39e057c3265e0",
+          "sql_file": "runs/fad/stockindex/query1/quick-01/sql/009-7f7a16a1a51142e68eb39e057c3265e0.sql",
+          "sql": "WITH parsed AS (SELECT \"Index\", COALESCE(try_strptime(\"Date\", '%Y-%m-%d %H:%M:%S'), try_strptime(\"Date\", '%B %d, %Y at %I:%M %p'), try_strptime(\"Date\", '%d %b %Y, %H:%M'))::DATE AS d, \"High\", \"Low\", \"Open\", \"Close\" FROM index_trade) SELECT \"Index\", AVG((\"High\" - \"Low\") / \"Open\") AS vol_open, AVG((\"High\" - \"Low\") / ((\"High\" + \"Low\")/2)) AS vol_mid, AVG(\"High\"/\"Low\" - 1) AS vol_hl_ratio FROM parsed WHERE d >= DATE '2020-01-01' AND \"Index\" IN ('000001.SS','399001.SZ','HSI','N225','NSEI','TWII') GROUP BY \"Index\" ORDER BY vol_open DESC;",
+          "tables": [
+            "index_trade"
+          ],
+          "statement_count": 1,
+          "partial": false
+        }
+      ],
+      "consumer_count": 2,
+      "later_count": 1,
+      "task_passed": true
+    },
+    {
+      "id": "F07",
+      "group": "fad",
+      "task": "stockindex/query2",
+      "tier": "A",
+      "kind": "filter",
+      "database": "indextrade_database",
+      "members": [
+        6,
+        7
+      ],
+      "tables": [
+        "index_trade"
+      ],
+      "title": "北美指数窗口输入",
+      "prepare": "按原 SQL 字符串比较语义，准备三个指数、Date >= '2017-11-01' 且 Date < '2019-01-01' 的原始行，保留 Index/Date/Open/Close；可在原排序语义下组织数据。",
+      "uses": "Q6 再筛 2018 下界后比较 Open/Close；Q7 在宽窗口上先算 LAG，再筛 2018。",
+      "constraints": "不可先裁到 2018 再算 LAG，会丢前驱行；原 SQL 字符串日期比较的业务正确性存疑，任务未通过，本候选仅讨论保留实际 SQL 语义。相同日期键的排序不唯一性仍需重放核对。",
+      "evidence": "两条指数集合及上界相同；Q6 窗口包含于 Q7 LAG 前的宽窗口。",
+      "partial": [],
+      "consumers": [
+        {
+          "number": 6,
+          "call_id": "da98cb49014841e8be6c4ebfa13a72ea",
+          "sql_file": "runs/fad/stockindex/query2/quick-01/sql/006-da98cb49014841e8be6c4ebfa13a72ea.sql",
+          "sql": "SELECT \"Index\",\n       SUM(CASE WHEN \"Close\" > \"Open\" THEN 1 ELSE 0 END) AS up_days,\n       SUM(CASE WHEN \"Close\" < \"Open\" THEN 1 ELSE 0 END) AS down_days,\n       SUM(CASE WHEN \"Close\" = \"Open\" THEN 1 ELSE 0 END) AS flat_days,\n       COUNT(*) AS total_days\nFROM index_trade\nWHERE \"Index\" IN ('NYA','IXIC','GSPTSE')\n  AND \"Date\" >= '2018-01-01' AND \"Date\" < '2019-01-01'\nGROUP BY \"Index\"\nORDER BY \"Index\";\n",
+          "tables": [
+            "index_trade"
+          ],
+          "statement_count": 1,
+          "partial": false
+        },
+        {
+          "number": 7,
+          "call_id": "12d21c9d97564f8db6482b8c0b2eddc0",
+          "sql_file": "runs/fad/stockindex/query2/quick-01/sql/007-12d21c9d97564f8db6482b8c0b2eddc0.sql",
+          "sql": "WITH t AS (\n  SELECT \"Index\", \"Date\", \"Open\", \"Close\",\n         LAG(\"Close\") OVER (PARTITION BY \"Index\" ORDER BY \"Date\") AS prev_close\n  FROM index_trade\n  WHERE \"Index\" IN ('NYA','IXIC','GSPTSE')\n    AND \"Date\" >= '2017-11-01' AND \"Date\" < '2019-01-01'\n)\nSELECT \"Index\",\n       MIN(\"Date\") AS first_date, MAX(\"Date\") AS last_date, COUNT(*) AS n,\n       SUM(CASE WHEN \"Close\" > prev_close THEN 1 ELSE 0 END) AS up_vs_prev,\n       SUM(CASE WHEN \"Close\" < prev_close THEN 1 ELSE 0 END) AS down_vs_prev\nFROM t\nWHERE \"Date\" >= '2018-01-01'\nGROUP BY \"Index\"\nORDER BY \"Index\";\n",
+          "tables": [
+            "index_trade"
+          ],
+          "statement_count": 1,
+          "partial": false
+        }
+      ],
+      "consumer_count": 2,
+      "later_count": 1,
+      "task_passed": false
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+SELECT repo_name, substr(message,1,60) AS msg_start FROM commits WHERE repo_name IN ('tensorflow/tensorflow','apple/swift') AND length(message) < 1000 AND (lower(message) LIKE 'merge%' OR lower(message) LIKE 'update%' OR lower(message) LIKE 'test%') LIMIT 30

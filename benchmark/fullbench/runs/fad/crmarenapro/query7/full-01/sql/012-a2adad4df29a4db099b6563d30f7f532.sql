@@ -1,0 +1,2 @@
+SELECT id, subject, fromaddress, toids, messagedate, relatedtoid, textbody FROM emailmessage WHERE parentid LIKE '%500Wt00000DDyznIAD%' OR relatedtoid LIKE '%500Wt00000DDyznIAD%' ORDER BY messagedate;
+

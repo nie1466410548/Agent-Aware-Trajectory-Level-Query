@@ -1,0 +1,2473 @@
+{
+  "summary": {
+    "task_id": "crmarenapro/query12",
+    "run_id": "quick-01",
+    "model": "kimi-code/k3",
+    "group": "fad",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 331.9431710243225,
+    "answer_submitted": true,
+    "validator_passed": false,
+    "validator_reason": "Found agent IDs ['005Wt000003NJgAIAW'], but expected '005Wt000003NDEBIA4'",
+    "tool_calls": 21,
+    "sql_calls": 10,
+    "failed_calls": 0,
+    "data_queries": 10,
+    "metadata_queries": 0,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 10,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 0,
+    "later_queries_sharing_tables": 8,
+    "later_queries_sharing_table_columns": 8,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 2,
+    "shared_join_consumers": 3,
+    "shared_aggregate_consumers": 7,
+    "data_query_adapter_ms": 420.7424996420741,
+    "fad_submissions": 10,
+    "python_calls": 0,
+    "assistant_turns": 43
+  },
+  "queries": [
+    {
+      "call_id": "d50925ad9c8b4ffdaa8b344ef3f68e81",
+      "tool": "query-db",
+      "database": "sales_pipeline",
+      "sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC\nLIMIT 10;\n",
+      "success": true,
+      "row_count": 2,
+      "start_time": 1788780806.916315,
+      "duration_ms": 48.45301993191242,
+      "dialect": "duckdb",
+      "fad_id": "d5f93d7e83754bdd995a54f6564b4f2d",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contract",
+        "opportunity"
+      ],
+      "columns": [
+        "avg_cycle_days",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "join",
+        "limit",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "CAST(o.createddate AS DATE) >= CAST('2023-04-01' AS DATE) AND CAST(o.createddate AS DATE) < CAST('2023-05-01' AS DATE) AND NOT c.companysigneddate IS NULL"
+      ],
+      "joins": [
+        "JOIN contract AS c ON c.id = o.contractid__c"
+      ],
+      "aggregates": [
+        "AVG(CAST(c.companysigneddate AS DATE) - CAST(o.createddate AS DATE))",
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT o.ownerid, COUNT(*) AS n_opps, AVG(CAST(c.companysigneddate AS DATE) - CAST(o.createddate AS DATE)) AS avg_cycle_days FROM opportunity AS o JOIN contract AS c ON c.id = o.contractid__c WHERE CAST(o.createddate AS DATE) >= CAST('2023-04-01' AS DATE) AND CAST(o.createddate AS DATE) < CAST('2023-05-01' AS DATE) AND NOT c.companysigneddate IS NULL GROUP BY o.ownerid ORDER BY avg_cycle_days ASC NULLS LAST LIMIT 10",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "CAST(createddate AS DATE) < CAST('2023-05-01' AS DATE)",
+        "CAST(createddate AS DATE) >= CAST('2023-04-01' AS DATE)",
+        "NOT companysigneddate IS NULL"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "ownerid"
+      ],
+      "limit": "LIMIT 10"
+    },
+    {
+      "call_id": "9e6aa8e4e69a4900aa19221f8f16c2a9",
+      "tool": "query-db",
+      "database": "sales_pipeline",
+      "sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC\nLIMIT 10;\n",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788780836.0803592,
+      "duration_ms": 45.31323304399848,
+      "dialect": "duckdb",
+      "fad_id": "97b685cc95664767b8926e56a46d0c14",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contract",
+        "opportunity"
+      ],
+      "columns": [
+        "avg_cycle_days",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "join",
+        "limit",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "CAST(c.companysigneddate AS DATE) >= CAST('2023-04-01' AS DATE) AND CAST(c.companysigneddate AS DATE) < CAST('2023-05-01' AS DATE)"
+      ],
+      "joins": [
+        "JOIN contract AS c ON c.id = o.contractid__c"
+      ],
+      "aggregates": [
+        "AVG(CAST(c.companysigneddate AS DATE) - CAST(o.createddate AS DATE))",
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT o.ownerid, COUNT(*) AS n_opps, AVG(CAST(c.companysigneddate AS DATE) - CAST(o.createddate AS DATE)) AS avg_cycle_days FROM opportunity AS o JOIN contract AS c ON c.id = o.contractid__c WHERE CAST(c.companysigneddate AS DATE) >= CAST('2023-04-01' AS DATE) AND CAST(c.companysigneddate AS DATE) < CAST('2023-05-01' AS DATE) GROUP BY o.ownerid ORDER BY avg_cycle_days ASC NULLS LAST LIMIT 10",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "CAST(companysigneddate AS DATE) < CAST('2023-05-01' AS DATE)",
+        "CAST(companysigneddate AS DATE) >= CAST('2023-04-01' AS DATE)"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "ownerid"
+      ],
+      "limit": "LIMIT 10"
+    },
+    {
+      "call_id": "598f0ac9f96143c0ab93e4082625127d",
+      "tool": "query-db",
+      "database": "sales_pipeline",
+      "sql": "SELECT\n  MIN(o.CreatedDate) AS min_created, MAX(o.CreatedDate) AS max_created,\n  MIN(o.CloseDate) AS min_close, MAX(o.CloseDate) AS max_close,\n  COUNT(*) AS n_opp,\n  SUM(CASE WHEN o.ContractID__c IS NOT NULL THEN 1 ELSE 0 END) AS n_with_contract\nFROM Opportunity o;\n\nSELECT\n  MIN(c.CompanySignedDate) AS min_signed, MAX(c.CompanySignedDate) AS max_signed,\n  COUNT(*) AS n_contract\nFROM Contract c;\n",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788780865.916534,
+      "duration_ms": 48.04614977911115,
+      "dialect": "duckdb",
+      "fad_id": "12bf6da977194b85b780d92c4fd7bf51",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contract",
+        "opportunity"
+      ],
+      "columns": [
+        "closedate",
+        "companysigneddate",
+        "contractid__c",
+        "createddate"
+      ],
+      "operations": [
+        "aggregate",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)",
+        "MAX(c.companysigneddate)",
+        "MAX(o.closedate)",
+        "MAX(o.createddate)",
+        "MIN(c.companysigneddate)",
+        "MIN(o.closedate)",
+        "MIN(o.createddate)",
+        "SUM(CASE WHEN NOT o.contractid__c IS NULL THEN 1 ELSE 0 END)"
+      ],
+      "canonical": "SELECT MIN(o.createddate) AS min_created, MAX(o.createddate) AS max_created, MIN(o.closedate) AS min_close, MAX(o.closedate) AS max_close, COUNT(*) AS n_opp, SUM(CASE WHEN NOT o.contractid__c IS NULL THEN 1 ELSE 0 END) AS n_with_contract FROM opportunity AS o; SELECT MIN(c.companysigneddate) AS min_signed, MAX(c.companysigneddate) AS max_signed, COUNT(*) AS n_contract FROM contract AS c",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "e66fde8c074e4abd8e16e6bc1008c1c7",
+      "tool": "query-db",
+      "database": "sales_pipeline",
+      "sql": "SELECT\n  MIN(CreatedDate) AS min_created, MAX(CreatedDate) AS max_created,\n  MIN(CloseDate) AS min_close, MAX(CloseDate) AS max_close,\n  COUNT(*) AS n_opp,\n  SUM(CASE WHEN ContractID__c IS NOT NULL THEN 1 ELSE 0 END) AS n_with_contract,\n  SUM(CASE WHEN CAST(CreatedDate AS DATE) >= DATE '2023-04-01' AND CAST(CreatedDate AS DATE) < DATE '2023-05-01' THEN 1 ELSE 0 END) AS n_created_apr2023,\n  SUM(CASE WHEN CAST(CloseDate AS DATE) >= DATE '2023-04-01' AND CAST(CloseDate AS DATE) < DATE '2023-05-01' THEN 1 ELSE 0 END) AS n_closed_apr2023\nFROM Opportunity;\n",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788780892.9497824,
+      "duration_ms": 48.760284204036,
+      "dialect": "duckdb",
+      "fad_id": "d01f8ab6e147432298e5e035c7b2c81e",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "opportunity"
+      ],
+      "columns": [
+        "closedate",
+        "contractid__c",
+        "createddate"
+      ],
+      "operations": [
+        "aggregate",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)",
+        "MAX(closedate)",
+        "MAX(createddate)",
+        "MIN(closedate)",
+        "MIN(createddate)",
+        "SUM(CASE WHEN CAST(closedate AS DATE) >= CAST('2023-04-01' AS DATE) AND CAST(closedate AS DATE) < CAST('2023-05-01' AS DATE) THEN 1 ELSE 0 END)",
+        "SUM(CASE WHEN CAST(createddate AS DATE) >= CAST('2023-04-01' AS DATE) AND CAST(createddate AS DATE) < CAST('2023-05-01' AS DATE) THEN 1 ELSE 0 END)",
+        "SUM(CASE WHEN NOT contractid__c IS NULL THEN 1 ELSE 0 END)"
+      ],
+      "canonical": "SELECT MIN(createddate) AS min_created, MAX(createddate) AS max_created, MIN(closedate) AS min_close, MAX(closedate) AS max_close, COUNT(*) AS n_opp, SUM(CASE WHEN NOT contractid__c IS NULL THEN 1 ELSE 0 END) AS n_with_contract, SUM(CASE WHEN CAST(createddate AS DATE) >= CAST('2023-04-01' AS DATE) AND CAST(createddate AS DATE) < CAST('2023-05-01' AS DATE) THEN 1 ELSE 0 END) AS n_created_apr2023, SUM(CASE WHEN CAST(closedate AS DATE) >= CAST('2023-04-01' AS DATE) AND CAST(closedate AS DATE) < CAST('2023-05-01' AS DATE) THEN 1 ELSE 0 END) AS n_closed_apr2023 FROM opportunity",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "3b2146be0b8845aa814455c3306686bd",
+      "tool": "query-db",
+      "database": "sales_pipeline",
+      "sql": "SELECT\n  o.Id AS opp_id, o.OwnerId, o.CreatedDate, o.CloseDate, c.CompanySignedDate,\n  CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE) AS cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(o.CloseDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CloseDate AS DATE) < DATE '2023-05-01'\nORDER BY o.OwnerId;\n",
+      "success": true,
+      "row_count": 2,
+      "start_time": 1788780924.1058006,
+      "duration_ms": 46.15222802385688,
+      "dialect": "duckdb",
+      "fad_id": "441797b0cd684c6cb71433a3e1679edf",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contract",
+        "opportunity"
+      ],
+      "columns": [
+        "closedate",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "operations": [
+        "filter",
+        "join",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "CAST(o.closedate AS DATE) >= CAST('2023-04-01' AS DATE) AND CAST(o.closedate AS DATE) < CAST('2023-05-01' AS DATE)"
+      ],
+      "joins": [
+        "JOIN contract AS c ON c.id = o.contractid__c"
+      ],
+      "aggregates": [],
+      "canonical": "SELECT o.id AS opp_id, o.ownerid, o.createddate, o.closedate, c.companysigneddate, CAST(c.companysigneddate AS DATE) - CAST(o.createddate AS DATE) AS cycle_days FROM opportunity AS o JOIN contract AS c ON c.id = o.contractid__c WHERE CAST(o.closedate AS DATE) >= CAST('2023-04-01' AS DATE) AND CAST(o.closedate AS DATE) < CAST('2023-05-01' AS DATE) ORDER BY o.ownerid NULLS LAST",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "CAST(closedate AS DATE) < CAST('2023-05-01' AS DATE)",
+        "CAST(closedate AS DATE) >= CAST('2023-04-01' AS DATE)"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "closedate",
+        "companysigneddate",
+        "createddate",
+        "ownerid"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "3313c6d48e5d4b26ae1bb68613adadbf",
+      "tool": "query-db",
+      "database": "sales_pipeline",
+      "sql": "SELECT\n  SUM(CASE WHEN ContractID__c LIKE '#%' THEN 1 ELSE 0 END) AS hash_contract,\n  SUM(CASE WHEN OwnerId LIKE '#%' THEN 1 ELSE 0 END) AS hash_owner,\n  COUNT(*) AS total\nFROM Opportunity;\n\nSELECT\n  SUM(CASE WHEN Id LIKE '#%' THEN 1 ELSE 0 END) AS hash_id,\n  COUNT(*) AS total\nFROM Contract;\n",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788780963.229248,
+      "duration_ms": 43.623935896903276,
+      "dialect": "duckdb",
+      "fad_id": "931a3b790a124f7caeaa747273533d6e",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contract",
+        "opportunity"
+      ],
+      "columns": [
+        "contractid__c",
+        "id",
+        "ownerid"
+      ],
+      "operations": [
+        "aggregate",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)",
+        "SUM(CASE WHEN contractid__c LIKE '#%' THEN 1 ELSE 0 END)",
+        "SUM(CASE WHEN id LIKE '#%' THEN 1 ELSE 0 END)",
+        "SUM(CASE WHEN ownerid LIKE '#%' THEN 1 ELSE 0 END)"
+      ],
+      "canonical": "SELECT SUM(CASE WHEN contractid__c LIKE '#%' THEN 1 ELSE 0 END) AS hash_contract, SUM(CASE WHEN ownerid LIKE '#%' THEN 1 ELSE 0 END) AS hash_owner, COUNT(*) AS total FROM opportunity; SELECT SUM(CASE WHEN id LIKE '#%' THEN 1 ELSE 0 END) AS hash_id, COUNT(*) AS total FROM contract",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "2aa9db066b664ff2bba1dba9fcdaa74c",
+      "tool": "query-db",
+      "database": "sales_pipeline",
+      "sql": "SELECT\n  COUNT(*) AS opp_with_contract,\n  SUM(CASE WHEN c1.Id IS NOT NULL THEN 1 ELSE 0 END) AS matched_raw,\n  SUM(CASE WHEN c2.Id IS NOT NULL THEN 1 ELSE 0 END) AS matched_stripped\nFROM Opportunity o\nLEFT JOIN Contract c1 ON c1.Id = o.ContractID__c\nLEFT JOIN Contract c2 ON replace(c2.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE o.ContractID__c IS NOT NULL;\n",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788780991.9984233,
+      "duration_ms": 46.58476123586297,
+      "dialect": "duckdb",
+      "fad_id": "d17da66cdff6491bb1ded51268ce9565",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contract",
+        "opportunity"
+      ],
+      "columns": [
+        "contractid__c",
+        "id"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "join",
+        "scan"
+      ],
+      "filters": [
+        "NOT o.contractid__c IS NULL"
+      ],
+      "joins": [
+        "LEFT JOIN contract AS c1 ON c1.id = o.contractid__c",
+        "LEFT JOIN contract AS c2 ON REPLACE(c2.id, '#', '') = REPLACE(o.contractid__c, '#', '')"
+      ],
+      "aggregates": [
+        "COUNT(*)",
+        "SUM(CASE WHEN NOT c1.id IS NULL THEN 1 ELSE 0 END)",
+        "SUM(CASE WHEN NOT c2.id IS NULL THEN 1 ELSE 0 END)"
+      ],
+      "canonical": "SELECT COUNT(*) AS opp_with_contract, SUM(CASE WHEN NOT c1.id IS NULL THEN 1 ELSE 0 END) AS matched_raw, SUM(CASE WHEN NOT c2.id IS NULL THEN 1 ELSE 0 END) AS matched_stripped FROM opportunity AS o LEFT JOIN contract AS c1 ON c1.id = o.contractid__c LEFT JOIN contract AS c2 ON REPLACE(c2.id, '#', '') = REPLACE(o.contractid__c, '#', '') WHERE NOT o.contractid__c IS NULL",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "NOT contractid__c IS NULL"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "c5e7dcacc4c94f32a110248f073138cf",
+      "tool": "query-db",
+      "database": "sales_pipeline",
+      "sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days,\n  MIN(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS min_cycle,\n  MAX(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS max_cycle\nFROM Opportunity o\nJOIN Contract c ON replace(c.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC;\n",
+      "success": true,
+      "row_count": 3,
+      "start_time": 1788781017.6207268,
+      "duration_ms": 47.978532034903765,
+      "dialect": "duckdb",
+      "fad_id": "860b45863d4c479d8a05e795564327e6",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contract",
+        "opportunity"
+      ],
+      "columns": [
+        "avg_cycle_days",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "join",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "CAST(o.createddate AS DATE) >= CAST('2023-04-01' AS DATE) AND CAST(o.createddate AS DATE) < CAST('2023-05-01' AS DATE) AND NOT c.companysigneddate IS NULL"
+      ],
+      "joins": [
+        "JOIN contract AS c ON REPLACE(c.id, '#', '') = REPLACE(o.contractid__c, '#', '')"
+      ],
+      "aggregates": [
+        "AVG(CAST(c.companysigneddate AS DATE) - CAST(o.createddate AS DATE))",
+        "COUNT(*)",
+        "MAX(CAST(c.companysigneddate AS DATE) - CAST(o.createddate AS DATE))",
+        "MIN(CAST(c.companysigneddate AS DATE) - CAST(o.createddate AS DATE))"
+      ],
+      "canonical": "SELECT o.ownerid, COUNT(*) AS n_opps, AVG(CAST(c.companysigneddate AS DATE) - CAST(o.createddate AS DATE)) AS avg_cycle_days, MIN(CAST(c.companysigneddate AS DATE) - CAST(o.createddate AS DATE)) AS min_cycle, MAX(CAST(c.companysigneddate AS DATE) - CAST(o.createddate AS DATE)) AS max_cycle FROM opportunity AS o JOIN contract AS c ON REPLACE(c.id, '#', '') = REPLACE(o.contractid__c, '#', '') WHERE CAST(o.createddate AS DATE) >= CAST('2023-04-01' AS DATE) AND CAST(o.createddate AS DATE) < CAST('2023-05-01' AS DATE) AND NOT c.companysigneddate IS NULL GROUP BY o.ownerid ORDER BY avg_cycle_days ASC NULLS LAST",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "CAST(createddate AS DATE) < CAST('2023-05-01' AS DATE)",
+        "CAST(createddate AS DATE) >= CAST('2023-04-01' AS DATE)",
+        "NOT companysigneddate IS NULL"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "ownerid"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "5d11c21e0e624339b325b42b7a91c8a4",
+      "tool": "query-db",
+      "database": "sales_pipeline",
+      "sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON replace(c.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC;\n",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788781043.6622305,
+      "duration_ms": 44.71605038270354,
+      "dialect": "duckdb",
+      "fad_id": "f2cbd5d07a18485c83e67d5f3d5f0295",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contract",
+        "opportunity"
+      ],
+      "columns": [
+        "avg_cycle_days",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "join",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "CAST(c.companysigneddate AS DATE) >= CAST('2023-04-01' AS DATE) AND CAST(c.companysigneddate AS DATE) < CAST('2023-05-01' AS DATE)"
+      ],
+      "joins": [
+        "JOIN contract AS c ON REPLACE(c.id, '#', '') = REPLACE(o.contractid__c, '#', '')"
+      ],
+      "aggregates": [
+        "AVG(CAST(c.companysigneddate AS DATE) - CAST(o.createddate AS DATE))",
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT o.ownerid, COUNT(*) AS n_opps, AVG(CAST(c.companysigneddate AS DATE) - CAST(o.createddate AS DATE)) AS avg_cycle_days FROM opportunity AS o JOIN contract AS c ON REPLACE(c.id, '#', '') = REPLACE(o.contractid__c, '#', '') WHERE CAST(c.companysigneddate AS DATE) >= CAST('2023-04-01' AS DATE) AND CAST(c.companysigneddate AS DATE) < CAST('2023-05-01' AS DATE) GROUP BY o.ownerid ORDER BY avg_cycle_days ASC NULLS LAST",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "CAST(companysigneddate AS DATE) < CAST('2023-05-01' AS DATE)",
+        "CAST(companysigneddate AS DATE) >= CAST('2023-04-01' AS DATE)"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "ownerid"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "c25f7f2451d44ce1bb75fb5203a64f98",
+      "tool": "query-db",
+      "database": "core_crm",
+      "sql": "SELECT Id, FirstName, LastName, Email\nFROM \"User\"\nWHERE replace(Id, '#', '') = '005Wt000003NJgAIAW';\n",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788781075.910178,
+      "duration_ms": 1.1143051087856293,
+      "dialect": "sqlite",
+      "fad_id": "ab8f9306059f4fcbabdeedb881e58914",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "user"
+      ],
+      "columns": [
+        "email",
+        "firstname",
+        "id",
+        "lastname"
+      ],
+      "operations": [
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "REPLACE(id, '#', '') = '005Wt000003NJgAIAW'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT id, firstname, lastname, email FROM \"User\" WHERE REPLACE(id, '#', '') = '005Wt000003NJgAIAW'",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "REPLACE (Id, '#', '') = '005Wt000003NJgAIAW'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "email",
+        "firstname",
+        "id",
+        "lastname"
+      ],
+      "limit": null
+    }
+  ],
+  "pairs": [
+    {
+      "producer": "d50925ad9c8b4ffdaa8b344ef3f68e81",
+      "consumer": "9e6aa8e4e69a4900aa19221f8f16c2a9",
+      "producer_index": 1,
+      "consumer_index": 2,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "avg_cycle_days",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [
+        "JOIN contract AS c ON c.id = o.contractid__c"
+      ],
+      "shared_aggregates": [
+        "AVG(CAST(c.companysigneddate AS DATE) - CAST(o.createddate AS DATE))",
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC\nLIMIT 10;\n",
+      "consumer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC\nLIMIT 10;\n"
+    },
+    {
+      "producer": "d50925ad9c8b4ffdaa8b344ef3f68e81",
+      "consumer": "598f0ac9f96143c0ab93e4082625127d",
+      "producer_index": 1,
+      "consumer_index": 3,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "companysigneddate",
+        "contractid__c",
+        "createddate"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC\nLIMIT 10;\n",
+      "consumer_sql": "SELECT\n  MIN(o.CreatedDate) AS min_created, MAX(o.CreatedDate) AS max_created,\n  MIN(o.CloseDate) AS min_close, MAX(o.CloseDate) AS max_close,\n  COUNT(*) AS n_opp,\n  SUM(CASE WHEN o.ContractID__c IS NOT NULL THEN 1 ELSE 0 END) AS n_with_contract\nFROM Opportunity o;\n\nSELECT\n  MIN(c.CompanySignedDate) AS min_signed, MAX(c.CompanySignedDate) AS max_signed,\n  COUNT(*) AS n_contract\nFROM Contract c;\n"
+    },
+    {
+      "producer": "9e6aa8e4e69a4900aa19221f8f16c2a9",
+      "consumer": "598f0ac9f96143c0ab93e4082625127d",
+      "producer_index": 2,
+      "consumer_index": 3,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "companysigneddate",
+        "contractid__c",
+        "createddate"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC\nLIMIT 10;\n",
+      "consumer_sql": "SELECT\n  MIN(o.CreatedDate) AS min_created, MAX(o.CreatedDate) AS max_created,\n  MIN(o.CloseDate) AS min_close, MAX(o.CloseDate) AS max_close,\n  COUNT(*) AS n_opp,\n  SUM(CASE WHEN o.ContractID__c IS NOT NULL THEN 1 ELSE 0 END) AS n_with_contract\nFROM Opportunity o;\n\nSELECT\n  MIN(c.CompanySignedDate) AS min_signed, MAX(c.CompanySignedDate) AS max_signed,\n  COUNT(*) AS n_contract\nFROM Contract c;\n"
+    },
+    {
+      "producer": "d50925ad9c8b4ffdaa8b344ef3f68e81",
+      "consumer": "e66fde8c074e4abd8e16e6bc1008c1c7",
+      "producer_index": 1,
+      "consumer_index": 4,
+      "shared_tables": [
+        "opportunity"
+      ],
+      "shared_columns": [
+        "contractid__c",
+        "createddate"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC\nLIMIT 10;\n",
+      "consumer_sql": "SELECT\n  MIN(CreatedDate) AS min_created, MAX(CreatedDate) AS max_created,\n  MIN(CloseDate) AS min_close, MAX(CloseDate) AS max_close,\n  COUNT(*) AS n_opp,\n  SUM(CASE WHEN ContractID__c IS NOT NULL THEN 1 ELSE 0 END) AS n_with_contract,\n  SUM(CASE WHEN CAST(CreatedDate AS DATE) >= DATE '2023-04-01' AND CAST(CreatedDate AS DATE) < DATE '2023-05-01' THEN 1 ELSE 0 END) AS n_created_apr2023,\n  SUM(CASE WHEN CAST(CloseDate AS DATE) >= DATE '2023-04-01' AND CAST(CloseDate AS DATE) < DATE '2023-05-01' THEN 1 ELSE 0 END) AS n_closed_apr2023\nFROM Opportunity;\n"
+    },
+    {
+      "producer": "9e6aa8e4e69a4900aa19221f8f16c2a9",
+      "consumer": "e66fde8c074e4abd8e16e6bc1008c1c7",
+      "producer_index": 2,
+      "consumer_index": 4,
+      "shared_tables": [
+        "opportunity"
+      ],
+      "shared_columns": [
+        "contractid__c",
+        "createddate"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC\nLIMIT 10;\n",
+      "consumer_sql": "SELECT\n  MIN(CreatedDate) AS min_created, MAX(CreatedDate) AS max_created,\n  MIN(CloseDate) AS min_close, MAX(CloseDate) AS max_close,\n  COUNT(*) AS n_opp,\n  SUM(CASE WHEN ContractID__c IS NOT NULL THEN 1 ELSE 0 END) AS n_with_contract,\n  SUM(CASE WHEN CAST(CreatedDate AS DATE) >= DATE '2023-04-01' AND CAST(CreatedDate AS DATE) < DATE '2023-05-01' THEN 1 ELSE 0 END) AS n_created_apr2023,\n  SUM(CASE WHEN CAST(CloseDate AS DATE) >= DATE '2023-04-01' AND CAST(CloseDate AS DATE) < DATE '2023-05-01' THEN 1 ELSE 0 END) AS n_closed_apr2023\nFROM Opportunity;\n"
+    },
+    {
+      "producer": "598f0ac9f96143c0ab93e4082625127d",
+      "consumer": "e66fde8c074e4abd8e16e6bc1008c1c7",
+      "producer_index": 3,
+      "consumer_index": 4,
+      "shared_tables": [
+        "opportunity"
+      ],
+      "shared_columns": [
+        "closedate",
+        "contractid__c",
+        "createddate"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  MIN(o.CreatedDate) AS min_created, MAX(o.CreatedDate) AS max_created,\n  MIN(o.CloseDate) AS min_close, MAX(o.CloseDate) AS max_close,\n  COUNT(*) AS n_opp,\n  SUM(CASE WHEN o.ContractID__c IS NOT NULL THEN 1 ELSE 0 END) AS n_with_contract\nFROM Opportunity o;\n\nSELECT\n  MIN(c.CompanySignedDate) AS min_signed, MAX(c.CompanySignedDate) AS max_signed,\n  COUNT(*) AS n_contract\nFROM Contract c;\n",
+      "consumer_sql": "SELECT\n  MIN(CreatedDate) AS min_created, MAX(CreatedDate) AS max_created,\n  MIN(CloseDate) AS min_close, MAX(CloseDate) AS max_close,\n  COUNT(*) AS n_opp,\n  SUM(CASE WHEN ContractID__c IS NOT NULL THEN 1 ELSE 0 END) AS n_with_contract,\n  SUM(CASE WHEN CAST(CreatedDate AS DATE) >= DATE '2023-04-01' AND CAST(CreatedDate AS DATE) < DATE '2023-05-01' THEN 1 ELSE 0 END) AS n_created_apr2023,\n  SUM(CASE WHEN CAST(CloseDate AS DATE) >= DATE '2023-04-01' AND CAST(CloseDate AS DATE) < DATE '2023-05-01' THEN 1 ELSE 0 END) AS n_closed_apr2023\nFROM Opportunity;\n"
+    },
+    {
+      "producer": "d50925ad9c8b4ffdaa8b344ef3f68e81",
+      "consumer": "3b2146be0b8845aa814455c3306686bd",
+      "producer_index": 1,
+      "consumer_index": 5,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [
+        "JOIN contract AS c ON c.id = o.contractid__c"
+      ],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 2,
+      "producer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC\nLIMIT 10;\n",
+      "consumer_sql": "SELECT\n  o.Id AS opp_id, o.OwnerId, o.CreatedDate, o.CloseDate, c.CompanySignedDate,\n  CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE) AS cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(o.CloseDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CloseDate AS DATE) < DATE '2023-05-01'\nORDER BY o.OwnerId;\n"
+    },
+    {
+      "producer": "9e6aa8e4e69a4900aa19221f8f16c2a9",
+      "consumer": "3b2146be0b8845aa814455c3306686bd",
+      "producer_index": 2,
+      "consumer_index": 5,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [
+        "JOIN contract AS c ON c.id = o.contractid__c"
+      ],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 2,
+      "producer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC\nLIMIT 10;\n",
+      "consumer_sql": "SELECT\n  o.Id AS opp_id, o.OwnerId, o.CreatedDate, o.CloseDate, c.CompanySignedDate,\n  CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE) AS cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(o.CloseDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CloseDate AS DATE) < DATE '2023-05-01'\nORDER BY o.OwnerId;\n"
+    },
+    {
+      "producer": "598f0ac9f96143c0ab93e4082625127d",
+      "consumer": "3b2146be0b8845aa814455c3306686bd",
+      "producer_index": 3,
+      "consumer_index": 5,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "closedate",
+        "companysigneddate",
+        "contractid__c",
+        "createddate"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 2,
+      "producer_sql": "SELECT\n  MIN(o.CreatedDate) AS min_created, MAX(o.CreatedDate) AS max_created,\n  MIN(o.CloseDate) AS min_close, MAX(o.CloseDate) AS max_close,\n  COUNT(*) AS n_opp,\n  SUM(CASE WHEN o.ContractID__c IS NOT NULL THEN 1 ELSE 0 END) AS n_with_contract\nFROM Opportunity o;\n\nSELECT\n  MIN(c.CompanySignedDate) AS min_signed, MAX(c.CompanySignedDate) AS max_signed,\n  COUNT(*) AS n_contract\nFROM Contract c;\n",
+      "consumer_sql": "SELECT\n  o.Id AS opp_id, o.OwnerId, o.CreatedDate, o.CloseDate, c.CompanySignedDate,\n  CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE) AS cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(o.CloseDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CloseDate AS DATE) < DATE '2023-05-01'\nORDER BY o.OwnerId;\n"
+    },
+    {
+      "producer": "e66fde8c074e4abd8e16e6bc1008c1c7",
+      "consumer": "3b2146be0b8845aa814455c3306686bd",
+      "producer_index": 4,
+      "consumer_index": 5,
+      "shared_tables": [
+        "opportunity"
+      ],
+      "shared_columns": [
+        "closedate",
+        "contractid__c",
+        "createddate"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 2,
+      "producer_sql": "SELECT\n  MIN(CreatedDate) AS min_created, MAX(CreatedDate) AS max_created,\n  MIN(CloseDate) AS min_close, MAX(CloseDate) AS max_close,\n  COUNT(*) AS n_opp,\n  SUM(CASE WHEN ContractID__c IS NOT NULL THEN 1 ELSE 0 END) AS n_with_contract,\n  SUM(CASE WHEN CAST(CreatedDate AS DATE) >= DATE '2023-04-01' AND CAST(CreatedDate AS DATE) < DATE '2023-05-01' THEN 1 ELSE 0 END) AS n_created_apr2023,\n  SUM(CASE WHEN CAST(CloseDate AS DATE) >= DATE '2023-04-01' AND CAST(CloseDate AS DATE) < DATE '2023-05-01' THEN 1 ELSE 0 END) AS n_closed_apr2023\nFROM Opportunity;\n",
+      "consumer_sql": "SELECT\n  o.Id AS opp_id, o.OwnerId, o.CreatedDate, o.CloseDate, c.CompanySignedDate,\n  CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE) AS cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(o.CloseDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CloseDate AS DATE) < DATE '2023-05-01'\nORDER BY o.OwnerId;\n"
+    },
+    {
+      "producer": "d50925ad9c8b4ffdaa8b344ef3f68e81",
+      "consumer": "3313c6d48e5d4b26ae1bb68613adadbf",
+      "producer_index": 1,
+      "consumer_index": 6,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "contractid__c",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC\nLIMIT 10;\n",
+      "consumer_sql": "SELECT\n  SUM(CASE WHEN ContractID__c LIKE '#%' THEN 1 ELSE 0 END) AS hash_contract,\n  SUM(CASE WHEN OwnerId LIKE '#%' THEN 1 ELSE 0 END) AS hash_owner,\n  COUNT(*) AS total\nFROM Opportunity;\n\nSELECT\n  SUM(CASE WHEN Id LIKE '#%' THEN 1 ELSE 0 END) AS hash_id,\n  COUNT(*) AS total\nFROM Contract;\n"
+    },
+    {
+      "producer": "9e6aa8e4e69a4900aa19221f8f16c2a9",
+      "consumer": "3313c6d48e5d4b26ae1bb68613adadbf",
+      "producer_index": 2,
+      "consumer_index": 6,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "contractid__c",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC\nLIMIT 10;\n",
+      "consumer_sql": "SELECT\n  SUM(CASE WHEN ContractID__c LIKE '#%' THEN 1 ELSE 0 END) AS hash_contract,\n  SUM(CASE WHEN OwnerId LIKE '#%' THEN 1 ELSE 0 END) AS hash_owner,\n  COUNT(*) AS total\nFROM Opportunity;\n\nSELECT\n  SUM(CASE WHEN Id LIKE '#%' THEN 1 ELSE 0 END) AS hash_id,\n  COUNT(*) AS total\nFROM Contract;\n"
+    },
+    {
+      "producer": "598f0ac9f96143c0ab93e4082625127d",
+      "consumer": "3313c6d48e5d4b26ae1bb68613adadbf",
+      "producer_index": 3,
+      "consumer_index": 6,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "contractid__c"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  MIN(o.CreatedDate) AS min_created, MAX(o.CreatedDate) AS max_created,\n  MIN(o.CloseDate) AS min_close, MAX(o.CloseDate) AS max_close,\n  COUNT(*) AS n_opp,\n  SUM(CASE WHEN o.ContractID__c IS NOT NULL THEN 1 ELSE 0 END) AS n_with_contract\nFROM Opportunity o;\n\nSELECT\n  MIN(c.CompanySignedDate) AS min_signed, MAX(c.CompanySignedDate) AS max_signed,\n  COUNT(*) AS n_contract\nFROM Contract c;\n",
+      "consumer_sql": "SELECT\n  SUM(CASE WHEN ContractID__c LIKE '#%' THEN 1 ELSE 0 END) AS hash_contract,\n  SUM(CASE WHEN OwnerId LIKE '#%' THEN 1 ELSE 0 END) AS hash_owner,\n  COUNT(*) AS total\nFROM Opportunity;\n\nSELECT\n  SUM(CASE WHEN Id LIKE '#%' THEN 1 ELSE 0 END) AS hash_id,\n  COUNT(*) AS total\nFROM Contract;\n"
+    },
+    {
+      "producer": "e66fde8c074e4abd8e16e6bc1008c1c7",
+      "consumer": "3313c6d48e5d4b26ae1bb68613adadbf",
+      "producer_index": 4,
+      "consumer_index": 6,
+      "shared_tables": [
+        "opportunity"
+      ],
+      "shared_columns": [
+        "contractid__c"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  MIN(CreatedDate) AS min_created, MAX(CreatedDate) AS max_created,\n  MIN(CloseDate) AS min_close, MAX(CloseDate) AS max_close,\n  COUNT(*) AS n_opp,\n  SUM(CASE WHEN ContractID__c IS NOT NULL THEN 1 ELSE 0 END) AS n_with_contract,\n  SUM(CASE WHEN CAST(CreatedDate AS DATE) >= DATE '2023-04-01' AND CAST(CreatedDate AS DATE) < DATE '2023-05-01' THEN 1 ELSE 0 END) AS n_created_apr2023,\n  SUM(CASE WHEN CAST(CloseDate AS DATE) >= DATE '2023-04-01' AND CAST(CloseDate AS DATE) < DATE '2023-05-01' THEN 1 ELSE 0 END) AS n_closed_apr2023\nFROM Opportunity;\n",
+      "consumer_sql": "SELECT\n  SUM(CASE WHEN ContractID__c LIKE '#%' THEN 1 ELSE 0 END) AS hash_contract,\n  SUM(CASE WHEN OwnerId LIKE '#%' THEN 1 ELSE 0 END) AS hash_owner,\n  COUNT(*) AS total\nFROM Opportunity;\n\nSELECT\n  SUM(CASE WHEN Id LIKE '#%' THEN 1 ELSE 0 END) AS hash_id,\n  COUNT(*) AS total\nFROM Contract;\n"
+    },
+    {
+      "producer": "3b2146be0b8845aa814455c3306686bd",
+      "consumer": "3313c6d48e5d4b26ae1bb68613adadbf",
+      "producer_index": 5,
+      "consumer_index": 6,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "contractid__c",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  o.Id AS opp_id, o.OwnerId, o.CreatedDate, o.CloseDate, c.CompanySignedDate,\n  CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE) AS cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(o.CloseDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CloseDate AS DATE) < DATE '2023-05-01'\nORDER BY o.OwnerId;\n",
+      "consumer_sql": "SELECT\n  SUM(CASE WHEN ContractID__c LIKE '#%' THEN 1 ELSE 0 END) AS hash_contract,\n  SUM(CASE WHEN OwnerId LIKE '#%' THEN 1 ELSE 0 END) AS hash_owner,\n  COUNT(*) AS total\nFROM Opportunity;\n\nSELECT\n  SUM(CASE WHEN Id LIKE '#%' THEN 1 ELSE 0 END) AS hash_id,\n  COUNT(*) AS total\nFROM Contract;\n"
+    },
+    {
+      "producer": "d50925ad9c8b4ffdaa8b344ef3f68e81",
+      "consumer": "2aa9db066b664ff2bba1dba9fcdaa74c",
+      "producer_index": 1,
+      "consumer_index": 7,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "contractid__c",
+        "id"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC\nLIMIT 10;\n",
+      "consumer_sql": "SELECT\n  COUNT(*) AS opp_with_contract,\n  SUM(CASE WHEN c1.Id IS NOT NULL THEN 1 ELSE 0 END) AS matched_raw,\n  SUM(CASE WHEN c2.Id IS NOT NULL THEN 1 ELSE 0 END) AS matched_stripped\nFROM Opportunity o\nLEFT JOIN Contract c1 ON c1.Id = o.ContractID__c\nLEFT JOIN Contract c2 ON replace(c2.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE o.ContractID__c IS NOT NULL;\n"
+    },
+    {
+      "producer": "9e6aa8e4e69a4900aa19221f8f16c2a9",
+      "consumer": "2aa9db066b664ff2bba1dba9fcdaa74c",
+      "producer_index": 2,
+      "consumer_index": 7,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "contractid__c",
+        "id"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC\nLIMIT 10;\n",
+      "consumer_sql": "SELECT\n  COUNT(*) AS opp_with_contract,\n  SUM(CASE WHEN c1.Id IS NOT NULL THEN 1 ELSE 0 END) AS matched_raw,\n  SUM(CASE WHEN c2.Id IS NOT NULL THEN 1 ELSE 0 END) AS matched_stripped\nFROM Opportunity o\nLEFT JOIN Contract c1 ON c1.Id = o.ContractID__c\nLEFT JOIN Contract c2 ON replace(c2.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE o.ContractID__c IS NOT NULL;\n"
+    },
+    {
+      "producer": "598f0ac9f96143c0ab93e4082625127d",
+      "consumer": "2aa9db066b664ff2bba1dba9fcdaa74c",
+      "producer_index": 3,
+      "consumer_index": 7,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "contractid__c"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  MIN(o.CreatedDate) AS min_created, MAX(o.CreatedDate) AS max_created,\n  MIN(o.CloseDate) AS min_close, MAX(o.CloseDate) AS max_close,\n  COUNT(*) AS n_opp,\n  SUM(CASE WHEN o.ContractID__c IS NOT NULL THEN 1 ELSE 0 END) AS n_with_contract\nFROM Opportunity o;\n\nSELECT\n  MIN(c.CompanySignedDate) AS min_signed, MAX(c.CompanySignedDate) AS max_signed,\n  COUNT(*) AS n_contract\nFROM Contract c;\n",
+      "consumer_sql": "SELECT\n  COUNT(*) AS opp_with_contract,\n  SUM(CASE WHEN c1.Id IS NOT NULL THEN 1 ELSE 0 END) AS matched_raw,\n  SUM(CASE WHEN c2.Id IS NOT NULL THEN 1 ELSE 0 END) AS matched_stripped\nFROM Opportunity o\nLEFT JOIN Contract c1 ON c1.Id = o.ContractID__c\nLEFT JOIN Contract c2 ON replace(c2.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE o.ContractID__c IS NOT NULL;\n"
+    },
+    {
+      "producer": "e66fde8c074e4abd8e16e6bc1008c1c7",
+      "consumer": "2aa9db066b664ff2bba1dba9fcdaa74c",
+      "producer_index": 4,
+      "consumer_index": 7,
+      "shared_tables": [
+        "opportunity"
+      ],
+      "shared_columns": [
+        "contractid__c"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  MIN(CreatedDate) AS min_created, MAX(CreatedDate) AS max_created,\n  MIN(CloseDate) AS min_close, MAX(CloseDate) AS max_close,\n  COUNT(*) AS n_opp,\n  SUM(CASE WHEN ContractID__c IS NOT NULL THEN 1 ELSE 0 END) AS n_with_contract,\n  SUM(CASE WHEN CAST(CreatedDate AS DATE) >= DATE '2023-04-01' AND CAST(CreatedDate AS DATE) < DATE '2023-05-01' THEN 1 ELSE 0 END) AS n_created_apr2023,\n  SUM(CASE WHEN CAST(CloseDate AS DATE) >= DATE '2023-04-01' AND CAST(CloseDate AS DATE) < DATE '2023-05-01' THEN 1 ELSE 0 END) AS n_closed_apr2023\nFROM Opportunity;\n",
+      "consumer_sql": "SELECT\n  COUNT(*) AS opp_with_contract,\n  SUM(CASE WHEN c1.Id IS NOT NULL THEN 1 ELSE 0 END) AS matched_raw,\n  SUM(CASE WHEN c2.Id IS NOT NULL THEN 1 ELSE 0 END) AS matched_stripped\nFROM Opportunity o\nLEFT JOIN Contract c1 ON c1.Id = o.ContractID__c\nLEFT JOIN Contract c2 ON replace(c2.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE o.ContractID__c IS NOT NULL;\n"
+    },
+    {
+      "producer": "3b2146be0b8845aa814455c3306686bd",
+      "consumer": "2aa9db066b664ff2bba1dba9fcdaa74c",
+      "producer_index": 5,
+      "consumer_index": 7,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "contractid__c",
+        "id"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  o.Id AS opp_id, o.OwnerId, o.CreatedDate, o.CloseDate, c.CompanySignedDate,\n  CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE) AS cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(o.CloseDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CloseDate AS DATE) < DATE '2023-05-01'\nORDER BY o.OwnerId;\n",
+      "consumer_sql": "SELECT\n  COUNT(*) AS opp_with_contract,\n  SUM(CASE WHEN c1.Id IS NOT NULL THEN 1 ELSE 0 END) AS matched_raw,\n  SUM(CASE WHEN c2.Id IS NOT NULL THEN 1 ELSE 0 END) AS matched_stripped\nFROM Opportunity o\nLEFT JOIN Contract c1 ON c1.Id = o.ContractID__c\nLEFT JOIN Contract c2 ON replace(c2.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE o.ContractID__c IS NOT NULL;\n"
+    },
+    {
+      "producer": "3313c6d48e5d4b26ae1bb68613adadbf",
+      "consumer": "2aa9db066b664ff2bba1dba9fcdaa74c",
+      "producer_index": 6,
+      "consumer_index": 7,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "contractid__c",
+        "id"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  SUM(CASE WHEN ContractID__c LIKE '#%' THEN 1 ELSE 0 END) AS hash_contract,\n  SUM(CASE WHEN OwnerId LIKE '#%' THEN 1 ELSE 0 END) AS hash_owner,\n  COUNT(*) AS total\nFROM Opportunity;\n\nSELECT\n  SUM(CASE WHEN Id LIKE '#%' THEN 1 ELSE 0 END) AS hash_id,\n  COUNT(*) AS total\nFROM Contract;\n",
+      "consumer_sql": "SELECT\n  COUNT(*) AS opp_with_contract,\n  SUM(CASE WHEN c1.Id IS NOT NULL THEN 1 ELSE 0 END) AS matched_raw,\n  SUM(CASE WHEN c2.Id IS NOT NULL THEN 1 ELSE 0 END) AS matched_stripped\nFROM Opportunity o\nLEFT JOIN Contract c1 ON c1.Id = o.ContractID__c\nLEFT JOIN Contract c2 ON replace(c2.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE o.ContractID__c IS NOT NULL;\n"
+    },
+    {
+      "producer": "d50925ad9c8b4ffdaa8b344ef3f68e81",
+      "consumer": "c5e7dcacc4c94f32a110248f073138cf",
+      "producer_index": 1,
+      "consumer_index": 8,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "avg_cycle_days",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [
+        "CAST(o.createddate AS DATE) >= CAST('2023-04-01' AS DATE) AND CAST(o.createddate AS DATE) < CAST('2023-05-01' AS DATE) AND NOT c.companysigneddate IS NULL"
+      ],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "AVG(CAST(c.companysigneddate AS DATE) - CAST(o.createddate AS DATE))",
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 3,
+      "producer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC\nLIMIT 10;\n",
+      "consumer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days,\n  MIN(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS min_cycle,\n  MAX(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS max_cycle\nFROM Opportunity o\nJOIN Contract c ON replace(c.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC;\n"
+    },
+    {
+      "producer": "9e6aa8e4e69a4900aa19221f8f16c2a9",
+      "consumer": "c5e7dcacc4c94f32a110248f073138cf",
+      "producer_index": 2,
+      "consumer_index": 8,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "avg_cycle_days",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "AVG(CAST(c.companysigneddate AS DATE) - CAST(o.createddate AS DATE))",
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 3,
+      "producer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC\nLIMIT 10;\n",
+      "consumer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days,\n  MIN(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS min_cycle,\n  MAX(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS max_cycle\nFROM Opportunity o\nJOIN Contract c ON replace(c.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC;\n"
+    },
+    {
+      "producer": "598f0ac9f96143c0ab93e4082625127d",
+      "consumer": "c5e7dcacc4c94f32a110248f073138cf",
+      "producer_index": 3,
+      "consumer_index": 8,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "companysigneddate",
+        "contractid__c",
+        "createddate"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 3,
+      "producer_sql": "SELECT\n  MIN(o.CreatedDate) AS min_created, MAX(o.CreatedDate) AS max_created,\n  MIN(o.CloseDate) AS min_close, MAX(o.CloseDate) AS max_close,\n  COUNT(*) AS n_opp,\n  SUM(CASE WHEN o.ContractID__c IS NOT NULL THEN 1 ELSE 0 END) AS n_with_contract\nFROM Opportunity o;\n\nSELECT\n  MIN(c.CompanySignedDate) AS min_signed, MAX(c.CompanySignedDate) AS max_signed,\n  COUNT(*) AS n_contract\nFROM Contract c;\n",
+      "consumer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days,\n  MIN(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS min_cycle,\n  MAX(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS max_cycle\nFROM Opportunity o\nJOIN Contract c ON replace(c.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC;\n"
+    },
+    {
+      "producer": "e66fde8c074e4abd8e16e6bc1008c1c7",
+      "consumer": "c5e7dcacc4c94f32a110248f073138cf",
+      "producer_index": 4,
+      "consumer_index": 8,
+      "shared_tables": [
+        "opportunity"
+      ],
+      "shared_columns": [
+        "contractid__c",
+        "createddate"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 3,
+      "producer_sql": "SELECT\n  MIN(CreatedDate) AS min_created, MAX(CreatedDate) AS max_created,\n  MIN(CloseDate) AS min_close, MAX(CloseDate) AS max_close,\n  COUNT(*) AS n_opp,\n  SUM(CASE WHEN ContractID__c IS NOT NULL THEN 1 ELSE 0 END) AS n_with_contract,\n  SUM(CASE WHEN CAST(CreatedDate AS DATE) >= DATE '2023-04-01' AND CAST(CreatedDate AS DATE) < DATE '2023-05-01' THEN 1 ELSE 0 END) AS n_created_apr2023,\n  SUM(CASE WHEN CAST(CloseDate AS DATE) >= DATE '2023-04-01' AND CAST(CloseDate AS DATE) < DATE '2023-05-01' THEN 1 ELSE 0 END) AS n_closed_apr2023\nFROM Opportunity;\n",
+      "consumer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days,\n  MIN(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS min_cycle,\n  MAX(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS max_cycle\nFROM Opportunity o\nJOIN Contract c ON replace(c.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC;\n"
+    },
+    {
+      "producer": "3b2146be0b8845aa814455c3306686bd",
+      "consumer": "c5e7dcacc4c94f32a110248f073138cf",
+      "producer_index": 5,
+      "consumer_index": 8,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 3,
+      "producer_sql": "SELECT\n  o.Id AS opp_id, o.OwnerId, o.CreatedDate, o.CloseDate, c.CompanySignedDate,\n  CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE) AS cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(o.CloseDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CloseDate AS DATE) < DATE '2023-05-01'\nORDER BY o.OwnerId;\n",
+      "consumer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days,\n  MIN(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS min_cycle,\n  MAX(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS max_cycle\nFROM Opportunity o\nJOIN Contract c ON replace(c.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC;\n"
+    },
+    {
+      "producer": "3313c6d48e5d4b26ae1bb68613adadbf",
+      "consumer": "c5e7dcacc4c94f32a110248f073138cf",
+      "producer_index": 6,
+      "consumer_index": 8,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "contractid__c",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 3,
+      "producer_sql": "SELECT\n  SUM(CASE WHEN ContractID__c LIKE '#%' THEN 1 ELSE 0 END) AS hash_contract,\n  SUM(CASE WHEN OwnerId LIKE '#%' THEN 1 ELSE 0 END) AS hash_owner,\n  COUNT(*) AS total\nFROM Opportunity;\n\nSELECT\n  SUM(CASE WHEN Id LIKE '#%' THEN 1 ELSE 0 END) AS hash_id,\n  COUNT(*) AS total\nFROM Contract;\n",
+      "consumer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days,\n  MIN(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS min_cycle,\n  MAX(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS max_cycle\nFROM Opportunity o\nJOIN Contract c ON replace(c.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC;\n"
+    },
+    {
+      "producer": "2aa9db066b664ff2bba1dba9fcdaa74c",
+      "consumer": "c5e7dcacc4c94f32a110248f073138cf",
+      "producer_index": 7,
+      "consumer_index": 8,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "contractid__c",
+        "id"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 3,
+      "producer_sql": "SELECT\n  COUNT(*) AS opp_with_contract,\n  SUM(CASE WHEN c1.Id IS NOT NULL THEN 1 ELSE 0 END) AS matched_raw,\n  SUM(CASE WHEN c2.Id IS NOT NULL THEN 1 ELSE 0 END) AS matched_stripped\nFROM Opportunity o\nLEFT JOIN Contract c1 ON c1.Id = o.ContractID__c\nLEFT JOIN Contract c2 ON replace(c2.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE o.ContractID__c IS NOT NULL;\n",
+      "consumer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days,\n  MIN(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS min_cycle,\n  MAX(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS max_cycle\nFROM Opportunity o\nJOIN Contract c ON replace(c.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC;\n"
+    },
+    {
+      "producer": "d50925ad9c8b4ffdaa8b344ef3f68e81",
+      "consumer": "5d11c21e0e624339b325b42b7a91c8a4",
+      "producer_index": 1,
+      "consumer_index": 9,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "avg_cycle_days",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "AVG(CAST(c.companysigneddate AS DATE) - CAST(o.createddate AS DATE))",
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC\nLIMIT 10;\n",
+      "consumer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON replace(c.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC;\n"
+    },
+    {
+      "producer": "9e6aa8e4e69a4900aa19221f8f16c2a9",
+      "consumer": "5d11c21e0e624339b325b42b7a91c8a4",
+      "producer_index": 2,
+      "consumer_index": 9,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "avg_cycle_days",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [
+        "CAST(c.companysigneddate AS DATE) >= CAST('2023-04-01' AS DATE) AND CAST(c.companysigneddate AS DATE) < CAST('2023-05-01' AS DATE)"
+      ],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "AVG(CAST(c.companysigneddate AS DATE) - CAST(o.createddate AS DATE))",
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC\nLIMIT 10;\n",
+      "consumer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON replace(c.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC;\n"
+    },
+    {
+      "producer": "598f0ac9f96143c0ab93e4082625127d",
+      "consumer": "5d11c21e0e624339b325b42b7a91c8a4",
+      "producer_index": 3,
+      "consumer_index": 9,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "companysigneddate",
+        "contractid__c",
+        "createddate"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  MIN(o.CreatedDate) AS min_created, MAX(o.CreatedDate) AS max_created,\n  MIN(o.CloseDate) AS min_close, MAX(o.CloseDate) AS max_close,\n  COUNT(*) AS n_opp,\n  SUM(CASE WHEN o.ContractID__c IS NOT NULL THEN 1 ELSE 0 END) AS n_with_contract\nFROM Opportunity o;\n\nSELECT\n  MIN(c.CompanySignedDate) AS min_signed, MAX(c.CompanySignedDate) AS max_signed,\n  COUNT(*) AS n_contract\nFROM Contract c;\n",
+      "consumer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON replace(c.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC;\n"
+    },
+    {
+      "producer": "e66fde8c074e4abd8e16e6bc1008c1c7",
+      "consumer": "5d11c21e0e624339b325b42b7a91c8a4",
+      "producer_index": 4,
+      "consumer_index": 9,
+      "shared_tables": [
+        "opportunity"
+      ],
+      "shared_columns": [
+        "contractid__c",
+        "createddate"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  MIN(CreatedDate) AS min_created, MAX(CreatedDate) AS max_created,\n  MIN(CloseDate) AS min_close, MAX(CloseDate) AS max_close,\n  COUNT(*) AS n_opp,\n  SUM(CASE WHEN ContractID__c IS NOT NULL THEN 1 ELSE 0 END) AS n_with_contract,\n  SUM(CASE WHEN CAST(CreatedDate AS DATE) >= DATE '2023-04-01' AND CAST(CreatedDate AS DATE) < DATE '2023-05-01' THEN 1 ELSE 0 END) AS n_created_apr2023,\n  SUM(CASE WHEN CAST(CloseDate AS DATE) >= DATE '2023-04-01' AND CAST(CloseDate AS DATE) < DATE '2023-05-01' THEN 1 ELSE 0 END) AS n_closed_apr2023\nFROM Opportunity;\n",
+      "consumer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON replace(c.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC;\n"
+    },
+    {
+      "producer": "3b2146be0b8845aa814455c3306686bd",
+      "consumer": "5d11c21e0e624339b325b42b7a91c8a4",
+      "producer_index": 5,
+      "consumer_index": 9,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  o.Id AS opp_id, o.OwnerId, o.CreatedDate, o.CloseDate, c.CompanySignedDate,\n  CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE) AS cycle_days\nFROM Opportunity o\nJOIN Contract c ON c.Id = o.ContractID__c\nWHERE CAST(o.CloseDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CloseDate AS DATE) < DATE '2023-05-01'\nORDER BY o.OwnerId;\n",
+      "consumer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON replace(c.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC;\n"
+    },
+    {
+      "producer": "3313c6d48e5d4b26ae1bb68613adadbf",
+      "consumer": "5d11c21e0e624339b325b42b7a91c8a4",
+      "producer_index": 6,
+      "consumer_index": 9,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "contractid__c",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  SUM(CASE WHEN ContractID__c LIKE '#%' THEN 1 ELSE 0 END) AS hash_contract,\n  SUM(CASE WHEN OwnerId LIKE '#%' THEN 1 ELSE 0 END) AS hash_owner,\n  COUNT(*) AS total\nFROM Opportunity;\n\nSELECT\n  SUM(CASE WHEN Id LIKE '#%' THEN 1 ELSE 0 END) AS hash_id,\n  COUNT(*) AS total\nFROM Contract;\n",
+      "consumer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON replace(c.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC;\n"
+    },
+    {
+      "producer": "2aa9db066b664ff2bba1dba9fcdaa74c",
+      "consumer": "5d11c21e0e624339b325b42b7a91c8a4",
+      "producer_index": 7,
+      "consumer_index": 9,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "contractid__c",
+        "id"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  COUNT(*) AS opp_with_contract,\n  SUM(CASE WHEN c1.Id IS NOT NULL THEN 1 ELSE 0 END) AS matched_raw,\n  SUM(CASE WHEN c2.Id IS NOT NULL THEN 1 ELSE 0 END) AS matched_stripped\nFROM Opportunity o\nLEFT JOIN Contract c1 ON c1.Id = o.ContractID__c\nLEFT JOIN Contract c2 ON replace(c2.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE o.ContractID__c IS NOT NULL;\n",
+      "consumer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON replace(c.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC;\n"
+    },
+    {
+      "producer": "c5e7dcacc4c94f32a110248f073138cf",
+      "consumer": "5d11c21e0e624339b325b42b7a91c8a4",
+      "producer_index": 8,
+      "consumer_index": 9,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "avg_cycle_days",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [
+        "JOIN contract AS c ON REPLACE(c.id, '#', '') = REPLACE(o.contractid__c, '#', '')"
+      ],
+      "shared_aggregates": [
+        "AVG(CAST(c.companysigneddate AS DATE) - CAST(o.createddate AS DATE))",
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 3,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days,\n  MIN(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS min_cycle,\n  MAX(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS max_cycle\nFROM Opportunity o\nJOIN Contract c ON replace(c.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC;\n",
+      "consumer_sql": "SELECT\n  o.OwnerId,\n  COUNT(*) AS n_opps,\n  AVG(CAST(c.CompanySignedDate AS DATE) - CAST(o.CreatedDate AS DATE)) AS avg_cycle_days\nFROM Opportunity o\nJOIN Contract c ON replace(c.Id, '#', '') = replace(o.ContractID__c, '#', '')\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_cycle_days ASC;\n"
+    }
+  ],
+  "fads": [
+    {
+      "call_id": "d5f93d7e83754bdd995a54f6564b4f2d",
+      "accesses": [
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Opportunity"
+          ],
+          "columns": [
+            "Id",
+            "ContractID__c",
+            "OwnerId",
+            "CreatedDate"
+          ],
+          "filters": [
+            "CreatedDate between 2023-04-01 and 2023-04-30"
+          ],
+          "operations": [
+            "filter",
+            "scan"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Contract"
+          ],
+          "columns": [
+            "Id",
+            "CompanySignedDate"
+          ],
+          "filters": [],
+          "operations": [
+            "join",
+            "scan"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "sales_pipeline",
+          "contract"
+        ],
+        [
+          "sales_pipeline",
+          "opportunity"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "d50925ad9c8b4ffdaa8b344ef3f68e81",
+        "9e6aa8e4e69a4900aa19221f8f16c2a9",
+        "598f0ac9f96143c0ab93e4082625127d"
+      ],
+      "targets_metadata": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.8333333333333334,
+      "operation_recall_1": 0.5,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "createddate BETWEEN 2023 - 04 - 01 AND 2023 - 04 - 30"
+      ],
+      "actual_filter_atoms": [
+        "CAST(createddate AS DATE) < CAST('2023-05-01' AS DATE)",
+        "CAST(createddate AS DATE) >= CAST('2023-04-01' AS DATE)",
+        "NOT companysigneddate IS NULL"
+      ],
+      "lead_s": 17.264275074005127,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": null
+    },
+    {
+      "call_id": "97b685cc95664767b8926e56a46d0c14",
+      "accesses": [
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Opportunity"
+          ],
+          "columns": [
+            "Id",
+            "ContractID__c",
+            "OwnerId",
+            "CreatedDate"
+          ],
+          "filters": [],
+          "operations": [
+            "join",
+            "aggregate",
+            "sort"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Contract"
+          ],
+          "columns": [
+            "Id",
+            "CompanySignedDate"
+          ],
+          "filters": [
+            "CompanySignedDate between 2023-04-01 and 2023-04-30"
+          ],
+          "operations": [
+            "filter",
+            "scan"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "sales_pipeline",
+          "contract"
+        ],
+        [
+          "sales_pipeline",
+          "opportunity"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "9e6aa8e4e69a4900aa19221f8f16c2a9",
+        "598f0ac9f96143c0ab93e4082625127d",
+        "e66fde8c074e4abd8e16e6bc1008c1c7"
+      ],
+      "targets_metadata": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.8333333333333334,
+      "operation_recall_1": 0.8333333333333334,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "companysigneddate BETWEEN 2023 - 04 - 01 AND 2023 - 04 - 30"
+      ],
+      "actual_filter_atoms": [
+        "CAST(companysigneddate AS DATE) < CAST('2023-05-01' AS DATE)",
+        "CAST(companysigneddate AS DATE) >= CAST('2023-04-01' AS DATE)"
+      ],
+      "lead_s": 12.20621395111084,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 1.0
+    },
+    {
+      "call_id": "12bf6da977194b85b780d92c4fd7bf51",
+      "accesses": [
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Opportunity"
+          ],
+          "columns": [
+            "Id",
+            "ContractID__c",
+            "OwnerId",
+            "CreatedDate",
+            "CloseDate"
+          ],
+          "filters": [],
+          "operations": [
+            "aggregate",
+            "scan",
+            "filter"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Contract"
+          ],
+          "columns": [
+            "Id",
+            "CompanySignedDate"
+          ],
+          "filters": [],
+          "operations": [
+            "join",
+            "aggregate"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "sales_pipeline",
+          "contract"
+        ],
+        [
+          "sales_pipeline",
+          "opportunity"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "598f0ac9f96143c0ab93e4082625127d",
+        "e66fde8c074e4abd8e16e6bc1008c1c7",
+        "3b2146be0b8845aa814455c3306686bd"
+      ],
+      "targets_metadata": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 0.6666666666666666,
+      "operation_precision_1": 0.5,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 12.872535228729248,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 1.0
+    },
+    {
+      "call_id": "d01f8ab6e147432298e5e035c7b2c81e",
+      "accesses": [
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Opportunity"
+          ],
+          "columns": [
+            "CreatedDate",
+            "CloseDate",
+            "ContractID__c"
+          ],
+          "filters": [],
+          "operations": [
+            "aggregate",
+            "scan"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "sales_pipeline",
+          "opportunity"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "e66fde8c074e4abd8e16e6bc1008c1c7",
+        "3b2146be0b8845aa814455c3306686bd",
+        "3313c6d48e5d4b26ae1bb68613adadbf"
+      ],
+      "targets_metadata": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 0.5,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 13.23690414428711,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 0.5
+    },
+    {
+      "call_id": "441797b0cd684c6cb71433a3e1679edf",
+      "accesses": [
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Opportunity"
+          ],
+          "columns": [
+            "Id",
+            "ContractID__c",
+            "OwnerId",
+            "CreatedDate",
+            "CloseDate"
+          ],
+          "filters": [
+            "CloseDate between 2023-04-01 and 2023-04-30"
+          ],
+          "operations": [
+            "filter",
+            "join",
+            "aggregate",
+            "sort"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Contract"
+          ],
+          "columns": [
+            "Id",
+            "CompanySignedDate"
+          ],
+          "filters": [],
+          "operations": [
+            "join",
+            "scan"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "sales_pipeline",
+          "contract"
+        ],
+        [
+          "sales_pipeline",
+          "opportunity"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "3b2146be0b8845aa814455c3306686bd",
+        "3313c6d48e5d4b26ae1bb68613adadbf",
+        "2aa9db066b664ff2bba1dba9fcdaa74c"
+      ],
+      "targets_metadata": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 0.8,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "closedate BETWEEN 2023 - 04 - 01 AND 2023 - 04 - 30"
+      ],
+      "actual_filter_atoms": [
+        "CAST(closedate AS DATE) < CAST('2023-05-01' AS DATE)",
+        "CAST(closedate AS DATE) >= CAST('2023-04-01' AS DATE)"
+      ],
+      "lead_s": 12.443336725234985,
+      "last_query_table_recall_1": 0.5,
+      "last_query_table_precision_1": 1.0
+    },
+    {
+      "call_id": "931a3b790a124f7caeaa747273533d6e",
+      "accesses": [
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Opportunity"
+          ],
+          "columns": [
+            "ContractID__c",
+            "OwnerId"
+          ],
+          "filters": [],
+          "operations": [
+            "aggregate",
+            "scan",
+            "filter"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Contract"
+          ],
+          "columns": [
+            "Id"
+          ],
+          "filters": [],
+          "operations": [
+            "aggregate",
+            "scan"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "core_crm",
+          "tables": [
+            "User"
+          ],
+          "columns": [
+            "Id"
+          ],
+          "filters": [],
+          "operations": [
+            "scan"
+          ],
+          "horizon": 2
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "core_crm",
+          "user"
+        ],
+        [
+          "sales_pipeline",
+          "contract"
+        ],
+        [
+          "sales_pipeline",
+          "opportunity"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "3313c6d48e5d4b26ae1bb68613adadbf",
+        "2aa9db066b664ff2bba1dba9fcdaa74c",
+        "c5e7dcacc4c94f32a110248f073138cf"
+      ],
+      "targets_metadata": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "core_crm",
+          "user"
+        ]
+      ],
+      "later_table_precision": 0.0,
+      "later_table_recall": 0.0,
+      "later_has_consumer": true,
+      "table_precision_1": 0.6666666666666666,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "core_crm",
+          "user"
+        ]
+      ],
+      "table_precision_3": 0.6666666666666666,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [
+        [
+          "core_crm",
+          "user"
+        ]
+      ],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 0.6666666666666666,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 11.156529188156128,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 1.0
+    },
+    {
+      "call_id": "d17da66cdff6491bb1ded51268ce9565",
+      "accesses": [
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Opportunity"
+          ],
+          "columns": [
+            "Id",
+            "ContractID__c",
+            "OwnerId",
+            "CreatedDate"
+          ],
+          "filters": [
+            "CreatedDate between 2023-04-01 and 2023-04-30"
+          ],
+          "operations": [
+            "filter",
+            "join",
+            "aggregate",
+            "sort"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Contract"
+          ],
+          "columns": [
+            "Id",
+            "CompanySignedDate"
+          ],
+          "filters": [],
+          "operations": [
+            "join",
+            "scan"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "sales_pipeline",
+          "contract"
+        ],
+        [
+          "sales_pipeline",
+          "opportunity"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "2aa9db066b664ff2bba1dba9fcdaa74c",
+        "c5e7dcacc4c94f32a110248f073138cf",
+        "5d11c21e0e624339b325b42b7a91c8a4"
+      ],
+      "targets_metadata": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 0.4,
+      "operation_precision_1": 0.8,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "createddate BETWEEN 2023 - 04 - 01 AND 2023 - 04 - 30"
+      ],
+      "actual_filter_atoms": [
+        "NOT contractid__c IS NULL"
+      ],
+      "lead_s": 13.73518681526184,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 1.0
+    },
+    {
+      "call_id": "860b45863d4c479d8a05e795564327e6",
+      "accesses": [
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Opportunity"
+          ],
+          "columns": [
+            "Id",
+            "ContractID__c",
+            "OwnerId",
+            "CreatedDate"
+          ],
+          "filters": [
+            "CreatedDate between 2023-04-01 and 2023-04-30"
+          ],
+          "operations": [
+            "filter",
+            "join",
+            "aggregate",
+            "sort"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Contract"
+          ],
+          "columns": [
+            "Id",
+            "CompanySignedDate"
+          ],
+          "filters": [],
+          "operations": [
+            "join",
+            "scan"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "sales_pipeline",
+          "contract"
+        ],
+        [
+          "sales_pipeline",
+          "opportunity"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "c5e7dcacc4c94f32a110248f073138cf",
+        "5d11c21e0e624339b325b42b7a91c8a4",
+        "c25f7f2451d44ce1bb75fb5203a64f98"
+      ],
+      "targets_metadata": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 0.6666666666666666,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.8333333333333334,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "createddate BETWEEN 2023 - 04 - 01 AND 2023 - 04 - 30"
+      ],
+      "actual_filter_atoms": [
+        "CAST(createddate AS DATE) < CAST('2023-05-01' AS DATE)",
+        "CAST(createddate AS DATE) >= CAST('2023-04-01' AS DATE)",
+        "NOT companysigneddate IS NULL"
+      ],
+      "lead_s": 12.343021869659424,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 1.0
+    },
+    {
+      "call_id": "f2cbd5d07a18485c83e67d5f3d5f0295",
+      "accesses": [
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Opportunity"
+          ],
+          "columns": [
+            "Id",
+            "ContractID__c",
+            "OwnerId",
+            "CreatedDate",
+            "CloseDate"
+          ],
+          "filters": [],
+          "operations": [
+            "join",
+            "aggregate",
+            "sort"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Contract"
+          ],
+          "columns": [
+            "Id",
+            "CompanySignedDate"
+          ],
+          "filters": [
+            "CompanySignedDate between 2023-04-01 and 2023-04-30"
+          ],
+          "operations": [
+            "filter",
+            "join",
+            "aggregate",
+            "sort"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "sales_pipeline",
+          "contract"
+        ],
+        [
+          "sales_pipeline",
+          "opportunity"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "5d11c21e0e624339b325b42b7a91c8a4",
+        "c25f7f2451d44ce1bb75fb5203a64f98"
+      ],
+      "targets_metadata": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 0.6666666666666666,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 0.8333333333333334,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.8333333333333334,
+      "operation_recall_1": 0.8,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "companysigneddate BETWEEN 2023 - 04 - 01 AND 2023 - 04 - 30"
+      ],
+      "actual_filter_atoms": [
+        "CAST(companysigneddate AS DATE) < CAST('2023-05-01' AS DATE)",
+        "CAST(companysigneddate AS DATE) >= CAST('2023-04-01' AS DATE)"
+      ],
+      "lead_s": 11.999812364578247,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 1.0
+    },
+    {
+      "call_id": "ab8f9306059f4fcbabdeedb881e58914",
+      "accesses": [
+        {
+          "database": "core_crm",
+          "tables": [
+            "User"
+          ],
+          "columns": [
+            "Id",
+            "FirstName",
+            "LastName"
+          ],
+          "filters": [
+            "Id = 005Wt000003NJgAIAW"
+          ],
+          "operations": [
+            "scan",
+            "filter"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Opportunity",
+            "Contract"
+          ],
+          "columns": [
+            "Id",
+            "OwnerId",
+            "CreatedDate",
+            "CompanySignedDate"
+          ],
+          "filters": [
+            "OwnerId = 005Wt000003NJgAIAW"
+          ],
+          "operations": [
+            "scan",
+            "filter",
+            "join"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "core_crm",
+          "user"
+        ],
+        [
+          "sales_pipeline",
+          "contract"
+        ],
+        [
+          "sales_pipeline",
+          "opportunity"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "c25f7f2451d44ce1bb75fb5203a64f98"
+      ],
+      "targets_metadata": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": false,
+      "table_precision_1": 0.3333333333333333,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "sales_pipeline",
+          "contract"
+        ],
+        [
+          "sales_pipeline",
+          "opportunity"
+        ]
+      ],
+      "table_precision_3": 0.3333333333333333,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [
+        [
+          "sales_pipeline",
+          "contract"
+        ],
+        [
+          "sales_pipeline",
+          "opportunity"
+        ]
+      ],
+      "immediate_table_precision": 0.3333333333333333,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.75,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "id = 005 AS wt000003njgaiaw"
+      ],
+      "actual_filter_atoms": [
+        "REPLACE (id, '#', '') = '005Wt000003NJgAIAW'"
+      ],
+      "lead_s": 8.866934537887573,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    }
+  ],
+  "audit": {
+    "assistant_turns": 43,
+    "sql_order_checks": {
+      "d50925ad9c8b4ffdaa8b344ef3f68e81": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "9e6aa8e4e69a4900aa19221f8f16c2a9": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "598f0ac9f96143c0ab93e4082625127d": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "e66fde8c074e4abd8e16e6bc1008c1c7": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "3b2146be0b8845aa814455c3306686bd": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "3313c6d48e5d4b26ae1bb68613adadbf": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "2aa9db066b664ff2bba1dba9fcdaa74c": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "c5e7dcacc4c94f32a110248f073138cf": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "5d11c21e0e624339b325b42b7a91c8a4": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "c25f7f2451d44ce1bb75fb5203a64f98": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      }
+    },
+    "review_flags": []
+  }
+}

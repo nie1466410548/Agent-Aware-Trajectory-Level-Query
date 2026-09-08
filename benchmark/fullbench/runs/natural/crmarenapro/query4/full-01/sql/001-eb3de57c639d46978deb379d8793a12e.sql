@@ -1,0 +1,2 @@
+SELECT Id FROM OrderItem WHERE Product2Id = '01tWt000006hVJdIAM';
+

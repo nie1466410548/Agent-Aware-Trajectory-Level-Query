@@ -1,0 +1,1 @@
+SELECT count(*) AS total, count(*) FILTER (WHERE categories LIKE '%Literature & Fiction%') AS lit_fic, count(*) FILTER (WHERE categories LIKE '%Literature & Fiction%' AND details ILIKE '%english%') AS lit_fic_english FROM books_info

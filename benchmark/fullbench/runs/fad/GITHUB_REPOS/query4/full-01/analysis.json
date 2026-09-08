@@ -1,0 +1,841 @@
+{
+  "summary": {
+    "task_id": "GITHUB_REPOS/query4",
+    "run_id": "full-01",
+    "model": "kimi-code/k3",
+    "group": "fad",
+    "adapter_version": "fullbench-v2-bound-run",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 181.75006103515625,
+    "answer_submitted": true,
+    "validator_passed": true,
+    "validator_reason": "All repo names matched with fuzzy tolerance.",
+    "tool_calls": 13,
+    "sql_calls": 7,
+    "mongo_calls": 0,
+    "failed_calls": 0,
+    "mongo_queries": 0,
+    "mongo_metadata_queries": 0,
+    "data_queries": 5,
+    "metadata_queries": 2,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 5,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 0,
+    "later_queries_sharing_tables": 2,
+    "later_queries_sharing_table_columns": 1,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 0,
+    "shared_join_consumers": 0,
+    "shared_aggregate_consumers": 0,
+    "data_query_adapter_ms": 1754.8254849389195,
+    "fad_submissions": 5,
+    "python_calls": 0,
+    "assistant_turns": 14
+  },
+  "queries": [
+    {
+      "call_id": "821387b40544485696fc3bbf32c79fcf",
+      "tool": "list-db",
+      "database": "metadata_database",
+      "sql": "SELECT name FROM sqlite_master WHERE type='table'",
+      "success": true,
+      "row_count": 3,
+      "start_time": 1788800019.0232344,
+      "duration_ms": 15.99894929677248,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "sqlite_master"
+      ],
+      "columns": [
+        "name",
+        "type"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "type = 'table'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT name FROM sqlite_master WHERE type = 'table'",
+      "simple_ranges": {
+        "type": {
+          "type": "text",
+          "lo": [
+            "table",
+            true
+          ],
+          "hi": [
+            "table",
+            true
+          ]
+        }
+      },
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "type = 'table'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "56471d580c0b43a2a39c1c7f942b450d",
+      "tool": "list-db",
+      "database": "artifacts_database",
+      "sql": "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog')",
+      "success": true,
+      "row_count": 3,
+      "start_time": 1788800019.1251903,
+      "duration_ms": 65.65725337713957,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "tables"
+      ],
+      "columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT table_schema, table_name FROM information_schema.tables WHERE NOT table_schema IN ('information_schema', 'pg_catalog')",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "1643f309827640eda29b306b99c7736a",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT * FROM languages LIMIT 15",
+      "success": true,
+      "row_count": 15,
+      "start_time": 1788800030.249009,
+      "duration_ms": 16.077250242233276,
+      "dialect": "sqlite",
+      "fad_id": "42fbf5ff93b94ccf86c38dea19f9b415",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages"
+      ],
+      "columns": [],
+      "operations": [
+        "limit",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT * FROM languages LIMIT 15",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": true,
+      "projected_base_columns": [],
+      "limit": "LIMIT 15"
+    },
+    {
+      "call_id": "d82421f2e18643f381d3cdedefb9e26d",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT repo_name, COUNT(*) AS commit_count FROM commits GROUP BY repo_name ORDER BY commit_count DESC",
+      "success": true,
+      "row_count": 6,
+      "start_time": 1788800052.1589127,
+      "duration_ms": 56.866380386054516,
+      "dialect": "duckdb",
+      "fad_id": "0e63d3d5bd71420784e1d9321ee5b5a6",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "commits"
+      ],
+      "columns": [
+        "commit_count",
+        "repo_name"
+      ],
+      "operations": [
+        "aggregate",
+        "scan",
+        "sort"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT repo_name, COUNT(*) AS commit_count FROM commits GROUP BY repo_name ORDER BY commit_count DESC",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "repo_name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "6b72dc5076ce4ccd81c8ece53cd1a99e",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('torvalds/linux','apple/swift','twbs/bootstrap','Microsoft/vscode','facebook/react','tensorflow/tensorflow')",
+      "success": true,
+      "row_count": 5,
+      "start_time": 1788800066.0370564,
+      "duration_ms": 613.7839090079069,
+      "dialect": "sqlite",
+      "fad_id": "3d2d85f755554e298d93a956ab3a526e",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages"
+      ],
+      "columns": [
+        "language_description",
+        "repo_name"
+      ],
+      "operations": [
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "repo_name IN ('torvalds/linux', 'apple/swift', 'twbs/bootstrap', 'Microsoft/vscode', 'facebook/react', 'tensorflow/tensorflow')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('torvalds/linux', 'apple/swift', 'twbs/bootstrap', 'Microsoft/vscode', 'facebook/react', 'tensorflow/tensorflow')",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "repo_name IN ('torvalds/linux', 'apple/swift', 'twbs/bootstrap', 'Microsoft/vscode', 'facebook/react', 'tensorflow/tensorflow')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "language_description",
+        "repo_name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "58d575041f3a4c948b61cef08b746e68",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT repo_name, language_description FROM languages WHERE LOWER(repo_name) LIKE '%linux%'",
+      "success": true,
+      "row_count": 9400,
+      "start_time": 1788800085.9415143,
+      "duration_ms": 1004.2587388306856,
+      "dialect": "sqlite",
+      "fad_id": "2843c7979bd04c3093f8e4352bda937f",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages"
+      ],
+      "columns": [
+        "language_description",
+        "repo_name"
+      ],
+      "operations": [
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "LOWER(repo_name) LIKE '%linux%'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT repo_name, language_description FROM languages WHERE LOWER(repo_name) LIKE '%linux%'",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "LOWER(repo_name) LIKE '%linux%'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "language_description",
+        "repo_name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "24e5093981534e00ae3700fd0a7dde28",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT regexp_extract(path, '\\.([A-Za-z0-9]+)$', 1) AS ext, COUNT(*) AS n FROM files WHERE repo_name = 'torvalds/linux' GROUP BY ext ORDER BY n DESC LIMIT 15",
+      "success": true,
+      "row_count": 14,
+      "start_time": 1788800147.8402627,
+      "duration_ms": 63.83920647203922,
+      "dialect": "duckdb",
+      "fad_id": "b189d835d5d6421abf28283494021d00",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "files"
+      ],
+      "columns": [
+        "ext",
+        "n",
+        "path",
+        "repo_name"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "limit",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "repo_name = 'torvalds/linux'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT REGEXP_EXTRACT(path, '\\.([A-Za-z0-9]+)$', 1) AS ext, COUNT(*) AS n FROM files WHERE repo_name = 'torvalds/linux' GROUP BY ext ORDER BY n DESC LIMIT 15",
+      "simple_ranges": {
+        "repo_name": {
+          "type": "text",
+          "lo": [
+            "torvalds/linux",
+            true
+          ],
+          "hi": [
+            "torvalds/linux",
+            true
+          ]
+        }
+      },
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "repo_name = 'torvalds/linux'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": "LIMIT 15"
+    }
+  ],
+  "mongo_queries": [],
+  "pairs": [
+    {
+      "producer": "1643f309827640eda29b306b99c7736a",
+      "consumer": "6b72dc5076ce4ccd81c8ece53cd1a99e",
+      "producer_index": 1,
+      "consumer_index": 3,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 15,
+      "consumer_rows": 5,
+      "producer_sql": "SELECT * FROM languages LIMIT 15",
+      "consumer_sql": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('torvalds/linux','apple/swift','twbs/bootstrap','Microsoft/vscode','facebook/react','tensorflow/tensorflow')"
+    },
+    {
+      "producer": "1643f309827640eda29b306b99c7736a",
+      "consumer": "58d575041f3a4c948b61cef08b746e68",
+      "producer_index": 1,
+      "consumer_index": 4,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 15,
+      "consumer_rows": 9400,
+      "producer_sql": "SELECT * FROM languages LIMIT 15",
+      "consumer_sql": "SELECT repo_name, language_description FROM languages WHERE LOWER(repo_name) LIKE '%linux%'"
+    },
+    {
+      "producer": "6b72dc5076ce4ccd81c8ece53cd1a99e",
+      "consumer": "58d575041f3a4c948b61cef08b746e68",
+      "producer_index": 3,
+      "consumer_index": 4,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description",
+        "repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 9400,
+      "producer_sql": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('torvalds/linux','apple/swift','twbs/bootstrap','Microsoft/vscode','facebook/react','tensorflow/tensorflow')",
+      "consumer_sql": "SELECT repo_name, language_description FROM languages WHERE LOWER(repo_name) LIKE '%linux%'"
+    }
+  ],
+  "fads": [
+    {
+      "call_id": "42fbf5ff93b94ccf86c38dea19f9b415",
+      "accesses": [
+        {
+          "database": "metadata_database",
+          "tables": [
+            "languages"
+          ],
+          "columns": [
+            "repo_name",
+            "language_description"
+          ],
+          "filters": [],
+          "operations": [
+            "scan",
+            "limit"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "artifacts_database",
+          "tables": [
+            "commits"
+          ],
+          "columns": [
+            "repo_name",
+            "commit"
+          ],
+          "filters": [],
+          "operations": [
+            "aggregate",
+            "sort"
+          ],
+          "horizon": 2
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "artifacts_database",
+          "commits"
+        ],
+        [
+          "metadata_database",
+          "languages"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "1643f309827640eda29b306b99c7736a",
+        "d82421f2e18643f381d3cdedefb9e26d",
+        "6b72dc5076ce4ccd81c8ece53cd1a99e"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "artifacts_database",
+          "commits"
+        ]
+      ],
+      "later_table_precision": 1.0,
+      "later_table_recall": 0.5,
+      "later_has_consumer": true,
+      "table_precision_1": 0.5,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "artifacts_database",
+          "commits"
+        ]
+      ],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 0.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": null,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 4.700219631195068,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": null
+    },
+    {
+      "call_id": "0e63d3d5bd71420784e1d9321ee5b5a6",
+      "accesses": [
+        {
+          "database": "artifacts_database",
+          "tables": [
+            "commits"
+          ],
+          "columns": [
+            "repo_name",
+            "commit"
+          ],
+          "filters": [],
+          "operations": [
+            "aggregate",
+            "sort"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "metadata_database",
+          "tables": [
+            "languages"
+          ],
+          "columns": [
+            "repo_name",
+            "language_description"
+          ],
+          "filters": [],
+          "operations": [
+            "scan"
+          ],
+          "horizon": 2
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "artifacts_database",
+          "commits"
+        ],
+        [
+          "metadata_database",
+          "languages"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "d82421f2e18643f381d3cdedefb9e26d",
+        "6b72dc5076ce4ccd81c8ece53cd1a99e",
+        "58d575041f3a4c948b61cef08b746e68"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "metadata_database",
+          "languages"
+        ]
+      ],
+      "later_table_precision": 1.0,
+      "later_table_recall": 1.0,
+      "later_has_consumer": true,
+      "table_precision_1": 0.5,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "metadata_database",
+          "languages"
+        ]
+      ],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 0.5,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.5,
+      "operation_recall_1": 0.6666666666666666,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 7.776318550109863,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    },
+    {
+      "call_id": "3d2d85f755554e298d93a956ab3a526e",
+      "accesses": [
+        {
+          "database": "metadata_database",
+          "tables": [
+            "languages"
+          ],
+          "columns": [
+            "repo_name",
+            "language_description"
+          ],
+          "filters": [
+            "repo_name IN ('torvalds/linux','apple/swift','twbs/bootstrap','Microsoft/vscode','facebook/react','tensorflow/tensorflow')"
+          ],
+          "operations": [
+            "filter",
+            "scan"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "metadata_database",
+          "languages"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "6b72dc5076ce4ccd81c8ece53cd1a99e",
+        "58d575041f3a4c948b61cef08b746e68",
+        "24e5093981534e00ae3700fd0a7dde28"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 0.5,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": 1.0,
+      "filter_exact_recall_1": 1.0,
+      "predicted_filter_atoms": [
+        "repo_name IN ('torvalds/linux', 'apple/swift', 'twbs/bootstrap', 'Microsoft/vscode', 'facebook/react', 'tensorflow/tensorflow')"
+      ],
+      "actual_filter_atoms": [
+        "repo_name IN ('torvalds/linux', 'apple/swift', 'twbs/bootstrap', 'Microsoft/vscode', 'facebook/react', 'tensorflow/tensorflow')"
+      ],
+      "lead_s": 5.924177408218384,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    },
+    {
+      "call_id": "2843c7979bd04c3093f8e4352bda937f",
+      "accesses": [
+        {
+          "database": "metadata_database",
+          "tables": [
+            "languages"
+          ],
+          "columns": [
+            "repo_name",
+            "language_description"
+          ],
+          "filters": [
+            "repo_name LIKE '%linux%'"
+          ],
+          "operations": [
+            "filter",
+            "scan"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "metadata_database",
+          "languages"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "58d575041f3a4c948b61cef08b746e68",
+        "24e5093981534e00ae3700fd0a7dde28"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 0.5,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "repo_name LIKE '%linux%'"
+      ],
+      "actual_filter_atoms": [
+        "LOWER(repo_name) LIKE '%linux%'"
+      ],
+      "lead_s": 5.4602210521698,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 1.0
+    },
+    {
+      "call_id": "b189d835d5d6421abf28283494021d00",
+      "accesses": [
+        {
+          "database": "artifacts_database",
+          "tables": [
+            "files"
+          ],
+          "columns": [
+            "repo_name",
+            "path"
+          ],
+          "filters": [
+            "repo_name = 'torvalds/linux'"
+          ],
+          "operations": [
+            "filter",
+            "aggregate",
+            "sort",
+            "limit"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "artifacts_database",
+          "files"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "24e5093981534e00ae3700fd0a7dde28"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": false,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.5,
+      "operation_recall_1": 0.8,
+      "filter_exact_precision_1": 1.0,
+      "filter_exact_recall_1": 1.0,
+      "predicted_filter_atoms": [
+        "repo_name = 'torvalds/linux'"
+      ],
+      "actual_filter_atoms": [
+        "repo_name = 'torvalds/linux'"
+      ],
+      "lead_s": 7.28545069694519,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    }
+  ],
+  "audit": {
+    "assistant_turns": 14,
+    "sql_order_checks": {
+      "1643f309827640eda29b306b99c7736a": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "d82421f2e18643f381d3cdedefb9e26d": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "6b72dc5076ce4ccd81c8ece53cd1a99e": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "58d575041f3a4c948b61cef08b746e68": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "24e5093981534e00ae3700fd0a7dde28": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      }
+    },
+    "review_flags": [
+      {
+        "kind": "non_adapter_bash_review",
+        "index": 20,
+        "command": "grep -o '\"repo_name\": \"[^\"]*torvalds[^\"]*\"' /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/fad/GITHUB_REPOS/query4/full-01/results/58d575041f3a4c948b61cef08b746e68.json | head; echo \"---\"; grep -c 'torvalds/linux' /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/fad/GITHUB_REPOS/query4/full-01/results/58d575041f3a4c948b61cef08b746e68.json"
+      }
+    ]
+  }
+}

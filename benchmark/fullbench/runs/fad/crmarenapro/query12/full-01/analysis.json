@@ -1,0 +1,509 @@
+{
+  "summary": {
+    "task_id": "crmarenapro/query12",
+    "run_id": "full-01",
+    "model": "kimi-code/k3",
+    "group": "fad",
+    "adapter_version": "fullbench-v2-bound-run",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 140.5975546836853,
+    "answer_submitted": true,
+    "validator_passed": false,
+    "validator_reason": "Found agent IDs ['005Wt000003NEa3IAG'], but expected '005Wt000003NDEBIA4'",
+    "tool_calls": 7,
+    "sql_calls": 3,
+    "mongo_calls": 0,
+    "failed_calls": 0,
+    "mongo_queries": 0,
+    "mongo_metadata_queries": 0,
+    "data_queries": 3,
+    "metadata_queries": 0,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 3,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 0,
+    "later_queries_sharing_tables": 1,
+    "later_queries_sharing_table_columns": 1,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 0,
+    "shared_join_consumers": 1,
+    "shared_aggregate_consumers": 1,
+    "data_query_adapter_ms": 137.8002716228366,
+    "fad_submissions": 3,
+    "python_calls": 0,
+    "assistant_turns": 15
+  },
+  "queries": [
+    {
+      "call_id": "fb319174901a4c9888ad85ebcbdaa965",
+      "tool": "query-db",
+      "database": "sales_pipeline",
+      "sql": "SELECT o.OwnerId,\n       COUNT(*) AS n_opps,\n       AVG(date_diff('day', CAST(o.CreatedDate AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days\nFROM Opportunity o\nJOIN Contract c ON o.ContractID__c = c.Id\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_days ASC;\n",
+      "success": true,
+      "row_count": 2,
+      "start_time": 1788789328.362291,
+      "duration_ms": 60.83620898425579,
+      "dialect": "duckdb",
+      "fad_id": "c84d0eeb669745e1b998f00dd986a1f4",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contract",
+        "opportunity"
+      ],
+      "columns": [
+        "avg_days",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "join",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "CAST(o.createddate AS DATE) >= CAST('2023-04-01' AS DATE) AND CAST(o.createddate AS DATE) < CAST('2023-05-01' AS DATE) AND NOT c.companysigneddate IS NULL"
+      ],
+      "joins": [
+        "JOIN contract AS c ON o.contractid__c = c.id"
+      ],
+      "aggregates": [
+        "AVG(DATEDIFF(CAST(c.companysigneddate AS DATE), CAST(o.createddate AS DATE), DAY))",
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT o.ownerid, COUNT(*) AS n_opps, AVG(DATEDIFF(CAST(c.companysigneddate AS DATE), CAST(o.createddate AS DATE), DAY)) AS avg_days FROM opportunity AS o JOIN contract AS c ON o.contractid__c = c.id WHERE CAST(o.createddate AS DATE) >= CAST('2023-04-01' AS DATE) AND CAST(o.createddate AS DATE) < CAST('2023-05-01' AS DATE) AND NOT c.companysigneddate IS NULL GROUP BY o.ownerid ORDER BY avg_days ASC NULLS LAST",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "CAST(createddate AS DATE) < CAST('2023-05-01' AS DATE)",
+        "CAST(createddate AS DATE) >= CAST('2023-04-01' AS DATE)",
+        "NOT companysigneddate IS NULL"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "ownerid"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "1a05cc1a94244f4896285e7ef7009389",
+      "tool": "query-db",
+      "database": "sales_pipeline",
+      "sql": "SELECT o.OwnerId,\n       COUNT(*) AS n_opps,\n       AVG(date_diff('day', CAST(o.CreatedDate AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days\nFROM Opportunity o\nJOIN Contract c ON o.ContractID__c = c.Id\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_days ASC;\n",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788789358.304841,
+      "duration_ms": 60.593646951019764,
+      "dialect": "duckdb",
+      "fad_id": "3be2e2f08dca4e6a97d85b79cff25362",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contract",
+        "opportunity"
+      ],
+      "columns": [
+        "avg_days",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "join",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "CAST(c.companysigneddate AS DATE) >= CAST('2023-04-01' AS DATE) AND CAST(c.companysigneddate AS DATE) < CAST('2023-05-01' AS DATE)"
+      ],
+      "joins": [
+        "JOIN contract AS c ON o.contractid__c = c.id"
+      ],
+      "aggregates": [
+        "AVG(DATEDIFF(CAST(c.companysigneddate AS DATE), CAST(o.createddate AS DATE), DAY))",
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT o.ownerid, COUNT(*) AS n_opps, AVG(DATEDIFF(CAST(c.companysigneddate AS DATE), CAST(o.createddate AS DATE), DAY)) AS avg_days FROM opportunity AS o JOIN contract AS c ON o.contractid__c = c.id WHERE CAST(c.companysigneddate AS DATE) >= CAST('2023-04-01' AS DATE) AND CAST(c.companysigneddate AS DATE) < CAST('2023-05-01' AS DATE) GROUP BY o.ownerid ORDER BY avg_days ASC NULLS LAST",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "CAST(companysigneddate AS DATE) < CAST('2023-05-01' AS DATE)",
+        "CAST(companysigneddate AS DATE) >= CAST('2023-04-01' AS DATE)"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "ownerid"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "273d1e88190f4cca824b14b02843e775",
+      "tool": "query-db",
+      "database": "core_crm",
+      "sql": "SELECT Id, FirstName, LastName FROM User\nWHERE Id IN ('005Wt000003NEa3IAG', '005Wt000003NISMIA4', '005Wt000003NDEBIA4', '#005Wt000003NEa3IAG');\n",
+      "success": true,
+      "row_count": 3,
+      "start_time": 1788789390.0140996,
+      "duration_ms": 16.370415687561035,
+      "dialect": "sqlite",
+      "fad_id": "7ba7d32002dc4705ace7636689716ca7",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "user"
+      ],
+      "columns": [
+        "firstname",
+        "id",
+        "lastname"
+      ],
+      "operations": [
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "id IN ('005Wt000003NEa3IAG', '005Wt000003NISMIA4', '005Wt000003NDEBIA4', '#005Wt000003NEa3IAG')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT id, firstname, lastname FROM user WHERE id IN ('005Wt000003NEa3IAG', '005Wt000003NISMIA4', '005Wt000003NDEBIA4', '#005Wt000003NEa3IAG')",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "id IN ('005Wt000003NEa3IAG', '005Wt000003NISMIA4', '005Wt000003NDEBIA4', '#005Wt000003NEa3IAG')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "firstname",
+        "id",
+        "lastname"
+      ],
+      "limit": null
+    }
+  ],
+  "mongo_queries": [],
+  "pairs": [
+    {
+      "producer": "fb319174901a4c9888ad85ebcbdaa965",
+      "consumer": "1a05cc1a94244f4896285e7ef7009389",
+      "producer_index": 1,
+      "consumer_index": 2,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "avg_days",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [
+        "JOIN contract AS c ON o.contractid__c = c.id"
+      ],
+      "shared_aggregates": [
+        "AVG(DATEDIFF(CAST(c.companysigneddate AS DATE), CAST(o.createddate AS DATE), DAY))",
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT o.OwnerId,\n       COUNT(*) AS n_opps,\n       AVG(date_diff('day', CAST(o.CreatedDate AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days\nFROM Opportunity o\nJOIN Contract c ON o.ContractID__c = c.Id\nWHERE CAST(o.CreatedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(o.CreatedDate AS DATE) < DATE '2023-05-01'\n  AND c.CompanySignedDate IS NOT NULL\nGROUP BY o.OwnerId\nORDER BY avg_days ASC;\n",
+      "consumer_sql": "SELECT o.OwnerId,\n       COUNT(*) AS n_opps,\n       AVG(date_diff('day', CAST(o.CreatedDate AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days\nFROM Opportunity o\nJOIN Contract c ON o.ContractID__c = c.Id\nWHERE CAST(c.CompanySignedDate AS DATE) >= DATE '2023-04-01'\n  AND CAST(c.CompanySignedDate AS DATE) < DATE '2023-05-01'\nGROUP BY o.OwnerId\nORDER BY avg_days ASC;\n"
+    }
+  ],
+  "fads": [
+    {
+      "call_id": "c84d0eeb669745e1b998f00dd986a1f4",
+      "accesses": [
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Opportunity",
+            "Contract"
+          ],
+          "columns": [
+            "OwnerId",
+            "CreatedDate",
+            "ContractID__c",
+            "Id",
+            "CompanySignedDate"
+          ],
+          "filters": [
+            "Opportunity.CreatedDate between 2023-04-01 and 2023-04-30"
+          ],
+          "operations": [
+            "scan",
+            "filter",
+            "join",
+            "aggregate",
+            "sort"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "sales_pipeline",
+          "contract"
+        ],
+        [
+          "sales_pipeline",
+          "opportunity"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "fb319174901a4c9888ad85ebcbdaa965",
+        "1a05cc1a94244f4896285e7ef7009389",
+        "273d1e88190f4cca824b14b02843e775"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 0.6666666666666666,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.8333333333333334,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "createddate BETWEEN 2023 - 04 - 01 AND 2023 - 04 - 30"
+      ],
+      "actual_filter_atoms": [
+        "CAST(createddate AS DATE) < CAST('2023-05-01' AS DATE)",
+        "CAST(createddate AS DATE) >= CAST('2023-04-01' AS DATE)",
+        "NOT companysigneddate IS NULL"
+      ],
+      "lead_s": 12.500454187393188,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": null
+    },
+    {
+      "call_id": "3be2e2f08dca4e6a97d85b79cff25362",
+      "accesses": [
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Opportunity",
+            "Contract"
+          ],
+          "columns": [
+            "OwnerId",
+            "CreatedDate",
+            "ContractID__c",
+            "Id",
+            "CompanySignedDate"
+          ],
+          "filters": [
+            "Contract.CompanySignedDate between 2023-04-01 and 2023-04-30"
+          ],
+          "operations": [
+            "scan",
+            "filter",
+            "join",
+            "aggregate",
+            "sort"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Opportunity"
+          ],
+          "columns": [
+            "Id",
+            "CreatedDate",
+            "ContractID__c"
+          ],
+          "filters": [
+            "Opportunity.CreatedDate in April 2023"
+          ],
+          "operations": [
+            "scan",
+            "filter",
+            "aggregate"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "sales_pipeline",
+          "contract"
+        ],
+        [
+          "sales_pipeline",
+          "opportunity"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "1a05cc1a94244f4896285e7ef7009389",
+        "273d1e88190f4cca824b14b02843e775"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 0.6666666666666666,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.8333333333333334,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "UNPARSED:Opportunity.CreatedDate in April 2023",
+        "companysigneddate BETWEEN 2023 - 04 - 01 AND 2023 - 04 - 30"
+      ],
+      "actual_filter_atoms": [
+        "CAST(companysigneddate AS DATE) < CAST('2023-05-01' AS DATE)",
+        "CAST(companysigneddate AS DATE) >= CAST('2023-04-01' AS DATE)"
+      ],
+      "lead_s": 12.16162919998169,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 1.0
+    },
+    {
+      "call_id": "7ba7d32002dc4705ace7636689716ca7",
+      "accesses": [
+        {
+          "database": "core_crm",
+          "tables": [
+            "User"
+          ],
+          "columns": [
+            "Id",
+            "FirstName",
+            "LastName"
+          ],
+          "filters": [
+            "Id in ('005Wt000003NEa3IAG','005Wt000003NISMIA4','005Wt000003NDEBIA4')"
+          ],
+          "operations": [
+            "scan",
+            "filter"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "core_crm",
+          "user"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "273d1e88190f4cca824b14b02843e775"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": false,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "id IN ('005Wt000003NEa3IAG', '005Wt000003NISMIA4', '005Wt000003NDEBIA4')"
+      ],
+      "actual_filter_atoms": [
+        "id IN ('005Wt000003NEa3IAG', '005Wt000003NISMIA4', '005Wt000003NDEBIA4', '#005Wt000003NEa3IAG')"
+      ],
+      "lead_s": 14.801953077316284,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    }
+  ],
+  "audit": {
+    "assistant_turns": 15,
+    "sql_order_checks": {
+      "fb319174901a4c9888ad85ebcbdaa965": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "1a05cc1a94244f4896285e7ef7009389": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "273d1e88190f4cca824b14b02843e775": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      }
+    },
+    "review_flags": [
+      {
+        "kind": "non_adapter_bash_review",
+        "index": 1,
+        "command": "pwd && ls"
+      }
+    ]
+  }
+}

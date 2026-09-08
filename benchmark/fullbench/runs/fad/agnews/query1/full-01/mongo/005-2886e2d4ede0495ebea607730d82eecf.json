@@ -1,0 +1,41 @@
+{
+  "operation": "aggregate",
+  "collection": "articles",
+  "pipeline": [
+    {
+      "$match": {
+        "$or": [
+          {
+            "title": {
+              "$regex": "coach|league|stadium|championship|tournament|athlete|inning|medal|game|season|team|match|race",
+              "$options": "i"
+            }
+          },
+          {
+            "description": {
+              "$regex": "coach|league|stadium|championship|tournament|athlete|inning|medal|game|season|team|match|race",
+              "$options": "i"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$project": {
+        "article_id": 1,
+        "title": 1,
+        "desc_len": {
+          "$strLenCP": "$description"
+        }
+      }
+    },
+    {
+      "$sort": {
+        "desc_len": -1
+      }
+    },
+    {
+      "$limit": 40
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+SELECT c.id, c.status, c.createddate, c.closeddate, c.ownerid, (SELECT COUNT(*) FROM casehistory__c h WHERE h.caseid__c=c.id AND h.field__c='Owner Assignment') AS n_assign FROM "Case" c WHERE c.ownerid='005Wt000003NDqDIAW' AND substring(c.createddate,1,19)::timestamp >= TIMESTAMP '2023-05-02'

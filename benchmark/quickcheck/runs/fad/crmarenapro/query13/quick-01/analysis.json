@@ -1,0 +1,621 @@
+{
+  "summary": {
+    "task_id": "crmarenapro/query13",
+    "run_id": "quick-01",
+    "model": "kimi-code/k3",
+    "group": "fad",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 123.00770163536072,
+    "answer_submitted": true,
+    "validator_passed": true,
+    "validator_reason": "Found expected agent ID: 005Wt000003NIXCIA4",
+    "tool_calls": 8,
+    "sql_calls": 4,
+    "failed_calls": 0,
+    "data_queries": 3,
+    "metadata_queries": 1,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 3,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 0,
+    "later_queries_sharing_tables": 2,
+    "later_queries_sharing_table_columns": 2,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 1,
+    "shared_join_consumers": 1,
+    "shared_aggregate_consumers": 1,
+    "data_query_adapter_ms": 5.364741198718548,
+    "fad_submissions": 3,
+    "python_calls": 0,
+    "assistant_turns": 9
+  },
+  "queries": [
+    {
+      "call_id": "77250750d2964c7c9d8237298585a453",
+      "tool": "list-db",
+      "database": "products_orders",
+      "sql": "SELECT name FROM sqlite_master WHERE type='table'",
+      "success": true,
+      "row_count": 7,
+      "start_time": 1788780890.7423606,
+      "duration_ms": 0.6486247293651104,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "sqlite_master"
+      ],
+      "columns": [
+        "name",
+        "type"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "type = 'table'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT name FROM sqlite_master WHERE type = 'table'",
+      "simple_ranges": {
+        "type": {
+          "type": "text",
+          "lo": [
+            "table",
+            true
+          ],
+          "hi": [
+            "table",
+            true
+          ]
+        }
+      },
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "type = 'table'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "7f8cd9a22f6c40869cc8c057234bc84b",
+      "tool": "query-db",
+      "database": "products_orders",
+      "sql": "SELECT MIN(EffectiveDate) AS min_date, MAX(EffectiveDate) AS max_date, COUNT(*) AS n_orders, COUNT(DISTINCT OwnerId) AS n_owners FROM \"Order\";\n",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788780908.6108892,
+      "duration_ms": 0.873219221830368,
+      "dialect": "sqlite",
+      "fad_id": "5f3eabc2f91f4b30ad853e52b6b354af",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "order"
+      ],
+      "columns": [
+        "effectivedate",
+        "ownerid"
+      ],
+      "operations": [
+        "aggregate",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)",
+        "COUNT(DISTINCT ownerid)",
+        "MAX(effectivedate)",
+        "MIN(effectivedate)"
+      ],
+      "canonical": "SELECT MIN(effectivedate) AS min_date, MAX(effectivedate) AS max_date, COUNT(*) AS n_orders, COUNT(DISTINCT ownerid) AS n_owners FROM \"Order\"",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "fdb801d358584ee9a60aa7247afbfe25",
+      "tool": "query-db",
+      "database": "products_orders",
+      "sql": "SELECT o.OwnerId AS agent_id,\n       SUM(oi.Quantity * oi.UnitPrice) AS total_sales,\n       COUNT(DISTINCT o.Id) AS n_orders\nFROM \"Order\" o\nJOIN OrderItem oi ON oi.OrderId = o.Id\nWHERE o.EffectiveDate >= '2022-06-25' AND o.EffectiveDate <= '2022-11-25'\nGROUP BY o.OwnerId\nORDER BY total_sales DESC\nLIMIT 10;\n",
+      "success": true,
+      "row_count": 10,
+      "start_time": 1788780927.4105144,
+      "duration_ms": 1.568606123328209,
+      "dialect": "sqlite",
+      "fad_id": "79165cb4478e45368b40e29cf5ea6da6",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "order",
+        "orderitem"
+      ],
+      "columns": [
+        "effectivedate",
+        "id",
+        "orderid",
+        "ownerid",
+        "quantity",
+        "total_sales",
+        "unitprice"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "join",
+        "limit",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "o.effectivedate >= '2022-06-25' AND o.effectivedate <= '2022-11-25'"
+      ],
+      "joins": [
+        "JOIN orderitem AS oi ON oi.orderid = o.id"
+      ],
+      "aggregates": [
+        "COUNT(DISTINCT o.id)",
+        "SUM(oi.quantity * oi.unitprice)"
+      ],
+      "canonical": "SELECT o.ownerid AS agent_id, SUM(oi.quantity * oi.unitprice) AS total_sales, COUNT(DISTINCT o.id) AS n_orders FROM \"Order\" AS o JOIN orderitem AS oi ON oi.orderid = o.id WHERE o.effectivedate >= '2022-06-25' AND o.effectivedate <= '2022-11-25' GROUP BY o.ownerid ORDER BY total_sales DESC LIMIT 10",
+      "simple_ranges": {
+        "effectivedate": {
+          "type": "text",
+          "lo": [
+            "2022-06-25",
+            true
+          ],
+          "hi": [
+            "2022-11-25",
+            true
+          ]
+        }
+      },
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "effectivedate <= '2022-11-25'",
+        "effectivedate >= '2022-06-25'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": "LIMIT 10"
+    },
+    {
+      "call_id": "c36250a3c302443a844f7c4b2359f4f1",
+      "tool": "query-db",
+      "database": "products_orders",
+      "sql": "SELECT 'rolling_2022-06-25_to_2022-11-25' AS variant, o.OwnerId, SUM(oi.Quantity*oi.UnitPrice) AS total\nFROM \"Order\" o JOIN OrderItem oi ON oi.OrderId=o.Id\nWHERE o.EffectiveDate >= '2022-06-25' AND o.EffectiveDate <= '2022-11-25'\nGROUP BY o.OwnerId\nUNION ALL\nSELECT 'cal_months_jun_to_nov', o.OwnerId, SUM(oi.Quantity*oi.UnitPrice)\nFROM \"Order\" o JOIN OrderItem oi ON oi.OrderId=o.Id\nWHERE o.EffectiveDate >= '2022-06-01' AND o.EffectiveDate <= '2022-11-30'\nGROUP BY o.OwnerId\nUNION ALL\nSELECT 'last5_full_months_jun_to_oct', o.OwnerId, SUM(oi.Quantity*oi.UnitPrice)\nFROM \"Order\" o JOIN OrderItem oi ON oi.OrderId=o.Id\nWHERE o.EffectiveDate >= '2022-06-01' AND o.EffectiveDate <= '2022-10-31'\nGROUP BY o.OwnerId\nORDER BY variant, total DESC;\n",
+      "success": true,
+      "row_count": 41,
+      "start_time": 1788780957.9132142,
+      "duration_ms": 2.922915853559971,
+      "dialect": "sqlite",
+      "fad_id": "3a8fdf27afbe4ea19aba1a190df630d8",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "order",
+        "orderitem"
+      ],
+      "columns": [
+        "effectivedate",
+        "id",
+        "orderid",
+        "ownerid",
+        "quantity",
+        "total",
+        "unitprice",
+        "variant"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "join",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "o.effectivedate >= '2022-06-01' AND o.effectivedate <= '2022-10-31'",
+        "o.effectivedate >= '2022-06-01' AND o.effectivedate <= '2022-11-30'",
+        "o.effectivedate >= '2022-06-25' AND o.effectivedate <= '2022-11-25'"
+      ],
+      "joins": [
+        "JOIN orderitem AS oi ON oi.orderid = o.id"
+      ],
+      "aggregates": [
+        "SUM(oi.quantity * oi.unitprice)"
+      ],
+      "canonical": "SELECT 'rolling_2022-06-25_to_2022-11-25' AS variant, o.ownerid, SUM(oi.quantity * oi.unitprice) AS total FROM \"Order\" AS o JOIN orderitem AS oi ON oi.orderid = o.id WHERE o.effectivedate >= '2022-06-25' AND o.effectivedate <= '2022-11-25' GROUP BY o.ownerid UNION ALL SELECT 'cal_months_jun_to_nov', o.ownerid, SUM(oi.quantity * oi.unitprice) FROM \"Order\" AS o JOIN orderitem AS oi ON oi.orderid = o.id WHERE o.effectivedate >= '2022-06-01' AND o.effectivedate <= '2022-11-30' GROUP BY o.ownerid UNION ALL SELECT 'last5_full_months_jun_to_oct', o.ownerid, SUM(oi.quantity * oi.unitprice) FROM \"Order\" AS o JOIN orderitem AS oi ON oi.orderid = o.id WHERE o.effectivedate >= '2022-06-01' AND o.effectivedate <= '2022-10-31' GROUP BY o.ownerid ORDER BY variant, total DESC",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    }
+  ],
+  "pairs": [
+    {
+      "producer": "7f8cd9a22f6c40869cc8c057234bc84b",
+      "consumer": "fdb801d358584ee9a60aa7247afbfe25",
+      "producer_index": 1,
+      "consumer_index": 2,
+      "shared_tables": [
+        "order"
+      ],
+      "shared_columns": [
+        "effectivedate",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 10,
+      "producer_sql": "SELECT MIN(EffectiveDate) AS min_date, MAX(EffectiveDate) AS max_date, COUNT(*) AS n_orders, COUNT(DISTINCT OwnerId) AS n_owners FROM \"Order\";\n",
+      "consumer_sql": "SELECT o.OwnerId AS agent_id,\n       SUM(oi.Quantity * oi.UnitPrice) AS total_sales,\n       COUNT(DISTINCT o.Id) AS n_orders\nFROM \"Order\" o\nJOIN OrderItem oi ON oi.OrderId = o.Id\nWHERE o.EffectiveDate >= '2022-06-25' AND o.EffectiveDate <= '2022-11-25'\nGROUP BY o.OwnerId\nORDER BY total_sales DESC\nLIMIT 10;\n"
+    },
+    {
+      "producer": "7f8cd9a22f6c40869cc8c057234bc84b",
+      "consumer": "c36250a3c302443a844f7c4b2359f4f1",
+      "producer_index": 1,
+      "consumer_index": 3,
+      "shared_tables": [
+        "order"
+      ],
+      "shared_columns": [
+        "effectivedate",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 41,
+      "producer_sql": "SELECT MIN(EffectiveDate) AS min_date, MAX(EffectiveDate) AS max_date, COUNT(*) AS n_orders, COUNT(DISTINCT OwnerId) AS n_owners FROM \"Order\";\n",
+      "consumer_sql": "SELECT 'rolling_2022-06-25_to_2022-11-25' AS variant, o.OwnerId, SUM(oi.Quantity*oi.UnitPrice) AS total\nFROM \"Order\" o JOIN OrderItem oi ON oi.OrderId=o.Id\nWHERE o.EffectiveDate >= '2022-06-25' AND o.EffectiveDate <= '2022-11-25'\nGROUP BY o.OwnerId\nUNION ALL\nSELECT 'cal_months_jun_to_nov', o.OwnerId, SUM(oi.Quantity*oi.UnitPrice)\nFROM \"Order\" o JOIN OrderItem oi ON oi.OrderId=o.Id\nWHERE o.EffectiveDate >= '2022-06-01' AND o.EffectiveDate <= '2022-11-30'\nGROUP BY o.OwnerId\nUNION ALL\nSELECT 'last5_full_months_jun_to_oct', o.OwnerId, SUM(oi.Quantity*oi.UnitPrice)\nFROM \"Order\" o JOIN OrderItem oi ON oi.OrderId=o.Id\nWHERE o.EffectiveDate >= '2022-06-01' AND o.EffectiveDate <= '2022-10-31'\nGROUP BY o.OwnerId\nORDER BY variant, total DESC;\n"
+    },
+    {
+      "producer": "fdb801d358584ee9a60aa7247afbfe25",
+      "consumer": "c36250a3c302443a844f7c4b2359f4f1",
+      "producer_index": 2,
+      "consumer_index": 3,
+      "shared_tables": [
+        "order",
+        "orderitem"
+      ],
+      "shared_columns": [
+        "effectivedate",
+        "id",
+        "orderid",
+        "ownerid",
+        "quantity",
+        "unitprice"
+      ],
+      "same_filters": [
+        "o.effectivedate >= '2022-06-25' AND o.effectivedate <= '2022-11-25'"
+      ],
+      "shared_joins": [
+        "JOIN orderitem AS oi ON oi.orderid = o.id"
+      ],
+      "shared_aggregates": [
+        "SUM(oi.quantity * oi.unitprice)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 10,
+      "consumer_rows": 41,
+      "producer_sql": "SELECT o.OwnerId AS agent_id,\n       SUM(oi.Quantity * oi.UnitPrice) AS total_sales,\n       COUNT(DISTINCT o.Id) AS n_orders\nFROM \"Order\" o\nJOIN OrderItem oi ON oi.OrderId = o.Id\nWHERE o.EffectiveDate >= '2022-06-25' AND o.EffectiveDate <= '2022-11-25'\nGROUP BY o.OwnerId\nORDER BY total_sales DESC\nLIMIT 10;\n",
+      "consumer_sql": "SELECT 'rolling_2022-06-25_to_2022-11-25' AS variant, o.OwnerId, SUM(oi.Quantity*oi.UnitPrice) AS total\nFROM \"Order\" o JOIN OrderItem oi ON oi.OrderId=o.Id\nWHERE o.EffectiveDate >= '2022-06-25' AND o.EffectiveDate <= '2022-11-25'\nGROUP BY o.OwnerId\nUNION ALL\nSELECT 'cal_months_jun_to_nov', o.OwnerId, SUM(oi.Quantity*oi.UnitPrice)\nFROM \"Order\" o JOIN OrderItem oi ON oi.OrderId=o.Id\nWHERE o.EffectiveDate >= '2022-06-01' AND o.EffectiveDate <= '2022-11-30'\nGROUP BY o.OwnerId\nUNION ALL\nSELECT 'last5_full_months_jun_to_oct', o.OwnerId, SUM(oi.Quantity*oi.UnitPrice)\nFROM \"Order\" o JOIN OrderItem oi ON oi.OrderId=o.Id\nWHERE o.EffectiveDate >= '2022-06-01' AND o.EffectiveDate <= '2022-10-31'\nGROUP BY o.OwnerId\nORDER BY variant, total DESC;\n"
+    }
+  ],
+  "fads": [
+    {
+      "call_id": "5f3eabc2f91f4b30ad853e52b6b354af",
+      "accesses": [
+        {
+          "database": "products_orders",
+          "tables": [
+            "Order"
+          ],
+          "columns": [
+            "Id",
+            "EffectiveDate",
+            "OwnerId",
+            "Status"
+          ],
+          "filters": [],
+          "operations": [
+            "scan",
+            "aggregate"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "products_orders",
+          "tables": [
+            "Order",
+            "OrderItem"
+          ],
+          "columns": [
+            "Id",
+            "OrderId",
+            "OwnerId",
+            "EffectiveDate",
+            "Quantity",
+            "UnitPrice"
+          ],
+          "filters": [
+            "Order.EffectiveDate between 2022-06-25 and 2022-11-25"
+          ],
+          "operations": [
+            "join",
+            "filter",
+            "aggregate",
+            "sort",
+            "limit"
+          ],
+          "horizon": 2
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "products_orders",
+          "order"
+        ],
+        [
+          "products_orders",
+          "orderitem"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "7f8cd9a22f6c40869cc8c057234bc84b",
+        "fdb801d358584ee9a60aa7247afbfe25",
+        "c36250a3c302443a844f7c4b2359f4f1"
+      ],
+      "targets_metadata": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "products_orders",
+          "order"
+        ],
+        [
+          "products_orders",
+          "orderitem"
+        ]
+      ],
+      "later_table_precision": 1.0,
+      "later_table_recall": 1.0,
+      "later_has_consumer": true,
+      "table_precision_1": 0.5,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "products_orders",
+          "orderitem"
+        ]
+      ],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 0.5,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 6.13827919960022,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": null
+    },
+    {
+      "call_id": "79165cb4478e45368b40e29cf5ea6da6",
+      "accesses": [
+        {
+          "database": "products_orders",
+          "tables": [
+            "Order",
+            "OrderItem"
+          ],
+          "columns": [
+            "Id",
+            "OrderId",
+            "OwnerId",
+            "EffectiveDate",
+            "Quantity",
+            "UnitPrice"
+          ],
+          "filters": [
+            "Order.EffectiveDate >= 2022-06-25 and Order.EffectiveDate <= 2022-11-25"
+          ],
+          "operations": [
+            "join",
+            "filter",
+            "aggregate",
+            "sort",
+            "limit"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "products_orders",
+          "order"
+        ],
+        [
+          "products_orders",
+          "orderitem"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "fdb801d358584ee9a60aa7247afbfe25",
+        "c36250a3c302443a844f7c4b2359f4f1"
+      ],
+      "targets_metadata": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.8571428571428571,
+      "operation_recall_1": 0.8333333333333334,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "effectivedate <= 2022 - 11 - 25",
+        "effectivedate >= 2022 - 06 - 25"
+      ],
+      "actual_filter_atoms": [
+        "effectivedate <= '2022-11-25'",
+        "effectivedate >= '2022-06-25'"
+      ],
+      "lead_s": 8.340741872787476,
+      "last_query_table_recall_1": 0.5,
+      "last_query_table_precision_1": 1.0
+    },
+    {
+      "call_id": "3a8fdf27afbe4ea19aba1a190df630d8",
+      "accesses": [
+        {
+          "database": "products_orders",
+          "tables": [
+            "Order",
+            "OrderItem"
+          ],
+          "columns": [
+            "Id",
+            "OrderId",
+            "OwnerId",
+            "EffectiveDate",
+            "Quantity",
+            "UnitPrice"
+          ],
+          "filters": [
+            "Order.EffectiveDate within past five months of 2022-11-25 (boundary variants)"
+          ],
+          "operations": [
+            "join",
+            "filter",
+            "aggregate",
+            "sort"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "products_orders",
+          "order"
+        ],
+        [
+          "products_orders",
+          "orderitem"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "c36250a3c302443a844f7c4b2359f4f1"
+      ],
+      "targets_metadata": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": false,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.75,
+      "operation_recall_1": 0.8,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "UNPARSED:Order.EffectiveDate within past five months of 2022-11-25 (boundary variants)"
+      ],
+      "actual_filter_atoms": [
+        "effectivedate <= '2022-10-31'",
+        "effectivedate <= '2022-11-25'",
+        "effectivedate <= '2022-11-30'",
+        "effectivedate >= '2022-06-01'",
+        "effectivedate >= '2022-06-25'"
+      ],
+      "lead_s": 11.550732374191284,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 1.0
+    }
+  ],
+  "audit": {
+    "assistant_turns": 9,
+    "sql_order_checks": {
+      "7f8cd9a22f6c40869cc8c057234bc84b": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "fdb801d358584ee9a60aa7247afbfe25": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "c36250a3c302443a844f7c4b2359f4f1": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      }
+    },
+    "review_flags": []
+  }
+}

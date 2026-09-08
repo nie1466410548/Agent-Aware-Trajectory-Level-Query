@@ -1,0 +1,389 @@
+{
+  "summary": {
+    "task_id": "stockmarket/query3",
+    "run_id": "full-01",
+    "model": "kimi-code/k3",
+    "group": "natural",
+    "adapter_version": "fullbench-v2-bound-run",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 116.57346034049988,
+    "answer_submitted": true,
+    "validator_passed": false,
+    "validator_reason": "No number found near name: Apex Global Brands Inc",
+    "tool_calls": 8,
+    "sql_calls": 6,
+    "mongo_calls": 0,
+    "failed_calls": 0,
+    "mongo_queries": 0,
+    "mongo_metadata_queries": 0,
+    "data_queries": 3,
+    "metadata_queries": 3,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 3,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 0,
+    "later_queries_sharing_tables": 1,
+    "later_queries_sharing_table_columns": 1,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 0,
+    "shared_join_consumers": 0,
+    "shared_aggregate_consumers": 0,
+    "data_query_adapter_ms": 541.1061188206077,
+    "fad_submissions": 0,
+    "python_calls": 1,
+    "assistant_turns": 8
+  },
+  "queries": [
+    {
+      "call_id": "e5fc67d653d5472e919724b93dc5758f",
+      "tool": "list-db",
+      "database": "stockinfo_database",
+      "sql": "SELECT name FROM sqlite_master WHERE type='table'",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788818101.1791027,
+      "duration_ms": 15.889613889157772,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "sqlite_master"
+      ],
+      "columns": [
+        "name",
+        "type"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "type = 'table'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT name FROM sqlite_master WHERE type = 'table'",
+      "simple_ranges": {
+        "type": {
+          "type": "text",
+          "lo": [
+            "table",
+            true
+          ],
+          "hi": [
+            "table",
+            true
+          ]
+        }
+      },
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "type = 'table'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "4e2153003569433895f16fea4be060d1",
+      "tool": "list-db",
+      "database": "stocktrade_database",
+      "sql": "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog')",
+      "success": true,
+      "row_count": 2753,
+      "start_time": 1788818101.2803988,
+      "duration_ms": 530.461048707366,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "tables"
+      ],
+      "columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT table_schema, table_name FROM information_schema.tables WHERE NOT table_schema IN ('information_schema', 'pg_catalog')",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "97253af0c90941ddb956f31160248bd0",
+      "tool": "query-db",
+      "database": "stockinfo_database",
+      "sql": "SELECT \"Financial Status\", \"Listing Exchange\", \"Nasdaq Traded\", \"Market Category\", COUNT(*) FROM stockinfo GROUP BY 1,2,3,4 ORDER BY 1;\n",
+      "success": true,
+      "row_count": 11,
+      "start_time": 1788818115.3723092,
+      "duration_ms": 19.256802275776863,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "stockinfo"
+      ],
+      "columns": [
+        "financial status",
+        "listing exchange",
+        "market category",
+        "nasdaq traded"
+      ],
+      "operations": [
+        "aggregate",
+        "scan",
+        "sort"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT \"Financial Status\", \"Listing Exchange\", \"Nasdaq Traded\", \"Market Category\", COUNT(*) FROM stockinfo GROUP BY 1, 2, 3, 4 ORDER BY 1",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "financial status",
+        "listing exchange",
+        "market category",
+        "nasdaq traded"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "ac7e2a69960e4f2aaf634d4f3bbcd063",
+      "tool": "query-db",
+      "database": "stockinfo_database",
+      "sql": "SELECT \"Symbol\", \"Company Description\", \"Financial Status\" FROM stockinfo\nWHERE \"Listing Exchange\" = 'Q' AND \"Financial Status\" IS NOT NULL AND \"Financial Status\" <> 'N'\nORDER BY \"Symbol\";\n",
+      "success": true,
+      "row_count": 25,
+      "start_time": 1788818131.4639976,
+      "duration_ms": 17.373625189065933,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "stockinfo"
+      ],
+      "columns": [
+        "company description",
+        "financial status",
+        "listing exchange",
+        "symbol"
+      ],
+      "operations": [
+        "filter",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "\"Listing Exchange\" = 'Q' AND NOT \"Financial Status\" IS NULL AND \"Financial Status\" <> 'N'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT \"Symbol\", \"Company Description\", \"Financial Status\" FROM stockinfo WHERE \"Listing Exchange\" = 'Q' AND NOT \"Financial Status\" IS NULL AND \"Financial Status\" <> 'N' ORDER BY \"Symbol\"",
+      "simple_ranges": {
+        "listing exchange": {
+          "type": "text",
+          "lo": [
+            "Q",
+            true
+          ],
+          "hi": [
+            "Q",
+            true
+          ]
+        }
+      },
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "\"Financial Status\" <> 'N'",
+        "\"Listing Exchange\" = 'Q'",
+        "NOT \"Financial Status\" IS NULL"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "company description",
+        "financial status",
+        "symbol"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "79eb36a750254a08a24bdeb458884625",
+      "tool": "query-db",
+      "database": "stocktrade_database",
+      "sql": "SELECT table_name FROM information_schema.tables\nWHERE table_name IN ('AGMH','AMTX','APEX','BIOC','BKYI','CBAT','CCCL','CORV','CPAH','DZSI','FAMI','FTFT','FTR','IDEX','ISDS','MCEP','NXTD','OPTT','PEIX','RBZ','SES','SNSS','SPI','SYPR','VTIQW')\nORDER BY table_name;\n",
+      "success": true,
+      "row_count": 25,
+      "start_time": 1788818149.4681964,
+      "duration_ms": 511.7382640019059,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "tables"
+      ],
+      "columns": [
+        "table_name"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "table_name IN ('AGMH', 'AMTX', 'APEX', 'BIOC', 'BKYI', 'CBAT', 'CCCL', 'CORV', 'CPAH', 'DZSI', 'FAMI', 'FTFT', 'FTR', 'IDEX', 'ISDS', 'MCEP', 'NXTD', 'OPTT', 'PEIX', 'RBZ', 'SES', 'SNSS', 'SPI', 'SYPR', 'VTIQW')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT table_name FROM information_schema.tables WHERE table_name IN ('AGMH', 'AMTX', 'APEX', 'BIOC', 'BKYI', 'CBAT', 'CCCL', 'CORV', 'CPAH', 'DZSI', 'FAMI', 'FTFT', 'FTR', 'IDEX', 'ISDS', 'MCEP', 'NXTD', 'OPTT', 'PEIX', 'RBZ', 'SES', 'SNSS', 'SPI', 'SYPR', 'VTIQW') ORDER BY table_name NULLS LAST",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "table_name IN ('AGMH', 'AMTX', 'APEX', 'BIOC', 'BKYI', 'CBAT', 'CCCL', 'CORV', 'CPAH', 'DZSI', 'FAMI', 'FTFT', 'FTR', 'IDEX', 'ISDS', 'MCEP', 'NXTD', 'OPTT', 'PEIX', 'RBZ', 'SES', 'SNSS', 'SPI', 'SYPR', 'VTIQW')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "table_name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "eafb4ee7f84b479c9ef8f95f325fd816",
+      "tool": "query-db",
+      "database": "stocktrade_database",
+      "sql": "SELECT 'AGMH' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"AGMH\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'AMTX' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"AMTX\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'APEX' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"APEX\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'BIOC' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"BIOC\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'BKYI' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"BKYI\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'CBAT' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"CBAT\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'CCCL' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"CCCL\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'CORV' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"CORV\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'CPAH' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"CPAH\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'DZSI' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"DZSI\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'FAMI' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"FAMI\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'FTFT' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"FTFT\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'FTR' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"FTR\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'IDEX' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"IDEX\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'ISDS' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"ISDS\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'MCEP' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"MCEP\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'NXTD' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"NXTD\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'OPTT' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"OPTT\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'PEIX' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"PEIX\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'RBZ' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"RBZ\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'SES' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"SES\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'SNSS' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"SNSS\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'SPI' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"SPI\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'SYPR' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"SYPR\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nUNION ALL\nSELECT 'VTIQW' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"VTIQW\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'\nORDER BY symbol;",
+      "success": true,
+      "row_count": 25,
+      "start_time": 1788818160.3686194,
+      "duration_ms": 504.47569135576487,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "agmh",
+        "amtx",
+        "apex",
+        "bioc",
+        "bkyi",
+        "cbat",
+        "cccl",
+        "corv",
+        "cpah",
+        "dzsi",
+        "fami",
+        "ftft",
+        "ftr",
+        "idex",
+        "isds",
+        "mcep",
+        "nxtd",
+        "optt",
+        "peix",
+        "rbz",
+        "ses",
+        "snss",
+        "spi",
+        "sypr",
+        "vtiqw"
+      ],
+      "columns": [
+        "date",
+        "symbol",
+        "volume"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "\"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "AVG(\"Volume\")",
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT 'AGMH' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"AGMH\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'AMTX' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"AMTX\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'APEX' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"APEX\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'BIOC' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"BIOC\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'BKYI' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"BKYI\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'CBAT' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"CBAT\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'CCCL' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"CCCL\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'CORV' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"CORV\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'CPAH' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"CPAH\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'DZSI' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"DZSI\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'FAMI' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"FAMI\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'FTFT' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"FTFT\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'FTR' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"FTR\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'IDEX' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"IDEX\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'ISDS' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"ISDS\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'MCEP' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"MCEP\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'NXTD' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"NXTD\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'OPTT' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"OPTT\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'PEIX' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"PEIX\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'RBZ' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"RBZ\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'SES' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"SES\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'SNSS' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"SNSS\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'SPI' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"SPI\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'SYPR' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"SYPR\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' UNION ALL SELECT 'VTIQW' AS symbol, COUNT(*) AS days_2008, AVG(\"Volume\") AS avg_volume_2008 FROM \"VTIQW\" WHERE \"Date\" >= '2008-01-01' AND \"Date\" <= '2008-12-31' ORDER BY symbol NULLS LAST",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    }
+  ],
+  "mongo_queries": [],
+  "pairs": [
+    {
+      "producer": "97253af0c90941ddb956f31160248bd0",
+      "consumer": "ac7e2a69960e4f2aaf634d4f3bbcd063",
+      "producer_index": 1,
+      "consumer_index": 2,
+      "shared_tables": [
+        "stockinfo"
+      ],
+      "shared_columns": [
+        "financial status",
+        "listing exchange"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 11,
+      "consumer_rows": 25,
+      "producer_sql": "SELECT \"Financial Status\", \"Listing Exchange\", \"Nasdaq Traded\", \"Market Category\", COUNT(*) FROM stockinfo GROUP BY 1,2,3,4 ORDER BY 1;\n",
+      "consumer_sql": "SELECT \"Symbol\", \"Company Description\", \"Financial Status\" FROM stockinfo\nWHERE \"Listing Exchange\" = 'Q' AND \"Financial Status\" IS NOT NULL AND \"Financial Status\" <> 'N'\nORDER BY \"Symbol\";\n"
+    }
+  ],
+  "fads": [],
+  "audit": {
+    "assistant_turns": 8,
+    "sql_order_checks": {},
+    "review_flags": []
+  }
+}

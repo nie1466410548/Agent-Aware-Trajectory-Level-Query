@@ -1,0 +1,1 @@
+SELECT id, title FROM knowledge__kav WHERE lower(title) LIKE '%policy%' OR lower(title) LIKE '%refund%' OR lower(title) LIKE '%return%' OR lower(title) LIKE '%discount%' OR lower(title) LIKE '%sla%' OR lower(title) LIKE '%guarantee%';

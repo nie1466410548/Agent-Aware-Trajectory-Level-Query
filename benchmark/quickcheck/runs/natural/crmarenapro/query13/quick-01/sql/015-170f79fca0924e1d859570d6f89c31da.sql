@@ -1,0 +1,1 @@
+SELECT Id, FirstName, LastName FROM User WHERE REPLACE(Id,'#','') = '005Wt000003NIXCIA4'

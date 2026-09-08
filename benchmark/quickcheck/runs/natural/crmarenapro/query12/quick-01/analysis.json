@@ -1,0 +1,1309 @@
+{
+  "summary": {
+    "task_id": "crmarenapro/query12",
+    "run_id": "quick-01",
+    "model": "kimi-code/k3",
+    "group": "natural",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 172.9467957019806,
+    "answer_submitted": true,
+    "validator_passed": false,
+    "validator_reason": "Found agent IDs ['005Wt000003NEa3IAG'], but expected '005Wt000003NDEBIA4'",
+    "tool_calls": 12,
+    "sql_calls": 11,
+    "failed_calls": 0,
+    "data_queries": 11,
+    "metadata_queries": 0,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 11,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 0,
+    "later_queries_sharing_tables": 8,
+    "later_queries_sharing_table_columns": 8,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 0,
+    "shared_join_consumers": 4,
+    "shared_aggregate_consumers": 4,
+    "data_query_adapter_ms": 362.7634891308844,
+    "fad_submissions": 0,
+    "python_calls": 0,
+    "assistant_turns": 12
+  },
+  "queries": [
+    {
+      "call_id": "2930967daa3248f5a35034e107fdb6de",
+      "tool": "query-db",
+      "database": "sales_pipeline",
+      "sql": "SELECT Id, ContractID__c, OwnerId, CreatedDate, CloseDate FROM Opportunity LIMIT 5",
+      "success": true,
+      "row_count": 5,
+      "start_time": 1788780605.9078565,
+      "duration_ms": 43.50588470697403,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "opportunity"
+      ],
+      "columns": [
+        "closedate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "operations": [
+        "limit",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT id, contractid__c, ownerid, createddate, closedate FROM opportunity LIMIT 5",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "closedate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "limit": "LIMIT 5"
+    },
+    {
+      "call_id": "0e07e7fd97e042ba9a51b3be14cedeff",
+      "tool": "query-db",
+      "database": "sales_pipeline",
+      "sql": "SELECT Id, CompanySignedDate FROM Contract WHERE CompanySignedDate IS NOT NULL LIMIT 5",
+      "success": true,
+      "row_count": 5,
+      "start_time": 1788780617.1601076,
+      "duration_ms": 43.20812365040183,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contract"
+      ],
+      "columns": [
+        "companysigneddate",
+        "id"
+      ],
+      "operations": [
+        "filter",
+        "limit",
+        "scan"
+      ],
+      "filters": [
+        "NOT companysigneddate IS NULL"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT id, companysigneddate FROM contract WHERE NOT companysigneddate IS NULL LIMIT 5",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "NOT companysigneddate IS NULL"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "companysigneddate",
+        "id"
+      ],
+      "limit": "LIMIT 5"
+    },
+    {
+      "call_id": "36973557214b43df99082a9acece1394",
+      "tool": "query-db",
+      "database": "sales_pipeline",
+      "sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(substr(o.CreatedDate,1,10) AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' AND c.CompanySignedDate IS NOT NULL GROUP BY o.OwnerId ORDER BY avg_days ASC",
+      "success": true,
+      "row_count": 2,
+      "start_time": 1788780624.9013262,
+      "duration_ms": 46.773320995271206,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contract",
+        "opportunity"
+      ],
+      "columns": [
+        "avg_days",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "join",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "CAST(SUBSTRING(o.createddate, 1, 10) AS DATE) BETWEEN CAST('2023-04-01' AS DATE) AND CAST('2023-04-30' AS DATE) AND NOT c.companysigneddate IS NULL"
+      ],
+      "joins": [
+        "JOIN contract AS c ON o.contractid__c = c.id"
+      ],
+      "aggregates": [
+        "AVG(DATEDIFF(CAST(c.companysigneddate AS DATE), CAST(SUBSTRING(o.createddate, 1, 10) AS DATE), DAY))",
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT o.ownerid, AVG(DATEDIFF(CAST(c.companysigneddate AS DATE), CAST(SUBSTRING(o.createddate, 1, 10) AS DATE), DAY)) AS avg_days, COUNT(*) AS n FROM opportunity AS o JOIN contract AS c ON o.contractid__c = c.id WHERE CAST(SUBSTRING(o.createddate, 1, 10) AS DATE) BETWEEN CAST('2023-04-01' AS DATE) AND CAST('2023-04-30' AS DATE) AND NOT c.companysigneddate IS NULL GROUP BY o.ownerid ORDER BY avg_days ASC NULLS LAST",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "CAST(SUBSTRING(createddate, 1, 10) AS DATE) BETWEEN CAST('2023-04-01' AS DATE) AND CAST('2023-04-30' AS DATE)",
+        "NOT companysigneddate IS NULL"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "ownerid"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "90615943ec654c9394fcdb8f7e8041fc",
+      "tool": "query-db",
+      "database": "sales_pipeline",
+      "sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(c.CompanySignedDate AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' GROUP BY o.OwnerId ORDER BY avg_days ASC",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788780633.1822329,
+      "duration_ms": 44.089690782129765,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contract",
+        "opportunity"
+      ],
+      "columns": [
+        "avg_days",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "join",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "CAST(c.companysigneddate AS DATE) BETWEEN CAST('2023-04-01' AS DATE) AND CAST('2023-04-30' AS DATE)"
+      ],
+      "joins": [
+        "JOIN contract AS c ON o.contractid__c = c.id"
+      ],
+      "aggregates": [
+        "AVG(DATEDIFF(CAST(c.companysigneddate AS DATE), CAST(SUBSTRING(o.createddate, 1, 10) AS DATE), DAY))",
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT o.ownerid, AVG(DATEDIFF(CAST(c.companysigneddate AS DATE), CAST(SUBSTRING(o.createddate, 1, 10) AS DATE), DAY)) AS avg_days, COUNT(*) AS n FROM opportunity AS o JOIN contract AS c ON o.contractid__c = c.id WHERE CAST(c.companysigneddate AS DATE) BETWEEN CAST('2023-04-01' AS DATE) AND CAST('2023-04-30' AS DATE) GROUP BY o.ownerid ORDER BY avg_days ASC NULLS LAST",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "CAST(companysigneddate AS DATE) BETWEEN CAST('2023-04-01' AS DATE) AND CAST('2023-04-30' AS DATE)"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "ownerid"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "56d875618d494449b8ede6da9d81e7a2",
+      "tool": "query-db",
+      "database": "sales_pipeline",
+      "sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(o.CloseDate AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' AND c.CompanySignedDate IS NOT NULL GROUP BY o.OwnerId ORDER BY avg_days ASC",
+      "success": true,
+      "row_count": 2,
+      "start_time": 1788780641.1509194,
+      "duration_ms": 47.178414184600115,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contract",
+        "opportunity"
+      ],
+      "columns": [
+        "avg_days",
+        "closedate",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "join",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "CAST(o.closedate AS DATE) BETWEEN CAST('2023-04-01' AS DATE) AND CAST('2023-04-30' AS DATE) AND NOT c.companysigneddate IS NULL"
+      ],
+      "joins": [
+        "JOIN contract AS c ON o.contractid__c = c.id"
+      ],
+      "aggregates": [
+        "AVG(DATEDIFF(CAST(c.companysigneddate AS DATE), CAST(SUBSTRING(o.createddate, 1, 10) AS DATE), DAY))",
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT o.ownerid, AVG(DATEDIFF(CAST(c.companysigneddate AS DATE), CAST(SUBSTRING(o.createddate, 1, 10) AS DATE), DAY)) AS avg_days, COUNT(*) AS n FROM opportunity AS o JOIN contract AS c ON o.contractid__c = c.id WHERE CAST(o.closedate AS DATE) BETWEEN CAST('2023-04-01' AS DATE) AND CAST('2023-04-30' AS DATE) AND NOT c.companysigneddate IS NULL GROUP BY o.ownerid ORDER BY avg_days ASC NULLS LAST",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "CAST(closedate AS DATE) BETWEEN CAST('2023-04-01' AS DATE) AND CAST('2023-04-30' AS DATE)",
+        "NOT companysigneddate IS NULL"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "ownerid"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "952c05fc555d471f89ce5b5dd63e3ed2",
+      "tool": "query-db",
+      "database": "core_crm",
+      "sql": "SELECT Id, FirstName, LastName FROM User WHERE Id IN ('005Wt000003NEa3IAG','005Wt000003NISMIA4','005Wt000003NDEBIA4','005Wt000003NJgAIAW','005Wt000003NFB8IAO')",
+      "success": true,
+      "row_count": 3,
+      "start_time": 1788780660.6466155,
+      "duration_ms": 0.85786497220397,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "user"
+      ],
+      "columns": [
+        "firstname",
+        "id",
+        "lastname"
+      ],
+      "operations": [
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "id IN ('005Wt000003NEa3IAG', '005Wt000003NISMIA4', '005Wt000003NDEBIA4', '005Wt000003NJgAIAW', '005Wt000003NFB8IAO')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT id, firstname, lastname FROM user WHERE id IN ('005Wt000003NEa3IAG', '005Wt000003NISMIA4', '005Wt000003NDEBIA4', '005Wt000003NJgAIAW', '005Wt000003NFB8IAO')",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "id IN ('005Wt000003NEa3IAG', '005Wt000003NISMIA4', '005Wt000003NDEBIA4', '005Wt000003NJgAIAW', '005Wt000003NFB8IAO')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "firstname",
+        "id",
+        "lastname"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "fb080e10c77f4ca8ad4ce61fd1de5d55",
+      "tool": "query-db",
+      "database": "sales_pipeline",
+      "sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN substr(CreatedDate,1,7)='2023-04' THEN 1 ELSE 0 END) AS apr_created FROM Opportunity",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788780660.7300272,
+      "duration_ms": 43.3333576656878,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "opportunity"
+      ],
+      "columns": [
+        "createddate"
+      ],
+      "operations": [
+        "aggregate",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)",
+        "SUM(CASE WHEN SUBSTRING(createddate, 1, 7) = '2023-04' THEN 1 ELSE 0 END)"
+      ],
+      "canonical": "SELECT COUNT(*) AS total, SUM(CASE WHEN SUBSTRING(createddate, 1, 7) = '2023-04' THEN 1 ELSE 0 END) AS apr_created FROM opportunity",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "462cefe033d8463baac401b0e4673a36",
+      "tool": "query-db",
+      "database": "sales_pipeline",
+      "sql": "SELECT (SELECT COUNT(*) FROM Opportunity WHERE CloseDate BETWEEN '2023-04-01' AND '2023-04-30') AS apr_close, (SELECT COUNT(*) FROM Opportunity o JOIN Contract c ON o.ContractID__c=c.Id WHERE o.CloseDate BETWEEN '2023-04-01' AND '2023-04-30' AND c.CompanySignedDate IS NOT NULL) AS apr_close_with_contract, (SELECT COUNT(*) FROM Contract WHERE CompanySignedDate BETWEEN '2023-04-01' AND '2023-04-30') AS apr_signed",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788780681.6490169,
+      "duration_ms": 46.177301090210676,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contract",
+        "opportunity"
+      ],
+      "columns": [
+        "closedate",
+        "companysigneddate",
+        "contractid__c",
+        "id"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "join",
+        "scan"
+      ],
+      "filters": [
+        "closedate BETWEEN '2023-04-01' AND '2023-04-30'",
+        "companysigneddate BETWEEN '2023-04-01' AND '2023-04-30'",
+        "o.closedate BETWEEN '2023-04-01' AND '2023-04-30' AND NOT c.companysigneddate IS NULL"
+      ],
+      "joins": [
+        "JOIN contract AS c ON o.contractid__c = c.id"
+      ],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT (SELECT COUNT(*) FROM opportunity WHERE closedate BETWEEN '2023-04-01' AND '2023-04-30') AS apr_close, (SELECT COUNT(*) FROM opportunity AS o JOIN contract AS c ON o.contractid__c = c.id WHERE o.closedate BETWEEN '2023-04-01' AND '2023-04-30' AND NOT c.companysigneddate IS NULL) AS apr_close_with_contract, (SELECT COUNT(*) FROM contract WHERE companysigneddate BETWEEN '2023-04-01' AND '2023-04-30') AS apr_signed",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "373db350bee9440ebcc4424c48486603",
+      "tool": "query-db",
+      "database": "core_crm",
+      "sql": "SELECT COUNT(*) AS with_hash FROM User WHERE Id LIKE '#%'",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788780705.490122,
+      "duration_ms": 0.8315281011164188,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "user"
+      ],
+      "columns": [
+        "id"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "id LIKE '#%'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT COUNT(*) AS with_hash FROM user WHERE id LIKE '#%'",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "id LIKE '#%'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "e39f3371a12c4cfe84d70d0c6b4b7d98",
+      "tool": "query-db",
+      "database": "sales_pipeline",
+      "sql": "SELECT o.Id, o.OwnerId, substr(o.CreatedDate,1,10) AS created, o.CloseDate, o.ContractID__c, c.CompanySignedDate FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE substr(o.CreatedDate,1,10) BETWEEN '2023-04-01' AND '2023-04-30' AND c.CompanySignedDate IS NOT NULL",
+      "success": true,
+      "row_count": 2,
+      "start_time": 1788780705.5736964,
+      "duration_ms": 45.92682886868715,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contract",
+        "opportunity"
+      ],
+      "columns": [
+        "closedate",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "operations": [
+        "filter",
+        "join",
+        "scan"
+      ],
+      "filters": [
+        "SUBSTRING(o.createddate, 1, 10) BETWEEN '2023-04-01' AND '2023-04-30' AND NOT c.companysigneddate IS NULL"
+      ],
+      "joins": [
+        "JOIN contract AS c ON o.contractid__c = c.id"
+      ],
+      "aggregates": [],
+      "canonical": "SELECT o.id, o.ownerid, SUBSTRING(o.createddate, 1, 10) AS created, o.closedate, o.contractid__c, c.companysigneddate FROM opportunity AS o JOIN contract AS c ON o.contractid__c = c.id WHERE SUBSTRING(o.createddate, 1, 10) BETWEEN '2023-04-01' AND '2023-04-30' AND NOT c.companysigneddate IS NULL",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "NOT companysigneddate IS NULL",
+        "SUBSTRING(createddate, 1, 10) BETWEEN '2023-04-01' AND '2023-04-30'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "closedate",
+        "companysigneddate",
+        "contractid__c",
+        "id",
+        "ownerid"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "27bf7ebbcd1d44ddaa223739094e03f0",
+      "tool": "query-db",
+      "database": "core_crm",
+      "sql": "SELECT Id, FirstName, LastName FROM User WHERE Id LIKE '%005Wt000003NEa3IAG'",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788780744.436393,
+      "duration_ms": 0.8811741136014462,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "user"
+      ],
+      "columns": [
+        "firstname",
+        "id",
+        "lastname"
+      ],
+      "operations": [
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "id LIKE '%005Wt000003NEa3IAG'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT id, firstname, lastname FROM user WHERE id LIKE '%005Wt000003NEa3IAG'",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "id LIKE '%005Wt000003NEa3IAG'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "firstname",
+        "id",
+        "lastname"
+      ],
+      "limit": null
+    }
+  ],
+  "pairs": [
+    {
+      "producer": "2930967daa3248f5a35034e107fdb6de",
+      "consumer": "36973557214b43df99082a9acece1394",
+      "producer_index": 1,
+      "consumer_index": 3,
+      "shared_tables": [
+        "opportunity"
+      ],
+      "shared_columns": [
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 2,
+      "producer_sql": "SELECT Id, ContractID__c, OwnerId, CreatedDate, CloseDate FROM Opportunity LIMIT 5",
+      "consumer_sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(substr(o.CreatedDate,1,10) AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' AND c.CompanySignedDate IS NOT NULL GROUP BY o.OwnerId ORDER BY avg_days ASC"
+    },
+    {
+      "producer": "0e07e7fd97e042ba9a51b3be14cedeff",
+      "consumer": "36973557214b43df99082a9acece1394",
+      "producer_index": 2,
+      "consumer_index": 3,
+      "shared_tables": [
+        "contract"
+      ],
+      "shared_columns": [
+        "companysigneddate",
+        "id"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 2,
+      "producer_sql": "SELECT Id, CompanySignedDate FROM Contract WHERE CompanySignedDate IS NOT NULL LIMIT 5",
+      "consumer_sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(substr(o.CreatedDate,1,10) AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' AND c.CompanySignedDate IS NOT NULL GROUP BY o.OwnerId ORDER BY avg_days ASC"
+    },
+    {
+      "producer": "2930967daa3248f5a35034e107fdb6de",
+      "consumer": "90615943ec654c9394fcdb8f7e8041fc",
+      "producer_index": 1,
+      "consumer_index": 4,
+      "shared_tables": [
+        "opportunity"
+      ],
+      "shared_columns": [
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT Id, ContractID__c, OwnerId, CreatedDate, CloseDate FROM Opportunity LIMIT 5",
+      "consumer_sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(c.CompanySignedDate AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' GROUP BY o.OwnerId ORDER BY avg_days ASC"
+    },
+    {
+      "producer": "0e07e7fd97e042ba9a51b3be14cedeff",
+      "consumer": "90615943ec654c9394fcdb8f7e8041fc",
+      "producer_index": 2,
+      "consumer_index": 4,
+      "shared_tables": [
+        "contract"
+      ],
+      "shared_columns": [
+        "companysigneddate",
+        "id"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT Id, CompanySignedDate FROM Contract WHERE CompanySignedDate IS NOT NULL LIMIT 5",
+      "consumer_sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(c.CompanySignedDate AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' GROUP BY o.OwnerId ORDER BY avg_days ASC"
+    },
+    {
+      "producer": "36973557214b43df99082a9acece1394",
+      "consumer": "90615943ec654c9394fcdb8f7e8041fc",
+      "producer_index": 3,
+      "consumer_index": 4,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "avg_days",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [
+        "JOIN contract AS c ON o.contractid__c = c.id"
+      ],
+      "shared_aggregates": [
+        "AVG(DATEDIFF(CAST(c.companysigneddate AS DATE), CAST(SUBSTRING(o.createddate, 1, 10) AS DATE), DAY))",
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(substr(o.CreatedDate,1,10) AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' AND c.CompanySignedDate IS NOT NULL GROUP BY o.OwnerId ORDER BY avg_days ASC",
+      "consumer_sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(c.CompanySignedDate AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' GROUP BY o.OwnerId ORDER BY avg_days ASC"
+    },
+    {
+      "producer": "2930967daa3248f5a35034e107fdb6de",
+      "consumer": "56d875618d494449b8ede6da9d81e7a2",
+      "producer_index": 1,
+      "consumer_index": 5,
+      "shared_tables": [
+        "opportunity"
+      ],
+      "shared_columns": [
+        "closedate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 2,
+      "producer_sql": "SELECT Id, ContractID__c, OwnerId, CreatedDate, CloseDate FROM Opportunity LIMIT 5",
+      "consumer_sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(o.CloseDate AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' AND c.CompanySignedDate IS NOT NULL GROUP BY o.OwnerId ORDER BY avg_days ASC"
+    },
+    {
+      "producer": "0e07e7fd97e042ba9a51b3be14cedeff",
+      "consumer": "56d875618d494449b8ede6da9d81e7a2",
+      "producer_index": 2,
+      "consumer_index": 5,
+      "shared_tables": [
+        "contract"
+      ],
+      "shared_columns": [
+        "companysigneddate",
+        "id"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 2,
+      "producer_sql": "SELECT Id, CompanySignedDate FROM Contract WHERE CompanySignedDate IS NOT NULL LIMIT 5",
+      "consumer_sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(o.CloseDate AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' AND c.CompanySignedDate IS NOT NULL GROUP BY o.OwnerId ORDER BY avg_days ASC"
+    },
+    {
+      "producer": "36973557214b43df99082a9acece1394",
+      "consumer": "56d875618d494449b8ede6da9d81e7a2",
+      "producer_index": 3,
+      "consumer_index": 5,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "avg_days",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [
+        "JOIN contract AS c ON o.contractid__c = c.id"
+      ],
+      "shared_aggregates": [
+        "AVG(DATEDIFF(CAST(c.companysigneddate AS DATE), CAST(SUBSTRING(o.createddate, 1, 10) AS DATE), DAY))",
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 2,
+      "producer_sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(substr(o.CreatedDate,1,10) AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' AND c.CompanySignedDate IS NOT NULL GROUP BY o.OwnerId ORDER BY avg_days ASC",
+      "consumer_sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(o.CloseDate AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' AND c.CompanySignedDate IS NOT NULL GROUP BY o.OwnerId ORDER BY avg_days ASC"
+    },
+    {
+      "producer": "90615943ec654c9394fcdb8f7e8041fc",
+      "consumer": "56d875618d494449b8ede6da9d81e7a2",
+      "producer_index": 4,
+      "consumer_index": 5,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "avg_days",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [
+        "JOIN contract AS c ON o.contractid__c = c.id"
+      ],
+      "shared_aggregates": [
+        "AVG(DATEDIFF(CAST(c.companysigneddate AS DATE), CAST(SUBSTRING(o.createddate, 1, 10) AS DATE), DAY))",
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 2,
+      "producer_sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(c.CompanySignedDate AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' GROUP BY o.OwnerId ORDER BY avg_days ASC",
+      "consumer_sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(o.CloseDate AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' AND c.CompanySignedDate IS NOT NULL GROUP BY o.OwnerId ORDER BY avg_days ASC"
+    },
+    {
+      "producer": "2930967daa3248f5a35034e107fdb6de",
+      "consumer": "fb080e10c77f4ca8ad4ce61fd1de5d55",
+      "producer_index": 1,
+      "consumer_index": 7,
+      "shared_tables": [
+        "opportunity"
+      ],
+      "shared_columns": [
+        "createddate"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT Id, ContractID__c, OwnerId, CreatedDate, CloseDate FROM Opportunity LIMIT 5",
+      "consumer_sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN substr(CreatedDate,1,7)='2023-04' THEN 1 ELSE 0 END) AS apr_created FROM Opportunity"
+    },
+    {
+      "producer": "36973557214b43df99082a9acece1394",
+      "consumer": "fb080e10c77f4ca8ad4ce61fd1de5d55",
+      "producer_index": 3,
+      "consumer_index": 7,
+      "shared_tables": [
+        "opportunity"
+      ],
+      "shared_columns": [
+        "createddate"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(substr(o.CreatedDate,1,10) AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' AND c.CompanySignedDate IS NOT NULL GROUP BY o.OwnerId ORDER BY avg_days ASC",
+      "consumer_sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN substr(CreatedDate,1,7)='2023-04' THEN 1 ELSE 0 END) AS apr_created FROM Opportunity"
+    },
+    {
+      "producer": "90615943ec654c9394fcdb8f7e8041fc",
+      "consumer": "fb080e10c77f4ca8ad4ce61fd1de5d55",
+      "producer_index": 4,
+      "consumer_index": 7,
+      "shared_tables": [
+        "opportunity"
+      ],
+      "shared_columns": [
+        "createddate"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(c.CompanySignedDate AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' GROUP BY o.OwnerId ORDER BY avg_days ASC",
+      "consumer_sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN substr(CreatedDate,1,7)='2023-04' THEN 1 ELSE 0 END) AS apr_created FROM Opportunity"
+    },
+    {
+      "producer": "56d875618d494449b8ede6da9d81e7a2",
+      "consumer": "fb080e10c77f4ca8ad4ce61fd1de5d55",
+      "producer_index": 5,
+      "consumer_index": 7,
+      "shared_tables": [
+        "opportunity"
+      ],
+      "shared_columns": [
+        "createddate"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(o.CloseDate AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' AND c.CompanySignedDate IS NOT NULL GROUP BY o.OwnerId ORDER BY avg_days ASC",
+      "consumer_sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN substr(CreatedDate,1,7)='2023-04' THEN 1 ELSE 0 END) AS apr_created FROM Opportunity"
+    },
+    {
+      "producer": "2930967daa3248f5a35034e107fdb6de",
+      "consumer": "462cefe033d8463baac401b0e4673a36",
+      "producer_index": 1,
+      "consumer_index": 8,
+      "shared_tables": [
+        "opportunity"
+      ],
+      "shared_columns": [
+        "closedate",
+        "contractid__c",
+        "id"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT Id, ContractID__c, OwnerId, CreatedDate, CloseDate FROM Opportunity LIMIT 5",
+      "consumer_sql": "SELECT (SELECT COUNT(*) FROM Opportunity WHERE CloseDate BETWEEN '2023-04-01' AND '2023-04-30') AS apr_close, (SELECT COUNT(*) FROM Opportunity o JOIN Contract c ON o.ContractID__c=c.Id WHERE o.CloseDate BETWEEN '2023-04-01' AND '2023-04-30' AND c.CompanySignedDate IS NOT NULL) AS apr_close_with_contract, (SELECT COUNT(*) FROM Contract WHERE CompanySignedDate BETWEEN '2023-04-01' AND '2023-04-30') AS apr_signed"
+    },
+    {
+      "producer": "0e07e7fd97e042ba9a51b3be14cedeff",
+      "consumer": "462cefe033d8463baac401b0e4673a36",
+      "producer_index": 2,
+      "consumer_index": 8,
+      "shared_tables": [
+        "contract"
+      ],
+      "shared_columns": [
+        "companysigneddate",
+        "id"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT Id, CompanySignedDate FROM Contract WHERE CompanySignedDate IS NOT NULL LIMIT 5",
+      "consumer_sql": "SELECT (SELECT COUNT(*) FROM Opportunity WHERE CloseDate BETWEEN '2023-04-01' AND '2023-04-30') AS apr_close, (SELECT COUNT(*) FROM Opportunity o JOIN Contract c ON o.ContractID__c=c.Id WHERE o.CloseDate BETWEEN '2023-04-01' AND '2023-04-30' AND c.CompanySignedDate IS NOT NULL) AS apr_close_with_contract, (SELECT COUNT(*) FROM Contract WHERE CompanySignedDate BETWEEN '2023-04-01' AND '2023-04-30') AS apr_signed"
+    },
+    {
+      "producer": "36973557214b43df99082a9acece1394",
+      "consumer": "462cefe033d8463baac401b0e4673a36",
+      "producer_index": 3,
+      "consumer_index": 8,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "companysigneddate",
+        "contractid__c",
+        "id"
+      ],
+      "same_filters": [],
+      "shared_joins": [
+        "JOIN contract AS c ON o.contractid__c = c.id"
+      ],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(substr(o.CreatedDate,1,10) AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' AND c.CompanySignedDate IS NOT NULL GROUP BY o.OwnerId ORDER BY avg_days ASC",
+      "consumer_sql": "SELECT (SELECT COUNT(*) FROM Opportunity WHERE CloseDate BETWEEN '2023-04-01' AND '2023-04-30') AS apr_close, (SELECT COUNT(*) FROM Opportunity o JOIN Contract c ON o.ContractID__c=c.Id WHERE o.CloseDate BETWEEN '2023-04-01' AND '2023-04-30' AND c.CompanySignedDate IS NOT NULL) AS apr_close_with_contract, (SELECT COUNT(*) FROM Contract WHERE CompanySignedDate BETWEEN '2023-04-01' AND '2023-04-30') AS apr_signed"
+    },
+    {
+      "producer": "90615943ec654c9394fcdb8f7e8041fc",
+      "consumer": "462cefe033d8463baac401b0e4673a36",
+      "producer_index": 4,
+      "consumer_index": 8,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "companysigneddate",
+        "contractid__c",
+        "id"
+      ],
+      "same_filters": [],
+      "shared_joins": [
+        "JOIN contract AS c ON o.contractid__c = c.id"
+      ],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(c.CompanySignedDate AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' GROUP BY o.OwnerId ORDER BY avg_days ASC",
+      "consumer_sql": "SELECT (SELECT COUNT(*) FROM Opportunity WHERE CloseDate BETWEEN '2023-04-01' AND '2023-04-30') AS apr_close, (SELECT COUNT(*) FROM Opportunity o JOIN Contract c ON o.ContractID__c=c.Id WHERE o.CloseDate BETWEEN '2023-04-01' AND '2023-04-30' AND c.CompanySignedDate IS NOT NULL) AS apr_close_with_contract, (SELECT COUNT(*) FROM Contract WHERE CompanySignedDate BETWEEN '2023-04-01' AND '2023-04-30') AS apr_signed"
+    },
+    {
+      "producer": "56d875618d494449b8ede6da9d81e7a2",
+      "consumer": "462cefe033d8463baac401b0e4673a36",
+      "producer_index": 5,
+      "consumer_index": 8,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "closedate",
+        "companysigneddate",
+        "contractid__c",
+        "id"
+      ],
+      "same_filters": [],
+      "shared_joins": [
+        "JOIN contract AS c ON o.contractid__c = c.id"
+      ],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(o.CloseDate AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' AND c.CompanySignedDate IS NOT NULL GROUP BY o.OwnerId ORDER BY avg_days ASC",
+      "consumer_sql": "SELECT (SELECT COUNT(*) FROM Opportunity WHERE CloseDate BETWEEN '2023-04-01' AND '2023-04-30') AS apr_close, (SELECT COUNT(*) FROM Opportunity o JOIN Contract c ON o.ContractID__c=c.Id WHERE o.CloseDate BETWEEN '2023-04-01' AND '2023-04-30' AND c.CompanySignedDate IS NOT NULL) AS apr_close_with_contract, (SELECT COUNT(*) FROM Contract WHERE CompanySignedDate BETWEEN '2023-04-01' AND '2023-04-30') AS apr_signed"
+    },
+    {
+      "producer": "fb080e10c77f4ca8ad4ce61fd1de5d55",
+      "consumer": "462cefe033d8463baac401b0e4673a36",
+      "producer_index": 7,
+      "consumer_index": 8,
+      "shared_tables": [
+        "opportunity"
+      ],
+      "shared_columns": [],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN substr(CreatedDate,1,7)='2023-04' THEN 1 ELSE 0 END) AS apr_created FROM Opportunity",
+      "consumer_sql": "SELECT (SELECT COUNT(*) FROM Opportunity WHERE CloseDate BETWEEN '2023-04-01' AND '2023-04-30') AS apr_close, (SELECT COUNT(*) FROM Opportunity o JOIN Contract c ON o.ContractID__c=c.Id WHERE o.CloseDate BETWEEN '2023-04-01' AND '2023-04-30' AND c.CompanySignedDate IS NOT NULL) AS apr_close_with_contract, (SELECT COUNT(*) FROM Contract WHERE CompanySignedDate BETWEEN '2023-04-01' AND '2023-04-30') AS apr_signed"
+    },
+    {
+      "producer": "952c05fc555d471f89ce5b5dd63e3ed2",
+      "consumer": "373db350bee9440ebcc4424c48486603",
+      "producer_index": 6,
+      "consumer_index": 9,
+      "shared_tables": [
+        "user"
+      ],
+      "shared_columns": [
+        "id"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 3,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT Id, FirstName, LastName FROM User WHERE Id IN ('005Wt000003NEa3IAG','005Wt000003NISMIA4','005Wt000003NDEBIA4','005Wt000003NJgAIAW','005Wt000003NFB8IAO')",
+      "consumer_sql": "SELECT COUNT(*) AS with_hash FROM User WHERE Id LIKE '#%'"
+    },
+    {
+      "producer": "2930967daa3248f5a35034e107fdb6de",
+      "consumer": "e39f3371a12c4cfe84d70d0c6b4b7d98",
+      "producer_index": 1,
+      "consumer_index": 10,
+      "shared_tables": [
+        "opportunity"
+      ],
+      "shared_columns": [
+        "closedate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 2,
+      "producer_sql": "SELECT Id, ContractID__c, OwnerId, CreatedDate, CloseDate FROM Opportunity LIMIT 5",
+      "consumer_sql": "SELECT o.Id, o.OwnerId, substr(o.CreatedDate,1,10) AS created, o.CloseDate, o.ContractID__c, c.CompanySignedDate FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE substr(o.CreatedDate,1,10) BETWEEN '2023-04-01' AND '2023-04-30' AND c.CompanySignedDate IS NOT NULL"
+    },
+    {
+      "producer": "0e07e7fd97e042ba9a51b3be14cedeff",
+      "consumer": "e39f3371a12c4cfe84d70d0c6b4b7d98",
+      "producer_index": 2,
+      "consumer_index": 10,
+      "shared_tables": [
+        "contract"
+      ],
+      "shared_columns": [
+        "companysigneddate",
+        "id"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 2,
+      "producer_sql": "SELECT Id, CompanySignedDate FROM Contract WHERE CompanySignedDate IS NOT NULL LIMIT 5",
+      "consumer_sql": "SELECT o.Id, o.OwnerId, substr(o.CreatedDate,1,10) AS created, o.CloseDate, o.ContractID__c, c.CompanySignedDate FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE substr(o.CreatedDate,1,10) BETWEEN '2023-04-01' AND '2023-04-30' AND c.CompanySignedDate IS NOT NULL"
+    },
+    {
+      "producer": "36973557214b43df99082a9acece1394",
+      "consumer": "e39f3371a12c4cfe84d70d0c6b4b7d98",
+      "producer_index": 3,
+      "consumer_index": 10,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [
+        "JOIN contract AS c ON o.contractid__c = c.id"
+      ],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 2,
+      "producer_sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(substr(o.CreatedDate,1,10) AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' AND c.CompanySignedDate IS NOT NULL GROUP BY o.OwnerId ORDER BY avg_days ASC",
+      "consumer_sql": "SELECT o.Id, o.OwnerId, substr(o.CreatedDate,1,10) AS created, o.CloseDate, o.ContractID__c, c.CompanySignedDate FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE substr(o.CreatedDate,1,10) BETWEEN '2023-04-01' AND '2023-04-30' AND c.CompanySignedDate IS NOT NULL"
+    },
+    {
+      "producer": "90615943ec654c9394fcdb8f7e8041fc",
+      "consumer": "e39f3371a12c4cfe84d70d0c6b4b7d98",
+      "producer_index": 4,
+      "consumer_index": 10,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [
+        "JOIN contract AS c ON o.contractid__c = c.id"
+      ],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 2,
+      "producer_sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(c.CompanySignedDate AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' GROUP BY o.OwnerId ORDER BY avg_days ASC",
+      "consumer_sql": "SELECT o.Id, o.OwnerId, substr(o.CreatedDate,1,10) AS created, o.CloseDate, o.ContractID__c, c.CompanySignedDate FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE substr(o.CreatedDate,1,10) BETWEEN '2023-04-01' AND '2023-04-30' AND c.CompanySignedDate IS NOT NULL"
+    },
+    {
+      "producer": "56d875618d494449b8ede6da9d81e7a2",
+      "consumer": "e39f3371a12c4cfe84d70d0c6b4b7d98",
+      "producer_index": 5,
+      "consumer_index": 10,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "closedate",
+        "companysigneddate",
+        "contractid__c",
+        "createddate",
+        "id",
+        "ownerid"
+      ],
+      "same_filters": [],
+      "shared_joins": [
+        "JOIN contract AS c ON o.contractid__c = c.id"
+      ],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 2,
+      "producer_sql": "SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(o.CloseDate AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' AND c.CompanySignedDate IS NOT NULL GROUP BY o.OwnerId ORDER BY avg_days ASC",
+      "consumer_sql": "SELECT o.Id, o.OwnerId, substr(o.CreatedDate,1,10) AS created, o.CloseDate, o.ContractID__c, c.CompanySignedDate FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE substr(o.CreatedDate,1,10) BETWEEN '2023-04-01' AND '2023-04-30' AND c.CompanySignedDate IS NOT NULL"
+    },
+    {
+      "producer": "fb080e10c77f4ca8ad4ce61fd1de5d55",
+      "consumer": "e39f3371a12c4cfe84d70d0c6b4b7d98",
+      "producer_index": 7,
+      "consumer_index": 10,
+      "shared_tables": [
+        "opportunity"
+      ],
+      "shared_columns": [
+        "createddate"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 2,
+      "producer_sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN substr(CreatedDate,1,7)='2023-04' THEN 1 ELSE 0 END) AS apr_created FROM Opportunity",
+      "consumer_sql": "SELECT o.Id, o.OwnerId, substr(o.CreatedDate,1,10) AS created, o.CloseDate, o.ContractID__c, c.CompanySignedDate FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE substr(o.CreatedDate,1,10) BETWEEN '2023-04-01' AND '2023-04-30' AND c.CompanySignedDate IS NOT NULL"
+    },
+    {
+      "producer": "462cefe033d8463baac401b0e4673a36",
+      "consumer": "e39f3371a12c4cfe84d70d0c6b4b7d98",
+      "producer_index": 8,
+      "consumer_index": 10,
+      "shared_tables": [
+        "contract",
+        "opportunity"
+      ],
+      "shared_columns": [
+        "closedate",
+        "companysigneddate",
+        "contractid__c",
+        "id"
+      ],
+      "same_filters": [],
+      "shared_joins": [
+        "JOIN contract AS c ON o.contractid__c = c.id"
+      ],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 2,
+      "producer_sql": "SELECT (SELECT COUNT(*) FROM Opportunity WHERE CloseDate BETWEEN '2023-04-01' AND '2023-04-30') AS apr_close, (SELECT COUNT(*) FROM Opportunity o JOIN Contract c ON o.ContractID__c=c.Id WHERE o.CloseDate BETWEEN '2023-04-01' AND '2023-04-30' AND c.CompanySignedDate IS NOT NULL) AS apr_close_with_contract, (SELECT COUNT(*) FROM Contract WHERE CompanySignedDate BETWEEN '2023-04-01' AND '2023-04-30') AS apr_signed",
+      "consumer_sql": "SELECT o.Id, o.OwnerId, substr(o.CreatedDate,1,10) AS created, o.CloseDate, o.ContractID__c, c.CompanySignedDate FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE substr(o.CreatedDate,1,10) BETWEEN '2023-04-01' AND '2023-04-30' AND c.CompanySignedDate IS NOT NULL"
+    },
+    {
+      "producer": "952c05fc555d471f89ce5b5dd63e3ed2",
+      "consumer": "27bf7ebbcd1d44ddaa223739094e03f0",
+      "producer_index": 6,
+      "consumer_index": 11,
+      "shared_tables": [
+        "user"
+      ],
+      "shared_columns": [
+        "firstname",
+        "id",
+        "lastname"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 3,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT Id, FirstName, LastName FROM User WHERE Id IN ('005Wt000003NEa3IAG','005Wt000003NISMIA4','005Wt000003NDEBIA4','005Wt000003NJgAIAW','005Wt000003NFB8IAO')",
+      "consumer_sql": "SELECT Id, FirstName, LastName FROM User WHERE Id LIKE '%005Wt000003NEa3IAG'"
+    },
+    {
+      "producer": "373db350bee9440ebcc4424c48486603",
+      "consumer": "27bf7ebbcd1d44ddaa223739094e03f0",
+      "producer_index": 9,
+      "consumer_index": 11,
+      "shared_tables": [
+        "user"
+      ],
+      "shared_columns": [
+        "id"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT COUNT(*) AS with_hash FROM User WHERE Id LIKE '#%'",
+      "consumer_sql": "SELECT Id, FirstName, LastName FROM User WHERE Id LIKE '%005Wt000003NEa3IAG'"
+    }
+  ],
+  "fads": [],
+  "audit": {
+    "assistant_turns": 12,
+    "sql_order_checks": {},
+    "review_flags": []
+  }
+}

@@ -1,0 +1,1 @@
+SELECT o.OwnerId, AVG(date_diff('day', CAST(substr(o.CreatedDate,1,10) AS DATE), CAST(c.CompanySignedDate AS DATE))) AS avg_days, COUNT(*) AS n FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE CAST(c.CompanySignedDate AS DATE) BETWEEN DATE '2023-04-01' AND DATE '2023-04-30' GROUP BY o.OwnerId ORDER BY avg_days ASC

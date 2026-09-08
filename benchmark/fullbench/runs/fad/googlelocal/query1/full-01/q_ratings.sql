@@ -1,0 +1,5 @@
+SELECT gmap_id, AVG(rating) AS avg_rating, COUNT(*) AS review_count
+FROM review
+WHERE gmap_id IN ('gmap_44','gmap_41','gmap_43','gmap_38','gmap_39','gmap_42','gmap_40')
+GROUP BY gmap_id
+ORDER BY avg_rating DESC;

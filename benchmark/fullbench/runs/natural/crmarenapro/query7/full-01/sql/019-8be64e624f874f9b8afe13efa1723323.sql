@@ -1,0 +1,1 @@
+SELECT * FROM Product2 WHERE Id LIKE '%6hVGP%'

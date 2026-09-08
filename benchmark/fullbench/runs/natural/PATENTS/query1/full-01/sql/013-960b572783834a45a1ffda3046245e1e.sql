@@ -1,0 +1,54 @@
+WITH p AS (SELECT rowid AS rid, CASE
+WHEN filing_date LIKE '%1976%' THEN 1976
+WHEN filing_date LIKE '%1977%' THEN 1977
+WHEN filing_date LIKE '%1978%' THEN 1978
+WHEN filing_date LIKE '%1979%' THEN 1979
+WHEN filing_date LIKE '%1980%' THEN 1980
+WHEN filing_date LIKE '%1981%' THEN 1981
+WHEN filing_date LIKE '%1982%' THEN 1982
+WHEN filing_date LIKE '%1983%' THEN 1983
+WHEN filing_date LIKE '%1984%' THEN 1984
+WHEN filing_date LIKE '%1985%' THEN 1985
+WHEN filing_date LIKE '%1986%' THEN 1986
+WHEN filing_date LIKE '%1987%' THEN 1987
+WHEN filing_date LIKE '%1988%' THEN 1988
+WHEN filing_date LIKE '%1989%' THEN 1989
+WHEN filing_date LIKE '%1990%' THEN 1990
+WHEN filing_date LIKE '%1991%' THEN 1991
+WHEN filing_date LIKE '%1992%' THEN 1992
+WHEN filing_date LIKE '%1993%' THEN 1993
+WHEN filing_date LIKE '%1994%' THEN 1994
+WHEN filing_date LIKE '%1995%' THEN 1995
+WHEN filing_date LIKE '%1996%' THEN 1996
+WHEN filing_date LIKE '%1997%' THEN 1997
+WHEN filing_date LIKE '%1998%' THEN 1998
+WHEN filing_date LIKE '%1999%' THEN 1999
+WHEN filing_date LIKE '%2000%' THEN 2000
+WHEN filing_date LIKE '%2001%' THEN 2001
+WHEN filing_date LIKE '%2002%' THEN 2002
+WHEN filing_date LIKE '%2003%' THEN 2003
+WHEN filing_date LIKE '%2004%' THEN 2004
+WHEN filing_date LIKE '%2005%' THEN 2005
+WHEN filing_date LIKE '%2006%' THEN 2006
+WHEN filing_date LIKE '%2007%' THEN 2007
+WHEN filing_date LIKE '%2008%' THEN 2008
+WHEN filing_date LIKE '%2009%' THEN 2009
+WHEN filing_date LIKE '%2010%' THEN 2010
+WHEN filing_date LIKE '%2011%' THEN 2011
+WHEN filing_date LIKE '%2012%' THEN 2012
+WHEN filing_date LIKE '%2013%' THEN 2013
+WHEN filing_date LIKE '%2014%' THEN 2014
+WHEN filing_date LIKE '%2015%' THEN 2015
+WHEN filing_date LIKE '%2016%' THEN 2016
+WHEN filing_date LIKE '%2017%' THEN 2017
+WHEN filing_date LIKE '%2018%' THEN 2018
+WHEN filing_date LIKE '%2019%' THEN 2019
+WHEN filing_date LIKE '%2020%' THEN 2020
+WHEN filing_date LIKE '%2021%' THEN 2021
+WHEN filing_date LIKE '%2022%' THEN 2022
+WHEN filing_date LIKE '%2023%' THEN 2023
+WHEN filing_date LIKE '%2024%' THEN 2024
+END AS yr, cpc FROM publicationinfo),
+e AS (SELECT DISTINCT p.rid AS rid, p.yr AS yr, substr(json_extract(j.value,'$.code'),1,4) AS sub FROM p, json_each(p.cpc) AS j WHERE p.yr IS NOT NULL)
+SELECT sub, yr, COUNT(*) AS cnt FROM e GROUP BY sub, yr ORDER BY sub, yr;
+

@@ -1,0 +1,1 @@
+SELECT o.Id, o.OwnerId, substr(o.CreatedDate,1,10) AS created, o.CloseDate, o.ContractID__c, c.CompanySignedDate FROM Opportunity o JOIN Contract c ON o.ContractID__c = c.Id WHERE substr(o.CreatedDate,1,10) BETWEEN '2023-04-01' AND '2023-04-30' AND c.CompanySignedDate IS NOT NULL

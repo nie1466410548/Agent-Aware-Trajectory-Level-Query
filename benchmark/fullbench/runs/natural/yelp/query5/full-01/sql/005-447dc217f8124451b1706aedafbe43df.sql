@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_reviews, ROUND(AVG(rating),4) AS avg_rating FROM review WHERE business_ref IN ('businessref_89','businessref_97','businessref_67','businessref_77','businessref_86','businessref_40','businessref_44','businessref_82')

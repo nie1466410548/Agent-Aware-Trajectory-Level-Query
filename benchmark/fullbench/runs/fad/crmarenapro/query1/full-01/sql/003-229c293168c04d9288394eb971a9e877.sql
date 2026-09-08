@@ -1,0 +1,1 @@
+SELECT id, title, summary, faq_answer__c FROM knowledge__kav WHERE title ILIKE '%PulseSim%' OR summary ILIKE '%PulseSim%' OR faq_answer__c ILIKE '%PulseSim%'

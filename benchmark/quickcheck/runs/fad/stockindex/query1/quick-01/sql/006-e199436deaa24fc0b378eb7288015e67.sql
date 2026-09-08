@@ -1,0 +1,1 @@
+SELECT "Index", COUNT(*) AS n_days, MIN("Date") AS first_date, MAX("Date") AS last_date, AVG(("High" - "Low") / "Close") AS avg_intraday_vol FROM index_trade WHERE "Date" >= '2020-01-01' AND "Index" IN ('000001.SS','399001.SZ','HSI','N225','NSEI','TWII') GROUP BY "Index" ORDER BY avg_intraday_vol DESC;

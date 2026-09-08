@@ -1,0 +1,2 @@
+SELECT Id, Name, Description, IsActive FROM Product2 WHERE Id IN ('01tWt000006hV6jIAE','01tWt000006hV8LIAU','01tWt000006hPffIAE','01tWt000006hVczIAE')
+

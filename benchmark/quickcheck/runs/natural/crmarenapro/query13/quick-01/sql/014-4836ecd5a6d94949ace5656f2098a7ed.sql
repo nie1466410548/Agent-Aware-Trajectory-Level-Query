@@ -1,0 +1,1 @@
+SELECT REPLACE(o.OwnerId,'#','') AS owner, ROUND(SUM(oi.Quantity * oi.UnitPrice),2) AS total_sales FROM "Order" o JOIN OrderItem oi ON oi.OrderId = o.Id WHERE o.EffectiveDate >= '2022-06-25' AND o.EffectiveDate <= '2022-11-25' GROUP BY REPLACE(o.OwnerId,'#','') ORDER BY total_sales DESC LIMIT 5

@@ -1,0 +1,1 @@
+SELECT Id, Pricebook2Id, Product2Id, UnitPrice FROM PricebookEntry WHERE Id IN ('01uWt0000027P8bIAE','01uWt0000027P3lIAE','01uWt0000027PVBIA2')

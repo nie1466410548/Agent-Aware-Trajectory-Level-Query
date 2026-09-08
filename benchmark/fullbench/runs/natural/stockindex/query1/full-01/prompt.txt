@@ -1,0 +1,46 @@
+Solve this data analysis task using the supplied databases. Work independently, without asking the user questions. Use at most 30 database calls and finish within 15 minutes. Do not delegate to other agents.
+
+TASK: Which stock index in the Asia region has exhibited the highest average intraday volatility since 2020?
+
+DATABASE DESCRIPTION:
+You are working with two databases to solve this query.
+
+Here are the descriptions of these two databases:
+
+1. indexinfo_database
+   - This database is stored in a SQLite database and contains metadata about stock market indices from major exchanges around the world, including the United States, China, Canada, Germany, Japan, and more.
+   - This database consists of one table:
+   - index_info:
+    - Fields:
+      - Exchange (str): Full name of the stock exchange
+      - Currency (str): Trading currency of the exchange
+
+2. indextrade_database
+   - This database is stored in a DuckDB database and contains daily price data for indices tracking stock exchanges across various countries and regions.
+   - This database consists of one table:
+   - index_trade:
+    - Fields:
+      - Index (str): Abbreviated index symbol
+      - Date (str): Trading date
+      - Open (float): Opening price
+      - High (float): Highest price during the day
+      - Low (float): Lowest price during the day
+      - Close (float): Closing price
+      - Adj Close (float): Adjusted closing price
+      - CloseUSD (float): Closing price in USD
+
+
+DATA TOOLS (invoke through Bash):
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py list-db DATABASE_NAME
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py query-db DATABASE_NAME --sql-file query.sql
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py query-db DATABASE_NAME --mongo-file mongo_query.json  # MongoDB only
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py python --file analysis.py
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py answer --file final.txt
+
+You may also pass --sql with a correctly quoted SQL string instead of --sql-file. Use Bash to create your SQL and Python files in the current directory. All actual database access must use query-db or list-db above. Run analysis Python only through the python tool above. Python can use pandas, pyarrow and the standard library; it can read full query results from the result_file paths returned by the data tools. Those JSON files contain lists of row objects. MongoDB uses native read-only JSON requests, not SQL: {"operation":"find","collection":"name","filter":{},"projection":{},"sort":[["field",1]],"limit":10}, or {"operation":"aggregate","collection":"name","pipeline":[...]}, or {"operation":"count_documents","collection":"name","filter":{}}, or {"operation":"distinct","collection":"name","field":"field","filter":{}}. list-db lists collection names for MongoDB. FAD tables/columns describe collections/fields for MongoDB. SQL output is previewed up to 10000 characters; the complete data remains in result_file.
+
+Use only this task description, these tools, and files you create or tool result files in this run directory. Do not inspect parent directories, benchmark source, tool source, validators, gold answers, external websites, user history, or previous sessions. Do not install packages or connect to the databases directly. These restrictions maintain evaluation integrity. Do not optimize for repetition or deliberately split queries: solve the task naturally. DATABASE_NAME is a logical name from the description above, not a physical file name. For DuckDB metadata use information_schema; for SQLite use PRAGMA table_info; for PostgreSQL use information_schema. Do not invoke shell clients directly.
+
+After analysis, write the final answer to final.txt and submit it with the answer tool. Include any requested complete book list. Then stop. If unable to solve, submit your best supported answer and state the limitation. Do not inspect evaluation results.
+
+Do not generate extra future-access predictions.

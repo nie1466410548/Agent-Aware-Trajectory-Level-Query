@@ -1,0 +1,1 @@
+SELECT CASE WHEN "Patient_description" LIKE '%FEMALE%' THEN 'FEMALE' WHEN "Patient_description" LIKE '%MALE%' THEN 'MALE' ELSE 'UNKNOWN' END AS gender, COUNT(*) AS n FROM clinical_info WHERE "Patient_description" ILIKE '%Breast invasive carcinoma%' GROUP BY 1

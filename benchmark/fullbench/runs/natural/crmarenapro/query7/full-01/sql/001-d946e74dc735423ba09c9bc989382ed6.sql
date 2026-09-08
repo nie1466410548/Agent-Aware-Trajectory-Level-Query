@@ -1,0 +1,1 @@
+SELECT * FROM "Case" WHERE id = '500Wt00000DDyznIAD'

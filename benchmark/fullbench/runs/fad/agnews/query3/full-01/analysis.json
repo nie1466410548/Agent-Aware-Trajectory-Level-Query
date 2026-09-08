@@ -1,0 +1,1065 @@
+{
+  "summary": {
+    "task_id": "agnews/query3",
+    "run_id": "full-01",
+    "model": "kimi-code/k3",
+    "group": "fad",
+    "adapter_version": "fullbench-v2-bound-run",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 176.01225447654724,
+    "answer_submitted": true,
+    "validator_passed": false,
+    "validator_reason": "Ground truth numeric value '336.6363636363636' (tol=0.01) not found in LLM output: Answer: approximately 41.82 business articles per year (460 total over 11 years, 2010-2020).\n\nMethod: Business articles were identified from the MongoDB articles collection as those whose title or description contains the word \"business\" (case-insensitive; 4018 articles matched). These were joined with the SQLite article_metadata table filtered to region = 'Europe' and publication dates from 2010-01-01 to 2020-12-31.\n\nPer-year counts in Europe:\n2010: 45, 2011: 44, 2012: 35, 2013: 46, 2014: 40, 2015: 34, 2016: 44, 2017: 41, 2018: 41, 2019: 46, 2020: 44\n\nTotal = 460; Average = 460 / 11 ≈ 41.82 articles per year.",
+    "tool_calls": 16,
+    "sql_calls": 4,
+    "mongo_calls": 4,
+    "failed_calls": 0,
+    "mongo_queries": 3,
+    "mongo_metadata_queries": 1,
+    "data_queries": 3,
+    "metadata_queries": 1,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 3,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 0,
+    "later_queries_sharing_tables": 2,
+    "later_queries_sharing_table_columns": 2,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 0,
+    "shared_join_consumers": 0,
+    "shared_aggregate_consumers": 0,
+    "data_query_adapter_ms": 169.27088052034378,
+    "fad_submissions": 6,
+    "python_calls": 1,
+    "assistant_turns": 16
+  },
+  "queries": [
+    {
+      "call_id": "d8ad585b12124b19ba455a750fbdbeb0",
+      "tool": "list-db",
+      "database": "metadata_database",
+      "sql": "SELECT name FROM sqlite_master WHERE type='table'",
+      "success": true,
+      "row_count": 2,
+      "start_time": 1788801925.3240707,
+      "duration_ms": 16.000977717339993,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "sqlite_master"
+      ],
+      "columns": [
+        "name",
+        "type"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "type = 'table'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT name FROM sqlite_master WHERE type = 'table'",
+      "simple_ranges": {
+        "type": {
+          "type": "text",
+          "lo": [
+            "table",
+            true
+          ],
+          "hi": [
+            "table",
+            true
+          ]
+        }
+      },
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "type = 'table'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "84d996f1215c44959f8d0d8d1d4455fa",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT DISTINCT region FROM article_metadata",
+      "success": true,
+      "row_count": 5,
+      "start_time": 1788801940.2351534,
+      "duration_ms": 32.12686441838741,
+      "dialect": "sqlite",
+      "fad_id": "ff3848e562cd48dab6773b7da81eacdb",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "article_metadata"
+      ],
+      "columns": [
+        "region"
+      ],
+      "operations": [
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT DISTINCT region FROM article_metadata",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "region"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "2b626d1a70284ed4b99ab99e0fe2ea6e",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT MIN(publication_date) AS min_d, MAX(publication_date) AS max_d, COUNT(*) AS total FROM article_metadata; SELECT SUBSTR(publication_date,1,4) AS yr, COUNT(*) FROM article_metadata WHERE region='Europe' GROUP BY yr ORDER BY yr",
+      "success": true,
+      "row_count": 19,
+      "start_time": 1788801979.2626991,
+      "duration_ms": 50.93598552048206,
+      "dialect": "sqlite",
+      "fad_id": "2a15b670e53e4ce59731fc08de4b83ef",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "article_metadata"
+      ],
+      "columns": [
+        "publication_date",
+        "region",
+        "yr"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "region = 'Europe'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)",
+        "MAX(publication_date)",
+        "MIN(publication_date)"
+      ],
+      "canonical": "SELECT MIN(publication_date) AS min_d, MAX(publication_date) AS max_d, COUNT(*) AS total FROM article_metadata; SELECT SUBSTRING(publication_date, 1, 4) AS yr, COUNT(*) FROM article_metadata WHERE region = 'Europe' GROUP BY yr ORDER BY yr",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "484c741ebf5746aabd07411f3413d056",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT article_id, SUBSTR(publication_date,1,4) AS yr FROM article_metadata WHERE region='Europe' AND publication_date >= '2010-01-01' AND publication_date <= '2020-12-31'",
+      "success": true,
+      "row_count": 14860,
+      "start_time": 1788802050.9221687,
+      "duration_ms": 86.2080305814743,
+      "dialect": "sqlite",
+      "fad_id": "121f3d899d194f3ebbbfef06b31f3f2c",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "article_metadata"
+      ],
+      "columns": [
+        "article_id",
+        "publication_date",
+        "region"
+      ],
+      "operations": [
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "region = 'Europe' AND publication_date >= '2010-01-01' AND publication_date <= '2020-12-31'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT article_id, SUBSTRING(publication_date, 1, 4) AS yr FROM article_metadata WHERE region = 'Europe' AND publication_date >= '2010-01-01' AND publication_date <= '2020-12-31'",
+      "simple_ranges": {
+        "region": {
+          "type": "text",
+          "lo": [
+            "Europe",
+            true
+          ],
+          "hi": [
+            "Europe",
+            true
+          ]
+        },
+        "publication_date": {
+          "type": "text",
+          "lo": [
+            "2010-01-01",
+            true
+          ],
+          "hi": [
+            "2020-12-31",
+            true
+          ]
+        }
+      },
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "publication_date <= '2020-12-31'",
+        "publication_date >= '2010-01-01'",
+        "region = 'Europe'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "article_id"
+      ],
+      "limit": null
+    }
+  ],
+  "mongo_queries": [
+    {
+      "task_id": "agnews/query3",
+      "run_id": "full-01",
+      "call_id": "3f8b0c42bdd443ecb9f638768b0f1957",
+      "tool": "list-db",
+      "start_time": 1788801924.5745707,
+      "timestamp": "2026-09-07T17:25:24.574573+00:00",
+      "database": "articles_database",
+      "dialect": "mongo",
+      "fad_id": null,
+      "mongo_request": {
+        "operation": "list"
+      },
+      "row_count": 1,
+      "columns": [],
+      "result_file": "/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/fad/agnews/query3/full-01/results/3f8b0c42bdd443ecb9f638768b0f1957.json",
+      "result_bytes": 28,
+      "result_sha256": "a7cb2650b8a06daeba0cb248f7f56b58203ca5aeb2ff9942b38316a9cb5f23e2",
+      "success": true,
+      "end_time": 1788801924.71418,
+      "duration_ms": 139.5915811881423,
+      "metadata": true,
+      "tables": [],
+      "operations": [
+        "scan"
+      ],
+      "filters": [],
+      "parse_error": null
+    },
+    {
+      "task_id": "agnews/query3",
+      "run_id": "full-01",
+      "call_id": "c166907cc77247e0a7f59913c37c6445",
+      "tool": "query-db",
+      "start_time": 1788801956.2951763,
+      "timestamp": "2026-09-07T17:25:56.295179+00:00",
+      "database": "articles_database",
+      "dialect": "mongo",
+      "fad_id": "03ca95245d4246f78569ca8f592d45f9",
+      "fad_lead_s": 5.7441086769104,
+      "mongo_request": {
+        "operation": "find",
+        "collection": "articles",
+        "filter": {},
+        "projection": {
+          "article_id": 1,
+          "title": 1,
+          "description": 1
+        },
+        "limit": 10
+      },
+      "row_count": 10,
+      "columns": [
+        "article_id",
+        "description",
+        "title"
+      ],
+      "result_file": "/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/fad/agnews/query3/full-01/results/c166907cc77247e0a7f59913c37c6445.json",
+      "result_bytes": 3264,
+      "result_sha256": "573c863df54541386042192cf3a34ea707c83470d9bb949566f5270fa5a791f3",
+      "success": true,
+      "end_time": 1788801956.436484,
+      "duration_ms": 141.29063487052917,
+      "metadata": false,
+      "tables": [
+        "articles"
+      ],
+      "operations": [
+        "limit",
+        "scan"
+      ],
+      "filters": [],
+      "parse_error": null
+    },
+    {
+      "task_id": "agnews/query3",
+      "run_id": "full-01",
+      "call_id": "2e825beeea9e4cda9f6348a56a46a73b",
+      "tool": "query-db",
+      "start_time": 1788802003.661628,
+      "timestamp": "2026-09-07T17:26:43.661630+00:00",
+      "database": "articles_database",
+      "dialect": "mongo",
+      "fad_id": "62c2cda5a97840c0bb2114d7ca5d7490",
+      "fad_lead_s": 7.617183446884155,
+      "mongo_request": {
+        "operation": "aggregate",
+        "collection": "articles",
+        "pipeline": [
+          {
+            "$match": {
+              "$or": [
+                {
+                  "title": {
+                    "$regex": "business",
+                    "$options": "i"
+                  }
+                },
+                {
+                  "description": {
+                    "$regex": "business",
+                    "$options": "i"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "$count": "n"
+          }
+        ]
+      },
+      "row_count": 1,
+      "columns": [
+        "description",
+        "title"
+      ],
+      "result_file": "/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/fad/agnews/query3/full-01/results/2e825beeea9e4cda9f6348a56a46a73b.json",
+      "result_bytes": 13,
+      "result_sha256": "e6c7369190443dd776e814ab3b30d1d280375e4d240f99c7dc6bbb37835991ff",
+      "success": true,
+      "end_time": 1788802003.987197,
+      "duration_ms": 325.55366307497025,
+      "metadata": false,
+      "tables": [
+        "articles"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "scan"
+      ],
+      "filters": [],
+      "parse_error": null
+    },
+    {
+      "task_id": "agnews/query3",
+      "run_id": "full-01",
+      "call_id": "5e32d3c9fd0f4c5bbd59e5ff2e783019",
+      "tool": "query-db",
+      "start_time": 1788802034.667547,
+      "timestamp": "2026-09-07T17:27:14.667549+00:00",
+      "database": "articles_database",
+      "dialect": "mongo",
+      "fad_id": "7a8e1b3d7be149ebaae6c90cbb1ab041",
+      "fad_lead_s": 9.18055534362793,
+      "mongo_request": {
+        "operation": "find",
+        "collection": "articles",
+        "filter": {
+          "$or": [
+            {
+              "title": {
+                "$regex": "business",
+                "$options": "i"
+              }
+            },
+            {
+              "description": {
+                "$regex": "business",
+                "$options": "i"
+              }
+            }
+          ]
+        },
+        "projection": {
+          "article_id": 1,
+          "_id": 0
+        },
+        "limit": 10000
+      },
+      "row_count": 4018,
+      "columns": [
+        "_id",
+        "article_id",
+        "description",
+        "title"
+      ],
+      "result_file": "/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/fad/agnews/query3/full-01/results/5e32d3c9fd0f4c5bbd59e5ff2e783019.json",
+      "result_bytes": 92888,
+      "result_sha256": "3e0a237e7bd52e5af917e630e7ff91c191162bb3489a3b251e1e41919f76f3b0",
+      "success": true,
+      "end_time": 1788802035.003028,
+      "duration_ms": 335.4682009667158,
+      "metadata": false,
+      "tables": [
+        "articles"
+      ],
+      "operations": [
+        "filter",
+        "limit",
+        "scan"
+      ],
+      "filters": [],
+      "parse_error": null
+    }
+  ],
+  "pairs": [
+    {
+      "producer": "84d996f1215c44959f8d0d8d1d4455fa",
+      "consumer": "2b626d1a70284ed4b99ab99e0fe2ea6e",
+      "producer_index": 1,
+      "consumer_index": 2,
+      "shared_tables": [
+        "article_metadata"
+      ],
+      "shared_columns": [
+        "region"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 19,
+      "producer_sql": "SELECT DISTINCT region FROM article_metadata",
+      "consumer_sql": "SELECT MIN(publication_date) AS min_d, MAX(publication_date) AS max_d, COUNT(*) AS total FROM article_metadata; SELECT SUBSTR(publication_date,1,4) AS yr, COUNT(*) FROM article_metadata WHERE region='Europe' GROUP BY yr ORDER BY yr"
+    },
+    {
+      "producer": "84d996f1215c44959f8d0d8d1d4455fa",
+      "consumer": "484c741ebf5746aabd07411f3413d056",
+      "producer_index": 1,
+      "consumer_index": 3,
+      "shared_tables": [
+        "article_metadata"
+      ],
+      "shared_columns": [
+        "region"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 14860,
+      "producer_sql": "SELECT DISTINCT region FROM article_metadata",
+      "consumer_sql": "SELECT article_id, SUBSTR(publication_date,1,4) AS yr FROM article_metadata WHERE region='Europe' AND publication_date >= '2010-01-01' AND publication_date <= '2020-12-31'"
+    },
+    {
+      "producer": "2b626d1a70284ed4b99ab99e0fe2ea6e",
+      "consumer": "484c741ebf5746aabd07411f3413d056",
+      "producer_index": 2,
+      "consumer_index": 3,
+      "shared_tables": [
+        "article_metadata"
+      ],
+      "shared_columns": [
+        "publication_date",
+        "region"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 19,
+      "consumer_rows": 14860,
+      "producer_sql": "SELECT MIN(publication_date) AS min_d, MAX(publication_date) AS max_d, COUNT(*) AS total FROM article_metadata; SELECT SUBSTR(publication_date,1,4) AS yr, COUNT(*) FROM article_metadata WHERE region='Europe' GROUP BY yr ORDER BY yr",
+      "consumer_sql": "SELECT article_id, SUBSTR(publication_date,1,4) AS yr FROM article_metadata WHERE region='Europe' AND publication_date >= '2010-01-01' AND publication_date <= '2020-12-31'"
+    }
+  ],
+  "fads": [
+    {
+      "call_id": "ff3848e562cd48dab6773b7da81eacdb",
+      "accesses": [
+        {
+          "database": "metadata_database",
+          "tables": [
+            "article_metadata"
+          ],
+          "columns": [
+            "region",
+            "publication_date"
+          ],
+          "filters": [],
+          "operations": [
+            "scan",
+            "aggregate"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "articles_database",
+          "tables": [
+            "articles"
+          ],
+          "columns": [
+            "article_id",
+            "title",
+            "description"
+          ],
+          "filters": [],
+          "operations": [
+            "scan",
+            "limit"
+          ],
+          "horizon": 2
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "articles_database",
+          "articles"
+        ],
+        [
+          "metadata_database",
+          "article_metadata"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "84d996f1215c44959f8d0d8d1d4455fa",
+        "c166907cc77247e0a7f59913c37c6445",
+        "2b626d1a70284ed4b99ab99e0fe2ea6e"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "articles_database",
+          "articles"
+        ]
+      ],
+      "later_table_precision": 1.0,
+      "later_table_recall": 0.5,
+      "later_has_consumer": true,
+      "table_precision_1": 0.5,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "articles_database",
+          "articles"
+        ]
+      ],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 0.5,
+      "operation_precision_1": 0.5,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 5.675590753555298,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": null
+    },
+    {
+      "call_id": "03ca95245d4246f78569ca8f592d45f9",
+      "accesses": [
+        {
+          "database": "articles_database",
+          "tables": [
+            "articles"
+          ],
+          "columns": [
+            "article_id",
+            "title",
+            "description"
+          ],
+          "filters": [],
+          "operations": [
+            "scan",
+            "limit"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "metadata_database",
+          "tables": [
+            "article_metadata"
+          ],
+          "columns": [
+            "article_id",
+            "region",
+            "publication_date"
+          ],
+          "filters": [
+            "region = 'Europe'",
+            "publication_date between 2010 and 2020"
+          ],
+          "operations": [
+            "filter",
+            "aggregate"
+          ],
+          "horizon": 2
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "articles_database",
+          "articles"
+        ],
+        [
+          "metadata_database",
+          "article_metadata"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "c166907cc77247e0a7f59913c37c6445",
+        "2b626d1a70284ed4b99ab99e0fe2ea6e",
+        "2e825beeea9e4cda9f6348a56a46a73b"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": true,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "metadata_database",
+          "article_metadata"
+        ]
+      ],
+      "later_table_precision": 1.0,
+      "later_table_recall": 0.5,
+      "later_has_consumer": true,
+      "table_precision_1": 0.5,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "metadata_database",
+          "article_metadata"
+        ]
+      ],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": null,
+      "operation_precision_1": 1.0,
+      "column_recall_1": null,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 5.7441086769104,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    },
+    {
+      "call_id": "2a15b670e53e4ce59731fc08de4b83ef",
+      "accesses": [
+        {
+          "database": "metadata_database",
+          "tables": [
+            "article_metadata"
+          ],
+          "columns": [
+            "article_id",
+            "region",
+            "publication_date"
+          ],
+          "filters": [
+            "region = 'Europe'",
+            "publication_date between '2010-01-01' and '2020-12-31'"
+          ],
+          "operations": [
+            "filter",
+            "aggregate"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "metadata_database",
+          "article_metadata"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "2b626d1a70284ed4b99ab99e0fe2ea6e",
+        "2e825beeea9e4cda9f6348a56a46a73b",
+        "5e32d3c9fd0f4c5bbd59e5ff2e783019"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 0.5,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 0.6666666666666666,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.6666666666666666,
+      "operation_recall_1": 0.5,
+      "filter_exact_precision_1": 0.5,
+      "filter_exact_recall_1": 1.0,
+      "predicted_filter_atoms": [
+        "publication_date BETWEEN '2010-01-01' AND '2020-12-31'",
+        "region = 'Europe'"
+      ],
+      "actual_filter_atoms": [
+        "region = 'Europe'"
+      ],
+      "lead_s": 8.385499715805054,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    },
+    {
+      "call_id": "62c2cda5a97840c0bb2114d7ca5d7490",
+      "accesses": [
+        {
+          "database": "articles_database",
+          "tables": [
+            "articles"
+          ],
+          "columns": [
+            "article_id",
+            "title",
+            "description"
+          ],
+          "filters": [
+            "title or description regex match 'business' (case-insensitive)"
+          ],
+          "operations": [
+            "filter",
+            "aggregate"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "metadata_database",
+          "tables": [
+            "article_metadata"
+          ],
+          "columns": [
+            "article_id",
+            "publication_date"
+          ],
+          "filters": [
+            "region = 'Europe'",
+            "year 2010-2020",
+            "article_id in business set"
+          ],
+          "operations": [
+            "filter",
+            "aggregate"
+          ],
+          "horizon": 2
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "articles_database",
+          "articles"
+        ],
+        [
+          "metadata_database",
+          "article_metadata"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "2e825beeea9e4cda9f6348a56a46a73b",
+        "5e32d3c9fd0f4c5bbd59e5ff2e783019",
+        "484c741ebf5746aabd07411f3413d056"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": true,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "metadata_database",
+          "article_metadata"
+        ]
+      ],
+      "later_table_precision": 1.0,
+      "later_table_recall": 0.5,
+      "later_has_consumer": true,
+      "table_precision_1": 0.5,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "metadata_database",
+          "article_metadata"
+        ]
+      ],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": null,
+      "operation_precision_1": 1.0,
+      "column_recall_1": null,
+      "operation_recall_1": 0.6666666666666666,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 7.617183446884155,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    },
+    {
+      "call_id": "7a8e1b3d7be149ebaae6c90cbb1ab041",
+      "accesses": [
+        {
+          "database": "articles_database",
+          "tables": [
+            "articles"
+          ],
+          "columns": [
+            "article_id",
+            "title",
+            "description"
+          ],
+          "filters": [
+            "title or description regex 'business' (case-insensitive)"
+          ],
+          "operations": [
+            "filter",
+            "scan"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "metadata_database",
+          "tables": [
+            "article_metadata"
+          ],
+          "columns": [
+            "article_id",
+            "publication_date"
+          ],
+          "filters": [
+            "region = 'Europe'",
+            "publication_date between '2010-01-01' and '2020-12-31'"
+          ],
+          "operations": [
+            "filter",
+            "scan"
+          ],
+          "horizon": 2
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "articles_database",
+          "articles"
+        ],
+        [
+          "metadata_database",
+          "article_metadata"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "5e32d3c9fd0f4c5bbd59e5ff2e783019",
+        "484c741ebf5746aabd07411f3413d056"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": true,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "metadata_database",
+          "article_metadata"
+        ]
+      ],
+      "later_table_precision": 1.0,
+      "later_table_recall": 1.0,
+      "later_has_consumer": true,
+      "table_precision_1": 0.5,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "metadata_database",
+          "article_metadata"
+        ]
+      ],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": null,
+      "operation_precision_1": 1.0,
+      "column_recall_1": null,
+      "operation_recall_1": 0.6666666666666666,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 9.18055534362793,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 1.0
+    },
+    {
+      "call_id": "121f3d899d194f3ebbbfef06b31f3f2c",
+      "accesses": [
+        {
+          "database": "metadata_database",
+          "tables": [
+            "article_metadata"
+          ],
+          "columns": [
+            "article_id",
+            "publication_date"
+          ],
+          "filters": [
+            "region = 'Europe'",
+            "publication_date between '2010-01-01' and '2020-12-31'"
+          ],
+          "operations": [
+            "filter",
+            "scan"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "metadata_database",
+          "article_metadata"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "484c741ebf5746aabd07411f3413d056"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": false,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.6666666666666666,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": 0.5,
+      "filter_exact_recall_1": 0.3333333333333333,
+      "predicted_filter_atoms": [
+        "publication_date BETWEEN '2010-01-01' AND '2020-12-31'",
+        "region = 'Europe'"
+      ],
+      "actual_filter_atoms": [
+        "publication_date <= '2020-12-31'",
+        "publication_date >= '2010-01-01'",
+        "region = 'Europe'"
+      ],
+      "lead_s": 6.251906394958496,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    }
+  ],
+  "audit": {
+    "assistant_turns": 16,
+    "sql_order_checks": {
+      "84d996f1215c44959f8d0d8d1d4455fa": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "c166907cc77247e0a7f59913c37c6445": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "2b626d1a70284ed4b99ab99e0fe2ea6e": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "2e825beeea9e4cda9f6348a56a46a73b": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "5e32d3c9fd0f4c5bbd59e5ff2e783019": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "484c741ebf5746aabd07411f3413d056": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      }
+    },
+    "review_flags": []
+  }
+}

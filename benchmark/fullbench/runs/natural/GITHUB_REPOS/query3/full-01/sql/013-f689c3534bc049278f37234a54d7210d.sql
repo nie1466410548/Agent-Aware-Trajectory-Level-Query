@@ -1,0 +1,1 @@
+SELECT la.repo_name, la.language_description, li.license FROM languages la LEFT JOIN licenses li ON la.repo_name=li.repo_name WHERE la.repo_name IN ('twbs/bootstrap','facebook/react','Microsoft/vscode','tensorflow/tensorflow','torvalds/linux','apple/swift')

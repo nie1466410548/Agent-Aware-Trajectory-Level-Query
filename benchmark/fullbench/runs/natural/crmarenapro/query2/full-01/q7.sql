@@ -1,0 +1,1 @@
+SELECT * FROM Opportunity WHERE Id = '006Wt000007BHHfIAO'

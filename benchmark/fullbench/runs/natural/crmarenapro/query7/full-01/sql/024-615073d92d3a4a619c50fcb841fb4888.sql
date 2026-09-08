@@ -1,0 +1,1 @@
+SELECT o.Id, o.EffectiveDate, o.Status, oi.Id AS OrderItemId, oi.Product2Id, p.Name, oi.Quantity FROM "Order" o JOIN OrderItem oi ON oi.OrderId = o.Id JOIN Product2 p ON p.Id = oi.Product2Id WHERE o.AccountId LIKE '%PGaZCI%' ORDER BY o.EffectiveDate

@@ -1,0 +1,1 @@
+SELECT repo_name, language_description FROM languages WHERE repo_name IN ('uacaps/PageMenu','kostiakoval/Mirror','apple/swift','slavapestov/swift','onmyway133/Github.swift','SwiftAndroid/swift','tinysun212/swift-windows','practicalswift/swift-compiler-crashes')

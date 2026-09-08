@@ -1,0 +1,1 @@
+SELECT MIN(publication_date) AS min_d, MAX(publication_date) AS max_d, COUNT(*) AS total FROM article_metadata; SELECT SUBSTR(publication_date,1,4) AS yr, COUNT(*) FROM article_metadata WHERE region='Europe' GROUP BY yr ORDER BY yr

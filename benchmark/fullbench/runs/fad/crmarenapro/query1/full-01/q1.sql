@@ -1,0 +1,1 @@
+SELECT Id, FirstName, LastName, Email, Phone, Company, Status, Title, OwnerId, CreatedDate, IsConverted FROM Lead WHERE Id = '00QWt0000089AekMAE'

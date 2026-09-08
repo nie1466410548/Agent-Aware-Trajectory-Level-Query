@@ -1,0 +1,1 @@
+SELECT * FROM "case" LIMIT 2

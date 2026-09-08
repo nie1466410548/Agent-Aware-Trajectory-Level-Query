@@ -1,0 +1,1 @@
+SELECT CASE WHEN path LIKE '%.py' THEN 'py' WHEN path LIKE '%.c' THEN 'c' WHEN path LIKE '%.h' THEN 'h' ELSE 'other' END AS ext, COUNT(*) AS n FROM files WHERE repo_name = 'torvalds/linux' GROUP BY ext ORDER BY n DESC

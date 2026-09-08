@@ -1,0 +1,1 @@
+SELECT p.Id, p.Name, p.IsActive, e.UnitPrice, e.Pricebook2Id FROM Product2 p LEFT JOIN PricebookEntry e ON e.Product2Id = p.Id WHERE p.Name LIKE '%Sim%' OR p.Name LIKE '%Circuit%' OR p.Name LIKE '%Veri%' OR p.Name LIKE '%Pulse%'

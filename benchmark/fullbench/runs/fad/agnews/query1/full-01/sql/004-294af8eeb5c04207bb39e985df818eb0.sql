@@ -1,0 +1,1 @@
+SELECT (SELECT COUNT(*) FROM authors) AS n_authors, (SELECT COUNT(*) FROM article_metadata) AS n_meta, (SELECT MIN(article_id) FROM article_metadata) AS min_id, (SELECT MAX(article_id) FROM article_metadata) AS max_id;

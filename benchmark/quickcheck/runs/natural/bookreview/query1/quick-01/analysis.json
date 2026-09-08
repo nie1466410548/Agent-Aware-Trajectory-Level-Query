@@ -1,0 +1,492 @@
+{
+  "summary": {
+    "task_id": "bookreview/query1",
+    "run_id": "quick-01",
+    "model": "kimi-code/k3",
+    "group": "natural",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 132.9475622177124,
+    "answer_submitted": true,
+    "validator_passed": true,
+    "validator_reason": "Ground truth found in LLM output.",
+    "tool_calls": 9,
+    "sql_calls": 7,
+    "failed_calls": 0,
+    "data_queries": 5,
+    "metadata_queries": 2,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 5,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 0,
+    "later_queries_sharing_tables": 3,
+    "later_queries_sharing_table_columns": 3,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 0,
+    "shared_join_consumers": 0,
+    "shared_aggregate_consumers": 0,
+    "data_query_adapter_ms": 109.69663504511118,
+    "fad_submissions": 0,
+    "python_calls": 1,
+    "assistant_turns": 8
+  },
+  "queries": [
+    {
+      "call_id": "3ceca14d4d2d4efeac83dbc77fd55905",
+      "tool": "list-db",
+      "database": "books_database",
+      "sql": "SELECT table_name FROM information_schema.tables WHERE table_schema='public'",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788780284.394773,
+      "duration_ms": 27.135797310620546,
+      "dialect": "postgres",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "tables"
+      ],
+      "columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "table_schema = 'public'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'",
+      "simple_ranges": {
+        "table_schema": {
+          "type": "text",
+          "lo": [
+            "public",
+            true
+          ],
+          "hi": [
+            "public",
+            true
+          ]
+        }
+      },
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "table_schema = 'public'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "table_name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "b4baa99744c14a12aca8a71a7a03c6b2",
+      "tool": "list-db",
+      "database": "review_database",
+      "sql": "SELECT name FROM sqlite_master WHERE type='table'",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788780284.50902,
+      "duration_ms": 0.698793213814497,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "sqlite_master"
+      ],
+      "columns": [
+        "name",
+        "type"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "type = 'table'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT name FROM sqlite_master WHERE type = 'table'",
+      "simple_ranges": {
+        "type": {
+          "type": "text",
+          "lo": [
+            "table",
+            true
+          ],
+          "hi": [
+            "table",
+            true
+          ]
+        }
+      },
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "type = 'table'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "54f68a8495374a28bdff37a4b39e2755",
+      "tool": "query-db",
+      "database": "books_database",
+      "sql": "SELECT book_id, title, details FROM books_info WHERE details IS NOT NULL AND details <> '' LIMIT 5;\n",
+      "success": true,
+      "row_count": 5,
+      "start_time": 1788780290.823901,
+      "duration_ms": 24.410572834312916,
+      "dialect": "postgres",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "books_info"
+      ],
+      "columns": [
+        "book_id",
+        "details",
+        "title"
+      ],
+      "operations": [
+        "filter",
+        "limit",
+        "scan"
+      ],
+      "filters": [
+        "details IS NOT NULL AND details <> ''"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT book_id, title, details FROM books_info WHERE details IS NOT NULL AND details <> '' LIMIT 5",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "details <> ''",
+        "details IS NOT NULL"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "book_id",
+        "details",
+        "title"
+      ],
+      "limit": "LIMIT 5"
+    },
+    {
+      "call_id": "52ed6163f9954d51aad68a2abd03c4f2",
+      "tool": "query-db",
+      "database": "books_database",
+      "sql": "SELECT\n  COUNT(*) AS total,\n  COUNT(substring(details from 'on [A-Z][a-z]+ \\d{1,2}, (\\d{4})')) AS with_year\nFROM books_info;\n",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788780302.4438055,
+      "duration_ms": 26.354012079536915,
+      "dialect": "postgres",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "books_info"
+      ],
+      "columns": [
+        "details"
+      ],
+      "operations": [
+        "aggregate",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)",
+        "COUNT(SUBSTRING(details, 'on [A-Z][a-z]+ \\d{1,2}, (\\d{4})'))"
+      ],
+      "canonical": "SELECT COUNT(*) AS total, COUNT(SUBSTRING(details, 'on [A-Z][a-z]+ \\d{1,2}, (\\d{4})')) AS with_year FROM books_info",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "d57a24858a8b4dedbab82d80f8cce074",
+      "tool": "query-db",
+      "database": "books_database",
+      "sql": "SELECT book_id, details FROM books_info\nWHERE substring(details from 'on [A-Z][a-z]+ \\d{1,2}, (\\d{4})') IS NULL;\n",
+      "success": true,
+      "row_count": 15,
+      "start_time": 1788780313.4865415,
+      "duration_ms": 25.916063226759434,
+      "dialect": "postgres",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "books_info"
+      ],
+      "columns": [
+        "book_id",
+        "details"
+      ],
+      "operations": [
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "SUBSTRING(details, 'on [A-Z][a-z]+ \\d{1,2}, (\\d{4})') IS NULL"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT book_id, details FROM books_info WHERE SUBSTRING(details, 'on [A-Z][a-z]+ \\d{1,2}, (\\d{4})') IS NULL",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "SUBSTRING(details, 'on [A-Z][a-z]+ \\d{1,2}, (\\d{4})') IS NULL"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "book_id",
+        "details"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "e807583df8154c0ead0b2b088b70c3f2",
+      "tool": "query-db",
+      "database": "review_database",
+      "sql": "SELECT purchase_id, rating FROM review;\n",
+      "success": true,
+      "row_count": 1833,
+      "start_time": 1788780313.599479,
+      "duration_ms": 6.165341008454561,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "review"
+      ],
+      "columns": [
+        "purchase_id",
+        "rating"
+      ],
+      "operations": [
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT purchase_id, rating FROM review",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": true,
+      "producer_complete_selection": true,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "purchase_id",
+        "rating"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "c59919c876aa4580b6ad31fafb1e3310",
+      "tool": "query-db",
+      "database": "books_database",
+      "sql": "SELECT book_id, details FROM books_info;\n",
+      "success": true,
+      "row_count": 200,
+      "start_time": 1788780343.9133475,
+      "duration_ms": 26.850645896047354,
+      "dialect": "postgres",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "books_info"
+      ],
+      "columns": [
+        "book_id",
+        "details"
+      ],
+      "operations": [
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT book_id, details FROM books_info",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": true,
+      "producer_complete_selection": true,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "book_id",
+        "details"
+      ],
+      "limit": null
+    }
+  ],
+  "pairs": [
+    {
+      "producer": "54f68a8495374a28bdff37a4b39e2755",
+      "consumer": "52ed6163f9954d51aad68a2abd03c4f2",
+      "producer_index": 1,
+      "consumer_index": 2,
+      "shared_tables": [
+        "books_info"
+      ],
+      "shared_columns": [
+        "details"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT book_id, title, details FROM books_info WHERE details IS NOT NULL AND details <> '' LIMIT 5;\n",
+      "consumer_sql": "SELECT\n  COUNT(*) AS total,\n  COUNT(substring(details from 'on [A-Z][a-z]+ \\d{1,2}, (\\d{4})')) AS with_year\nFROM books_info;\n"
+    },
+    {
+      "producer": "54f68a8495374a28bdff37a4b39e2755",
+      "consumer": "d57a24858a8b4dedbab82d80f8cce074",
+      "producer_index": 1,
+      "consumer_index": 3,
+      "shared_tables": [
+        "books_info"
+      ],
+      "shared_columns": [
+        "book_id",
+        "details"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 15,
+      "producer_sql": "SELECT book_id, title, details FROM books_info WHERE details IS NOT NULL AND details <> '' LIMIT 5;\n",
+      "consumer_sql": "SELECT book_id, details FROM books_info\nWHERE substring(details from 'on [A-Z][a-z]+ \\d{1,2}, (\\d{4})') IS NULL;\n"
+    },
+    {
+      "producer": "52ed6163f9954d51aad68a2abd03c4f2",
+      "consumer": "d57a24858a8b4dedbab82d80f8cce074",
+      "producer_index": 2,
+      "consumer_index": 3,
+      "shared_tables": [
+        "books_info"
+      ],
+      "shared_columns": [
+        "details"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 15,
+      "producer_sql": "SELECT\n  COUNT(*) AS total,\n  COUNT(substring(details from 'on [A-Z][a-z]+ \\d{1,2}, (\\d{4})')) AS with_year\nFROM books_info;\n",
+      "consumer_sql": "SELECT book_id, details FROM books_info\nWHERE substring(details from 'on [A-Z][a-z]+ \\d{1,2}, (\\d{4})') IS NULL;\n"
+    },
+    {
+      "producer": "54f68a8495374a28bdff37a4b39e2755",
+      "consumer": "c59919c876aa4580b6ad31fafb1e3310",
+      "producer_index": 1,
+      "consumer_index": 5,
+      "shared_tables": [
+        "books_info"
+      ],
+      "shared_columns": [
+        "book_id",
+        "details"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 200,
+      "producer_sql": "SELECT book_id, title, details FROM books_info WHERE details IS NOT NULL AND details <> '' LIMIT 5;\n",
+      "consumer_sql": "SELECT book_id, details FROM books_info;\n"
+    },
+    {
+      "producer": "52ed6163f9954d51aad68a2abd03c4f2",
+      "consumer": "c59919c876aa4580b6ad31fafb1e3310",
+      "producer_index": 2,
+      "consumer_index": 5,
+      "shared_tables": [
+        "books_info"
+      ],
+      "shared_columns": [
+        "details"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 200,
+      "producer_sql": "SELECT\n  COUNT(*) AS total,\n  COUNT(substring(details from 'on [A-Z][a-z]+ \\d{1,2}, (\\d{4})')) AS with_year\nFROM books_info;\n",
+      "consumer_sql": "SELECT book_id, details FROM books_info;\n"
+    },
+    {
+      "producer": "d57a24858a8b4dedbab82d80f8cce074",
+      "consumer": "c59919c876aa4580b6ad31fafb1e3310",
+      "producer_index": 3,
+      "consumer_index": 5,
+      "shared_tables": [
+        "books_info"
+      ],
+      "shared_columns": [
+        "book_id",
+        "details"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 15,
+      "consumer_rows": 200,
+      "producer_sql": "SELECT book_id, details FROM books_info\nWHERE substring(details from 'on [A-Z][a-z]+ \\d{1,2}, (\\d{4})') IS NULL;\n",
+      "consumer_sql": "SELECT book_id, details FROM books_info;\n"
+    }
+  ],
+  "fads": [],
+  "audit": {
+    "assistant_turns": 8,
+    "sql_order_checks": {},
+    "review_flags": []
+  }
+}

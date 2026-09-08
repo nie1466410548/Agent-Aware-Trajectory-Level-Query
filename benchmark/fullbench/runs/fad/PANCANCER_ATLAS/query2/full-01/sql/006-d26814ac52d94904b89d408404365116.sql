@@ -1,0 +1,1 @@
+SELECT substring("Patient_description" from 'TCGA-[A-Z0-9]+-[A-Z0-9]+') AS barcode, histological_type FROM clinical_info WHERE "Patient_description" ILIKE '%breast invasive carcinoma%' AND "Patient_description" ILIKE '%vital status%alive%'

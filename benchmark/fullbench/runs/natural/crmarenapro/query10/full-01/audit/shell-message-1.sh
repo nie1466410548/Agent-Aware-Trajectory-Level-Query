@@ -1,0 +1,1 @@
+cd /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview 2>/dev/null; pwd; ls

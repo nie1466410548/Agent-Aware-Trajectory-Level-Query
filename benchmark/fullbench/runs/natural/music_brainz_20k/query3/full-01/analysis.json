@@ -1,0 +1,286 @@
+{
+  "summary": {
+    "task_id": "music_brainz_20k/query3",
+    "run_id": "full-01",
+    "model": "kimi-code/k3",
+    "group": "natural",
+    "adapter_version": "fullbench-v2-bound-run",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 575.2798261642456,
+    "answer_submitted": true,
+    "validator_passed": false,
+    "validator_reason": "No fuzzy match (Zo gaat het leven aan je voor) found in The song that generated the highest total revenue in USD across all stores and countries is:\n\n**\"Emerge (Dexter remix)\" by Fischerspooner — total revenue: $6,665.02**\n\nHow this was determined:\n1. Aggregated all sales in the sales_database by track_id (SUM of revenue_usd over all stores and countries).\n2. Joined with the tracks_database, which contains duplicate records of the same song from 5 different sources (with source-specific formatting: \"Artist - Title\" in source 2, \"NNN-Title\" track-number prefixes in source 4, \"Title - Album\" / \"Title (Album)\" suffixes in sources 3 and 1, plus occasional typos).\n3. After canonicalizing titles/artists and clustering duplicate records of the same song, \"Emerge (Dexter remix)\" by Fischerspooner appears as 5 track records (track_ids 4895, 6988, 10166, 10606, 17167), one from each source, with revenues of $1,610.46 + $1,762.80 + $850.61 + $672.12 + $1,769.03 = $6,665.02.\n\nVerification: the runner-up songs are \"Pret à tout (feat. K-Rlos)\" by La Swija ($6,097.66) and \"Diamonds in the Mine\" by Leonard Cohen ($6,017.10). The cluster for the winning song was verified to contain exactly the 5 source duplicates (the similarly named \"Emerge (Dave Clarke remix)\" is a different remix and was correctly excluded). A cross-artist fuzzy check confirmed no additional duplicates would change the top ranking.\n\nNote: if duplicates are not consolidated, the top single track record is \"Systemisch bled\" by Stüngö ($2,522.82), but at the song level (deduplicating across sources), \"Emerge (Dexter remix)\" by Fischerspooner is the clear #1.. Best score: 0.01",
+    "tool_calls": 11,
+    "sql_calls": 4,
+    "mongo_calls": 0,
+    "failed_calls": 0,
+    "mongo_queries": 0,
+    "mongo_metadata_queries": 0,
+    "data_queries": 4,
+    "metadata_queries": 0,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 4,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 0,
+    "later_queries_sharing_tables": 2,
+    "later_queries_sharing_table_columns": 2,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 0,
+    "shared_join_consumers": 0,
+    "shared_aggregate_consumers": 1,
+    "data_query_adapter_ms": 498.6852267757058,
+    "fad_submissions": 0,
+    "python_calls": 6,
+    "assistant_turns": 18
+  },
+  "queries": [
+    {
+      "call_id": "ca792eef7a5348d6a2d68054fc015eda",
+      "tool": "query-db",
+      "database": "sales_database",
+      "sql": "SELECT track_id, SUM(revenue_usd) AS total_revenue FROM sales GROUP BY track_id ORDER BY total_revenue DESC LIMIT 20",
+      "success": true,
+      "row_count": 20,
+      "start_time": 1788817731.9932203,
+      "duration_ms": 58.771952986717224,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "sales"
+      ],
+      "columns": [
+        "revenue_usd",
+        "total_revenue",
+        "track_id"
+      ],
+      "operations": [
+        "aggregate",
+        "limit",
+        "scan",
+        "sort"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "SUM(revenue_usd)"
+      ],
+      "canonical": "SELECT track_id, SUM(revenue_usd) AS total_revenue FROM sales GROUP BY track_id ORDER BY total_revenue DESC LIMIT 20",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "track_id"
+      ],
+      "limit": "LIMIT 20"
+    },
+    {
+      "call_id": "daa9a1b599ef445eb27ad0a057775871",
+      "tool": "query-db",
+      "database": "tracks_database",
+      "sql": "SELECT track_id, title, artist, album, source_id FROM tracks WHERE track_id IN (14719,5124,1344,6725,10377,5050,6667,7245,11641,964,12984,6208,666,12620,19232,17757,3462,9639,18760,2516)",
+      "success": true,
+      "row_count": 20,
+      "start_time": 1788817739.5645425,
+      "duration_ms": 16.772127710282803,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "tracks"
+      ],
+      "columns": [
+        "album",
+        "artist",
+        "source_id",
+        "title",
+        "track_id"
+      ],
+      "operations": [
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "track_id IN (14719, 5124, 1344, 6725, 10377, 5050, 6667, 7245, 11641, 964, 12984, 6208, 666, 12620, 19232, 17757, 3462, 9639, 18760, 2516)"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT track_id, title, artist, album, source_id FROM tracks WHERE track_id IN (14719, 5124, 1344, 6725, 10377, 5050, 6667, 7245, 11641, 964, 12984, 6208, 666, 12620, 19232, 17757, 3462, 9639, 18760, 2516)",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "track_id IN (14719, 5124, 1344, 6725, 10377, 5050, 6667, 7245, 11641, 964, 12984, 6208, 666, 12620, 19232, 17757, 3462, 9639, 18760, 2516)"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "album",
+        "artist",
+        "source_id",
+        "title",
+        "track_id"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "b77bf2b2ae1b49949a8f9249756cb310",
+      "tool": "query-db",
+      "database": "sales_database",
+      "sql": "SELECT track_id, SUM(revenue_usd) AS total_revenue, SUM(units_sold) AS total_units, COUNT(*) AS n_sales FROM sales GROUP BY track_id ORDER BY total_revenue DESC",
+      "success": true,
+      "row_count": 19375,
+      "start_time": 1788817757.9020712,
+      "duration_ms": 216.77393279969692,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "sales"
+      ],
+      "columns": [
+        "revenue_usd",
+        "total_revenue",
+        "track_id",
+        "units_sold"
+      ],
+      "operations": [
+        "aggregate",
+        "scan",
+        "sort"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)",
+        "SUM(revenue_usd)",
+        "SUM(units_sold)"
+      ],
+      "canonical": "SELECT track_id, SUM(revenue_usd) AS total_revenue, SUM(units_sold) AS total_units, COUNT(*) AS n_sales FROM sales GROUP BY track_id ORDER BY total_revenue DESC",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "track_id"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "cfa169fd752543e28e3633f4755e2a0b",
+      "tool": "query-db",
+      "database": "tracks_database",
+      "sql": "SELECT track_id, title, artist, album, source_id FROM tracks",
+      "success": true,
+      "row_count": 19375,
+      "start_time": 1788817758.2122803,
+      "duration_ms": 206.36721327900887,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "tracks"
+      ],
+      "columns": [
+        "album",
+        "artist",
+        "source_id",
+        "title",
+        "track_id"
+      ],
+      "operations": [
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT track_id, title, artist, album, source_id FROM tracks",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": true,
+      "producer_complete_selection": true,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "album",
+        "artist",
+        "source_id",
+        "title",
+        "track_id"
+      ],
+      "limit": null
+    }
+  ],
+  "mongo_queries": [],
+  "pairs": [
+    {
+      "producer": "ca792eef7a5348d6a2d68054fc015eda",
+      "consumer": "b77bf2b2ae1b49949a8f9249756cb310",
+      "producer_index": 1,
+      "consumer_index": 3,
+      "shared_tables": [
+        "sales"
+      ],
+      "shared_columns": [
+        "revenue_usd",
+        "total_revenue",
+        "track_id"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "SUM(revenue_usd)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 20,
+      "consumer_rows": 19375,
+      "producer_sql": "SELECT track_id, SUM(revenue_usd) AS total_revenue FROM sales GROUP BY track_id ORDER BY total_revenue DESC LIMIT 20",
+      "consumer_sql": "SELECT track_id, SUM(revenue_usd) AS total_revenue, SUM(units_sold) AS total_units, COUNT(*) AS n_sales FROM sales GROUP BY track_id ORDER BY total_revenue DESC"
+    },
+    {
+      "producer": "daa9a1b599ef445eb27ad0a057775871",
+      "consumer": "cfa169fd752543e28e3633f4755e2a0b",
+      "producer_index": 2,
+      "consumer_index": 4,
+      "shared_tables": [
+        "tracks"
+      ],
+      "shared_columns": [
+        "album",
+        "artist",
+        "source_id",
+        "title",
+        "track_id"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 20,
+      "consumer_rows": 19375,
+      "producer_sql": "SELECT track_id, title, artist, album, source_id FROM tracks WHERE track_id IN (14719,5124,1344,6725,10377,5050,6667,7245,11641,964,12984,6208,666,12620,19232,17757,3462,9639,18760,2516)",
+      "consumer_sql": "SELECT track_id, title, artist, album, source_id FROM tracks"
+    }
+  ],
+  "fads": [],
+  "audit": {
+    "assistant_turns": 18,
+    "sql_order_checks": {},
+    "review_flags": []
+  }
+}

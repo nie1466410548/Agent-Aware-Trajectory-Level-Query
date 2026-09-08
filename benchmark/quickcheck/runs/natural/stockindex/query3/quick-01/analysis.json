@@ -1,0 +1,515 @@
+{
+  "summary": {
+    "task_id": "stockindex/query3",
+    "run_id": "quick-01",
+    "model": "kimi-code/k3",
+    "group": "natural",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 195.22867631912231,
+    "answer_submitted": true,
+    "validator_passed": true,
+    "validator_reason": "All name-country pairs matched.",
+    "tool_calls": 12,
+    "sql_calls": 9,
+    "failed_calls": 0,
+    "data_queries": 6,
+    "metadata_queries": 3,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 6,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 0,
+    "later_queries_sharing_tables": 4,
+    "later_queries_sharing_table_columns": 1,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 0,
+    "shared_join_consumers": 0,
+    "shared_aggregate_consumers": 0,
+    "data_query_adapter_ms": 515.8058679662645,
+    "fad_submissions": 0,
+    "python_calls": 2,
+    "assistant_turns": 11
+  },
+  "queries": [
+    {
+      "call_id": "7f47902f499e4fc18a6e20eda1be1049",
+      "tool": "list-db",
+      "database": "indexinfo_database",
+      "sql": "SELECT name FROM sqlite_master WHERE type='table'",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788781323.0004282,
+      "duration_ms": 0.5482649430632591,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "sqlite_master"
+      ],
+      "columns": [
+        "name",
+        "type"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "type = 'table'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT name FROM sqlite_master WHERE type = 'table'",
+      "simple_ranges": {
+        "type": {
+          "type": "text",
+          "lo": [
+            "table",
+            true
+          ],
+          "hi": [
+            "table",
+            true
+          ]
+        }
+      },
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "type = 'table'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "2dea8f66d171413598dea0d1cfc482e4",
+      "tool": "list-db",
+      "database": "indextrade_database",
+      "sql": "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog')",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788781323.0833123,
+      "duration_ms": 56.4439301379025,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "tables"
+      ],
+      "columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT table_schema, table_name FROM information_schema.tables WHERE NOT table_schema IN ('information_schema', 'pg_catalog')",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "bedc3b3b2ecf47d38bf4377d44187e5f",
+      "tool": "query-db",
+      "database": "indexinfo_database",
+      "sql": "SELECT * FROM index_info LIMIT 10",
+      "success": true,
+      "row_count": 10,
+      "start_time": 1788781330.6626873,
+      "duration_ms": 0.721415039151907,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "index_info"
+      ],
+      "columns": [],
+      "operations": [
+        "limit",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT * FROM index_info LIMIT 10",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": true,
+      "projected_base_columns": [],
+      "limit": "LIMIT 10"
+    },
+    {
+      "call_id": "d6a6c397db2d48b49bf79b23122d44bd",
+      "tool": "query-db",
+      "database": "indextrade_database",
+      "sql": "SELECT \"Index\", MIN(\"Date\") AS min_d, MAX(\"Date\") AS max_d, COUNT(*) AS n FROM index_trade GROUP BY \"Index\" ORDER BY \"Index\"",
+      "success": true,
+      "row_count": 13,
+      "start_time": 1788781330.7446077,
+      "duration_ms": 51.841320004314184,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "index_trade"
+      ],
+      "columns": [
+        "date",
+        "index"
+      ],
+      "operations": [
+        "aggregate",
+        "scan",
+        "sort"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)",
+        "MAX(\"Date\")",
+        "MIN(\"Date\")"
+      ],
+      "canonical": "SELECT \"Index\", MIN(\"Date\") AS min_d, MAX(\"Date\") AS max_d, COUNT(*) AS n FROM index_trade GROUP BY \"Index\" ORDER BY \"Index\" NULLS LAST",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "index"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "4706ec9bd35a45d58bc77aedb75f94a8",
+      "tool": "query-db",
+      "database": "indexinfo_database",
+      "sql": "PRAGMA table_info(index_info)",
+      "success": true,
+      "row_count": 2,
+      "start_time": 1788781357.099712,
+      "duration_ms": 0.7154159247875214,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [],
+      "columns": [
+        "index_info"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "PRAGMA table_info = index_info",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "f35bd514012b43439a262b312c8ca0e9",
+      "tool": "query-db",
+      "database": "indexinfo_database",
+      "sql": "SELECT COUNT(*) AS n FROM index_info",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788781357.1801934,
+      "duration_ms": 0.7409378886222839,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "index_info"
+      ],
+      "columns": [],
+      "operations": [
+        "aggregate",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT COUNT(*) AS n FROM index_info",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "f0e9d275d7bf497b86a6ad4150d797d2",
+      "tool": "query-db",
+      "database": "indextrade_database",
+      "sql": "SELECT * FROM index_trade LIMIT 5",
+      "success": true,
+      "row_count": 5,
+      "start_time": 1788781357.261822,
+      "duration_ms": 44.31889392435551,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "index_trade"
+      ],
+      "columns": [],
+      "operations": [
+        "limit",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT * FROM index_trade LIMIT 5",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": true,
+      "projected_base_columns": [],
+      "limit": "LIMIT 5"
+    },
+    {
+      "call_id": "5796b6327168418fb4b7f625a7e37e5d",
+      "tool": "query-db",
+      "database": "indexinfo_database",
+      "sql": "SELECT * FROM index_info",
+      "success": true,
+      "row_count": 14,
+      "start_time": 1788781384.0108612,
+      "duration_ms": 0.8110320195555687,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "index_info"
+      ],
+      "columns": [],
+      "operations": [
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT * FROM index_info",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": true,
+      "producer_complete_selection": true,
+      "where_conjuncts": [],
+      "star_projection": true,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "d49ee5b4fefe40b2b7ed029a86a4d48b",
+      "tool": "query-db",
+      "database": "indextrade_database",
+      "sql": "SELECT \"Index\", \"Date\", \"CloseUSD\" FROM index_trade",
+      "success": true,
+      "row_count": 104224,
+      "start_time": 1788781384.0931084,
+      "duration_ms": 417.37226909026504,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "index_trade"
+      ],
+      "columns": [
+        "closeusd",
+        "date",
+        "index"
+      ],
+      "operations": [
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT \"Index\", \"Date\", \"CloseUSD\" FROM index_trade",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": true,
+      "producer_complete_selection": true,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "closeusd",
+        "date",
+        "index"
+      ],
+      "limit": null
+    }
+  ],
+  "pairs": [
+    {
+      "producer": "bedc3b3b2ecf47d38bf4377d44187e5f",
+      "consumer": "f35bd514012b43439a262b312c8ca0e9",
+      "producer_index": 1,
+      "consumer_index": 3,
+      "shared_tables": [
+        "index_info"
+      ],
+      "shared_columns": [],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 10,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT * FROM index_info LIMIT 10",
+      "consumer_sql": "SELECT COUNT(*) AS n FROM index_info"
+    },
+    {
+      "producer": "d6a6c397db2d48b49bf79b23122d44bd",
+      "consumer": "f0e9d275d7bf497b86a6ad4150d797d2",
+      "producer_index": 2,
+      "consumer_index": 4,
+      "shared_tables": [
+        "index_trade"
+      ],
+      "shared_columns": [],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 13,
+      "consumer_rows": 5,
+      "producer_sql": "SELECT \"Index\", MIN(\"Date\") AS min_d, MAX(\"Date\") AS max_d, COUNT(*) AS n FROM index_trade GROUP BY \"Index\" ORDER BY \"Index\"",
+      "consumer_sql": "SELECT * FROM index_trade LIMIT 5"
+    },
+    {
+      "producer": "bedc3b3b2ecf47d38bf4377d44187e5f",
+      "consumer": "5796b6327168418fb4b7f625a7e37e5d",
+      "producer_index": 1,
+      "consumer_index": 5,
+      "shared_tables": [
+        "index_info"
+      ],
+      "shared_columns": [],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 10,
+      "consumer_rows": 14,
+      "producer_sql": "SELECT * FROM index_info LIMIT 10",
+      "consumer_sql": "SELECT * FROM index_info"
+    },
+    {
+      "producer": "f35bd514012b43439a262b312c8ca0e9",
+      "consumer": "5796b6327168418fb4b7f625a7e37e5d",
+      "producer_index": 3,
+      "consumer_index": 5,
+      "shared_tables": [
+        "index_info"
+      ],
+      "shared_columns": [],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 14,
+      "producer_sql": "SELECT COUNT(*) AS n FROM index_info",
+      "consumer_sql": "SELECT * FROM index_info"
+    },
+    {
+      "producer": "d6a6c397db2d48b49bf79b23122d44bd",
+      "consumer": "d49ee5b4fefe40b2b7ed029a86a4d48b",
+      "producer_index": 2,
+      "consumer_index": 6,
+      "shared_tables": [
+        "index_trade"
+      ],
+      "shared_columns": [
+        "date",
+        "index"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 13,
+      "consumer_rows": 104224,
+      "producer_sql": "SELECT \"Index\", MIN(\"Date\") AS min_d, MAX(\"Date\") AS max_d, COUNT(*) AS n FROM index_trade GROUP BY \"Index\" ORDER BY \"Index\"",
+      "consumer_sql": "SELECT \"Index\", \"Date\", \"CloseUSD\" FROM index_trade"
+    },
+    {
+      "producer": "f0e9d275d7bf497b86a6ad4150d797d2",
+      "consumer": "d49ee5b4fefe40b2b7ed029a86a4d48b",
+      "producer_index": 4,
+      "consumer_index": 6,
+      "shared_tables": [
+        "index_trade"
+      ],
+      "shared_columns": [],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 104224,
+      "producer_sql": "SELECT * FROM index_trade LIMIT 5",
+      "consumer_sql": "SELECT \"Index\", \"Date\", \"CloseUSD\" FROM index_trade"
+    }
+  ],
+  "fads": [],
+  "audit": {
+    "assistant_turns": 11,
+    "sql_order_checks": {},
+    "review_flags": []
+  }
+}

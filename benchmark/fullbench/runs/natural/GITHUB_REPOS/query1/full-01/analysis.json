@@ -1,0 +1,650 @@
+{
+  "summary": {
+    "task_id": "GITHUB_REPOS/query1",
+    "run_id": "full-01",
+    "model": "kimi-code/k3",
+    "group": "natural",
+    "adapter_version": "fullbench-v2-bound-run",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 236.12467193603516,
+    "answer_submitted": true,
+    "validator_passed": false,
+    "validator_reason": "No value in LLM output rounds to 0.33",
+    "tool_calls": 13,
+    "sql_calls": 9,
+    "mongo_calls": 0,
+    "failed_calls": 0,
+    "mongo_queries": 0,
+    "mongo_metadata_queries": 0,
+    "data_queries": 7,
+    "metadata_queries": 2,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 7,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 0,
+    "later_queries_sharing_tables": 5,
+    "later_queries_sharing_table_columns": 4,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 0,
+    "shared_join_consumers": 0,
+    "shared_aggregate_consumers": 3,
+    "data_query_adapter_ms": 18634.620301425457,
+    "fad_submissions": 0,
+    "python_calls": 3,
+    "assistant_turns": 16
+  },
+  "queries": [
+    {
+      "call_id": "fbae8e74f2b242d093f9488358d84952",
+      "tool": "list-db",
+      "database": "metadata_database",
+      "sql": "SELECT name FROM sqlite_master WHERE type='table'",
+      "success": true,
+      "row_count": 3,
+      "start_time": 1788790776.3879747,
+      "duration_ms": 16.059763729572296,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "sqlite_master"
+      ],
+      "columns": [
+        "name",
+        "type"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "type = 'table'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT name FROM sqlite_master WHERE type = 'table'",
+      "simple_ranges": {
+        "type": {
+          "type": "text",
+          "lo": [
+            "table",
+            true
+          ],
+          "hi": [
+            "table",
+            true
+          ]
+        }
+      },
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "type = 'table'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "a030a0ce9e6f484d96285197e09feab3",
+      "tool": "list-db",
+      "database": "artifacts_database",
+      "sql": "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog')",
+      "success": true,
+      "row_count": 3,
+      "start_time": 1788790776.4900534,
+      "duration_ms": 66.45221309736371,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "tables"
+      ],
+      "columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT table_schema, table_name FROM information_schema.tables WHERE NOT table_schema IN ('information_schema', 'pg_catalog')",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "258763fd95854f1bab472ce8babaa8ed",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT language_description, COUNT(*) AS n FROM languages GROUP BY language_description ORDER BY n DESC LIMIT 30;\n",
+      "success": true,
+      "row_count": 30,
+      "start_time": 1788790782.0460303,
+      "duration_ms": 3524.4613480754197,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages"
+      ],
+      "columns": [
+        "language_description",
+        "n"
+      ],
+      "operations": [
+        "aggregate",
+        "limit",
+        "scan",
+        "sort"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT language_description, COUNT(*) AS n FROM languages GROUP BY language_description ORDER BY n DESC LIMIT 30",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "language_description"
+      ],
+      "limit": "LIMIT 30"
+    },
+    {
+      "call_id": "4f0e3d2f1eda4be5b16969fdf1d284d0",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT COUNT(*) AS total_rows, COUNT(DISTINCT repo_name) AS distinct_repos,\nSUM(CASE WHEN language_description LIKE '%Python%' THEN 1 ELSE 0 END) AS python_repos\nFROM languages;\n",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788790804.5241053,
+      "duration_ms": 13407.548112794757,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages"
+      ],
+      "columns": [
+        "language_description",
+        "repo_name"
+      ],
+      "operations": [
+        "aggregate",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)",
+        "COUNT(DISTINCT repo_name)",
+        "SUM(CASE WHEN language_description LIKE '%Python%' THEN 1 ELSE 0 END)"
+      ],
+      "canonical": "SELECT COUNT(*) AS total_rows, COUNT(DISTINCT repo_name) AS distinct_repos, SUM(CASE WHEN language_description LIKE '%Python%' THEN 1 ELSE 0 END) AS python_repos FROM languages",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "8ebc2dd7c500471594df11b0a02a88b9",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT COUNT(*) AS total_readme_files,\nCOUNT(DISTINCT sample_repo_name) AS repos_with_readme\nFROM contents\nWHERE sample_path ILIKE '%readme.md%';\n",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788790818.020082,
+      "duration_ms": 71.03984896093607,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contents"
+      ],
+      "columns": [
+        "sample_path",
+        "sample_repo_name"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "sample_path ILIKE '%readme.md%'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)",
+        "COUNT(DISTINCT sample_repo_name)"
+      ],
+      "canonical": "SELECT COUNT(*) AS total_readme_files, COUNT(DISTINCT sample_repo_name) AS repos_with_readme FROM contents WHERE sample_path ILIKE '%readme.md%'",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "sample_path ILIKE '%readme.md%'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "18a3840536e4439d993c290529d9c05b",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT sample_path, COUNT(*) n FROM contents WHERE sample_path ILIKE '%readme%' GROUP BY sample_path ORDER BY n DESC LIMIT 30;\n",
+      "success": true,
+      "row_count": 30,
+      "start_time": 1788790829.0242581,
+      "duration_ms": 71.806272957474,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contents"
+      ],
+      "columns": [
+        "n",
+        "sample_path"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "limit",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "sample_path ILIKE '%readme%'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT sample_path, COUNT(*) AS n FROM contents WHERE sample_path ILIKE '%readme%' GROUP BY sample_path ORDER BY n DESC LIMIT 30",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "sample_path ILIKE '%readme%'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "sample_path"
+      ],
+      "limit": "LIMIT 30"
+    },
+    {
+      "call_id": "9cea927c00574314bc4a0bc05c70b78f",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT COUNT(*) FROM contents;\n",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788790829.1863086,
+      "duration_ms": 55.69142196327448,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contents"
+      ],
+      "columns": [],
+      "operations": [
+        "aggregate",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT COUNT(*) FROM contents",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "665c02b536b54d818800744da2ca9027",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT sample_repo_name, sample_path, content\nFROM contents\nWHERE sample_path ILIKE 'readme.md' OR sample_path ILIKE '%/readme.md';\n",
+      "success": true,
+      "row_count": 204,
+      "start_time": 1788790851.5995288,
+      "duration_ms": 298.4964810311794,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contents"
+      ],
+      "columns": [
+        "content",
+        "sample_path",
+        "sample_repo_name"
+      ],
+      "operations": [
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "sample_path ILIKE 'readme.md' OR sample_path ILIKE '%/readme.md'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT sample_repo_name, sample_path, content FROM contents WHERE sample_path ILIKE 'readme.md' OR sample_path ILIKE '%/readme.md'",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "sample_path ILIKE 'readme.md' OR sample_path ILIKE '%/readme.md'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "content",
+        "sample_path",
+        "sample_repo_name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "b3b6fe03509a47feb7a832ec13779f44",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('3ventic/DiscordServers','AcyOrt/acyort','Ali-Razmjoo/OWASP-ZSC','AutoDo/AutoDo','Blizzard/omniauth-bnet','CESNET/owncloud-theme','Calinou/godot-snippets','CapsAdmin/goluwa','CfABrigadePhiladelphia/jawn','DMarby/Harpia','DUBULEE/FileCacheUtil','DaMSL/K3','Download/polymer-cdn','DynamoRIO/dynamorio','Elemental-IRCd/elemental-ircd','EngoEngine/engo','F1ReKing/wheelview','Flat/Konachan-for-Muzei','Hexworks/hexameter','JMPerez/beats-audio-api','JSSolutions/meteor-google-prediction','JiyunTech/Kever','JuliaDB/MySQL.jl','LI-COR/eddypro-engine','MIT-LCP/mimic-code','MaLeLabTs/RegexGenerator','Maaphoo/Retr3d','Magnetme/consultant','Microsoft/WPF-Samples','Microsoft/Windows-classic-samples','Microsoft/vsts-tasks','Moq/moq','Nebulosus/shamir','NickolausDS/Unity-Free-Flight','OfficeDev/Product-List-Code-Sample','OscarES/Differential-Algebra-Tracker','PECE-project/pece-distro','PixarAnimationStudios/jss-api-gem','StackStorm/st2contrib','SuperID/super-cache','Swader/diffbot-php-client','TelerikAcademy/SchoolAcademy','TelerikAcademy/TelerikAcademyPlus','Theseus-Aegis/tac-a3-mods','VeliovGroup/Meteor-logger','VirgilSecurity/virgil','ZenLulz/MemorySharp','aceway/findX','adafruit/Adafruit-Trinket-Gemma-Bootloader','adobe-type-tools/cmap-resources','airlift/airlift','alexandrucoman/labs','alexchamberlain/piimg','alibaba/jstorm','americanpanorama/panorama','analog-nico/passport-pinterest','andres-erbsen/dename','andyhqtran/UI-Library','apache/stratos','atom/node-ctags','bh107/bohrium','blond/hash-set','blynkkk/blynk-server','brindille/brindille-component','chrisbarrett/emacs-refactor','chrisdone/hulk','claudijd/c7decrypt','crossroadlabs/homebrew-tap','cwilso/midi-synth','daemon3000/InputManager','dale3h/alexa-skills-list','dblock/slack-google-bot','delight-im/OpenSoccer','derrickburns/generalized-kmeans-clustering','devsoulwolf/ChatMessageView','dfletcher/tsws','digibyte/digibyte','dikiaap/mangan','dineshTrivedi/angularjs-styleguide','divmain/GitSavvy','docker-library/docs','durka/named-block','edomaru/codeigniter_multilevel_menu','fdaciuk/ajax','felladrin/runuo-custom-scripts','firebase/EventSource-Examples','flextry/Telerik-Academy','google/libfuzzer-bot','google/traceur-compiler','gshopov/competitive-programming-archive','guangzhuwu/p2engine','ha/doozerd','hacklabr/mapasculturais','himanshu-soni/image-intent-handler','hortonworks/kubernetes-yarn','hosom/bro-file-extraction','hypriot/rpi-busybox-httpd','inamiy/DebugLog','isychev93/Xamarin.Forms-Drag-and-drop-ListView','j-bennet/wharfee','jails-org/Demos','jaredwilli/devtools-cheatsheet','jbboehr/php-mustache','jcinnamond/el-presenti','jconst/JCDialPad','jcoppieters/cody-samples','jeelabs/jet','jeffmo/jasmine-pit','jeffpar/pcjs','jforman/munin-graphite','johnhamelink/exrm_deb','johnpneumann/portable-maya-prefs','jsonld-java/jsonld-java-tools','jzitelli/poolvr','keithwhor/cmnd','kinduff/spree_reffiliate','kittens/lerna','kluivers/jbw-builders','krishkumar/BlockParty','lagopus/lagopus','landlab/landlab','laxa1986/gulp-angular-embed-templates','linux-on-ibm-z/kubernetes','lmammino/gulp-cozy','lowescott/learning-tools','lucaspouzac/contiperf','marcelklehr/gulf-contenteditable','mattinove/SwiftySlider','meganz/sdk','mluisbrown/Memories','mmerian/phpcrawl','mojeda/ServerStatus','mozilla/oneanddone','mstevenson/AssetsWatcher','neophob/PixelController','nictuku/stardew-rocks','ninibe/netlog','ninja-ide/ninja-ide','nodejs/node-gyp','noveogroup/android-logger','opencog/atomspace','openhab/openhab2','opinkerfi/adagios','otoolep/gosf-rqlite','paf31/lambdaconf-2015','paldepind/synceddb','parro-it/is-fqdn','paul999/433.92-Raspberry-Pi','pezy/LeetCode','pmwkaa/serenity','polomoshnov/jQuery-UI-Resizable-Snap-extension','pouetnet/pouet2.0','premgane/agolo-slackbot','qt-pods/qt-pods','radare/radeco','rafiuske/papergram','rancher/rancher-compose','ravl1084/TJ2PDF','rdebath/Brainfuck','retep998/winapi-rs','rgardler/azure-quickstart-templates','richtr/plug.play.js','ridingbytes/plone.commander','rita-marylin-raquel/softbloks','rluders/phaser-skeleton','rofrischmann/fela','rogpeppe/showdeps','rtrouton/rtrouton_scripts','rubylit/guevara','rusty1s/koa2-rest-api','sakaal/service_platform_ansible','sclorg/rhscl-dockerfiles','selenith/plasmide','sendgrid/python-http-client','shenxgan/xblog','smklancher/ZeoSleepMonitor','spaar/besiege-modloader','sskyy/redux-task','supamii/QttpServer','swannodette/todomvc','tangrams/blocks','thedeibo/ServerLoveMCPE','tonioo/modoboa','tt-acm/Spectacles.WebViewer','uupaa/UserAgent.js','varlesh/elementary-add','velveteer/mithril-boilerplate','voussoir/reddit','wahern/cqueues','webpack/webpack','whitepages/terraform-provider-stingray','wilsonmar/oss-perf','winunet/Hui','xxtea/xxtea-php','yubinbai/leetcode','yuvirajsinh/YCameraView','zeroc-ice/ice-demos','zhufengnodejs/201602node_homework','zpz1237/NirZhihuNews','zverok/magic_cloud');",
+      "success": true,
+      "row_count": 178,
+      "start_time": 1788790871.429631,
+      "duration_ms": 1205.5768156424165,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages"
+      ],
+      "columns": [
+        "language_description",
+        "repo_name"
+      ],
+      "operations": [
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "repo_name IN ('3ventic/DiscordServers', 'AcyOrt/acyort', 'Ali-Razmjoo/OWASP-ZSC', 'AutoDo/AutoDo', 'Blizzard/omniauth-bnet', 'CESNET/owncloud-theme', 'Calinou/godot-snippets', 'CapsAdmin/goluwa', 'CfABrigadePhiladelphia/jawn', 'DMarby/Harpia', 'DUBULEE/FileCacheUtil', 'DaMSL/K3', 'Download/polymer-cdn', 'DynamoRIO/dynamorio', 'Elemental-IRCd/elemental-ircd', 'EngoEngine/engo', 'F1ReKing/wheelview', 'Flat/Konachan-for-Muzei', 'Hexworks/hexameter', 'JMPerez/beats-audio-api', 'JSSolutions/meteor-google-prediction', 'JiyunTech/Kever', 'JuliaDB/MySQL.jl', 'LI-COR/eddypro-engine', 'MIT-LCP/mimic-code', 'MaLeLabTs/RegexGenerator', 'Maaphoo/Retr3d', 'Magnetme/consultant', 'Microsoft/WPF-Samples', 'Microsoft/Windows-classic-samples', 'Microsoft/vsts-tasks', 'Moq/moq', 'Nebulosus/shamir', 'NickolausDS/Unity-Free-Flight', 'OfficeDev/Product-List-Code-Sample', 'OscarES/Differential-Algebra-Tracker', 'PECE-project/pece-distro', 'PixarAnimationStudios/jss-api-gem', 'StackStorm/st2contrib', 'SuperID/super-cache', 'Swader/diffbot-php-client', 'TelerikAcademy/SchoolAcademy', 'TelerikAcademy/TelerikAcademyPlus', 'Theseus-Aegis/tac-a3-mods', 'VeliovGroup/Meteor-logger', 'VirgilSecurity/virgil', 'ZenLulz/MemorySharp', 'aceway/findX', 'adafruit/Adafruit-Trinket-Gemma-Bootloader', 'adobe-type-tools/cmap-resources', 'airlift/airlift', 'alexandrucoman/labs', 'alexchamberlain/piimg', 'alibaba/jstorm', 'americanpanorama/panorama', 'analog-nico/passport-pinterest', 'andres-erbsen/dename', 'andyhqtran/UI-Library', 'apache/stratos', 'atom/node-ctags', 'bh107/bohrium', 'blond/hash-set', 'blynkkk/blynk-server', 'brindille/brindille-component', 'chrisbarrett/emacs-refactor', 'chrisdone/hulk', 'claudijd/c7decrypt', 'crossroadlabs/homebrew-tap', 'cwilso/midi-synth', 'daemon3000/InputManager', 'dale3h/alexa-skills-list', 'dblock/slack-google-bot', 'delight-im/OpenSoccer', 'derrickburns/generalized-kmeans-clustering', 'devsoulwolf/ChatMessageView', 'dfletcher/tsws', 'digibyte/digibyte', 'dikiaap/mangan', 'dineshTrivedi/angularjs-styleguide', 'divmain/GitSavvy', 'docker-library/docs', 'durka/named-block', 'edomaru/codeigniter_multilevel_menu', 'fdaciuk/ajax', 'felladrin/runuo-custom-scripts', 'firebase/EventSource-Examples', 'flextry/Telerik-Academy', 'google/libfuzzer-bot', 'google/traceur-compiler', 'gshopov/competitive-programming-archive', 'guangzhuwu/p2engine', 'ha/doozerd', 'hacklabr/mapasculturais', 'himanshu-soni/image-intent-handler', 'hortonworks/kubernetes-yarn', 'hosom/bro-file-extraction', 'hypriot/rpi-busybox-httpd', 'inamiy/DebugLog', 'isychev93/Xamarin.Forms-Drag-and-drop-ListView', 'j-bennet/wharfee', 'jails-org/Demos', 'jaredwilli/devtools-cheatsheet', 'jbboehr/php-mustache', 'jcinnamond/el-presenti', 'jconst/JCDialPad', 'jcoppieters/cody-samples', 'jeelabs/jet', 'jeffmo/jasmine-pit', 'jeffpar/pcjs', 'jforman/munin-graphite', 'johnhamelink/exrm_deb', 'johnpneumann/portable-maya-prefs', 'jsonld-java/jsonld-java-tools', 'jzitelli/poolvr', 'keithwhor/cmnd', 'kinduff/spree_reffiliate', 'kittens/lerna', 'kluivers/jbw-builders', 'krishkumar/BlockParty', 'lagopus/lagopus', 'landlab/landlab', 'laxa1986/gulp-angular-embed-templates', 'linux-on-ibm-z/kubernetes', 'lmammino/gulp-cozy', 'lowescott/learning-tools', 'lucaspouzac/contiperf', 'marcelklehr/gulf-contenteditable', 'mattinove/SwiftySlider', 'meganz/sdk', 'mluisbrown/Memories', 'mmerian/phpcrawl', 'mojeda/ServerStatus', 'mozilla/oneanddone', 'mstevenson/AssetsWatcher', 'neophob/PixelController', 'nictuku/stardew-rocks', 'ninibe/netlog', 'ninja-ide/ninja-ide', 'nodejs/node-gyp', 'noveogroup/android-logger', 'opencog/atomspace', 'openhab/openhab2', 'opinkerfi/adagios', 'otoolep/gosf-rqlite', 'paf31/lambdaconf-2015', 'paldepind/synceddb', 'parro-it/is-fqdn', 'paul999/433.92-Raspberry-Pi', 'pezy/LeetCode', 'pmwkaa/serenity', 'polomoshnov/jQuery-UI-Resizable-Snap-extension', 'pouetnet/pouet2.0', 'premgane/agolo-slackbot', 'qt-pods/qt-pods', 'radare/radeco', 'rafiuske/papergram', 'rancher/rancher-compose', 'ravl1084/TJ2PDF', 'rdebath/Brainfuck', 'retep998/winapi-rs', 'rgardler/azure-quickstart-templates', 'richtr/plug.play.js', 'ridingbytes/plone.commander', 'rita-marylin-raquel/softbloks', 'rluders/phaser-skeleton', 'rofrischmann/fela', 'rogpeppe/showdeps', 'rtrouton/rtrouton_scripts', 'rubylit/guevara', 'rusty1s/koa2-rest-api', 'sakaal/service_platform_ansible', 'sclorg/rhscl-dockerfiles', 'selenith/plasmide', 'sendgrid/python-http-client', 'shenxgan/xblog', 'smklancher/ZeoSleepMonitor', 'spaar/besiege-modloader', 'sskyy/redux-task', 'supamii/QttpServer', 'swannodette/todomvc', 'tangrams/blocks', 'thedeibo/ServerLoveMCPE', 'tonioo/modoboa', 'tt-acm/Spectacles.WebViewer', 'uupaa/UserAgent.js', 'varlesh/elementary-add', 'velveteer/mithril-boilerplate', 'voussoir/reddit', 'wahern/cqueues', 'webpack/webpack', 'whitepages/terraform-provider-stingray', 'wilsonmar/oss-perf', 'winunet/Hui', 'xxtea/xxtea-php', 'yubinbai/leetcode', 'yuvirajsinh/YCameraView', 'zeroc-ice/ice-demos', 'zhufengnodejs/201602node_homework', 'zpz1237/NirZhihuNews', 'zverok/magic_cloud')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('3ventic/DiscordServers', 'AcyOrt/acyort', 'Ali-Razmjoo/OWASP-ZSC', 'AutoDo/AutoDo', 'Blizzard/omniauth-bnet', 'CESNET/owncloud-theme', 'Calinou/godot-snippets', 'CapsAdmin/goluwa', 'CfABrigadePhiladelphia/jawn', 'DMarby/Harpia', 'DUBULEE/FileCacheUtil', 'DaMSL/K3', 'Download/polymer-cdn', 'DynamoRIO/dynamorio', 'Elemental-IRCd/elemental-ircd', 'EngoEngine/engo', 'F1ReKing/wheelview', 'Flat/Konachan-for-Muzei', 'Hexworks/hexameter', 'JMPerez/beats-audio-api', 'JSSolutions/meteor-google-prediction', 'JiyunTech/Kever', 'JuliaDB/MySQL.jl', 'LI-COR/eddypro-engine', 'MIT-LCP/mimic-code', 'MaLeLabTs/RegexGenerator', 'Maaphoo/Retr3d', 'Magnetme/consultant', 'Microsoft/WPF-Samples', 'Microsoft/Windows-classic-samples', 'Microsoft/vsts-tasks', 'Moq/moq', 'Nebulosus/shamir', 'NickolausDS/Unity-Free-Flight', 'OfficeDev/Product-List-Code-Sample', 'OscarES/Differential-Algebra-Tracker', 'PECE-project/pece-distro', 'PixarAnimationStudios/jss-api-gem', 'StackStorm/st2contrib', 'SuperID/super-cache', 'Swader/diffbot-php-client', 'TelerikAcademy/SchoolAcademy', 'TelerikAcademy/TelerikAcademyPlus', 'Theseus-Aegis/tac-a3-mods', 'VeliovGroup/Meteor-logger', 'VirgilSecurity/virgil', 'ZenLulz/MemorySharp', 'aceway/findX', 'adafruit/Adafruit-Trinket-Gemma-Bootloader', 'adobe-type-tools/cmap-resources', 'airlift/airlift', 'alexandrucoman/labs', 'alexchamberlain/piimg', 'alibaba/jstorm', 'americanpanorama/panorama', 'analog-nico/passport-pinterest', 'andres-erbsen/dename', 'andyhqtran/UI-Library', 'apache/stratos', 'atom/node-ctags', 'bh107/bohrium', 'blond/hash-set', 'blynkkk/blynk-server', 'brindille/brindille-component', 'chrisbarrett/emacs-refactor', 'chrisdone/hulk', 'claudijd/c7decrypt', 'crossroadlabs/homebrew-tap', 'cwilso/midi-synth', 'daemon3000/InputManager', 'dale3h/alexa-skills-list', 'dblock/slack-google-bot', 'delight-im/OpenSoccer', 'derrickburns/generalized-kmeans-clustering', 'devsoulwolf/ChatMessageView', 'dfletcher/tsws', 'digibyte/digibyte', 'dikiaap/mangan', 'dineshTrivedi/angularjs-styleguide', 'divmain/GitSavvy', 'docker-library/docs', 'durka/named-block', 'edomaru/codeigniter_multilevel_menu', 'fdaciuk/ajax', 'felladrin/runuo-custom-scripts', 'firebase/EventSource-Examples', 'flextry/Telerik-Academy', 'google/libfuzzer-bot', 'google/traceur-compiler', 'gshopov/competitive-programming-archive', 'guangzhuwu/p2engine', 'ha/doozerd', 'hacklabr/mapasculturais', 'himanshu-soni/image-intent-handler', 'hortonworks/kubernetes-yarn', 'hosom/bro-file-extraction', 'hypriot/rpi-busybox-httpd', 'inamiy/DebugLog', 'isychev93/Xamarin.Forms-Drag-and-drop-ListView', 'j-bennet/wharfee', 'jails-org/Demos', 'jaredwilli/devtools-cheatsheet', 'jbboehr/php-mustache', 'jcinnamond/el-presenti', 'jconst/JCDialPad', 'jcoppieters/cody-samples', 'jeelabs/jet', 'jeffmo/jasmine-pit', 'jeffpar/pcjs', 'jforman/munin-graphite', 'johnhamelink/exrm_deb', 'johnpneumann/portable-maya-prefs', 'jsonld-java/jsonld-java-tools', 'jzitelli/poolvr', 'keithwhor/cmnd', 'kinduff/spree_reffiliate', 'kittens/lerna', 'kluivers/jbw-builders', 'krishkumar/BlockParty', 'lagopus/lagopus', 'landlab/landlab', 'laxa1986/gulp-angular-embed-templates', 'linux-on-ibm-z/kubernetes', 'lmammino/gulp-cozy', 'lowescott/learning-tools', 'lucaspouzac/contiperf', 'marcelklehr/gulf-contenteditable', 'mattinove/SwiftySlider', 'meganz/sdk', 'mluisbrown/Memories', 'mmerian/phpcrawl', 'mojeda/ServerStatus', 'mozilla/oneanddone', 'mstevenson/AssetsWatcher', 'neophob/PixelController', 'nictuku/stardew-rocks', 'ninibe/netlog', 'ninja-ide/ninja-ide', 'nodejs/node-gyp', 'noveogroup/android-logger', 'opencog/atomspace', 'openhab/openhab2', 'opinkerfi/adagios', 'otoolep/gosf-rqlite', 'paf31/lambdaconf-2015', 'paldepind/synceddb', 'parro-it/is-fqdn', 'paul999/433.92-Raspberry-Pi', 'pezy/LeetCode', 'pmwkaa/serenity', 'polomoshnov/jQuery-UI-Resizable-Snap-extension', 'pouetnet/pouet2.0', 'premgane/agolo-slackbot', 'qt-pods/qt-pods', 'radare/radeco', 'rafiuske/papergram', 'rancher/rancher-compose', 'ravl1084/TJ2PDF', 'rdebath/Brainfuck', 'retep998/winapi-rs', 'rgardler/azure-quickstart-templates', 'richtr/plug.play.js', 'ridingbytes/plone.commander', 'rita-marylin-raquel/softbloks', 'rluders/phaser-skeleton', 'rofrischmann/fela', 'rogpeppe/showdeps', 'rtrouton/rtrouton_scripts', 'rubylit/guevara', 'rusty1s/koa2-rest-api', 'sakaal/service_platform_ansible', 'sclorg/rhscl-dockerfiles', 'selenith/plasmide', 'sendgrid/python-http-client', 'shenxgan/xblog', 'smklancher/ZeoSleepMonitor', 'spaar/besiege-modloader', 'sskyy/redux-task', 'supamii/QttpServer', 'swannodette/todomvc', 'tangrams/blocks', 'thedeibo/ServerLoveMCPE', 'tonioo/modoboa', 'tt-acm/Spectacles.WebViewer', 'uupaa/UserAgent.js', 'varlesh/elementary-add', 'velveteer/mithril-boilerplate', 'voussoir/reddit', 'wahern/cqueues', 'webpack/webpack', 'whitepages/terraform-provider-stingray', 'wilsonmar/oss-perf', 'winunet/Hui', 'xxtea/xxtea-php', 'yubinbai/leetcode', 'yuvirajsinh/YCameraView', 'zeroc-ice/ice-demos', 'zhufengnodejs/201602node_homework', 'zpz1237/NirZhihuNews', 'zverok/magic_cloud')",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "repo_name IN ('3ventic/DiscordServers', 'AcyOrt/acyort', 'Ali-Razmjoo/OWASP-ZSC', 'AutoDo/AutoDo', 'Blizzard/omniauth-bnet', 'CESNET/owncloud-theme', 'Calinou/godot-snippets', 'CapsAdmin/goluwa', 'CfABrigadePhiladelphia/jawn', 'DMarby/Harpia', 'DUBULEE/FileCacheUtil', 'DaMSL/K3', 'Download/polymer-cdn', 'DynamoRIO/dynamorio', 'Elemental-IRCd/elemental-ircd', 'EngoEngine/engo', 'F1ReKing/wheelview', 'Flat/Konachan-for-Muzei', 'Hexworks/hexameter', 'JMPerez/beats-audio-api', 'JSSolutions/meteor-google-prediction', 'JiyunTech/Kever', 'JuliaDB/MySQL.jl', 'LI-COR/eddypro-engine', 'MIT-LCP/mimic-code', 'MaLeLabTs/RegexGenerator', 'Maaphoo/Retr3d', 'Magnetme/consultant', 'Microsoft/WPF-Samples', 'Microsoft/Windows-classic-samples', 'Microsoft/vsts-tasks', 'Moq/moq', 'Nebulosus/shamir', 'NickolausDS/Unity-Free-Flight', 'OfficeDev/Product-List-Code-Sample', 'OscarES/Differential-Algebra-Tracker', 'PECE-project/pece-distro', 'PixarAnimationStudios/jss-api-gem', 'StackStorm/st2contrib', 'SuperID/super-cache', 'Swader/diffbot-php-client', 'TelerikAcademy/SchoolAcademy', 'TelerikAcademy/TelerikAcademyPlus', 'Theseus-Aegis/tac-a3-mods', 'VeliovGroup/Meteor-logger', 'VirgilSecurity/virgil', 'ZenLulz/MemorySharp', 'aceway/findX', 'adafruit/Adafruit-Trinket-Gemma-Bootloader', 'adobe-type-tools/cmap-resources', 'airlift/airlift', 'alexandrucoman/labs', 'alexchamberlain/piimg', 'alibaba/jstorm', 'americanpanorama/panorama', 'analog-nico/passport-pinterest', 'andres-erbsen/dename', 'andyhqtran/UI-Library', 'apache/stratos', 'atom/node-ctags', 'bh107/bohrium', 'blond/hash-set', 'blynkkk/blynk-server', 'brindille/brindille-component', 'chrisbarrett/emacs-refactor', 'chrisdone/hulk', 'claudijd/c7decrypt', 'crossroadlabs/homebrew-tap', 'cwilso/midi-synth', 'daemon3000/InputManager', 'dale3h/alexa-skills-list', 'dblock/slack-google-bot', 'delight-im/OpenSoccer', 'derrickburns/generalized-kmeans-clustering', 'devsoulwolf/ChatMessageView', 'dfletcher/tsws', 'digibyte/digibyte', 'dikiaap/mangan', 'dineshTrivedi/angularjs-styleguide', 'divmain/GitSavvy', 'docker-library/docs', 'durka/named-block', 'edomaru/codeigniter_multilevel_menu', 'fdaciuk/ajax', 'felladrin/runuo-custom-scripts', 'firebase/EventSource-Examples', 'flextry/Telerik-Academy', 'google/libfuzzer-bot', 'google/traceur-compiler', 'gshopov/competitive-programming-archive', 'guangzhuwu/p2engine', 'ha/doozerd', 'hacklabr/mapasculturais', 'himanshu-soni/image-intent-handler', 'hortonworks/kubernetes-yarn', 'hosom/bro-file-extraction', 'hypriot/rpi-busybox-httpd', 'inamiy/DebugLog', 'isychev93/Xamarin.Forms-Drag-and-drop-ListView', 'j-bennet/wharfee', 'jails-org/Demos', 'jaredwilli/devtools-cheatsheet', 'jbboehr/php-mustache', 'jcinnamond/el-presenti', 'jconst/JCDialPad', 'jcoppieters/cody-samples', 'jeelabs/jet', 'jeffmo/jasmine-pit', 'jeffpar/pcjs', 'jforman/munin-graphite', 'johnhamelink/exrm_deb', 'johnpneumann/portable-maya-prefs', 'jsonld-java/jsonld-java-tools', 'jzitelli/poolvr', 'keithwhor/cmnd', 'kinduff/spree_reffiliate', 'kittens/lerna', 'kluivers/jbw-builders', 'krishkumar/BlockParty', 'lagopus/lagopus', 'landlab/landlab', 'laxa1986/gulp-angular-embed-templates', 'linux-on-ibm-z/kubernetes', 'lmammino/gulp-cozy', 'lowescott/learning-tools', 'lucaspouzac/contiperf', 'marcelklehr/gulf-contenteditable', 'mattinove/SwiftySlider', 'meganz/sdk', 'mluisbrown/Memories', 'mmerian/phpcrawl', 'mojeda/ServerStatus', 'mozilla/oneanddone', 'mstevenson/AssetsWatcher', 'neophob/PixelController', 'nictuku/stardew-rocks', 'ninibe/netlog', 'ninja-ide/ninja-ide', 'nodejs/node-gyp', 'noveogroup/android-logger', 'opencog/atomspace', 'openhab/openhab2', 'opinkerfi/adagios', 'otoolep/gosf-rqlite', 'paf31/lambdaconf-2015', 'paldepind/synceddb', 'parro-it/is-fqdn', 'paul999/433.92-Raspberry-Pi', 'pezy/LeetCode', 'pmwkaa/serenity', 'polomoshnov/jQuery-UI-Resizable-Snap-extension', 'pouetnet/pouet2.0', 'premgane/agolo-slackbot', 'qt-pods/qt-pods', 'radare/radeco', 'rafiuske/papergram', 'rancher/rancher-compose', 'ravl1084/TJ2PDF', 'rdebath/Brainfuck', 'retep998/winapi-rs', 'rgardler/azure-quickstart-templates', 'richtr/plug.play.js', 'ridingbytes/plone.commander', 'rita-marylin-raquel/softbloks', 'rluders/phaser-skeleton', 'rofrischmann/fela', 'rogpeppe/showdeps', 'rtrouton/rtrouton_scripts', 'rubylit/guevara', 'rusty1s/koa2-rest-api', 'sakaal/service_platform_ansible', 'sclorg/rhscl-dockerfiles', 'selenith/plasmide', 'sendgrid/python-http-client', 'shenxgan/xblog', 'smklancher/ZeoSleepMonitor', 'spaar/besiege-modloader', 'sskyy/redux-task', 'supamii/QttpServer', 'swannodette/todomvc', 'tangrams/blocks', 'thedeibo/ServerLoveMCPE', 'tonioo/modoboa', 'tt-acm/Spectacles.WebViewer', 'uupaa/UserAgent.js', 'varlesh/elementary-add', 'velveteer/mithril-boilerplate', 'voussoir/reddit', 'wahern/cqueues', 'webpack/webpack', 'whitepages/terraform-provider-stingray', 'wilsonmar/oss-perf', 'winunet/Hui', 'xxtea/xxtea-php', 'yubinbai/leetcode', 'yuvirajsinh/YCameraView', 'zeroc-ice/ice-demos', 'zhufengnodejs/201602node_homework', 'zpz1237/NirZhihuNews', 'zverok/magic_cloud')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "language_description",
+        "repo_name"
+      ],
+      "limit": null
+    }
+  ],
+  "mongo_queries": [],
+  "pairs": [
+    {
+      "producer": "258763fd95854f1bab472ce8babaa8ed",
+      "consumer": "4f0e3d2f1eda4be5b16969fdf1d284d0",
+      "producer_index": 1,
+      "consumer_index": 2,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 30,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT language_description, COUNT(*) AS n FROM languages GROUP BY language_description ORDER BY n DESC LIMIT 30;\n",
+      "consumer_sql": "SELECT COUNT(*) AS total_rows, COUNT(DISTINCT repo_name) AS distinct_repos,\nSUM(CASE WHEN language_description LIKE '%Python%' THEN 1 ELSE 0 END) AS python_repos\nFROM languages;\n"
+    },
+    {
+      "producer": "8ebc2dd7c500471594df11b0a02a88b9",
+      "consumer": "18a3840536e4439d993c290529d9c05b",
+      "producer_index": 3,
+      "consumer_index": 4,
+      "shared_tables": [
+        "contents"
+      ],
+      "shared_columns": [
+        "sample_path"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 30,
+      "producer_sql": "SELECT COUNT(*) AS total_readme_files,\nCOUNT(DISTINCT sample_repo_name) AS repos_with_readme\nFROM contents\nWHERE sample_path ILIKE '%readme.md%';\n",
+      "consumer_sql": "SELECT sample_path, COUNT(*) n FROM contents WHERE sample_path ILIKE '%readme%' GROUP BY sample_path ORDER BY n DESC LIMIT 30;\n"
+    },
+    {
+      "producer": "8ebc2dd7c500471594df11b0a02a88b9",
+      "consumer": "9cea927c00574314bc4a0bc05c70b78f",
+      "producer_index": 3,
+      "consumer_index": 5,
+      "shared_tables": [
+        "contents"
+      ],
+      "shared_columns": [],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT COUNT(*) AS total_readme_files,\nCOUNT(DISTINCT sample_repo_name) AS repos_with_readme\nFROM contents\nWHERE sample_path ILIKE '%readme.md%';\n",
+      "consumer_sql": "SELECT COUNT(*) FROM contents;\n"
+    },
+    {
+      "producer": "18a3840536e4439d993c290529d9c05b",
+      "consumer": "9cea927c00574314bc4a0bc05c70b78f",
+      "producer_index": 4,
+      "consumer_index": 5,
+      "shared_tables": [
+        "contents"
+      ],
+      "shared_columns": [],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 30,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT sample_path, COUNT(*) n FROM contents WHERE sample_path ILIKE '%readme%' GROUP BY sample_path ORDER BY n DESC LIMIT 30;\n",
+      "consumer_sql": "SELECT COUNT(*) FROM contents;\n"
+    },
+    {
+      "producer": "8ebc2dd7c500471594df11b0a02a88b9",
+      "consumer": "665c02b536b54d818800744da2ca9027",
+      "producer_index": 3,
+      "consumer_index": 6,
+      "shared_tables": [
+        "contents"
+      ],
+      "shared_columns": [
+        "sample_path",
+        "sample_repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 204,
+      "producer_sql": "SELECT COUNT(*) AS total_readme_files,\nCOUNT(DISTINCT sample_repo_name) AS repos_with_readme\nFROM contents\nWHERE sample_path ILIKE '%readme.md%';\n",
+      "consumer_sql": "SELECT sample_repo_name, sample_path, content\nFROM contents\nWHERE sample_path ILIKE 'readme.md' OR sample_path ILIKE '%/readme.md';\n"
+    },
+    {
+      "producer": "18a3840536e4439d993c290529d9c05b",
+      "consumer": "665c02b536b54d818800744da2ca9027",
+      "producer_index": 4,
+      "consumer_index": 6,
+      "shared_tables": [
+        "contents"
+      ],
+      "shared_columns": [
+        "sample_path"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 30,
+      "consumer_rows": 204,
+      "producer_sql": "SELECT sample_path, COUNT(*) n FROM contents WHERE sample_path ILIKE '%readme%' GROUP BY sample_path ORDER BY n DESC LIMIT 30;\n",
+      "consumer_sql": "SELECT sample_repo_name, sample_path, content\nFROM contents\nWHERE sample_path ILIKE 'readme.md' OR sample_path ILIKE '%/readme.md';\n"
+    },
+    {
+      "producer": "9cea927c00574314bc4a0bc05c70b78f",
+      "consumer": "665c02b536b54d818800744da2ca9027",
+      "producer_index": 5,
+      "consumer_index": 6,
+      "shared_tables": [
+        "contents"
+      ],
+      "shared_columns": [],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 204,
+      "producer_sql": "SELECT COUNT(*) FROM contents;\n",
+      "consumer_sql": "SELECT sample_repo_name, sample_path, content\nFROM contents\nWHERE sample_path ILIKE 'readme.md' OR sample_path ILIKE '%/readme.md';\n"
+    },
+    {
+      "producer": "258763fd95854f1bab472ce8babaa8ed",
+      "consumer": "b3b6fe03509a47feb7a832ec13779f44",
+      "producer_index": 1,
+      "consumer_index": 7,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 30,
+      "consumer_rows": 178,
+      "producer_sql": "SELECT language_description, COUNT(*) AS n FROM languages GROUP BY language_description ORDER BY n DESC LIMIT 30;\n",
+      "consumer_sql": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('3ventic/DiscordServers','AcyOrt/acyort','Ali-Razmjoo/OWASP-ZSC','AutoDo/AutoDo','Blizzard/omniauth-bnet','CESNET/owncloud-theme','Calinou/godot-snippets','CapsAdmin/goluwa','CfABrigadePhiladelphia/jawn','DMarby/Harpia','DUBULEE/FileCacheUtil','DaMSL/K3','Download/polymer-cdn','DynamoRIO/dynamorio','Elemental-IRCd/elemental-ircd','EngoEngine/engo','F1ReKing/wheelview','Flat/Konachan-for-Muzei','Hexworks/hexameter','JMPerez/beats-audio-api','JSSolutions/meteor-google-prediction','JiyunTech/Kever','JuliaDB/MySQL.jl','LI-COR/eddypro-engine','MIT-LCP/mimic-code','MaLeLabTs/RegexGenerator','Maaphoo/Retr3d','Magnetme/consultant','Microsoft/WPF-Samples','Microsoft/Windows-classic-samples','Microsoft/vsts-tasks','Moq/moq','Nebulosus/shamir','NickolausDS/Unity-Free-Flight','OfficeDev/Product-List-Code-Sample','OscarES/Differential-Algebra-Tracker','PECE-project/pece-distro','PixarAnimationStudios/jss-api-gem','StackStorm/st2contrib','SuperID/super-cache','Swader/diffbot-php-client','TelerikAcademy/SchoolAcademy','TelerikAcademy/TelerikAcademyPlus','Theseus-Aegis/tac-a3-mods','VeliovGroup/Meteor-logger','VirgilSecurity/virgil','ZenLulz/MemorySharp','aceway/findX','adafruit/Adafruit-Trinket-Gemma-Bootloader','adobe-type-tools/cmap-resources','airlift/airlift','alexandrucoman/labs','alexchamberlain/piimg','alibaba/jstorm','americanpanorama/panorama','analog-nico/passport-pinterest','andres-erbsen/dename','andyhqtran/UI-Library','apache/stratos','atom/node-ctags','bh107/bohrium','blond/hash-set','blynkkk/blynk-server','brindille/brindille-component','chrisbarrett/emacs-refactor','chrisdone/hulk','claudijd/c7decrypt','crossroadlabs/homebrew-tap','cwilso/midi-synth','daemon3000/InputManager','dale3h/alexa-skills-list','dblock/slack-google-bot','delight-im/OpenSoccer','derrickburns/generalized-kmeans-clustering','devsoulwolf/ChatMessageView','dfletcher/tsws','digibyte/digibyte','dikiaap/mangan','dineshTrivedi/angularjs-styleguide','divmain/GitSavvy','docker-library/docs','durka/named-block','edomaru/codeigniter_multilevel_menu','fdaciuk/ajax','felladrin/runuo-custom-scripts','firebase/EventSource-Examples','flextry/Telerik-Academy','google/libfuzzer-bot','google/traceur-compiler','gshopov/competitive-programming-archive','guangzhuwu/p2engine','ha/doozerd','hacklabr/mapasculturais','himanshu-soni/image-intent-handler','hortonworks/kubernetes-yarn','hosom/bro-file-extraction','hypriot/rpi-busybox-httpd','inamiy/DebugLog','isychev93/Xamarin.Forms-Drag-and-drop-ListView','j-bennet/wharfee','jails-org/Demos','jaredwilli/devtools-cheatsheet','jbboehr/php-mustache','jcinnamond/el-presenti','jconst/JCDialPad','jcoppieters/cody-samples','jeelabs/jet','jeffmo/jasmine-pit','jeffpar/pcjs','jforman/munin-graphite','johnhamelink/exrm_deb','johnpneumann/portable-maya-prefs','jsonld-java/jsonld-java-tools','jzitelli/poolvr','keithwhor/cmnd','kinduff/spree_reffiliate','kittens/lerna','kluivers/jbw-builders','krishkumar/BlockParty','lagopus/lagopus','landlab/landlab','laxa1986/gulp-angular-embed-templates','linux-on-ibm-z/kubernetes','lmammino/gulp-cozy','lowescott/learning-tools','lucaspouzac/contiperf','marcelklehr/gulf-contenteditable','mattinove/SwiftySlider','meganz/sdk','mluisbrown/Memories','mmerian/phpcrawl','mojeda/ServerStatus','mozilla/oneanddone','mstevenson/AssetsWatcher','neophob/PixelController','nictuku/stardew-rocks','ninibe/netlog','ninja-ide/ninja-ide','nodejs/node-gyp','noveogroup/android-logger','opencog/atomspace','openhab/openhab2','opinkerfi/adagios','otoolep/gosf-rqlite','paf31/lambdaconf-2015','paldepind/synceddb','parro-it/is-fqdn','paul999/433.92-Raspberry-Pi','pezy/LeetCode','pmwkaa/serenity','polomoshnov/jQuery-UI-Resizable-Snap-extension','pouetnet/pouet2.0','premgane/agolo-slackbot','qt-pods/qt-pods','radare/radeco','rafiuske/papergram','rancher/rancher-compose','ravl1084/TJ2PDF','rdebath/Brainfuck','retep998/winapi-rs','rgardler/azure-quickstart-templates','richtr/plug.play.js','ridingbytes/plone.commander','rita-marylin-raquel/softbloks','rluders/phaser-skeleton','rofrischmann/fela','rogpeppe/showdeps','rtrouton/rtrouton_scripts','rubylit/guevara','rusty1s/koa2-rest-api','sakaal/service_platform_ansible','sclorg/rhscl-dockerfiles','selenith/plasmide','sendgrid/python-http-client','shenxgan/xblog','smklancher/ZeoSleepMonitor','spaar/besiege-modloader','sskyy/redux-task','supamii/QttpServer','swannodette/todomvc','tangrams/blocks','thedeibo/ServerLoveMCPE','tonioo/modoboa','tt-acm/Spectacles.WebViewer','uupaa/UserAgent.js','varlesh/elementary-add','velveteer/mithril-boilerplate','voussoir/reddit','wahern/cqueues','webpack/webpack','whitepages/terraform-provider-stingray','wilsonmar/oss-perf','winunet/Hui','xxtea/xxtea-php','yubinbai/leetcode','yuvirajsinh/YCameraView','zeroc-ice/ice-demos','zhufengnodejs/201602node_homework','zpz1237/NirZhihuNews','zverok/magic_cloud');"
+    },
+    {
+      "producer": "4f0e3d2f1eda4be5b16969fdf1d284d0",
+      "consumer": "b3b6fe03509a47feb7a832ec13779f44",
+      "producer_index": 2,
+      "consumer_index": 7,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description",
+        "repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 178,
+      "producer_sql": "SELECT COUNT(*) AS total_rows, COUNT(DISTINCT repo_name) AS distinct_repos,\nSUM(CASE WHEN language_description LIKE '%Python%' THEN 1 ELSE 0 END) AS python_repos\nFROM languages;\n",
+      "consumer_sql": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('3ventic/DiscordServers','AcyOrt/acyort','Ali-Razmjoo/OWASP-ZSC','AutoDo/AutoDo','Blizzard/omniauth-bnet','CESNET/owncloud-theme','Calinou/godot-snippets','CapsAdmin/goluwa','CfABrigadePhiladelphia/jawn','DMarby/Harpia','DUBULEE/FileCacheUtil','DaMSL/K3','Download/polymer-cdn','DynamoRIO/dynamorio','Elemental-IRCd/elemental-ircd','EngoEngine/engo','F1ReKing/wheelview','Flat/Konachan-for-Muzei','Hexworks/hexameter','JMPerez/beats-audio-api','JSSolutions/meteor-google-prediction','JiyunTech/Kever','JuliaDB/MySQL.jl','LI-COR/eddypro-engine','MIT-LCP/mimic-code','MaLeLabTs/RegexGenerator','Maaphoo/Retr3d','Magnetme/consultant','Microsoft/WPF-Samples','Microsoft/Windows-classic-samples','Microsoft/vsts-tasks','Moq/moq','Nebulosus/shamir','NickolausDS/Unity-Free-Flight','OfficeDev/Product-List-Code-Sample','OscarES/Differential-Algebra-Tracker','PECE-project/pece-distro','PixarAnimationStudios/jss-api-gem','StackStorm/st2contrib','SuperID/super-cache','Swader/diffbot-php-client','TelerikAcademy/SchoolAcademy','TelerikAcademy/TelerikAcademyPlus','Theseus-Aegis/tac-a3-mods','VeliovGroup/Meteor-logger','VirgilSecurity/virgil','ZenLulz/MemorySharp','aceway/findX','adafruit/Adafruit-Trinket-Gemma-Bootloader','adobe-type-tools/cmap-resources','airlift/airlift','alexandrucoman/labs','alexchamberlain/piimg','alibaba/jstorm','americanpanorama/panorama','analog-nico/passport-pinterest','andres-erbsen/dename','andyhqtran/UI-Library','apache/stratos','atom/node-ctags','bh107/bohrium','blond/hash-set','blynkkk/blynk-server','brindille/brindille-component','chrisbarrett/emacs-refactor','chrisdone/hulk','claudijd/c7decrypt','crossroadlabs/homebrew-tap','cwilso/midi-synth','daemon3000/InputManager','dale3h/alexa-skills-list','dblock/slack-google-bot','delight-im/OpenSoccer','derrickburns/generalized-kmeans-clustering','devsoulwolf/ChatMessageView','dfletcher/tsws','digibyte/digibyte','dikiaap/mangan','dineshTrivedi/angularjs-styleguide','divmain/GitSavvy','docker-library/docs','durka/named-block','edomaru/codeigniter_multilevel_menu','fdaciuk/ajax','felladrin/runuo-custom-scripts','firebase/EventSource-Examples','flextry/Telerik-Academy','google/libfuzzer-bot','google/traceur-compiler','gshopov/competitive-programming-archive','guangzhuwu/p2engine','ha/doozerd','hacklabr/mapasculturais','himanshu-soni/image-intent-handler','hortonworks/kubernetes-yarn','hosom/bro-file-extraction','hypriot/rpi-busybox-httpd','inamiy/DebugLog','isychev93/Xamarin.Forms-Drag-and-drop-ListView','j-bennet/wharfee','jails-org/Demos','jaredwilli/devtools-cheatsheet','jbboehr/php-mustache','jcinnamond/el-presenti','jconst/JCDialPad','jcoppieters/cody-samples','jeelabs/jet','jeffmo/jasmine-pit','jeffpar/pcjs','jforman/munin-graphite','johnhamelink/exrm_deb','johnpneumann/portable-maya-prefs','jsonld-java/jsonld-java-tools','jzitelli/poolvr','keithwhor/cmnd','kinduff/spree_reffiliate','kittens/lerna','kluivers/jbw-builders','krishkumar/BlockParty','lagopus/lagopus','landlab/landlab','laxa1986/gulp-angular-embed-templates','linux-on-ibm-z/kubernetes','lmammino/gulp-cozy','lowescott/learning-tools','lucaspouzac/contiperf','marcelklehr/gulf-contenteditable','mattinove/SwiftySlider','meganz/sdk','mluisbrown/Memories','mmerian/phpcrawl','mojeda/ServerStatus','mozilla/oneanddone','mstevenson/AssetsWatcher','neophob/PixelController','nictuku/stardew-rocks','ninibe/netlog','ninja-ide/ninja-ide','nodejs/node-gyp','noveogroup/android-logger','opencog/atomspace','openhab/openhab2','opinkerfi/adagios','otoolep/gosf-rqlite','paf31/lambdaconf-2015','paldepind/synceddb','parro-it/is-fqdn','paul999/433.92-Raspberry-Pi','pezy/LeetCode','pmwkaa/serenity','polomoshnov/jQuery-UI-Resizable-Snap-extension','pouetnet/pouet2.0','premgane/agolo-slackbot','qt-pods/qt-pods','radare/radeco','rafiuske/papergram','rancher/rancher-compose','ravl1084/TJ2PDF','rdebath/Brainfuck','retep998/winapi-rs','rgardler/azure-quickstart-templates','richtr/plug.play.js','ridingbytes/plone.commander','rita-marylin-raquel/softbloks','rluders/phaser-skeleton','rofrischmann/fela','rogpeppe/showdeps','rtrouton/rtrouton_scripts','rubylit/guevara','rusty1s/koa2-rest-api','sakaal/service_platform_ansible','sclorg/rhscl-dockerfiles','selenith/plasmide','sendgrid/python-http-client','shenxgan/xblog','smklancher/ZeoSleepMonitor','spaar/besiege-modloader','sskyy/redux-task','supamii/QttpServer','swannodette/todomvc','tangrams/blocks','thedeibo/ServerLoveMCPE','tonioo/modoboa','tt-acm/Spectacles.WebViewer','uupaa/UserAgent.js','varlesh/elementary-add','velveteer/mithril-boilerplate','voussoir/reddit','wahern/cqueues','webpack/webpack','whitepages/terraform-provider-stingray','wilsonmar/oss-perf','winunet/Hui','xxtea/xxtea-php','yubinbai/leetcode','yuvirajsinh/YCameraView','zeroc-ice/ice-demos','zhufengnodejs/201602node_homework','zpz1237/NirZhihuNews','zverok/magic_cloud');"
+    }
+  ],
+  "fads": [],
+  "audit": {
+    "assistant_turns": 16,
+    "sql_order_checks": {},
+    "review_flags": [
+      {
+        "kind": "non_adapter_bash_review",
+        "index": 14,
+        "command": "cd /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/natural/GITHUB_REPOS/query1/full-01 2>/dev/null || true; /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python - <<'EOF'\nimport json\nrows = json.load(open('/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/natural/GITHUB_REPOS/query1/full-01/results/665c02b536b54d818800744da2ca9027.json'))\nrepos = sorted(set(r['sample_repo_name'] for r in rows))\nprint(len(repos))\nsql = \"SELECT repo_name, language_description FROM languages WHERE repo_name IN (%s);\" % \",\".join(\"'%s'\" % r.replace(\"'\",\"''\") for r in repos)\nopen('q7.sql','w').write(sql)\nprint(\"written\")\nEOF"
+      }
+    ]
+  }
+}

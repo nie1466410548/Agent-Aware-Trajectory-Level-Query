@@ -1,0 +1,1 @@
+SELECT p.Id, p.Name, e.UnitPrice, b.Name AS PricebookName, b.IsActive AS PricebookActive FROM Product2 p JOIN PricebookEntry e ON e.Product2Id = p.Id JOIN Pricebook2 b ON b.Id = e.Pricebook2Id WHERE p.Name IN ('PulseSim Pro','CircuitMaster Analyzer','VeriSim Express')

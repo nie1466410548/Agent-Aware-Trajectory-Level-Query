@@ -1,0 +1,56 @@
+Solve this data analysis task using the supplied databases. Work independently, without asking the user questions. Use at most 30 database calls and finish within 15 minutes. Do not delegate to other agents.
+
+TASK: What is the average number of business articles published per year in Europe from 2010 to 2020, inclusive?
+
+DATABASE DESCRIPTION:
+You are working with two databases to solve this query.
+
+Here are the descriptions of these two databases:
+
+1. articles_database
+   - This database is stored in a MongoDB database and contains information about news articles. It serves as the primary source for the content of each article, including its title and description.
+   - This database consists of one collection:
+     - articles
+       - This collection contains the actual news articles. Each document in the collection represents a single news article with its unique identifier, title, and description.
+       - Fields:
+         - _id
+         - article_id (int): Unique identifier for the article
+         - title (str): Title of the news article
+         - description (str): Description of the news article
+
+2. metadata_database
+   - This database is stored in a SQLite database and contains metadata about the news articles. It includes information about the authors, the regions in which the articles were published, and the publication dates.
+   - This database consists of two tables:
+     - authors
+       - This table contains information about all authors who contributed to the articles in the articles_database.
+       - Fields:
+         - author_id (int): Unique identifier for the author
+         - name (str): Full name of the author
+
+     - article_metadata
+       - This table contains metadata linking each article to its author and providing details about its publication. Each row represents a single article and connects it to an author and publication information.
+       - Fields:
+         - article_id (int): Article identifier linking to the articles collection
+         - author_id (int): Author identifier linking to the authors table
+         - region (str): Geographic region where the article was published
+         - publication_date (str): Publication date in the format YYYY-MM-DD
+
+DATA TOOLS (invoke through Bash):
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py list-db DATABASE_NAME
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py query-db DATABASE_NAME --sql-file query.sql
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py query-db DATABASE_NAME --mongo-file mongo_query.json  # MongoDB only
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py python --file analysis.py
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py answer --file final.txt
+
+You may also pass --sql with a correctly quoted SQL string instead of --sql-file. Use Bash to create your SQL and Python files in the current directory. All actual database access must use query-db or list-db above. Run analysis Python only through the python tool above. Python can use pandas, pyarrow and the standard library; it can read full query results from the result_file paths returned by the data tools. Those JSON files contain lists of row objects. MongoDB uses native read-only JSON requests, not SQL: {"operation":"find","collection":"name","filter":{},"projection":{},"sort":[["field",1]],"limit":10}, or {"operation":"aggregate","collection":"name","pipeline":[...]}, or {"operation":"count_documents","collection":"name","filter":{}}, or {"operation":"distinct","collection":"name","field":"field","filter":{}}. list-db lists collection names for MongoDB. FAD tables/columns describe collections/fields for MongoDB. SQL output is previewed up to 10000 characters; the complete data remains in result_file.
+
+Use only this task description, these tools, and files you create or tool result files in this run directory. Do not inspect parent directories, benchmark source, tool source, validators, gold answers, external websites, user history, or previous sessions. Do not install packages or connect to the databases directly. These restrictions maintain evaluation integrity. Do not optimize for repetition or deliberately split queries: solve the task naturally. DATABASE_NAME is a logical name from the description above, not a physical file name. For DuckDB metadata use information_schema; for SQLite use PRAGMA table_info; for PostgreSQL use information_schema. Do not invoke shell clients directly.
+
+After analysis, write the final answer to final.txt and submit it with the answer tool. Include any requested complete book list. Then stop. If unable to solve, submit your best supported answer and state the limitation. Do not inspect evaluation results.
+
+FAD GROUP PROTOCOL:
+Before EACH query-db call, first publish a short rolling future-access frontier using:
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py fad --file frontier.json
+The file must be JSON: {"accesses":[{"database":"logical name","tables":["table_name"],"columns":["column_name"],"filters":["known condition in SQL-like notation"],"operations":["scan","filter","join","aggregate","sort","limit","metadata"],"horizon":1}],"unknowns":[]}
+Use only operations that you actually anticipate, not all operations in the example. Describe likely accesses over the next 1-3 data queries. horizon is the expected position (1, 2 or 3); use an empty accesses list when genuinely unknown. Table/column names should be schema-grounded when known, otherwise leave them empty and explain in unknowns. Filters and operations should be concrete enough to help prepare data; do not put complete SQL in the frontier. Include plausible later accesses if known, but do not invent them to fill the frontier.
+Crucially, submit FAD and WAIT for its tool response BEFORE writing, emitting, or executing the SQL, including SQL files. After receiving its fresh random fad_id, generate the SQL in a NEW assistant turn and invoke query-db with --fad-id RECEIVED_ID. A receipt permits exactly one query attempt; refresh after each result/error before generating the next SQL. Do not put SQL generation and FAD submission in the same assistant message/tool batch. list-db is exempt. You may revise or drop previous candidates based on results. Continue solving naturally; predictions are not commitments to execute unnecessary queries.

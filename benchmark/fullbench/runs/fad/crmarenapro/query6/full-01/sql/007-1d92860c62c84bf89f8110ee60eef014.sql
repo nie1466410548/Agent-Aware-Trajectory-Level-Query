@@ -1,0 +1,1 @@
+SELECT p.Id, p.Name, p.Description, p.IsActive, e.Id AS PBE_Id, e.UnitPrice AS ListPrice FROM Product2 p LEFT JOIN PricebookEntry e ON e.Product2Id = p.Id WHERE p.Id LIKE '%hV6jIAE' OR p.Id LIKE '%hPffIAE'

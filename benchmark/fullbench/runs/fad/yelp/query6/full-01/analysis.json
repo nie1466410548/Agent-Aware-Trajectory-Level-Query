@@ -1,0 +1,841 @@
+{
+  "summary": {
+    "task_id": "yelp/query6",
+    "run_id": "full-01",
+    "model": "kimi-code/k3",
+    "group": "fad",
+    "adapter_version": "fullbench-v2-bound-run",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 209.34536719322205,
+    "answer_submitted": true,
+    "validator_passed": true,
+    "validator_reason": "Name and all categories are present.",
+    "tool_calls": 14,
+    "sql_calls": 3,
+    "mongo_calls": 3,
+    "failed_calls": 0,
+    "mongo_queries": 3,
+    "mongo_metadata_queries": 0,
+    "data_queries": 3,
+    "metadata_queries": 0,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 3,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 0,
+    "later_queries_sharing_tables": 2,
+    "later_queries_sharing_table_columns": 2,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 1,
+    "shared_join_consumers": 0,
+    "shared_aggregate_consumers": 1,
+    "data_query_adapter_ms": 180.34644331783056,
+    "fad_submissions": 6,
+    "python_calls": 1,
+    "assistant_turns": 29
+  },
+  "queries": [
+    {
+      "call_id": "cfea8256e06d44ccbb5cdd4a472dd1af",
+      "tool": "query-db",
+      "database": "user_database",
+      "sql": "SELECT business_ref, AVG(rating) AS avg_rating, COUNT(*) AS n_reviews\nFROM review\nWHERE date >= '2016-01-01' AND date < '2016-07-01'\nGROUP BY business_ref\nHAVING COUNT(*) >= 5\nORDER BY avg_rating DESC, n_reviews DESC\nLIMIT 20;\n",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788819418.6158447,
+      "duration_ms": 57.089594192802906,
+      "dialect": "duckdb",
+      "fad_id": "7cced4d204734921845dea566888c8a4",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "review"
+      ],
+      "columns": [
+        "avg_rating",
+        "business_ref",
+        "date",
+        "n_reviews",
+        "rating"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "limit",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "date >= '2016-01-01' AND date < '2016-07-01'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "AVG(rating)",
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT business_ref, AVG(rating) AS avg_rating, COUNT(*) AS n_reviews FROM review WHERE date >= '2016-01-01' AND date < '2016-07-01' GROUP BY business_ref HAVING COUNT(*) >= 5 ORDER BY avg_rating DESC, n_reviews DESC LIMIT 20",
+      "simple_ranges": {
+        "date": {
+          "type": "text",
+          "lo": [
+            "2016-01-01",
+            true
+          ],
+          "hi": [
+            "2016-07-01",
+            false
+          ]
+        }
+      },
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "date < '2016-07-01'",
+        "date >= '2016-01-01'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "business_ref"
+      ],
+      "limit": "LIMIT 20"
+    },
+    {
+      "call_id": "cd8fc8ba129c4dc4bbcb79c8c72348fa",
+      "tool": "query-db",
+      "database": "user_database",
+      "sql": "SELECT MIN(date) AS min_date, MAX(date) AS max_date, COUNT(*) AS total,\n       COUNT(*) FILTER (WHERE date >= '2016-01-01' AND date < '2016-07-01') AS in_window\nFROM review;\n",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788819518.1433713,
+      "duration_ms": 56.359704583883286,
+      "dialect": "duckdb",
+      "fad_id": "73ca17b6d52f4a1cbaafe73a6e4cb445",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "review"
+      ],
+      "columns": [
+        "date"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "date >= '2016-01-01' AND date < '2016-07-01'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)",
+        "MAX(date)",
+        "MIN(date)"
+      ],
+      "canonical": "SELECT MIN(date) AS min_date, MAX(date) AS max_date, COUNT(*) AS total, COUNT(*) FILTER(WHERE date >= '2016-01-01' AND date < '2016-07-01') AS in_window FROM review",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "b466363d6ecf49caa9c94bffb194d480",
+      "tool": "query-db",
+      "database": "user_database",
+      "sql": "SELECT business_ref, rating, date FROM review;\n",
+      "success": true,
+      "row_count": 2000,
+      "start_time": 1788819544.392556,
+      "duration_ms": 66.89714454114437,
+      "dialect": "duckdb",
+      "fad_id": "00e2b386a8354b17bf98991a5acd18c4",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "review"
+      ],
+      "columns": [
+        "business_ref",
+        "date",
+        "rating"
+      ],
+      "operations": [
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT business_ref, rating, date FROM review",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": true,
+      "producer_complete_selection": true,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "business_ref",
+        "date",
+        "rating"
+      ],
+      "limit": null
+    }
+  ],
+  "mongo_queries": [
+    {
+      "task_id": "yelp/query6",
+      "run_id": "full-01",
+      "call_id": "cf04ab20a86049eaae4f64ab754ffd67",
+      "tool": "query-db",
+      "start_time": 1788819442.1787157,
+      "timestamp": "2026-09-07T22:17:22.178718+00:00",
+      "database": "businessinfo_database",
+      "dialect": "mongo",
+      "fad_id": "cc3ba03f08cd4ee79595fa860b0c2e3d",
+      "fad_lead_s": 9.002281188964844,
+      "mongo_request": {
+        "operation": "find",
+        "collection": "business",
+        "filter": {
+          "business_id": "businessref_9"
+        },
+        "limit": 5
+      },
+      "row_count": 0,
+      "columns": [
+        "business_id"
+      ],
+      "result_file": "/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/fad/yelp/query6/full-01/results/cf04ab20a86049eaae4f64ab754ffd67.json",
+      "result_bytes": 2,
+      "result_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "success": true,
+      "end_time": 1788819442.32185,
+      "duration_ms": 143.11794936656952,
+      "metadata": false,
+      "tables": [
+        "business"
+      ],
+      "operations": [
+        "filter",
+        "limit",
+        "scan"
+      ],
+      "filters": [],
+      "parse_error": null
+    },
+    {
+      "task_id": "yelp/query6",
+      "run_id": "full-01",
+      "call_id": "14638a8c9a4d4459a2c4dcfda710c431",
+      "tool": "query-db",
+      "start_time": 1788819464.205202,
+      "timestamp": "2026-09-07T22:17:44.205205+00:00",
+      "database": "businessinfo_database",
+      "dialect": "mongo",
+      "fad_id": "af38f8bf53e9481dba54cd3753f46b9b",
+      "fad_lead_s": 9.227900743484497,
+      "mongo_request": {
+        "operation": "find",
+        "collection": "business",
+        "filter": {},
+        "projection": {
+          "_id": 0
+        },
+        "limit": 3
+      },
+      "row_count": 3,
+      "columns": [
+        "_id"
+      ],
+      "result_file": "/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/fad/yelp/query6/full-01/results/14638a8c9a4d4459a2c4dcfda710c431.json",
+      "result_bytes": 2014,
+      "result_sha256": "1b618bc9c339f2ffa3591d12419f68219ac84f6c244b6076e99acfc4622e70ac",
+      "success": true,
+      "end_time": 1788819464.346129,
+      "duration_ms": 140.90910740196705,
+      "metadata": false,
+      "tables": [
+        "business"
+      ],
+      "operations": [
+        "limit",
+        "scan"
+      ],
+      "filters": [],
+      "parse_error": null
+    },
+    {
+      "task_id": "yelp/query6",
+      "run_id": "full-01",
+      "call_id": "703c55a56cdf4560aac9478c0671e314",
+      "tool": "query-db",
+      "start_time": 1788819487.8556488,
+      "timestamp": "2026-09-07T22:18:07.855651+00:00",
+      "database": "businessinfo_database",
+      "dialect": "mongo",
+      "fad_id": "083ad57396dc44c5b68fd8aec297c857",
+      "fad_lead_s": 11.24974799156189,
+      "mongo_request": {
+        "operation": "find",
+        "collection": "business",
+        "filter": {
+          "business_id": "businessid_9"
+        },
+        "projection": {
+          "_id": 0
+        },
+        "limit": 3
+      },
+      "row_count": 1,
+      "columns": [
+        "_id",
+        "business_id"
+      ],
+      "result_file": "/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/fad/yelp/query6/full-01/results/703c55a56cdf4560aac9478c0671e314.json",
+      "result_bytes": 1465,
+      "result_sha256": "ddf4f7ac020bc5a781e96fe1d569fa5adac7e1f6274cf37b906f61eac10f4dd7",
+      "success": true,
+      "end_time": 1788819487.996143,
+      "duration_ms": 140.4781537130475,
+      "metadata": false,
+      "tables": [
+        "business"
+      ],
+      "operations": [
+        "filter",
+        "limit",
+        "scan"
+      ],
+      "filters": [],
+      "parse_error": null
+    }
+  ],
+  "pairs": [
+    {
+      "producer": "cfea8256e06d44ccbb5cdd4a472dd1af",
+      "consumer": "cd8fc8ba129c4dc4bbcb79c8c72348fa",
+      "producer_index": 1,
+      "consumer_index": 2,
+      "shared_tables": [
+        "review"
+      ],
+      "shared_columns": [
+        "date"
+      ],
+      "same_filters": [
+        "date >= '2016-01-01' AND date < '2016-07-01'"
+      ],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT business_ref, AVG(rating) AS avg_rating, COUNT(*) AS n_reviews\nFROM review\nWHERE date >= '2016-01-01' AND date < '2016-07-01'\nGROUP BY business_ref\nHAVING COUNT(*) >= 5\nORDER BY avg_rating DESC, n_reviews DESC\nLIMIT 20;\n",
+      "consumer_sql": "SELECT MIN(date) AS min_date, MAX(date) AS max_date, COUNT(*) AS total,\n       COUNT(*) FILTER (WHERE date >= '2016-01-01' AND date < '2016-07-01') AS in_window\nFROM review;\n"
+    },
+    {
+      "producer": "cfea8256e06d44ccbb5cdd4a472dd1af",
+      "consumer": "b466363d6ecf49caa9c94bffb194d480",
+      "producer_index": 1,
+      "consumer_index": 3,
+      "shared_tables": [
+        "review"
+      ],
+      "shared_columns": [
+        "business_ref",
+        "date",
+        "rating"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 2000,
+      "producer_sql": "SELECT business_ref, AVG(rating) AS avg_rating, COUNT(*) AS n_reviews\nFROM review\nWHERE date >= '2016-01-01' AND date < '2016-07-01'\nGROUP BY business_ref\nHAVING COUNT(*) >= 5\nORDER BY avg_rating DESC, n_reviews DESC\nLIMIT 20;\n",
+      "consumer_sql": "SELECT business_ref, rating, date FROM review;\n"
+    },
+    {
+      "producer": "cd8fc8ba129c4dc4bbcb79c8c72348fa",
+      "consumer": "b466363d6ecf49caa9c94bffb194d480",
+      "producer_index": 2,
+      "consumer_index": 3,
+      "shared_tables": [
+        "review"
+      ],
+      "shared_columns": [
+        "date"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 2000,
+      "producer_sql": "SELECT MIN(date) AS min_date, MAX(date) AS max_date, COUNT(*) AS total,\n       COUNT(*) FILTER (WHERE date >= '2016-01-01' AND date < '2016-07-01') AS in_window\nFROM review;\n",
+      "consumer_sql": "SELECT business_ref, rating, date FROM review;\n"
+    }
+  ],
+  "fads": [
+    {
+      "call_id": "7cced4d204734921845dea566888c8a4",
+      "accesses": [
+        {
+          "database": "user_database",
+          "tables": [
+            "review"
+          ],
+          "columns": [
+            "business_ref",
+            "rating",
+            "date"
+          ],
+          "filters": [
+            "date >= '2016-01-01' AND date <= '2016-06-30'"
+          ],
+          "operations": [
+            "filter",
+            "aggregate",
+            "sort",
+            "limit"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "businessinfo_database",
+          "tables": [
+            "business"
+          ],
+          "columns": [
+            "business_id",
+            "name",
+            "attributes",
+            "description"
+          ],
+          "filters": [
+            "business_id = <top business from reviews>"
+          ],
+          "operations": [
+            "filter",
+            "scan"
+          ],
+          "horizon": 2
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "businessinfo_database",
+          "business"
+        ],
+        [
+          "user_database",
+          "review"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "cfea8256e06d44ccbb5cdd4a472dd1af",
+        "cf04ab20a86049eaae4f64ab754ffd67",
+        "14638a8c9a4d4459a2c4dcfda710c431"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "businessinfo_database",
+          "business"
+        ]
+      ],
+      "later_table_precision": 1.0,
+      "later_table_recall": 1.0,
+      "later_has_consumer": true,
+      "table_precision_1": 0.5,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "businessinfo_database",
+          "business"
+        ]
+      ],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.6,
+      "operation_recall_1": 0.8,
+      "filter_exact_precision_1": 0.5,
+      "filter_exact_recall_1": 0.5,
+      "predicted_filter_atoms": [
+        "date <= '2016-06-30'",
+        "date >= '2016-01-01'"
+      ],
+      "actual_filter_atoms": [
+        "date < '2016-07-01'",
+        "date >= '2016-01-01'"
+      ],
+      "lead_s": 11.744040489196777,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": null
+    },
+    {
+      "call_id": "cc3ba03f08cd4ee79595fa860b0c2e3d",
+      "accesses": [
+        {
+          "database": "businessinfo_database",
+          "tables": [
+            "business"
+          ],
+          "columns": [
+            "business_id",
+            "name",
+            "attributes",
+            "description"
+          ],
+          "filters": [
+            "business_id = 'businessref_9'"
+          ],
+          "operations": [
+            "filter",
+            "scan"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "businessinfo_database",
+          "business"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "cf04ab20a86049eaae4f64ab754ffd67",
+        "14638a8c9a4d4459a2c4dcfda710c431",
+        "703c55a56cdf4560aac9478c0671e314"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": true,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": null,
+      "operation_precision_1": 1.0,
+      "column_recall_1": null,
+      "operation_recall_1": 0.6666666666666666,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 9.002281188964844,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    },
+    {
+      "call_id": "af38f8bf53e9481dba54cd3753f46b9b",
+      "accesses": [
+        {
+          "database": "businessinfo_database",
+          "tables": [
+            "business"
+          ],
+          "columns": [
+            "business_id",
+            "name",
+            "description",
+            "attributes"
+          ],
+          "filters": [],
+          "operations": [
+            "scan",
+            "limit"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "businessinfo_database",
+          "business"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "14638a8c9a4d4459a2c4dcfda710c431",
+        "703c55a56cdf4560aac9478c0671e314",
+        "cd8fc8ba129c4dc4bbcb79c8c72348fa"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": true,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 0.5,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": null,
+      "operation_precision_1": 1.0,
+      "column_recall_1": null,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 9.227900743484497,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 1.0
+    },
+    {
+      "call_id": "083ad57396dc44c5b68fd8aec297c857",
+      "accesses": [
+        {
+          "database": "businessinfo_database",
+          "tables": [
+            "business"
+          ],
+          "columns": [
+            "business_id",
+            "name",
+            "description"
+          ],
+          "filters": [
+            "business_id = 'businessid_9'"
+          ],
+          "operations": [
+            "filter",
+            "scan"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "businessinfo_database",
+          "business"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "703c55a56cdf4560aac9478c0671e314",
+        "cd8fc8ba129c4dc4bbcb79c8c72348fa",
+        "b466363d6ecf49caa9c94bffb194d480"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": true,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 0.5,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": null,
+      "operation_precision_1": 1.0,
+      "column_recall_1": null,
+      "operation_recall_1": 0.6666666666666666,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 11.24974799156189,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 1.0
+    },
+    {
+      "call_id": "73ca17b6d52f4a1cbaafe73a6e4cb445",
+      "accesses": [
+        {
+          "database": "user_database",
+          "tables": [
+            "review"
+          ],
+          "columns": [
+            "date"
+          ],
+          "filters": [],
+          "operations": [
+            "aggregate"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "user_database",
+          "review"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "cd8fc8ba129c4dc4bbcb79c8c72348fa",
+        "b466363d6ecf49caa9c94bffb194d480"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 0.3333333333333333,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [
+        "date < '2016-07-01'",
+        "date >= '2016-01-01'"
+      ],
+      "lead_s": 10.1081063747406,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    },
+    {
+      "call_id": "00e2b386a8354b17bf98991a5acd18c4",
+      "accesses": [
+        {
+          "database": "user_database",
+          "tables": [
+            "review"
+          ],
+          "columns": [
+            "business_ref",
+            "rating",
+            "date"
+          ],
+          "filters": [],
+          "operations": [
+            "scan"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "user_database",
+          "review"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "b466363d6ecf49caa9c94bffb194d480"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": false,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 9.010294675827026,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 1.0
+    }
+  ],
+  "audit": {
+    "assistant_turns": 29,
+    "sql_order_checks": {
+      "cfea8256e06d44ccbb5cdd4a472dd1af": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "cf04ab20a86049eaae4f64ab754ffd67": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "14638a8c9a4d4459a2c4dcfda710c431": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "703c55a56cdf4560aac9478c0671e314": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "cd8fc8ba129c4dc4bbcb79c8c72348fa": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "b466363d6ecf49caa9c94bffb194d480": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      }
+    },
+    "review_flags": []
+  }
+}

@@ -1,0 +1,1 @@
+SELECT FILTER, COUNT(DISTINCT ParticipantBarcode) AS n FROM Mutation_Data WHERE Hugo_Symbol='CDH1' GROUP BY FILTER

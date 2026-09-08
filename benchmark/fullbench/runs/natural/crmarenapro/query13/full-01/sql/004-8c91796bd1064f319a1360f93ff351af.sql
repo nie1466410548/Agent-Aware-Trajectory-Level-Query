@@ -1,0 +1,2 @@
+SELECT * FROM Contract LIMIT 5;
+

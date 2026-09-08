@@ -1,0 +1,1 @@
+SELECT Id, LeadId__c, CreatedDate, EndTime__c, Body__c FROM VoiceCallTranscript__c WHERE LeadId__c = '00QWt0000089AekMAE' ORDER BY CreatedDate

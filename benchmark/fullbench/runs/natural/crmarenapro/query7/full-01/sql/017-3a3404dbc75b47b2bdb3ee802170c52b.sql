@@ -1,0 +1,1 @@
+SELECT * FROM Task WHERE WhatId LIKE '%DDyzn%'

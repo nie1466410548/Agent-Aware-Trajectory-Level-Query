@@ -1,0 +1,1 @@
+WITH pi AS (SELECT regexp_extract(Project_Information, 'The project ([^ ]+)', 1) AS ProjectName, CAST(regexp_extract(Project_Information, '([0-9]+) stars', 1) AS BIGINT) AS stars FROM project_info) SELECT ppv.Name, ppv.Version, ppv.ProjectName, pi.stars FROM project_packageversion ppv JOIN pi ON ppv.ProjectName = pi.ProjectName WHERE ppv.System='NPM'

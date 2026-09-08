@@ -1,0 +1,66 @@
+Solve this data analysis task using the supplied databases. Work independently, without asking the user questions. Use at most 30 database calls and finish within 15 minutes. Do not delegate to other agents.
+
+TASK: Among all NPM packages with project license 'MIT' and marked as release, which 5 projects have the highest GitHub fork count?
+
+DATABASE DESCRIPTION:
+You are working with two databases to solve this query.
+
+Here are the descriptions of these two databases:
+
+1. package_database  
+   - This database is stored in SQLite database format and contains metadata of software packages, including licensing information, version release data, dependency details, and registry metadata.
+   - This database consists of one table:
+    - packageinfo:
+      - Fields:
+        - System (str): Package ecosystem (e.g., NPM, Maven)  
+        - Name (str): Package name  
+        - Version (str): Version string of the package  
+        - Licenses (str): License(s) associated with the package, stored as a JSON-like array  
+        - Links (str): JSON-like list of relevant links (e.g., origin, documentation, source code)  
+        - Advisories (str): JSON-like list of security advisories related to the package  
+        - VersionInfo (str): JSON-like object with release metadata (e.g., `IsRelease`, `Ordinal`)  
+        - Hashes (str): JSON-like list of file hashes  
+        - DependenciesProcessed (bool): Whether dependencies have been processed successfully  
+        - DependencyError (bool): Whether a dependency processing error occurred  
+        - UpstreamPublishedAt (float): Unix timestamp (ms) for when the upstream release was published  
+        - Registries (str): JSON-like list of registries where the package is published  
+        - SLSAProvenance (float): SLSA provenance level if available  
+        - UpstreamIdentifiers (str): JSON-like list of upstream identifiers  
+        - Purl (float): Package URL in purl format (if available)
+
+2. project_database  
+   - This database is stored in DuckDB format and contains GitHub project information and mappings between projects and their package versions. It is organized into two tables:  
+   - This database consists of two tables:
+     - project_packageversion:
+      - Fields:  
+        - System (str): Package ecosystem (e.g., NPM)  
+        - Name (str): Package name  
+        - Version (str): Package version string  
+        - ProjectType (str): Type of project (e.g., GITHUB)  
+        - ProjectName (str): Repository path in `owner/repo` format  
+        - RelationProvenance (str): Provenance of the relationship data  
+        - RelationType (str): Type of relationship (e.g., source repository type)  
+
+     - project_info:
+      - Fields:  
+        - Project_Information (str): Textual description of the project (may include name, owner, and general purpose)  
+        - Licenses (str): License(s) associated with the project, stored as a JSON-like array  
+        - Description (str): Project description field (may differ from Project_Information)  
+        - Homepage (str): Homepage URL of the project, if available  
+        - OSSFuzz (float): OSSFuzz status indicator (if applicable)  
+
+
+DATA TOOLS (invoke through Bash):
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py list-db DATABASE_NAME
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py query-db DATABASE_NAME --sql-file query.sql
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py query-db DATABASE_NAME --mongo-file mongo_query.json  # MongoDB only
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py python --file analysis.py
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py answer --file final.txt
+
+You may also pass --sql with a correctly quoted SQL string instead of --sql-file. Use Bash to create your SQL and Python files in the current directory. All actual database access must use query-db or list-db above. Run analysis Python only through the python tool above. Python can use pandas, pyarrow and the standard library; it can read full query results from the result_file paths returned by the data tools. Those JSON files contain lists of row objects. MongoDB uses native read-only JSON requests, not SQL: {"operation":"find","collection":"name","filter":{},"projection":{},"sort":[["field",1]],"limit":10}, or {"operation":"aggregate","collection":"name","pipeline":[...]}, or {"operation":"count_documents","collection":"name","filter":{}}, or {"operation":"distinct","collection":"name","field":"field","filter":{}}. list-db lists collection names for MongoDB. FAD tables/columns describe collections/fields for MongoDB. SQL output is previewed up to 10000 characters; the complete data remains in result_file.
+
+Use only this task description, these tools, and files you create or tool result files in this run directory. Do not inspect parent directories, benchmark source, tool source, validators, gold answers, external websites, user history, or previous sessions. Do not install packages or connect to the databases directly. These restrictions maintain evaluation integrity. Do not optimize for repetition or deliberately split queries: solve the task naturally. DATABASE_NAME is a logical name from the description above, not a physical file name. For DuckDB metadata use information_schema; for SQLite use PRAGMA table_info; for PostgreSQL use information_schema. Do not invoke shell clients directly.
+
+After analysis, write the final answer to final.txt and submit it with the answer tool. Include any requested complete book list. Then stop. If unable to solve, submit your best supported answer and state the limitation. Do not inspect evaluation results.
+
+Do not generate extra future-access predictions.

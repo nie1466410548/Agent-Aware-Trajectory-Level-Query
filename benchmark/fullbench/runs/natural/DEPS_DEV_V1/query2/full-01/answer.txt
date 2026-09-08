@@ -1,0 +1,20 @@
+Task: Among all NPM packages with project license 'MIT' and marked as release, which 5 projects have the highest GitHub fork count?
+
+Method:
+1. From package_database.packageinfo: selected NPM package versions whose Licenses array contains exactly "MIT" and whose VersionInfo has IsRelease = true.
+2. Joined those (Name, Version) pairs to project_database.project_packageversion (System='NPM', ProjectType='GITHUB') to get the associated GitHub projects (owner/repo).
+3. Joined to project_database.project_info (770 projects) and parsed the GitHub fork counts from the Project_Information text (fork counts are only available for these projects).
+4. Ranked projects by fork count (a project qualifies if at least one mapped package version is an MIT-licensed release).
+
+Top 5 projects by GitHub fork count:
+
+1. mui-org/material-ui — 30,522 forks
+2. moment/moment — 7,201 forks
+3. lodash/lodash — 7,109 forks
+4. semantic-org/semantic-ui — 4,955 forks
+5. react-native-elements/react-native-elements — 4,623 forks
+
+Notes:
+- Fork counts are extracted from the Project_Information text in project_info.
+- Results are robust to requiring the project-level license (project_info.Licenses) to also be MIT for the top 4; rank 5 (react-native-elements) is MIT at project level as well.
+- The three projects whose names were ambiguous in the text (rrdelaney/reason: 24 forks, lrembacz/vue-dragndrop: 0, wizards-lab/routing: 0) are far below the top-5 cutoff and do not affect the answer.

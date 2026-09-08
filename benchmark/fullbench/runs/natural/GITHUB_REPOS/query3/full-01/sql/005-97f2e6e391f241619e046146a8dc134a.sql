@@ -1,0 +1,1 @@
+SELECT DISTINCT license FROM licenses LIMIT 30

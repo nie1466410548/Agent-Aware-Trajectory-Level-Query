@@ -1,0 +1,1 @@
+SELECT symbol, level, "titleFull" FROM cpc_definition WHERE level = 4 AND symbol IN ('A61','H04','B41','F02','F04','G01','B23','B63','Y02','B66','E02','B60','F16','A47','A21','A43','F24','F23','H01','F05','F01','B64','B62','C04','C09','B29','G02','G07','Y10','E05','H02','H03','F42','F41','G08') ORDER BY symbol

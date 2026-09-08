@@ -1,0 +1,1 @@
+SELECT * FROM issue__c WHERE id = 'a03Wt00000JqmX6IAJ';

@@ -1,0 +1,9 @@
+SELECT o.OwnerId AS agent_id,
+       SUM(oi.Quantity * oi.UnitPrice) AS total_sales,
+       COUNT(DISTINCT o.Id) AS n_orders
+FROM "Order" o
+JOIN OrderItem oi ON oi.OrderId = o.Id
+WHERE o.EffectiveDate >= '2022-06-25' AND o.EffectiveDate <= '2022-11-25'
+GROUP BY o.OwnerId
+ORDER BY total_sales DESC
+LIMIT 10;

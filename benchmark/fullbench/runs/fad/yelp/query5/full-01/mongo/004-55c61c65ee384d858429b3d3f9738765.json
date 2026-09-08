@@ -1,0 +1,29 @@
+{
+  "operation": "aggregate",
+  "collection": "business",
+  "pipeline": [
+    {
+      "$project": {
+        "keys": {
+          "$objectToArray": "$attributes"
+        }
+      }
+    },
+    {
+      "$unwind": "$keys"
+    },
+    {
+      "$group": {
+        "_id": "$keys.k",
+        "n": {
+          "$sum": 1
+        }
+      }
+    },
+    {
+      "$sort": {
+        "n": -1
+      }
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+SELECT * FROM Product2 WHERE Id = '01tWt000006hV8LIAU'
+

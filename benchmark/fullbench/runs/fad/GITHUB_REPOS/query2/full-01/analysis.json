@@ -1,0 +1,1505 @@
+{
+  "summary": {
+    "task_id": "GITHUB_REPOS/query2",
+    "run_id": "full-01",
+    "model": "kimi-code/k3",
+    "group": "fad",
+    "adapter_version": "fullbench-v2-bound-run",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 309.11598014831543,
+    "answer_submitted": true,
+    "validator_passed": false,
+    "validator_reason": "No fuzzy match found for 'swiftandroid/swift' within 3-character distance",
+    "tool_calls": 17,
+    "sql_calls": 9,
+    "mongo_calls": 0,
+    "failed_calls": 0,
+    "mongo_queries": 0,
+    "mongo_metadata_queries": 0,
+    "data_queries": 7,
+    "metadata_queries": 2,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 7,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 0,
+    "later_queries_sharing_tables": 4,
+    "later_queries_sharing_table_columns": 4,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 1,
+    "shared_join_consumers": 0,
+    "shared_aggregate_consumers": 1,
+    "data_query_adapter_ms": 2286.569663323462,
+    "fad_submissions": 7,
+    "python_calls": 0,
+    "assistant_turns": 28
+  },
+  "queries": [
+    {
+      "call_id": "1da69774ece4417191e17fe0bc06a39f",
+      "tool": "list-db",
+      "database": "metadata_database",
+      "sql": "SELECT name FROM sqlite_master WHERE type='table'",
+      "success": true,
+      "row_count": 3,
+      "start_time": 1788799749.8967063,
+      "duration_ms": 15.890920534729958,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "sqlite_master"
+      ],
+      "columns": [
+        "name",
+        "type"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "type = 'table'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT name FROM sqlite_master WHERE type = 'table'",
+      "simple_ranges": {
+        "type": {
+          "type": "text",
+          "lo": [
+            "table",
+            true
+          ],
+          "hi": [
+            "table",
+            true
+          ]
+        }
+      },
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "type = 'table'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "277ff653215647099bf98924c40dccf1",
+      "tool": "list-db",
+      "database": "artifacts_database",
+      "sql": "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog')",
+      "success": true,
+      "row_count": 3,
+      "start_time": 1788799750.0037544,
+      "duration_ms": 65.91785605996847,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "tables"
+      ],
+      "columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT table_schema, table_name FROM information_schema.tables WHERE NOT table_schema IN ('information_schema', 'pg_catalog')",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "94ece9329a5b4923b47062046c785a5e",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT COUNT(*) AS swift_repos FROM languages WHERE LOWER(language_description) LIKE '%swift%'",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788799777.370955,
+      "duration_ms": 1291.8660752475262,
+      "dialect": "sqlite",
+      "fad_id": "88f5bfd13d1c4c07849773f745ae748f",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages"
+      ],
+      "columns": [
+        "language_description"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "LOWER(language_description) LIKE '%swift%'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT COUNT(*) AS swift_repos FROM languages WHERE LOWER(language_description) LIKE '%swift%'",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "LOWER(language_description) LIKE '%swift%'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "a89945ab84d74eb68161e9d38b46a91a",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT id, sample_path, sample_repo_name, repo_data_description FROM contents WHERE sample_path LIKE '%.swift' LIMIT 10",
+      "success": true,
+      "row_count": 10,
+      "start_time": 1788799798.9477487,
+      "duration_ms": 57.91098903864622,
+      "dialect": "duckdb",
+      "fad_id": "935e96b284c145a7803efd0901f299d8",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contents"
+      ],
+      "columns": [
+        "id",
+        "repo_data_description",
+        "sample_path",
+        "sample_repo_name"
+      ],
+      "operations": [
+        "filter",
+        "limit",
+        "scan"
+      ],
+      "filters": [
+        "sample_path LIKE '%.swift'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT id, sample_path, sample_repo_name, repo_data_description FROM contents WHERE sample_path LIKE '%.swift' LIMIT 10",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "sample_path LIKE '%.swift'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "id",
+        "repo_data_description",
+        "sample_path",
+        "sample_repo_name"
+      ],
+      "limit": "LIMIT 10"
+    },
+    {
+      "call_id": "edb9b6f7a973483b919a07b93082edd8",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT DISTINCT repo_data_description FROM contents WHERE sample_path LIKE '%.swift' AND repo_data_description NOT LIKE '%non-binary%' LIMIT 20",
+      "success": true,
+      "row_count": 16,
+      "start_time": 1788799863.2745497,
+      "duration_ms": 62.08818405866623,
+      "dialect": "duckdb",
+      "fad_id": "fd982ff67c10487da45cfb2fb77656c4",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contents"
+      ],
+      "columns": [
+        "repo_data_description",
+        "sample_path"
+      ],
+      "operations": [
+        "filter",
+        "limit",
+        "scan"
+      ],
+      "filters": [
+        "sample_path LIKE '%.swift' AND repo_data_description NOT LIKE '%non-binary%'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT DISTINCT repo_data_description FROM contents WHERE sample_path LIKE '%.swift' AND repo_data_description NOT LIKE '%non-binary%' LIMIT 20",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "repo_data_description NOT LIKE '%non-binary%'",
+        "sample_path LIKE '%.swift'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "repo_data_description"
+      ],
+      "limit": "LIMIT 20"
+    },
+    {
+      "call_id": "a8fa11a6975b42289adf9cf8a5c0e44b",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT\n  id,\n  MAX(CAST(regexp_extract(repo_data_description, '(\\d+) times', 1) AS INTEGER)) AS copies,\n  ANY_VALUE(sample_repo_name) AS sample_repo_name,\n  ANY_VALUE(sample_path) AS sample_path,\n  COUNT(*) AS rows_in_contents\nFROM contents\nWHERE sample_path LIKE '%.swift'\n  AND LOWER(repo_data_description) LIKE '%non-binary%'\nGROUP BY id\nORDER BY copies DESC\nLIMIT 30\n",
+      "success": true,
+      "row_count": 30,
+      "start_time": 1788799897.2603507,
+      "duration_ms": 65.88406302034855,
+      "dialect": "duckdb",
+      "fad_id": "1ec8008ea16345c98657c26bd5a49042",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contents"
+      ],
+      "columns": [
+        "copies",
+        "id",
+        "repo_data_description",
+        "sample_path",
+        "sample_repo_name"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "limit",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "sample_path LIKE '%.swift' AND LOWER(repo_data_description) LIKE '%non-binary%'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "ANY_VALUE(sample_path)",
+        "ANY_VALUE(sample_repo_name)",
+        "COUNT(*)",
+        "MAX(CAST(REGEXP_EXTRACT(repo_data_description, '(\\d+) times', 1) AS INT))"
+      ],
+      "canonical": "SELECT id, MAX(CAST(REGEXP_EXTRACT(repo_data_description, '(\\d+) times', 1) AS INT)) AS copies, ANY_VALUE(sample_repo_name) IGNORE NULLS AS sample_repo_name, ANY_VALUE(sample_path) IGNORE NULLS AS sample_path, COUNT(*) AS rows_in_contents FROM contents WHERE sample_path LIKE '%.swift' AND LOWER(repo_data_description) LIKE '%non-binary%' GROUP BY id ORDER BY copies DESC LIMIT 30",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "LOWER(repo_data_description) LIKE '%non-binary%'",
+        "sample_path LIKE '%.swift'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "id"
+      ],
+      "limit": "LIMIT 30"
+    },
+    {
+      "call_id": "1d65b42b24cd4c3aa38eeeb7fb00b28e",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('uacaps/PageMenu','kostiakoval/Mirror','apple/swift','slavapestov/swift','onmyway133/Github.swift','SwiftAndroid/swift','tinysun212/swift-windows','practicalswift/swift-compiler-crashes')",
+      "success": true,
+      "row_count": 7,
+      "start_time": 1788799944.4647958,
+      "duration_ms": 654.3324906378984,
+      "dialect": "sqlite",
+      "fad_id": "929568dee3774e32866389c09658ca8a",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages"
+      ],
+      "columns": [
+        "language_description",
+        "repo_name"
+      ],
+      "operations": [
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "repo_name IN ('uacaps/PageMenu', 'kostiakoval/Mirror', 'apple/swift', 'slavapestov/swift', 'onmyway133/Github.swift', 'SwiftAndroid/swift', 'tinysun212/swift-windows', 'practicalswift/swift-compiler-crashes')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('uacaps/PageMenu', 'kostiakoval/Mirror', 'apple/swift', 'slavapestov/swift', 'onmyway133/Github.swift', 'SwiftAndroid/swift', 'tinysun212/swift-windows', 'practicalswift/swift-compiler-crashes')",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "repo_name IN ('uacaps/PageMenu', 'kostiakoval/Mirror', 'apple/swift', 'slavapestov/swift', 'onmyway133/Github.swift', 'SwiftAndroid/swift', 'tinysun212/swift-windows', 'practicalswift/swift-compiler-crashes')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "language_description",
+        "repo_name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "78561dbf6dec4afb85b419d48d0b6880",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT id, COUNT(*) AS occurrences, COUNT(DISTINCT repo_name) AS repos\nFROM files\nWHERE path LIKE '%.swift'\nGROUP BY id\nORDER BY occurrences DESC\nLIMIT 10\n",
+      "success": true,
+      "row_count": 10,
+      "start_time": 1788799971.5060306,
+      "duration_ms": 91.05777740478516,
+      "dialect": "duckdb",
+      "fad_id": "5c9200d17eb849a6a961623d2f6c912d",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "files"
+      ],
+      "columns": [
+        "id",
+        "occurrences",
+        "path",
+        "repo_name"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "limit",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "path LIKE '%.swift'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)",
+        "COUNT(DISTINCT repo_name)"
+      ],
+      "canonical": "SELECT id, COUNT(*) AS occurrences, COUNT(DISTINCT repo_name) AS repos FROM files WHERE path LIKE '%.swift' GROUP BY id ORDER BY occurrences DESC LIMIT 10",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "path LIKE '%.swift'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "id"
+      ],
+      "limit": "LIMIT 10"
+    },
+    {
+      "call_id": "0d967f8891534bf68322a2f452c9752b",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "-- Check whether any binary .swift file outranks, and confirm the top file's details/content\nSELECT\n  id,\n  MAX(CAST(regexp_extract(repo_data_description, '(\\d+) times', 1) AS INTEGER)) AS copies,\n  MAX(CASE WHEN LOWER(repo_data_description) LIKE '%non-binary%' THEN 0 ELSE 1 END) AS is_binary,\n  ANY_VALUE(sample_repo_name) AS sample_repo_name,\n  ANY_VALUE(sample_path) AS sample_path\nFROM contents\nWHERE sample_path LIKE '%.swift'\nGROUP BY id\nORDER BY copies DESC\nLIMIT 5\n",
+      "success": true,
+      "row_count": 5,
+      "start_time": 1788800009.590921,
+      "duration_ms": 63.43008391559124,
+      "dialect": "duckdb",
+      "fad_id": "b5e9830d537a4fa0a5d98102fff0b9a0",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contents"
+      ],
+      "columns": [
+        "copies",
+        "id",
+        "repo_data_description",
+        "sample_path",
+        "sample_repo_name"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "limit",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "sample_path LIKE '%.swift'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "ANY_VALUE(sample_path)",
+        "ANY_VALUE(sample_repo_name)",
+        "MAX(CASE WHEN LOWER(repo_data_description) LIKE '%non-binary%' THEN 0 ELSE 1 END)",
+        "MAX(CAST(REGEXP_EXTRACT(repo_data_description, '(\\d+) times', 1) AS INT))"
+      ],
+      "canonical": "/* Check whether any binary .swift file outranks, and confirm the top file's details/content */ SELECT id, MAX(CAST(REGEXP_EXTRACT(repo_data_description, '(\\d+) times', 1) AS INT)) AS copies, MAX(CASE WHEN LOWER(repo_data_description) LIKE '%non-binary%' THEN 0 ELSE 1 END) AS is_binary, ANY_VALUE(sample_repo_name) IGNORE NULLS AS sample_repo_name, ANY_VALUE(sample_path) IGNORE NULLS AS sample_path FROM contents WHERE sample_path LIKE '%.swift' GROUP BY id ORDER BY copies DESC LIMIT 5",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "sample_path LIKE '%.swift'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "id"
+      ],
+      "limit": "LIMIT 5"
+    }
+  ],
+  "mongo_queries": [],
+  "pairs": [
+    {
+      "producer": "a89945ab84d74eb68161e9d38b46a91a",
+      "consumer": "edb9b6f7a973483b919a07b93082edd8",
+      "producer_index": 2,
+      "consumer_index": 3,
+      "shared_tables": [
+        "contents"
+      ],
+      "shared_columns": [
+        "repo_data_description",
+        "sample_path"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 10,
+      "consumer_rows": 16,
+      "producer_sql": "SELECT id, sample_path, sample_repo_name, repo_data_description FROM contents WHERE sample_path LIKE '%.swift' LIMIT 10",
+      "consumer_sql": "SELECT DISTINCT repo_data_description FROM contents WHERE sample_path LIKE '%.swift' AND repo_data_description NOT LIKE '%non-binary%' LIMIT 20"
+    },
+    {
+      "producer": "a89945ab84d74eb68161e9d38b46a91a",
+      "consumer": "a8fa11a6975b42289adf9cf8a5c0e44b",
+      "producer_index": 2,
+      "consumer_index": 4,
+      "shared_tables": [
+        "contents"
+      ],
+      "shared_columns": [
+        "id",
+        "repo_data_description",
+        "sample_path",
+        "sample_repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 10,
+      "consumer_rows": 30,
+      "producer_sql": "SELECT id, sample_path, sample_repo_name, repo_data_description FROM contents WHERE sample_path LIKE '%.swift' LIMIT 10",
+      "consumer_sql": "SELECT\n  id,\n  MAX(CAST(regexp_extract(repo_data_description, '(\\d+) times', 1) AS INTEGER)) AS copies,\n  ANY_VALUE(sample_repo_name) AS sample_repo_name,\n  ANY_VALUE(sample_path) AS sample_path,\n  COUNT(*) AS rows_in_contents\nFROM contents\nWHERE sample_path LIKE '%.swift'\n  AND LOWER(repo_data_description) LIKE '%non-binary%'\nGROUP BY id\nORDER BY copies DESC\nLIMIT 30\n"
+    },
+    {
+      "producer": "edb9b6f7a973483b919a07b93082edd8",
+      "consumer": "a8fa11a6975b42289adf9cf8a5c0e44b",
+      "producer_index": 3,
+      "consumer_index": 4,
+      "shared_tables": [
+        "contents"
+      ],
+      "shared_columns": [
+        "repo_data_description",
+        "sample_path"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 16,
+      "consumer_rows": 30,
+      "producer_sql": "SELECT DISTINCT repo_data_description FROM contents WHERE sample_path LIKE '%.swift' AND repo_data_description NOT LIKE '%non-binary%' LIMIT 20",
+      "consumer_sql": "SELECT\n  id,\n  MAX(CAST(regexp_extract(repo_data_description, '(\\d+) times', 1) AS INTEGER)) AS copies,\n  ANY_VALUE(sample_repo_name) AS sample_repo_name,\n  ANY_VALUE(sample_path) AS sample_path,\n  COUNT(*) AS rows_in_contents\nFROM contents\nWHERE sample_path LIKE '%.swift'\n  AND LOWER(repo_data_description) LIKE '%non-binary%'\nGROUP BY id\nORDER BY copies DESC\nLIMIT 30\n"
+    },
+    {
+      "producer": "94ece9329a5b4923b47062046c785a5e",
+      "consumer": "1d65b42b24cd4c3aa38eeeb7fb00b28e",
+      "producer_index": 1,
+      "consumer_index": 5,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 7,
+      "producer_sql": "SELECT COUNT(*) AS swift_repos FROM languages WHERE LOWER(language_description) LIKE '%swift%'",
+      "consumer_sql": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('uacaps/PageMenu','kostiakoval/Mirror','apple/swift','slavapestov/swift','onmyway133/Github.swift','SwiftAndroid/swift','tinysun212/swift-windows','practicalswift/swift-compiler-crashes')"
+    },
+    {
+      "producer": "a89945ab84d74eb68161e9d38b46a91a",
+      "consumer": "0d967f8891534bf68322a2f452c9752b",
+      "producer_index": 2,
+      "consumer_index": 7,
+      "shared_tables": [
+        "contents"
+      ],
+      "shared_columns": [
+        "id",
+        "repo_data_description",
+        "sample_path",
+        "sample_repo_name"
+      ],
+      "same_filters": [
+        "sample_path LIKE '%.swift'"
+      ],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 10,
+      "consumer_rows": 5,
+      "producer_sql": "SELECT id, sample_path, sample_repo_name, repo_data_description FROM contents WHERE sample_path LIKE '%.swift' LIMIT 10",
+      "consumer_sql": "-- Check whether any binary .swift file outranks, and confirm the top file's details/content\nSELECT\n  id,\n  MAX(CAST(regexp_extract(repo_data_description, '(\\d+) times', 1) AS INTEGER)) AS copies,\n  MAX(CASE WHEN LOWER(repo_data_description) LIKE '%non-binary%' THEN 0 ELSE 1 END) AS is_binary,\n  ANY_VALUE(sample_repo_name) AS sample_repo_name,\n  ANY_VALUE(sample_path) AS sample_path\nFROM contents\nWHERE sample_path LIKE '%.swift'\nGROUP BY id\nORDER BY copies DESC\nLIMIT 5\n"
+    },
+    {
+      "producer": "edb9b6f7a973483b919a07b93082edd8",
+      "consumer": "0d967f8891534bf68322a2f452c9752b",
+      "producer_index": 3,
+      "consumer_index": 7,
+      "shared_tables": [
+        "contents"
+      ],
+      "shared_columns": [
+        "repo_data_description",
+        "sample_path"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 16,
+      "consumer_rows": 5,
+      "producer_sql": "SELECT DISTINCT repo_data_description FROM contents WHERE sample_path LIKE '%.swift' AND repo_data_description NOT LIKE '%non-binary%' LIMIT 20",
+      "consumer_sql": "-- Check whether any binary .swift file outranks, and confirm the top file's details/content\nSELECT\n  id,\n  MAX(CAST(regexp_extract(repo_data_description, '(\\d+) times', 1) AS INTEGER)) AS copies,\n  MAX(CASE WHEN LOWER(repo_data_description) LIKE '%non-binary%' THEN 0 ELSE 1 END) AS is_binary,\n  ANY_VALUE(sample_repo_name) AS sample_repo_name,\n  ANY_VALUE(sample_path) AS sample_path\nFROM contents\nWHERE sample_path LIKE '%.swift'\nGROUP BY id\nORDER BY copies DESC\nLIMIT 5\n"
+    },
+    {
+      "producer": "a8fa11a6975b42289adf9cf8a5c0e44b",
+      "consumer": "0d967f8891534bf68322a2f452c9752b",
+      "producer_index": 4,
+      "consumer_index": 7,
+      "shared_tables": [
+        "contents"
+      ],
+      "shared_columns": [
+        "copies",
+        "id",
+        "repo_data_description",
+        "sample_path",
+        "sample_repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "ANY_VALUE(sample_path)",
+        "ANY_VALUE(sample_repo_name)",
+        "MAX(CAST(REGEXP_EXTRACT(repo_data_description, '(\\d+) times', 1) AS INT))"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 30,
+      "consumer_rows": 5,
+      "producer_sql": "SELECT\n  id,\n  MAX(CAST(regexp_extract(repo_data_description, '(\\d+) times', 1) AS INTEGER)) AS copies,\n  ANY_VALUE(sample_repo_name) AS sample_repo_name,\n  ANY_VALUE(sample_path) AS sample_path,\n  COUNT(*) AS rows_in_contents\nFROM contents\nWHERE sample_path LIKE '%.swift'\n  AND LOWER(repo_data_description) LIKE '%non-binary%'\nGROUP BY id\nORDER BY copies DESC\nLIMIT 30\n",
+      "consumer_sql": "-- Check whether any binary .swift file outranks, and confirm the top file's details/content\nSELECT\n  id,\n  MAX(CAST(regexp_extract(repo_data_description, '(\\d+) times', 1) AS INTEGER)) AS copies,\n  MAX(CASE WHEN LOWER(repo_data_description) LIKE '%non-binary%' THEN 0 ELSE 1 END) AS is_binary,\n  ANY_VALUE(sample_repo_name) AS sample_repo_name,\n  ANY_VALUE(sample_path) AS sample_path\nFROM contents\nWHERE sample_path LIKE '%.swift'\nGROUP BY id\nORDER BY copies DESC\nLIMIT 5\n"
+    }
+  ],
+  "fads": [
+    {
+      "call_id": "88f5bfd13d1c4c07849773f745ae748f",
+      "accesses": [
+        {
+          "database": "metadata_database",
+          "tables": [
+            "languages"
+          ],
+          "columns": [
+            "repo_name",
+            "language_description"
+          ],
+          "filters": [
+            "language_description ILIKE '%swift%'"
+          ],
+          "operations": [
+            "filter",
+            "scan"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "artifacts_database",
+          "tables": [
+            "files"
+          ],
+          "columns": [
+            "repo_name",
+            "path",
+            "id"
+          ],
+          "filters": [
+            "path ENDS WITH '.swift'"
+          ],
+          "operations": [
+            "filter",
+            "aggregate"
+          ],
+          "horizon": 2
+        },
+        {
+          "database": "artifacts_database",
+          "tables": [
+            "contents"
+          ],
+          "columns": [
+            "id",
+            "repo_data_description"
+          ],
+          "filters": [],
+          "operations": [
+            "join",
+            "filter"
+          ],
+          "horizon": 3
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "artifacts_database",
+          "contents"
+        ],
+        [
+          "artifacts_database",
+          "files"
+        ],
+        [
+          "metadata_database",
+          "languages"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "94ece9329a5b4923b47062046c785a5e",
+        "a89945ab84d74eb68161e9d38b46a91a",
+        "edb9b6f7a973483b919a07b93082edd8"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "artifacts_database",
+          "contents"
+        ],
+        [
+          "artifacts_database",
+          "files"
+        ]
+      ],
+      "later_table_precision": 0.5,
+      "later_table_recall": 1.0,
+      "later_has_consumer": true,
+      "table_precision_1": 0.3333333333333333,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "artifacts_database",
+          "contents"
+        ],
+        [
+          "artifacts_database",
+          "files"
+        ]
+      ],
+      "table_precision_3": 0.6666666666666666,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [
+        [
+          "artifacts_database",
+          "files"
+        ]
+      ],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 0.5,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 0.6666666666666666,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "language_description ILIKE '%swift%'"
+      ],
+      "actual_filter_atoms": [
+        "LOWER(language_description) LIKE '%swift%'"
+      ],
+      "lead_s": 5.249196290969849,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": null
+    },
+    {
+      "call_id": "935e96b284c145a7803efd0901f299d8",
+      "accesses": [
+        {
+          "database": "artifacts_database",
+          "tables": [
+            "contents"
+          ],
+          "columns": [
+            "id",
+            "repo_data_description",
+            "sample_path",
+            "sample_repo_name"
+          ],
+          "filters": [
+            "sample_path ENDS WITH '.swift'"
+          ],
+          "operations": [
+            "scan",
+            "limit"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "artifacts_database",
+          "tables": [
+            "files"
+          ],
+          "columns": [
+            "repo_name",
+            "path",
+            "id"
+          ],
+          "filters": [
+            "path ENDS WITH '.swift'"
+          ],
+          "operations": [
+            "filter",
+            "aggregate"
+          ],
+          "horizon": 2
+        },
+        {
+          "database": "metadata_database",
+          "tables": [
+            "languages"
+          ],
+          "columns": [
+            "repo_name",
+            "language_description"
+          ],
+          "filters": [
+            "language_description ILIKE '%swift%'"
+          ],
+          "operations": [
+            "join",
+            "filter"
+          ],
+          "horizon": 3
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "artifacts_database",
+          "contents"
+        ],
+        [
+          "artifacts_database",
+          "files"
+        ],
+        [
+          "metadata_database",
+          "languages"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "a89945ab84d74eb68161e9d38b46a91a",
+        "edb9b6f7a973483b919a07b93082edd8",
+        "a8fa11a6975b42289adf9cf8a5c0e44b"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "artifacts_database",
+          "files"
+        ],
+        [
+          "metadata_database",
+          "languages"
+        ]
+      ],
+      "later_table_precision": 0.0,
+      "later_table_recall": 0.0,
+      "later_has_consumer": true,
+      "table_precision_1": 0.3333333333333333,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "artifacts_database",
+          "files"
+        ],
+        [
+          "metadata_database",
+          "languages"
+        ]
+      ],
+      "table_precision_3": 0.3333333333333333,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [
+        [
+          "artifacts_database",
+          "files"
+        ],
+        [
+          "metadata_database",
+          "languages"
+        ]
+      ],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 0.6666666666666666,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "UNPARSED:sample_path ENDS WITH '.swift'"
+      ],
+      "actual_filter_atoms": [
+        "sample_path LIKE '%.swift'"
+      ],
+      "lead_s": 4.953234672546387,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    },
+    {
+      "call_id": "fd982ff67c10487da45cfb2fb77656c4",
+      "accesses": [
+        {
+          "database": "artifacts_database",
+          "tables": [
+            "contents"
+          ],
+          "columns": [
+            "id",
+            "repo_data_description",
+            "sample_path",
+            "sample_repo_name"
+          ],
+          "filters": [
+            "sample_path ENDS WITH '.swift'",
+            "repo_data_description not containing 'non-binary'"
+          ],
+          "operations": [
+            "scan",
+            "limit"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "artifacts_database",
+          "tables": [
+            "contents"
+          ],
+          "columns": [
+            "id",
+            "repo_data_description",
+            "sample_path",
+            "sample_repo_name"
+          ],
+          "filters": [
+            "sample_path ENDS WITH '.swift'"
+          ],
+          "operations": [
+            "aggregate",
+            "sort",
+            "limit"
+          ],
+          "horizon": 2
+        },
+        {
+          "database": "artifacts_database",
+          "tables": [
+            "files"
+          ],
+          "columns": [
+            "id",
+            "repo_name",
+            "path"
+          ],
+          "filters": [
+            "path ENDS WITH '.swift'"
+          ],
+          "operations": [
+            "aggregate",
+            "sort"
+          ],
+          "horizon": 3
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "artifacts_database",
+          "contents"
+        ],
+        [
+          "artifacts_database",
+          "files"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "edb9b6f7a973483b919a07b93082edd8",
+        "a8fa11a6975b42289adf9cf8a5c0e44b",
+        "1d65b42b24cd4c3aa38eeeb7fb00b28e"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "artifacts_database",
+          "contents"
+        ],
+        [
+          "artifacts_database",
+          "files"
+        ]
+      ],
+      "later_table_precision": 0.5,
+      "later_table_recall": 0.5,
+      "later_has_consumer": true,
+      "table_precision_1": 0.5,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "artifacts_database",
+          "files"
+        ]
+      ],
+      "table_precision_3": 0.5,
+      "table_recall_3": 0.5,
+      "unrealized_table_atoms_3": [
+        [
+          "artifacts_database",
+          "files"
+        ]
+      ],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 0.5,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 0.6666666666666666,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "UNPARSED:repo_data_description not containing 'non-binary'",
+        "UNPARSED:sample_path ENDS WITH '.swift'"
+      ],
+      "actual_filter_atoms": [
+        "repo_data_description NOT LIKE '%non-binary%'",
+        "sample_path LIKE '%.swift'"
+      ],
+      "lead_s": 5.411690950393677,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 1.0
+    },
+    {
+      "call_id": "1ec8008ea16345c98657c26bd5a49042",
+      "accesses": [
+        {
+          "database": "artifacts_database",
+          "tables": [
+            "contents"
+          ],
+          "columns": [
+            "id",
+            "repo_data_description",
+            "sample_path",
+            "sample_repo_name"
+          ],
+          "filters": [
+            "sample_path LIKE '%.swift'",
+            "LOWER(repo_data_description) LIKE '%non-binary%'"
+          ],
+          "operations": [
+            "aggregate",
+            "sort",
+            "limit"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "artifacts_database",
+          "tables": [
+            "files"
+          ],
+          "columns": [
+            "id",
+            "repo_name",
+            "path"
+          ],
+          "filters": [
+            "path LIKE '%.swift'"
+          ],
+          "operations": [
+            "aggregate",
+            "sort"
+          ],
+          "horizon": 2
+        },
+        {
+          "database": "metadata_database",
+          "tables": [
+            "languages"
+          ],
+          "columns": [
+            "repo_name",
+            "language_description"
+          ],
+          "filters": [
+            "language_description ILIKE '%swift%'"
+          ],
+          "operations": [
+            "filter"
+          ],
+          "horizon": 3
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "artifacts_database",
+          "contents"
+        ],
+        [
+          "artifacts_database",
+          "files"
+        ],
+        [
+          "metadata_database",
+          "languages"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "a8fa11a6975b42289adf9cf8a5c0e44b",
+        "1d65b42b24cd4c3aa38eeeb7fb00b28e",
+        "78561dbf6dec4afb85b419d48d0b6880"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "artifacts_database",
+          "files"
+        ],
+        [
+          "metadata_database",
+          "languages"
+        ]
+      ],
+      "later_table_precision": 1.0,
+      "later_table_recall": 1.0,
+      "later_has_consumer": true,
+      "table_precision_1": 0.3333333333333333,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "artifacts_database",
+          "files"
+        ],
+        [
+          "metadata_database",
+          "languages"
+        ]
+      ],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.8,
+      "operation_recall_1": 0.6,
+      "filter_exact_precision_1": 1.0,
+      "filter_exact_recall_1": 1.0,
+      "predicted_filter_atoms": [
+        "LOWER(repo_data_description) LIKE '%non-binary%'",
+        "sample_path LIKE '%.swift'"
+      ],
+      "actual_filter_atoms": [
+        "LOWER(repo_data_description) LIKE '%non-binary%'",
+        "sample_path LIKE '%.swift'"
+      ],
+      "lead_s": 11.50285792350769,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 1.0
+    },
+    {
+      "call_id": "929568dee3774e32866389c09658ca8a",
+      "accesses": [
+        {
+          "database": "metadata_database",
+          "tables": [
+            "languages"
+          ],
+          "columns": [
+            "repo_name",
+            "language_description"
+          ],
+          "filters": [
+            "repo_name IN ('uacaps/PageMenu','kostiakoval/Mirror','apple/swift','slavapestov/swift')",
+            "language_description ILIKE '%swift%'"
+          ],
+          "operations": [
+            "filter",
+            "scan"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "artifacts_database",
+          "tables": [
+            "files"
+          ],
+          "columns": [
+            "id",
+            "repo_name",
+            "path"
+          ],
+          "filters": [
+            "path LIKE '%.swift'"
+          ],
+          "operations": [
+            "aggregate",
+            "sort",
+            "limit"
+          ],
+          "horizon": 2
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "artifacts_database",
+          "files"
+        ],
+        [
+          "metadata_database",
+          "languages"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "1d65b42b24cd4c3aa38eeeb7fb00b28e",
+        "78561dbf6dec4afb85b419d48d0b6880",
+        "0d967f8891534bf68322a2f452c9752b"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "artifacts_database",
+          "files"
+        ]
+      ],
+      "later_table_precision": 1.0,
+      "later_table_recall": 0.5,
+      "later_has_consumer": true,
+      "table_precision_1": 0.5,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "artifacts_database",
+          "files"
+        ]
+      ],
+      "table_precision_3": 1.0,
+      "table_recall_3": 0.6666666666666666,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "language_description ILIKE '%swift%'",
+        "repo_name IN ('uacaps/PageMenu', 'kostiakoval/Mirror', 'apple/swift', 'slavapestov/swift')"
+      ],
+      "actual_filter_atoms": [
+        "repo_name IN ('uacaps/PageMenu', 'kostiakoval/Mirror', 'apple/swift', 'slavapestov/swift', 'onmyway133/Github.swift', 'SwiftAndroid/swift', 'tinysun212/swift-windows', 'practicalswift/swift-compiler-crashes')"
+      ],
+      "lead_s": 7.360471963882446,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    },
+    {
+      "call_id": "5c9200d17eb849a6a961623d2f6c912d",
+      "accesses": [
+        {
+          "database": "artifacts_database",
+          "tables": [
+            "files"
+          ],
+          "columns": [
+            "id",
+            "repo_name",
+            "path"
+          ],
+          "filters": [
+            "path LIKE '%.swift'"
+          ],
+          "operations": [
+            "aggregate",
+            "sort",
+            "limit"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "artifacts_database",
+          "tables": [
+            "contents"
+          ],
+          "columns": [
+            "id",
+            "content",
+            "sample_path",
+            "repo_data_description"
+          ],
+          "filters": [
+            "id = '6f4cdb70f044b0486a24a07403600cb964a02672'"
+          ],
+          "operations": [
+            "scan",
+            "limit"
+          ],
+          "horizon": 2
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "artifacts_database",
+          "contents"
+        ],
+        [
+          "artifacts_database",
+          "files"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "78561dbf6dec4afb85b419d48d0b6880",
+        "0d967f8891534bf68322a2f452c9752b"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "artifacts_database",
+          "contents"
+        ]
+      ],
+      "later_table_precision": 1.0,
+      "later_table_recall": 1.0,
+      "later_has_consumer": true,
+      "table_precision_1": 0.5,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "artifacts_database",
+          "contents"
+        ]
+      ],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.75,
+      "operation_recall_1": 0.6,
+      "filter_exact_precision_1": 1.0,
+      "filter_exact_recall_1": 1.0,
+      "predicted_filter_atoms": [
+        "path LIKE '%.swift'"
+      ],
+      "actual_filter_atoms": [
+        "path LIKE '%.swift'"
+      ],
+      "lead_s": 9.266427278518677,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    },
+    {
+      "call_id": "b5e9830d537a4fa0a5d98102fff0b9a0",
+      "accesses": [
+        {
+          "database": "artifacts_database",
+          "tables": [
+            "contents"
+          ],
+          "columns": [
+            "id",
+            "content",
+            "sample_path",
+            "sample_repo_name",
+            "repo_data_description"
+          ],
+          "filters": [
+            "sample_path LIKE '%.swift'",
+            "id = '6f4cdb70f044b0486a24a07403600cb964a02672'"
+          ],
+          "operations": [
+            "scan",
+            "sort",
+            "limit"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "artifacts_database",
+          "contents"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "0d967f8891534bf68322a2f452c9752b"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": false,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 0.8,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.8,
+      "operation_recall_1": 0.6,
+      "filter_exact_precision_1": 0.5,
+      "filter_exact_recall_1": 1.0,
+      "predicted_filter_atoms": [
+        "id = '6f4cdb70f044b0486a24a07403600cb964a02672'",
+        "sample_path LIKE '%.swift'"
+      ],
+      "actual_filter_atoms": [
+        "sample_path LIKE '%.swift'"
+      ],
+      "lead_s": 12.743404626846313,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    }
+  ],
+  "audit": {
+    "assistant_turns": 28,
+    "sql_order_checks": {
+      "94ece9329a5b4923b47062046c785a5e": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "a89945ab84d74eb68161e9d38b46a91a": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "edb9b6f7a973483b919a07b93082edd8": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "a8fa11a6975b42289adf9cf8a5c0e44b": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "1d65b42b24cd4c3aa38eeeb7fb00b28e": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "78561dbf6dec4afb85b419d48d0b6880": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "0d967f8891534bf68322a2f452c9752b": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      }
+    },
+    "review_flags": []
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "operation": "aggregate",
+  "collection": "articles",
+  "pipeline": [
+    {
+      "$project": {
+        "keys": {
+          "$map": {
+            "input": {
+              "$objectToArray": "$$ROOT"
+            },
+            "as": "kv",
+            "in": "$$kv.k"
+          }
+        }
+      }
+    },
+    {
+      "$unwind": "$keys"
+    },
+    {
+      "$group": {
+        "_id": "$keys",
+        "count": {
+          "$sum": 1
+        }
+      }
+    }
+  ]
+}

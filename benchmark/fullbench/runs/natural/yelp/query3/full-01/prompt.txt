@@ -1,0 +1,82 @@
+Solve this data analysis task using the supplied databases. Work independently, without asking the user questions. Use at most 30 database calls and finish within 15 minutes. Do not delegate to other agents.
+
+TASK: During 2018, how many businesses that received reviews offered either business parking or bike parking?
+
+DATABASE DESCRIPTION:
+You are working with two databases to solve this query.
+
+Here are the descriptions of these two databases:
+
+1. businessinfo_database
+   - This database is stored in a MongoDB database and contains metadata and user check-in records for Yelp businesses. It captures business attributes, service descriptions, operating hours, and user visit timestamps.
+   - This database consists of two collections:
+     - business
+       - This collection contains metadata for businesses listed on Yelp, including names, identifiers, operational status, attributes, business hours, and service/location descriptions.
+       - Fields:
+         - _id
+         - business_id (str): Unique business identifier
+         - name (str): Business name
+         - review_count (int): Total number of reviews
+         - is_open (int): Whether business is currently open (1=open, 0=closed)
+         - attributes (dict or null): Business attributes (parking, WiFi, etc.)
+         - hours (dict or null): Operating hours
+         - description (str): Business description including location information
+
+     - checkin
+       - This collection records the check-in behavior of Yelp users at various businesses, capturing the timestamped log of user presence.
+       - Fields:
+         - _id
+         - business_id (str): Business identifier linking to business collection
+         - date (list of str): List of check-in timestamps
+
+2. user_database
+   - This database is stored in a DuckDB database and contains user profiles and user-generated content from Yelp, including written reviews, tips, and engagement statistics such as review counts, votes, and elite status.
+   - This database consists of three tables:
+     - review
+       - This table contains user-generated reviews of businesses on Yelp, including rating scores, review content, and metadata such as user and business reference identifiers.
+       - Fields:
+         - review_id (str): Unique review identifier
+         - user_id (str or null): User identifier
+         - business_ref (str): Business identifier linking to the business collection
+         - rating (int): Rating score (1-5)
+         - useful (int): Useful votes received
+         - funny (int): Funny votes received
+         - cool (int): Cool votes received
+         - text (str): Review text content
+         - date (str): Review date
+
+     - tip
+       - This table contains short user tips about Yelp businesses, usually concise suggestions or comments, along with optional compliments and timestamps.
+       - Fields:
+         - user_id (str or null): User identifier
+         - business_ref (str): Business identifier linking to the business collection
+         - text (str): Tip text content
+         - date (str): Tip date
+         - compliment_count (int): Number of compliments received
+
+     - user
+       - This table contains user profile information from Yelp, including activity statistics and membership history.
+       - Fields:
+         - user_id (str): Unique user identifier
+         - name (str): User name
+         - review_count (int): Total reviews written by user
+         - yelping_since (str): Registration date
+         - useful (int): Total useful votes received
+         - funny (int): Total funny votes received
+         - cool (int): Total cool votes received
+         - elite (str): Elite status years
+
+DATA TOOLS (invoke through Bash):
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py list-db DATABASE_NAME
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py query-db DATABASE_NAME --sql-file query.sql
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py query-db DATABASE_NAME --mongo-file mongo_query.json  # MongoDB only
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py python --file analysis.py
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py answer --file final.txt
+
+You may also pass --sql with a correctly quoted SQL string instead of --sql-file. Use Bash to create your SQL and Python files in the current directory. All actual database access must use query-db or list-db above. Run analysis Python only through the python tool above. Python can use pandas, pyarrow and the standard library; it can read full query results from the result_file paths returned by the data tools. Those JSON files contain lists of row objects. MongoDB uses native read-only JSON requests, not SQL: {"operation":"find","collection":"name","filter":{},"projection":{},"sort":[["field",1]],"limit":10}, or {"operation":"aggregate","collection":"name","pipeline":[...]}, or {"operation":"count_documents","collection":"name","filter":{}}, or {"operation":"distinct","collection":"name","field":"field","filter":{}}. list-db lists collection names for MongoDB. FAD tables/columns describe collections/fields for MongoDB. SQL output is previewed up to 10000 characters; the complete data remains in result_file.
+
+Use only this task description, these tools, and files you create or tool result files in this run directory. Do not inspect parent directories, benchmark source, tool source, validators, gold answers, external websites, user history, or previous sessions. Do not install packages or connect to the databases directly. These restrictions maintain evaluation integrity. Do not optimize for repetition or deliberately split queries: solve the task naturally. DATABASE_NAME is a logical name from the description above, not a physical file name. For DuckDB metadata use information_schema; for SQLite use PRAGMA table_info; for PostgreSQL use information_schema. Do not invoke shell clients directly.
+
+After analysis, write the final answer to final.txt and submit it with the answer tool. Include any requested complete book list. Then stop. If unable to solve, submit your best supported answer and state the limitation. Do not inspect evaluation results.
+
+Do not generate extra future-access predictions.

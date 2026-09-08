@@ -1,0 +1,1310 @@
+{
+  "summary": {
+    "task_id": "agnews/query1",
+    "run_id": "full-01",
+    "model": "kimi-code/k3",
+    "group": "fad",
+    "adapter_version": "fullbench-v2-bound-run",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 465.0077631473541,
+    "answer_submitted": true,
+    "validator_passed": true,
+    "validator_reason": "Ground truth found in LLM output.",
+    "tool_calls": 21,
+    "sql_calls": 4,
+    "mongo_calls": 6,
+    "failed_calls": 1,
+    "mongo_queries": 6,
+    "mongo_metadata_queries": 1,
+    "data_queries": 2,
+    "metadata_queries": 2,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 2,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 0,
+    "later_queries_sharing_tables": 1,
+    "later_queries_sharing_table_columns": 0,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 0,
+    "shared_join_consumers": 0,
+    "shared_aggregate_consumers": 1,
+    "data_query_adapter_ms": 86.92037872970104,
+    "fad_submissions": 9,
+    "python_calls": 0,
+    "assistant_turns": 40
+  },
+  "queries": [
+    {
+      "call_id": "59b217208cb94eb387eea82669f8a5ef",
+      "tool": "list-db",
+      "database": "metadata_database",
+      "sql": "SELECT name FROM sqlite_master WHERE type='table'",
+      "success": true,
+      "row_count": 2,
+      "start_time": 1788801152.3843584,
+      "duration_ms": 15.920070931315422,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "sqlite_master"
+      ],
+      "columns": [
+        "name",
+        "type"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "type = 'table'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT name FROM sqlite_master WHERE type = 'table'",
+      "simple_ranges": {
+        "type": {
+          "type": "text",
+          "lo": [
+            "table",
+            true
+          ],
+          "hi": [
+            "table",
+            true
+          ]
+        }
+      },
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "type = 'table'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "d3c38d4c58e6471db53eefe4310c5644",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "PRAGMA table_info(article_metadata);",
+      "success": true,
+      "row_count": 4,
+      "start_time": 1788801173.7367961,
+      "duration_ms": 16.074868850409985,
+      "dialect": "sqlite",
+      "fad_id": "200058b3f8a14ba889f26b6c36a3e498",
+      "metadata": true,
+      "parse_error": null,
+      "tables": [],
+      "columns": [
+        "article_metadata"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "PRAGMA table_info = article_metadata",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "e5027649b1564a219c70397bb058a35a",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT region, COUNT(*) AS n FROM article_metadata GROUP BY region ORDER BY n DESC;",
+      "success": true,
+      "row_count": 5,
+      "start_time": 1788801196.7154088,
+      "duration_ms": 68.05101316422224,
+      "dialect": "sqlite",
+      "fad_id": "ea58265f1e454f059a9c3544b0c124dd",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "article_metadata"
+      ],
+      "columns": [
+        "n",
+        "region"
+      ],
+      "operations": [
+        "aggregate",
+        "scan",
+        "sort"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT region, COUNT(*) AS n FROM article_metadata GROUP BY region ORDER BY n DESC",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "region"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "294af8eeb5c04207bb39e985df818eb0",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT (SELECT COUNT(*) FROM authors) AS n_authors, (SELECT COUNT(*) FROM article_metadata) AS n_meta, (SELECT MIN(article_id) FROM article_metadata) AS min_id, (SELECT MAX(article_id) FROM article_metadata) AS max_id;",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788801274.6116421,
+      "duration_ms": 18.8693655654788,
+      "dialect": "sqlite",
+      "fad_id": "08552898ccfe422599bdda78618fc12e",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "article_metadata",
+        "authors"
+      ],
+      "columns": [
+        "article_id"
+      ],
+      "operations": [
+        "aggregate",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)",
+        "MAX(article_id)",
+        "MIN(article_id)"
+      ],
+      "canonical": "SELECT (SELECT COUNT(*) FROM authors) AS n_authors, (SELECT COUNT(*) FROM article_metadata) AS n_meta, (SELECT MIN(article_id) FROM article_metadata) AS min_id, (SELECT MAX(article_id) FROM article_metadata) AS max_id",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    }
+  ],
+  "mongo_queries": [
+    {
+      "task_id": "agnews/query1",
+      "run_id": "full-01",
+      "call_id": "991efa4c780a4c2c98f2cca146bbb34b",
+      "tool": "list-db",
+      "start_time": 1788801151.634537,
+      "timestamp": "2026-09-07T17:12:31.634540+00:00",
+      "database": "articles_database",
+      "dialect": "mongo",
+      "fad_id": null,
+      "mongo_request": {
+        "operation": "list"
+      },
+      "row_count": 1,
+      "columns": [],
+      "result_file": "/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/fad/agnews/query1/full-01/results/991efa4c780a4c2c98f2cca146bbb34b.json",
+      "result_bytes": 28,
+      "result_sha256": "a7cb2650b8a06daeba0cb248f7f56b58203ca5aeb2ff9942b38316a9cb5f23e2",
+      "success": true,
+      "end_time": 1788801151.7749636,
+      "duration_ms": 140.4093187302351,
+      "metadata": true,
+      "tables": [],
+      "operations": [
+        "scan"
+      ],
+      "filters": [],
+      "parse_error": null
+    },
+    {
+      "task_id": "agnews/query1",
+      "run_id": "full-01",
+      "call_id": "d1110cc1e3024763b65a302256eb424f",
+      "tool": "query-db",
+      "start_time": 1788801222.2222924,
+      "timestamp": "2026-09-07T17:13:42.222294+00:00",
+      "database": "articles_database",
+      "dialect": "mongo",
+      "fad_id": "e3ba82a870df463f9c031cf5c6261ffd",
+      "fad_lead_s": 9.81540322303772,
+      "mongo_request": {
+        "operation": "find",
+        "collection": "articles",
+        "filter": {},
+        "limit": 3
+      },
+      "row_count": 3,
+      "columns": [],
+      "result_file": "/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/fad/agnews/query1/full-01/results/d1110cc1e3024763b65a302256eb424f.json",
+      "result_bytes": 904,
+      "result_sha256": "54e5e8fc6c138af813fdbd0ae4224a90b725411f9e84f1d24cd43a703243435c",
+      "success": true,
+      "end_time": 1788801222.3628829,
+      "duration_ms": 140.57514630258083,
+      "metadata": false,
+      "tables": [
+        "articles"
+      ],
+      "operations": [
+        "limit",
+        "scan"
+      ],
+      "filters": [],
+      "parse_error": null
+    },
+    {
+      "task_id": "agnews/query1",
+      "run_id": "full-01",
+      "call_id": "f6ab9504fb754fc6a941262d5a730059",
+      "tool": "query-db",
+      "start_time": 1788801313.7304003,
+      "timestamp": "2026-09-07T17:15:13.730403+00:00",
+      "database": "articles_database",
+      "dialect": "mongo",
+      "fad_id": "22dee94759784350800cc5ff708b079d",
+      "fad_lead_s": 10.825220584869385,
+      "mongo_request": {
+        "operation": "aggregate",
+        "collection": "articles",
+        "pipeline": [
+          {
+            "$project": {
+              "article_id": 1,
+              "title": 1,
+              "description": 1,
+              "desc_len": {
+                "$strLenCP": "$description"
+              }
+            }
+          },
+          {
+            "$sort": {
+              "desc_len": -1
+            }
+          },
+          {
+            "$limit": 40
+          }
+        ]
+      },
+      "row_count": 40,
+      "columns": [
+        "article_id",
+        "desc_len",
+        "description",
+        "title"
+      ],
+      "result_file": "/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/fad/agnews/query1/full-01/results/f6ab9504fb754fc6a941262d5a730059.json",
+      "result_bytes": 42960,
+      "result_sha256": "153949d891680357b70edaafee649507789a9b81bd8be1d259c50ac53fbcbcdd",
+      "success": true,
+      "end_time": 1788801314.1139715,
+      "duration_ms": 383.5548060014844,
+      "metadata": false,
+      "tables": [
+        "articles"
+      ],
+      "operations": [
+        "limit",
+        "scan",
+        "sort"
+      ],
+      "filters": [],
+      "parse_error": null
+    },
+    {
+      "task_id": "agnews/query1",
+      "run_id": "full-01",
+      "call_id": "4598ab18d5df4b238ac4856d1b289391",
+      "tool": "query-db",
+      "start_time": 1788801376.9789863,
+      "timestamp": "2026-09-07T17:16:16.978989+00:00",
+      "database": "articles_database",
+      "dialect": "mongo",
+      "fad_id": "945e56d55f1744c8a82e61aef490da70",
+      "fad_lead_s": 16.302778244018555,
+      "mongo_request": {
+        "operation": "aggregate",
+        "collection": "articles",
+        "pipeline": [
+          {
+            "$match": {
+              "$or": [
+                {
+                  "title": {
+                    "$regex": "sport|football|baseball|basketball|soccer|hockey|tennis|golf|olympic|NFL|NBA|MLB|NHL|super bowl|world cup|playoff|playoffs|touchdown|quarterback|pitcher|yankees|red sox|lakers|patriots|boxing|cricket|rugby|nascar|world series|tour de france|marathon",
+                    "$options": "i"
+                  }
+                },
+                {
+                  "description": {
+                    "$regex": "sport|football|baseball|basketball|soccer|hockey|tennis|golf|olympic|NFL|NBA|MLB|NHL|super bowl|world cup|playoff|playoffs|touchdown|quarterback|pitcher|yankees|red sox|lakers|patriots|boxing|cricket|rugby|nascar|world series|tour de france|marathon",
+                    "$options": "i"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "$project": {
+              "article_id": 1,
+              "title": 1,
+              "description": 1,
+              "desc_len": {
+                "$strLenCP": "$description"
+              }
+            }
+          },
+          {
+            "$sort": {
+              "desc_len": -1
+            }
+          },
+          {
+            "$limit": 30
+          }
+        ]
+      },
+      "row_count": 30,
+      "columns": [
+        "article_id",
+        "desc_len",
+        "description",
+        "title"
+      ],
+      "result_file": "/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/fad/agnews/query1/full-01/results/4598ab18d5df4b238ac4856d1b289391.json",
+      "result_bytes": 23346,
+      "result_sha256": "cfc0db7db9fa68d7dd95aa0a240303ee69c791f572466dac4ad3d1d0cf46cb94",
+      "success": true,
+      "end_time": 1788801383.7972836,
+      "duration_ms": 6818.277906626463,
+      "metadata": false,
+      "tables": [
+        "articles"
+      ],
+      "operations": [
+        "filter",
+        "limit",
+        "scan",
+        "sort"
+      ],
+      "filters": [],
+      "parse_error": null
+    },
+    {
+      "task_id": "agnews/query1",
+      "run_id": "full-01",
+      "call_id": "2886e2d4ede0495ebea607730d82eecf",
+      "tool": "query-db",
+      "start_time": 1788801469.1198816,
+      "timestamp": "2026-09-07T17:17:49.119884+00:00",
+      "database": "articles_database",
+      "dialect": "mongo",
+      "fad_id": "53a0ade1a9c04642a5b80e1dc170696e",
+      "fad_lead_s": 15.052440404891968,
+      "mongo_request": {
+        "operation": "aggregate",
+        "collection": "articles",
+        "pipeline": [
+          {
+            "$match": {
+              "$or": [
+                {
+                  "title": {
+                    "$regex": "coach|league|stadium|championship|tournament|athlete|inning|medal|game|season|team|match|race",
+                    "$options": "i"
+                  }
+                },
+                {
+                  "description": {
+                    "$regex": "coach|league|stadium|championship|tournament|athlete|inning|medal|game|season|team|match|race",
+                    "$options": "i"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "$project": {
+              "article_id": 1,
+              "title": 1,
+              "desc_len": {
+                "$strLenCP": "$description"
+              }
+            }
+          },
+          {
+            "$sort": {
+              "desc_len": -1
+            }
+          },
+          {
+            "$limit": 40
+          }
+        ]
+      },
+      "row_count": 40,
+      "columns": [
+        "article_id",
+        "desc_len",
+        "description",
+        "title"
+      ],
+      "result_file": "/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/fad/agnews/query1/full-01/results/2886e2d4ede0495ebea607730d82eecf.json",
+      "result_bytes": 4788,
+      "result_sha256": "2f99aea9ac1bfa641dd22eaba30a019fac007d2bcaa522c4438f0d5a6904ef91",
+      "success": true,
+      "end_time": 1788801472.1305797,
+      "duration_ms": 3010.682520456612,
+      "metadata": false,
+      "tables": [
+        "articles"
+      ],
+      "operations": [
+        "filter",
+        "limit",
+        "scan",
+        "sort"
+      ],
+      "filters": [],
+      "parse_error": null
+    },
+    {
+      "task_id": "agnews/query1",
+      "run_id": "full-01",
+      "call_id": "ed704e15b16f4009bdfb4a1a66da06fd",
+      "tool": "query-db",
+      "start_time": 1788801503.0468109,
+      "timestamp": "2026-09-07T17:18:23.046813+00:00",
+      "database": "articles_database",
+      "dialect": "mongo",
+      "fad_id": "18dad55f5df44772a9d298a18013f8e1",
+      "fad_lead_s": 11.031677484512329,
+      "success": false,
+      "error": "JSONDecodeError: Expecting ',' delimiter: line 1 column 119 (char 118)",
+      "end_time": 1788801503.047268,
+      "duration_ms": 0.44160056859254837,
+      "mongo_request": {
+        "operation": "unknown"
+      },
+      "metadata": false,
+      "tables": [],
+      "columns": [],
+      "operations": [
+        "scan"
+      ],
+      "filters": [],
+      "parse_error": null
+    },
+    {
+      "task_id": "agnews/query1",
+      "run_id": "full-01",
+      "call_id": "80df329b4afa456e92ef38fb304379cb",
+      "tool": "query-db",
+      "start_time": 1788801528.8133771,
+      "timestamp": "2026-09-07T17:18:48.813379+00:00",
+      "database": "articles_database",
+      "dialect": "mongo",
+      "fad_id": "00ea9af1f0a24934859aed65df7f3fce",
+      "fad_lead_s": 13.505470752716064,
+      "mongo_request": {
+        "operation": "find",
+        "collection": "articles",
+        "filter": {
+          "article_id": {
+            "$in": [
+              69413,
+              31513,
+              89534,
+              89533,
+              89535
+            ]
+          }
+        },
+        "limit": 10
+      },
+      "row_count": 5,
+      "columns": [
+        "article_id"
+      ],
+      "result_file": "/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/fad/agnews/query1/full-01/results/80df329b4afa456e92ef38fb304379cb.json",
+      "result_bytes": 3933,
+      "result_sha256": "d9063aad5a6e978c8bb6e42a432bd2c9b995889a58f04ae466797b64d94311e6",
+      "success": true,
+      "end_time": 1788801529.0191047,
+      "duration_ms": 205.7119496166706,
+      "metadata": false,
+      "tables": [
+        "articles"
+      ],
+      "operations": [
+        "filter",
+        "limit",
+        "scan"
+      ],
+      "filters": [],
+      "parse_error": null
+    }
+  ],
+  "pairs": [
+    {
+      "producer": "e5027649b1564a219c70397bb058a35a",
+      "consumer": "294af8eeb5c04207bb39e985df818eb0",
+      "producer_index": 1,
+      "consumer_index": 2,
+      "shared_tables": [
+        "article_metadata"
+      ],
+      "shared_columns": [],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT region, COUNT(*) AS n FROM article_metadata GROUP BY region ORDER BY n DESC;",
+      "consumer_sql": "SELECT (SELECT COUNT(*) FROM authors) AS n_authors, (SELECT COUNT(*) FROM article_metadata) AS n_meta, (SELECT MIN(article_id) FROM article_metadata) AS min_id, (SELECT MAX(article_id) FROM article_metadata) AS max_id;"
+    }
+  ],
+  "fads": [
+    {
+      "call_id": "200058b3f8a14ba889f26b6c36a3e498",
+      "accesses": [
+        {
+          "database": "metadata_database",
+          "tables": [
+            "article_metadata"
+          ],
+          "columns": [],
+          "filters": [],
+          "operations": [
+            "metadata"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "articles_database",
+          "tables": [
+            "articles"
+          ],
+          "columns": [
+            "article_id",
+            "title",
+            "description"
+          ],
+          "filters": [],
+          "operations": [
+            "scan"
+          ],
+          "horizon": 2
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "articles_database",
+          "articles"
+        ],
+        [
+          "metadata_database",
+          "article_metadata"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "d3c38d4c58e6471db53eefe4310c5644",
+        "e5027649b1564a219c70397bb058a35a",
+        "d1110cc1e3024763b65a302256eb424f"
+      ],
+      "targets_metadata": true,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "articles_database",
+          "articles"
+        ]
+      ],
+      "later_table_precision": 1.0,
+      "later_table_recall": 0.5,
+      "later_has_consumer": true,
+      "table_precision_1": 0.0,
+      "table_recall_1": null,
+      "unrealized_table_atoms_1": [
+        [
+          "articles_database",
+          "articles"
+        ],
+        [
+          "metadata_database",
+          "article_metadata"
+        ]
+      ],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 0.0,
+      "immediate_table_recall": null,
+      "column_precision_1": null,
+      "operation_precision_1": null,
+      "column_recall_1": 0.0,
+      "operation_recall_1": 0.0,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 4.961986541748047,
+      "last_query_table_recall_1": null,
+      "last_query_table_precision_1": null
+    },
+    {
+      "call_id": "ea58265f1e454f059a9c3544b0c124dd",
+      "accesses": [
+        {
+          "database": "metadata_database",
+          "tables": [
+            "article_metadata"
+          ],
+          "columns": [
+            "region"
+          ],
+          "filters": [],
+          "operations": [
+            "aggregate"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "articles_database",
+          "tables": [
+            "articles"
+          ],
+          "columns": [
+            "article_id",
+            "title",
+            "description"
+          ],
+          "filters": [],
+          "operations": [
+            "scan",
+            "limit"
+          ],
+          "horizon": 2
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "articles_database",
+          "articles"
+        ],
+        [
+          "metadata_database",
+          "article_metadata"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "e5027649b1564a219c70397bb058a35a",
+        "d1110cc1e3024763b65a302256eb424f",
+        "294af8eeb5c04207bb39e985df818eb0"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "articles_database",
+          "articles"
+        ]
+      ],
+      "later_table_precision": 1.0,
+      "later_table_recall": 0.3333333333333333,
+      "later_has_consumer": true,
+      "table_precision_1": 0.5,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "articles_database",
+          "articles"
+        ]
+      ],
+      "table_precision_3": 1.0,
+      "table_recall_3": 0.6666666666666666,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.5,
+      "operation_recall_1": 0.3333333333333333,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 6.781055688858032,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": null
+    },
+    {
+      "call_id": "e3ba82a870df463f9c031cf5c6261ffd",
+      "accesses": [
+        {
+          "database": "articles_database",
+          "tables": [
+            "articles"
+          ],
+          "columns": [
+            "article_id",
+            "title",
+            "description"
+          ],
+          "filters": [],
+          "operations": [
+            "scan",
+            "limit"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "articles_database",
+          "articles"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "d1110cc1e3024763b65a302256eb424f",
+        "294af8eeb5c04207bb39e985df818eb0",
+        "f6ab9504fb754fc6a941262d5a730059"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": true,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 0.3333333333333333,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": null,
+      "operation_precision_1": 1.0,
+      "column_recall_1": null,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 9.81540322303772,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    },
+    {
+      "call_id": "08552898ccfe422599bdda78618fc12e",
+      "accesses": [
+        {
+          "database": "metadata_database",
+          "tables": [
+            "authors"
+          ],
+          "columns": [
+            "author_id",
+            "name"
+          ],
+          "filters": [],
+          "operations": [
+            "scan",
+            "aggregate"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "metadata_database",
+          "tables": [
+            "article_metadata"
+          ],
+          "columns": [
+            "article_id",
+            "author_id"
+          ],
+          "filters": [],
+          "operations": [
+            "scan",
+            "join",
+            "aggregate"
+          ],
+          "horizon": 2
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "metadata_database",
+          "article_metadata"
+        ],
+        [
+          "metadata_database",
+          "authors"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "294af8eeb5c04207bb39e985df818eb0",
+        "f6ab9504fb754fc6a941262d5a730059",
+        "4598ab18d5df4b238ac4856d1b289391"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "metadata_database",
+          "article_metadata"
+        ]
+      ],
+      "later_table_precision": 0.0,
+      "later_table_recall": 0.0,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 0.6666666666666666,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 0.5,
+      "column_precision_1": 0.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.0,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 6.911829233169556,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    },
+    {
+      "call_id": "22dee94759784350800cc5ff708b079d",
+      "accesses": [
+        {
+          "database": "articles_database",
+          "tables": [
+            "articles"
+          ],
+          "columns": [
+            "article_id",
+            "title",
+            "description"
+          ],
+          "filters": [],
+          "operations": [
+            "aggregate",
+            "sort",
+            "limit"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "articles_database",
+          "articles"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "f6ab9504fb754fc6a941262d5a730059",
+        "4598ab18d5df4b238ac4856d1b289391",
+        "2886e2d4ede0495ebea607730d82eecf"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": true,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": null,
+      "operation_precision_1": 0.6666666666666666,
+      "column_recall_1": null,
+      "operation_recall_1": 0.6666666666666666,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 10.825220584869385,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    },
+    {
+      "call_id": "945e56d55f1744c8a82e61aef490da70",
+      "accesses": [
+        {
+          "database": "articles_database",
+          "tables": [
+            "articles"
+          ],
+          "columns": [
+            "article_id",
+            "title",
+            "description"
+          ],
+          "filters": [
+            "title or description matches sports keywords regex (case-insensitive)"
+          ],
+          "operations": [
+            "filter",
+            "aggregate",
+            "sort",
+            "limit"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "articles_database",
+          "articles"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "4598ab18d5df4b238ac4856d1b289391",
+        "2886e2d4ede0495ebea607730d82eecf",
+        "ed704e15b16f4009bdfb4a1a66da06fd"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": true,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": null,
+      "operation_precision_1": 0.75,
+      "column_recall_1": null,
+      "operation_recall_1": 0.75,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 16.302778244018555,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 1.0
+    },
+    {
+      "call_id": "53a0ade1a9c04642a5b80e1dc170696e",
+      "accesses": [
+        {
+          "database": "articles_database",
+          "tables": [
+            "articles"
+          ],
+          "columns": [
+            "article_id",
+            "title",
+            "description"
+          ],
+          "filters": [
+            "title or description matches secondary sports keywords (coach, league, stadium, championship, tournament, etc.)"
+          ],
+          "operations": [
+            "filter",
+            "aggregate",
+            "sort",
+            "limit"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "articles_database",
+          "articles"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "2886e2d4ede0495ebea607730d82eecf",
+        "ed704e15b16f4009bdfb4a1a66da06fd",
+        "80df329b4afa456e92ef38fb304379cb"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": true,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": null,
+      "operation_precision_1": 0.75,
+      "column_recall_1": null,
+      "operation_recall_1": 0.75,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 15.052440404891968,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 1.0
+    },
+    {
+      "call_id": "18dad55f5df44772a9d298a18013f8e1",
+      "accesses": [
+        {
+          "database": "articles_database",
+          "tables": [
+            "articles"
+          ],
+          "columns": [
+            "article_id",
+            "title",
+            "description"
+          ],
+          "filters": [
+            "article_id = 69413"
+          ],
+          "operations": [
+            "filter",
+            "scan"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "articles_database",
+          "articles"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "ed704e15b16f4009bdfb4a1a66da06fd",
+        "80df329b4afa456e92ef38fb304379cb"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": true,
+      "has_next_query": true,
+      "next_success": false,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 0.0,
+      "table_recall_1": null,
+      "unrealized_table_atoms_1": [
+        [
+          "articles_database",
+          "articles"
+        ]
+      ],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 0.0,
+      "immediate_table_recall": null,
+      "column_precision_1": null,
+      "operation_precision_1": null,
+      "column_recall_1": null,
+      "operation_recall_1": 0.0,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 11.031677484512329,
+      "last_query_table_recall_1": null,
+      "last_query_table_precision_1": 0.0
+    },
+    {
+      "call_id": "00ea9af1f0a24934859aed65df7f3fce",
+      "accesses": [
+        {
+          "database": "articles_database",
+          "tables": [
+            "articles"
+          ],
+          "columns": [
+            "article_id",
+            "title",
+            "description"
+          ],
+          "filters": [
+            "article_id in (69413, 31513, 89534, 89533, 89535)"
+          ],
+          "operations": [
+            "filter",
+            "scan"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "articles_database",
+          "articles"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "80df329b4afa456e92ef38fb304379cb"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": true,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": false,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": null,
+      "operation_precision_1": 1.0,
+      "column_recall_1": null,
+      "operation_recall_1": 0.6666666666666666,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 13.505470752716064,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": null
+    }
+  ],
+  "audit": {
+    "assistant_turns": 40,
+    "sql_order_checks": {
+      "d3c38d4c58e6471db53eefe4310c5644": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "e5027649b1564a219c70397bb058a35a": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "d1110cc1e3024763b65a302256eb424f": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "294af8eeb5c04207bb39e985df818eb0": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "f6ab9504fb754fc6a941262d5a730059": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "4598ab18d5df4b238ac4856d1b289391": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "2886e2d4ede0495ebea607730d82eecf": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "ed704e15b16f4009bdfb4a1a66da06fd": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "80df329b4afa456e92ef38fb304379cb": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      }
+    },
+    "review_flags": [
+      {
+        "kind": "non_adapter_bash_review",
+        "index": 38,
+        "command": "/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python -c \"\nimport json\ndata = json.load(open('/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/fad/agnews/query1/full-01/results/f6ab9504fb754fc6a941262d5a730059.json'))\nfor d in data:\n    print(d['article_id'], d['desc_len'], '|', d['title'])\n\""
+      },
+      {
+        "kind": "non_adapter_bash_review",
+        "index": 48,
+        "command": "/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python -c \"\nimport json\ndata = json.load(open('/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/fad/agnews/query1/full-01/results/4598ab18d5df4b238ac4856d1b289391.json'))\nfor d in data:\n    print(d['article_id'], d['desc_len'], '|', d['title'])\n\""
+      },
+      {
+        "kind": "non_adapter_bash_review",
+        "index": 74,
+        "command": "/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python -c \"\nimport json\ndata = json.load(open('/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/runs/fad/agnews/query1/full-01/results/80df329b4afa456e92ef38fb304379cb.json'))\nfor d in data:\n    if d['article_id'] == 69413:\n        print('title:', d['title'])\n        print('len:', len(d['description']))\n\""
+      }
+    ]
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "operation": "aggregate",
+  "collection": "articles",
+  "pipeline": [
+    {
+      "$match": {
+        "$or": [
+          {
+            "title": {
+              "$regex": "sport|football|baseball|basketball|soccer|hockey|tennis|golf|olympic|NFL|NBA|MLB|NHL|super bowl|world cup|playoff|playoffs|touchdown|quarterback|pitcher|yankees|red sox|lakers|patriots|boxing|cricket|rugby|nascar|world series|tour de france|marathon",
+              "$options": "i"
+            }
+          },
+          {
+            "description": {
+              "$regex": "sport|football|baseball|basketball|soccer|hockey|tennis|golf|olympic|NFL|NBA|MLB|NHL|super bowl|world cup|playoff|playoffs|touchdown|quarterback|pitcher|yankees|red sox|lakers|patriots|boxing|cricket|rugby|nascar|world series|tour de france|marathon",
+              "$options": "i"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$project": {
+        "article_id": 1,
+        "title": 1,
+        "description": 1,
+        "desc_len": {
+          "$strLenCP": "$description"
+        }
+      }
+    },
+    {
+      "$sort": {
+        "desc_len": -1
+      }
+    },
+    {
+      "$limit": 30
+    }
+  ]
+}

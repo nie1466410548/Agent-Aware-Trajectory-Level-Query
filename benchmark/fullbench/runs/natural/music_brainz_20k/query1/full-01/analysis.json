@@ -1,0 +1,165 @@
+{
+  "summary": {
+    "task_id": "music_brainz_20k/query1",
+    "run_id": "full-01",
+    "model": "kimi-code/k3",
+    "group": "natural",
+    "adapter_version": "fullbench-v2-bound-run",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 41.62160682678223,
+    "answer_submitted": true,
+    "validator_passed": false,
+    "validator_reason": "Ground truth '1059.46' not found in LLM output: Apple Music made **$601.44 USD** in revenue from Beyoncé's song \"Get Me Bodied\" in Canada.\n\nMethod:\n- Found 3 matching track records in tracks_database (track_id 4233, 12954, 15158 — all \"Get Me Bodied\" by Beyoncé, from different sources).\n- Summed sales in sales_database for those track IDs where country = 'Canada' and store = 'Apple Music'.\n- Result: 564 units sold, total revenue = $601.44 USD.\n",
+    "tool_calls": 3,
+    "sql_calls": 2,
+    "mongo_calls": 0,
+    "failed_calls": 0,
+    "mongo_queries": 0,
+    "mongo_metadata_queries": 0,
+    "data_queries": 2,
+    "metadata_queries": 0,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 2,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 0,
+    "later_queries_sharing_tables": 0,
+    "later_queries_sharing_table_columns": 0,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 0,
+    "shared_join_consumers": 0,
+    "shared_aggregate_consumers": 0,
+    "data_query_adapter_ms": 78.07199750095606,
+    "fad_submissions": 0,
+    "python_calls": 0,
+    "assistant_turns": 4
+  },
+  "queries": [
+    {
+      "call_id": "5d3fd2b4764c448f9b579500c5c20bfb",
+      "tool": "query-db",
+      "database": "tracks_database",
+      "sql": "SELECT track_id, title, artist, album, source_id FROM tracks\nWHERE title LIKE '%Get Me Bodied%' AND artist LIKE '%Beyonc%';\n",
+      "success": true,
+      "row_count": 3,
+      "start_time": 1788803222.3442836,
+      "duration_ms": 20.569964312016964,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "tracks"
+      ],
+      "columns": [
+        "album",
+        "artist",
+        "source_id",
+        "title",
+        "track_id"
+      ],
+      "operations": [
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "title LIKE '%Get Me Bodied%' AND artist LIKE '%Beyonc%'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT track_id, title, artist, album, source_id FROM tracks WHERE title LIKE '%Get Me Bodied%' AND artist LIKE '%Beyonc%'",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "artist LIKE '%Beyonc%'",
+        "title LIKE '%Get Me Bodied%'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "album",
+        "artist",
+        "source_id",
+        "title",
+        "track_id"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "394a0fdaecec4c68b686a1df614c652e",
+      "tool": "query-db",
+      "database": "sales_database",
+      "sql": "SELECT store, SUM(units_sold) AS units, SUM(revenue_usd) AS revenue\nFROM sales\nWHERE track_id IN (4233, 12954, 15158)\n  AND country = 'Canada'\n  AND LOWER(store) LIKE '%apple%'\nGROUP BY store;\n",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788803233.2130864,
+      "duration_ms": 57.502033188939095,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "sales"
+      ],
+      "columns": [
+        "country",
+        "revenue_usd",
+        "store",
+        "track_id",
+        "units_sold"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "track_id IN (4233, 12954, 15158) AND country = 'Canada' AND LOWER(store) LIKE '%apple%'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "SUM(revenue_usd)",
+        "SUM(units_sold)"
+      ],
+      "canonical": "SELECT store, SUM(units_sold) AS units, SUM(revenue_usd) AS revenue FROM sales WHERE track_id IN (4233, 12954, 15158) AND country = 'Canada' AND LOWER(store) LIKE '%apple%' GROUP BY store",
+      "simple_ranges": {
+        "country": {
+          "type": "text",
+          "lo": [
+            "Canada",
+            true
+          ],
+          "hi": [
+            "Canada",
+            true
+          ]
+        }
+      },
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "LOWER(store) LIKE '%apple%'",
+        "country = 'Canada'",
+        "track_id IN (4233, 12954, 15158)"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "store"
+      ],
+      "limit": null
+    }
+  ],
+  "mongo_queries": [],
+  "pairs": [],
+  "fads": [],
+  "audit": {
+    "assistant_turns": 4,
+    "sql_order_checks": {},
+    "review_flags": []
+  }
+}

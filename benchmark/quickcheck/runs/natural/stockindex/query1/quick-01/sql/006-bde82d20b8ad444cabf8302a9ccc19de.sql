@@ -1,0 +1,1 @@
+SELECT "Index", COUNT(*) AS n, AVG(("High"-"Low")/"Close")*100 AS avg_pct_close, AVG(("High"-"Low")/"Open")*100 AS avg_pct_open, AVG(("High"-"Low")/(("High"+"Low")/2))*100 AS avg_pct_mid FROM index_trade WHERE "Date" >= '2020-01-01' AND "Index" IN ('N225','NSEI','HSI','000001.SS','399001.SZ','TWII') GROUP BY "Index" ORDER BY avg_pct_close DESC

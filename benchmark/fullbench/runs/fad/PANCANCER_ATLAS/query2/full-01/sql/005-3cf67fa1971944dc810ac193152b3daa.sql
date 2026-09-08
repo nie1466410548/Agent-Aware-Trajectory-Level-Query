@@ -1,0 +1,1 @@
+SELECT histological_type, COUNT(*) AS total, COUNT(*) FILTER (WHERE "Patient_description" ILIKE '%vital status%alive%') AS alive_by_desc, COUNT(*) FILTER (WHERE days_to_death = '[Not Applicable]') AS alive_by_dtd FROM clinical_info WHERE "Patient_description" ILIKE '%breast invasive carcinoma%' GROUP BY histological_type ORDER BY total DESC

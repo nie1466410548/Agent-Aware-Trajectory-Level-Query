@@ -1,0 +1,1 @@
+SELECT (SELECT count(*) FROM project_packageversion) AS ppv_total, (SELECT count(*) FROM project_packageversion WHERE System='NPM' AND ProjectType='GITHUB') AS ppv_npm_gh, (SELECT count(*) FROM project_info) AS pi_total

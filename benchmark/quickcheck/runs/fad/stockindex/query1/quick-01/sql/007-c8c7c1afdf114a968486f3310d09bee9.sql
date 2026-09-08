@@ -1,0 +1,1 @@
+SELECT CASE WHEN regexp_matches("Date", '^[0-9]{4}-[0-9]{2}-[0-9]{2}') THEN 'ISO' WHEN regexp_matches("Date", '^[A-Z][a-z]+ [0-9]{1,2}, [0-9]{4}') THEN 'LONG_US' ELSE 'OTHER' END AS fmt, COUNT(*) AS n, MIN("Date") AS ex1, MAX("Date") AS ex2 FROM index_trade GROUP BY fmt;

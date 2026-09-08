@@ -1,0 +1,1 @@
+SELECT business_ref, COUNT(*) AS n_reviews, AVG(rating) AS avg_rating FROM review WHERE business_ref IN ('businessid_52','businessid_84','businessid_76','businessid_87','businessid_65','businessid_94','businessid_90','businessid_16') GROUP BY business_ref ORDER BY business_ref

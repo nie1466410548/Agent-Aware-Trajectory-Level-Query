@@ -1,0 +1,1 @@
+SELECT o.Id AS OrderId, o.EffectiveDate, o.Status, oi.Product2Id, p.Name, oi.Quantity, oi.UnitPrice FROM "Order" o JOIN OrderItem oi ON oi.OrderId = o.Id JOIN Product2 p ON p.Id = oi.Product2Id WHERE o.AccountId = '#001Wt00000PGXrNIAX' AND o.EffectiveDate >= '2021-06-01' AND o.EffectiveDate < '2021-07-01'

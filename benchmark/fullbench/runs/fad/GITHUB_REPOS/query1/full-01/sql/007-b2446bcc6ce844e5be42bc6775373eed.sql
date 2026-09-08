@@ -1,0 +1,1 @@
+SELECT sample_repo_name, length(content) AS len, lower(content) LIKE '%copyright%' AS has_copyright_word, content LIKE '%©%' AS has_symbol FROM contents WHERE regexp_matches(lower(sample_path), '(^|/)readme\.md$')

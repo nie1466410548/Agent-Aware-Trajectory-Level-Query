@@ -1,0 +1,1 @@
+SELECT o.Id, o.Name, o.StageName, o.CloseDate, o.ContactId, o.AccountId, oli.Product2Id FROM Opportunity o LEFT JOIN OpportunityLineItem oli ON oli.OpportunityId = o.Id WHERE o.ContactId = '003Wt00000Jqy8SIAR' OR o.AccountId LIKE '%001Wt00000PGXrNIAX%' ORDER BY o.CloseDate

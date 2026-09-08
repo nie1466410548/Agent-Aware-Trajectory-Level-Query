@@ -1,0 +1,1 @@
+SELECT rating, time FROM review LIMIT 5;

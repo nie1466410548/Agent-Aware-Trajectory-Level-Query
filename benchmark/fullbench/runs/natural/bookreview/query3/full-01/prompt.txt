@@ -1,0 +1,53 @@
+Solve this data analysis task using the supplied databases. Work independently, without asking the user questions. Use at most 30 database calls and finish within 15 minutes. Do not delegate to other agents.
+
+TASK: Which books categorized as 'Children's Books' have received an average rating of at least 4.5 based on reviews from 2020 onwards?
+
+DATABASE DESCRIPTION:
+You are working with two databases to solve this query.
+
+Here are the descriptions of these two databases:
+
+1. books_database
+   - This database is stored in a PostgreSQL database and contains Amazon book information including descriptions, price, details, title, etc. up to 2023.
+   - This database consists of one table:
+    - books_info:
+      - Fields:
+        - title (str): Book title
+        - subtitle (str): Book subtitle
+        - author (str): Book author(s)
+        - rating_number (int): Total number of ratings received
+        - features (str): Book features (stored as string representation of list/dict)
+        - description (str): Book description (stored as string representation of list/dict)
+        - price (float): Book price
+        - store (str): Store information
+        - categories (str): Book categories (stored as string representation of list/dict)
+        - details (str): Additional book details
+        - book_id (str): Unique book identifier
+
+2. review_database
+   - This database is stored in a SQLite database and contains Amazon book review information including ratings, text, helpfulness votes, etc. up to 2023.
+   - This database consists of one table:
+    - review
+      - Fields:
+        - rating (float): Rating given by reviewer (1.0-5.0 scale)
+        - title (str): Review Title
+        - text (str): Review text content
+        - purchase_id (str): Unique identifier linking to book_id in books_info table in books_database
+        - review_time (str): Timestamp when review was posted
+        - helpful_vote (int): Number of helpful votes received
+        - verified_purchase (bool): Whether purchase was verified
+
+DATA TOOLS (invoke through Bash):
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py list-db DATABASE_NAME
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py query-db DATABASE_NAME --sql-file query.sql
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py query-db DATABASE_NAME --mongo-file mongo_query.json  # MongoDB only
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py python --file analysis.py
+/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/bookreview/.venv/bin/python /data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/fullbench/tools/tool.py answer --file final.txt
+
+You may also pass --sql with a correctly quoted SQL string instead of --sql-file. Use Bash to create your SQL and Python files in the current directory. All actual database access must use query-db or list-db above. Run analysis Python only through the python tool above. Python can use pandas, pyarrow and the standard library; it can read full query results from the result_file paths returned by the data tools. Those JSON files contain lists of row objects. MongoDB uses native read-only JSON requests, not SQL: {"operation":"find","collection":"name","filter":{},"projection":{},"sort":[["field",1]],"limit":10}, or {"operation":"aggregate","collection":"name","pipeline":[...]}, or {"operation":"count_documents","collection":"name","filter":{}}, or {"operation":"distinct","collection":"name","field":"field","filter":{}}. list-db lists collection names for MongoDB. FAD tables/columns describe collections/fields for MongoDB. SQL output is previewed up to 10000 characters; the complete data remains in result_file.
+
+Use only this task description, these tools, and files you create or tool result files in this run directory. Do not inspect parent directories, benchmark source, tool source, validators, gold answers, external websites, user history, or previous sessions. Do not install packages or connect to the databases directly. These restrictions maintain evaluation integrity. Do not optimize for repetition or deliberately split queries: solve the task naturally. DATABASE_NAME is a logical name from the description above, not a physical file name. For DuckDB metadata use information_schema; for SQLite use PRAGMA table_info; for PostgreSQL use information_schema. Do not invoke shell clients directly.
+
+After analysis, write the final answer to final.txt and submit it with the answer tool. Include any requested complete book list. Then stop. If unable to solve, submit your best supported answer and state the limitation. Do not inspect evaluation results.
+
+Do not generate extra future-access predictions.

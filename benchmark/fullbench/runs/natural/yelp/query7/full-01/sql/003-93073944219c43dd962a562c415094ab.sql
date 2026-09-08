@@ -1,0 +1,2 @@
+SELECT date FROM review LIMIT 10
+

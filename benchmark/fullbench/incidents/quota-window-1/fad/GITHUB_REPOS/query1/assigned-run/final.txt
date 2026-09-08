@@ -1,0 +1,21 @@
+ANSWER: Approximately 16.8% (17 out of 101) of non-Python repositories' README.md files include copyright information.
+
+Methodology:
+1. metadata_database (SQLite) languages table: 3,325,634 repos with natural-language language_description values. A repository is classified as "using Python" if its language_description mentions "Python" (case-insensitive); otherwise it is a non-Python repository.
+2. artifacts_database (DuckDB) contents table: 128 repositories have a top-level README.md file (sample_path = 'README.md').
+3. Cross-database join on repository name:
+   - 17 of the 128 README repos use Python (excluded).
+   - 101 repos are non-Python (their declared languages do not mention Python).
+   - 10 repos had no entry in the languages table and were excluded from the main calculation (their language use cannot be determined).
+4. A README.md "includes copyright information" if its content contains the word "copyright" (case-insensitive) or the copyright symbol "©". (Loose "(c)" matches were manually checked and rejected as false positives, e.g., list markers like "(a) ... (b) ... (c) ...".)
+
+Result:
+- Non-Python repos with README.md: 101
+- README.md files containing copyright information: 17
+- Proportion: 17/101 = 0.168 ≈ 16.8%
+
+Sensitivity checks:
+- Broad matching (including "(c)") gives 19/101 ≈ 18.8%, but the 2 extra matches are false positives.
+- If the 10 repos missing language metadata were also counted as non-Python, the figure would be 19/111 ≈ 17.1%.
+
+The 17 non-Python repos whose README.md includes copyright information: mluisbrown/Memories, F1ReKing/wheelview, adafruit/Adafruit-Trinket-Gemma-Bootloader, dikiaap/mangan, dblock/slack-google-bot, DUBULEE/FileCacheUtil, SuperID/super-cache, noveogroup/android-logger, rita-marylin-raquel/softbloks, delight-im/OpenSoccer, hypriot/rpi-busybox-httpd, richtr/plug.play.js, johnhamelink/exrm_deb, rubylit/guevara, chrisbarrett/emacs-refactor, kinduff/spree_reffiliate, blond/hash-set.

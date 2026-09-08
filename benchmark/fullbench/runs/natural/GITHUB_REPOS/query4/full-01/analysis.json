@@ -1,0 +1,543 @@
+{
+  "summary": {
+    "task_id": "GITHUB_REPOS/query4",
+    "run_id": "full-01",
+    "model": "kimi-code/k3",
+    "group": "natural",
+    "adapter_version": "fullbench-v2-bound-run",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 82.73041105270386,
+    "answer_submitted": true,
+    "validator_passed": false,
+    "validator_reason": "Could not match: 'tensorflow/tensorflow'",
+    "tool_calls": 9,
+    "sql_calls": 8,
+    "mongo_calls": 0,
+    "failed_calls": 0,
+    "mongo_queries": 0,
+    "mongo_metadata_queries": 0,
+    "data_queries": 6,
+    "metadata_queries": 2,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 6,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 0,
+    "later_queries_sharing_tables": 3,
+    "later_queries_sharing_table_columns": 2,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 0,
+    "shared_join_consumers": 0,
+    "shared_aggregate_consumers": 0,
+    "data_query_adapter_ms": 1661.048742942512,
+    "fad_submissions": 0,
+    "python_calls": 0,
+    "assistant_turns": 9
+  },
+  "queries": [
+    {
+      "call_id": "04828acbfbe545b98e2dc6ea754463f2",
+      "tool": "list-db",
+      "database": "metadata_database",
+      "sql": "SELECT name FROM sqlite_master WHERE type='table'",
+      "success": true,
+      "row_count": 3,
+      "start_time": 1788799978.5298605,
+      "duration_ms": 16.096562147140503,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "sqlite_master"
+      ],
+      "columns": [
+        "name",
+        "type"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "type = 'table'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT name FROM sqlite_master WHERE type = 'table'",
+      "simple_ranges": {
+        "type": {
+          "type": "text",
+          "lo": [
+            "table",
+            true
+          ],
+          "hi": [
+            "table",
+            true
+          ]
+        }
+      },
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "type = 'table'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "e90b27a0cc5c41368bf23c8f13a4fba3",
+      "tool": "list-db",
+      "database": "artifacts_database",
+      "sql": "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog')",
+      "success": true,
+      "row_count": 3,
+      "start_time": 1788799978.6317248,
+      "duration_ms": 66.21416937559843,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "tables"
+      ],
+      "columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT table_schema, table_name FROM information_schema.tables WHERE NOT table_schema IN ('information_schema', 'pg_catalog')",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "fdad98d1003c41f3a16454579a1991c5",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT * FROM languages LIMIT 10",
+      "success": true,
+      "row_count": 10,
+      "start_time": 1788799985.7801032,
+      "duration_ms": 15.881271101534367,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages"
+      ],
+      "columns": [],
+      "operations": [
+        "limit",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT * FROM languages LIMIT 10",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": true,
+      "projected_base_columns": [],
+      "limit": "LIMIT 10"
+    },
+    {
+      "call_id": "702f66af53b046c58417f38e2f6763a9",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT repo_name, COUNT(*) AS commit_count FROM commits GROUP BY repo_name ORDER BY commit_count DESC LIMIT 15",
+      "success": true,
+      "row_count": 6,
+      "start_time": 1788799985.8796864,
+      "duration_ms": 55.559201166033745,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "commits"
+      ],
+      "columns": [
+        "commit_count",
+        "repo_name"
+      ],
+      "operations": [
+        "aggregate",
+        "limit",
+        "scan",
+        "sort"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT repo_name, COUNT(*) AS commit_count FROM commits GROUP BY repo_name ORDER BY commit_count DESC LIMIT 15",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "repo_name"
+      ],
+      "limit": "LIMIT 15"
+    },
+    {
+      "call_id": "f2479e8985c04c31b3543cc7659c8e30",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('torvalds/linux','apple/swift','twbs/bootstrap','Microsoft/vscode','facebook/react','tensorflow/tensorflow')",
+      "success": true,
+      "row_count": 5,
+      "start_time": 1788799993.3765845,
+      "duration_ms": 610.4643428698182,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages"
+      ],
+      "columns": [
+        "language_description",
+        "repo_name"
+      ],
+      "operations": [
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "repo_name IN ('torvalds/linux', 'apple/swift', 'twbs/bootstrap', 'Microsoft/vscode', 'facebook/react', 'tensorflow/tensorflow')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('torvalds/linux', 'apple/swift', 'twbs/bootstrap', 'Microsoft/vscode', 'facebook/react', 'tensorflow/tensorflow')",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "repo_name IN ('torvalds/linux', 'apple/swift', 'twbs/bootstrap', 'Microsoft/vscode', 'facebook/react', 'tensorflow/tensorflow')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "language_description",
+        "repo_name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "9c0cd07c9bc94aa3bafde40ab7a622a7",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT * FROM languages WHERE repo_name LIKE '%linux%'",
+      "success": true,
+      "row_count": 9400,
+      "start_time": 1788800004.9179695,
+      "duration_ms": 601.5348378568888,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages"
+      ],
+      "columns": [
+        "repo_name"
+      ],
+      "operations": [
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "repo_name LIKE '%linux%'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT * FROM languages WHERE repo_name LIKE '%linux%'",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "repo_name LIKE '%linux%'"
+      ],
+      "star_projection": true,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "3d5bddb5ad7743aeb6a7d3c78471d8a1",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT COUNT(*) FROM languages WHERE repo_name = 'torvalds/linux';",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788800010.8941176,
+      "duration_ms": 317.3121064901352,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages"
+      ],
+      "columns": [
+        "repo_name"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "repo_name = 'torvalds/linux'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT COUNT(*) FROM languages WHERE repo_name = 'torvalds/linux'",
+      "simple_ranges": {
+        "repo_name": {
+          "type": "text",
+          "lo": [
+            "torvalds/linux",
+            true
+          ],
+          "hi": [
+            "torvalds/linux",
+            true
+          ]
+        }
+      },
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "repo_name = 'torvalds/linux'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "ac1a731b4a994539b2379296657159b0",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT CASE WHEN path LIKE '%.py' THEN 'py' WHEN path LIKE '%.c' THEN 'c' WHEN path LIKE '%.h' THEN 'h' ELSE 'other' END AS ext, COUNT(*) AS n FROM files WHERE repo_name = 'torvalds/linux' GROUP BY ext ORDER BY n DESC",
+      "success": true,
+      "row_count": 3,
+      "start_time": 1788800024.9419544,
+      "duration_ms": 60.29698345810175,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "files"
+      ],
+      "columns": [
+        "ext",
+        "n",
+        "path",
+        "repo_name"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "repo_name = 'torvalds/linux'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT CASE WHEN path LIKE '%.py' THEN 'py' WHEN path LIKE '%.c' THEN 'c' WHEN path LIKE '%.h' THEN 'h' ELSE 'other' END AS ext, COUNT(*) AS n FROM files WHERE repo_name = 'torvalds/linux' GROUP BY ext ORDER BY n DESC",
+      "simple_ranges": {
+        "repo_name": {
+          "type": "text",
+          "lo": [
+            "torvalds/linux",
+            true
+          ],
+          "hi": [
+            "torvalds/linux",
+            true
+          ]
+        }
+      },
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "repo_name = 'torvalds/linux'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    }
+  ],
+  "mongo_queries": [],
+  "pairs": [
+    {
+      "producer": "fdad98d1003c41f3a16454579a1991c5",
+      "consumer": "f2479e8985c04c31b3543cc7659c8e30",
+      "producer_index": 1,
+      "consumer_index": 3,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 10,
+      "consumer_rows": 5,
+      "producer_sql": "SELECT * FROM languages LIMIT 10",
+      "consumer_sql": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('torvalds/linux','apple/swift','twbs/bootstrap','Microsoft/vscode','facebook/react','tensorflow/tensorflow')"
+    },
+    {
+      "producer": "fdad98d1003c41f3a16454579a1991c5",
+      "consumer": "9c0cd07c9bc94aa3bafde40ab7a622a7",
+      "producer_index": 1,
+      "consumer_index": 4,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 10,
+      "consumer_rows": 9400,
+      "producer_sql": "SELECT * FROM languages LIMIT 10",
+      "consumer_sql": "SELECT * FROM languages WHERE repo_name LIKE '%linux%'"
+    },
+    {
+      "producer": "f2479e8985c04c31b3543cc7659c8e30",
+      "consumer": "9c0cd07c9bc94aa3bafde40ab7a622a7",
+      "producer_index": 3,
+      "consumer_index": 4,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 9400,
+      "producer_sql": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('torvalds/linux','apple/swift','twbs/bootstrap','Microsoft/vscode','facebook/react','tensorflow/tensorflow')",
+      "consumer_sql": "SELECT * FROM languages WHERE repo_name LIKE '%linux%'"
+    },
+    {
+      "producer": "fdad98d1003c41f3a16454579a1991c5",
+      "consumer": "3d5bddb5ad7743aeb6a7d3c78471d8a1",
+      "producer_index": 1,
+      "consumer_index": 5,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 10,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT * FROM languages LIMIT 10",
+      "consumer_sql": "SELECT COUNT(*) FROM languages WHERE repo_name = 'torvalds/linux';"
+    },
+    {
+      "producer": "f2479e8985c04c31b3543cc7659c8e30",
+      "consumer": "3d5bddb5ad7743aeb6a7d3c78471d8a1",
+      "producer_index": 3,
+      "consumer_index": 5,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 5,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT repo_name, language_description FROM languages WHERE repo_name IN ('torvalds/linux','apple/swift','twbs/bootstrap','Microsoft/vscode','facebook/react','tensorflow/tensorflow')",
+      "consumer_sql": "SELECT COUNT(*) FROM languages WHERE repo_name = 'torvalds/linux';"
+    },
+    {
+      "producer": "9c0cd07c9bc94aa3bafde40ab7a622a7",
+      "consumer": "3d5bddb5ad7743aeb6a7d3c78471d8a1",
+      "producer_index": 4,
+      "consumer_index": 5,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 9400,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT * FROM languages WHERE repo_name LIKE '%linux%'",
+      "consumer_sql": "SELECT COUNT(*) FROM languages WHERE repo_name = 'torvalds/linux';"
+    }
+  ],
+  "fads": [],
+  "audit": {
+    "assistant_turns": 9,
+    "sql_order_checks": {},
+    "review_flags": []
+  }
+}

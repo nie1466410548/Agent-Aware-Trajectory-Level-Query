@@ -1,0 +1,1 @@
+SELECT "Listing Exchange", COUNT(*) FROM stockinfo GROUP BY "Listing Exchange"

@@ -1,0 +1,1 @@
+SELECT DISTINCT la.repo_name FROM languages la JOIN licenses li ON la.repo_name = li.repo_name WHERE la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'

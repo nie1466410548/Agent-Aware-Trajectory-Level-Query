@@ -1,0 +1,1 @@
+SELECT 'TCGA-' || tissue_source_site || '-' || patient_id AS barcode, histological_type FROM clinical_info WHERE "Patient_description" ILIKE '%Breast invasive carcinoma%' AND "Patient_description" LIKE '%FEMALE%'

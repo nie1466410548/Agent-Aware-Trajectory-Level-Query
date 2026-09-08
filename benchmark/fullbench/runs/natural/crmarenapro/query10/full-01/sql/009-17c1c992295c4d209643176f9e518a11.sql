@@ -1,0 +1,1 @@
+WITH cases AS (SELECT id FROM "Case" WHERE substring(createddate,1,19)::timestamp >= TIMESTAMP '2023-05-02') SELECT h.newvalue__c AS agent_id, COUNT(DISTINCT h.caseid__c) AS n_cases FROM casehistory__c h JOIN cases c ON c.id=h.caseid__c WHERE h.field__c='Owner Assignment' AND h.newvalue__c IS NOT NULL GROUP BY 1 ORDER BY 2 DESC

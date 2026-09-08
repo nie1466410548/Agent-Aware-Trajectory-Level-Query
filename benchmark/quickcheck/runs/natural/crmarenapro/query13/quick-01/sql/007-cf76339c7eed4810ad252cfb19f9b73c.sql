@@ -1,0 +1,1 @@
+SELECT accts, COUNT(*) AS n_contracts FROM (SELECT AccountId AS accts, COUNT(*) c FROM Contract GROUP BY AccountId) t GROUP BY accts ORDER BY n_contracts DESC LIMIT 5; SELECT COUNT(DISTINCT AccountId) FROM Contract

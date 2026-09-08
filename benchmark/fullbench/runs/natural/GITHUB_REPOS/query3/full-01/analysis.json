@@ -1,0 +1,1560 @@
+{
+  "summary": {
+    "task_id": "GITHUB_REPOS/query3",
+    "run_id": "full-01",
+    "model": "kimi-code/k3",
+    "group": "natural",
+    "adapter_version": "fullbench-v2-bound-run",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 214.56435585021973,
+    "answer_submitted": true,
+    "validator_passed": true,
+    "validator_reason": "Found 1077 in LLM output.",
+    "tool_calls": 16,
+    "sql_calls": 15,
+    "mongo_calls": 0,
+    "failed_calls": 0,
+    "mongo_queries": 0,
+    "mongo_metadata_queries": 0,
+    "data_queries": 13,
+    "metadata_queries": 2,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 13,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 0,
+    "later_queries_sharing_tables": 10,
+    "later_queries_sharing_table_columns": 10,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 1,
+    "shared_join_consumers": 1,
+    "shared_aggregate_consumers": 5,
+    "data_query_adapter_ms": 34735.95568910241,
+    "fad_submissions": 0,
+    "python_calls": 0,
+    "assistant_turns": 14
+  },
+  "queries": [
+    {
+      "call_id": "ac2e2334fdc6441288b1aa4d2b248c40",
+      "tool": "list-db",
+      "database": "metadata_database",
+      "sql": "SELECT name FROM sqlite_master WHERE type='table'",
+      "success": true,
+      "row_count": 3,
+      "start_time": 1788799802.653663,
+      "duration_ms": 15.809942968189716,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "sqlite_master"
+      ],
+      "columns": [
+        "name",
+        "type"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "type = 'table'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT name FROM sqlite_master WHERE type = 'table'",
+      "simple_ranges": {
+        "type": {
+          "type": "text",
+          "lo": [
+            "table",
+            true
+          ],
+          "hi": [
+            "table",
+            true
+          ]
+        }
+      },
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "type = 'table'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "6e95c8c1f5bd45628a2b0c7985b9c8f7",
+      "tool": "list-db",
+      "database": "artifacts_database",
+      "sql": "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog')",
+      "success": true,
+      "row_count": 3,
+      "start_time": 1788799802.75425,
+      "duration_ms": 65.39892312139273,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "tables"
+      ],
+      "columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT table_schema, table_name FROM information_schema.tables WHERE NOT table_schema IN ('information_schema', 'pg_catalog')",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "7507bfd180c04428a76f69ad5da6f80e",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT language_description, COUNT(*) FROM languages GROUP BY language_description HAVING COUNT(*) < 200 LIMIT 50",
+      "success": true,
+      "row_count": 50,
+      "start_time": 1788799811.900386,
+      "duration_ms": 1707.2189021855593,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages"
+      ],
+      "columns": [
+        "language_description"
+      ],
+      "operations": [
+        "aggregate",
+        "limit",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT language_description, COUNT(*) FROM languages GROUP BY language_description HAVING COUNT(*) < 200 LIMIT 50",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "language_description"
+      ],
+      "limit": "LIMIT 50"
+    },
+    {
+      "call_id": "8c7f674562584430bdf7657a7315e37c",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT DISTINCT substr(language_description,1,80) FROM languages WHERE language_description LIKE '%Shell%' LIMIT 20",
+      "success": true,
+      "row_count": 20,
+      "start_time": 1788799824.5841892,
+      "duration_ms": 16.17423351854086,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages"
+      ],
+      "columns": [
+        "language_description"
+      ],
+      "operations": [
+        "filter",
+        "limit",
+        "scan"
+      ],
+      "filters": [
+        "language_description LIKE '%Shell%'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT DISTINCT SUBSTRING(language_description, 1, 80) FROM languages WHERE language_description LIKE '%Shell%' LIMIT 20",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "language_description LIKE '%Shell%'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": "LIMIT 20"
+    },
+    {
+      "call_id": "97f2e6e391f241619e046146a8dc134a",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT DISTINCT license FROM licenses LIMIT 30",
+      "success": true,
+      "row_count": 15,
+      "start_time": 1788799824.6852918,
+      "duration_ms": 412.3508697375655,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "licenses"
+      ],
+      "columns": [
+        "license"
+      ],
+      "operations": [
+        "limit",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT DISTINCT license FROM licenses LIMIT 30",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "license"
+      ],
+      "limit": "LIMIT 30"
+    },
+    {
+      "call_id": "19fd37fb18fa40ca8835674da7115f70",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT COUNT(*) FROM languages WHERE language_description LIKE '%PowerShell%';",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788799833.5244472,
+      "duration_ms": 544.0083015710115,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages"
+      ],
+      "columns": [
+        "language_description"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "language_description LIKE '%PowerShell%'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT COUNT(*) FROM languages WHERE language_description LIKE '%PowerShell%'",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "language_description LIKE '%PowerShell%'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "be8a2c6eb15f4ebab8e4bf7634c6b9a7",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT COUNT(*) FROM languages WHERE language_description LIKE '%Shell%' AND language_description NOT LIKE '%PowerShell%'",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788799848.2014346,
+      "duration_ms": 774.7336197644472,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages"
+      ],
+      "columns": [
+        "language_description"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "language_description LIKE '%Shell%' AND language_description NOT LIKE '%PowerShell%'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT COUNT(*) FROM languages WHERE language_description LIKE '%Shell%' AND language_description NOT LIKE '%PowerShell%'",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "language_description LIKE '%Shell%'",
+        "language_description NOT LIKE '%PowerShell%'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "8afe57c746fd4367acbf2d22ce260003",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT COUNT(*) FROM languages WHERE lower(language_description) LIKE '%shell%' AND language_description NOT LIKE '%PowerShell%' AND language_description NOT LIKE '%Shell%'",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788799849.0635843,
+      "duration_ms": 1452.476356178522,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages"
+      ],
+      "columns": [
+        "language_description"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "LOWER(language_description) LIKE '%shell%' AND language_description NOT LIKE '%PowerShell%' AND language_description NOT LIKE '%Shell%'"
+      ],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT COUNT(*) FROM languages WHERE LOWER(language_description) LIKE '%shell%' AND language_description NOT LIKE '%PowerShell%' AND language_description NOT LIKE '%Shell%'",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "LOWER(language_description) LIKE '%shell%'",
+        "language_description NOT LIKE '%PowerShell%'",
+        "language_description NOT LIKE '%Shell%'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "8179d09e20374b64a0f658170aef7447",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT COUNT(*) FROM languages la JOIN licenses li ON la.repo_name = li.repo_name WHERE la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788799859.4613862,
+      "duration_ms": 7083.663317374885,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages",
+        "licenses"
+      ],
+      "columns": [
+        "language_description",
+        "license",
+        "repo_name"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "join",
+        "scan"
+      ],
+      "filters": [
+        "la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'"
+      ],
+      "joins": [
+        "JOIN licenses AS li ON la.repo_name = li.repo_name"
+      ],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT COUNT(*) FROM languages AS la JOIN licenses AS li ON la.repo_name = li.repo_name WHERE la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'",
+      "simple_ranges": {
+        "license": {
+          "type": "text",
+          "lo": [
+            "apache-2.0",
+            true
+          ],
+          "hi": [
+            "apache-2.0",
+            true
+          ]
+        }
+      },
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "language_description LIKE '%Shell%'",
+        "language_description NOT LIKE '%PowerShell%'",
+        "license = 'apache-2.0'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "2e111ba678304934b55805397e53ab15",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT DISTINCT la.repo_name FROM languages la JOIN licenses li ON la.repo_name = li.repo_name WHERE la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'",
+      "success": true,
+      "row_count": 107688,
+      "start_time": 1788799890.4272962,
+      "duration_ms": 7549.860689789057,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages",
+        "licenses"
+      ],
+      "columns": [
+        "language_description",
+        "license",
+        "repo_name"
+      ],
+      "operations": [
+        "filter",
+        "join",
+        "scan"
+      ],
+      "filters": [
+        "la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'"
+      ],
+      "joins": [
+        "JOIN licenses AS li ON la.repo_name = li.repo_name"
+      ],
+      "aggregates": [],
+      "canonical": "SELECT DISTINCT la.repo_name FROM languages AS la JOIN licenses AS li ON la.repo_name = li.repo_name WHERE la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'",
+      "simple_ranges": {
+        "license": {
+          "type": "text",
+          "lo": [
+            "apache-2.0",
+            true
+          ],
+          "hi": [
+            "apache-2.0",
+            true
+          ]
+        }
+      },
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "language_description LIKE '%Shell%'",
+        "language_description NOT LIKE '%PowerShell%'",
+        "license = 'apache-2.0'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "repo_name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "6fe58bd49b7747928f305cf1f8919e41",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT COUNT(DISTINCT repo_name) AS n_repos, COUNT(*) AS n_commits FROM commits",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788799898.0870423,
+      "duration_ms": 57.374595664441586,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "commits"
+      ],
+      "columns": [
+        "repo_name"
+      ],
+      "operations": [
+        "aggregate",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)",
+        "COUNT(DISTINCT repo_name)"
+      ],
+      "canonical": "SELECT COUNT(DISTINCT repo_name) AS n_repos, COUNT(*) AS n_commits FROM commits",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [],
+      "limit": null
+    },
+    {
+      "call_id": "f66eee8c72974b6c8810a8f8e732a8db",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT DISTINCT repo_name FROM commits",
+      "success": true,
+      "row_count": 6,
+      "start_time": 1788799907.8404124,
+      "duration_ms": 55.04136718809605,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "commits"
+      ],
+      "columns": [
+        "repo_name"
+      ],
+      "operations": [
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT DISTINCT repo_name FROM commits",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "repo_name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "f689c3534bc049278f37234a54d7210d",
+      "tool": "query-db",
+      "database": "metadata_database",
+      "sql": "SELECT la.repo_name, la.language_description, li.license FROM languages la LEFT JOIN licenses li ON la.repo_name=li.repo_name WHERE la.repo_name IN ('twbs/bootstrap','facebook/react','Microsoft/vscode','tensorflow/tensorflow','torvalds/linux','apple/swift')",
+      "success": true,
+      "row_count": 5,
+      "start_time": 1788799917.556064,
+      "duration_ms": 14917.221493087709,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "languages",
+        "licenses"
+      ],
+      "columns": [
+        "language_description",
+        "license",
+        "repo_name"
+      ],
+      "operations": [
+        "filter",
+        "join",
+        "scan"
+      ],
+      "filters": [
+        "la.repo_name IN ('twbs/bootstrap', 'facebook/react', 'Microsoft/vscode', 'tensorflow/tensorflow', 'torvalds/linux', 'apple/swift')"
+      ],
+      "joins": [
+        "LEFT JOIN licenses AS li ON la.repo_name = li.repo_name"
+      ],
+      "aggregates": [],
+      "canonical": "SELECT la.repo_name, la.language_description, li.license FROM languages AS la LEFT JOIN licenses AS li ON la.repo_name = li.repo_name WHERE la.repo_name IN ('twbs/bootstrap', 'facebook/react', 'Microsoft/vscode', 'tensorflow/tensorflow', 'torvalds/linux', 'apple/swift')",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "repo_name IN ('twbs/bootstrap', 'facebook/react', 'Microsoft/vscode', 'tensorflow/tensorflow', 'torvalds/linux', 'apple/swift')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "language_description",
+        "license",
+        "repo_name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "d97fc3bd463547159a3eb5e67f7ae66b",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT repo_name, COUNT(*) AS total, COUNT(message) AS nonnull, SUM(CASE WHEN length(message) < 1000 THEN 1 ELSE 0 END) AS under_1000, SUM(CASE WHEN message IS NOT NULL AND length(message) < 1000 AND lower(message) NOT LIKE 'merge%' AND lower(message) NOT LIKE 'update%' AND lower(message) NOT LIKE 'test%' THEN 1 ELSE 0 END) AS case_insensitive_ok, SUM(CASE WHEN message IS NOT NULL AND length(message) < 1000 AND message NOT LIKE 'merge%' AND message NOT LIKE 'update%' AND message NOT LIKE 'test%' THEN 1 ELSE 0 END) AS case_sensitive_ok FROM commits WHERE repo_name IN ('tensorflow/tensorflow','apple/swift') GROUP BY repo_name",
+      "success": true,
+      "row_count": 2,
+      "start_time": 1788799950.9842556,
+      "duration_ms": 82.02553074806929,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "commits"
+      ],
+      "columns": [
+        "message",
+        "repo_name"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "repo_name IN ('tensorflow/tensorflow', 'apple/swift')"
+      ],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)",
+        "COUNT(message)",
+        "SUM(CASE WHEN LENGTH(message) < 1000 THEN 1 ELSE 0 END)",
+        "SUM(CASE WHEN NOT message IS NULL AND LENGTH(message) < 1000 AND LOWER(message) NOT LIKE 'merge%' AND LOWER(message) NOT LIKE 'update%' AND LOWER(message) NOT LIKE 'test%' THEN 1 ELSE 0 END)",
+        "SUM(CASE WHEN NOT message IS NULL AND LENGTH(message) < 1000 AND message NOT LIKE 'merge%' AND message NOT LIKE 'update%' AND message NOT LIKE 'test%' THEN 1 ELSE 0 END)"
+      ],
+      "canonical": "SELECT repo_name, COUNT(*) AS total, COUNT(message) AS nonnull, SUM(CASE WHEN LENGTH(message) < 1000 THEN 1 ELSE 0 END) AS under_1000, SUM(CASE WHEN NOT message IS NULL AND LENGTH(message) < 1000 AND LOWER(message) NOT LIKE 'merge%' AND LOWER(message) NOT LIKE 'update%' AND LOWER(message) NOT LIKE 'test%' THEN 1 ELSE 0 END) AS case_insensitive_ok, SUM(CASE WHEN NOT message IS NULL AND LENGTH(message) < 1000 AND message NOT LIKE 'merge%' AND message NOT LIKE 'update%' AND message NOT LIKE 'test%' THEN 1 ELSE 0 END) AS case_sensitive_ok FROM commits WHERE repo_name IN ('tensorflow/tensorflow', 'apple/swift') GROUP BY repo_name",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "repo_name IN ('tensorflow/tensorflow', 'apple/swift')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "repo_name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "8c2c935d46744e8291f00620c81ebc25",
+      "tool": "query-db",
+      "database": "artifacts_database",
+      "sql": "SELECT repo_name, substr(message,1,60) AS msg_start FROM commits WHERE repo_name IN ('tensorflow/tensorflow','apple/swift') AND length(message) < 1000 AND (lower(message) LIKE 'merge%' OR lower(message) LIKE 'update%' OR lower(message) LIKE 'test%') LIMIT 30",
+      "success": true,
+      "row_count": 30,
+      "start_time": 1788799965.742657,
+      "duration_ms": 83.80641229450703,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "commits"
+      ],
+      "columns": [
+        "message",
+        "repo_name"
+      ],
+      "operations": [
+        "filter",
+        "limit",
+        "scan"
+      ],
+      "filters": [
+        "repo_name IN ('tensorflow/tensorflow', 'apple/swift') AND LENGTH(message) < 1000 AND (LOWER(message) LIKE 'merge%' OR LOWER(message) LIKE 'update%' OR LOWER(message) LIKE 'test%')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT repo_name, SUBSTRING(message, 1, 60) AS msg_start FROM commits WHERE repo_name IN ('tensorflow/tensorflow', 'apple/swift') AND LENGTH(message) < 1000 AND (LOWER(message) LIKE 'merge%' OR LOWER(message) LIKE 'update%' OR LOWER(message) LIKE 'test%') LIMIT 30",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "(LOWER(message) LIKE 'merge%' OR LOWER(message) LIKE 'update%' OR LOWER(message) LIKE 'test%')",
+        "LENGTH(message) < 1000",
+        "repo_name IN ('tensorflow/tensorflow', 'apple/swift')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "repo_name"
+      ],
+      "limit": "LIMIT 30"
+    }
+  ],
+  "mongo_queries": [],
+  "pairs": [
+    {
+      "producer": "7507bfd180c04428a76f69ad5da6f80e",
+      "consumer": "8c7f674562584430bdf7657a7315e37c",
+      "producer_index": 1,
+      "consumer_index": 2,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 50,
+      "consumer_rows": 20,
+      "producer_sql": "SELECT language_description, COUNT(*) FROM languages GROUP BY language_description HAVING COUNT(*) < 200 LIMIT 50",
+      "consumer_sql": "SELECT DISTINCT substr(language_description,1,80) FROM languages WHERE language_description LIKE '%Shell%' LIMIT 20"
+    },
+    {
+      "producer": "7507bfd180c04428a76f69ad5da6f80e",
+      "consumer": "19fd37fb18fa40ca8835674da7115f70",
+      "producer_index": 1,
+      "consumer_index": 4,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 50,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT language_description, COUNT(*) FROM languages GROUP BY language_description HAVING COUNT(*) < 200 LIMIT 50",
+      "consumer_sql": "SELECT COUNT(*) FROM languages WHERE language_description LIKE '%PowerShell%';"
+    },
+    {
+      "producer": "8c7f674562584430bdf7657a7315e37c",
+      "consumer": "19fd37fb18fa40ca8835674da7115f70",
+      "producer_index": 2,
+      "consumer_index": 4,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 20,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT DISTINCT substr(language_description,1,80) FROM languages WHERE language_description LIKE '%Shell%' LIMIT 20",
+      "consumer_sql": "SELECT COUNT(*) FROM languages WHERE language_description LIKE '%PowerShell%';"
+    },
+    {
+      "producer": "7507bfd180c04428a76f69ad5da6f80e",
+      "consumer": "be8a2c6eb15f4ebab8e4bf7634c6b9a7",
+      "producer_index": 1,
+      "consumer_index": 5,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 50,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT language_description, COUNT(*) FROM languages GROUP BY language_description HAVING COUNT(*) < 200 LIMIT 50",
+      "consumer_sql": "SELECT COUNT(*) FROM languages WHERE language_description LIKE '%Shell%' AND language_description NOT LIKE '%PowerShell%'"
+    },
+    {
+      "producer": "8c7f674562584430bdf7657a7315e37c",
+      "consumer": "be8a2c6eb15f4ebab8e4bf7634c6b9a7",
+      "producer_index": 2,
+      "consumer_index": 5,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 20,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT DISTINCT substr(language_description,1,80) FROM languages WHERE language_description LIKE '%Shell%' LIMIT 20",
+      "consumer_sql": "SELECT COUNT(*) FROM languages WHERE language_description LIKE '%Shell%' AND language_description NOT LIKE '%PowerShell%'"
+    },
+    {
+      "producer": "19fd37fb18fa40ca8835674da7115f70",
+      "consumer": "be8a2c6eb15f4ebab8e4bf7634c6b9a7",
+      "producer_index": 4,
+      "consumer_index": 5,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT COUNT(*) FROM languages WHERE language_description LIKE '%PowerShell%';",
+      "consumer_sql": "SELECT COUNT(*) FROM languages WHERE language_description LIKE '%Shell%' AND language_description NOT LIKE '%PowerShell%'"
+    },
+    {
+      "producer": "7507bfd180c04428a76f69ad5da6f80e",
+      "consumer": "8afe57c746fd4367acbf2d22ce260003",
+      "producer_index": 1,
+      "consumer_index": 6,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 50,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT language_description, COUNT(*) FROM languages GROUP BY language_description HAVING COUNT(*) < 200 LIMIT 50",
+      "consumer_sql": "SELECT COUNT(*) FROM languages WHERE lower(language_description) LIKE '%shell%' AND language_description NOT LIKE '%PowerShell%' AND language_description NOT LIKE '%Shell%'"
+    },
+    {
+      "producer": "8c7f674562584430bdf7657a7315e37c",
+      "consumer": "8afe57c746fd4367acbf2d22ce260003",
+      "producer_index": 2,
+      "consumer_index": 6,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 20,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT DISTINCT substr(language_description,1,80) FROM languages WHERE language_description LIKE '%Shell%' LIMIT 20",
+      "consumer_sql": "SELECT COUNT(*) FROM languages WHERE lower(language_description) LIKE '%shell%' AND language_description NOT LIKE '%PowerShell%' AND language_description NOT LIKE '%Shell%'"
+    },
+    {
+      "producer": "19fd37fb18fa40ca8835674da7115f70",
+      "consumer": "8afe57c746fd4367acbf2d22ce260003",
+      "producer_index": 4,
+      "consumer_index": 6,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT COUNT(*) FROM languages WHERE language_description LIKE '%PowerShell%';",
+      "consumer_sql": "SELECT COUNT(*) FROM languages WHERE lower(language_description) LIKE '%shell%' AND language_description NOT LIKE '%PowerShell%' AND language_description NOT LIKE '%Shell%'"
+    },
+    {
+      "producer": "be8a2c6eb15f4ebab8e4bf7634c6b9a7",
+      "consumer": "8afe57c746fd4367acbf2d22ce260003",
+      "producer_index": 5,
+      "consumer_index": 6,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT COUNT(*) FROM languages WHERE language_description LIKE '%Shell%' AND language_description NOT LIKE '%PowerShell%'",
+      "consumer_sql": "SELECT COUNT(*) FROM languages WHERE lower(language_description) LIKE '%shell%' AND language_description NOT LIKE '%PowerShell%' AND language_description NOT LIKE '%Shell%'"
+    },
+    {
+      "producer": "7507bfd180c04428a76f69ad5da6f80e",
+      "consumer": "8179d09e20374b64a0f658170aef7447",
+      "producer_index": 1,
+      "consumer_index": 7,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 50,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT language_description, COUNT(*) FROM languages GROUP BY language_description HAVING COUNT(*) < 200 LIMIT 50",
+      "consumer_sql": "SELECT COUNT(*) FROM languages la JOIN licenses li ON la.repo_name = li.repo_name WHERE la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'"
+    },
+    {
+      "producer": "8c7f674562584430bdf7657a7315e37c",
+      "consumer": "8179d09e20374b64a0f658170aef7447",
+      "producer_index": 2,
+      "consumer_index": 7,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 20,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT DISTINCT substr(language_description,1,80) FROM languages WHERE language_description LIKE '%Shell%' LIMIT 20",
+      "consumer_sql": "SELECT COUNT(*) FROM languages la JOIN licenses li ON la.repo_name = li.repo_name WHERE la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'"
+    },
+    {
+      "producer": "97f2e6e391f241619e046146a8dc134a",
+      "consumer": "8179d09e20374b64a0f658170aef7447",
+      "producer_index": 3,
+      "consumer_index": 7,
+      "shared_tables": [
+        "licenses"
+      ],
+      "shared_columns": [
+        "license"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 15,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT DISTINCT license FROM licenses LIMIT 30",
+      "consumer_sql": "SELECT COUNT(*) FROM languages la JOIN licenses li ON la.repo_name = li.repo_name WHERE la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'"
+    },
+    {
+      "producer": "19fd37fb18fa40ca8835674da7115f70",
+      "consumer": "8179d09e20374b64a0f658170aef7447",
+      "producer_index": 4,
+      "consumer_index": 7,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT COUNT(*) FROM languages WHERE language_description LIKE '%PowerShell%';",
+      "consumer_sql": "SELECT COUNT(*) FROM languages la JOIN licenses li ON la.repo_name = li.repo_name WHERE la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'"
+    },
+    {
+      "producer": "be8a2c6eb15f4ebab8e4bf7634c6b9a7",
+      "consumer": "8179d09e20374b64a0f658170aef7447",
+      "producer_index": 5,
+      "consumer_index": 7,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT COUNT(*) FROM languages WHERE language_description LIKE '%Shell%' AND language_description NOT LIKE '%PowerShell%'",
+      "consumer_sql": "SELECT COUNT(*) FROM languages la JOIN licenses li ON la.repo_name = li.repo_name WHERE la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'"
+    },
+    {
+      "producer": "8afe57c746fd4367acbf2d22ce260003",
+      "consumer": "8179d09e20374b64a0f658170aef7447",
+      "producer_index": 6,
+      "consumer_index": 7,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 1,
+      "producer_sql": "SELECT COUNT(*) FROM languages WHERE lower(language_description) LIKE '%shell%' AND language_description NOT LIKE '%PowerShell%' AND language_description NOT LIKE '%Shell%'",
+      "consumer_sql": "SELECT COUNT(*) FROM languages la JOIN licenses li ON la.repo_name = li.repo_name WHERE la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'"
+    },
+    {
+      "producer": "7507bfd180c04428a76f69ad5da6f80e",
+      "consumer": "2e111ba678304934b55805397e53ab15",
+      "producer_index": 1,
+      "consumer_index": 8,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 50,
+      "consumer_rows": 107688,
+      "producer_sql": "SELECT language_description, COUNT(*) FROM languages GROUP BY language_description HAVING COUNT(*) < 200 LIMIT 50",
+      "consumer_sql": "SELECT DISTINCT la.repo_name FROM languages la JOIN licenses li ON la.repo_name = li.repo_name WHERE la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'"
+    },
+    {
+      "producer": "8c7f674562584430bdf7657a7315e37c",
+      "consumer": "2e111ba678304934b55805397e53ab15",
+      "producer_index": 2,
+      "consumer_index": 8,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 20,
+      "consumer_rows": 107688,
+      "producer_sql": "SELECT DISTINCT substr(language_description,1,80) FROM languages WHERE language_description LIKE '%Shell%' LIMIT 20",
+      "consumer_sql": "SELECT DISTINCT la.repo_name FROM languages la JOIN licenses li ON la.repo_name = li.repo_name WHERE la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'"
+    },
+    {
+      "producer": "97f2e6e391f241619e046146a8dc134a",
+      "consumer": "2e111ba678304934b55805397e53ab15",
+      "producer_index": 3,
+      "consumer_index": 8,
+      "shared_tables": [
+        "licenses"
+      ],
+      "shared_columns": [
+        "license"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 15,
+      "consumer_rows": 107688,
+      "producer_sql": "SELECT DISTINCT license FROM licenses LIMIT 30",
+      "consumer_sql": "SELECT DISTINCT la.repo_name FROM languages la JOIN licenses li ON la.repo_name = li.repo_name WHERE la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'"
+    },
+    {
+      "producer": "19fd37fb18fa40ca8835674da7115f70",
+      "consumer": "2e111ba678304934b55805397e53ab15",
+      "producer_index": 4,
+      "consumer_index": 8,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 107688,
+      "producer_sql": "SELECT COUNT(*) FROM languages WHERE language_description LIKE '%PowerShell%';",
+      "consumer_sql": "SELECT DISTINCT la.repo_name FROM languages la JOIN licenses li ON la.repo_name = li.repo_name WHERE la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'"
+    },
+    {
+      "producer": "be8a2c6eb15f4ebab8e4bf7634c6b9a7",
+      "consumer": "2e111ba678304934b55805397e53ab15",
+      "producer_index": 5,
+      "consumer_index": 8,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 107688,
+      "producer_sql": "SELECT COUNT(*) FROM languages WHERE language_description LIKE '%Shell%' AND language_description NOT LIKE '%PowerShell%'",
+      "consumer_sql": "SELECT DISTINCT la.repo_name FROM languages la JOIN licenses li ON la.repo_name = li.repo_name WHERE la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'"
+    },
+    {
+      "producer": "8afe57c746fd4367acbf2d22ce260003",
+      "consumer": "2e111ba678304934b55805397e53ab15",
+      "producer_index": 6,
+      "consumer_index": 8,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 107688,
+      "producer_sql": "SELECT COUNT(*) FROM languages WHERE lower(language_description) LIKE '%shell%' AND language_description NOT LIKE '%PowerShell%' AND language_description NOT LIKE '%Shell%'",
+      "consumer_sql": "SELECT DISTINCT la.repo_name FROM languages la JOIN licenses li ON la.repo_name = li.repo_name WHERE la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'"
+    },
+    {
+      "producer": "8179d09e20374b64a0f658170aef7447",
+      "consumer": "2e111ba678304934b55805397e53ab15",
+      "producer_index": 7,
+      "consumer_index": 8,
+      "shared_tables": [
+        "languages",
+        "licenses"
+      ],
+      "shared_columns": [
+        "language_description",
+        "license",
+        "repo_name"
+      ],
+      "same_filters": [
+        "la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'"
+      ],
+      "shared_joins": [
+        "JOIN licenses AS li ON la.repo_name = li.repo_name"
+      ],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 107688,
+      "producer_sql": "SELECT COUNT(*) FROM languages la JOIN licenses li ON la.repo_name = li.repo_name WHERE la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'",
+      "consumer_sql": "SELECT DISTINCT la.repo_name FROM languages la JOIN licenses li ON la.repo_name = li.repo_name WHERE la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'"
+    },
+    {
+      "producer": "6fe58bd49b7747928f305cf1f8919e41",
+      "consumer": "f66eee8c72974b6c8810a8f8e732a8db",
+      "producer_index": 9,
+      "consumer_index": 10,
+      "shared_tables": [
+        "commits"
+      ],
+      "shared_columns": [
+        "repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 6,
+      "producer_sql": "SELECT COUNT(DISTINCT repo_name) AS n_repos, COUNT(*) AS n_commits FROM commits",
+      "consumer_sql": "SELECT DISTINCT repo_name FROM commits"
+    },
+    {
+      "producer": "7507bfd180c04428a76f69ad5da6f80e",
+      "consumer": "f689c3534bc049278f37234a54d7210d",
+      "producer_index": 1,
+      "consumer_index": 11,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 50,
+      "consumer_rows": 5,
+      "producer_sql": "SELECT language_description, COUNT(*) FROM languages GROUP BY language_description HAVING COUNT(*) < 200 LIMIT 50",
+      "consumer_sql": "SELECT la.repo_name, la.language_description, li.license FROM languages la LEFT JOIN licenses li ON la.repo_name=li.repo_name WHERE la.repo_name IN ('twbs/bootstrap','facebook/react','Microsoft/vscode','tensorflow/tensorflow','torvalds/linux','apple/swift')"
+    },
+    {
+      "producer": "8c7f674562584430bdf7657a7315e37c",
+      "consumer": "f689c3534bc049278f37234a54d7210d",
+      "producer_index": 2,
+      "consumer_index": 11,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 20,
+      "consumer_rows": 5,
+      "producer_sql": "SELECT DISTINCT substr(language_description,1,80) FROM languages WHERE language_description LIKE '%Shell%' LIMIT 20",
+      "consumer_sql": "SELECT la.repo_name, la.language_description, li.license FROM languages la LEFT JOIN licenses li ON la.repo_name=li.repo_name WHERE la.repo_name IN ('twbs/bootstrap','facebook/react','Microsoft/vscode','tensorflow/tensorflow','torvalds/linux','apple/swift')"
+    },
+    {
+      "producer": "97f2e6e391f241619e046146a8dc134a",
+      "consumer": "f689c3534bc049278f37234a54d7210d",
+      "producer_index": 3,
+      "consumer_index": 11,
+      "shared_tables": [
+        "licenses"
+      ],
+      "shared_columns": [
+        "license"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 15,
+      "consumer_rows": 5,
+      "producer_sql": "SELECT DISTINCT license FROM licenses LIMIT 30",
+      "consumer_sql": "SELECT la.repo_name, la.language_description, li.license FROM languages la LEFT JOIN licenses li ON la.repo_name=li.repo_name WHERE la.repo_name IN ('twbs/bootstrap','facebook/react','Microsoft/vscode','tensorflow/tensorflow','torvalds/linux','apple/swift')"
+    },
+    {
+      "producer": "19fd37fb18fa40ca8835674da7115f70",
+      "consumer": "f689c3534bc049278f37234a54d7210d",
+      "producer_index": 4,
+      "consumer_index": 11,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 5,
+      "producer_sql": "SELECT COUNT(*) FROM languages WHERE language_description LIKE '%PowerShell%';",
+      "consumer_sql": "SELECT la.repo_name, la.language_description, li.license FROM languages la LEFT JOIN licenses li ON la.repo_name=li.repo_name WHERE la.repo_name IN ('twbs/bootstrap','facebook/react','Microsoft/vscode','tensorflow/tensorflow','torvalds/linux','apple/swift')"
+    },
+    {
+      "producer": "be8a2c6eb15f4ebab8e4bf7634c6b9a7",
+      "consumer": "f689c3534bc049278f37234a54d7210d",
+      "producer_index": 5,
+      "consumer_index": 11,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 5,
+      "producer_sql": "SELECT COUNT(*) FROM languages WHERE language_description LIKE '%Shell%' AND language_description NOT LIKE '%PowerShell%'",
+      "consumer_sql": "SELECT la.repo_name, la.language_description, li.license FROM languages la LEFT JOIN licenses li ON la.repo_name=li.repo_name WHERE la.repo_name IN ('twbs/bootstrap','facebook/react','Microsoft/vscode','tensorflow/tensorflow','torvalds/linux','apple/swift')"
+    },
+    {
+      "producer": "8afe57c746fd4367acbf2d22ce260003",
+      "consumer": "f689c3534bc049278f37234a54d7210d",
+      "producer_index": 6,
+      "consumer_index": 11,
+      "shared_tables": [
+        "languages"
+      ],
+      "shared_columns": [
+        "language_description"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 5,
+      "producer_sql": "SELECT COUNT(*) FROM languages WHERE lower(language_description) LIKE '%shell%' AND language_description NOT LIKE '%PowerShell%' AND language_description NOT LIKE '%Shell%'",
+      "consumer_sql": "SELECT la.repo_name, la.language_description, li.license FROM languages la LEFT JOIN licenses li ON la.repo_name=li.repo_name WHERE la.repo_name IN ('twbs/bootstrap','facebook/react','Microsoft/vscode','tensorflow/tensorflow','torvalds/linux','apple/swift')"
+    },
+    {
+      "producer": "8179d09e20374b64a0f658170aef7447",
+      "consumer": "f689c3534bc049278f37234a54d7210d",
+      "producer_index": 7,
+      "consumer_index": 11,
+      "shared_tables": [
+        "languages",
+        "licenses"
+      ],
+      "shared_columns": [
+        "language_description",
+        "license",
+        "repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 5,
+      "producer_sql": "SELECT COUNT(*) FROM languages la JOIN licenses li ON la.repo_name = li.repo_name WHERE la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'",
+      "consumer_sql": "SELECT la.repo_name, la.language_description, li.license FROM languages la LEFT JOIN licenses li ON la.repo_name=li.repo_name WHERE la.repo_name IN ('twbs/bootstrap','facebook/react','Microsoft/vscode','tensorflow/tensorflow','torvalds/linux','apple/swift')"
+    },
+    {
+      "producer": "2e111ba678304934b55805397e53ab15",
+      "consumer": "f689c3534bc049278f37234a54d7210d",
+      "producer_index": 8,
+      "consumer_index": 11,
+      "shared_tables": [
+        "languages",
+        "licenses"
+      ],
+      "shared_columns": [
+        "language_description",
+        "license",
+        "repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 107688,
+      "consumer_rows": 5,
+      "producer_sql": "SELECT DISTINCT la.repo_name FROM languages la JOIN licenses li ON la.repo_name = li.repo_name WHERE la.language_description LIKE '%Shell%' AND la.language_description NOT LIKE '%PowerShell%' AND li.license = 'apache-2.0'",
+      "consumer_sql": "SELECT la.repo_name, la.language_description, li.license FROM languages la LEFT JOIN licenses li ON la.repo_name=li.repo_name WHERE la.repo_name IN ('twbs/bootstrap','facebook/react','Microsoft/vscode','tensorflow/tensorflow','torvalds/linux','apple/swift')"
+    },
+    {
+      "producer": "6fe58bd49b7747928f305cf1f8919e41",
+      "consumer": "d97fc3bd463547159a3eb5e67f7ae66b",
+      "producer_index": 9,
+      "consumer_index": 12,
+      "shared_tables": [
+        "commits"
+      ],
+      "shared_columns": [
+        "repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "COUNT(*)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 2,
+      "producer_sql": "SELECT COUNT(DISTINCT repo_name) AS n_repos, COUNT(*) AS n_commits FROM commits",
+      "consumer_sql": "SELECT repo_name, COUNT(*) AS total, COUNT(message) AS nonnull, SUM(CASE WHEN length(message) < 1000 THEN 1 ELSE 0 END) AS under_1000, SUM(CASE WHEN message IS NOT NULL AND length(message) < 1000 AND lower(message) NOT LIKE 'merge%' AND lower(message) NOT LIKE 'update%' AND lower(message) NOT LIKE 'test%' THEN 1 ELSE 0 END) AS case_insensitive_ok, SUM(CASE WHEN message IS NOT NULL AND length(message) < 1000 AND message NOT LIKE 'merge%' AND message NOT LIKE 'update%' AND message NOT LIKE 'test%' THEN 1 ELSE 0 END) AS case_sensitive_ok FROM commits WHERE repo_name IN ('tensorflow/tensorflow','apple/swift') GROUP BY repo_name"
+    },
+    {
+      "producer": "f66eee8c72974b6c8810a8f8e732a8db",
+      "consumer": "d97fc3bd463547159a3eb5e67f7ae66b",
+      "producer_index": 10,
+      "consumer_index": 12,
+      "shared_tables": [
+        "commits"
+      ],
+      "shared_columns": [
+        "repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 6,
+      "consumer_rows": 2,
+      "producer_sql": "SELECT DISTINCT repo_name FROM commits",
+      "consumer_sql": "SELECT repo_name, COUNT(*) AS total, COUNT(message) AS nonnull, SUM(CASE WHEN length(message) < 1000 THEN 1 ELSE 0 END) AS under_1000, SUM(CASE WHEN message IS NOT NULL AND length(message) < 1000 AND lower(message) NOT LIKE 'merge%' AND lower(message) NOT LIKE 'update%' AND lower(message) NOT LIKE 'test%' THEN 1 ELSE 0 END) AS case_insensitive_ok, SUM(CASE WHEN message IS NOT NULL AND length(message) < 1000 AND message NOT LIKE 'merge%' AND message NOT LIKE 'update%' AND message NOT LIKE 'test%' THEN 1 ELSE 0 END) AS case_sensitive_ok FROM commits WHERE repo_name IN ('tensorflow/tensorflow','apple/swift') GROUP BY repo_name"
+    },
+    {
+      "producer": "6fe58bd49b7747928f305cf1f8919e41",
+      "consumer": "8c2c935d46744e8291f00620c81ebc25",
+      "producer_index": 9,
+      "consumer_index": 13,
+      "shared_tables": [
+        "commits"
+      ],
+      "shared_columns": [
+        "repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 30,
+      "producer_sql": "SELECT COUNT(DISTINCT repo_name) AS n_repos, COUNT(*) AS n_commits FROM commits",
+      "consumer_sql": "SELECT repo_name, substr(message,1,60) AS msg_start FROM commits WHERE repo_name IN ('tensorflow/tensorflow','apple/swift') AND length(message) < 1000 AND (lower(message) LIKE 'merge%' OR lower(message) LIKE 'update%' OR lower(message) LIKE 'test%') LIMIT 30"
+    },
+    {
+      "producer": "f66eee8c72974b6c8810a8f8e732a8db",
+      "consumer": "8c2c935d46744e8291f00620c81ebc25",
+      "producer_index": 10,
+      "consumer_index": 13,
+      "shared_tables": [
+        "commits"
+      ],
+      "shared_columns": [
+        "repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 6,
+      "consumer_rows": 30,
+      "producer_sql": "SELECT DISTINCT repo_name FROM commits",
+      "consumer_sql": "SELECT repo_name, substr(message,1,60) AS msg_start FROM commits WHERE repo_name IN ('tensorflow/tensorflow','apple/swift') AND length(message) < 1000 AND (lower(message) LIKE 'merge%' OR lower(message) LIKE 'update%' OR lower(message) LIKE 'test%') LIMIT 30"
+    },
+    {
+      "producer": "d97fc3bd463547159a3eb5e67f7ae66b",
+      "consumer": "8c2c935d46744e8291f00620c81ebc25",
+      "producer_index": 12,
+      "consumer_index": 13,
+      "shared_tables": [
+        "commits"
+      ],
+      "shared_columns": [
+        "message",
+        "repo_name"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 2,
+      "consumer_rows": 30,
+      "producer_sql": "SELECT repo_name, COUNT(*) AS total, COUNT(message) AS nonnull, SUM(CASE WHEN length(message) < 1000 THEN 1 ELSE 0 END) AS under_1000, SUM(CASE WHEN message IS NOT NULL AND length(message) < 1000 AND lower(message) NOT LIKE 'merge%' AND lower(message) NOT LIKE 'update%' AND lower(message) NOT LIKE 'test%' THEN 1 ELSE 0 END) AS case_insensitive_ok, SUM(CASE WHEN message IS NOT NULL AND length(message) < 1000 AND message NOT LIKE 'merge%' AND message NOT LIKE 'update%' AND message NOT LIKE 'test%' THEN 1 ELSE 0 END) AS case_sensitive_ok FROM commits WHERE repo_name IN ('tensorflow/tensorflow','apple/swift') GROUP BY repo_name",
+      "consumer_sql": "SELECT repo_name, substr(message,1,60) AS msg_start FROM commits WHERE repo_name IN ('tensorflow/tensorflow','apple/swift') AND length(message) < 1000 AND (lower(message) LIKE 'merge%' OR lower(message) LIKE 'update%' OR lower(message) LIKE 'test%') LIMIT 30"
+    }
+  ],
+  "fads": [],
+  "audit": {
+    "assistant_turns": 14,
+    "sql_order_checks": {},
+    "review_flags": []
+  }
+}

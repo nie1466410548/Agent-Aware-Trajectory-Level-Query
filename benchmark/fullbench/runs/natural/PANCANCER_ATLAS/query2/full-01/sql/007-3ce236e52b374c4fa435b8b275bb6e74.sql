@@ -1,0 +1,1 @@
+SELECT (regexp_match("Patient_description", '(TCGA-[A-Za-z0-9]{2}-[A-Za-z0-9]{4})'))[1] AS barcode, (regexp_match("Patient_description", 'vital status[^.]*?(Alive|Dead)', 'i'))[1] AS vital_status, histological_type FROM clinical_info WHERE "Patient_description" ILIKE '%Breast invasive carcinoma%'

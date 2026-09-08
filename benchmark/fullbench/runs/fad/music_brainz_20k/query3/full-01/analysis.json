@@ -1,0 +1,759 @@
+{
+  "summary": {
+    "task_id": "music_brainz_20k/query3",
+    "run_id": "full-01",
+    "model": "kimi-code/k3",
+    "group": "fad",
+    "adapter_version": "fullbench-v2-bound-run",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 233.87859392166138,
+    "answer_submitted": true,
+    "validator_passed": false,
+    "validator_reason": "No fuzzy match (Zo gaat het leven aan je voor) found in The song that generated the highest total revenue in USD across all stores and countries is:\n\n\"Systemisch bled\" by Stüngö\n- Track ID: 14719\n- Album: \"Um wos gehts'n?\" (2009)\n- Total revenue: $2,522.82 USD\n- Total units sold: 2,109 (across 5 sale records spanning multiple stores/countries)\n\nMethod: Summed revenue_usd from the sales table (DuckDB) grouped by track_id, then joined the top result to the tracks table (SQLite) for the title/artist. The runner-up was \"011-I'll Tell You\" by The BGeau Brummels (track_id 5124) at $2,503.19, about $19.63 less. A robustness check aggregating by title+artist across duplicate track records did not reveal any legitimately duplicated song that would surpass this total (the only larger groupings were artifacts of null/placeholder titles from different unrelated tracks), confirming the per-track answer.. Best score: 0.03",
+    "tool_calls": 12,
+    "sql_calls": 6,
+    "mongo_calls": 0,
+    "failed_calls": 0,
+    "mongo_queries": 0,
+    "mongo_metadata_queries": 0,
+    "data_queries": 4,
+    "metadata_queries": 2,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 4,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 0,
+    "later_queries_sharing_tables": 2,
+    "later_queries_sharing_table_columns": 2,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 0,
+    "shared_join_consumers": 0,
+    "shared_aggregate_consumers": 1,
+    "data_query_adapter_ms": 420.9631811827421,
+    "fad_submissions": 4,
+    "python_calls": 1,
+    "assistant_turns": 22
+  },
+  "queries": [
+    {
+      "call_id": "ccb633b6b32d4a208c9c1deb8736982e",
+      "tool": "list-db",
+      "database": "tracks_database",
+      "sql": "SELECT name FROM sqlite_master WHERE type='table'",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788817732.604101,
+      "duration_ms": 15.845861285924911,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "sqlite_master"
+      ],
+      "columns": [
+        "name",
+        "type"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "type = 'table'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT name FROM sqlite_master WHERE type = 'table'",
+      "simple_ranges": {
+        "type": {
+          "type": "text",
+          "lo": [
+            "table",
+            true
+          ],
+          "hi": [
+            "table",
+            true
+          ]
+        }
+      },
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "type = 'table'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "49e861c4bc70423c8ed84c67910c4e1d",
+      "tool": "list-db",
+      "database": "sales_database",
+      "sql": "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog')",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788817732.7074022,
+      "duration_ms": 66.16184115409851,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "tables"
+      ],
+      "columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT table_schema, table_name FROM information_schema.tables WHERE NOT table_schema IN ('information_schema', 'pg_catalog')",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "ad7c1908f40b4f739f4f697ba8fe6e3b",
+      "tool": "query-db",
+      "database": "sales_database",
+      "sql": "SELECT track_id,\n       SUM(revenue_usd) AS total_revenue_usd,\n       SUM(units_sold) AS total_units,\n       COUNT(*) AS sale_count\nFROM sales\nGROUP BY track_id\nORDER BY total_revenue_usd DESC\nLIMIT 20;\n",
+      "success": true,
+      "row_count": 20,
+      "start_time": 1788817767.270113,
+      "duration_ms": 60.916297137737274,
+      "dialect": "duckdb",
+      "fad_id": "5c00373eeaab4c4a87e22575bbd798d0",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "sales"
+      ],
+      "columns": [
+        "revenue_usd",
+        "total_revenue_usd",
+        "track_id",
+        "units_sold"
+      ],
+      "operations": [
+        "aggregate",
+        "limit",
+        "scan",
+        "sort"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)",
+        "SUM(revenue_usd)",
+        "SUM(units_sold)"
+      ],
+      "canonical": "SELECT track_id, SUM(revenue_usd) AS total_revenue_usd, SUM(units_sold) AS total_units, COUNT(*) AS sale_count FROM sales GROUP BY track_id ORDER BY total_revenue_usd DESC LIMIT 20",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "track_id"
+      ],
+      "limit": "LIMIT 20"
+    },
+    {
+      "call_id": "080ed3f1a74246b982767cfdc14ce40f",
+      "tool": "query-db",
+      "database": "tracks_database",
+      "sql": "SELECT track_id, source_id, title, artist, album, year\nFROM tracks\nWHERE track_id IN (14719, 5124, 1344, 6725, 10377, 5050, 6667, 7245, 11641, 964,\n                   12984, 6208, 666, 12620, 19232, 17757, 3462, 9639, 18760, 2516)\nORDER BY track_id;\n",
+      "success": true,
+      "row_count": 20,
+      "start_time": 1788817816.6421332,
+      "duration_ms": 17.335946671664715,
+      "dialect": "sqlite",
+      "fad_id": "a241ae80acdb414ba7e5904fadd83a59",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "tracks"
+      ],
+      "columns": [
+        "album",
+        "artist",
+        "source_id",
+        "title",
+        "track_id",
+        "year"
+      ],
+      "operations": [
+        "filter",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "track_id IN (14719, 5124, 1344, 6725, 10377, 5050, 6667, 7245, 11641, 964, 12984, 6208, 666, 12620, 19232, 17757, 3462, 9639, 18760, 2516)"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT track_id, source_id, title, artist, album, year FROM tracks WHERE track_id IN (14719, 5124, 1344, 6725, 10377, 5050, 6667, 7245, 11641, 964, 12984, 6208, 666, 12620, 19232, 17757, 3462, 9639, 18760, 2516) ORDER BY track_id",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "track_id IN (14719, 5124, 1344, 6725, 10377, 5050, 6667, 7245, 11641, 964, 12984, 6208, 666, 12620, 19232, 17757, 3462, 9639, 18760, 2516)"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "album",
+        "artist",
+        "source_id",
+        "title",
+        "track_id",
+        "year"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "dd8f3354db5d4de5adca29b3abf3edae",
+      "tool": "query-db",
+      "database": "sales_database",
+      "sql": "SELECT track_id, SUM(revenue_usd) AS total_revenue_usd, SUM(units_sold) AS total_units\nFROM sales\nGROUP BY track_id;\n",
+      "success": true,
+      "row_count": 19375,
+      "start_time": 1788817851.8535435,
+      "duration_ms": 198.08789528906345,
+      "dialect": "duckdb",
+      "fad_id": "38ace8911c4049d8b61fda94870320c1",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "sales"
+      ],
+      "columns": [
+        "revenue_usd",
+        "track_id",
+        "units_sold"
+      ],
+      "operations": [
+        "aggregate",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "SUM(revenue_usd)",
+        "SUM(units_sold)"
+      ],
+      "canonical": "SELECT track_id, SUM(revenue_usd) AS total_revenue_usd, SUM(units_sold) AS total_units FROM sales GROUP BY track_id",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "track_id"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "2fb41827f1cf48abab195ac8beb47884",
+      "tool": "query-db",
+      "database": "tracks_database",
+      "sql": "SELECT track_id, title, artist FROM tracks;\n",
+      "success": true,
+      "row_count": 19375,
+      "start_time": 1788817880.96898,
+      "duration_ms": 144.62304208427668,
+      "dialect": "sqlite",
+      "fad_id": "1948a059b588484a8dff71be539fec29",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "tracks"
+      ],
+      "columns": [
+        "artist",
+        "title",
+        "track_id"
+      ],
+      "operations": [
+        "scan"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT track_id, title, artist FROM tracks",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": true,
+      "producer_complete_selection": true,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "artist",
+        "title",
+        "track_id"
+      ],
+      "limit": null
+    }
+  ],
+  "mongo_queries": [],
+  "pairs": [
+    {
+      "producer": "ad7c1908f40b4f739f4f697ba8fe6e3b",
+      "consumer": "dd8f3354db5d4de5adca29b3abf3edae",
+      "producer_index": 1,
+      "consumer_index": 3,
+      "shared_tables": [
+        "sales"
+      ],
+      "shared_columns": [
+        "revenue_usd",
+        "track_id",
+        "units_sold"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [
+        "SUM(revenue_usd)",
+        "SUM(units_sold)"
+      ],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 20,
+      "consumer_rows": 19375,
+      "producer_sql": "SELECT track_id,\n       SUM(revenue_usd) AS total_revenue_usd,\n       SUM(units_sold) AS total_units,\n       COUNT(*) AS sale_count\nFROM sales\nGROUP BY track_id\nORDER BY total_revenue_usd DESC\nLIMIT 20;\n",
+      "consumer_sql": "SELECT track_id, SUM(revenue_usd) AS total_revenue_usd, SUM(units_sold) AS total_units\nFROM sales\nGROUP BY track_id;\n"
+    },
+    {
+      "producer": "080ed3f1a74246b982767cfdc14ce40f",
+      "consumer": "2fb41827f1cf48abab195ac8beb47884",
+      "producer_index": 2,
+      "consumer_index": 4,
+      "shared_tables": [
+        "tracks"
+      ],
+      "shared_columns": [
+        "artist",
+        "title",
+        "track_id"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 20,
+      "consumer_rows": 19375,
+      "producer_sql": "SELECT track_id, source_id, title, artist, album, year\nFROM tracks\nWHERE track_id IN (14719, 5124, 1344, 6725, 10377, 5050, 6667, 7245, 11641, 964,\n                   12984, 6208, 666, 12620, 19232, 17757, 3462, 9639, 18760, 2516)\nORDER BY track_id;\n",
+      "consumer_sql": "SELECT track_id, title, artist FROM tracks;\n"
+    }
+  ],
+  "fads": [
+    {
+      "call_id": "5c00373eeaab4c4a87e22575bbd798d0",
+      "accesses": [
+        {
+          "database": "sales_database",
+          "tables": [
+            "sales"
+          ],
+          "columns": [
+            "track_id",
+            "revenue_usd"
+          ],
+          "filters": [],
+          "operations": [
+            "aggregate",
+            "sort",
+            "limit"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "tracks_database",
+          "tables": [
+            "tracks"
+          ],
+          "columns": [
+            "track_id",
+            "title",
+            "artist"
+          ],
+          "filters": [
+            "track_id IN (top revenue track ids)"
+          ],
+          "operations": [
+            "filter"
+          ],
+          "horizon": 2
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "sales_database",
+          "sales"
+        ],
+        [
+          "tracks_database",
+          "tracks"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "ad7c1908f40b4f739f4f697ba8fe6e3b",
+        "080ed3f1a74246b982767cfdc14ce40f",
+        "dd8f3354db5d4de5adca29b3abf3edae"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "tracks_database",
+          "tracks"
+        ]
+      ],
+      "later_table_precision": 1.0,
+      "later_table_recall": 0.5,
+      "later_has_consumer": true,
+      "table_precision_1": 0.5,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "tracks_database",
+          "tracks"
+        ]
+      ],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.5,
+      "operation_recall_1": 0.75,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 17.615188598632812,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": null
+    },
+    {
+      "call_id": "a241ae80acdb414ba7e5904fadd83a59",
+      "accesses": [
+        {
+          "database": "tracks_database",
+          "tables": [
+            "tracks"
+          ],
+          "columns": [
+            "track_id",
+            "title",
+            "artist",
+            "album",
+            "source_id"
+          ],
+          "filters": [
+            "track_id IN (14719, 5124, 1344, 6725, 10377, 5050, 6667, 7245, 11641, 964, 12984, 6208, 666, 12620, 19232, 17757, 3462, 9639, 18760, 2516)"
+          ],
+          "operations": [
+            "filter"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "tracks_database",
+          "tables": [
+            "tracks"
+          ],
+          "columns": [
+            "track_id",
+            "title",
+            "artist"
+          ],
+          "filters": [],
+          "operations": [
+            "scan"
+          ],
+          "horizon": 2
+        },
+        {
+          "database": "sales_database",
+          "tables": [
+            "sales"
+          ],
+          "columns": [
+            "track_id",
+            "revenue_usd"
+          ],
+          "filters": [],
+          "operations": [
+            "aggregate"
+          ],
+          "horizon": 3
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "sales_database",
+          "sales"
+        ],
+        [
+          "tracks_database",
+          "tracks"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "080ed3f1a74246b982767cfdc14ce40f",
+        "dd8f3354db5d4de5adca29b3abf3edae",
+        "2fb41827f1cf48abab195ac8beb47884"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "sales_database",
+          "sales"
+        ],
+        [
+          "tracks_database",
+          "tracks"
+        ]
+      ],
+      "later_table_precision": 1.0,
+      "later_table_recall": 1.0,
+      "later_has_consumer": true,
+      "table_precision_1": 0.5,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "sales_database",
+          "sales"
+        ]
+      ],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.8333333333333334,
+      "operation_recall_1": 0.3333333333333333,
+      "filter_exact_precision_1": 1.0,
+      "filter_exact_recall_1": 1.0,
+      "predicted_filter_atoms": [
+        "track_id IN (14719, 5124, 1344, 6725, 10377, 5050, 6667, 7245, 11641, 964, 12984, 6208, 666, 12620, 19232, 17757, 3462, 9639, 18760, 2516)"
+      ],
+      "actual_filter_atoms": [
+        "track_id IN (14719, 5124, 1344, 6725, 10377, 5050, 6667, 7245, 11641, 964, 12984, 6208, 666, 12620, 19232, 17757, 3462, 9639, 18760, 2516)"
+      ],
+      "lead_s": 17.57710838317871,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    },
+    {
+      "call_id": "38ace8911c4049d8b61fda94870320c1",
+      "accesses": [
+        {
+          "database": "sales_database",
+          "tables": [
+            "sales"
+          ],
+          "columns": [
+            "track_id",
+            "revenue_usd"
+          ],
+          "filters": [],
+          "operations": [
+            "aggregate"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "tracks_database",
+          "tables": [
+            "tracks"
+          ],
+          "columns": [
+            "track_id",
+            "title",
+            "artist"
+          ],
+          "filters": [],
+          "operations": [
+            "scan"
+          ],
+          "horizon": 2
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "sales_database",
+          "sales"
+        ],
+        [
+          "tracks_database",
+          "tracks"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "dd8f3354db5d4de5adca29b3abf3edae",
+        "2fb41827f1cf48abab195ac8beb47884"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "tracks_database",
+          "tracks"
+        ]
+      ],
+      "later_table_precision": 1.0,
+      "later_table_recall": 1.0,
+      "later_has_consumer": true,
+      "table_precision_1": 0.5,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "tracks_database",
+          "tracks"
+        ]
+      ],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.6666666666666666,
+      "operation_recall_1": 0.5,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 14.669171810150146,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    },
+    {
+      "call_id": "1948a059b588484a8dff71be539fec29",
+      "accesses": [
+        {
+          "database": "tracks_database",
+          "tables": [
+            "tracks"
+          ],
+          "columns": [
+            "track_id",
+            "title",
+            "artist"
+          ],
+          "filters": [],
+          "operations": [
+            "scan"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "tracks_database",
+          "tracks"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "2fb41827f1cf48abab195ac8beb47884"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": false,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 13.317320108413696,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    }
+  ],
+  "audit": {
+    "assistant_turns": 22,
+    "sql_order_checks": {
+      "ad7c1908f40b4f739f4f697ba8fe6e3b": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "080ed3f1a74246b982767cfdc14ce40f": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "dd8f3354db5d4de5adca29b3abf3edae": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "2fb41827f1cf48abab195ac8beb47884": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      }
+    },
+    "review_flags": []
+  }
+}

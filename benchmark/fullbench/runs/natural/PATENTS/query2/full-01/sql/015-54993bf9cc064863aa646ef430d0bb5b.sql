@@ -1,0 +1,1 @@
+SELECT grant_date, COUNT(*) FROM publicationinfo WHERE Patents_info LIKE '%DE-%' AND grant_date LIKE '%2019%' AND (grant_date LIKE '%Jul%' OR grant_date LIKE '%Aug%' OR grant_date LIKE '%Sep%' OR grant_date LIKE '%Oct%' OR grant_date LIKE '%Nov%' OR grant_date LIKE '%Dec%') GROUP BY grant_date ORDER BY COUNT(*) DESC LIMIT 40

@@ -1,0 +1,1 @@
+SELECT (SELECT COUNT(*) FROM publicationinfo) AS total, (SELECT COUNT(*) FROM publicationinfo WHERE citation LIKE '%2017194630%') AS m1, (SELECT COUNT(*) FROM publicationinfo WHERE citation LIKE '%7745569%') AS m2, (SELECT COUNT(*) FROM publicationinfo WHERE citation LIKE '%US-201515313510%') AS m3, (SELECT COUNT(*) FROM publicationinfo WHERE citation LIKE '%8361933%') AS m4

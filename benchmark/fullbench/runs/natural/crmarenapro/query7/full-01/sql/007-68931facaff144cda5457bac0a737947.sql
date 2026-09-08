@@ -1,0 +1,1 @@
+SELECT id, subject, textbody, fromaddress, toids, messagedate, parentid, relatedtoid FROM emailmessage WHERE parentid = '#500Wt00000DDyznIAD' OR relatedtoid = '#500Wt00000DDyznIAD' ORDER BY messagedate

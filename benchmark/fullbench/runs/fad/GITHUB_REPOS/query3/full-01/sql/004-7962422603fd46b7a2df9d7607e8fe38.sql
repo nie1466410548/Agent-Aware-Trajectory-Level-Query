@@ -1,0 +1,1 @@
+SELECT repo_name, COUNT(*) AS n FROM commits WHERE message IS NOT NULL AND length(message) < 1000 AND lower(message) NOT LIKE 'merge%' AND lower(message) NOT LIKE 'update%' AND lower(message) NOT LIKE 'test%' GROUP BY repo_name

@@ -1,0 +1,716 @@
+{
+  "summary": {
+    "task_id": "crmarenapro/query13",
+    "run_id": "full-01",
+    "model": "kimi-code/k3",
+    "group": "fad",
+    "adapter_version": "fullbench-v2-bound-run",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 210.54396271705627,
+    "answer_submitted": true,
+    "validator_passed": false,
+    "validator_reason": "Found agent IDs ['005Wt000003NHw5IAG'], but expected '005Wt000003NIXCIA4'",
+    "tool_calls": 12,
+    "sql_calls": 6,
+    "mongo_calls": 0,
+    "failed_calls": 0,
+    "mongo_queries": 0,
+    "mongo_metadata_queries": 0,
+    "data_queries": 4,
+    "metadata_queries": 2,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 4,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 0,
+    "later_queries_sharing_tables": 1,
+    "later_queries_sharing_table_columns": 1,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 0,
+    "shared_join_consumers": 0,
+    "shared_aggregate_consumers": 0,
+    "data_query_adapter_ms": 111.9677466340363,
+    "fad_submissions": 4,
+    "python_calls": 1,
+    "assistant_turns": 12
+  },
+  "queries": [
+    {
+      "call_id": "e33da39320a94f659b56c4999ee3a85b",
+      "tool": "list-db",
+      "database": "sales_pipeline",
+      "sql": "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog')",
+      "success": true,
+      "row_count": 6,
+      "start_time": 1788789352.3725615,
+      "duration_ms": 66.7990013025701,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "tables"
+      ],
+      "columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT table_schema, table_name FROM information_schema.tables WHERE NOT table_schema IN ('information_schema', 'pg_catalog')",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "9c1372aaceef45519da6ed5e38081291",
+      "tool": "list-db",
+      "database": "products_orders",
+      "sql": "SELECT name FROM sqlite_master WHERE type='table'",
+      "success": true,
+      "row_count": 7,
+      "start_time": 1788789352.5297294,
+      "duration_ms": 16.036656219512224,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "sqlite_master"
+      ],
+      "columns": [
+        "name",
+        "type"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "type = 'table'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT name FROM sqlite_master WHERE type = 'table'",
+      "simple_ranges": {
+        "type": {
+          "type": "text",
+          "lo": [
+            "table",
+            true
+          ],
+          "hi": [
+            "table",
+            true
+          ]
+        }
+      },
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "type = 'table'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "d4ce3a3fba0b48dcbb5b3b819218740f",
+      "tool": "query-db",
+      "database": "sales_pipeline",
+      "sql": "SELECT o.Id AS OpportunityId, o.AccountId, o.OwnerId, c.CompanySignedDate\nFROM Opportunity o\nJOIN Contract c ON o.ContractID__c = c.Id\nWHERE CAST(c.CompanySignedDate AS DATE) BETWEEN DATE '2022-06-25' AND DATE '2022-11-25'\n",
+      "success": true,
+      "row_count": 12,
+      "start_time": 1788789380.5946271,
+      "duration_ms": 58.89743100851774,
+      "dialect": "duckdb",
+      "fad_id": "9f02b2341aec4715b9f290e4f87c1300",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "contract",
+        "opportunity"
+      ],
+      "columns": [
+        "accountid",
+        "companysigneddate",
+        "contractid__c",
+        "id",
+        "ownerid"
+      ],
+      "operations": [
+        "filter",
+        "join",
+        "scan"
+      ],
+      "filters": [
+        "CAST(c.companysigneddate AS DATE) BETWEEN CAST('2022-06-25' AS DATE) AND CAST('2022-11-25' AS DATE)"
+      ],
+      "joins": [
+        "JOIN contract AS c ON o.contractid__c = c.id"
+      ],
+      "aggregates": [],
+      "canonical": "SELECT o.id AS opportunityid, o.accountid, o.ownerid, c.companysigneddate FROM opportunity AS o JOIN contract AS c ON o.contractid__c = c.id WHERE CAST(c.companysigneddate AS DATE) BETWEEN CAST('2022-06-25' AS DATE) AND CAST('2022-11-25' AS DATE)",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [
+        "CAST(companysigneddate AS DATE) BETWEEN CAST('2022-06-25' AS DATE) AND CAST('2022-11-25' AS DATE)"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "accountid",
+        "companysigneddate",
+        "ownerid"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "40119010292543b486fbc63bea393d6c",
+      "tool": "query-db",
+      "database": "products_orders",
+      "sql": "SELECT o.Id AS OrderId, o.AccountId, o.OwnerId, o.EffectiveDate, o.Status,\n       SUM(oi.Quantity * oi.UnitPrice) AS SalesAmount\nFROM \"Order\" o\nJOIN OrderItem oi ON oi.OrderId = o.Id\nGROUP BY o.Id, o.AccountId, o.OwnerId, o.EffectiveDate, o.Status\n",
+      "success": true,
+      "row_count": 152,
+      "start_time": 1788789398.7638109,
+      "duration_ms": 19.81074921786785,
+      "dialect": "sqlite",
+      "fad_id": "752ccc58032249f9943abecc606d38fe",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "order",
+        "orderitem"
+      ],
+      "columns": [
+        "accountid",
+        "effectivedate",
+        "id",
+        "orderid",
+        "ownerid",
+        "quantity",
+        "status",
+        "unitprice"
+      ],
+      "operations": [
+        "aggregate",
+        "join",
+        "scan"
+      ],
+      "filters": [],
+      "joins": [
+        "JOIN orderitem AS oi ON oi.orderid = o.id"
+      ],
+      "aggregates": [
+        "SUM(oi.quantity * oi.unitprice)"
+      ],
+      "canonical": "SELECT o.id AS orderid, o.accountid, o.ownerid, o.effectivedate, o.status, SUM(oi.quantity * oi.unitprice) AS salesamount FROM \"Order\" AS o JOIN orderitem AS oi ON oi.orderid = o.id GROUP BY o.id, o.accountid, o.ownerid, o.effectivedate, o.status",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "accountid",
+        "effectivedate",
+        "ownerid",
+        "status"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "b052774f62ce4362a7ae5a25575df9b7",
+      "tool": "query-db",
+      "database": "core_crm",
+      "sql": "SELECT Id, FirstName, LastName, Email FROM User WHERE Id IN ('005Wt000003NHw5IAG','005Wt000003NBp4IAG')\n",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788789470.4738338,
+      "duration_ms": 16.46390464156866,
+      "dialect": "sqlite",
+      "fad_id": "26aac2e274b3476190d9d405ba217157",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "user"
+      ],
+      "columns": [
+        "email",
+        "firstname",
+        "id",
+        "lastname"
+      ],
+      "operations": [
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "id IN ('005Wt000003NHw5IAG', '005Wt000003NBp4IAG')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT id, firstname, lastname, email FROM user WHERE id IN ('005Wt000003NHw5IAG', '005Wt000003NBp4IAG')",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "id IN ('005Wt000003NHw5IAG', '005Wt000003NBp4IAG')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "email",
+        "firstname",
+        "id",
+        "lastname"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "19008b9e86bb44a8b16b318acb4ca865",
+      "tool": "query-db",
+      "database": "core_crm",
+      "sql": "SELECT Id, FirstName, LastName FROM User WHERE Id LIKE '%NHw5%' OR Id LIKE '#%'\n",
+      "success": true,
+      "row_count": 62,
+      "start_time": 1788789486.2294335,
+      "duration_ms": 16.79566176608205,
+      "dialect": "sqlite",
+      "fad_id": "a5f5366bfaf740e78ae891b56b0906ab",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "user"
+      ],
+      "columns": [
+        "firstname",
+        "id",
+        "lastname"
+      ],
+      "operations": [
+        "filter",
+        "scan"
+      ],
+      "filters": [
+        "id LIKE '%NHw5%' OR id LIKE '#%'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT id, firstname, lastname FROM user WHERE id LIKE '%NHw5%' OR id LIKE '#%'",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "id LIKE '%NHw5%' OR id LIKE '#%'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "firstname",
+        "id",
+        "lastname"
+      ],
+      "limit": null
+    }
+  ],
+  "mongo_queries": [],
+  "pairs": [
+    {
+      "producer": "b052774f62ce4362a7ae5a25575df9b7",
+      "consumer": "19008b9e86bb44a8b16b318acb4ca865",
+      "producer_index": 3,
+      "consumer_index": 4,
+      "shared_tables": [
+        "user"
+      ],
+      "shared_columns": [
+        "firstname",
+        "id",
+        "lastname"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 1,
+      "consumer_rows": 62,
+      "producer_sql": "SELECT Id, FirstName, LastName, Email FROM User WHERE Id IN ('005Wt000003NHw5IAG','005Wt000003NBp4IAG')\n",
+      "consumer_sql": "SELECT Id, FirstName, LastName FROM User WHERE Id LIKE '%NHw5%' OR Id LIKE '#%'\n"
+    }
+  ],
+  "fads": [
+    {
+      "call_id": "9f02b2341aec4715b9f290e4f87c1300",
+      "accesses": [
+        {
+          "database": "sales_pipeline",
+          "tables": [
+            "Opportunity",
+            "Contract"
+          ],
+          "columns": [
+            "Id",
+            "AccountId",
+            "OwnerId",
+            "ContractID__c",
+            "CompanySignedDate"
+          ],
+          "filters": [
+            "Contract.CompanySignedDate between 2022-06-25 and 2022-11-25"
+          ],
+          "operations": [
+            "join",
+            "filter",
+            "scan"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "products_orders",
+          "tables": [
+            "Order",
+            "OrderItem"
+          ],
+          "columns": [
+            "Id",
+            "AccountId",
+            "OwnerId",
+            "OrderId",
+            "Quantity",
+            "UnitPrice"
+          ],
+          "filters": [],
+          "operations": [
+            "join",
+            "aggregate"
+          ],
+          "horizon": 2
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "products_orders",
+          "order"
+        ],
+        [
+          "products_orders",
+          "orderitem"
+        ],
+        [
+          "sales_pipeline",
+          "contract"
+        ],
+        [
+          "sales_pipeline",
+          "opportunity"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "d4ce3a3fba0b48dcbb5b3b819218740f",
+        "40119010292543b486fbc63bea393d6c",
+        "b052774f62ce4362a7ae5a25575df9b7"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "products_orders",
+          "order"
+        ],
+        [
+          "products_orders",
+          "orderitem"
+        ]
+      ],
+      "later_table_precision": 1.0,
+      "later_table_recall": 0.6666666666666666,
+      "later_has_consumer": true,
+      "table_precision_1": 0.5,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "products_orders",
+          "order"
+        ],
+        [
+          "products_orders",
+          "orderitem"
+        ]
+      ],
+      "table_precision_3": 1.0,
+      "table_recall_3": 0.8,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "companysigneddate BETWEEN 2022 - 06 - 25 AND 2022 - 11 - 25"
+      ],
+      "actual_filter_atoms": [
+        "CAST(companysigneddate AS DATE) BETWEEN CAST('2022-06-25' AS DATE) AND CAST('2022-11-25' AS DATE)"
+      ],
+      "lead_s": 9.976507186889648,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": null
+    },
+    {
+      "call_id": "752ccc58032249f9943abecc606d38fe",
+      "accesses": [
+        {
+          "database": "products_orders",
+          "tables": [
+            "Order",
+            "OrderItem"
+          ],
+          "columns": [
+            "Id",
+            "AccountId",
+            "OwnerId",
+            "EffectiveDate",
+            "OrderId",
+            "Quantity",
+            "UnitPrice"
+          ],
+          "filters": [],
+          "operations": [
+            "join",
+            "aggregate"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "products_orders",
+          "order"
+        ],
+        [
+          "products_orders",
+          "orderitem"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "40119010292543b486fbc63bea393d6c",
+        "b052774f62ce4362a7ae5a25575df9b7",
+        "19008b9e86bb44a8b16b318acb4ca865"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 0.6666666666666666,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.875,
+      "operation_recall_1": 0.6666666666666666,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [],
+      "lead_s": 7.096078872680664,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    },
+    {
+      "call_id": "26aac2e274b3476190d9d405ba217157",
+      "accesses": [
+        {
+          "database": "core_crm",
+          "tables": [
+            "User"
+          ],
+          "columns": [
+            "Id",
+            "FirstName",
+            "LastName"
+          ],
+          "filters": [
+            "User.Id = '005Wt000003NHw5IAG'"
+          ],
+          "operations": [
+            "filter",
+            "scan"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "core_crm",
+          "user"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "b052774f62ce4362a7ae5a25575df9b7",
+        "19008b9e86bb44a8b16b318acb4ca865"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": true,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.75,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "id = '005Wt000003NHw5IAG'"
+      ],
+      "actual_filter_atoms": [
+        "id IN ('005Wt000003NHw5IAG', '005Wt000003NBp4IAG')"
+      ],
+      "lead_s": 6.025410890579224,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    },
+    {
+      "call_id": "a5f5366bfaf740e78ae891b56b0906ab",
+      "accesses": [
+        {
+          "database": "core_crm",
+          "tables": [
+            "User"
+          ],
+          "columns": [
+            "Id",
+            "FirstName",
+            "LastName"
+          ],
+          "filters": [
+            "User.Id LIKE '%NHw5%'"
+          ],
+          "operations": [
+            "filter",
+            "scan"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "core_crm",
+          "user"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "19008b9e86bb44a8b16b318acb4ca865"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": false,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 1.0,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "id LIKE '%NHw5%'"
+      ],
+      "actual_filter_atoms": [
+        "id LIKE '%NHw5%' OR id LIKE '#%'"
+      ],
+      "lead_s": 7.945119857788086,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 1.0
+    }
+  ],
+  "audit": {
+    "assistant_turns": 12,
+    "sql_order_checks": {
+      "d4ce3a3fba0b48dcbb5b3b819218740f": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "40119010292543b486fbc63bea393d6c": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "b052774f62ce4362a7ae5a25575df9b7": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "19008b9e86bb44a8b16b318acb4ca865": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      }
+    },
+    "review_flags": []
+  }
+}

@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_reviews, COUNT(DISTINCT purchase_id) AS distinct_pids, SUM(CASE WHEN purchase_id LIKE 'bookid%' THEN 1 ELSE 0 END) AS bookid_prefixed, MIN(purchase_id), MAX(purchase_id) FROM review

@@ -1,0 +1,1 @@
+SELECT id, title, faq_answer__c FROM knowledge__kav WHERE lower(faq_answer__c) LIKE '%training module%' AND (lower(faq_answer__c) LIKE '%hour%' OR lower(faq_answer__c) LIKE '%day%' OR lower(faq_answer__c) LIKE '%eligib%' OR lower(faq_answer__c) LIKE '%approv%') LIMIT 10;

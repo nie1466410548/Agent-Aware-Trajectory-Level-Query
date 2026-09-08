@@ -1,0 +1,925 @@
+{
+  "summary": {
+    "task_id": "stockmarket/query5",
+    "run_id": "full-01",
+    "model": "kimi-code/k3",
+    "group": "fad",
+    "adapter_version": "fullbench-v2-bound-run",
+    "hints": false,
+    "upstream_commit": "b24c8f5586121d4d2f8a5a793ebac530858dd1ab",
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 138.65287399291992,
+    "answer_submitted": true,
+    "validator_passed": true,
+    "validator_reason": "All names (exact or ≤5 edits) matched.",
+    "tool_calls": 12,
+    "sql_calls": 6,
+    "mongo_calls": 0,
+    "failed_calls": 0,
+    "mongo_queries": 0,
+    "mongo_metadata_queries": 0,
+    "data_queries": 4,
+    "metadata_queries": 2,
+    "sql_parse_failures": 0,
+    "successful_data_queries": 4,
+    "failed_data_queries": 0,
+    "empty_successful_data_queries": 0,
+    "later_queries_sharing_tables": 2,
+    "later_queries_sharing_table_columns": 2,
+    "later_queries_with_reuse_witness": 0,
+    "exact_repeat_consumers": 0,
+    "shared_filter_consumers": 0,
+    "shared_join_consumers": 0,
+    "shared_aggregate_consumers": 0,
+    "data_query_adapter_ms": 644.3754676729441,
+    "fad_submissions": 4,
+    "python_calls": 1,
+    "assistant_turns": 11
+  },
+  "queries": [
+    {
+      "call_id": "b4e89fb9337f47fbaac8d5b709d0c3f3",
+      "tool": "list-db",
+      "database": "stockinfo_database",
+      "sql": "SELECT name FROM sqlite_master WHERE type='table'",
+      "success": true,
+      "row_count": 1,
+      "start_time": 1788818458.6845112,
+      "duration_ms": 15.91827068477869,
+      "dialect": "sqlite",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "sqlite_master"
+      ],
+      "columns": [
+        "name",
+        "type"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "type = 'table'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT name FROM sqlite_master WHERE type = 'table'",
+      "simple_ranges": {
+        "type": {
+          "type": "text",
+          "lo": [
+            "table",
+            true
+          ],
+          "hi": [
+            "table",
+            true
+          ]
+        }
+      },
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "type = 'table'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "name"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "82d06f7a3ffb4a918677a22447b1f177",
+      "tool": "list-db",
+      "database": "stocktrade_database",
+      "sql": "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog')",
+      "success": true,
+      "row_count": 2753,
+      "start_time": 1788818458.7858608,
+      "duration_ms": 524.2404015734792,
+      "dialect": "duckdb",
+      "fad_id": null,
+      "metadata": true,
+      "parse_error": null,
+      "tables": [
+        "tables"
+      ],
+      "columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "operations": [
+        "metadata"
+      ],
+      "filters": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT table_schema, table_name FROM information_schema.tables WHERE NOT table_schema IN ('information_schema', 'pg_catalog')",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "NOT table_schema IN ('information_schema', 'pg_catalog')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "table_name",
+        "table_schema"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "8304708d2637432495145354c8b494dd",
+      "tool": "query-db",
+      "database": "stockinfo_database",
+      "sql": "SELECT \"Market Category\", \"Listing Exchange\", COUNT(*) AS n\nFROM stockinfo\nGROUP BY \"Market Category\", \"Listing Exchange\"\nORDER BY n DESC;\n",
+      "success": true,
+      "row_count": 7,
+      "start_time": 1788818482.3057606,
+      "duration_ms": 18.919403664767742,
+      "dialect": "sqlite",
+      "fad_id": "3afe5dfa252f450e8824c4f9468ce9d8",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "stockinfo"
+      ],
+      "columns": [
+        "listing exchange",
+        "market category",
+        "n"
+      ],
+      "operations": [
+        "aggregate",
+        "scan",
+        "sort"
+      ],
+      "filters": [],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT \"Market Category\", \"Listing Exchange\", COUNT(*) AS n FROM stockinfo GROUP BY \"Market Category\", \"Listing Exchange\" ORDER BY n DESC",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "listing exchange",
+        "market category"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "877057d055ae48c3850feb36f95b3a02",
+      "tool": "query-db",
+      "database": "stockinfo_database",
+      "sql": "SELECT \"Symbol\", \"Company Description\", \"ETF\"\nFROM stockinfo\nWHERE \"Market Category\" = 'S' AND \"Listing Exchange\" = 'Q'\nORDER BY \"Symbol\";\n",
+      "success": true,
+      "row_count": 86,
+      "start_time": 1788818497.585512,
+      "duration_ms": 18.001874908804893,
+      "dialect": "sqlite",
+      "fad_id": "f4cf70c3242f49a28a308d2127607da2",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "stockinfo"
+      ],
+      "columns": [
+        "company description",
+        "etf",
+        "listing exchange",
+        "market category",
+        "symbol"
+      ],
+      "operations": [
+        "filter",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "\"Market Category\" = 'S' AND \"Listing Exchange\" = 'Q'"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT \"Symbol\", \"Company Description\", \"ETF\" FROM stockinfo WHERE \"Market Category\" = 'S' AND \"Listing Exchange\" = 'Q' ORDER BY \"Symbol\"",
+      "simple_ranges": {
+        "market category": {
+          "type": "text",
+          "lo": [
+            "S",
+            true
+          ],
+          "hi": [
+            "S",
+            true
+          ]
+        },
+        "listing exchange": {
+          "type": "text",
+          "lo": [
+            "Q",
+            true
+          ],
+          "hi": [
+            "Q",
+            true
+          ]
+        }
+      },
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "\"Listing Exchange\" = 'Q'",
+        "\"Market Category\" = 'S'"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "company description",
+        "etf",
+        "symbol"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "eb169fce95b349f08fc930a5fbaa48f4",
+      "tool": "query-db",
+      "database": "stocktrade_database",
+      "sql": "SELECT symbol, days FROM (\nSELECT 'AGMH' AS symbol, COUNT(*) AS days FROM \"AGMH\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'ALACU' AS symbol, COUNT(*) AS days FROM \"ALACU\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'AMHC' AS symbol, COUNT(*) AS days FROM \"AMHC\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'ANDA' AS symbol, COUNT(*) AS days FROM \"ANDA\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'APEX' AS symbol, COUNT(*) AS days FROM \"APEX\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'BCLI' AS symbol, COUNT(*) AS days FROM \"BCLI\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'BHAT' AS symbol, COUNT(*) AS days FROM \"BHAT\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'BIOC' AS symbol, COUNT(*) AS days FROM \"BIOC\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'BKYI' AS symbol, COUNT(*) AS days FROM \"BKYI\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'BLFS' AS symbol, COUNT(*) AS days FROM \"BLFS\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'BOSC' AS symbol, COUNT(*) AS days FROM \"BOSC\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'BOTJ' AS symbol, COUNT(*) AS days FROM \"BOTJ\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'BWEN' AS symbol, COUNT(*) AS days FROM \"BWEN\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'CBAT' AS symbol, COUNT(*) AS days FROM \"CBAT\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'CCCL' AS symbol, COUNT(*) AS days FROM \"CCCL\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'CDMOP' AS symbol, COUNT(*) AS days FROM \"CDMOP\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'CEMI' AS symbol, COUNT(*) AS days FROM \"CEMI\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'CFBK' AS symbol, COUNT(*) AS days FROM \"CFBK\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'CFFA' AS symbol, COUNT(*) AS days FROM \"CFFA\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'CLRB' AS symbol, COUNT(*) AS days FROM \"CLRB\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'CORV' AS symbol, COUNT(*) AS days FROM \"CORV\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'CPAAU' AS symbol, COUNT(*) AS days FROM \"CPAAU\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'CPAH' AS symbol, COUNT(*) AS days FROM \"CPAH\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'CUBA' AS symbol, COUNT(*) AS days FROM \"CUBA\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'CVV' AS symbol, COUNT(*) AS days FROM \"CVV\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'DZSI' AS symbol, COUNT(*) AS days FROM \"DZSI\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'ELSE' AS symbol, COUNT(*) AS days FROM \"ELSE\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'EXPC' AS symbol, COUNT(*) AS days FROM \"EXPC\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'EYEG' AS symbol, COUNT(*) AS days FROM \"EYEG\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'FAMI' AS symbol, COUNT(*) AS days FROM \"FAMI\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'FNCB' AS symbol, COUNT(*) AS days FROM \"FNCB\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'FSBW' AS symbol, COUNT(*) AS days FROM \"FSBW\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'FTFT' AS symbol, COUNT(*) AS days FROM \"FTFT\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'GDYN' AS symbol, COUNT(*) AS days FROM \"GDYN\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'GLG' AS symbol, COUNT(*) AS days FROM \"GLG\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'GRNVU' AS symbol, COUNT(*) AS days FROM \"GRNVU\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'GTEC' AS symbol, COUNT(*) AS days FROM \"GTEC\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'HCCOU' AS symbol, COUNT(*) AS days FROM \"HCCOU\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'HNNA' AS symbol, COUNT(*) AS days FROM \"HNNA\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'HQI' AS symbol, COUNT(*) AS days FROM \"HQI\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'HRTX' AS symbol, COUNT(*) AS days FROM \"HRTX\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'IDEX' AS symbol, COUNT(*) AS days FROM \"IDEX\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'IGIC' AS symbol, COUNT(*) AS days FROM \"IGIC\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'IOTS' AS symbol, COUNT(*) AS days FROM \"IOTS\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'ISNS' AS symbol, COUNT(*) AS days FROM \"ISNS\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'ITI' AS symbol, COUNT(*) AS days FROM \"ITI\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'LACQ' AS symbol, COUNT(*) AS days FROM \"LACQ\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'MBCN' AS symbol, COUNT(*) AS days FROM \"MBCN\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'MBNKP' AS symbol, COUNT(*) AS days FROM \"MBNKP\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'MCEP' AS symbol, COUNT(*) AS days FROM \"MCEP\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'MLND' AS symbol, COUNT(*) AS days FROM \"MLND\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'MMAC' AS symbol, COUNT(*) AS days FROM \"MMAC\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'MNCLU' AS symbol, COUNT(*) AS days FROM \"MNCLU\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'MNPR' AS symbol, COUNT(*) AS days FROM \"MNPR\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'NVEE' AS symbol, COUNT(*) AS days FROM \"NVEE\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'NXTD' AS symbol, COUNT(*) AS days FROM \"NXTD\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'OPOF' AS symbol, COUNT(*) AS days FROM \"OPOF\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'OPTT' AS symbol, COUNT(*) AS days FROM \"OPTT\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'ORGO' AS symbol, COUNT(*) AS days FROM \"ORGO\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'ORSNU' AS symbol, COUNT(*) AS days FROM \"ORSNU\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'OTEL' AS symbol, COUNT(*) AS days FROM \"OTEL\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'PBFS' AS symbol, COUNT(*) AS days FROM \"PBFS\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'PBTS' AS symbol, COUNT(*) AS days FROM \"PBTS\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'PCSB' AS symbol, COUNT(*) AS days FROM \"PCSB\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'PECK' AS symbol, COUNT(*) AS days FROM \"PECK\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'PEIX' AS symbol, COUNT(*) AS days FROM \"PEIX\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'PFIE' AS symbol, COUNT(*) AS days FROM \"PFIE\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'PLIN' AS symbol, COUNT(*) AS days FROM \"PLIN\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'POPE' AS symbol, COUNT(*) AS days FROM \"POPE\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'QRHC' AS symbol, COUNT(*) AS days FROM \"QRHC\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'SES' AS symbol, COUNT(*) AS days FROM \"SES\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'SHSP' AS symbol, COUNT(*) AS days FROM \"SHSP\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'SNSS' AS symbol, COUNT(*) AS days FROM \"SNSS\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'SSNT' AS symbol, COUNT(*) AS days FROM \"SSNT\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'STKS' AS symbol, COUNT(*) AS days FROM \"STKS\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'TGLS' AS symbol, COUNT(*) AS days FROM \"TGLS\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'TMSR' AS symbol, COUNT(*) AS days FROM \"TMSR\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'VERB' AS symbol, COUNT(*) AS days FROM \"VERB\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'VMD' AS symbol, COUNT(*) AS days FROM \"VMD\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'VRRM' AS symbol, COUNT(*) AS days FROM \"VRRM\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'VTIQW' AS symbol, COUNT(*) AS days FROM \"VTIQW\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'VVPR' AS symbol, COUNT(*) AS days FROM \"VVPR\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'WHLM' AS symbol, COUNT(*) AS days FROM \"WHLM\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'WHLR' AS symbol, COUNT(*) AS days FROM \"WHLR\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'XBIOW' AS symbol, COUNT(*) AS days FROM \"XBIOW\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\nUNION ALL\nSELECT 'XPEL' AS symbol, COUNT(*) AS days FROM \"XPEL\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20\n) t ORDER BY days DESC, symbol ASC;",
+      "success": true,
+      "row_count": 86,
+      "start_time": 1788818543.874438,
+      "duration_ms": 589.8413518443704,
+      "dialect": "duckdb",
+      "fad_id": "4d5b79bebf0c4970ba6596d25404e28a",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "agmh",
+        "alacu",
+        "amhc",
+        "anda",
+        "apex",
+        "bcli",
+        "bhat",
+        "bioc",
+        "bkyi",
+        "blfs",
+        "bosc",
+        "botj",
+        "bwen",
+        "cbat",
+        "cccl",
+        "cdmop",
+        "cemi",
+        "cfbk",
+        "cffa",
+        "clrb",
+        "corv",
+        "cpaau",
+        "cpah",
+        "cuba",
+        "cvv",
+        "dzsi",
+        "else",
+        "expc",
+        "eyeg",
+        "fami",
+        "fncb",
+        "fsbw",
+        "ftft",
+        "gdyn",
+        "glg",
+        "grnvu",
+        "gtec",
+        "hccou",
+        "hnna",
+        "hqi",
+        "hrtx",
+        "idex",
+        "igic",
+        "iots",
+        "isns",
+        "iti",
+        "lacq",
+        "mbcn",
+        "mbnkp",
+        "mcep",
+        "mlnd",
+        "mmac",
+        "mnclu",
+        "mnpr",
+        "nvee",
+        "nxtd",
+        "opof",
+        "optt",
+        "orgo",
+        "orsnu",
+        "otel",
+        "pbfs",
+        "pbts",
+        "pcsb",
+        "peck",
+        "peix",
+        "pfie",
+        "plin",
+        "pope",
+        "qrhc",
+        "ses",
+        "shsp",
+        "snss",
+        "ssnt",
+        "stks",
+        "tgls",
+        "tmsr",
+        "verb",
+        "vmd",
+        "vrrm",
+        "vtiqw",
+        "vvpr",
+        "whlm",
+        "whlr",
+        "xbiow",
+        "xpel"
+      ],
+      "columns": [
+        "date",
+        "days",
+        "high",
+        "low",
+        "symbol"
+      ],
+      "operations": [
+        "aggregate",
+        "filter",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "\"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20"
+      ],
+      "joins": [],
+      "aggregates": [
+        "COUNT(*)"
+      ],
+      "canonical": "SELECT symbol, days FROM (SELECT 'AGMH' AS symbol, COUNT(*) AS days FROM \"AGMH\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'ALACU' AS symbol, COUNT(*) AS days FROM \"ALACU\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'AMHC' AS symbol, COUNT(*) AS days FROM \"AMHC\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'ANDA' AS symbol, COUNT(*) AS days FROM \"ANDA\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'APEX' AS symbol, COUNT(*) AS days FROM \"APEX\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'BCLI' AS symbol, COUNT(*) AS days FROM \"BCLI\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'BHAT' AS symbol, COUNT(*) AS days FROM \"BHAT\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'BIOC' AS symbol, COUNT(*) AS days FROM \"BIOC\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'BKYI' AS symbol, COUNT(*) AS days FROM \"BKYI\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'BLFS' AS symbol, COUNT(*) AS days FROM \"BLFS\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'BOSC' AS symbol, COUNT(*) AS days FROM \"BOSC\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'BOTJ' AS symbol, COUNT(*) AS days FROM \"BOTJ\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'BWEN' AS symbol, COUNT(*) AS days FROM \"BWEN\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'CBAT' AS symbol, COUNT(*) AS days FROM \"CBAT\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'CCCL' AS symbol, COUNT(*) AS days FROM \"CCCL\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'CDMOP' AS symbol, COUNT(*) AS days FROM \"CDMOP\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'CEMI' AS symbol, COUNT(*) AS days FROM \"CEMI\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'CFBK' AS symbol, COUNT(*) AS days FROM \"CFBK\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'CFFA' AS symbol, COUNT(*) AS days FROM \"CFFA\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'CLRB' AS symbol, COUNT(*) AS days FROM \"CLRB\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'CORV' AS symbol, COUNT(*) AS days FROM \"CORV\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'CPAAU' AS symbol, COUNT(*) AS days FROM \"CPAAU\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'CPAH' AS symbol, COUNT(*) AS days FROM \"CPAH\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'CUBA' AS symbol, COUNT(*) AS days FROM \"CUBA\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'CVV' AS symbol, COUNT(*) AS days FROM \"CVV\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'DZSI' AS symbol, COUNT(*) AS days FROM \"DZSI\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'ELSE' AS symbol, COUNT(*) AS days FROM \"ELSE\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'EXPC' AS symbol, COUNT(*) AS days FROM \"EXPC\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'EYEG' AS symbol, COUNT(*) AS days FROM \"EYEG\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'FAMI' AS symbol, COUNT(*) AS days FROM \"FAMI\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'FNCB' AS symbol, COUNT(*) AS days FROM \"FNCB\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'FSBW' AS symbol, COUNT(*) AS days FROM \"FSBW\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'FTFT' AS symbol, COUNT(*) AS days FROM \"FTFT\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'GDYN' AS symbol, COUNT(*) AS days FROM \"GDYN\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'GLG' AS symbol, COUNT(*) AS days FROM \"GLG\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'GRNVU' AS symbol, COUNT(*) AS days FROM \"GRNVU\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'GTEC' AS symbol, COUNT(*) AS days FROM \"GTEC\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'HCCOU' AS symbol, COUNT(*) AS days FROM \"HCCOU\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'HNNA' AS symbol, COUNT(*) AS days FROM \"HNNA\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'HQI' AS symbol, COUNT(*) AS days FROM \"HQI\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'HRTX' AS symbol, COUNT(*) AS days FROM \"HRTX\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'IDEX' AS symbol, COUNT(*) AS days FROM \"IDEX\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'IGIC' AS symbol, COUNT(*) AS days FROM \"IGIC\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'IOTS' AS symbol, COUNT(*) AS days FROM \"IOTS\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'ISNS' AS symbol, COUNT(*) AS days FROM \"ISNS\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'ITI' AS symbol, COUNT(*) AS days FROM \"ITI\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'LACQ' AS symbol, COUNT(*) AS days FROM \"LACQ\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'MBCN' AS symbol, COUNT(*) AS days FROM \"MBCN\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'MBNKP' AS symbol, COUNT(*) AS days FROM \"MBNKP\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'MCEP' AS symbol, COUNT(*) AS days FROM \"MCEP\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'MLND' AS symbol, COUNT(*) AS days FROM \"MLND\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'MMAC' AS symbol, COUNT(*) AS days FROM \"MMAC\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'MNCLU' AS symbol, COUNT(*) AS days FROM \"MNCLU\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'MNPR' AS symbol, COUNT(*) AS days FROM \"MNPR\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'NVEE' AS symbol, COUNT(*) AS days FROM \"NVEE\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'NXTD' AS symbol, COUNT(*) AS days FROM \"NXTD\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'OPOF' AS symbol, COUNT(*) AS days FROM \"OPOF\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'OPTT' AS symbol, COUNT(*) AS days FROM \"OPTT\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'ORGO' AS symbol, COUNT(*) AS days FROM \"ORGO\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'ORSNU' AS symbol, COUNT(*) AS days FROM \"ORSNU\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'OTEL' AS symbol, COUNT(*) AS days FROM \"OTEL\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'PBFS' AS symbol, COUNT(*) AS days FROM \"PBFS\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'PBTS' AS symbol, COUNT(*) AS days FROM \"PBTS\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'PCSB' AS symbol, COUNT(*) AS days FROM \"PCSB\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'PECK' AS symbol, COUNT(*) AS days FROM \"PECK\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'PEIX' AS symbol, COUNT(*) AS days FROM \"PEIX\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'PFIE' AS symbol, COUNT(*) AS days FROM \"PFIE\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'PLIN' AS symbol, COUNT(*) AS days FROM \"PLIN\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'POPE' AS symbol, COUNT(*) AS days FROM \"POPE\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'QRHC' AS symbol, COUNT(*) AS days FROM \"QRHC\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'SES' AS symbol, COUNT(*) AS days FROM \"SES\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'SHSP' AS symbol, COUNT(*) AS days FROM \"SHSP\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'SNSS' AS symbol, COUNT(*) AS days FROM \"SNSS\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'SSNT' AS symbol, COUNT(*) AS days FROM \"SSNT\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'STKS' AS symbol, COUNT(*) AS days FROM \"STKS\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'TGLS' AS symbol, COUNT(*) AS days FROM \"TGLS\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'TMSR' AS symbol, COUNT(*) AS days FROM \"TMSR\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'VERB' AS symbol, COUNT(*) AS days FROM \"VERB\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'VMD' AS symbol, COUNT(*) AS days FROM \"VMD\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'VRRM' AS symbol, COUNT(*) AS days FROM \"VRRM\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'VTIQW' AS symbol, COUNT(*) AS days FROM \"VTIQW\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'VVPR' AS symbol, COUNT(*) AS days FROM \"VVPR\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'WHLM' AS symbol, COUNT(*) AS days FROM \"WHLM\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'WHLR' AS symbol, COUNT(*) AS days FROM \"WHLR\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'XBIOW' AS symbol, COUNT(*) AS days FROM \"XBIOW\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20 UNION ALL SELECT 'XPEL' AS symbol, COUNT(*) AS days FROM \"XPEL\" WHERE \"Date\" >= '2019-01-01' AND \"Date\" <= '2019-12-31' AND \"Low\" > 0 AND (\"High\" - \"Low\") / \"Low\" > 0.20) AS t ORDER BY days DESC, symbol ASC NULLS LAST",
+      "simple_ranges": {},
+      "simple_single_table": false,
+      "producer_full_rows": false,
+      "producer_complete_selection": false,
+      "where_conjuncts": [],
+      "star_projection": false,
+      "projected_base_columns": [
+        "days",
+        "symbol"
+      ],
+      "limit": null
+    },
+    {
+      "call_id": "66fc145f826c4ea3b8a87b1a7016380f",
+      "tool": "query-db",
+      "database": "stockinfo_database",
+      "sql": "SELECT \"Symbol\", \"Company Description\"\nFROM stockinfo\nWHERE \"Symbol\" IN ('SES','GLG','TMSR','VERB','SNSS')\nORDER BY \"Symbol\";\n",
+      "success": true,
+      "row_count": 5,
+      "start_time": 1788818561.067608,
+      "duration_ms": 17.612837255001068,
+      "dialect": "sqlite",
+      "fad_id": "b93e55f3aca846b9877b9875bdf82381",
+      "metadata": false,
+      "parse_error": null,
+      "tables": [
+        "stockinfo"
+      ],
+      "columns": [
+        "company description",
+        "symbol"
+      ],
+      "operations": [
+        "filter",
+        "scan",
+        "sort"
+      ],
+      "filters": [
+        "\"Symbol\" IN ('SES', 'GLG', 'TMSR', 'VERB', 'SNSS')"
+      ],
+      "joins": [],
+      "aggregates": [],
+      "canonical": "SELECT \"Symbol\", \"Company Description\" FROM stockinfo WHERE \"Symbol\" IN ('SES', 'GLG', 'TMSR', 'VERB', 'SNSS') ORDER BY \"Symbol\"",
+      "simple_ranges": {},
+      "simple_single_table": true,
+      "producer_full_rows": false,
+      "producer_complete_selection": true,
+      "where_conjuncts": [
+        "\"Symbol\" IN ('SES', 'GLG', 'TMSR', 'VERB', 'SNSS')"
+      ],
+      "star_projection": false,
+      "projected_base_columns": [
+        "company description",
+        "symbol"
+      ],
+      "limit": null
+    }
+  ],
+  "mongo_queries": [],
+  "pairs": [
+    {
+      "producer": "8304708d2637432495145354c8b494dd",
+      "consumer": "877057d055ae48c3850feb36f95b3a02",
+      "producer_index": 1,
+      "consumer_index": 2,
+      "shared_tables": [
+        "stockinfo"
+      ],
+      "shared_columns": [
+        "listing exchange",
+        "market category"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 7,
+      "consumer_rows": 86,
+      "producer_sql": "SELECT \"Market Category\", \"Listing Exchange\", COUNT(*) AS n\nFROM stockinfo\nGROUP BY \"Market Category\", \"Listing Exchange\"\nORDER BY n DESC;\n",
+      "consumer_sql": "SELECT \"Symbol\", \"Company Description\", \"ETF\"\nFROM stockinfo\nWHERE \"Market Category\" = 'S' AND \"Listing Exchange\" = 'Q'\nORDER BY \"Symbol\";\n"
+    },
+    {
+      "producer": "8304708d2637432495145354c8b494dd",
+      "consumer": "66fc145f826c4ea3b8a87b1a7016380f",
+      "producer_index": 1,
+      "consumer_index": 4,
+      "shared_tables": [
+        "stockinfo"
+      ],
+      "shared_columns": [],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 7,
+      "consumer_rows": 5,
+      "producer_sql": "SELECT \"Market Category\", \"Listing Exchange\", COUNT(*) AS n\nFROM stockinfo\nGROUP BY \"Market Category\", \"Listing Exchange\"\nORDER BY n DESC;\n",
+      "consumer_sql": "SELECT \"Symbol\", \"Company Description\"\nFROM stockinfo\nWHERE \"Symbol\" IN ('SES','GLG','TMSR','VERB','SNSS')\nORDER BY \"Symbol\";\n"
+    },
+    {
+      "producer": "877057d055ae48c3850feb36f95b3a02",
+      "consumer": "66fc145f826c4ea3b8a87b1a7016380f",
+      "producer_index": 2,
+      "consumer_index": 4,
+      "shared_tables": [
+        "stockinfo"
+      ],
+      "shared_columns": [
+        "company description",
+        "symbol"
+      ],
+      "same_filters": [],
+      "shared_joins": [],
+      "shared_aggregates": [],
+      "range_comparisons": [],
+      "reuse_witnesses": [],
+      "producer_rows": 86,
+      "consumer_rows": 5,
+      "producer_sql": "SELECT \"Symbol\", \"Company Description\", \"ETF\"\nFROM stockinfo\nWHERE \"Market Category\" = 'S' AND \"Listing Exchange\" = 'Q'\nORDER BY \"Symbol\";\n",
+      "consumer_sql": "SELECT \"Symbol\", \"Company Description\"\nFROM stockinfo\nWHERE \"Symbol\" IN ('SES','GLG','TMSR','VERB','SNSS')\nORDER BY \"Symbol\";\n"
+    }
+  ],
+  "fads": [
+    {
+      "call_id": "3afe5dfa252f450e8824c4f9468ce9d8",
+      "accesses": [
+        {
+          "database": "stockinfo_database",
+          "tables": [
+            "stockinfo"
+          ],
+          "columns": [
+            "Symbol",
+            "Listing Exchange",
+            "Market Category",
+            "ETF",
+            "Company Description"
+          ],
+          "filters": [
+            "Market Category = 'S' (NASDAQ Capital Market)"
+          ],
+          "operations": [
+            "filter",
+            "metadata"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "stocktrade_database",
+          "tables": [
+            "per-symbol tables"
+          ],
+          "columns": [
+            "Date",
+            "High",
+            "Low"
+          ],
+          "filters": [
+            "Date in 2019",
+            "(High - Low)/Low > 0.20"
+          ],
+          "operations": [
+            "scan",
+            "filter",
+            "aggregate",
+            "sort",
+            "limit"
+          ],
+          "horizon": 2
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "stockinfo_database",
+          "stockinfo"
+        ],
+        [
+          "stocktrade_database",
+          "per-symbol tables"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "8304708d2637432495145354c8b494dd",
+        "877057d055ae48c3850feb36f95b3a02",
+        "eb169fce95b349f08fc930a5fbaa48f4"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "stocktrade_database",
+          "per-symbol tables"
+        ]
+      ],
+      "later_table_precision": 0.0,
+      "later_table_recall": 0.0,
+      "later_has_consumer": true,
+      "table_precision_1": 0.5,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "stocktrade_database",
+          "per-symbol tables"
+        ]
+      ],
+      "table_precision_3": 0.5,
+      "table_recall_3": 0.011494252873563218,
+      "unrealized_table_atoms_3": [
+        [
+          "stocktrade_database",
+          "per-symbol tables"
+        ]
+      ],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 0.4,
+      "operation_precision_1": 0.0,
+      "column_recall_1": 0.6666666666666666,
+      "operation_recall_1": 0.0,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": null,
+      "predicted_filter_atoms": [
+        "UNPARSED:Market Category = 'S' (NASDAQ Capital Market)"
+      ],
+      "actual_filter_atoms": [],
+      "lead_s": 7.307512283325195,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": null
+    },
+    {
+      "call_id": "f4cf70c3242f49a28a308d2127607da2",
+      "accesses": [
+        {
+          "database": "stockinfo_database",
+          "tables": [
+            "stockinfo"
+          ],
+          "columns": [
+            "Symbol",
+            "Company Description",
+            "ETF"
+          ],
+          "filters": [
+            "Market Category = 'S'",
+            "Listing Exchange = 'Q'"
+          ],
+          "operations": [
+            "filter"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "stocktrade_database",
+          "tables": [
+            "86 per-symbol tables from stockinfo result"
+          ],
+          "columns": [
+            "Date",
+            "High",
+            "Low"
+          ],
+          "filters": [
+            "Date in 2019",
+            "(High - Low)/Low > 0.20"
+          ],
+          "operations": [
+            "scan",
+            "filter",
+            "aggregate",
+            "sort",
+            "limit"
+          ],
+          "horizon": 2
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "stockinfo_database",
+          "stockinfo"
+        ],
+        [
+          "stocktrade_database",
+          "86 per-symbol tables from stockinfo result"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "877057d055ae48c3850feb36f95b3a02",
+        "eb169fce95b349f08fc930a5fbaa48f4",
+        "66fc145f826c4ea3b8a87b1a7016380f"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "stocktrade_database",
+          "86 per-symbol tables from stockinfo result"
+        ]
+      ],
+      "later_table_precision": 0.0,
+      "later_table_recall": 0.0,
+      "later_has_consumer": true,
+      "table_precision_1": 0.5,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [
+        [
+          "stocktrade_database",
+          "86 per-symbol tables from stockinfo result"
+        ]
+      ],
+      "table_precision_3": 0.5,
+      "table_recall_3": 0.011494252873563218,
+      "unrealized_table_atoms_3": [
+        [
+          "stocktrade_database",
+          "86 per-symbol tables from stockinfo result"
+        ]
+      ],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 0.6,
+      "operation_recall_1": 0.3333333333333333,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "UNPARSED:Listing Exchange = 'Q'",
+        "UNPARSED:Market Category = 'S'"
+      ],
+      "actual_filter_atoms": [
+        "\"Listing Exchange\" = 'Q'",
+        "\"Market Category\" = 'S'"
+      ],
+      "lead_s": 6.019891023635864,
+      "last_query_table_recall_1": 1.0,
+      "last_query_table_precision_1": 1.0
+    },
+    {
+      "call_id": "4d5b79bebf0c4970ba6596d25404e28a",
+      "accesses": [
+        {
+          "database": "stocktrade_database",
+          "tables": [
+            "86 NASDAQ Capital Market symbol tables (e.g. AGMH, ALACU, BCLI, BIOC, CBAT, FTFT, HRTX, ...)"
+          ],
+          "columns": [
+            "Date",
+            "High",
+            "Low"
+          ],
+          "filters": [
+            "Date between '2019-01-01' and '2019-12-31'",
+            "Low > 0",
+            "(High - Low)/Low > 0.20"
+          ],
+          "operations": [
+            "scan",
+            "filter",
+            "aggregate",
+            "sort",
+            "limit"
+          ],
+          "horizon": 1
+        },
+        {
+          "database": "stockinfo_database",
+          "tables": [
+            "stockinfo"
+          ],
+          "columns": [
+            "Symbol",
+            "Company Description"
+          ],
+          "filters": [
+            "Symbol in top-5 result"
+          ],
+          "operations": [
+            "filter",
+            "join"
+          ],
+          "horizon": 2
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "stockinfo_database",
+          "stockinfo"
+        ],
+        [
+          "stocktrade_database",
+          ")"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "eb169fce95b349f08fc930a5fbaa48f4",
+        "66fc145f826c4ea3b8a87b1a7016380f"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [
+        [
+          "stockinfo_database",
+          "stockinfo"
+        ]
+      ],
+      "later_table_precision": 1.0,
+      "later_table_recall": 1.0,
+      "later_has_consumer": true,
+      "table_precision_1": 0.0,
+      "table_recall_1": 0.0,
+      "unrealized_table_atoms_1": [
+        [
+          "stockinfo_database",
+          "stockinfo"
+        ],
+        [
+          "stocktrade_database",
+          ")"
+        ]
+      ],
+      "table_precision_3": 0.5,
+      "table_recall_3": 0.011494252873563218,
+      "unrealized_table_atoms_3": [
+        [
+          "stocktrade_database",
+          ")"
+        ]
+      ],
+      "immediate_table_precision": 0.0,
+      "immediate_table_recall": 0.0,
+      "column_precision_1": null,
+      "operation_precision_1": null,
+      "column_recall_1": 0.0,
+      "operation_recall_1": 0.0,
+      "filter_exact_precision_1": null,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [],
+      "actual_filter_atoms": [
+        "\"Date\" <= '2019-12-31'",
+        "\"Date\" >= '2019-01-01'",
+        "\"Low\" > 0",
+        "(\"High\" - \"Low\") / \"Low\" > 0.20"
+      ],
+      "lead_s": 20.677917957305908,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    },
+    {
+      "call_id": "b93e55f3aca846b9877b9875bdf82381",
+      "accesses": [
+        {
+          "database": "stockinfo_database",
+          "tables": [
+            "stockinfo"
+          ],
+          "columns": [
+            "Symbol",
+            "Company Description"
+          ],
+          "filters": [
+            "Symbol IN ('SES','GLG','TMSR','VERB','SNSS')"
+          ],
+          "operations": [
+            "filter"
+          ],
+          "horizon": 1
+        }
+      ],
+      "predicted_table_atoms": [
+        [
+          "stockinfo_database",
+          "stockinfo"
+        ]
+      ],
+      "empty": false,
+      "future_calls": [
+        "66fc145f826c4ea3b8a87b1a7016380f"
+      ],
+      "targets_metadata": false,
+      "targets_mongo": false,
+      "has_next_query": true,
+      "next_success": true,
+      "later_prediction_atoms": [],
+      "later_table_precision": null,
+      "later_table_recall": null,
+      "later_has_consumer": false,
+      "table_precision_1": 1.0,
+      "table_recall_1": 1.0,
+      "unrealized_table_atoms_1": [],
+      "table_precision_3": 1.0,
+      "table_recall_3": 1.0,
+      "unrealized_table_atoms_3": [],
+      "immediate_table_precision": 1.0,
+      "immediate_table_recall": 1.0,
+      "column_precision_1": 1.0,
+      "operation_precision_1": 1.0,
+      "column_recall_1": 1.0,
+      "operation_recall_1": 0.3333333333333333,
+      "filter_exact_precision_1": 0.0,
+      "filter_exact_recall_1": 0.0,
+      "predicted_filter_atoms": [
+        "symbol IN ('SES', 'GLG', 'TMSR', 'VERB', 'SNSS')"
+      ],
+      "actual_filter_atoms": [
+        "\"Symbol\" IN ('SES', 'GLG', 'TMSR', 'VERB', 'SNSS')"
+      ],
+      "lead_s": 7.481206655502319,
+      "last_query_table_recall_1": 0.0,
+      "last_query_table_precision_1": 0.0
+    }
+  ],
+  "audit": {
+    "assistant_turns": 11,
+    "sql_order_checks": {
+      "8304708d2637432495145354c8b494dd": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "877057d055ae48c3850feb36f95b3a02": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "eb169fce95b349f08fc930a5fbaa48f4": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      },
+      "66fc145f826c4ea3b8a87b1a7016380f": {
+        "separate_assistant_turn": true,
+        "exact_sql_seen_before_fad_response": false,
+        "early_indices": []
+      }
+    },
+    "review_flags": []
+  }
+}

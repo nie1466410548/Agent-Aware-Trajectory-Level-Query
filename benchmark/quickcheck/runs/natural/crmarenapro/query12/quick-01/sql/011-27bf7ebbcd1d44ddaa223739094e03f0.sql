@@ -1,0 +1,1 @@
+SELECT Id, FirstName, LastName FROM User WHERE Id LIKE '%005Wt000003NEa3IAG'

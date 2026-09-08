@@ -1,0 +1,23 @@
+TASK: Chi-square test of association between histological types and CDH1 mutation presence in female BRCA (Breast invasive carcinoma) patients, PanCancer Atlas.
+
+COHORT DEFINITION:
+- Female BRCA patients identified from clinical_database.clinical_info via Patient_description containing "Breast invasive carcinoma" (BRCA) and "FEMALE".
+- Only patients with known (non-null) histological_type included: 1074 patients (all patient_ids unique).
+- Reliable mutation entries: molecular_database.Mutation_Data rows with Hugo_Symbol = 'CDH1' AND FILTER = 'PASS' (247 distinct ParticipantBarcodes; joined to clinical patient_id via the TCGA barcode suffix, e.g., TCGA-XX-A5EH -> A5EH).
+
+CONTINGENCY TABLE (histological_type x CDH1 mutation status), before filtering:
+- Infiltrating Ductal Carcinoma:    No=757, Yes=9,   Total=766
+- Infiltrating Lobular Carcinoma:   No=118, Yes=83,  Total=201
+- Other  specify:                   No=42,  Yes=3,   Total=45
+- Mixed Histology (please specify): No=26,  Yes=4,   Total=30
+- Mucinous Carcinoma:               No=17,  Yes=0,   Total=17
+- Metaplastic Carcinoma:            No=8,   Yes=0,   Total=8   (excluded, total <= 10)
+- Medullary Carcinoma:              No=5,   Yes=1,   Total=6   (excluded, total <= 10)
+- Infiltrating Carcinoma NOS:       No=1,   Yes=0,   Total=1   (excluded, total <= 10)
+
+After excluding categories with marginal totals <= 10 (N = 1059, 5 categories):
+- Chi-square statistic = 305.12 (305.1239)
+- Degrees of freedom = (5-1) x (2-1) = 4
+- p-value < 0.0001 (effectively ~1e-64; scipy unavailable for exact p-value, but chi2=305.12 with 4 df is overwhelmingly significant)
+
+CONCLUSION: There is a strong, statistically significant association between histological type and CDH1 mutation presence in female BRCA patients (chi-square = 305.12, df = 4, p << 0.001), driven by the marked enrichment of CDH1 mutations in Infiltrating Lobular Carcinoma (83/201, 41.3%) versus Infiltrating Ductal Carcinoma (9/766, 1.2%).
