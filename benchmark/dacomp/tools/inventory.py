@@ -53,6 +53,7 @@ def main():
         (report/f'{task}-{run.name}-inventory.json').write_text(json.dumps({'summary':summary,'queries':queries,'python':python,'file_dependencies':dependencies},ensure_ascii=False,indent=2)+'\n')
         lines = [f'# {task} / {run.name} 查询与 Python 清单', '',
                  'Q 编号按该任务 SQL 尝试的开始时间排序，包含错误和元数据查询；P 编号独立。不同任务的 Q 编号不相关。', '',
+                 f'[展开 Python 工具后的全部 SQL 轨迹（含 list-db 和连接设置）]({task}-{run.name}-SQL-TRAJECTORY.md)。本页 Q 编号仅对应 query-db 调用，不是全部数据库语句数。', '',
                  'GROUP BY 仅为语法清单，不等于跨查询下钻或复用机会。CTE 名称可能出现在表名清单中。', '']
         lines += ['## 工具时间顺序','', ' → '.join(next((q['id'] for q in queries if q['call_id']==e['call_id']), next((p['id'] for p in python if p['call_id']==e['call_id']),e['tool'])) for e in events), '',
                   'SQL 结果文件在后续 Python 源码中的引用：'+('；'.join(d['from']+' → '+d['to'] for d in dependencies) or '无'), '']
@@ -72,6 +73,8 @@ def main():
             (run/f'{task}-traj.txt').write_text((run/'kimi.jsonl').read_text())
     (report/'summary.json').write_text(json.dumps(summaries,ensure_ascii=False,indent=2)+'\n')
     print(json.dumps(summaries,ensure_ascii=False,indent=2))
+    from sql_trajectory import main as export_sql_trajectory
+    export_sql_trajectory()
 
 
 if __name__=='__main__':

@@ -4,6 +4,8 @@
 
 先读 [五个 RQ 的总报告](reports/REPORT.md)，再按其中的逐题链接查看完整 SQL、Python 和具体复用证据。三个离线候选已经过结果重放核验，尚未做性能收益或 frontier 预测实验。
 
+SQL 总轨迹现已展开 Python 工具：`reports/*-SQL-TRAJECTORY.md` 同时列出 `query-db`、`list-db` 的 SQL，以及明确标注为源码恢复的连接 PRAGMA。四题有日志的 SQL 尝试共 31 次（30 次成功），其中 4 次为 `list-db` 元数据查询；另恢复 31 次连接设置。原 `*-QUERIES.md` 的 Q 编号及 27 次数据查询尝试不变。独立 Python 分析源码未发现额外 SQLite 调用，Pandas 操作不会被虚构为 SQL。
+
 ## 数据与任务
 
 上游：[DAComp-DA](https://huggingface.co/datasets/DAComp/dacomp-da)，固定 revision `2cc22149cdfe16cec41851ccae791c2d2c873bb3`。原题逐字保存在各任务的 `task.json`；数据库大小、SHA-256、表结构和行数保存在 [manifest.json](manifest.json)。

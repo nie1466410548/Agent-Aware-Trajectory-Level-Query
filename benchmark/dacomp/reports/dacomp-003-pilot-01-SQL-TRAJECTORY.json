@@ -1,0 +1,120 @@
+{
+  "summary": {
+    "task_id": "dacomp-003",
+    "run_id": "pilot-01",
+    "recorded_sql_attempts": 3,
+    "recorded_sql_success": 3,
+    "recorded_metadata_sql": 1,
+    "query_db_attempts": 2,
+    "reconstructed_setup_sql": 3,
+    "python_calls_reviewed": 3,
+    "python_calls_requiring_review": 0
+  },
+  "statements": [
+    {
+      "call_id": "9de509ecc07845c49ccbd870ae13da53",
+      "tool": "list-db",
+      "database": "dacomp-003",
+      "call_start_time": 1788839871.6894991,
+      "query_reference": "list-db",
+      "sql": "PRAGMA query_only=ON",
+      "category": "connection_setup",
+      "evidence": "reconstructed_from_audited_v1_adapter",
+      "success": null,
+      "note": "Runs before the logged statement; no separate execution timestamp or duration was recorded.",
+      "id": "S1"
+    },
+    {
+      "call_id": "9de509ecc07845c49ccbd870ae13da53",
+      "tool": "list-db",
+      "database": "dacomp-003",
+      "call_start_time": 1788839871.6894991,
+      "query_reference": "list-db",
+      "sql": "SELECT name, sql FROM sqlite_master WHERE type='table' ORDER BY name",
+      "category": "metadata",
+      "evidence": "tool_calls.jsonl",
+      "success": true,
+      "result_file": "runs/natural/dacomp-003/pilot-01/results/9de509ecc07845c49ccbd870ae13da53.json",
+      "execute_fetch_ms": 0.17395615577697754,
+      "error": null,
+      "id": "S2"
+    },
+    {
+      "call_id": "6c47b63d36c840d5a08c4b308bedccc2",
+      "tool": "query-db",
+      "database": "dacomp-003",
+      "call_start_time": 1788839881.3337963,
+      "query_reference": "Q1",
+      "sql": "PRAGMA query_only=ON",
+      "category": "connection_setup",
+      "evidence": "reconstructed_from_audited_v1_adapter",
+      "success": null,
+      "note": "Runs before the logged statement; no separate execution timestamp or duration was recorded.",
+      "id": "S3"
+    },
+    {
+      "call_id": "6c47b63d36c840d5a08c4b308bedccc2",
+      "tool": "query-db",
+      "database": "dacomp-003",
+      "call_start_time": 1788839881.3337963,
+      "query_reference": "Q1",
+      "sql": "SELECT MIN(\"Year\") AS min_year, MAX(\"Year\") AS max_year, COUNT(*) AS n_rows, COUNT(DISTINCT \"Region Code\") AS n_regions\nFROM sheet1;\n",
+      "category": "query",
+      "evidence": "tool_calls.jsonl",
+      "success": true,
+      "result_file": "runs/natural/dacomp-003/pilot-01/results/6c47b63d36c840d5a08c4b308bedccc2.json",
+      "execute_fetch_ms": 0.36930758506059647,
+      "error": null,
+      "id": "S4"
+    },
+    {
+      "call_id": "970b2031ecca4a52a6a4fa7e64c4385d",
+      "tool": "query-db",
+      "database": "dacomp-003",
+      "call_start_time": 1788839893.194344,
+      "query_reference": "Q2",
+      "sql": "PRAGMA query_only=ON",
+      "category": "connection_setup",
+      "evidence": "reconstructed_from_audited_v1_adapter",
+      "success": null,
+      "note": "Runs before the logged statement; no separate execution timestamp or duration was recorded.",
+      "id": "S5"
+    },
+    {
+      "call_id": "970b2031ecca4a52a6a4fa7e64c4385d",
+      "tool": "query-db",
+      "database": "dacomp-003",
+      "call_start_time": 1788839893.194344,
+      "query_reference": "Q2",
+      "sql": "SELECT e.\"Year\" AS yr, e.\"Region Code\" AS rcode, e.\"Region Name\" AS rname,\ne.\"Per capita GDP (yuan/person)\" AS gdp_pc,\ns.\"Industrial Water Consumption (100 million m³)\" AS ind_wc,\ns.\"Total Water Consumption (100 million m³) \" AS tot_wc,\ne.\"Urbanization rate (%)\" AS urb,\ne.\"Industrial value added (100 million yuan)\" AS iva\nFROM economic_indicator_data e\nJOIN sheet1 s ON e.\"Year\" = s.\"Year\" AND e.\"Region Code\" = s.\"Region Code\"\nORDER BY rcode, yr;\n",
+      "category": "query",
+      "evidence": "tool_calls.jsonl",
+      "success": true,
+      "result_file": "runs/natural/dacomp-003/pilot-01/results/970b2031ecca4a52a6a4fa7e64c4385d.json",
+      "execute_fetch_ms": 2.500600181519985,
+      "error": null,
+      "id": "S6"
+    }
+  ],
+  "python_review": [
+    {
+      "id": "P1",
+      "call_id": "8c448706f329431b9a77a29289cc442b",
+      "source_available": true,
+      "database_access_review_flags": []
+    },
+    {
+      "id": "P2",
+      "call_id": "967efbcdde774ce9a8740d5830de3b32",
+      "source_available": true,
+      "database_access_review_flags": []
+    },
+    {
+      "id": "P3",
+      "call_id": "59e307eb7fbc477494cae9b99dfe08c7",
+      "source_available": true,
+      "database_access_review_flags": []
+    }
+  ],
+  "limitations": "S is an expanded SQL sequence, Q retains original query-db numbering. Setup entries are source reconstruction, not historical engine trace. Python source scanning is not proof of runtime completeness; flagged or missing source requires review. Pandas operations are not translated into invented SQL."
+}
