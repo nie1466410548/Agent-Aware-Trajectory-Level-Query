@@ -1,0 +1,4 @@
+SELECT dashboard_month, total_revenue, collected_revenue, outstanding_receivables, gross_profit, gross_margin_percentage, collection_rate_percentage, collection_risk_level, business_health_score, revenue_growth_rate, high_risk_transactions
+FROM quickbooks__financial_dashboard
+ORDER BY dashboard_month
+LIMIT 35

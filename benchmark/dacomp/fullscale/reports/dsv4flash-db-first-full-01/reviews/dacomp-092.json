@@ -1,8 +1,54 @@
 {
   "task_id": "dacomp-092",
-  "status": "reviewed_no_python_before_interruption",
+  "status": "database_first_violation",
   "reviewer": "experiment analyst",
-  "conclusion": "服务错误前没有 Python 调用；仅描述已保留的 SQL 轨迹，不能据此认定未完成后续步骤也遵守协议。",
-  "route": "SQL 识别高波动客户、生命周期和财务风险并计算窗口 → R22 遇服务端 401 后停止。",
-  "evidence": []
+  "conclusion": "SQL 已完成主体筛选及月度聚合，Python 仍将客户月度结果与波动分组 merge，并再次按客户聚合均值、标准差、计数，及按分组计算负增长占比；关系连接、计数、均值可下推 SQL。相关检验与分布绘图另属统计和可视化补充。",
+  "route": "SQL 客户波动及财务风险 → 同会话续接 → Python 统计检验、连接和再聚合 → 报告",
+  "evidence": [
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 47,
+          "text": "merged = monthly_df.merge(seg_df[['customer_id', 'vol_segment']], on='customer_id', how='left')"
+        },
+        {
+          "line": 50,
+          "text": "cv_by_cust = merged.groupby(['customer_id', 'vol_segment'])['monthly_gp'].agg(['mean', 'std', 'count']).reset_index()"
+        },
+        {
+          "line": 58,
+          "text": "print(f\"HighVol: n={len(hv_cv)}, mean CV={hv_cv.mean():.4f}, median={hv_cv.median():.4f}\")"
+        },
+        {
+          "line": 88,
+          "text": "neg_share = trend_df.groupby('vol_segment')['negative_trend'].agg(['mean', 'count'])"
+        },
+        {
+          "line": 91,
+          "text": "print(f\"Mean trend corr by segment: {trend_df.groupby('vol_segment')['revenue_trend_correlation'].mean()}\")"
+        },
+        {
+          "line": 106,
+          "text": "ax.hist(hv_cv, bins=bins, alpha=0.6, label=f'HighVol (n={len(hv_cv)}, mean={hv_cv.mean():.2f})', color='#D32F2F', density=True)"
+        }
+      ]
+    }
+  ],
+  "review_scope_python_files": [
+    "P1.py",
+    "P2.py",
+    "P3.py",
+    "P4.py",
+    "P5.py"
+  ],
+  "final_run_status": "submitted",
+  "available_python_files": [
+    "P1.py",
+    "P2.py",
+    "P3.py",
+    "P4.py",
+    "P5.py"
+  ],
+  "review_scope": "Execution-location findings supported by the cited source lines; no official answer correctness judgment."
 }

@@ -1,0 +1,1 @@
+SELECT DISTINCT conversation_type FROM intercom__conversation_enhanced

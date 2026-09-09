@@ -1,0 +1,1 @@
+SELECT all_conversation_contacts, COUNT(*) as cnt FROM intercom__conversation_enhanced GROUP BY all_conversation_contacts ORDER BY cnt DESC LIMIT 20

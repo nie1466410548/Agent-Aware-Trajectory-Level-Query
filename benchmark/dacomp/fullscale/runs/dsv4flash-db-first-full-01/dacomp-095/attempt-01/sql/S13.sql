@@ -1,0 +1,1 @@
+SELECT MIN(days_span) as min_ds, MAX(days_span) as max_ds, AVG(days_span) as avg_ds, MIN(active_months) as min_am, MAX(active_months) as max_am, AVG(active_months) as avg_am, MIN(paid_retained_month_count) as min_prm, MAX(paid_retained_month_count) as max_prm, AVG(paid_retained_month_count) as avg_prm FROM klaviyo__persons

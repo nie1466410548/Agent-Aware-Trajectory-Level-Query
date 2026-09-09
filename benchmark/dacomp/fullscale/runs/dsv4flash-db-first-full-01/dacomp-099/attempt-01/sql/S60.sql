@@ -1,0 +1,1 @@
+SELECT conversation_id, COUNT(*) as n FROM intercom__conversation_enhanced GROUP BY conversation_id HAVING n > 1 LIMIT 5

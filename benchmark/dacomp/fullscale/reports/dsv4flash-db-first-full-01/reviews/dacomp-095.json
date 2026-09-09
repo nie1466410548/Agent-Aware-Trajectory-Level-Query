@@ -1,0 +1,46 @@
+{
+  "task_id": "dacomp-095",
+  "status": "partial_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "主体生命周期分组和业务汇总在 SQL；Python 承担 Pearson 检验、相关矩阵和图表。P1 在导出人员数据后计算活跃密度、月均收件数、客单金额并删除缺失行，这些算术和过滤可在 SQL 中准备，因此不记为完全遵守数据库内优先。",
+  "route": "SQL 数据探索、指标及分组 → Python 准备、统计和图表 → 报告",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 21,
+          "text": "df['density'] = df['active_days'] / df['days_span']"
+        },
+        {
+          "line": 22,
+          "text": "df['emails_per_month'] = df['count_received_email'] / df['active_months']"
+        },
+        {
+          "line": 23,
+          "text": "df['order_value'] = df['sum_revenue_placed_order'] / df['count_placed_order'].replace(0, np.nan)"
+        },
+        {
+          "line": 29,
+          "text": "cdf = df[cols].dropna()"
+        },
+        {
+          "line": 36,
+          "text": "    r, p = stats.pearsonr(x[mask], y[mask])"
+        }
+      ]
+    }
+  ],
+  "review_scope_python_files": [
+    "P1.py",
+    "P2.py",
+    "P3.py"
+  ],
+  "final_run_status": "submitted",
+  "available_python_files": [
+    "P1.py",
+    "P2.py",
+    "P3.py"
+  ],
+  "review_scope": "Execution-location findings supported by the cited source lines; no official answer correctness judgment."
+}

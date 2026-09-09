@@ -1,0 +1,1 @@
+SELECT DISTINCT variation_id FROM klaviyo__flows

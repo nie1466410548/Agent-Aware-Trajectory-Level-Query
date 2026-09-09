@@ -1,0 +1,1 @@
+SELECT company_name, company_id FROM intercom__company_enhanced LIMIT 20

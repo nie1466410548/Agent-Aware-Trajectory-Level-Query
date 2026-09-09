@@ -1,0 +1,1 @@
+SELECT DISTINCT all_company_tags FROM intercom__company_enhanced WHERE all_company_tags LIKE '%segment:%'

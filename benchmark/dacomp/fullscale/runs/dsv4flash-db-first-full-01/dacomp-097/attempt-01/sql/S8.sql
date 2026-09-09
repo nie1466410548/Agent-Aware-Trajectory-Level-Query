@@ -1,0 +1,1 @@
+SELECT MIN(conversation_created_at), MAX(conversation_created_at) FROM intercom__conversation_metrics

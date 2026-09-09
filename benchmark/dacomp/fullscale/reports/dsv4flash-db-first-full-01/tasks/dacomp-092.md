@@ -2,7 +2,7 @@
 
 First, from the `profitability_analysis` table, identify the high-volatility customer segm…
 
-运行：服务中断。官方未评分。全部 SQL 尝试/成功 40/38；数据 SQL 38/36；Python 0 次。
+运行：已提交。官方未评分。全部 SQL 尝试/成功 70/68；数据 SQL 67/65；Python 5 次。
 
 完整原题：
 
@@ -16,7 +16,7 @@ First, from the `profitability_analysis` table, identify the high-volatility cus
 | quickbooks__profitability_analysis | 8000 | 35 |
 
 
-实际路线（分析者依据 SQL/源码概括，不代表 Agent 自述）：SQL 识别高波动客户、生命周期和财务风险并计算窗口 → R22 遇服务端 401 后停止。
+实际路线（分析者依据 SQL/源码概括，不代表 Agent 自述）：SQL 客户波动及财务风险 → 同会话续接 → Python 统计检验、连接和再聚合 → 报告
 
 数据库大小：29,724,672 字节。
 
@@ -62,6 +62,35 @@ First, from the `profitability_analysis` table, identify the high-volatility cus
 | [S38/Q36](#s38) | success | ["quickbooks__customer_analytics", "quickbooks__profitability_analysis"] | 2 / {'INNER': 1} | ["customer_id", "s.vol_segment", "a.lifecycle_stage"] | ["AVG(customer_margin_volatility)", "COUNT(*)"] | 12 | 1108.684 |
 | [S39/Q37](#s39) | success | ["quickbooks__customer_analytics", "quickbooks__profitability_analysis"] | 2 / {'INNER': 1} | ["customer_id", "s.vol_segment"] | ["AVG(customer_margin_volatility)", "COUNT(*)", "AVG(a.revenue_trend_correlation)", "AVG(a.credit_score)", "AVG(a.avg_payment_days_12m)", "AVG(a.overdue_count_12m)", "AVG(a.overall_customer_score)", "AVG(a.revenue_volatility)"] | 3 | 1114.568 |
 | [S40/Q38](#s40) | success | ["quickbooks__customer_analytics"] | 0 / {} | [] | ["COUNT(*)", "COUNT(revenue_trend_correlation)", "COUNT(credit_score)", "COUNT(avg_payment_days_12m)", "COUNT(overdue_count_12m)", "COUNT(overall_customer_score)", "COUNT(revenue_volatility)", "COUNT(rfm_segment)", "COUNT(payment_behavior)", "COUNT(lifecycle_stage)", "COUNT(customer_value_segment)", "COUNT(risk_assessment)", "COUNT(credit_grade)", "COUNT(payment_timeliness_score)", "COUNT(business_stability_score)"] | 1 | 2.154 |
+| [S42/Q39](#s42) | success | ["quickbooks__customer_analytics"] | 0 / {} | [] | ["COUNT(*)", "COUNT(customer_value_segment)", "COUNT(business_stability_score)", "COUNT(activity_status)", "COUNT(customer_maturity_stage)", "COUNT(revenue_growth_rate_12m)", "COUNT(active_months_last_12)", "COUNT(payment_rate_percentage)", "COUNT(data_quality_flag)", "COUNT(recommended_action)"] | 1 | 2.085 |
+| [S43/Q40](#s43) | success | ["quickbooks__customer_analytics"] | 0 / {} | [] | [] | 3 | 0.941 |
+| [S44/Q41](#s44) | success | ["quickbooks__customer_analytics", "quickbooks__profitability_analysis"] | 2 / {'INNER': 1} | ["customer_id", "s.vol_segment", "a.customer_value_segment"] | ["AVG(customer_margin_volatility)", "COUNT(*)", "COUNT(*)", "COUNT(*)"] | 9 | 637.955 |
+| [S45/Q42](#s45) | success | ["quickbooks__customer_analytics", "quickbooks__profitability_analysis"] | 2 / {'INNER': 1} | ["customer_id", "s.vol_segment"] | ["AVG(customer_margin_volatility)", "COUNT(*)", "AVG(a.business_stability_score)", "AVG(a.active_months_last_12)", "AVG(a.revenue_growth_rate_12m)", "AVG(a.revenue_trend_correlation)", "AVG(a.revenue_volatility)", "AVG(a.days_since_last_invoice)"] | 3 | 632.93 |
+| [S46/Q43](#s46) | success | ["quickbooks__financial_dashboard"] | 0 / {} | [] | [] | 33 | 0.46 |
+| [S47/Q44](#s47) | success | ["quickbooks__profitability_analysis"] | 2 / {'LEFT': 1} | ["customer_id", "p.revenue_month_start", "CASE WHEN NOT h.customer_id IS NULL THEN 'HighVol' ELSE 'Other' END", "m.revenue_month_start"] | ["AVG(customer_margin_volatility)", "SUM(p.invoice_total)", "SUM(p.gross_profit)", "SUM(p.outstanding_balance)", "SUM(CASE WHEN grp = 'HighVol' THEN invoice_total ELSE 0 END)", "SUM(invoice_total)", "SUM(CASE WHEN grp = 'HighVol' THEN gross_profit ELSE 0 END)", "SUM(gross_profit)", "SUM(invoice_total)", "SUM(CASE WHEN grp = 'HighVol' THEN invoice_total ELSE 0 END)", "SUM(CASE WHEN grp = 'HighVol' THEN gross_profit ELSE 0 END)", "SUM(gross_profit)"] | 19 | 1824.854 |
+| [S48/Q45](#s48) | success | ["quickbooks__financial_dashboard", "quickbooks__profitability_analysis"] | 2 / {'LEFT': 1, 'INNER': 1} | ["customer_id", "p.revenue_month_start"] | ["AVG(customer_margin_volatility)", "SUM(CASE WHEN NOT h.customer_id IS NULL THEN p.invoice_total ELSE 0 END)", "SUM(p.invoice_total)", "SUM(CASE WHEN NOT h.customer_id IS NULL THEN p.gross_profit ELSE 0 END)", "SUM(p.gross_profit)"] | 19 | 1813.264 |
+| [S49/Q46](#s49) | success | ["quickbooks__balance_sheet"] | 0 / {} | [] | [] | 7 | 20.007 |
+| [S50/Q47](#s50) | success | ["quickbooks__balance_sheet"] | 0 / {} | ["account_type", "account_sub_type"] | ["COUNT(*)", "SUM(amount)"] | 5 | 34.461 |
+| [S51/Q48](#s51) | success | ["quickbooks__balance_sheet"] | 0 / {} | ["account_sub_type"] | ["COUNT(DISTINCT calendar_date)", "MIN(calendar_date)", "MAX(calendar_date)", "SUM(amount)", "SUM(converted_amount)"] | 4 | 15.303 |
+| [S52/Q49](#s52) | success | ["quickbooks__balance_sheet"] | 0 / {} | ["calendar_date", "account_sub_type"] | ["MAX(calendar_date)", "SUM(amount)"] | 4 | 29.5 |
+| [S53/Q50](#s53) | success | ["quickbooks__balance_sheet"] | 0 / {} | ["account_sub_type"] | ["SUM(amount)", "SUM(amount)", "SUM(amount)"] | 4 | 15.33 |
+| [S54/Q51](#s54) | success | ["quickbooks__balance_sheet"] | 0 / {} | ["calendar_date"] | ["SUM(CASE WHEN account_sub_type = 'Current (0-30 days)' THEN amount ELSE 0 END)", "SUM(CASE WHEN account_sub_type <> 'Current (0-30 days)' THEN amount ELSE 0 END)", "SUM(amount)", "SUM(CASE WHEN account_sub_type <> 'Current (0-30 days)' THEN amount ELSE 0 END)", "SUM(amount)"] | 24 | 15.376 |
+| [S55/Q52](#s55) | success | ["quickbooks__profitability_analysis"] | 2 / {'LEFT': 1} | ["customer_id", "CASE WHEN NOT h.customer_id IS NULL THEN 'HighVol' ELSE 'Other' END"] | ["AVG(customer_margin_volatility)", "SUM(p.outstanding_balance)", "SUM(p.invoice_total)", "SUM(p.collected_amount)", "COUNT(*)", "COUNT(DISTINCT p.customer_id)"] | 2 | 1788.843 |
+| [S56/Q53](#s56) | success | ["quickbooks__profitability_analysis"] | 2 / {'INNER': 1} | ["customer_id", "s.vol_segment"] | ["AVG(customer_margin_volatility)", "SUM(p.outstanding_balance)", "SUM(p.invoice_total)", "SUM(p.collected_amount)", "COUNT(DISTINCT s.customer_id)", "SUM(p.outstanding_balance)", "SUM(p.invoice_total)"] | 3 | 4949.593 |
+| [S57/Q54](#s57) | success | ["quickbooks__customer_analytics", "quickbooks__profitability_analysis"] | 3 / {'INNER': 2} | ["customer_id", "customer_id"] | ["AVG(customer_margin_volatility)", "SUM(invoice_total)", "SUM(outstanding_balance)", "SUM(collected_amount)", "COUNT(*)", "AVG(invoice_gross_margin_pct)"] | 15 | 1115.429 |
+| [S58/Q55](#s58) | success | ["quickbooks__customer_analytics", "quickbooks__profitability_analysis"] | 2 / {'INNER': 1} | ["customer_id"] | ["AVG(customer_margin_volatility)"] | 20 | 1081.985 |
+| [S59/Q56](#s59) | success | ["quickbooks__customer_analytics", "quickbooks__profitability_analysis"] | 2 / {'INNER': 1} | ["customer_id", "risk_tier"] | ["AVG(customer_margin_volatility)", "COUNT(*)", "AVG(composite_risk)", "COUNT(*)"] | 3 | 1109.919 |
+| [S60/Q57](#s60) | success | ["quickbooks__customer_analytics", "quickbooks__profitability_analysis"] | 2 / {'INNER': 2} | ["customer_id", "s.vol_segment", "r.risk_tier"] | ["AVG(customer_margin_volatility)", "COUNT(*)", "COUNT(*)", "COUNT(*)"] | 8 | 4985.19 |
+| [S61/Q58](#s61) | success | ["quickbooks__profitability_analysis"] | 2 / {'INNER': 1} | ["customer_id", "h.customer_id", "STRFTIME('%Y', p.transaction_date)", "CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER)"] | ["MAX(transaction_date)", "AVG(customer_margin_volatility)", "SUM(p.invoice_total)", "AVG(qoq_growth)", "COUNT(*)", "AVG(qoq_growth * qoq_growth)", "AVG(qoq_growth)", "AVG(qoq_growth)", "AVG(qoq_growth * qoq_growth)", "AVG(qoq_growth)", "AVG(qoq_growth)"] | 1 | 1278.018 |
+| [S62/Q59](#s62) | success | ["quickbooks__profitability_analysis"] | 2 / {'INNER': 1} | ["customer_id", "h.customer_id", "STRFTIME('%Y-%m', p.transaction_date)"] | ["MAX(transaction_date)", "AVG(customer_margin_volatility)", "SUM(p.gross_profit)", "AVG(monthly_gp)", "COUNT(*)", "COUNT(DISTINCT customer_id)", "AVG(monthly_gp * monthly_gp)", "AVG(monthly_gp)", "AVG(monthly_gp)", "AVG(monthly_gp)", "AVG(monthly_gp * monthly_gp)", "AVG(monthly_gp)", "AVG(monthly_gp)"] | 1 | 1268.152 |
+| [S63/Q60](#s63) | success | ["quickbooks__profitability_analysis"] | 0 / {} | ["customer_id"] | ["AVG(customer_margin_volatility)"] | 2800 | 14.105 |
+| [S64/Q61](#s64) | success | ["quickbooks__profitability_analysis"] | 0 / {} | ["customer_id", "STRFTIME('%Y-%m', transaction_date)"] | ["MAX(transaction_date)", "SUM(gross_profit)"] | 5064 | 17.404 |
+| [S65/Q62](#s65) | success | ["quickbooks__customer_analytics", "quickbooks__profitability_analysis"] | 2 / {'INNER': 1} | ["customer_id"] | ["AVG(customer_margin_volatility)"] | 2800 | 1095.939 |
+| [S66/Q63](#s66) | success | ["quickbooks__customer_analytics", "quickbooks__profitability_analysis"] | 2 / {'INNER': 2} | ["customer_id", "r.risk_tier"] | ["AVG(customer_margin_volatility)", "SUM(outstanding_balance)", "COUNT(DISTINCT r.customer_id)", "SUM(p.invoice_total)", "SUM(p.outstanding_balance)", "SUM(p.gross_profit)", "SUM(p.outstanding_balance)"] | 3 | 1150.361 |
+| [S67/Q64](#s67) | success | ["quickbooks__customer_analytics", "quickbooks__profitability_analysis"] | 2 / {'INNER': 1} | ["customer_id"] | ["AVG(customer_margin_volatility)", "COUNT(*)", "SUM(CASE WHEN payment_behavior = 'Poor' THEN 1 ELSE 0 END)", "SUM(CASE WHEN rfm_segment = 'At Risk' THEN 1 ELSE 0 END)", "SUM(CASE WHEN revenue_trend_correlation < 0 THEN 1 ELSE 0 END)", "AVG(business_stability_score)", "AVG(active_months_last_12)", "AVG(revenue_growth_rate_12m)", "AVG(vol)"] | 1 | 1083.722 |
+| [S68/Q65](#s68) | success | ["quickbooks__profitability_analysis"] | 0 / {} | [] | [] | 3 | 2.419 |
+| [S69/Q66](#s69) | success | ["quickbooks__profitability_analysis"] | 0 / {} | [] | [] | 16 | 3.425 |
+| [S70/Q67](#s70) | success | ["quickbooks__profitability_analysis"] | 2 / {'INNER': 1} | ["customer_id", "s.vol_segment", "p.profitability_sustainability"] | ["AVG(customer_margin_volatility)", "COUNT(*)", "COUNT(*)", "COUNT(*)"] | 9 | 4842.798 |
 
 
 ## 元数据和设置
@@ -70,17 +99,36 @@ First, from the `profitability_analysis` table, identify the high-volatility cus
 | --- | --- | --- | --- |
 | S1 | connection_setup | success | PRAGMA query_only=ON |
 | S2 | metadata | success | SELECT name,sql FROM sqlite_master WHERE type='table' ORDER BY name |
+| S41 | connection_setup | success | PRAGMA query_only=ON |
 
 
 ## Python 与执行位置
 
-人工源码审查：**reviewed_no_python_before_interruption**。服务错误前没有 Python 调用；仅描述已保留的 SQL 轨迹，不能据此认定未完成后续步骤也遵守协议。 [证据](../reviews/dacomp-092.json)。
+人工源码审查：**database_first_violation**。SQL 已完成主体筛选及月度聚合，Python 仍将客户月度结果与波动分组 merge，并再次按客户聚合均值、标准差、计数，及按分组计算负增长占比；关系连接、计数、均值可下推 SQL。相关检验与分布绘图另属统计和可视化补充。 [证据](../reviews/dacomp-092.json)。
 
-无 Python 分析调用。
+P1：Compute Pearson correlations between high-vol customer revenue share and business health score/collection rate, perform statistical tests, and create visualizations. This is statistical analysis best done outside SQL.
+
+[源码](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/python/P1.py)；[输出](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/python/P1.stdout)；[错误](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/python/P1.stderr)。自动源码筛查未检出预设迁出信号；这不是全面语义合规证明。
+
+P2：Create visualizations for the risk model distribution, behavioral profile comparison, and the multi-dimensional risk rating framework.
+
+[源码](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/python/P2.py)；[输出](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/python/P2.stdout)；[错误](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/python/P2.stderr)。自动源码筛查未检出预设迁出信号；这不是全面语义合规证明。
+
+P3：Compute exact payment behavior percentages and chi-square test for association between volatility segment and payment behavior. This is a statistical test best done in Python.
+
+[源码](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/python/P3.py)；[输出](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/python/P3.stdout)；[错误](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/python/P3.stderr)。自动源码筛查未检出预设迁出信号；这不是全面语义合规证明。
+
+P4：Compute customer-level profit stability (CV of gross profit per customer) and compare distributions between volatility segments with statistical tests, plus analyze revenue trend correlation distribution.
+
+[源码](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/python/P4.py)；[输出](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/python/P4.stdout)；[错误](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/python/P4.stderr)。检出需人工核验的 SQL 可实现操作：groupby(, .merge(, .query(；不能仅凭理由判为合规。
+
+P5：Compute differential impact of high-vol customer share on business health score and collection rate by comparing high-share vs low-share months. This requires the joined monthly data assembled in Python.
+
+[源码](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/python/P5.py)；[输出](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/python/P5.stdout)；[错误](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/python/P5.stderr)。自动源码筛查未检出预设迁出信号；这不是全面语义合规证明。
 
 ## 优化机会
 
-已验证候选。筛选限于精确 SQL、相同自包含 CTE、相同单表完整过滤、可分解单表聚合；未覆盖任意 Join 等价和一般谓词蕴含。全部候选都是 offline，未测在线预测。
+已验证候选; original verified selection retained across continuation。筛选限于精确 SQL、相同自包含 CTE、相同单表完整过滤、可分解单表聚合；未覆盖任意 Join 等价和一般谓词蕴含。全部候选都是 offline，未测在线预测。
 
 | 候选 | 类型 | 已有结果 | 覆盖 SQL | 后续次数 | 中间行数 | 验证 | 成本 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -89,9 +137,13 @@ First, from the `profitability_analysis` table, identify the high-volatility cus
 | C3 | common subexpression | False | ["S27", "S29", "S30", "S31", "S34", "S35"] | 5 | 1 | verified | Not benchmarked; correctness alone does not establish net speedup. |
 | C4 | aggregate MV | False | ["S7", "S32"] | 1 | 11 | verified | Not benchmarked; correctness alone does not establish net speedup. |
 | C5 | aggregate MV | False | ["S8", "S40"] | 1 | unknown | not_verified_cap | Not tested |
+| C6 | common subexpression | False | ["S22", "S24", "S25", "S27", "S29", "S30", "S31", "S33", "S34", "S35", "S36", "S37", "S38", "S39", "S44", "S45", "S47", "S48", "S55", "S56", "S57", "S58", "S59", "S60", "S61", "S62", "S63", "S65", "S66", "S67", "S70"] | 30 | unknown | not_verified_cap | Final continuation candidate enumerated only; original per-task three-case verification selection retained. |
+| C7 | common subexpression | False | ["S27", "S29", "S30", "S31", "S34", "S35", "S61", "S62", "S64"] | 8 | unknown | not_verified_cap | Final continuation candidate enumerated only; original per-task three-case verification selection retained. |
+| C8 | aggregate MV | False | ["S8", "S40", "S42"] | 2 | unknown | not_verified_cap | Final continuation candidate enumerated only; original per-task three-case verification selection retained. |
+| C9 | common filtered view | False | ["S51", "S54"] | 1 | unknown | not_verified_cap | Final continuation candidate enumerated only; original per-task three-case verification selection retained. |
 
 
-已验证覆盖（含触发查询、候选并集去重）：16/36 条成功数据 SQL。正确性仅针对当前数据库快照；未测性能的候选不能声称已加速。
+已验证覆盖（含触发查询、候选并集去重）：16/65 条成功数据 SQL。正确性仅针对当前数据库快照；未测性能的候选不能声称已加速。
 
 [完整 build/rewrite 与比较证据](dacomp-092.analysis.json)。
 
@@ -193,7 +245,9 @@ SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate
 
 结果依赖：自动记录 SQL→Python 的接口父调用，以及源码中引用归档文件的消费者；字面值相同不认定因果。模型方向选择需要人工读取消息，尚未做全面因果标注。
 
-[统一消息](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/messages.jsonl)；[原始 OpenCode 事件](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/opencode.jsonl)；[SQL 引擎日志](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql_journal.jsonl)。
+[原始报告](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/answer.md)；[统一消息](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/messages.jsonl)；[原始 OpenCode 事件](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/opencode.jsonl)；[SQL 引擎日志](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql_journal.jsonl)。
+
+[可读报告（本地图片链接规范化）](../answers/dacomp-092.md)。原始回答保留，分析结论未改写。
 
 ## S1
 
@@ -1700,4 +1754,1562 @@ FROM quickbooks__customer_analytics
 | B1 | COUNT(credit_grade) | [{"table": "quickbooks__customer_analytics", "column": "credit_grade"}] | [] | False |
 | B1 | COUNT(payment_timeliness_score) | [{"table": "quickbooks__customer_analytics", "column": "payment_timeliness_score"}] | [] | False |
 | B1 | COUNT(business_stability_score) | [{"table": "quickbooks__customer_analytics", "column": "business_stability_score"}] | [] | False |
+
+
+## S41
+
+类别 `connection_setup`；来源 `connection`；调用 `0fa8b32d6f974180ad1c65758a1c6205`；状态 `success`。
+
+```sql
+PRAGMA query_only=ON
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S41.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S41.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S41.rows.jsonl)；完整：True；SHA256：`e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`。
+
+## S42
+
+类别 `data`；来源 `query_db`；调用 `0fa8b32d6f974180ad1c65758a1c6205`；状态 `success`。
+
+```sql
+SELECT 
+  COUNT(*) AS total,
+  COUNT(customer_value_segment) AS n_value_seg,
+  COUNT(business_stability_score) AS n_biz_stab,
+  COUNT(activity_status) AS n_activity,
+  COUNT(customer_maturity_stage) AS n_maturity,
+  COUNT(revenue_growth_rate_12m) AS n_growth12,
+  COUNT(active_months_last_12) AS n_act_months,
+  COUNT(payment_rate_percentage) AS n_pay_rate,
+  COUNT(data_quality_flag) AS n_dq,
+  COUNT(recommended_action) AS n_recommended
+FROM quickbooks__customer_analytics
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S42.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S42.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S42.rows.jsonl)；完整：True；SHA256：`37e3c7bd4b8e66e1030f67284e904136557d2a9c9dbd9ee98e7157624798ef72`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__customer_analytics", "kind": "base", "block": null, "base_tables": ["quickbooks__customer_analytics"]}] | [] | [] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | COUNT(*) | [] | [] | True |
+| B1 | COUNT(customer_value_segment) | [{"table": "quickbooks__customer_analytics", "column": "customer_value_segment"}] | [] | False |
+| B1 | COUNT(business_stability_score) | [{"table": "quickbooks__customer_analytics", "column": "business_stability_score"}] | [] | False |
+| B1 | COUNT(activity_status) | [{"table": "quickbooks__customer_analytics", "column": "activity_status"}] | [] | False |
+| B1 | COUNT(customer_maturity_stage) | [{"table": "quickbooks__customer_analytics", "column": "customer_maturity_stage"}] | [] | False |
+| B1 | COUNT(revenue_growth_rate_12m) | [{"table": "quickbooks__customer_analytics", "column": "revenue_growth_rate_12m"}] | [] | False |
+| B1 | COUNT(active_months_last_12) | [{"table": "quickbooks__customer_analytics", "column": "active_months_last_12"}] | [] | False |
+| B1 | COUNT(payment_rate_percentage) | [{"table": "quickbooks__customer_analytics", "column": "payment_rate_percentage"}] | [] | False |
+| B1 | COUNT(data_quality_flag) | [{"table": "quickbooks__customer_analytics", "column": "data_quality_flag"}] | [] | False |
+| B1 | COUNT(recommended_action) | [{"table": "quickbooks__customer_analytics", "column": "recommended_action"}] | [] | False |
+
+
+## S43
+
+类别 `data`；来源 `query_db`；调用 `859949c1877347fc94a4c07de47ec860`；状态 `success`。
+
+```sql
+SELECT DISTINCT customer_value_segment FROM quickbooks__customer_analytics
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S43.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S43.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S43.rows.jsonl)；完整：True；SHA256：`f0ca99433ebec10412201b83b4445b68fadc6634e070901ab22c964470759d51`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__customer_analytics", "kind": "base", "block": null, "base_tables": ["quickbooks__customer_analytics"]}] | [] | [] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+
+
+## S44
+
+类别 `data`；来源 `query_db`；调用 `1a1a32e4ae7747b69c77462d2a835572`；状态 `success`。
+
+```sql
+-- Customer value segment by volatility segment
+WITH cust_vol AS (
+  SELECT customer_id, AVG(customer_margin_volatility) AS vol
+  FROM quickbooks__profitability_analysis
+  GROUP BY customer_id
+),
+ordered AS (
+  SELECT customer_id, vol,
+    ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn,
+    COUNT(*) OVER () AS total
+  FROM cust_vol
+),
+seg AS (
+  SELECT customer_id, vol,
+    CASE WHEN rn <= total * 0.25 THEN 'HighVol'
+         WHEN rn > total * 0.75 THEN 'LowVol'
+         ELSE 'MidVol' END AS vol_segment
+  FROM ordered
+)
+SELECT 
+  s.vol_segment,
+  a.customer_value_segment,
+  COUNT(*) AS n_customers,
+  ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (PARTITION BY s.vol_segment), 1) AS pct
+FROM seg s
+JOIN quickbooks__customer_analytics a ON s.customer_id = a.customer_id
+GROUP BY s.vol_segment, a.customer_value_segment
+ORDER BY s.vol_segment, n_customers DESC
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S44.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S44.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S44.rows.jsonl)；完整：True；SHA256：`1c61879bd0b197470349a786a9e0179637b90ba6240b0f6fae907da00fd6f121`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | ["customer_id"] |
+| B2 | [{"alias": "cust_vol", "kind": "derived", "block": "B1", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B3 | [{"alias": "ordered", "kind": "derived", "block": "B2", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B4 | [{"alias": "s", "kind": "derived", "block": "B3", "base_tables": ["quickbooks__profitability_analysis"]}, {"alias": "a", "kind": "base", "block": null, "base_tables": ["quickbooks__customer_analytics"]}] | [{"type": "INNER", "right": "quickbooks__customer_analytics AS a", "on": "s.customer_id = a.customer_id", "using": []}] | ["s.vol_segment", "a.customer_value_segment"] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | AVG(customer_margin_volatility) | [{"table": "quickbooks__profitability_analysis", "column": "customer_margin_volatility"}] | [] | False |
+| B4 | COUNT(*) | [] | [] | True |
+| B4 | COUNT(*) | [] | [] | True |
+| B4 | COUNT(*) | [] | [] | True |
+
+
+## S45
+
+类别 `data`；来源 `query_db`；调用 `71903b0d28d04f32b53669bba24d1b08`；状态 `success`。
+
+```sql
+-- Business stability score, active months, revenue growth by segment
+WITH cust_vol AS (
+  SELECT customer_id, AVG(customer_margin_volatility) AS vol
+  FROM quickbooks__profitability_analysis
+  GROUP BY customer_id
+),
+ordered AS (
+  SELECT customer_id, vol,
+    ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn,
+    COUNT(*) OVER () AS total
+  FROM cust_vol
+),
+seg AS (
+  SELECT customer_id, vol,
+    CASE WHEN rn <= total * 0.25 THEN 'HighVol'
+         WHEN rn > total * 0.75 THEN 'LowVol'
+         ELSE 'MidVol' END AS vol_segment
+  FROM ordered
+)
+SELECT 
+  s.vol_segment,
+  COUNT(*) AS n,
+  AVG(a.business_stability_score) AS avg_stability,
+  AVG(a.active_months_last_12) AS avg_active_months,
+  AVG(a.revenue_growth_rate_12m) AS avg_growth12,
+  AVG(a.revenue_trend_correlation) AS avg_trend_corr,
+  AVG(a.revenue_volatility) AS avg_rev_vol,
+  AVG(a.days_since_last_invoice) AS avg_days_since_last
+FROM seg s
+JOIN quickbooks__customer_analytics a ON s.customer_id = a.customer_id
+GROUP BY s.vol_segment
+ORDER BY s.vol_segment
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S45.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S45.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S45.rows.jsonl)；完整：True；SHA256：`9d33f9b37d6f4fc7cde5ef6fae154306bed1b4b8828f44551558c2c29373558e`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | ["customer_id"] |
+| B2 | [{"alias": "cust_vol", "kind": "derived", "block": "B1", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B3 | [{"alias": "ordered", "kind": "derived", "block": "B2", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B4 | [{"alias": "s", "kind": "derived", "block": "B3", "base_tables": ["quickbooks__profitability_analysis"]}, {"alias": "a", "kind": "base", "block": null, "base_tables": ["quickbooks__customer_analytics"]}] | [{"type": "INNER", "right": "quickbooks__customer_analytics AS a", "on": "s.customer_id = a.customer_id", "using": []}] | ["s.vol_segment"] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | AVG(customer_margin_volatility) | [{"table": "quickbooks__profitability_analysis", "column": "customer_margin_volatility"}] | [] | False |
+| B4 | COUNT(*) | [] | [] | True |
+| B4 | AVG(a.business_stability_score) | [{"table": "quickbooks__customer_analytics", "column": "business_stability_score"}] | [] | False |
+| B4 | AVG(a.active_months_last_12) | [{"table": "quickbooks__customer_analytics", "column": "active_months_last_12"}] | [] | False |
+| B4 | AVG(a.revenue_growth_rate_12m) | [{"table": "quickbooks__customer_analytics", "column": "revenue_growth_rate_12m"}] | [] | False |
+| B4 | AVG(a.revenue_trend_correlation) | [{"table": "quickbooks__customer_analytics", "column": "revenue_trend_correlation"}] | [] | False |
+| B4 | AVG(a.revenue_volatility) | [{"table": "quickbooks__customer_analytics", "column": "revenue_volatility"}] | [] | False |
+| B4 | AVG(a.days_since_last_invoice) | [{"table": "quickbooks__customer_analytics", "column": "days_since_last_invoice"}] | [] | False |
+
+
+## S46
+
+类别 `data`；来源 `query_db`；调用 `ba0668a881d6437da984d42153f03a15`；状态 `success`。
+
+```sql
+SELECT dashboard_month, total_revenue, collected_revenue, outstanding_receivables, gross_profit, gross_margin_percentage, collection_rate_percentage, collection_risk_level, business_health_score, revenue_growth_rate, high_risk_transactions
+FROM quickbooks__financial_dashboard
+ORDER BY dashboard_month
+LIMIT 35
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S46.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S46.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S46.rows.jsonl)；完整：True；SHA256：`966944fd6ce229f9efea266ca4952176fff86af8b240fa2dd9533b2f6877efcd`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__financial_dashboard", "kind": "base", "block": null, "base_tables": ["quickbooks__financial_dashboard"]}] | [] | [] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+
+
+## S47
+
+类别 `data`；来源 `query_db`；调用 `34560c8317444ab5aa44954422a9c234`；状态 `success`。
+
+```sql
+-- Monthly contribution of high-vol customers vs overall, matched to dashboard months
+WITH cust_vol AS (
+  SELECT customer_id, AVG(customer_margin_volatility) AS vol
+  FROM quickbooks__profitability_analysis
+  GROUP BY customer_id
+),
+ordered AS (
+  SELECT customer_id, vol,
+    ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn,
+    COUNT(*) OVER () AS total
+  FROM cust_vol
+),
+high_vol_cust AS (
+  SELECT customer_id FROM ordered WHERE rn <= total * 0.25
+),
+monthly_seg AS (
+  SELECT 
+    p.revenue_month_start,
+    CASE WHEN h.customer_id IS NOT NULL THEN 'HighVol' ELSE 'Other' END AS grp,
+    SUM(p.invoice_total) AS invoice_total,
+    SUM(p.gross_profit) AS gross_profit,
+    SUM(p.outstanding_balance) AS outstanding
+  FROM quickbooks__profitability_analysis p
+  LEFT JOIN high_vol_cust h ON p.customer_id = h.customer_id
+  GROUP BY p.revenue_month_start, CASE WHEN h.customer_id IS NOT NULL THEN 'HighVol' ELSE 'Other' END
+)
+SELECT 
+  m.revenue_month_start,
+  SUM(CASE WHEN grp='HighVol' THEN invoice_total ELSE 0 END) AS hv_rev,
+  SUM(invoice_total) AS total_rev,
+  ROUND(100.0 * SUM(CASE WHEN grp='HighVol' THEN invoice_total ELSE 0 END) / SUM(invoice_total), 2) AS hv_rev_share_pct,
+  SUM(CASE WHEN grp='HighVol' THEN gross_profit ELSE 0 END) AS hv_gp,
+  SUM(gross_profit) AS total_gp,
+  ROUND(100.0 * SUM(CASE WHEN grp='HighVol' THEN gross_profit ELSE 0 END) / NULLIF(SUM(gross_profit),0), 2) AS hv_gp_share_pct
+FROM monthly_seg m
+GROUP BY m.revenue_month_start
+HAVING revenue_month_start >= '2023-01-01'
+ORDER BY m.revenue_month_start
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S47.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S47.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S47.rows.jsonl)；完整：True；SHA256：`3fa8d77d783efc9ecf4d6ffcd15157a62bfddf4f5125a56f95465f18f138aed5`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | ["customer_id"] |
+| B2 | [{"alias": "cust_vol", "kind": "derived", "block": "B1", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B3 | [{"alias": "ordered", "kind": "derived", "block": "B2", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B4 | [{"alias": "p", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}, {"alias": "h", "kind": "derived", "block": "B3", "base_tables": ["quickbooks__profitability_analysis"]}] | [{"type": "LEFT", "right": "high_vol_cust AS h", "on": "p.customer_id = h.customer_id", "using": []}] | ["p.revenue_month_start", "CASE WHEN NOT h.customer_id IS NULL THEN 'HighVol' ELSE 'Other' END"] |
+| B5 | [{"alias": "m", "kind": "derived", "block": "B4", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | ["m.revenue_month_start"] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | AVG(customer_margin_volatility) | [{"table": "quickbooks__profitability_analysis", "column": "customer_margin_volatility"}] | [] | False |
+| B4 | SUM(p.invoice_total) | [{"table": "quickbooks__profitability_analysis", "column": "invoice_total"}] | [] | False |
+| B4 | SUM(p.gross_profit) | [{"table": "quickbooks__profitability_analysis", "column": "gross_profit"}] | [] | False |
+| B4 | SUM(p.outstanding_balance) | [{"table": "quickbooks__profitability_analysis", "column": "outstanding_balance"}] | [] | False |
+| B5 | SUM(CASE WHEN grp = 'HighVol' THEN invoice_total ELSE 0 END) | [{"table": "quickbooks__profitability_analysis", "column": "invoice_total"}] | [{"table": "quickbooks__profitability_analysis", "column": "customer_id"}] | False |
+| B5 | SUM(invoice_total) | [{"table": "quickbooks__profitability_analysis", "column": "invoice_total"}] | [] | False |
+| B5 | SUM(CASE WHEN grp = 'HighVol' THEN gross_profit ELSE 0 END) | [{"table": "quickbooks__profitability_analysis", "column": "gross_profit"}] | [{"table": "quickbooks__profitability_analysis", "column": "customer_id"}] | False |
+| B5 | SUM(gross_profit) | [{"table": "quickbooks__profitability_analysis", "column": "gross_profit"}] | [] | False |
+| B5 | SUM(invoice_total) | [{"table": "quickbooks__profitability_analysis", "column": "invoice_total"}] | [] | False |
+| B5 | SUM(CASE WHEN grp = 'HighVol' THEN invoice_total ELSE 0 END) | [{"table": "quickbooks__profitability_analysis", "column": "invoice_total"}] | [{"table": "quickbooks__profitability_analysis", "column": "customer_id"}] | False |
+| B5 | SUM(CASE WHEN grp = 'HighVol' THEN gross_profit ELSE 0 END) | [{"table": "quickbooks__profitability_analysis", "column": "gross_profit"}] | [{"table": "quickbooks__profitability_analysis", "column": "customer_id"}] | False |
+| B5 | SUM(gross_profit) | [{"table": "quickbooks__profitability_analysis", "column": "gross_profit"}] | [] | False |
+
+
+## S48
+
+类别 `data`；来源 `query_db`；调用 `84bbde203e1b4f15a196af8d78ddd6e4`；状态 `success`。
+
+```sql
+-- Join monthly high-vol share with financial dashboard
+WITH cust_vol AS (
+  SELECT customer_id, AVG(customer_margin_volatility) AS vol
+  FROM quickbooks__profitability_analysis
+  GROUP BY customer_id
+),
+ordered AS (
+  SELECT customer_id, vol,
+    ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn,
+    COUNT(*) OVER () AS total
+  FROM cust_vol
+),
+high_vol_cust AS (
+  SELECT customer_id FROM ordered WHERE rn <= total * 0.25
+),
+monthly_seg AS (
+  SELECT 
+    p.revenue_month_start,
+    SUM(CASE WHEN h.customer_id IS NOT NULL THEN p.invoice_total ELSE 0 END) AS hv_rev,
+    SUM(p.invoice_total) AS total_rev,
+    SUM(CASE WHEN h.customer_id IS NOT NULL THEN p.gross_profit ELSE 0 END) AS hv_gp,
+    SUM(p.gross_profit) AS total_gp
+  FROM quickbooks__profitability_analysis p
+  LEFT JOIN high_vol_cust h ON p.customer_id = h.customer_id
+  GROUP BY p.revenue_month_start
+)
+SELECT 
+  m.revenue_month_start,
+  ROUND(100.0 * m.hv_rev / NULLIF(m.total_rev, 0), 2) AS hv_rev_share,
+  ROUND(100.0 * m.hv_gp / NULLIF(m.total_gp, 0), 2) AS hv_gp_share,
+  f.business_health_score,
+  f.collection_rate_percentage,
+  f.gross_margin_percentage,
+  f.total_revenue,
+  f.outstanding_receivables,
+  f.collection_risk_level
+FROM monthly_seg m
+JOIN quickbooks__financial_dashboard f 
+  ON STRFTIME('%Y-%m', m.revenue_month_start) = STRFTIME('%Y-%m', f.dashboard_month)
+ORDER BY m.revenue_month_start
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S48.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S48.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S48.rows.jsonl)；完整：True；SHA256：`0efb735248d1d74fd1393d348fdedbdc198373fd2da64563f4c41ef846280f84`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | ["customer_id"] |
+| B2 | [{"alias": "cust_vol", "kind": "derived", "block": "B1", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B3 | [{"alias": "ordered", "kind": "derived", "block": "B2", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B4 | [{"alias": "p", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}, {"alias": "h", "kind": "derived", "block": "B3", "base_tables": ["quickbooks__profitability_analysis"]}] | [{"type": "LEFT", "right": "high_vol_cust AS h", "on": "p.customer_id = h.customer_id", "using": []}] | ["p.revenue_month_start"] |
+| B5 | [{"alias": "m", "kind": "derived", "block": "B4", "base_tables": ["quickbooks__profitability_analysis"]}, {"alias": "f", "kind": "base", "block": null, "base_tables": ["quickbooks__financial_dashboard"]}] | [{"type": "INNER", "right": "quickbooks__financial_dashboard AS f", "on": "STRFTIME('%Y-%m', m.revenue_month_start) = STRFTIME('%Y-%m', f.dashboard_month)", "using": []}] | [] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | AVG(customer_margin_volatility) | [{"table": "quickbooks__profitability_analysis", "column": "customer_margin_volatility"}] | [] | False |
+| B4 | SUM(CASE WHEN NOT h.customer_id IS NULL THEN p.invoice_total ELSE 0 END) | [{"table": "quickbooks__profitability_analysis", "column": "invoice_total"}] | [{"table": "quickbooks__profitability_analysis", "column": "customer_id"}] | False |
+| B4 | SUM(p.invoice_total) | [{"table": "quickbooks__profitability_analysis", "column": "invoice_total"}] | [] | False |
+| B4 | SUM(CASE WHEN NOT h.customer_id IS NULL THEN p.gross_profit ELSE 0 END) | [{"table": "quickbooks__profitability_analysis", "column": "gross_profit"}] | [{"table": "quickbooks__profitability_analysis", "column": "customer_id"}] | False |
+| B4 | SUM(p.gross_profit) | [{"table": "quickbooks__profitability_analysis", "column": "gross_profit"}] | [] | False |
+
+
+## S49
+
+类别 `data`；来源 `query_db`；调用 `a43d597639094f94a4e5a16333d98cee`；状态 `success`。
+
+```sql
+SELECT DISTINCT account_type FROM quickbooks__balance_sheet
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S49.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S49.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S49.rows.jsonl)；完整：True；SHA256：`78cd759836d514afced8dd5b6ac5087b2e4e9278c8892c59ed5aa432dd1495e5`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__balance_sheet", "kind": "base", "block": null, "base_tables": ["quickbooks__balance_sheet"]}] | [] | [] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+
+
+## S50
+
+类别 `data`；来源 `query_db`；调用 `eb8efdd99b6949bd953152ba53871f69`；状态 `success`。
+
+```sql
+SELECT account_type, account_sub_type, COUNT(*) AS n, SUM(amount) AS total_amount
+FROM quickbooks__balance_sheet
+WHERE account_type LIKE '%Receivable%' OR account_sub_type LIKE '%Receivable%' OR account_type LIKE '%Asset%'
+GROUP BY account_type, account_sub_type
+ORDER BY total_amount DESC
+LIMIT 30
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S50.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S50.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S50.rows.jsonl)；完整：True；SHA256：`a172d25917ac46cd1d93529677a429856dd3ca765c5ea7b985fd29f47513724f`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__balance_sheet", "kind": "base", "block": null, "base_tables": ["quickbooks__balance_sheet"]}] | [] | ["account_type", "account_sub_type"] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | COUNT(*) | [] | [] | True |
+| B1 | SUM(amount) | [{"table": "quickbooks__balance_sheet", "column": "amount"}] | [] | False |
+
+
+## S51
+
+类别 `data`；来源 `query_db`；调用 `a3328884ef714c49b102fabe22a18019`；状态 `success`。
+
+```sql
+SELECT account_sub_type, COUNT(DISTINCT calendar_date) AS n_dates, 
+       MIN(calendar_date) AS min_date, MAX(calendar_date) AS max_date,
+       SUM(amount) AS total_amount,
+       SUM(converted_amount) AS total_converted
+FROM quickbooks__balance_sheet
+WHERE account_type = 'Accounts Receivable'
+GROUP BY account_sub_type
+ORDER BY total_amount DESC
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S51.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S51.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S51.rows.jsonl)；完整：True；SHA256：`13b4ae161cff7c5d9a2035e45255a53aceb4b9c99a8b43b43175b1bada163130`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__balance_sheet", "kind": "base", "block": null, "base_tables": ["quickbooks__balance_sheet"]}] | [] | ["account_sub_type"] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | COUNT(DISTINCT calendar_date) | [{"table": "quickbooks__balance_sheet", "column": "calendar_date"}] | [] | False |
+| B1 | MIN(calendar_date) | [{"table": "quickbooks__balance_sheet", "column": "calendar_date"}] | [] | False |
+| B1 | MAX(calendar_date) | [{"table": "quickbooks__balance_sheet", "column": "calendar_date"}] | [] | False |
+| B1 | SUM(amount) | [{"table": "quickbooks__balance_sheet", "column": "amount"}] | [] | False |
+| B1 | SUM(converted_amount) | [{"table": "quickbooks__balance_sheet", "column": "converted_amount"}] | [] | False |
+
+
+## S52
+
+类别 `data`；来源 `query_db`；调用 `65836abfafd441ef901e542ef5d907c6`；状态 `success`。
+
+```sql
+SELECT calendar_date, account_sub_type, SUM(amount) AS amount
+FROM quickbooks__balance_sheet
+WHERE account_type = 'Accounts Receivable'
+  AND calendar_date = (SELECT MAX(calendar_date) FROM quickbooks__balance_sheet WHERE account_type = 'Accounts Receivable')
+GROUP BY calendar_date, account_sub_type
+ORDER BY account_sub_type
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S52.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S52.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S52.rows.jsonl)；完整：True；SHA256：`ba568428ef6cd44729d5d394a545efeccb3b155faf358f5307abb799df0f15d2`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__balance_sheet", "kind": "base", "block": null, "base_tables": ["quickbooks__balance_sheet"]}] | [] | [] |
+| B2 | [{"alias": "quickbooks__balance_sheet", "kind": "base", "block": null, "base_tables": ["quickbooks__balance_sheet"]}] | [] | ["calendar_date", "account_sub_type"] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | MAX(calendar_date) | [{"table": "quickbooks__balance_sheet", "column": "calendar_date"}] | [] | False |
+| B2 | SUM(amount) | [{"table": "quickbooks__balance_sheet", "column": "amount"}] | [] | False |
+
+
+## S53
+
+类别 `data`；来源 `query_db`；调用 `0a82123883e94610ab047d11a22d8d96`；状态 `success`。
+
+```sql
+-- Overall AR aging structure (all snapshots)
+SELECT 
+  account_sub_type,
+  SUM(amount) AS total_amount,
+  ROUND(100.0 * SUM(amount) / SUM(SUM(amount)) OVER (), 2) AS pct_of_total
+FROM quickbooks__balance_sheet
+WHERE account_type = 'Accounts Receivable'
+GROUP BY account_sub_type
+ORDER BY total_amount DESC
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S53.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S53.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S53.rows.jsonl)；完整：True；SHA256：`e86287d8e13fe55ae1434c77c55d3566273ad9ed158aedf3826fee9f15a87986`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__balance_sheet", "kind": "base", "block": null, "base_tables": ["quickbooks__balance_sheet"]}] | [] | ["account_sub_type"] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | SUM(amount) | [{"table": "quickbooks__balance_sheet", "column": "amount"}] | [] | False |
+| B1 | SUM(amount) | [{"table": "quickbooks__balance_sheet", "column": "amount"}] | [] | False |
+| B1 | SUM(amount) | [{"table": "quickbooks__balance_sheet", "column": "amount"}] | [] | False |
+
+
+## S54
+
+类别 `data`；来源 `query_db`；调用 `9eff476ed68440eb81ea93cd34ad4114`；状态 `success`。
+
+```sql
+-- AR aging trend: past due ratio over time
+SELECT 
+  calendar_date,
+  SUM(CASE WHEN account_sub_type = 'Current (0-30 days)' THEN amount ELSE 0 END) AS current_ar,
+  SUM(CASE WHEN account_sub_type != 'Current (0-30 days)' THEN amount ELSE 0 END) AS past_due_ar,
+  SUM(amount) AS total_ar,
+  ROUND(100.0 * SUM(CASE WHEN account_sub_type != 'Current (0-30 days)' THEN amount ELSE 0 END) / NULLIF(SUM(amount),0), 2) AS past_due_pct
+FROM quickbooks__balance_sheet
+WHERE account_type = 'Accounts Receivable'
+GROUP BY calendar_date
+ORDER BY calendar_date
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S54.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S54.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S54.rows.jsonl)；完整：True；SHA256：`7b7dd16161eb7522dae80adb780b206bba6724eddf859b75cff3c70490b6dbc9`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__balance_sheet", "kind": "base", "block": null, "base_tables": ["quickbooks__balance_sheet"]}] | [] | ["calendar_date"] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | SUM(CASE WHEN account_sub_type = 'Current (0-30 days)' THEN amount ELSE 0 END) | [{"table": "quickbooks__balance_sheet", "column": "amount"}] | [{"table": "quickbooks__balance_sheet", "column": "account_sub_type"}] | False |
+| B1 | SUM(CASE WHEN account_sub_type <> 'Current (0-30 days)' THEN amount ELSE 0 END) | [{"table": "quickbooks__balance_sheet", "column": "amount"}] | [{"table": "quickbooks__balance_sheet", "column": "account_sub_type"}] | False |
+| B1 | SUM(amount) | [{"table": "quickbooks__balance_sheet", "column": "amount"}] | [] | False |
+| B1 | SUM(CASE WHEN account_sub_type <> 'Current (0-30 days)' THEN amount ELSE 0 END) | [{"table": "quickbooks__balance_sheet", "column": "amount"}] | [{"table": "quickbooks__balance_sheet", "column": "account_sub_type"}] | False |
+| B1 | SUM(amount) | [{"table": "quickbooks__balance_sheet", "column": "amount"}] | [] | False |
+
+
+## S55
+
+类别 `data`；来源 `query_db`；调用 `6f500efbd27f4c1a83d86df28994a678`；状态 `success`。
+
+```sql
+-- High-vol customers' outstanding balance snapshot
+WITH cust_vol AS (
+  SELECT customer_id, AVG(customer_margin_volatility) AS vol
+  FROM quickbooks__profitability_analysis
+  GROUP BY customer_id
+),
+ordered AS (
+  SELECT customer_id, vol,
+    ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn,
+    COUNT(*) OVER () AS total
+  FROM cust_vol
+),
+high_vol_cust AS (
+  SELECT customer_id FROM ordered WHERE rn <= total * 0.25
+)
+SELECT 
+  CASE WHEN h.customer_id IS NOT NULL THEN 'HighVol' ELSE 'Other' END AS grp,
+  SUM(p.outstanding_balance) AS total_outstanding,
+  SUM(p.invoice_total) AS total_invoice,
+  SUM(p.collected_amount) AS total_collected,
+  COUNT(*) AS n_invoices,
+  COUNT(DISTINCT p.customer_id) AS n_customers
+FROM quickbooks__profitability_analysis p
+LEFT JOIN high_vol_cust h ON p.customer_id = h.customer_id
+GROUP BY CASE WHEN h.customer_id IS NOT NULL THEN 'HighVol' ELSE 'Other' END
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S55.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S55.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S55.rows.jsonl)；完整：True；SHA256：`45bb9056b5e4e261d627a19bf300eb5547bf89aed972df69c18093e076a0635d`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | ["customer_id"] |
+| B2 | [{"alias": "cust_vol", "kind": "derived", "block": "B1", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B3 | [{"alias": "ordered", "kind": "derived", "block": "B2", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B4 | [{"alias": "p", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}, {"alias": "h", "kind": "derived", "block": "B3", "base_tables": ["quickbooks__profitability_analysis"]}] | [{"type": "LEFT", "right": "high_vol_cust AS h", "on": "p.customer_id = h.customer_id", "using": []}] | ["CASE WHEN NOT h.customer_id IS NULL THEN 'HighVol' ELSE 'Other' END"] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | AVG(customer_margin_volatility) | [{"table": "quickbooks__profitability_analysis", "column": "customer_margin_volatility"}] | [] | False |
+| B4 | SUM(p.outstanding_balance) | [{"table": "quickbooks__profitability_analysis", "column": "outstanding_balance"}] | [] | False |
+| B4 | SUM(p.invoice_total) | [{"table": "quickbooks__profitability_analysis", "column": "invoice_total"}] | [] | False |
+| B4 | SUM(p.collected_amount) | [{"table": "quickbooks__profitability_analysis", "column": "collected_amount"}] | [] | False |
+| B4 | COUNT(*) | [] | [] | True |
+| B4 | COUNT(DISTINCT p.customer_id) | [{"table": "quickbooks__profitability_analysis", "column": "customer_id"}] | [] | False |
+
+
+## S56
+
+类别 `data`；来源 `query_db`；调用 `e0f64a4829e940da89fe8e6a69a09057`；状态 `success`。
+
+```sql
+-- Outstanding balance by volatility segment
+WITH cust_vol AS (
+  SELECT customer_id, AVG(customer_margin_volatility) AS vol
+  FROM quickbooks__profitability_analysis
+  GROUP BY customer_id
+),
+ordered AS (
+  SELECT customer_id, vol,
+    ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn,
+    COUNT(*) OVER () AS total
+  FROM cust_vol
+),
+seg AS (
+  SELECT customer_id, vol,
+    CASE WHEN rn <= total * 0.25 THEN 'HighVol'
+         WHEN rn > total * 0.75 THEN 'LowVol'
+         ELSE 'MidVol' END AS vol_segment
+  FROM ordered
+)
+SELECT 
+  s.vol_segment,
+  SUM(p.outstanding_balance) AS total_outstanding,
+  SUM(p.invoice_total) AS total_invoice,
+  SUM(p.collected_amount) AS total_collected,
+  ROUND(100.0 * SUM(p.outstanding_balance) / NULLIF(SUM(p.invoice_total), 0), 2) AS outstanding_ratio,
+  COUNT(DISTINCT s.customer_id) AS n_customers
+FROM seg s
+JOIN quickbooks__profitability_analysis p ON s.customer_id = p.customer_id
+GROUP BY s.vol_segment
+ORDER BY s.vol_segment
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S56.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S56.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S56.rows.jsonl)；完整：True；SHA256：`fa2989f362227e53a12d843954197d3351018c2edd2d427cd7960574836566bb`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | ["customer_id"] |
+| B2 | [{"alias": "cust_vol", "kind": "derived", "block": "B1", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B3 | [{"alias": "ordered", "kind": "derived", "block": "B2", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B4 | [{"alias": "s", "kind": "derived", "block": "B3", "base_tables": ["quickbooks__profitability_analysis"]}, {"alias": "p", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [{"type": "INNER", "right": "quickbooks__profitability_analysis AS p", "on": "s.customer_id = p.customer_id", "using": []}] | ["s.vol_segment"] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | AVG(customer_margin_volatility) | [{"table": "quickbooks__profitability_analysis", "column": "customer_margin_volatility"}] | [] | False |
+| B4 | SUM(p.outstanding_balance) | [{"table": "quickbooks__profitability_analysis", "column": "outstanding_balance"}] | [] | False |
+| B4 | SUM(p.invoice_total) | [{"table": "quickbooks__profitability_analysis", "column": "invoice_total"}] | [] | False |
+| B4 | SUM(p.collected_amount) | [{"table": "quickbooks__profitability_analysis", "column": "collected_amount"}] | [] | False |
+| B4 | COUNT(DISTINCT s.customer_id) | [{"table": "quickbooks__profitability_analysis", "column": "customer_id"}] | [] | False |
+| B4 | SUM(p.outstanding_balance) | [{"table": "quickbooks__profitability_analysis", "column": "outstanding_balance"}] | [] | False |
+| B4 | SUM(p.invoice_total) | [{"table": "quickbooks__profitability_analysis", "column": "invoice_total"}] | [] | False |
+
+
+## S57
+
+类别 `data`；来源 `query_db`；调用 `9fc1f20e7a4a4da4bf92d5bff19b6662`；状态 `success`。
+
+```sql
+-- Multi-dimensional risk scoring model: compute components per customer
+WITH cust_vol AS (
+  SELECT customer_id, AVG(customer_margin_volatility) AS vol
+  FROM quickbooks__profitability_analysis
+  GROUP BY customer_id
+),
+vol_percentile AS (
+  SELECT customer_id, vol,
+    PERCENT_RANK() OVER (ORDER BY vol) AS vol_pct_rank
+  FROM cust_vol
+),
+fin AS (
+  SELECT customer_id,
+    SUM(invoice_total) AS total_invoice,
+    SUM(outstanding_balance) AS total_outstanding,
+    SUM(collected_amount) AS total_collected,
+    COUNT(*) AS n_invoices,
+    AVG(invoice_gross_margin_pct) AS avg_margin_pct
+  FROM quickbooks__profitability_analysis
+  GROUP BY customer_id
+),
+scored AS (
+  SELECT 
+    v.customer_id,
+    v.vol,
+    v.vol_pct_rank,
+    a.payment_behavior,
+    a.rfm_segment,
+    a.revenue_trend_correlation,
+    a.business_stability_score,
+    a.active_months_last_12,
+    a.revenue_growth_rate_12m,
+    f.total_outstanding,
+    f.total_invoice,
+    f.n_invoices,
+    f.avg_margin_pct,
+    -- Dimension scores (each normalized 0-100)
+    (v.vol_pct_rank * 100) AS vol_score,
+    CASE a.payment_behavior 
+      WHEN 'Excellent' THEN 10
+      WHEN 'Good' THEN 35
+      WHEN 'Average' THEN 65
+      WHEN 'Poor' THEN 90
+    END AS payment_score,
+    CASE a.rfm_segment
+      WHEN 'Champions' THEN 10
+      WHEN 'Loyal Customers' THEN 25
+      WHEN 'Potential Loyalists' THEN 45
+      WHEN 'New Customers' THEN 50
+      WHEN 'Need Attention' THEN 75
+      WHEN 'At Risk' THEN 95
+    END AS rfm_score,
+    CASE WHEN a.revenue_trend_correlation < 0 THEN 70 ELSE 30 END AS trend_score,
+    (100 - a.business_stability_score) AS stability_score
+  FROM vol_percentile v
+  JOIN quickbooks__customer_analytics a ON v.customer_id = a.customer_id
+  JOIN fin f ON v.customer_id = f.customer_id
+)
+SELECT 
+  customer_id, vol, vol_pct_rank, payment_behavior, rfm_segment,
+  ROUND(revenue_trend_correlation, 3) AS trend_corr,
+  business_stability_score, active_months_last_12,
+  ROUND(total_outstanding, 2) AS total_outstanding,
+  ROUND(total_invoice, 2) AS total_invoice,
+  ROUND(vol_score, 1) AS vol_score,
+  payment_score, rfm_score, trend_score, stability_score
+FROM scored
+ORDER BY vol_pct_rank DESC
+LIMIT 15
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S57.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S57.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S57.rows.jsonl)；完整：True；SHA256：`270cb9ace1d339c182b189e7b38779a8e331713097ab323872d1608522733e15`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | ["customer_id"] |
+| B2 | [{"alias": "cust_vol", "kind": "derived", "block": "B1", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B3 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | ["customer_id"] |
+| B4 | [{"alias": "v", "kind": "derived", "block": "B2", "base_tables": ["quickbooks__profitability_analysis"]}, {"alias": "a", "kind": "base", "block": null, "base_tables": ["quickbooks__customer_analytics"]}, {"alias": "f", "kind": "derived", "block": "B3", "base_tables": ["quickbooks__profitability_analysis"]}] | [{"type": "INNER", "right": "quickbooks__customer_analytics AS a", "on": "v.customer_id = a.customer_id", "using": []}, {"type": "INNER", "right": "fin AS f", "on": "v.customer_id = f.customer_id", "using": []}] | [] |
+| B5 | [{"alias": "scored", "kind": "derived", "block": "B4", "base_tables": ["quickbooks__customer_analytics", "quickbooks__profitability_analysis"]}] | [] | [] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | AVG(customer_margin_volatility) | [{"table": "quickbooks__profitability_analysis", "column": "customer_margin_volatility"}] | [] | False |
+| B3 | SUM(invoice_total) | [{"table": "quickbooks__profitability_analysis", "column": "invoice_total"}] | [] | False |
+| B3 | SUM(outstanding_balance) | [{"table": "quickbooks__profitability_analysis", "column": "outstanding_balance"}] | [] | False |
+| B3 | SUM(collected_amount) | [{"table": "quickbooks__profitability_analysis", "column": "collected_amount"}] | [] | False |
+| B3 | COUNT(*) | [] | [] | True |
+| B3 | AVG(invoice_gross_margin_pct) | [{"table": "quickbooks__profitability_analysis", "column": "invoice_gross_margin_pct"}] | [] | False |
+
+
+## S58
+
+类别 `data`；来源 `query_db`；调用 `bbcb916a8e9145c6bed3606a2bc7e3cf`；状态 `success`。
+
+```sql
+-- Compute composite risk score for all customers
+WITH cust_vol AS (
+  SELECT customer_id, AVG(customer_margin_volatility) AS vol
+  FROM quickbooks__profitability_analysis
+  GROUP BY customer_id
+),
+vol_percentile AS (
+  SELECT customer_id, vol,
+    PERCENT_RANK() OVER (ORDER BY vol) AS vol_pct_rank
+  FROM cust_vol
+),
+scored AS (
+  SELECT 
+    v.customer_id,
+    v.vol,
+    v.vol_pct_rank,
+    a.payment_behavior,
+    a.rfm_segment,
+    a.revenue_trend_correlation,
+    a.business_stability_score,
+    a.active_months_last_12,
+    a.revenue_growth_rate_12m,
+    -- Dimension scores (each 0-100)
+    (v.vol_pct_rank * 100) AS vol_score,
+    CASE a.payment_behavior 
+      WHEN 'Excellent' THEN 10
+      WHEN 'Good' THEN 35
+      WHEN 'Average' THEN 65
+      WHEN 'Poor' THEN 90
+    END AS payment_score,
+    CASE a.rfm_segment
+      WHEN 'Champions' THEN 10
+      WHEN 'Loyal Customers' THEN 25
+      WHEN 'Potential Loyalists' THEN 45
+      WHEN 'New Customers' THEN 50
+      WHEN 'Need Attention' THEN 75
+      WHEN 'At Risk' THEN 95
+    END AS rfm_score,
+    CASE WHEN a.revenue_trend_correlation < 0 THEN 70 ELSE 30 END AS trend_score,
+    (100.0 - a.business_stability_score) AS stability_score
+  FROM vol_percentile v
+  JOIN quickbooks__customer_analytics a ON v.customer_id = a.customer_id
+)
+SELECT 
+  customer_id,
+  vol_score, payment_score, rfm_score, trend_score, stability_score,
+  ROUND(0.25 * vol_score + 0.20 * payment_score + 0.20 * rfm_score + 0.15 * trend_score + 0.20 * stability_score, 1) AS composite_risk,
+  ROUND(vol, 4) AS margin_volatility,
+  payment_behavior,
+  rfm_segment,
+  business_stability_score
+FROM scored
+ORDER BY composite_risk DESC
+LIMIT 20
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S58.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S58.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S58.rows.jsonl)；完整：True；SHA256：`15b14dbdf329a4355be17d99490b05f3b1772e86410edffab81f7b93680bab62`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | ["customer_id"] |
+| B2 | [{"alias": "cust_vol", "kind": "derived", "block": "B1", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B3 | [{"alias": "v", "kind": "derived", "block": "B2", "base_tables": ["quickbooks__profitability_analysis"]}, {"alias": "a", "kind": "base", "block": null, "base_tables": ["quickbooks__customer_analytics"]}] | [{"type": "INNER", "right": "quickbooks__customer_analytics AS a", "on": "v.customer_id = a.customer_id", "using": []}] | [] |
+| B4 | [{"alias": "scored", "kind": "derived", "block": "B3", "base_tables": ["quickbooks__customer_analytics", "quickbooks__profitability_analysis"]}] | [] | [] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | AVG(customer_margin_volatility) | [{"table": "quickbooks__profitability_analysis", "column": "customer_margin_volatility"}] | [] | False |
+
+
+## S59
+
+类别 `data`；来源 `query_db`；调用 `baa82cc52dd9465f8f44b67fb2572050`；状态 `success`。
+
+```sql
+-- Compute composite risk tiers for all customers
+WITH cust_vol AS (
+  SELECT customer_id, AVG(customer_margin_volatility) AS vol
+  FROM quickbooks__profitability_analysis
+  GROUP BY customer_id
+),
+vol_percentile AS (
+  SELECT customer_id, vol,
+    PERCENT_RANK() OVER (ORDER BY vol) AS vol_pct_rank
+  FROM cust_vol
+),
+scored AS (
+  SELECT 
+    v.customer_id,
+    (v.vol_pct_rank * 100) AS vol_score,
+    CASE a.payment_behavior 
+      WHEN 'Excellent' THEN 10
+      WHEN 'Good' THEN 35
+      WHEN 'Average' THEN 65
+      WHEN 'Poor' THEN 90
+    END AS payment_score,
+    CASE a.rfm_segment
+      WHEN 'Champions' THEN 10
+      WHEN 'Loyal Customers' THEN 25
+      WHEN 'Potential Loyalists' THEN 45
+      WHEN 'New Customers' THEN 50
+      WHEN 'Need Attention' THEN 75
+      WHEN 'At Risk' THEN 95
+    END AS rfm_score,
+    CASE WHEN a.revenue_trend_correlation < 0 THEN 70 ELSE 30 END AS trend_score,
+    (100.0 - a.business_stability_score) AS stability_score,
+    a.payment_behavior,
+    a.rfm_segment,
+    a.business_stability_score,
+    a.revenue_trend_correlation
+  FROM vol_percentile v
+  JOIN quickbooks__customer_analytics a ON v.customer_id = a.customer_id
+),
+risk_rated AS (
+  SELECT 
+    customer_id,
+    ROUND(0.25 * vol_score + 0.20 * payment_score + 0.20 * rfm_score + 0.15 * trend_score + 0.20 * stability_score, 1) AS composite_risk,
+    vol_score, payment_score, rfm_score, trend_score, stability_score,
+    CASE 
+      WHEN 0.25 * vol_score + 0.20 * payment_score + 0.20 * rfm_score + 0.15 * trend_score + 0.20 * stability_score >= 70 THEN 'High Risk'
+      WHEN 0.25 * vol_score + 0.20 * payment_score + 0.20 * rfm_score + 0.15 * trend_score + 0.20 * stability_score >= 45 THEN 'Medium Risk'
+      ELSE 'Low Risk'
+    END AS risk_tier,
+    payment_behavior, rfm_segment
+  FROM scored
+)
+-- Risk tier distribution
+SELECT 
+  risk_tier,
+  COUNT(*) AS n_customers,
+  ROUND(100.0 * COUNT(*) / 2800, 1) AS pct,
+  ROUND(AVG(composite_risk), 1) AS avg_risk_score
+FROM risk_rated
+GROUP BY risk_tier
+ORDER BY avg_risk_score DESC
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S59.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S59.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S59.rows.jsonl)；完整：True；SHA256：`5e3f3f7bd4da436b3ec7a8654a857ae8646e6de414c235bec499e70fa37dbc9d`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | ["customer_id"] |
+| B2 | [{"alias": "cust_vol", "kind": "derived", "block": "B1", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B3 | [{"alias": "v", "kind": "derived", "block": "B2", "base_tables": ["quickbooks__profitability_analysis"]}, {"alias": "a", "kind": "base", "block": null, "base_tables": ["quickbooks__customer_analytics"]}] | [{"type": "INNER", "right": "quickbooks__customer_analytics AS a", "on": "v.customer_id = a.customer_id", "using": []}] | [] |
+| B4 | [{"alias": "scored", "kind": "derived", "block": "B3", "base_tables": ["quickbooks__customer_analytics", "quickbooks__profitability_analysis"]}] | [] | [] |
+| B5 | [{"alias": "risk_rated", "kind": "derived", "block": "B4", "base_tables": ["quickbooks__customer_analytics", "quickbooks__profitability_analysis"]}] | [] | ["risk_tier"] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | AVG(customer_margin_volatility) | [{"table": "quickbooks__profitability_analysis", "column": "customer_margin_volatility"}] | [] | False |
+| B5 | COUNT(*) | [] | [] | True |
+| B5 | AVG(composite_risk) | [{"table": "quickbooks__customer_analytics", "column": "business_stability_score"}, {"table": "quickbooks__customer_analytics", "column": "revenue_trend_correlation"}, {"table": "quickbooks__customer_analytics", "column": "rfm_segment"}, {"table": "quickbooks__profitability_analysis", "column": "customer_margin_volatility"}, {"table": "quickbooks__customer_analytics", "column": "payment_behavior"}] | [] | False |
+| B5 | COUNT(*) | [] | [] | True |
+
+
+## S60
+
+类别 `data`；来源 `query_db`；调用 `f08763ed0d6f4b81b4306969efa9f883`；状态 `success`。
+
+```sql
+-- Cross-tab: volatility segment vs risk tier
+WITH cust_vol AS (
+  SELECT customer_id, AVG(customer_margin_volatility) AS vol
+  FROM quickbooks__profitability_analysis
+  GROUP BY customer_id
+),
+ordered AS (
+  SELECT customer_id, vol,
+    ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn,
+    COUNT(*) OVER () AS total
+  FROM cust_vol
+),
+seg AS (
+  SELECT customer_id, vol,
+    CASE WHEN rn <= total * 0.25 THEN 'HighVol'
+         WHEN rn > total * 0.75 THEN 'LowVol'
+         ELSE 'MidVol' END AS vol_segment
+  FROM ordered
+),
+vol_percentile AS (
+  SELECT customer_id, vol,
+    PERCENT_RANK() OVER (ORDER BY vol) AS vol_pct_rank
+  FROM cust_vol
+),
+scored AS (
+  SELECT 
+    v.customer_id,
+    (v.vol_pct_rank * 100) AS vol_score,
+    CASE a.payment_behavior 
+      WHEN 'Excellent' THEN 10
+      WHEN 'Good' THEN 35
+      WHEN 'Average' THEN 65
+      WHEN 'Poor' THEN 90
+    END AS payment_score,
+    CASE a.rfm_segment
+      WHEN 'Champions' THEN 10
+      WHEN 'Loyal Customers' THEN 25
+      WHEN 'Potential Loyalists' THEN 45
+      WHEN 'New Customers' THEN 50
+      WHEN 'Need Attention' THEN 75
+      WHEN 'At Risk' THEN 95
+    END AS rfm_score,
+    CASE WHEN a.revenue_trend_correlation < 0 THEN 70 ELSE 30 END AS trend_score,
+    (100.0 - a.business_stability_score) AS stability_score
+  FROM vol_percentile v
+  JOIN quickbooks__customer_analytics a ON v.customer_id = a.customer_id
+),
+risk_rated AS (
+  SELECT 
+    customer_id,
+    CASE 
+      WHEN 0.25 * vol_score + 0.20 * payment_score + 0.20 * rfm_score + 0.15 * trend_score + 0.20 * stability_score >= 70 THEN 'High Risk'
+      WHEN 0.25 * vol_score + 0.20 * payment_score + 0.20 * rfm_score + 0.15 * trend_score + 0.20 * stability_score >= 45 THEN 'Medium Risk'
+      ELSE 'Low Risk'
+    END AS risk_tier
+  FROM scored
+)
+SELECT 
+  s.vol_segment,
+  r.risk_tier,
+  COUNT(*) AS n_customers,
+  ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (PARTITION BY s.vol_segment), 1) AS pct_of_segment
+FROM seg s
+JOIN risk_rated r ON s.customer_id = r.customer_id
+GROUP BY s.vol_segment, r.risk_tier
+ORDER BY s.vol_segment, r.risk_tier
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S60.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S60.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S60.rows.jsonl)；完整：True；SHA256：`3ad652d37c2b66bb8cdc630247a131475b19bcd24a4aaa99c8986cae2f5f3d13`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | ["customer_id"] |
+| B2 | [{"alias": "cust_vol", "kind": "derived", "block": "B1", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B3 | [{"alias": "ordered", "kind": "derived", "block": "B2", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B4 | [{"alias": "cust_vol", "kind": "derived", "block": "B1", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B5 | [{"alias": "v", "kind": "derived", "block": "B4", "base_tables": ["quickbooks__profitability_analysis"]}, {"alias": "a", "kind": "base", "block": null, "base_tables": ["quickbooks__customer_analytics"]}] | [{"type": "INNER", "right": "quickbooks__customer_analytics AS a", "on": "v.customer_id = a.customer_id", "using": []}] | [] |
+| B6 | [{"alias": "scored", "kind": "derived", "block": "B5", "base_tables": ["quickbooks__customer_analytics", "quickbooks__profitability_analysis"]}] | [] | [] |
+| B7 | [{"alias": "s", "kind": "derived", "block": "B3", "base_tables": ["quickbooks__profitability_analysis"]}, {"alias": "r", "kind": "derived", "block": "B6", "base_tables": ["quickbooks__customer_analytics", "quickbooks__profitability_analysis"]}] | [{"type": "INNER", "right": "risk_rated AS r", "on": "s.customer_id = r.customer_id", "using": []}] | ["s.vol_segment", "r.risk_tier"] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | AVG(customer_margin_volatility) | [{"table": "quickbooks__profitability_analysis", "column": "customer_margin_volatility"}] | [] | False |
+| B7 | COUNT(*) | [] | [] | True |
+| B7 | COUNT(*) | [] | [] | True |
+| B7 | COUNT(*) | [] | [] | True |
+
+
+## S61
+
+类别 `data`；来源 `query_db`；调用 `9bd90a85134042b88d15b58151ed335c`；状态 `success`。
+
+```sql
+-- QoQ growth variance for LOW-vol customers (comparison)
+WITH date_range AS (
+  SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date
+  FROM quickbooks__profitability_analysis
+),
+cust_vol AS (
+  SELECT customer_id, AVG(customer_margin_volatility) AS vol
+  FROM quickbooks__profitability_analysis
+  GROUP BY customer_id
+),
+ordered AS (
+  SELECT customer_id, vol,
+    ROW_NUMBER() OVER (ORDER BY vol ASC) AS rn,
+    COUNT(*) OVER () AS total
+  FROM cust_vol
+),
+low_vol_cust AS (
+  SELECT customer_id, vol
+  FROM ordered
+  WHERE rn <= total * 0.25
+),
+quarterly AS (
+  SELECT 
+    h.customer_id,
+    STRFTIME('%Y', p.transaction_date) AS yr,
+    CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER) AS qtr,
+    SUM(p.invoice_total) AS qtr_invoice_total
+  FROM low_vol_cust h
+  JOIN quickbooks__profitability_analysis p ON h.customer_id = p.customer_id
+    AND p.transaction_date >= (SELECT cutoff_date FROM date_range)
+  GROUP BY h.customer_id, STRFTIME('%Y', p.transaction_date), CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER)
+),
+qoqs AS (
+  SELECT 
+    customer_id, yr, qtr, qtr_invoice_total,
+    LAG(qtr_invoice_total) OVER (PARTITION BY customer_id ORDER BY yr, qtr) AS prev_qtr_total
+  FROM quarterly
+)
+SELECT 
+  AVG(qoq_growth) AS mean_qoq_growth,
+  AVG(qoq_growth * qoq_growth) - AVG(qoq_growth) * AVG(qoq_growth) AS var_qoq_growth,
+  SQRT(AVG(qoq_growth * qoq_growth) - AVG(qoq_growth) * AVG(qoq_growth)) AS std_qoq_growth,
+  COUNT(*) AS n_obs
+FROM (
+  SELECT 
+    CASE WHEN prev_qtr_total IS NOT NULL AND prev_qtr_total <> 0 
+         THEN (qtr_invoice_total - prev_qtr_total) / prev_qtr_total ELSE NULL END AS qoq_growth
+  FROM qoqs
+  WHERE prev_qtr_total IS NOT NULL
+) WHERE qoq_growth IS NOT NULL
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S61.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S61.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S61.rows.jsonl)；完整：True；SHA256：`afa839cd097db4e4841d83690307f80141ad232c42552e618e4027aa8e53e1fc`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B2 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | ["customer_id"] |
+| B3 | [{"alias": "cust_vol", "kind": "derived", "block": "B2", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B4 | [{"alias": "ordered", "kind": "derived", "block": "B3", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B5 | [{"alias": "date_range", "kind": "derived", "block": "B1", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B6 | [{"alias": "h", "kind": "derived", "block": "B4", "base_tables": ["quickbooks__profitability_analysis"]}, {"alias": "p", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [{"type": "INNER", "right": "quickbooks__profitability_analysis AS p", "on": "h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range)", "using": []}] | ["h.customer_id", "STRFTIME('%Y', p.transaction_date)", "CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER)"] |
+| B7 | [{"alias": "quarterly", "kind": "derived", "block": "B6", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B8 | [{"alias": "qoqs", "kind": "derived", "block": "B7", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B9 | [{"alias": "", "kind": "derived", "block": "B8", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | MAX(transaction_date) | [{"table": "quickbooks__profitability_analysis", "column": "transaction_date"}] | [] | False |
+| B2 | AVG(customer_margin_volatility) | [{"table": "quickbooks__profitability_analysis", "column": "customer_margin_volatility"}] | [] | False |
+| B6 | SUM(p.invoice_total) | [{"table": "quickbooks__profitability_analysis", "column": "invoice_total"}] | [] | False |
+| B9 | AVG(qoq_growth) | [{"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}] | [] | False |
+| B9 | COUNT(*) | [] | [] | True |
+| B9 | AVG(qoq_growth * qoq_growth) | [{"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}] | [] | False |
+| B9 | AVG(qoq_growth) | [{"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}] | [] | False |
+| B9 | AVG(qoq_growth) | [{"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}] | [] | False |
+| B9 | AVG(qoq_growth * qoq_growth) | [{"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}] | [] | False |
+| B9 | AVG(qoq_growth) | [{"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}] | [] | False |
+| B9 | AVG(qoq_growth) | [{"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "customer_id"}, {"table": "quickbooks__profitability_analysis", "column": "invoice_total"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}, {"table": "quickbooks__profitability_analysis", "column": "transaction_date"}] | [] | False |
+
+
+未解析列血缘：[{"block": "B9", "column": "cutoff_date", "reason": "ambiguous_or_missing_source"}]
+
+## S62
+
+类别 `data`；来源 `query_db`；调用 `d327934185f94aeb98ca7af9b3f753b9`；状态 `success`。
+
+```sql
+-- Overall CV of monthly gross profit for LOW-vol customers
+WITH date_range AS (
+  SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date
+  FROM quickbooks__profitability_analysis
+),
+cust_vol AS (
+  SELECT customer_id, AVG(customer_margin_volatility) AS vol
+  FROM quickbooks__profitability_analysis
+  GROUP BY customer_id
+),
+ordered AS (
+  SELECT customer_id, vol,
+    ROW_NUMBER() OVER (ORDER BY vol ASC) AS rn,
+    COUNT(*) OVER () AS total
+  FROM cust_vol
+),
+low_vol_cust AS (
+  SELECT customer_id, vol
+  FROM ordered
+  WHERE rn <= total * 0.25
+),
+monthly AS (
+  SELECT 
+    h.customer_id,
+    STRFTIME('%Y-%m', p.transaction_date) AS month,
+    SUM(p.gross_profit) AS monthly_gp
+  FROM low_vol_cust h
+  JOIN quickbooks__profitability_analysis p ON h.customer_id = p.customer_id
+    AND p.transaction_date >= (SELECT cutoff_date FROM date_range)
+  GROUP BY h.customer_id, STRFTIME('%Y-%m', p.transaction_date)
+)
+SELECT 
+  AVG(monthly_gp) AS overall_mean_gp,
+  SQRT(AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp)) AS overall_std_gp,
+  SQRT(AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp)) / ABS(AVG(monthly_gp)) AS overall_cv_gp,
+  COUNT(*) AS total_month_obs,
+  COUNT(DISTINCT customer_id) AS n_customers_with_data
+FROM monthly
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S62.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S62.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S62.rows.jsonl)；完整：True；SHA256：`9dbd1346d0956eefac7fd80d239fe54d886291878a3b7c5e9393d499df85b5c8`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B2 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | ["customer_id"] |
+| B3 | [{"alias": "cust_vol", "kind": "derived", "block": "B2", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B4 | [{"alias": "ordered", "kind": "derived", "block": "B3", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B5 | [{"alias": "date_range", "kind": "derived", "block": "B1", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B6 | [{"alias": "h", "kind": "derived", "block": "B4", "base_tables": ["quickbooks__profitability_analysis"]}, {"alias": "p", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [{"type": "INNER", "right": "quickbooks__profitability_analysis AS p", "on": "h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range)", "using": []}] | ["h.customer_id", "STRFTIME('%Y-%m', p.transaction_date)"] |
+| B7 | [{"alias": "monthly", "kind": "derived", "block": "B6", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | MAX(transaction_date) | [{"table": "quickbooks__profitability_analysis", "column": "transaction_date"}] | [] | False |
+| B2 | AVG(customer_margin_volatility) | [{"table": "quickbooks__profitability_analysis", "column": "customer_margin_volatility"}] | [] | False |
+| B6 | SUM(p.gross_profit) | [{"table": "quickbooks__profitability_analysis", "column": "gross_profit"}] | [] | False |
+| B7 | AVG(monthly_gp) | [{"table": "quickbooks__profitability_analysis", "column": "gross_profit"}] | [] | False |
+| B7 | COUNT(*) | [] | [] | True |
+| B7 | COUNT(DISTINCT customer_id) | [{"table": "quickbooks__profitability_analysis", "column": "customer_id"}] | [] | False |
+| B7 | AVG(monthly_gp * monthly_gp) | [{"table": "quickbooks__profitability_analysis", "column": "gross_profit"}, {"table": "quickbooks__profitability_analysis", "column": "gross_profit"}] | [] | False |
+| B7 | AVG(monthly_gp) | [{"table": "quickbooks__profitability_analysis", "column": "gross_profit"}] | [] | False |
+| B7 | AVG(monthly_gp) | [{"table": "quickbooks__profitability_analysis", "column": "gross_profit"}] | [] | False |
+| B7 | AVG(monthly_gp) | [{"table": "quickbooks__profitability_analysis", "column": "gross_profit"}] | [] | False |
+| B7 | AVG(monthly_gp * monthly_gp) | [{"table": "quickbooks__profitability_analysis", "column": "gross_profit"}, {"table": "quickbooks__profitability_analysis", "column": "gross_profit"}] | [] | False |
+| B7 | AVG(monthly_gp) | [{"table": "quickbooks__profitability_analysis", "column": "gross_profit"}] | [] | False |
+| B7 | AVG(monthly_gp) | [{"table": "quickbooks__profitability_analysis", "column": "gross_profit"}] | [] | False |
+
+
+未解析列血缘：[{"block": "B7", "column": "cutoff_date", "reason": "ambiguous_or_missing_source"}]
+
+## S63
+
+类别 `data`；来源 `python`；调用 `f8df93bf00e24b4a9d4ecf6b473f937a`；状态 `success`。
+
+```sql
+
+WITH cust_vol AS (
+  SELECT customer_id, AVG(customer_margin_volatility) AS vol
+  FROM quickbooks__profitability_analysis
+  GROUP BY customer_id
+),
+ordered AS (
+  SELECT customer_id, vol,
+    ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn,
+    COUNT(*) OVER () AS total
+  FROM cust_vol
+)
+SELECT customer_id, vol,
+  CASE WHEN rn <= total * 0.25 THEN 'HighVol'
+       WHEN rn > total * 0.75 THEN 'LowVol'
+       ELSE 'MidVol' END AS vol_segment
+FROM ordered
+
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S63.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S63.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S63.rows.jsonl)；完整：True；SHA256：`bc7b79601ee0daaf82a5f2b594c43d4898202b9de5c49f4684e299abdb365be7`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | ["customer_id"] |
+| B2 | [{"alias": "cust_vol", "kind": "derived", "block": "B1", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B3 | [{"alias": "ordered", "kind": "derived", "block": "B2", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | AVG(customer_margin_volatility) | [{"table": "quickbooks__profitability_analysis", "column": "customer_margin_volatility"}] | [] | False |
+
+
+## S64
+
+类别 `data`；来源 `python`；调用 `f8df93bf00e24b4a9d4ecf6b473f937a`；状态 `success`。
+
+```sql
+
+WITH date_range AS (
+  SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date
+  FROM quickbooks__profitability_analysis
+)
+SELECT customer_id, STRFTIME('%Y-%m', transaction_date) AS month, SUM(gross_profit) AS monthly_gp
+FROM quickbooks__profitability_analysis
+WHERE transaction_date >= (SELECT cutoff_date FROM date_range)
+GROUP BY customer_id, STRFTIME('%Y-%m', transaction_date)
+
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S64.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S64.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S64.rows.jsonl)；完整：True；SHA256：`4e2d4fdaa0bd211297ff2500ba39a082f76fc67d6ea8af752ce32032dce289c6`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B2 | [{"alias": "date_range", "kind": "derived", "block": "B1", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B3 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | ["customer_id", "STRFTIME('%Y-%m', transaction_date)"] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | MAX(transaction_date) | [{"table": "quickbooks__profitability_analysis", "column": "transaction_date"}] | [] | False |
+| B3 | SUM(gross_profit) | [{"table": "quickbooks__profitability_analysis", "column": "gross_profit"}] | [] | False |
+
+
+未解析列血缘：[{"block": "B3", "column": "cutoff_date", "reason": "ambiguous_or_missing_source"}]
+
+## S65
+
+类别 `data`；来源 `python`；调用 `f8df93bf00e24b4a9d4ecf6b473f937a`；状态 `success`。
+
+```sql
+
+SELECT s.vol_segment, a.customer_id, a.revenue_trend_correlation
+FROM (
+  WITH cust_vol AS (
+    SELECT customer_id, AVG(customer_margin_volatility) AS vol
+    FROM quickbooks__profitability_analysis
+    GROUP BY customer_id
+  ),
+  ordered AS (
+    SELECT customer_id, vol,
+      ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn,
+      COUNT(*) OVER () AS total
+    FROM cust_vol
+  )
+  SELECT customer_id, vol,
+    CASE WHEN rn <= total * 0.25 THEN 'HighVol'
+         WHEN rn > total * 0.75 THEN 'LowVol'
+         ELSE 'MidVol' END AS vol_segment
+  FROM ordered
+) s
+JOIN quickbooks__customer_analytics a ON s.customer_id = a.customer_id
+
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S65.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S65.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S65.rows.jsonl)；完整：True；SHA256：`53931f751c0fba88e79a0a065a3114a3d8af4374ff013cc934931a47a8946e6a`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | ["customer_id"] |
+| B2 | [{"alias": "cust_vol", "kind": "derived", "block": "B1", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B3 | [{"alias": "ordered", "kind": "derived", "block": "B2", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B4 | [{"alias": "s", "kind": "derived", "block": "B3", "base_tables": ["quickbooks__profitability_analysis"]}, {"alias": "a", "kind": "base", "block": null, "base_tables": ["quickbooks__customer_analytics"]}] | [{"type": "INNER", "right": "quickbooks__customer_analytics AS a", "on": "s.customer_id = a.customer_id", "using": []}] | [] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | AVG(customer_margin_volatility) | [{"table": "quickbooks__profitability_analysis", "column": "customer_margin_volatility"}] | [] | False |
+
+
+## S66
+
+类别 `data`；来源 `query_db`；调用 `168b595f23a84d73b07b10942eaf18c8`；状态 `success`。
+
+```sql
+-- Profile high-risk tier customers: financial contribution
+WITH cust_vol AS (
+  SELECT customer_id, AVG(customer_margin_volatility) AS vol
+  FROM quickbooks__profitability_analysis
+  GROUP BY customer_id
+),
+vol_percentile AS (
+  SELECT customer_id, vol, PERCENT_RANK() OVER (ORDER BY vol) AS vol_pct_rank
+  FROM cust_vol
+),
+scored AS (
+  SELECT 
+    v.customer_id,
+    (v.vol_pct_rank * 100) AS vol_score,
+    CASE a.payment_behavior 
+      WHEN 'Excellent' THEN 10 WHEN 'Good' THEN 35 WHEN 'Average' THEN 65 WHEN 'Poor' THEN 90
+    END AS payment_score,
+    CASE a.rfm_segment
+      WHEN 'Champions' THEN 10 WHEN 'Loyal Customers' THEN 25 WHEN 'Potential Loyalists' THEN 45
+      WHEN 'New Customers' THEN 50 WHEN 'Need Attention' THEN 75 WHEN 'At Risk' THEN 95
+    END AS rfm_score,
+    CASE WHEN a.revenue_trend_correlation < 0 THEN 70 ELSE 30 END AS trend_score,
+    (100.0 - a.business_stability_score) AS stability_score
+  FROM vol_percentile v
+  JOIN quickbooks__customer_analytics a ON v.customer_id = a.customer_id
+),
+risk_rated AS (
+  SELECT 
+    customer_id,
+    CASE 
+      WHEN 0.25 * vol_score + 0.20 * payment_score + 0.20 * rfm_score + 0.15 * trend_score + 0.20 * stability_score >= 70 THEN 'High Risk'
+      WHEN 0.25 * vol_score + 0.20 * payment_score + 0.20 * rfm_score + 0.15 * trend_score + 0.20 * stability_score >= 45 THEN 'Medium Risk'
+      ELSE 'Low Risk'
+    END AS risk_tier,
+    (0.25 * vol_score + 0.20 * payment_score + 0.20 * rfm_score + 0.15 * trend_score + 0.20 * stability_score) AS composite_risk
+  FROM scored
+)
+SELECT 
+  r.risk_tier,
+  COUNT(DISTINCT r.customer_id) AS n_customers,
+  SUM(p.invoice_total) AS total_invoice,
+  SUM(p.outstanding_balance) AS total_outstanding,
+  SUM(p.gross_profit) AS total_gross_profit,
+  ROUND(100.0 * SUM(p.outstanding_balance) / NULLIF((SELECT SUM(outstanding_balance) FROM quickbooks__profitability_analysis), 0), 2) AS outstanding_share_pct
+FROM risk_rated r
+JOIN quickbooks__profitability_analysis p ON r.customer_id = p.customer_id
+GROUP BY r.risk_tier
+ORDER BY r.risk_tier
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S66.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S66.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S66.rows.jsonl)；完整：True；SHA256：`d53c00f408e5c85ab63ddab515584a6f3b2cd6a231bdfab500da433a868992bc`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | ["customer_id"] |
+| B2 | [{"alias": "cust_vol", "kind": "derived", "block": "B1", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B3 | [{"alias": "v", "kind": "derived", "block": "B2", "base_tables": ["quickbooks__profitability_analysis"]}, {"alias": "a", "kind": "base", "block": null, "base_tables": ["quickbooks__customer_analytics"]}] | [{"type": "INNER", "right": "quickbooks__customer_analytics AS a", "on": "v.customer_id = a.customer_id", "using": []}] | [] |
+| B4 | [{"alias": "scored", "kind": "derived", "block": "B3", "base_tables": ["quickbooks__customer_analytics", "quickbooks__profitability_analysis"]}] | [] | [] |
+| B5 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B6 | [{"alias": "r", "kind": "derived", "block": "B4", "base_tables": ["quickbooks__customer_analytics", "quickbooks__profitability_analysis"]}, {"alias": "p", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [{"type": "INNER", "right": "quickbooks__profitability_analysis AS p", "on": "r.customer_id = p.customer_id", "using": []}] | ["r.risk_tier"] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | AVG(customer_margin_volatility) | [{"table": "quickbooks__profitability_analysis", "column": "customer_margin_volatility"}] | [] | False |
+| B5 | SUM(outstanding_balance) | [{"table": "quickbooks__profitability_analysis", "column": "outstanding_balance"}] | [] | False |
+| B6 | COUNT(DISTINCT r.customer_id) | [{"table": "quickbooks__profitability_analysis", "column": "customer_id"}] | [] | False |
+| B6 | SUM(p.invoice_total) | [{"table": "quickbooks__profitability_analysis", "column": "invoice_total"}] | [] | False |
+| B6 | SUM(p.outstanding_balance) | [{"table": "quickbooks__profitability_analysis", "column": "outstanding_balance"}] | [] | False |
+| B6 | SUM(p.gross_profit) | [{"table": "quickbooks__profitability_analysis", "column": "gross_profit"}] | [] | False |
+| B6 | SUM(p.outstanding_balance) | [{"table": "quickbooks__profitability_analysis", "column": "outstanding_balance"}] | [] | False |
+
+
+## S67
+
+类别 `data`；来源 `query_db`；调用 `92a6b5517a1e45f18c1c2c55de8ee020`；状态 `success`。
+
+```sql
+-- High-risk tier profile details
+WITH cust_vol AS (
+  SELECT customer_id, AVG(customer_margin_volatility) AS vol
+  FROM quickbooks__profitability_analysis
+  GROUP BY customer_id
+),
+vol_percentile AS (
+  SELECT customer_id, vol, PERCENT_RANK() OVER (ORDER BY vol) AS vol_pct_rank
+  FROM cust_vol
+),
+scored AS (
+  SELECT 
+    v.customer_id,
+    v.vol,
+    (v.vol_pct_rank * 100) AS vol_score,
+    CASE a.payment_behavior 
+      WHEN 'Excellent' THEN 10 WHEN 'Good' THEN 35 WHEN 'Average' THEN 65 WHEN 'Poor' THEN 90
+    END AS payment_score,
+    CASE a.rfm_segment
+      WHEN 'Champions' THEN 10 WHEN 'Loyal Customers' THEN 25 WHEN 'Potential Loyalists' THEN 45
+      WHEN 'New Customers' THEN 50 WHEN 'Need Attention' THEN 75 WHEN 'At Risk' THEN 95
+    END AS rfm_score,
+    CASE WHEN a.revenue_trend_correlation < 0 THEN 70 ELSE 30 END AS trend_score,
+    (100.0 - a.business_stability_score) AS stability_score,
+    a.payment_behavior, a.rfm_segment, a.business_stability_score, a.revenue_trend_correlation,
+    a.active_months_last_12, a.revenue_growth_rate_12m
+  FROM vol_percentile v
+  JOIN quickbooks__customer_analytics a ON v.customer_id = a.customer_id
+)
+SELECT 
+  COUNT(*) AS n_high_risk,
+  SUM(CASE WHEN payment_behavior = 'Poor' THEN 1 ELSE 0 END) AS n_poor_payment,
+  SUM(CASE WHEN rfm_segment = 'At Risk' THEN 1 ELSE 0 END) AS n_at_risk,
+  SUM(CASE WHEN revenue_trend_correlation < 0 THEN 1 ELSE 0 END) AS n_negative_trend,
+  ROUND(AVG(business_stability_score), 1) AS avg_stability,
+  ROUND(AVG(active_months_last_12), 1) AS avg_active_months,
+  ROUND(AVG(revenue_growth_rate_12m), 2) AS avg_growth_12m,
+  ROUND(AVG(vol), 3) AS avg_margin_vol
+FROM scored
+WHERE 0.25 * vol_score + 0.20 * payment_score + 0.20 * rfm_score + 0.15 * trend_score + 0.20 * stability_score >= 70
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S67.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S67.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S67.rows.jsonl)；完整：True；SHA256：`4b030c211223ede992b3e11e47d2d01f8575739ca78cbe7b05cfa680fdf74fbe`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | ["customer_id"] |
+| B2 | [{"alias": "cust_vol", "kind": "derived", "block": "B1", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B3 | [{"alias": "v", "kind": "derived", "block": "B2", "base_tables": ["quickbooks__profitability_analysis"]}, {"alias": "a", "kind": "base", "block": null, "base_tables": ["quickbooks__customer_analytics"]}] | [{"type": "INNER", "right": "quickbooks__customer_analytics AS a", "on": "v.customer_id = a.customer_id", "using": []}] | [] |
+| B4 | [{"alias": "scored", "kind": "derived", "block": "B3", "base_tables": ["quickbooks__customer_analytics", "quickbooks__profitability_analysis"]}] | [] | [] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | AVG(customer_margin_volatility) | [{"table": "quickbooks__profitability_analysis", "column": "customer_margin_volatility"}] | [] | False |
+| B4 | COUNT(*) | [] | [] | True |
+| B4 | SUM(CASE WHEN payment_behavior = 'Poor' THEN 1 ELSE 0 END) | [] | [{"table": "quickbooks__customer_analytics", "column": "payment_behavior"}] | False |
+| B4 | SUM(CASE WHEN rfm_segment = 'At Risk' THEN 1 ELSE 0 END) | [] | [{"table": "quickbooks__customer_analytics", "column": "rfm_segment"}] | False |
+| B4 | SUM(CASE WHEN revenue_trend_correlation < 0 THEN 1 ELSE 0 END) | [] | [{"table": "quickbooks__customer_analytics", "column": "revenue_trend_correlation"}] | False |
+| B4 | AVG(business_stability_score) | [{"table": "quickbooks__customer_analytics", "column": "business_stability_score"}] | [] | False |
+| B4 | AVG(active_months_last_12) | [{"table": "quickbooks__customer_analytics", "column": "active_months_last_12"}] | [] | False |
+| B4 | AVG(revenue_growth_rate_12m) | [{"table": "quickbooks__customer_analytics", "column": "revenue_growth_rate_12m"}] | [] | False |
+| B4 | AVG(vol) | [{"table": "quickbooks__profitability_analysis", "column": "customer_margin_volatility"}] | [] | False |
+
+
+## S68
+
+类别 `data`；来源 `query_db`；调用 `821c2c5b81c64763a266b8e6a61ffc97`；状态 `success`。
+
+```sql
+SELECT DISTINCT profitability_sustainability FROM quickbooks__profitability_analysis
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S68.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S68.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S68.rows.jsonl)；完整：True；SHA256：`9c14d7bececc4587c50185f3acf011c7e481903a1b31210aaae83d9151d456fb`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+
+
+## S69
+
+类别 `data`；来源 `query_db`；调用 `d444cfd6ac574ee582f4c68fbfba47e8`；状态 `success`。
+
+```sql
+SELECT DISTINCT profitability_tier, customer_tier, relative_performance 
+FROM quickbooks__profitability_analysis
+LIMIT 20
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S69.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S69.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S69.rows.jsonl)；完整：True；SHA256：`0ed2e74868e1699a2e1a058ff86af4644f4cae4dcd6840c6798ac880f4ebcccc`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+
+
+## S70
+
+类别 `data`；来源 `query_db`；调用 `060076e43c3e481aa18337077338f01a`；状态 `success`。
+
+```sql
+-- Profitability sustainability by volatility segment
+WITH cust_vol AS (
+  SELECT customer_id, AVG(customer_margin_volatility) AS vol
+  FROM quickbooks__profitability_analysis
+  GROUP BY customer_id
+),
+ordered AS (
+  SELECT customer_id, vol,
+    ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn,
+    COUNT(*) OVER () AS total
+  FROM cust_vol
+),
+seg AS (
+  SELECT customer_id, vol,
+    CASE WHEN rn <= total * 0.25 THEN 'HighVol'
+         WHEN rn > total * 0.75 THEN 'LowVol'
+         ELSE 'MidVol' END AS vol_segment
+  FROM ordered
+)
+SELECT 
+  s.vol_segment,
+  p.profitability_sustainability,
+  COUNT(*) AS n_rows,
+  ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (PARTITION BY s.vol_segment), 1) AS pct
+FROM seg s
+JOIN quickbooks__profitability_analysis p ON s.customer_id = p.customer_id
+GROUP BY s.vol_segment, p.profitability_sustainability
+ORDER BY s.vol_segment, pct DESC
+```
+
+[SQL](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S70.sql)；[绑定参数](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/sql/S70.parameters.json)。
+
+[原始行数组](../../../runs/dsv4flash-db-first-full-01/dacomp-092/attempt-01/results/S70.rows.jsonl)；完整：True；SHA256：`bebbb3b45f3c4253ea0a1fca2629d07e8f4691bf5ea1ab15987f7a9524a09c49`。
+
+| 查询块 | 来源实例与基础表 | Join 条件 | 分组维度 |
+| --- | --- | --- | --- |
+| B1 | [{"alias": "quickbooks__profitability_analysis", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [] | ["customer_id"] |
+| B2 | [{"alias": "cust_vol", "kind": "derived", "block": "B1", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B3 | [{"alias": "ordered", "kind": "derived", "block": "B2", "base_tables": ["quickbooks__profitability_analysis"]}] | [] | [] |
+| B4 | [{"alias": "s", "kind": "derived", "block": "B3", "base_tables": ["quickbooks__profitability_analysis"]}, {"alias": "p", "kind": "base", "block": null, "base_tables": ["quickbooks__profitability_analysis"]}] | [{"type": "INNER", "right": "quickbooks__profitability_analysis AS p", "on": "s.customer_id = p.customer_id", "using": []}] | ["s.vol_segment", "p.profitability_sustainability"] |
+
+
+| 块 | 聚合表达式 | 指标列血缘 | 条件列血缘 | 行计数 |
+| --- | --- | --- | --- | --- |
+| B1 | AVG(customer_margin_volatility) | [{"table": "quickbooks__profitability_analysis", "column": "customer_margin_volatility"}] | [] | False |
+| B4 | COUNT(*) | [] | [] | True |
+| B4 | COUNT(*) | [] | [] | True |
+| B4 | COUNT(*) | [] | [] | True |
 

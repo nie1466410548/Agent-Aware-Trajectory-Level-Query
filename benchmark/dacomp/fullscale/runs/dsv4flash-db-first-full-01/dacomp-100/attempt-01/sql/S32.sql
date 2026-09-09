@@ -1,0 +1,1 @@
+SELECT company_name, COUNT(*) AS n, COUNT(DISTINCT company_id) AS n_ids FROM intercom__company_enhanced GROUP BY company_name ORDER BY n DESC LIMIT 10

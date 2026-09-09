@@ -1,0 +1,1 @@
+SELECT CAMPAIGN_TYPE, COUNT(*) as n, AVG(email_open_rate) as avg_open_rate, AVG(email_click_to_open_rate) as avg_ctr FROM klaviyo__campaigns GROUP BY CAMPAIGN_TYPE ORDER BY n DESC

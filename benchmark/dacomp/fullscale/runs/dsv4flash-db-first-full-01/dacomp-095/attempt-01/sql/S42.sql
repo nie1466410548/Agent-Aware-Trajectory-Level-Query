@@ -1,0 +1,6 @@
+SELECT 
+  CAMPAIGN_TYPE,
+  COUNT(*) as n,
+  SUM(CASE WHEN STATUS='sent' THEN 1 ELSE 0 END) as n_sent
+FROM klaviyo__campaigns
+GROUP BY CAMPAIGN_TYPE

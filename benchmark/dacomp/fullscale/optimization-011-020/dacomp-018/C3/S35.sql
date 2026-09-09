@@ -1,0 +1,22 @@
+WITH cust_orders AS (
+  SELECT
+    *
+  FROM temp."reuse_018_c3"
+)
+SELECT
+  COUNT(*) AS "top10_customers",
+  SUM(profit) AS "top10_profit",
+  SUM(profit) * 100.0 / (
+    SELECT
+      SUM(profit)
+    FROM cust_orders
+  ) AS "pct_of_total_profit"
+FROM (
+  SELECT
+    "Customer ID",
+    profit
+  FROM cust_orders
+  ORDER BY
+    profit DESC
+  LIMIT 80
+);

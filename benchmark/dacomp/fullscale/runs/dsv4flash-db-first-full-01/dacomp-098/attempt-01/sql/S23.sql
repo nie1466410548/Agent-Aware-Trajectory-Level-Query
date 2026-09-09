@@ -1,0 +1,1 @@
+SELECT all_conversation_contacts, all_contact_company_names, conversation_created_at, conversation_initiated_type, all_conversation_tags FROM intercom__conversation_enhanced LIMIT 10

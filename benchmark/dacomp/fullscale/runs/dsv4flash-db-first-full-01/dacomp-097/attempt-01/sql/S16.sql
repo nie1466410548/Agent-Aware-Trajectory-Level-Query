@@ -1,0 +1,1 @@
+SELECT DISTINCT all_contact_tags FROM intercom__contact_enhanced LIMIT 20

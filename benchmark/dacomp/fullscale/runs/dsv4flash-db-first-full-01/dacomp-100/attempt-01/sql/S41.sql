@@ -1,0 +1,1 @@
+SELECT conversation_created_at FROM intercom__conversation_enhanced

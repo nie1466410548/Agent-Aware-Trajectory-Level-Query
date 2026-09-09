@@ -1,0 +1,76 @@
+{
+  "task_id": "dacomp-096",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "SQL 已计算异常标志和基础分组，Python 仍对异常标志求和、筛选异常、按活动类型和时段再聚合、合计模板使用次数；这些 SUM、WHERE、GROUP BY 和排序可在 SQL 完成。绘图及统计相关分析单独视为补充。",
+  "route": "SQL 数据探索、指标及分组 → Python 准备、统计和图表 → 报告",
+  "evidence": [
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 14,
+          "text": "print(an[['or_anomaly','ctor_anomaly','freq_anomaly','any_anomaly']].sum())"
+        },
+        {
+          "line": 16,
+          "text": "flagged = an[an['any_anomaly']==1]"
+        }
+      ]
+    },
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 26,
+          "text": "type_summary = an.groupby('campaign_type').agg("
+        },
+        {
+          "line": 37,
+          "text": "type_summary = type_summary.round(4)"
+        },
+        {
+          "line": 58,
+          "text": "tmpl_overall = tmpl.groupby('variation_id').agg(n_uses=('n_uses','sum'), avg_or=('avg_or','mean'), avg_ctor=('avg_ctor','mean')).reset_index()"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 28,
+          "text": "type_agg = an.groupby('campaign_type').agg("
+        },
+        {
+          "line": 91,
+          "text": "slot_agg = an.groupby(['is_weekend','daypart']).agg("
+        }
+      ]
+    }
+  ],
+  "review_scope_python_files": [
+    "P1.py",
+    "P2.py",
+    "P3.py",
+    "P4.py",
+    "P5.py",
+    "P6.py",
+    "P7.py",
+    "P8.py",
+    "P9.py"
+  ],
+  "final_run_status": "submitted",
+  "available_python_files": [
+    "P1.py",
+    "P2.py",
+    "P3.py",
+    "P4.py",
+    "P5.py",
+    "P6.py",
+    "P7.py",
+    "P8.py",
+    "P9.py"
+  ],
+  "review_scope": "Execution-location findings supported by the cited source lines; no official answer correctness judgment."
+}

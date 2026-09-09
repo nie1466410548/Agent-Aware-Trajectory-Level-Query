@@ -1,0 +1,1 @@
+SELECT company_name FROM intercom__company_enhanced

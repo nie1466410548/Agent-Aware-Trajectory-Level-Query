@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_metrics FROM intercom__company_metrics

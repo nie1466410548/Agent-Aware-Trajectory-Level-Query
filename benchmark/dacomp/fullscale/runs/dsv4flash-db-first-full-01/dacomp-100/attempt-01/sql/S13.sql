@@ -1,0 +1,1 @@
+SELECT company_id, all_company_tags, created_at, updated_at FROM intercom__company_enhanced

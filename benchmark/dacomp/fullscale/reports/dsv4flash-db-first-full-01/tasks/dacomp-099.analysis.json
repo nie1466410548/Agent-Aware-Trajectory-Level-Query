@@ -1,0 +1,791 @@
+{
+  "fingerprint": "9e1f0a70478025e7a6e080329aba2d874f042ef5a53df8f82a2b9f3716464367",
+  "analysis_source_version": "11db36a5cf34662d69d06fb9401b4dd860cf7569546f909da5e0f3edcf66d6d3",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S16",
+      "covered": [
+        "S16",
+        "S20"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S16",
+      "later_reuses": 1,
+      "denominator": 70,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S46",
+      "covered": [
+        "S46",
+        "S47",
+        "S48"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S46",
+      "later_reuses": 2,
+      "denominator": 70,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788918174.8043542,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 567,
+      "validation_ended_at": 1788918174.8228445,
+      "checks": [
+        {
+          "sql_id": "S47",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        },
+        {
+          "sql_id": "S48",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT conversation_id, value AS tag FROM intercom__conversation_enhanced CROSS JOIN JSON_EACH('[\"' || REPLACE(all_conversation_tags, ', ', '\",\"') || '\"]') WHERE NOT all_conversation_tags IS NULL AND all_conversation_tags <> ''",
+      "covered": [
+        "S16",
+        "S20"
+      ],
+      "rewrites": {
+        "S16": "WITH split AS (SELECT * FROM temp.reuse_candidate) SELECT tag, COUNT(*) AS cnt FROM split GROUP BY tag ORDER BY cnt DESC",
+        "S20": "WITH split AS (SELECT * FROM temp.reuse_candidate) SELECT tag, COUNT(*) AS cnt FROM split GROUP BY tag ORDER BY cnt DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S16",
+      "later_reuses": 1,
+      "denominator": 70,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT company_id, company_name, plan_name, created_at, monthly_spend, CASE plan_name WHEN 'Starter' THEN 1 WHEN 'Growth' THEN 2 WHEN 'Scale' THEN 3 WHEN 'Enterprise' THEN 4 END AS tier FROM intercom__company_enhanced",
+      "covered": [
+        "S41",
+        "S42",
+        "S43",
+        "S44",
+        "S45",
+        "S46",
+        "S47",
+        "S48",
+        "S49",
+        "S50",
+        "S51",
+        "S52",
+        "S63",
+        "S67",
+        "S71"
+      ],
+      "rewrites": {
+        "S41": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers) SELECT CASE WHEN tier > prev_tier THEN 'upgrade' WHEN tier < prev_tier THEN 'downgrade' ELSE 'no_change' END AS event_type, COUNT(*) AS events FROM ordered WHERE NOT prev_tier IS NULL GROUP BY event_type",
+        "S42": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan, LAG(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_time FROM tiers) SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced) ORDER BY company_name, event_at",
+        "S43": "/* Get events with conversation counts in 30-day windows */ WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan, LAG(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_time FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)), event_convs /* For each event, get conversations in the before window and after window */ AS (SELECT e.company_name, e.event_at, e.event_type, c.conversation_created_at, CASE WHEN c.conversation_created_at < e.event_at THEN 'before' ELSE 'after' END AS period, cm.count_total_parts, CASE WHEN c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END AS is_bug, CASE WHEN c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END AS is_outage, CASE WHEN c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END AS is_escalation, CASE WHEN c.all_conversation_tags LIKE '%Downgrade Risk%' THEN 1 ELSE 0 END AS is_downgrade_risk, CASE WHEN c.all_conversation_tags LIKE '%Upgrade Opportunity%' THEN 1 ELSE 0 END AS is_upgrade_opp, c.sla_status, c.conversation_rating FROM events AS e JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name LEFT JOIN intercom__conversation_metrics AS cm ON cm.conversation_id = c.conversation_id WHERE c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at) SELECT event_type, period, COUNT(*) AS total_convs, ROUND(AVG(count_total_parts), 2) AS avg_parts, SUM(is_bug) AS bug_count, SUM(is_outage) AS outage_count, SUM(is_escalation) AS escalation_count, SUM(is_upgrade_opp) AS upgrade_opp_count, SUM(is_downgrade_risk) AS downgrade_risk_count, ROUND(AVG(CASE WHEN conversation_rating > 0 THEN conversation_rating END), 2) AS avg_rating, SUM(CASE WHEN sla_status = 'breached' THEN 1 ELSE 0 END) AS sla_breaches FROM event_convs GROUP BY event_type, period ORDER BY event_type, period",
+        "S44": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)) SELECT event_type, COUNT(*) AS event_count, COUNT(DISTINCT company_name) AS companies FROM events GROUP BY event_type",
+        "S45": "/* Per-event detailed metrics */ WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type, ROW_NUMBER() OVER (PARTITION BY company_name ORDER BY created_at) AS event_seq FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)), event_metrics AS (SELECT e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan, c.conversation_id, c.conversation_created_at, CASE WHEN c.conversation_created_at < e.event_at THEN 'before' ELSE 'after' END AS period, cm.count_total_parts, CASE WHEN c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END AS is_bug, CASE WHEN c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END AS is_outage, CASE WHEN c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END AS is_escalation, CASE WHEN c.all_conversation_tags LIKE '%Renewal%' THEN 1 ELSE 0 END AS is_renewal, CASE WHEN c.sla_status = 'breached' THEN 1 ELSE 0 END AS is_sla_breach, CASE WHEN c.conversation_initiated_type = 'customer_initiated' THEN 1 ELSE 0 END AS is_customer_initiated, c.conversation_rating FROM events AS e JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name LEFT JOIN intercom__conversation_metrics AS cm ON cm.conversation_id = c.conversation_id WHERE c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at) SELECT * FROM event_metrics ORDER BY company_name, event_at, conversation_created_at",
+        "S46": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)), event_metrics AS (SELECT e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan, c.conversation_id, c.conversation_created_at, CASE WHEN c.conversation_created_at < e.event_at THEN 'before' ELSE 'after' END AS period, cm.count_total_parts, CASE WHEN c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END AS is_bug, CASE WHEN c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END AS is_outage, CASE WHEN c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END AS is_escalation, CASE WHEN c.all_conversation_tags LIKE '%Renewal%' THEN 1 ELSE 0 END AS is_renewal, CASE WHEN c.sla_status = 'breached' THEN 1 ELSE 0 END AS is_sla_breach, CASE WHEN c.conversation_initiated_type = 'customer_initiated' THEN 1 ELSE 0 END AS is_customer_initiated, c.conversation_rating FROM events AS e JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name LEFT JOIN intercom__conversation_metrics AS cm ON cm.conversation_id = c.conversation_id WHERE c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at) SELECT * FROM event_metrics ORDER BY company_name, event_at, conversation_created_at",
+        "S47": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)), event_metrics AS (SELECT e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan, c.conversation_id, c.conversation_created_at, CASE WHEN c.conversation_created_at < e.event_at THEN 'before' ELSE 'after' END AS period, cm.count_total_parts, CASE WHEN c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END AS is_bug, CASE WHEN c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END AS is_outage, CASE WHEN c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END AS is_escalation, CASE WHEN c.all_conversation_tags LIKE '%Renewal%' THEN 1 ELSE 0 END AS is_renewal, CASE WHEN c.sla_status = 'breached' THEN 1 ELSE 0 END AS is_sla_breach, CASE WHEN c.conversation_initiated_type = 'customer_initiated' THEN 1 ELSE 0 END AS is_customer_initiated, c.conversation_rating FROM events AS e JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name LEFT JOIN intercom__conversation_metrics AS cm ON cm.conversation_id = c.conversation_id WHERE c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at) SELECT * FROM event_metrics ORDER BY company_name, event_at, conversation_created_at",
+        "S48": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)), event_metrics AS (SELECT e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan, c.conversation_id, c.conversation_created_at, CASE WHEN c.conversation_created_at < e.event_at THEN 'before' ELSE 'after' END AS period, cm.count_total_parts, CASE WHEN c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END AS is_bug, CASE WHEN c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END AS is_outage, CASE WHEN c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END AS is_escalation, CASE WHEN c.all_conversation_tags LIKE '%Renewal%' THEN 1 ELSE 0 END AS is_renewal, CASE WHEN c.sla_status = 'breached' THEN 1 ELSE 0 END AS is_sla_breach, CASE WHEN c.conversation_initiated_type = 'customer_initiated' THEN 1 ELSE 0 END AS is_customer_initiated, c.conversation_rating FROM events AS e JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name LEFT JOIN intercom__conversation_metrics AS cm ON cm.conversation_id = c.conversation_id WHERE c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at) SELECT * FROM event_metrics ORDER BY company_name, event_at, conversation_created_at",
+        "S49": "/* Per-event before/after counts including zero-conversation windows */ WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)) SELECT e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan, SUM(CASE WHEN c.conversation_created_at < e.event_at THEN 1 ELSE 0 END) AS before_convs, SUM(CASE WHEN c.conversation_created_at > e.event_at THEN 1 ELSE 0 END) AS after_convs, SUM(CASE WHEN c.conversation_created_at < e.event_at AND c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END) AS before_bugs, SUM(CASE WHEN c.conversation_created_at > e.event_at AND c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END) AS after_bugs, SUM(CASE WHEN c.conversation_created_at < e.event_at AND c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END) AS before_outages, SUM(CASE WHEN c.conversation_created_at > e.event_at AND c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END) AS after_outages, SUM(CASE WHEN c.conversation_created_at < e.event_at AND c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END) AS before_esc, SUM(CASE WHEN c.conversation_created_at > e.event_at AND c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END) AS after_esc, SUM(CASE WHEN c.conversation_created_at < e.event_at AND c.sla_status = 'breached' THEN 1 ELSE 0 END) AS before_sla, SUM(CASE WHEN c.conversation_created_at > e.event_at AND c.sla_status = 'breached' THEN 1 ELSE 0 END) AS after_sla FROM events AS e LEFT JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name AND c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at GROUP BY e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan ORDER BY e.event_type, e.company_name, e.event_at",
+        "S50": "/* Check which events have conversations in the 30-day window */ WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)) SELECT e.event_type, COUNT(*) AS total_events, SUM(CASE WHEN e.event_at >= (SELECT MIN(conversation_created_at) FROM intercom__conversation_enhanced WHERE all_contact_company_names = e.company_name) + 30 AND e.event_at <= (SELECT MAX(conversation_created_at) FROM intercom__conversation_enhanced WHERE all_contact_company_names = e.company_name) - 30 THEN 1 ELSE 0 END) AS events_with_30d_buffer FROM events AS e GROUP BY e.event_type",
+        "S51": "/* Check per-company conversation time ranges and event counts in window */ WITH conv_range AS (SELECT all_contact_company_names AS company_name, MIN(conversation_created_at) AS min_c, MAX(conversation_created_at) AS max_c, COUNT(*) AS n_convs FROM intercom__conversation_enhanced GROUP BY all_contact_company_names), tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier) SELECT cr.company_name, cr.min_c, cr.max_c, cr.n_convs, SUM(CASE WHEN e.event_type = 'upgrade' THEN 1 ELSE 0 END) AS n_upgrade, SUM(CASE WHEN e.event_type = 'downgrade' THEN 1 ELSE 0 END) AS n_downgrade FROM conv_range AS cr LEFT JOIN events AS e ON e.company_name = cr.company_name GROUP BY cr.company_name ORDER BY cr.n_convs DESC",
+        "S52": "/* For each event, check if it has 30-day buffer for conversations */ WITH conv_range AS (SELECT all_contact_company_names AS company_name, MIN(conversation_created_at) AS min_c, MAX(conversation_created_at) AS max_c FROM intercom__conversation_enhanced GROUP BY all_contact_company_names), tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)) SELECT e.event_type, COUNT(*) AS total, SUM(CASE WHEN e.event_at >= DATETIME(cr.min_c, '+30 days') AND e.event_at <= DATETIME(cr.max_c, '-30 days') THEN 1 ELSE 0 END) AS has_30d_buffer FROM events AS e JOIN conv_range AS cr ON cr.company_name = e.company_name GROUP BY e.event_type",
+        "S63": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers) SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier",
+        "S67": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan, LAG(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_created_at, LEAD(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS next_created_at FROM tiers) SELECT company_name, created_at AS event_at, prev_created_at, next_created_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier",
+        "S71": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan, LAG(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_created_at, LEAD(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS next_created_at FROM tiers) SELECT company_name, created_at AS event_at, prev_created_at, next_created_at, prev_plan, plan_name AS new_plan, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S41",
+      "later_reuses": 14,
+      "denominator": 70,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788918174.0218103,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT company_id, company_name, plan_name, created_at, monthly_spend, CASE plan_name WHEN 'Starter' THEN 1 WHEN 'Growth' THEN 2 WHEN 'Scale' THEN 3 WHEN 'Enterprise' THEN 4 END AS tier FROM intercom__company_enhanced",
+          "phase": "offline_validation",
+          "start_time": 1788918174.0220892,
+          "status": "execute_returned",
+          "end_time": 1788918174.0236583
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788918174.0236638,
+          "status": "execute_returned",
+          "end_time": 1788918174.0236921
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788918174.0236979,
+          "status": "execute_returned",
+          "end_time": 1788918174.0237114
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers) SELECT CASE WHEN tier > prev_tier THEN 'upgrade' WHEN tier < prev_tier THEN 'downgrade' ELSE 'no_change' END AS event_type, COUNT(*) AS events FROM ordered WHERE NOT prev_tier IS NULL GROUP BY event_type",
+          "phase": "offline_validation",
+          "start_time": 1788918174.0237267,
+          "status": "execute_returned",
+          "end_time": 1788918174.0293252
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan, LAG(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_time FROM tiers) SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced) ORDER BY company_name, event_at",
+          "phase": "offline_validation",
+          "start_time": 1788918174.0314178,
+          "status": "execute_returned",
+          "end_time": 1788918174.0408099
+        },
+        {
+          "sequence": 6,
+          "sql": "/* Get events with conversation counts in 30-day windows */ WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan, LAG(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_time FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)), event_convs /* For each event, get conversations in the before window and after window */ AS (SELECT e.company_name, e.event_at, e.event_type, c.conversation_created_at, CASE WHEN c.conversation_created_at < e.event_at THEN 'before' ELSE 'after' END AS period, cm.count_total_parts, CASE WHEN c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END AS is_bug, CASE WHEN c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END AS is_outage, CASE WHEN c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END AS is_escalation, CASE WHEN c.all_conversation_tags LIKE '%Downgrade Risk%' THEN 1 ELSE 0 END AS is_downgrade_risk, CASE WHEN c.all_conversation_tags LIKE '%Upgrade Opportunity%' THEN 1 ELSE 0 END AS is_upgrade_opp, c.sla_status, c.conversation_rating FROM events AS e JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name LEFT JOIN intercom__conversation_metrics AS cm ON cm.conversation_id = c.conversation_id WHERE c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at) SELECT event_type, period, COUNT(*) AS total_convs, ROUND(AVG(count_total_parts), 2) AS avg_parts, SUM(is_bug) AS bug_count, SUM(is_outage) AS outage_count, SUM(is_escalation) AS escalation_count, SUM(is_upgrade_opp) AS upgrade_opp_count, SUM(is_downgrade_risk) AS downgrade_risk_count, ROUND(AVG(CASE WHEN conversation_rating > 0 THEN conversation_rating END), 2) AS avg_rating, SUM(CASE WHEN sla_status = 'breached' THEN 1 ELSE 0 END) AS sla_breaches FROM event_convs GROUP BY event_type, period ORDER BY event_type, period",
+          "phase": "offline_validation",
+          "start_time": 1788918174.0439577,
+          "status": "execute_returned",
+          "end_time": 1788918174.0820057
+        },
+        {
+          "sequence": 7,
+          "sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)) SELECT event_type, COUNT(*) AS event_count, COUNT(DISTINCT company_name) AS companies FROM events GROUP BY event_type",
+          "phase": "offline_validation",
+          "start_time": 1788918174.0891976,
+          "status": "execute_returned",
+          "end_time": 1788918174.0973182
+        },
+        {
+          "sequence": 8,
+          "sql": "/* Per-event detailed metrics */ WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type, ROW_NUMBER() OVER (PARTITION BY company_name ORDER BY created_at) AS event_seq FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)), event_metrics AS (SELECT e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan, c.conversation_id, c.conversation_created_at, CASE WHEN c.conversation_created_at < e.event_at THEN 'before' ELSE 'after' END AS period, cm.count_total_parts, CASE WHEN c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END AS is_bug, CASE WHEN c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END AS is_outage, CASE WHEN c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END AS is_escalation, CASE WHEN c.all_conversation_tags LIKE '%Renewal%' THEN 1 ELSE 0 END AS is_renewal, CASE WHEN c.sla_status = 'breached' THEN 1 ELSE 0 END AS is_sla_breach, CASE WHEN c.conversation_initiated_type = 'customer_initiated' THEN 1 ELSE 0 END AS is_customer_initiated, c.conversation_rating FROM events AS e JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name LEFT JOIN intercom__conversation_metrics AS cm ON cm.conversation_id = c.conversation_id WHERE c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at) SELECT * FROM event_metrics ORDER BY company_name, event_at, conversation_created_at",
+          "phase": "offline_validation",
+          "start_time": 1788918174.1000133,
+          "status": "execute_returned",
+          "end_time": 1788918174.1414828
+        },
+        {
+          "sequence": 9,
+          "sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)), event_metrics AS (SELECT e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan, c.conversation_id, c.conversation_created_at, CASE WHEN c.conversation_created_at < e.event_at THEN 'before' ELSE 'after' END AS period, cm.count_total_parts, CASE WHEN c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END AS is_bug, CASE WHEN c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END AS is_outage, CASE WHEN c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END AS is_escalation, CASE WHEN c.all_conversation_tags LIKE '%Renewal%' THEN 1 ELSE 0 END AS is_renewal, CASE WHEN c.sla_status = 'breached' THEN 1 ELSE 0 END AS is_sla_breach, CASE WHEN c.conversation_initiated_type = 'customer_initiated' THEN 1 ELSE 0 END AS is_customer_initiated, c.conversation_rating FROM events AS e JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name LEFT JOIN intercom__conversation_metrics AS cm ON cm.conversation_id = c.conversation_id WHERE c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at) SELECT * FROM event_metrics ORDER BY company_name, event_at, conversation_created_at",
+          "phase": "offline_validation",
+          "start_time": 1788918174.1535769,
+          "status": "execute_returned",
+          "end_time": 1788918174.1925025
+        },
+        {
+          "sequence": 10,
+          "sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)), event_metrics AS (SELECT e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan, c.conversation_id, c.conversation_created_at, CASE WHEN c.conversation_created_at < e.event_at THEN 'before' ELSE 'after' END AS period, cm.count_total_parts, CASE WHEN c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END AS is_bug, CASE WHEN c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END AS is_outage, CASE WHEN c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END AS is_escalation, CASE WHEN c.all_conversation_tags LIKE '%Renewal%' THEN 1 ELSE 0 END AS is_renewal, CASE WHEN c.sla_status = 'breached' THEN 1 ELSE 0 END AS is_sla_breach, CASE WHEN c.conversation_initiated_type = 'customer_initiated' THEN 1 ELSE 0 END AS is_customer_initiated, c.conversation_rating FROM events AS e JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name LEFT JOIN intercom__conversation_metrics AS cm ON cm.conversation_id = c.conversation_id WHERE c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at) SELECT * FROM event_metrics ORDER BY company_name, event_at, conversation_created_at",
+          "phase": "offline_validation",
+          "start_time": 1788918174.2031925,
+          "status": "execute_returned",
+          "end_time": 1788918174.241235
+        },
+        {
+          "sequence": 11,
+          "sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)), event_metrics AS (SELECT e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan, c.conversation_id, c.conversation_created_at, CASE WHEN c.conversation_created_at < e.event_at THEN 'before' ELSE 'after' END AS period, cm.count_total_parts, CASE WHEN c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END AS is_bug, CASE WHEN c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END AS is_outage, CASE WHEN c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END AS is_escalation, CASE WHEN c.all_conversation_tags LIKE '%Renewal%' THEN 1 ELSE 0 END AS is_renewal, CASE WHEN c.sla_status = 'breached' THEN 1 ELSE 0 END AS is_sla_breach, CASE WHEN c.conversation_initiated_type = 'customer_initiated' THEN 1 ELSE 0 END AS is_customer_initiated, c.conversation_rating FROM events AS e JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name LEFT JOIN intercom__conversation_metrics AS cm ON cm.conversation_id = c.conversation_id WHERE c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at) SELECT * FROM event_metrics ORDER BY company_name, event_at, conversation_created_at",
+          "phase": "offline_validation",
+          "start_time": 1788918174.2515686,
+          "status": "execute_returned",
+          "end_time": 1788918174.2894366
+        },
+        {
+          "sequence": 12,
+          "sql": "/* Per-event before/after counts including zero-conversation windows */ WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)) SELECT e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan, SUM(CASE WHEN c.conversation_created_at < e.event_at THEN 1 ELSE 0 END) AS before_convs, SUM(CASE WHEN c.conversation_created_at > e.event_at THEN 1 ELSE 0 END) AS after_convs, SUM(CASE WHEN c.conversation_created_at < e.event_at AND c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END) AS before_bugs, SUM(CASE WHEN c.conversation_created_at > e.event_at AND c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END) AS after_bugs, SUM(CASE WHEN c.conversation_created_at < e.event_at AND c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END) AS before_outages, SUM(CASE WHEN c.conversation_created_at > e.event_at AND c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END) AS after_outages, SUM(CASE WHEN c.conversation_created_at < e.event_at AND c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END) AS before_esc, SUM(CASE WHEN c.conversation_created_at > e.event_at AND c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END) AS after_esc, SUM(CASE WHEN c.conversation_created_at < e.event_at AND c.sla_status = 'breached' THEN 1 ELSE 0 END) AS before_sla, SUM(CASE WHEN c.conversation_created_at > e.event_at AND c.sla_status = 'breached' THEN 1 ELSE 0 END) AS after_sla FROM events AS e LEFT JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name AND c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at GROUP BY e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan ORDER BY e.event_type, e.company_name, e.event_at",
+          "phase": "offline_validation",
+          "start_time": 1788918174.2998788,
+          "status": "execute_returned",
+          "end_time": 1788918174.331051
+        },
+        {
+          "sequence": 13,
+          "sql": "/* Check which events have conversations in the 30-day window */ WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)) SELECT e.event_type, COUNT(*) AS total_events, SUM(CASE WHEN e.event_at >= (SELECT MIN(conversation_created_at) FROM intercom__conversation_enhanced WHERE all_contact_company_names = e.company_name) + 30 AND e.event_at <= (SELECT MAX(conversation_created_at) FROM intercom__conversation_enhanced WHERE all_contact_company_names = e.company_name) - 30 THEN 1 ELSE 0 END) AS events_with_30d_buffer FROM events AS e GROUP BY e.event_type",
+          "phase": "offline_validation",
+          "start_time": 1788918174.33886,
+          "status": "execute_returned",
+          "end_time": 1788918174.4950743
+        },
+        {
+          "sequence": 14,
+          "sql": "/* Check per-company conversation time ranges and event counts in window */ WITH conv_range AS (SELECT all_contact_company_names AS company_name, MIN(conversation_created_at) AS min_c, MAX(conversation_created_at) AS max_c, COUNT(*) AS n_convs FROM intercom__conversation_enhanced GROUP BY all_contact_company_names), tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier) SELECT cr.company_name, cr.min_c, cr.max_c, cr.n_convs, SUM(CASE WHEN e.event_type = 'upgrade' THEN 1 ELSE 0 END) AS n_upgrade, SUM(CASE WHEN e.event_type = 'downgrade' THEN 1 ELSE 0 END) AS n_downgrade FROM conv_range AS cr LEFT JOIN events AS e ON e.company_name = cr.company_name GROUP BY cr.company_name ORDER BY cr.n_convs DESC",
+          "phase": "offline_validation",
+          "start_time": 1788918174.6760182,
+          "status": "execute_returned",
+          "end_time": 1788918174.6871455
+        },
+        {
+          "sequence": 15,
+          "sql": "/* For each event, check if it has 30-day buffer for conversations */ WITH conv_range AS (SELECT all_contact_company_names AS company_name, MIN(conversation_created_at) AS min_c, MAX(conversation_created_at) AS max_c FROM intercom__conversation_enhanced GROUP BY all_contact_company_names), tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)) SELECT e.event_type, COUNT(*) AS total, SUM(CASE WHEN e.event_at >= DATETIME(cr.min_c, '+30 days') AND e.event_at <= DATETIME(cr.max_c, '-30 days') THEN 1 ELSE 0 END) AS has_30d_buffer FROM events AS e JOIN conv_range AS cr ON cr.company_name = e.company_name GROUP BY e.event_type",
+          "phase": "offline_validation",
+          "start_time": 1788918174.6920288,
+          "status": "execute_returned",
+          "end_time": 1788918174.7050178
+        },
+        {
+          "sequence": 16,
+          "sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers) SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier",
+          "phase": "offline_validation",
+          "start_time": 1788918174.7087731,
+          "status": "execute_returned",
+          "end_time": 1788918174.7106125
+        },
+        {
+          "sequence": 17,
+          "sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan, LAG(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_created_at, LEAD(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS next_created_at FROM tiers) SELECT company_name, created_at AS event_at, prev_created_at, next_created_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier",
+          "phase": "offline_validation",
+          "start_time": 1788918174.7345598,
+          "status": "execute_returned",
+          "end_time": 1788918174.7360313
+        },
+        {
+          "sequence": 18,
+          "sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan, LAG(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_created_at, LEAD(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS next_created_at FROM tiers) SELECT company_name, created_at AS event_at, prev_created_at, next_created_at, prev_plan, plan_name AS new_plan, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier",
+          "phase": "offline_validation",
+          "start_time": 1788918174.7706776,
+          "status": "execute_returned",
+          "end_time": 1788918174.7721603
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT company_id, company_name, plan_name, created_at, monthly_spend, CASE plan_name WHEN 'Starter' THEN 1 WHEN 'Growth' THEN 2 WHEN 'Scale' THEN 3 WHEN 'Enterprise' THEN 4 END AS tier FROM intercom__company_enhanced",
+          "time": 1788918174.0224013,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788918174.023683,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788918174.023708,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers) SELECT CASE WHEN tier > prev_tier THEN 'upgrade' WHEN tier < prev_tier THEN 'downgrade' ELSE 'no_change' END AS event_type, COUNT(*) AS events FROM ordered WHERE NOT prev_tier IS NULL GROUP BY event_type",
+          "time": 1788918174.0238342,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan, LAG(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_time FROM tiers) SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced) ORDER BY company_name, event_at",
+          "time": 1788918174.031569,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Get events with conversation counts in 30-day windows */ WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan, LAG(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_time FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)), event_convs /* For each event, get conversations in the before window and after window */ AS (SELECT e.company_name, e.event_at, e.event_type, c.conversation_created_at, CASE WHEN c.conversation_created_at < e.event_at THEN 'before' ELSE 'after' END AS period, cm.count_total_parts, CASE WHEN c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END AS is_bug, CASE WHEN c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END AS is_outage, CASE WHEN c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END AS is_escalation, CASE WHEN c.all_conversation_tags LIKE '%Downgrade Risk%' THEN 1 ELSE 0 END AS is_downgrade_risk, CASE WHEN c.all_conversation_tags LIKE '%Upgrade Opportunity%' THEN 1 ELSE 0 END AS is_upgrade_opp, c.sla_status, c.conversation_rating FROM events AS e JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name LEFT JOIN intercom__conversation_metrics AS cm ON cm.conversation_id = c.conversation_id WHERE c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at) SELECT event_type, period, COUNT(*) AS total_convs, ROUND(AVG(count_total_parts), 2) AS avg_parts, SUM(is_bug) AS bug_count, SUM(is_outage) AS outage_count, SUM(is_escalation) AS escalation_count, SUM(is_upgrade_opp) AS upgrade_opp_count, SUM(is_downgrade_risk) AS downgrade_risk_count, ROUND(AVG(CASE WHEN conversation_rating > 0 THEN conversation_rating END), 2) AS avg_rating, SUM(CASE WHEN sla_status = 'breached' THEN 1 ELSE 0 END) AS sla_breaches FROM event_convs GROUP BY event_type, period ORDER BY event_type, period",
+          "time": 1788918174.0443633,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)) SELECT event_type, COUNT(*) AS event_count, COUNT(DISTINCT company_name) AS companies FROM events GROUP BY event_type",
+          "time": 1788918174.0894103,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Per-event detailed metrics */ WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type, ROW_NUMBER() OVER (PARTITION BY company_name ORDER BY created_at) AS event_seq FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)), event_metrics AS (SELECT e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan, c.conversation_id, c.conversation_created_at, CASE WHEN c.conversation_created_at < e.event_at THEN 'before' ELSE 'after' END AS period, cm.count_total_parts, CASE WHEN c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END AS is_bug, CASE WHEN c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END AS is_outage, CASE WHEN c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END AS is_escalation, CASE WHEN c.all_conversation_tags LIKE '%Renewal%' THEN 1 ELSE 0 END AS is_renewal, CASE WHEN c.sla_status = 'breached' THEN 1 ELSE 0 END AS is_sla_breach, CASE WHEN c.conversation_initiated_type = 'customer_initiated' THEN 1 ELSE 0 END AS is_customer_initiated, c.conversation_rating FROM events AS e JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name LEFT JOIN intercom__conversation_metrics AS cm ON cm.conversation_id = c.conversation_id WHERE c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at) SELECT * FROM event_metrics ORDER BY company_name, event_at, conversation_created_at",
+          "time": 1788918174.1004612,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)), event_metrics AS (SELECT e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan, c.conversation_id, c.conversation_created_at, CASE WHEN c.conversation_created_at < e.event_at THEN 'before' ELSE 'after' END AS period, cm.count_total_parts, CASE WHEN c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END AS is_bug, CASE WHEN c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END AS is_outage, CASE WHEN c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END AS is_escalation, CASE WHEN c.all_conversation_tags LIKE '%Renewal%' THEN 1 ELSE 0 END AS is_renewal, CASE WHEN c.sla_status = 'breached' THEN 1 ELSE 0 END AS is_sla_breach, CASE WHEN c.conversation_initiated_type = 'customer_initiated' THEN 1 ELSE 0 END AS is_customer_initiated, c.conversation_rating FROM events AS e JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name LEFT JOIN intercom__conversation_metrics AS cm ON cm.conversation_id = c.conversation_id WHERE c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at) SELECT * FROM event_metrics ORDER BY company_name, event_at, conversation_created_at",
+          "time": 1788918174.154002,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)), event_metrics AS (SELECT e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan, c.conversation_id, c.conversation_created_at, CASE WHEN c.conversation_created_at < e.event_at THEN 'before' ELSE 'after' END AS period, cm.count_total_parts, CASE WHEN c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END AS is_bug, CASE WHEN c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END AS is_outage, CASE WHEN c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END AS is_escalation, CASE WHEN c.all_conversation_tags LIKE '%Renewal%' THEN 1 ELSE 0 END AS is_renewal, CASE WHEN c.sla_status = 'breached' THEN 1 ELSE 0 END AS is_sla_breach, CASE WHEN c.conversation_initiated_type = 'customer_initiated' THEN 1 ELSE 0 END AS is_customer_initiated, c.conversation_rating FROM events AS e JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name LEFT JOIN intercom__conversation_metrics AS cm ON cm.conversation_id = c.conversation_id WHERE c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at) SELECT * FROM event_metrics ORDER BY company_name, event_at, conversation_created_at",
+          "time": 1788918174.2032065,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)), event_metrics AS (SELECT e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan, c.conversation_id, c.conversation_created_at, CASE WHEN c.conversation_created_at < e.event_at THEN 'before' ELSE 'after' END AS period, cm.count_total_parts, CASE WHEN c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END AS is_bug, CASE WHEN c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END AS is_outage, CASE WHEN c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END AS is_escalation, CASE WHEN c.all_conversation_tags LIKE '%Renewal%' THEN 1 ELSE 0 END AS is_renewal, CASE WHEN c.sla_status = 'breached' THEN 1 ELSE 0 END AS is_sla_breach, CASE WHEN c.conversation_initiated_type = 'customer_initiated' THEN 1 ELSE 0 END AS is_customer_initiated, c.conversation_rating FROM events AS e JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name LEFT JOIN intercom__conversation_metrics AS cm ON cm.conversation_id = c.conversation_id WHERE c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at) SELECT * FROM event_metrics ORDER BY company_name, event_at, conversation_created_at",
+          "time": 1788918174.2515814,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Per-event before/after counts including zero-conversation windows */ WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)) SELECT e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan, SUM(CASE WHEN c.conversation_created_at < e.event_at THEN 1 ELSE 0 END) AS before_convs, SUM(CASE WHEN c.conversation_created_at > e.event_at THEN 1 ELSE 0 END) AS after_convs, SUM(CASE WHEN c.conversation_created_at < e.event_at AND c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END) AS before_bugs, SUM(CASE WHEN c.conversation_created_at > e.event_at AND c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END) AS after_bugs, SUM(CASE WHEN c.conversation_created_at < e.event_at AND c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END) AS before_outages, SUM(CASE WHEN c.conversation_created_at > e.event_at AND c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END) AS after_outages, SUM(CASE WHEN c.conversation_created_at < e.event_at AND c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END) AS before_esc, SUM(CASE WHEN c.conversation_created_at > e.event_at AND c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END) AS after_esc, SUM(CASE WHEN c.conversation_created_at < e.event_at AND c.sla_status = 'breached' THEN 1 ELSE 0 END) AS before_sla, SUM(CASE WHEN c.conversation_created_at > e.event_at AND c.sla_status = 'breached' THEN 1 ELSE 0 END) AS after_sla FROM events AS e LEFT JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name AND c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at GROUP BY e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan ORDER BY e.event_type, e.company_name, e.event_at",
+          "time": 1788918174.3003037,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Check which events have conversations in the 30-day window */ WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)) SELECT e.event_type, COUNT(*) AS total_events, SUM(CASE WHEN e.event_at >= (SELECT MIN(conversation_created_at) FROM intercom__conversation_enhanced WHERE all_contact_company_names = e.company_name) + 30 AND e.event_at <= (SELECT MAX(conversation_created_at) FROM intercom__conversation_enhanced WHERE all_contact_company_names = e.company_name) - 30 THEN 1 ELSE 0 END) AS events_with_30d_buffer FROM events AS e GROUP BY e.event_type",
+          "time": 1788918174.3391168,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Check per-company conversation time ranges and event counts in window */ WITH conv_range AS (SELECT all_contact_company_names AS company_name, MIN(conversation_created_at) AS min_c, MAX(conversation_created_at) AS max_c, COUNT(*) AS n_convs FROM intercom__conversation_enhanced GROUP BY all_contact_company_names), tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier) SELECT cr.company_name, cr.min_c, cr.max_c, cr.n_convs, SUM(CASE WHEN e.event_type = 'upgrade' THEN 1 ELSE 0 END) AS n_upgrade, SUM(CASE WHEN e.event_type = 'downgrade' THEN 1 ELSE 0 END) AS n_downgrade FROM conv_range AS cr LEFT JOIN events AS e ON e.company_name = cr.company_name GROUP BY cr.company_name ORDER BY cr.n_convs DESC",
+          "time": 1788918174.6763256,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* For each event, check if it has 30-day buffer for conversations */ WITH conv_range AS (SELECT all_contact_company_names AS company_name, MIN(conversation_created_at) AS min_c, MAX(conversation_created_at) AS max_c FROM intercom__conversation_enhanced GROUP BY all_contact_company_names), tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)) SELECT e.event_type, COUNT(*) AS total, SUM(CASE WHEN e.event_at >= DATETIME(cr.min_c, '+30 days') AND e.event_at <= DATETIME(cr.max_c, '-30 days') THEN 1 ELSE 0 END) AS has_30d_buffer FROM events AS e JOIN conv_range AS cr ON cr.company_name = e.company_name GROUP BY e.event_type",
+          "time": 1788918174.6922803,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers) SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier",
+          "time": 1788918174.7088962,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan, LAG(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_created_at, LEAD(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS next_created_at FROM tiers) SELECT company_name, created_at AS event_at, prev_created_at, next_created_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier",
+          "time": 1788918174.734733,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan, LAG(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_created_at, LEAD(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS next_created_at FROM tiers) SELECT company_name, created_at AS event_at, prev_created_at, next_created_at, prev_plan, plan_name AS new_plan, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier",
+          "time": 1788918174.770859,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 1.5740785747766495,
+      "intermediate_rows": 2509,
+      "intermediate_columns": [
+        "company_id",
+        "company_name",
+        "plan_name",
+        "created_at",
+        "monthly_spend",
+        "tier"
+      ],
+      "validation_ended_at": 1788918174.8039422,
+      "checks": [
+        {
+          "sql_id": "S41",
+          "rewritten_sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers) SELECT CASE WHEN tier > prev_tier THEN 'upgrade' WHEN tier < prev_tier THEN 'downgrade' ELSE 'no_change' END AS event_type, COUNT(*) AS events FROM ordered WHERE NOT prev_tier IS NULL GROUP BY event_type",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 7.687143050134182
+        },
+        {
+          "sql_id": "S42",
+          "rewritten_sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan, LAG(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_time FROM tiers) SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced) ORDER BY company_name, event_at",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 12.536103837192059
+        },
+        {
+          "sql_id": "S43",
+          "rewritten_sql": "/* Get events with conversation counts in 30-day windows */ WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan, LAG(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_time FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)), event_convs /* For each event, get conversations in the before window and after window */ AS (SELECT e.company_name, e.event_at, e.event_type, c.conversation_created_at, CASE WHEN c.conversation_created_at < e.event_at THEN 'before' ELSE 'after' END AS period, cm.count_total_parts, CASE WHEN c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END AS is_bug, CASE WHEN c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END AS is_outage, CASE WHEN c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END AS is_escalation, CASE WHEN c.all_conversation_tags LIKE '%Downgrade Risk%' THEN 1 ELSE 0 END AS is_downgrade_risk, CASE WHEN c.all_conversation_tags LIKE '%Upgrade Opportunity%' THEN 1 ELSE 0 END AS is_upgrade_opp, c.sla_status, c.conversation_rating FROM events AS e JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name LEFT JOIN intercom__conversation_metrics AS cm ON cm.conversation_id = c.conversation_id WHERE c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at) SELECT event_type, period, COUNT(*) AS total_convs, ROUND(AVG(count_total_parts), 2) AS avg_parts, SUM(is_bug) AS bug_count, SUM(is_outage) AS outage_count, SUM(is_escalation) AS escalation_count, SUM(is_upgrade_opp) AS upgrade_opp_count, SUM(is_downgrade_risk) AS downgrade_risk_count, ROUND(AVG(CASE WHEN conversation_rating > 0 THEN conversation_rating END), 2) AS avg_rating, SUM(CASE WHEN sla_status = 'breached' THEN 1 ELSE 0 END) AS sla_breaches FROM event_convs GROUP BY event_type, period ORDER BY event_type, period",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 45.23489810526371
+        },
+        {
+          "sql_id": "S44",
+          "rewritten_sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)) SELECT event_type, COUNT(*) AS event_count, COUNT(DISTINCT company_name) AS companies FROM events GROUP BY event_type",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 10.810705833137035
+        },
+        {
+          "sql_id": "S45",
+          "rewritten_sql": "/* Per-event detailed metrics */ WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type, ROW_NUMBER() OVER (PARTITION BY company_name ORDER BY created_at) AS event_seq FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)), event_metrics AS (SELECT e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan, c.conversation_id, c.conversation_created_at, CASE WHEN c.conversation_created_at < e.event_at THEN 'before' ELSE 'after' END AS period, cm.count_total_parts, CASE WHEN c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END AS is_bug, CASE WHEN c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END AS is_outage, CASE WHEN c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END AS is_escalation, CASE WHEN c.all_conversation_tags LIKE '%Renewal%' THEN 1 ELSE 0 END AS is_renewal, CASE WHEN c.sla_status = 'breached' THEN 1 ELSE 0 END AS is_sla_breach, CASE WHEN c.conversation_initiated_type = 'customer_initiated' THEN 1 ELSE 0 END AS is_customer_initiated, c.conversation_rating FROM events AS e JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name LEFT JOIN intercom__conversation_metrics AS cm ON cm.conversation_id = c.conversation_id WHERE c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at) SELECT * FROM event_metrics ORDER BY company_name, event_at, conversation_created_at",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 53.55987511575222
+        },
+        {
+          "sql_id": "S46",
+          "rewritten_sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)), event_metrics AS (SELECT e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan, c.conversation_id, c.conversation_created_at, CASE WHEN c.conversation_created_at < e.event_at THEN 'before' ELSE 'after' END AS period, cm.count_total_parts, CASE WHEN c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END AS is_bug, CASE WHEN c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END AS is_outage, CASE WHEN c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END AS is_escalation, CASE WHEN c.all_conversation_tags LIKE '%Renewal%' THEN 1 ELSE 0 END AS is_renewal, CASE WHEN c.sla_status = 'breached' THEN 1 ELSE 0 END AS is_sla_breach, CASE WHEN c.conversation_initiated_type = 'customer_initiated' THEN 1 ELSE 0 END AS is_customer_initiated, c.conversation_rating FROM events AS e JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name LEFT JOIN intercom__conversation_metrics AS cm ON cm.conversation_id = c.conversation_id WHERE c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at) SELECT * FROM event_metrics ORDER BY company_name, event_at, conversation_created_at",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 49.60973560810089
+        },
+        {
+          "sql_id": "S47",
+          "rewritten_sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)), event_metrics AS (SELECT e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan, c.conversation_id, c.conversation_created_at, CASE WHEN c.conversation_created_at < e.event_at THEN 'before' ELSE 'after' END AS period, cm.count_total_parts, CASE WHEN c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END AS is_bug, CASE WHEN c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END AS is_outage, CASE WHEN c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END AS is_escalation, CASE WHEN c.all_conversation_tags LIKE '%Renewal%' THEN 1 ELSE 0 END AS is_renewal, CASE WHEN c.sla_status = 'breached' THEN 1 ELSE 0 END AS is_sla_breach, CASE WHEN c.conversation_initiated_type = 'customer_initiated' THEN 1 ELSE 0 END AS is_customer_initiated, c.conversation_rating FROM events AS e JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name LEFT JOIN intercom__conversation_metrics AS cm ON cm.conversation_id = c.conversation_id WHERE c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at) SELECT * FROM event_metrics ORDER BY company_name, event_at, conversation_created_at",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 48.36334381252527
+        },
+        {
+          "sql_id": "S48",
+          "rewritten_sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)), event_metrics AS (SELECT e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan, c.conversation_id, c.conversation_created_at, CASE WHEN c.conversation_created_at < e.event_at THEN 'before' ELSE 'after' END AS period, cm.count_total_parts, CASE WHEN c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END AS is_bug, CASE WHEN c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END AS is_outage, CASE WHEN c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END AS is_escalation, CASE WHEN c.all_conversation_tags LIKE '%Renewal%' THEN 1 ELSE 0 END AS is_renewal, CASE WHEN c.sla_status = 'breached' THEN 1 ELSE 0 END AS is_sla_breach, CASE WHEN c.conversation_initiated_type = 'customer_initiated' THEN 1 ELSE 0 END AS is_customer_initiated, c.conversation_rating FROM events AS e JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name LEFT JOIN intercom__conversation_metrics AS cm ON cm.conversation_id = c.conversation_id WHERE c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at) SELECT * FROM event_metrics ORDER BY company_name, event_at, conversation_created_at",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 48.30598831176758
+        },
+        {
+          "sql_id": "S49",
+          "rewritten_sql": "/* Per-event before/after counts including zero-conversation windows */ WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)) SELECT e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan, SUM(CASE WHEN c.conversation_created_at < e.event_at THEN 1 ELSE 0 END) AS before_convs, SUM(CASE WHEN c.conversation_created_at > e.event_at THEN 1 ELSE 0 END) AS after_convs, SUM(CASE WHEN c.conversation_created_at < e.event_at AND c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END) AS before_bugs, SUM(CASE WHEN c.conversation_created_at > e.event_at AND c.all_conversation_tags LIKE '%Bug%' THEN 1 ELSE 0 END) AS after_bugs, SUM(CASE WHEN c.conversation_created_at < e.event_at AND c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END) AS before_outages, SUM(CASE WHEN c.conversation_created_at > e.event_at AND c.all_conversation_tags LIKE '%Outage%' THEN 1 ELSE 0 END) AS after_outages, SUM(CASE WHEN c.conversation_created_at < e.event_at AND c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END) AS before_esc, SUM(CASE WHEN c.conversation_created_at > e.event_at AND c.all_conversation_tags LIKE '%Escalation%' THEN 1 ELSE 0 END) AS after_esc, SUM(CASE WHEN c.conversation_created_at < e.event_at AND c.sla_status = 'breached' THEN 1 ELSE 0 END) AS before_sla, SUM(CASE WHEN c.conversation_created_at > e.event_at AND c.sla_status = 'breached' THEN 1 ELSE 0 END) AS after_sla FROM events AS e LEFT JOIN intercom__conversation_enhanced AS c ON c.all_contact_company_names = e.company_name AND c.conversation_created_at >= DATETIME(e.event_at, '-30 days') AND c.conversation_created_at <= DATETIME(e.event_at, '+30 days') AND c.conversation_created_at <> e.event_at GROUP BY e.company_name, e.event_at, e.event_type, e.prev_plan, e.new_plan ORDER BY e.event_type, e.company_name, e.event_at",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 38.97677082568407
+        },
+        {
+          "sql_id": "S50",
+          "rewritten_sql": "/* Check which events have conversations in the 30-day window */ WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)) SELECT e.event_type, COUNT(*) AS total_events, SUM(CASE WHEN e.event_at >= (SELECT MIN(conversation_created_at) FROM intercom__conversation_enhanced WHERE all_contact_company_names = e.company_name) + 30 AND e.event_at <= (SELECT MAX(conversation_created_at) FROM intercom__conversation_enhanced WHERE all_contact_company_names = e.company_name) - 30 THEN 1 ELSE 0 END) AS events_with_30d_buffer FROM events AS e GROUP BY e.event_type",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 337.1541751548648
+        },
+        {
+          "sql_id": "S51",
+          "rewritten_sql": "/* Check per-company conversation time ranges and event counts in window */ WITH conv_range AS (SELECT all_contact_company_names AS company_name, MIN(conversation_created_at) AS min_c, MAX(conversation_created_at) AS max_c, COUNT(*) AS n_convs FROM intercom__conversation_enhanced GROUP BY all_contact_company_names), tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier) SELECT cr.company_name, cr.min_c, cr.max_c, cr.n_convs, SUM(CASE WHEN e.event_type = 'upgrade' THEN 1 ELSE 0 END) AS n_upgrade, SUM(CASE WHEN e.event_type = 'downgrade' THEN 1 ELSE 0 END) AS n_downgrade FROM conv_range AS cr LEFT JOIN events AS e ON e.company_name = cr.company_name GROUP BY cr.company_name ORDER BY cr.n_convs DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 16.008558683097363
+        },
+        {
+          "sql_id": "S52",
+          "rewritten_sql": "/* For each event, check if it has 30-day buffer for conversations */ WITH conv_range AS (SELECT all_contact_company_names AS company_name, MIN(conversation_created_at) AS min_c, MAX(conversation_created_at) AS max_c FROM intercom__conversation_enhanced GROUP BY all_contact_company_names), tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers), events AS (SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier AND company_name IN (SELECT DISTINCT all_contact_company_names FROM intercom__conversation_enhanced)) SELECT e.event_type, COUNT(*) AS total, SUM(CASE WHEN e.event_at >= DATETIME(cr.min_c, '+30 days') AND e.event_at <= DATETIME(cr.max_c, '-30 days') THEN 1 ELSE 0 END) AS has_30d_buffer FROM events AS e JOIN conv_range AS cr ON cr.company_name = e.company_name GROUP BY e.event_type",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 16.741166822612286
+        },
+        {
+          "sql_id": "S63",
+          "rewritten_sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan FROM tiers) SELECT company_name, created_at AS event_at, prev_plan, plan_name AS new_plan, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 25.78302752226591
+        },
+        {
+          "sql_id": "S67",
+          "rewritten_sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan, LAG(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_created_at, LEAD(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS next_created_at FROM tiers) SELECT company_name, created_at AS event_at, prev_created_at, next_created_at, prev_plan, plan_name AS new_plan, prev_tier, tier, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 36.113837733864784
+        },
+        {
+          "sql_id": "S71",
+          "rewritten_sql": "WITH tiers AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT *, LAG(tier) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_tier, LAG(plan_name) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_plan, LAG(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS prev_created_at, LEAD(created_at) OVER (PARTITION BY company_name ORDER BY created_at) AS next_created_at FROM tiers) SELECT company_name, created_at AS event_at, prev_created_at, next_created_at, prev_plan, plan_name AS new_plan, CASE WHEN tier > prev_tier THEN 'upgrade' ELSE 'downgrade' END AS event_type FROM ordered WHERE NOT prev_tier IS NULL AND tier <> prev_tier",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 32.97564294189215
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT all_company_tags AS __g0, plan_name AS __g1, COUNT(*) AS __a0, MIN(created_at) AS __a1, MAX(created_at) AS __a2, MIN(updated_at) AS __a3, MAX(updated_at) AS __a4, SUM(monthly_spend) AS __a5_sum, COUNT(monthly_spend) AS __a5_n, MIN(monthly_spend) AS __a6, MAX(monthly_spend) AS __a7, SUM(session_count) AS __a8_sum, COUNT(session_count) AS __a8_n, SUM(user_count) AS __a9_sum, COUNT(user_count) AS __a9_n FROM \"intercom__company_enhanced\"  GROUP BY all_company_tags, plan_name",
+      "covered": [
+        "S17",
+        "S22",
+        "S39"
+      ],
+      "rewrites": {
+        "S17": "SELECT __g0 AS \"all_company_tags\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 100",
+        "S22": "SELECT MIN(__a1) AS min_c, MAX(__a2) AS max_c, MIN(__a3) AS min_u, MAX(__a4) AS max_u FROM temp.reuse_candidate",
+        "S39": "SELECT __g1 AS \"plan_name\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 0) AS avg_spend, ROUND(MIN(__a6), 0) AS min_spend, ROUND(MAX(__a7), 0) AS max_spend, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 0) AS avg_sessions, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 0) AS avg_users FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_spend"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S17",
+      "later_reuses": 2,
+      "denominator": 70,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT all_conversation_tags AS __g0, all_contact_company_names AS __g1, COUNT(*) AS __a0 FROM \"intercom__conversation_enhanced\"  GROUP BY all_conversation_tags, all_contact_company_names",
+      "covered": [
+        "S11",
+        "S37",
+        "S57"
+      ],
+      "rewrites": {
+        "S11": "SELECT __g0 AS \"all_conversation_tags\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 50",
+        "S37": "SELECT __g1 AS \"all_contact_company_names\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+        "S57": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C6",
+      "offline": true,
+      "earliest_build_before": "S11",
+      "later_reuses": 2,
+      "denominator": 70,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788918174.8230276,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT all_conversation_tags AS __g0, all_contact_company_names AS __g1, COUNT(*) AS __a0 FROM \"intercom__conversation_enhanced\"  GROUP BY all_conversation_tags, all_contact_company_names",
+          "phase": "offline_validation",
+          "start_time": 1788918174.8232603,
+          "status": "execute_returned",
+          "end_time": 1788918174.8303394
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788918174.8303444,
+          "status": "execute_returned",
+          "end_time": 1788918174.830369
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788918174.830374,
+          "status": "execute_returned",
+          "end_time": 1788918174.830384
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"all_conversation_tags\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 50",
+          "phase": "offline_validation",
+          "start_time": 1788918174.8303938,
+          "status": "execute_returned",
+          "end_time": 1788918174.8328745
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g1 AS \"all_contact_company_names\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788918174.8336227,
+          "status": "execute_returned",
+          "end_time": 1788918174.835884
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788918174.8365092,
+          "status": "execute_returned",
+          "end_time": 1788918174.836871
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT all_conversation_tags AS __g0, all_contact_company_names AS __g1, COUNT(*) AS __a0 FROM \"intercom__conversation_enhanced\"  GROUP BY all_conversation_tags, all_contact_company_names",
+          "time": 1788918174.8234785,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788918174.8303607,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788918174.8303816,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"all_conversation_tags\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 50",
+          "time": 1788918174.8304129,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"all_contact_company_names\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "time": 1788918174.8336513,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "time": 1788918174.8365319,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 7.083303295075893,
+      "intermediate_rows": 6474,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__a0"
+      ],
+      "validation_ended_at": 1788918174.8373773,
+      "checks": [
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT __g0 AS \"all_conversation_tags\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 50",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.2261675223708153
+        },
+        {
+          "sql_id": "S37",
+          "rewritten_sql": "SELECT __g1 AS \"all_contact_company_names\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.8841691091656685
+        },
+        {
+          "sql_id": "S57",
+          "rewritten_sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.7473323494195938
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"intercom__conversation_enhanced\" WHERE all_conversation_tags LIKE '%Upgrade Opportunity%'",
+      "covered": [
+        "S23",
+        "S25",
+        "S27"
+      ],
+      "rewrites": {
+        "S23": "SELECT COUNT(*) AS total_tags FROM temp.reuse_candidate AS intercom__conversation_enhanced WHERE all_conversation_tags LIKE '%Upgrade Opportunity%'",
+        "S25": "SELECT COUNT(DISTINCT all_contact_company_names) AS companies_with_upgrade FROM temp.reuse_candidate AS intercom__conversation_enhanced WHERE all_conversation_tags LIKE '%Upgrade Opportunity%'",
+        "S27": "SELECT all_contact_company_names, COUNT(*) AS cnt FROM temp.reuse_candidate AS intercom__conversation_enhanced WHERE all_conversation_tags LIKE '%Upgrade Opportunity%' GROUP BY all_contact_company_names ORDER BY cnt DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C7",
+      "offline": true,
+      "earliest_build_before": "S23",
+      "later_reuses": 2,
+      "denominator": 70,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT all_contact_company_names AS __g0, COUNT(*) AS __a0 FROM \"intercom__conversation_enhanced\" WHERE all_conversation_tags LIKE '%Upgrade Opportunity%' GROUP BY all_contact_company_names",
+      "covered": [
+        "S23",
+        "S27"
+      ],
+      "rewrites": {
+        "S23": "SELECT SUM(__a0) AS total_tags FROM temp.reuse_candidate",
+        "S27": "SELECT __g0 AS \"all_contact_company_names\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C8",
+      "offline": true,
+      "earliest_build_before": "S23",
+      "later_reuses": 1,
+      "denominator": 70,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"intercom__conversation_enhanced\" WHERE all_conversation_tags LIKE '%Downgrade Risk%'",
+      "covered": [
+        "S24",
+        "S26",
+        "S28"
+      ],
+      "rewrites": {
+        "S24": "SELECT COUNT(*) AS total_tags FROM temp.reuse_candidate AS intercom__conversation_enhanced WHERE all_conversation_tags LIKE '%Downgrade Risk%'",
+        "S26": "SELECT COUNT(DISTINCT all_contact_company_names) AS companies_with_downgrade FROM temp.reuse_candidate AS intercom__conversation_enhanced WHERE all_conversation_tags LIKE '%Downgrade Risk%'",
+        "S28": "SELECT all_contact_company_names, COUNT(*) AS cnt FROM temp.reuse_candidate AS intercom__conversation_enhanced WHERE all_conversation_tags LIKE '%Downgrade Risk%' GROUP BY all_contact_company_names ORDER BY cnt DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C9",
+      "offline": true,
+      "earliest_build_before": "S24",
+      "later_reuses": 2,
+      "denominator": 70,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT all_contact_company_names AS __g0, COUNT(*) AS __a0 FROM \"intercom__conversation_enhanced\" WHERE all_conversation_tags LIKE '%Downgrade Risk%' GROUP BY all_contact_company_names",
+      "covered": [
+        "S24",
+        "S28"
+      ],
+      "rewrites": {
+        "S24": "SELECT SUM(__a0) AS total_tags FROM temp.reuse_candidate",
+        "S28": "SELECT __g0 AS \"all_contact_company_names\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C10",
+      "offline": true,
+      "earliest_build_before": "S24",
+      "later_reuses": 1,
+      "denominator": 70,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"intercom__conversation_enhanced\" WHERE all_contact_company_names = 'Edge Platforms'",
+      "covered": [
+        "S54",
+        "S58"
+      ],
+      "rewrites": {
+        "S54": "SELECT conversation_id, conversation_created_at, all_conversation_tags FROM temp.reuse_candidate AS intercom__conversation_enhanced WHERE all_contact_company_names = 'Edge Platforms' ORDER BY conversation_created_at LIMIT 40",
+        "S58": "SELECT all_contact_company_names AS company_name, conversation_created_at, all_conversation_tags, sla_status, conversation_initiated_type FROM temp.reuse_candidate AS intercom__conversation_enhanced WHERE all_contact_company_names = 'Edge Platforms'"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C11",
+      "offline": true,
+      "earliest_build_before": "S54",
+      "later_reuses": 1,
+      "denominator": 70,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

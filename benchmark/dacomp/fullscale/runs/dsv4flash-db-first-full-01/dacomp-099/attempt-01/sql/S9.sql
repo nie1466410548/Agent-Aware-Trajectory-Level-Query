@@ -1,0 +1,1 @@
+SELECT COUNT(*) as total, COUNT(DISTINCT company_id) as companies FROM intercom__company_enhanced

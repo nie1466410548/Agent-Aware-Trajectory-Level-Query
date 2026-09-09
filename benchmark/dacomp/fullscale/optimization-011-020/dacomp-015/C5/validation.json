@@ -1,0 +1,172 @@
+{
+  "id": "C5",
+  "type": "common filtered view",
+  "source_status": "verified",
+  "source_candidates": [
+    "C5"
+  ],
+  "description": "Same single source and complete filter; original filter retained.",
+  "table": "temp.\"reuse_015_c5\"",
+  "build": "CREATE TEMP TABLE \"reuse_015_c5\" AS\nSELECT * FROM \"data\" WHERE NOT \"Floor Plan\" IS NULL AND NOT decoration IS NULL AND NOT floor IS NULL AND NOT orientation IS NULL",
+  "covered": [
+    "S24",
+    "S25",
+    "S26"
+  ],
+  "rewrites": {
+    "S24": "SELECT\n  \"Floor Plan\" AS \"Floor Plan\",\n  Decoration AS \"Decoration\",\n  Floor AS \"Floor\",\n  Orientation AS \"Orientation\",\n  COUNT(*) AS \"cnt\",\n  AVG(\"Watch Count\") AS \"avg_watch_count\",\n  SUM(\"Watch Count\") AS \"total_watch_count\",\n  MAX(\"Watch Count\") AS \"max_watch_count\"\nFROM temp.\"reuse_015_c5\" AS data\nWHERE\n  NOT \"Floor Plan\" IS NULL\n  AND NOT Decoration IS NULL\n  AND NOT Floor IS NULL\n  AND NOT Orientation IS NULL\nGROUP BY\n  \"Floor Plan\",\n  Decoration,\n  Floor,\n  Orientation\nHAVING\n  cnt >= 5\nORDER BY\n  avg_watch_count DESC\nLIMIT 10",
+    "S25": "SELECT\n  \"Floor Plan\" AS \"Floor Plan\",\n  Decoration AS \"Decoration\",\n  Floor AS \"Floor\",\n  Orientation AS \"Orientation\",\n  COUNT(*) AS \"cnt\",\n  AVG(\"Watch Count\") AS \"avg_watch_count\",\n  SUM(\"Watch Count\") AS \"total_watch_count\",\n  MAX(\"Watch Count\") AS \"max_watch_count\"\nFROM temp.\"reuse_015_c5\" AS data\nWHERE\n  NOT \"Floor Plan\" IS NULL\n  AND NOT Decoration IS NULL\n  AND NOT Floor IS NULL\n  AND NOT Orientation IS NULL\nGROUP BY\n  \"Floor Plan\",\n  Decoration,\n  Floor,\n  Orientation\nHAVING\n  cnt >= 3\nORDER BY\n  avg_watch_count DESC\nLIMIT 10",
+    "S26": "SELECT\n  \"Floor Plan\" AS \"Floor Plan\",\n  Decoration AS \"Decoration\",\n  Floor AS \"Floor\",\n  Orientation AS \"Orientation\",\n  COUNT(*) AS \"cnt\",\n  ROUND(AVG(\"Watch Count\"), 1) AS \"avg_watch\",\n  MAX(\"Watch Count\") AS \"max_watch\",\n  SUM(CASE WHEN \"Watch Count\" >= 20 THEN 1 ELSE 0 END) AS \"n_ge20\"\nFROM temp.\"reuse_015_c5\" AS data\nWHERE\n  NOT \"Floor Plan\" IS NULL\n  AND NOT Decoration IS NULL\n  AND NOT Floor IS NULL\n  AND NOT Orientation IS NULL\nGROUP BY\n  \"Floor Plan\",\n  Decoration,\n  Floor,\n  Orientation\nHAVING\n  cnt >= 5\nORDER BY\n  avg_watch DESC\nLIMIT 25"
+  },
+  "existing_result": false,
+  "checks": [
+    {
+      "sql": "S24",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 48.41382894665003
+    },
+    {
+      "sql": "S25",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 50.09749624878168
+    },
+    {
+      "sql": "S26",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 50.18279887735844
+    }
+  ],
+  "build_ms_validation": 29.1448887437582,
+  "rows": 29972,
+  "columns": [
+    "Featured",
+    "Description",
+    "Floor Plan",
+    "Area",
+    "Orientation",
+    "Floor",
+    "Decoration",
+    "Location",
+    "Watch Count",
+    "Showings",
+    "Date Published",
+    "Price",
+    "Price/sqm",
+    "Remarks"
+  ],
+  "safe": [
+    "S24",
+    "S25",
+    "S26"
+  ],
+  "excluded": [],
+  "status": "verified",
+  "performance": {
+    "repeats": 5,
+    "samples": [
+      {
+        "build_ms": 28.65901216864586,
+        "original_ms": 144.18690092861652,
+        "rewrite_ms": 136.92823983728886,
+        "original_by_sql": {
+          "S24": 47.82615974545479,
+          "S25": 48.251016065478325,
+          "S26": 48.10972511768341
+        },
+        "rewrite_by_sql": {
+          "S24": 45.35576980561018,
+          "S25": 45.820171013474464,
+          "S26": 45.75229901820421
+        }
+      },
+      {
+        "build_ms": 28.520602732896805,
+        "original_ms": 143.53969134390354,
+        "rewrite_ms": 138.0000365898013,
+        "original_by_sql": {
+          "S24": 47.83865809440613,
+          "S25": 47.732812352478504,
+          "S26": 47.96822089701891
+        },
+        "rewrite_by_sql": {
+          "S24": 45.8765821531415,
+          "S25": 46.21576610952616,
+          "S26": 45.907688327133656
+        }
+      },
+      {
+        "build_ms": 27.711546048521996,
+        "original_ms": 144.40092630684376,
+        "rewrite_ms": 136.73086371272802,
+        "original_by_sql": {
+          "S24": 47.65142407268286,
+          "S25": 48.309643752872944,
+          "S26": 48.439858481287956
+        },
+        "rewrite_by_sql": {
+          "S24": 45.402586460113525,
+          "S25": 45.55250145494938,
+          "S26": 45.77577579766512
+        }
+      },
+      {
+        "build_ms": 28.983299620449543,
+        "original_ms": 143.5125833377242,
+        "rewrite_ms": 139.02553915977478,
+        "original_by_sql": {
+          "S24": 48.04724361747503,
+          "S25": 47.73151408880949,
+          "S26": 47.733825631439686
+        },
+        "rewrite_by_sql": {
+          "S24": 46.304430812597275,
+          "S25": 46.8513797968626,
+          "S26": 45.8697285503149
+        }
+      },
+      {
+        "build_ms": 27.01584715396166,
+        "original_ms": 143.69023963809013,
+        "rewrite_ms": 136.4513710141182,
+        "original_by_sql": {
+          "S24": 47.38359712064266,
+          "S25": 48.18599205464125,
+          "S26": 48.120650462806225
+        },
+        "rewrite_by_sql": {
+          "S24": 45.011173002421856,
+          "S25": 45.835125260055065,
+          "S26": 45.60507275164127
+        }
+      }
+    ],
+    "baseline_ms": 143.69023963809013,
+    "build_ms": 28.520602732896805,
+    "reads_ms": 136.92823983728886,
+    "total_ms": 165.58725200593472,
+    "saved_ms": -21.89701236784458,
+    "speedup": 0.867761484639773,
+    "original_by_sql": {
+      "S24": 47.82615974545479,
+      "S25": 48.18599205464125,
+      "S26": 48.10972511768341
+    },
+    "rewrite_by_sql": {
+      "S24": 45.402586460113525,
+      "S25": 45.835125260055065,
+      "S26": 45.77577579766512
+    }
+  }
+}

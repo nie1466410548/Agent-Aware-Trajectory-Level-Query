@@ -1,0 +1,1 @@
+SELECT person_id, last_touch_campaign_id, last_touch_flow_id, variation_id, first_event_at, last_event_at, touch_span_days, count_received_email, count_opened_email, count_clicked_email, email_open_rate_touch, email_click_to_open_rate_touch, net_revenue_touch, has_converted FROM klaviyo__person_campaign_flow

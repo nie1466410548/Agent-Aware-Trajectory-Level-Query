@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_persons FROM klaviyo__persons

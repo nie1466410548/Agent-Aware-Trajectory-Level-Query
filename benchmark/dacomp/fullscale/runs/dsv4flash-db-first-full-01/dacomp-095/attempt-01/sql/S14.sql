@@ -1,0 +1,1 @@
+SELECT has_converted, COUNT(*) as n FROM klaviyo__person_campaign_flow GROUP BY has_converted

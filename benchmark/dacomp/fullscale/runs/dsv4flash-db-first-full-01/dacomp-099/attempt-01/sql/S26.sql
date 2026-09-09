@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT all_contact_company_names) as companies_with_downgrade FROM intercom__conversation_enhanced WHERE all_conversation_tags LIKE '%Downgrade Risk%'

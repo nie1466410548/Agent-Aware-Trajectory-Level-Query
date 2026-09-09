@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_pcf FROM klaviyo__person_campaign_flow

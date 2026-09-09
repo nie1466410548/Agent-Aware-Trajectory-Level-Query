@@ -1,0 +1,1 @@
+SELECT company_name, COUNT(*) as cnt FROM intercom__company_enhanced GROUP BY company_name HAVING cnt > 1

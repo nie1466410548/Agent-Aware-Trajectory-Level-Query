@@ -1,0 +1,1009 @@
+{
+  "fingerprint": "5ecb814329e7d6dea2ba543b37a15948562e6a1d312ed5a07b49c6840a3549c2",
+  "analysis_source_version": "11db36a5cf34662d69d06fb9401b4dd860cf7569546f909da5e0f3edcf66d6d3",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced",
+      "covered": [
+        "S58",
+        "S69",
+        "S72",
+        "S80",
+        "S81",
+        "S82",
+        "S87",
+        "S88",
+        "S89",
+        "S104",
+        "S113"
+      ],
+      "rewrites": {
+        "S58": "/* Metrics by segment (outlier-filtered) */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.conversation_id, ce.all_contact_company_names AS company_name, cm.time_to_first_response_minutes AS resp_delay, cm.time_to_last_close_minutes AS duration, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce JOIN intercom__conversation_metrics AS cm ON ce.conversation_id = cm.conversation_id WHERE cm.time_to_last_close_minutes BETWEEN 91 AND 1030 AND cm.time_to_first_response_minutes BETWEEN 11 AND 42) SELECT co.segment, COUNT(*) AS total_convs, COUNT(DISTINCT c.company_name) AS customers, ROUND(AVG(c.resp_delay), 2) AS avg_resp_delay_min, ROUND(AVG(c.duration), 2) AS avg_duration_min, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*), 2) AS bot_ratio_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment ORDER BY co.segment",
+        "S69": "/* Retention by segment using company_metrics */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate) SELECT cd.segment, COUNT(*) AS companies, ROUND(AVG(cm.registration_retention_7d), 4) AS avg_weekly_retention, ROUND(AVG(cm.registration_retention_30d), 4) AS avg_monthly_retention, ROUND(AVG(cm.contacts_active_7d), 2) AS avg_active_contacts_7d, ROUND(AVG(cm.contacts_active_30d), 2) AS avg_active_contacts_30d FROM company_dim AS cd JOIN intercom__company_metrics AS cm ON cd.company_name = cm.company_name GROUP BY cd.segment ORDER BY cd.segment",
+        "S72": "/* Conversion rate by segment */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT conv.company_name) AS customers_with_convs, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN (SELECT DISTINCT company_name FROM conv_end) AS conv ON cd.company_name = conv.company_name LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+        "S80": "/* Topic distribution by segment */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.all_contact_company_names AS company_name, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce) SELECT co.segment, CASE WHEN c.all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN c.all_conversation_tags LIKE '%topic:billing%' THEN 'billing' WHEN c.all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN c.all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN c.all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN c.all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN c.all_conversation_tags LIKE '%topic:escalation%' THEN 'escalation' WHEN c.all_conversation_tags LIKE '%topic:feature_request%' THEN 'feature_request' WHEN c.all_conversation_tags LIKE '%topic:integration%' THEN 'integration' WHEN c.all_conversation_tags LIKE '%topic:success_plan%' THEN 'success_plan' ELSE 'other' END AS topic, COUNT(*) AS total FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment, 2 ORDER BY co.segment, total DESC",
+        "S81": "/* Bot ratio and SLA by segment */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.all_contact_company_names AS company_name, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce) SELECT co.segment, COUNT(*) AS total_convs, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS bot_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:breached%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS sla_breached_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:met%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS sla_met_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:warning%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS sla_warning_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment",
+        "S82": "/* Channel distribution by segment */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.all_contact_company_names AS company_name, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce) SELECT co.segment, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%channel:email%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS email_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%channel:messenger%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS messenger_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%channel:product_tour%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS product_tour_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment",
+        "S87": "WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.conversation_id, ce.all_contact_company_names AS company_name, cm.time_to_first_response_minutes AS resp_delay, cm.time_to_last_close_minutes AS duration, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce JOIN intercom__conversation_metrics AS cm ON ce.conversation_id = cm.conversation_id WHERE cm.time_to_last_close_minutes BETWEEN 91 AND 1030 AND cm.time_to_first_response_minutes BETWEEN 11 AND 42) SELECT co.segment, COUNT(*) AS total_convs, COUNT(DISTINCT c.company_name) AS customers, AVG(c.resp_delay) AS avg_resp_delay_min, AVG(c.duration) AS avg_duration_min, 100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*) AS bot_ratio_pct, 100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:breached%' THEN 1 ELSE 0 END) / COUNT(*) AS sla_breach_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment ORDER BY co.segment",
+        "S88": "WITH company_dim AS (SELECT * FROM temp.reuse_candidate) SELECT cd.segment, COUNT(*) AS companies, AVG(cm.registration_retention_7d) AS weekly_retention, AVG(cm.registration_retention_30d) AS monthly_retention FROM company_dim AS cd JOIN intercom__company_metrics AS cm ON cd.company_name = cm.company_name GROUP BY cd.segment ORDER BY cd.segment",
+        "S89": "WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, 100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+        "S104": "/* Topic distribution by segment (churn_watch vs renewal vs new_contract), with bot ratio */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate) SELECT co.segment, CASE WHEN c.all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN c.all_conversation_tags LIKE '%topic:escalation%' THEN 'escalation' WHEN c.all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN c.all_conversation_tags LIKE '%topic:integration%' THEN 'integration' WHEN c.all_conversation_tags LIKE '%topic:feature_request%' THEN 'feature_request' WHEN c.all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN c.all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN c.all_conversation_tags LIKE '%topic:success_plan%' THEN 'success_plan' WHEN c.all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN c.all_conversation_tags LIKE '%topic:billing%' THEN 'billing' ELSE 'other' END AS topic, COUNT(*) AS total, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS bot_pct FROM intercom__conversation_enhanced AS c JOIN company_dim AS co ON c.all_contact_company_names = co.company_name GROUP BY co.segment, 2 ORDER BY co.segment, total DESC",
+        "S113": "/* Monthly volume by segment */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate) SELECT co.segment, STRFTIME('%Y-%m', ce.conversation_created_at) AS month, COUNT(*) AS total_convs FROM intercom__conversation_enhanced AS ce JOIN company_dim AS co ON ce.all_contact_company_names = co.company_name GROUP BY co.segment, month ORDER BY co.segment, month"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S58",
+      "later_reuses": 10,
+      "denominator": 106,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788918027.3601458,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced",
+          "phase": "offline_validation",
+          "start_time": 1788918027.3604505,
+          "status": "execute_returned",
+          "end_time": 1788918027.3646069
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788918027.3646128,
+          "status": "execute_returned",
+          "end_time": 1788918027.364638
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788918027.3646448,
+          "status": "execute_returned",
+          "end_time": 1788918027.3646572
+        },
+        {
+          "sequence": 4,
+          "sql": "/* Metrics by segment (outlier-filtered) */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.conversation_id, ce.all_contact_company_names AS company_name, cm.time_to_first_response_minutes AS resp_delay, cm.time_to_last_close_minutes AS duration, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce JOIN intercom__conversation_metrics AS cm ON ce.conversation_id = cm.conversation_id WHERE cm.time_to_last_close_minutes BETWEEN 91 AND 1030 AND cm.time_to_first_response_minutes BETWEEN 11 AND 42) SELECT co.segment, COUNT(*) AS total_convs, COUNT(DISTINCT c.company_name) AS customers, ROUND(AVG(c.resp_delay), 2) AS avg_resp_delay_min, ROUND(AVG(c.duration), 2) AS avg_duration_min, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*), 2) AS bot_ratio_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment ORDER BY co.segment",
+          "phase": "offline_validation",
+          "start_time": 1788918027.364667,
+          "status": "execute_returned",
+          "end_time": 1788918027.3921444
+        },
+        {
+          "sequence": 5,
+          "sql": "/* Retention by segment using company_metrics */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate) SELECT cd.segment, COUNT(*) AS companies, ROUND(AVG(cm.registration_retention_7d), 4) AS avg_weekly_retention, ROUND(AVG(cm.registration_retention_30d), 4) AS avg_monthly_retention, ROUND(AVG(cm.contacts_active_7d), 2) AS avg_active_contacts_7d, ROUND(AVG(cm.contacts_active_30d), 2) AS avg_active_contacts_30d FROM company_dim AS cd JOIN intercom__company_metrics AS cm ON cd.company_name = cm.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "phase": "offline_validation",
+          "start_time": 1788918027.3990245,
+          "status": "execute_returned",
+          "end_time": 1788918027.4039474
+        },
+        {
+          "sequence": 6,
+          "sql": "/* Conversion rate by segment */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT conv.company_name) AS customers_with_convs, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN (SELECT DISTINCT company_name FROM conv_end) AS conv ON cd.company_name = conv.company_name LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "phase": "offline_validation",
+          "start_time": 1788918027.4066463,
+          "status": "execute_returned",
+          "end_time": 1788918027.436932
+        },
+        {
+          "sequence": 7,
+          "sql": "/* Topic distribution by segment */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.all_contact_company_names AS company_name, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce) SELECT co.segment, CASE WHEN c.all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN c.all_conversation_tags LIKE '%topic:billing%' THEN 'billing' WHEN c.all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN c.all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN c.all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN c.all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN c.all_conversation_tags LIKE '%topic:escalation%' THEN 'escalation' WHEN c.all_conversation_tags LIKE '%topic:feature_request%' THEN 'feature_request' WHEN c.all_conversation_tags LIKE '%topic:integration%' THEN 'integration' WHEN c.all_conversation_tags LIKE '%topic:success_plan%' THEN 'success_plan' ELSE 'other' END AS topic, COUNT(*) AS total FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment, 2 ORDER BY co.segment, total DESC",
+          "phase": "offline_validation",
+          "start_time": 1788918027.442953,
+          "status": "execute_returned",
+          "end_time": 1788918027.4609451
+        },
+        {
+          "sequence": 8,
+          "sql": "/* Bot ratio and SLA by segment */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.all_contact_company_names AS company_name, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce) SELECT co.segment, COUNT(*) AS total_convs, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS bot_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:breached%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS sla_breached_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:met%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS sla_met_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:warning%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS sla_warning_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment",
+          "phase": "offline_validation",
+          "start_time": 1788918027.4641323,
+          "status": "execute_returned",
+          "end_time": 1788918027.4743285
+        },
+        {
+          "sequence": 9,
+          "sql": "/* Channel distribution by segment */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.all_contact_company_names AS company_name, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce) SELECT co.segment, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%channel:email%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS email_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%channel:messenger%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS messenger_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%channel:product_tour%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS product_tour_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment",
+          "phase": "offline_validation",
+          "start_time": 1788918027.4820976,
+          "status": "execute_returned",
+          "end_time": 1788918027.491895
+        },
+        {
+          "sequence": 10,
+          "sql": "WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.conversation_id, ce.all_contact_company_names AS company_name, cm.time_to_first_response_minutes AS resp_delay, cm.time_to_last_close_minutes AS duration, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce JOIN intercom__conversation_metrics AS cm ON ce.conversation_id = cm.conversation_id WHERE cm.time_to_last_close_minutes BETWEEN 91 AND 1030 AND cm.time_to_first_response_minutes BETWEEN 11 AND 42) SELECT co.segment, COUNT(*) AS total_convs, COUNT(DISTINCT c.company_name) AS customers, AVG(c.resp_delay) AS avg_resp_delay_min, AVG(c.duration) AS avg_duration_min, 100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*) AS bot_ratio_pct, 100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:breached%' THEN 1 ELSE 0 END) / COUNT(*) AS sla_breach_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment ORDER BY co.segment",
+          "phase": "offline_validation",
+          "start_time": 1788918027.4980018,
+          "status": "execute_returned",
+          "end_time": 1788918027.5241451
+        },
+        {
+          "sequence": 11,
+          "sql": "WITH company_dim AS (SELECT * FROM temp.reuse_candidate) SELECT cd.segment, COUNT(*) AS companies, AVG(cm.registration_retention_7d) AS weekly_retention, AVG(cm.registration_retention_30d) AS monthly_retention FROM company_dim AS cd JOIN intercom__company_metrics AS cm ON cd.company_name = cm.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "phase": "offline_validation",
+          "start_time": 1788918027.5322914,
+          "status": "execute_returned",
+          "end_time": 1788918027.536764
+        },
+        {
+          "sequence": 12,
+          "sql": "WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, 100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "phase": "offline_validation",
+          "start_time": 1788918027.5387838,
+          "status": "execute_returned",
+          "end_time": 1788918027.5616086
+        },
+        {
+          "sequence": 13,
+          "sql": "/* Topic distribution by segment (churn_watch vs renewal vs new_contract), with bot ratio */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate) SELECT co.segment, CASE WHEN c.all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN c.all_conversation_tags LIKE '%topic:escalation%' THEN 'escalation' WHEN c.all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN c.all_conversation_tags LIKE '%topic:integration%' THEN 'integration' WHEN c.all_conversation_tags LIKE '%topic:feature_request%' THEN 'feature_request' WHEN c.all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN c.all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN c.all_conversation_tags LIKE '%topic:success_plan%' THEN 'success_plan' WHEN c.all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN c.all_conversation_tags LIKE '%topic:billing%' THEN 'billing' ELSE 'other' END AS topic, COUNT(*) AS total, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS bot_pct FROM intercom__conversation_enhanced AS c JOIN company_dim AS co ON c.all_contact_company_names = co.company_name GROUP BY co.segment, 2 ORDER BY co.segment, total DESC",
+          "phase": "offline_validation",
+          "start_time": 1788918027.5661814,
+          "status": "execute_returned",
+          "end_time": 1788918027.5851173
+        },
+        {
+          "sequence": 14,
+          "sql": "/* Monthly volume by segment */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate) SELECT co.segment, STRFTIME('%Y-%m', ce.conversation_created_at) AS month, COUNT(*) AS total_convs FROM intercom__conversation_enhanced AS ce JOIN company_dim AS co ON ce.all_contact_company_names = co.company_name GROUP BY co.segment, month ORDER BY co.segment, month",
+          "phase": "offline_validation",
+          "start_time": 1788918027.5885706,
+          "status": "execute_returned",
+          "end_time": 1788918027.6016839
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced",
+          "time": 1788918027.3607752,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788918027.3646324,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788918027.3646538,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Metrics by segment (outlier-filtered) */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.conversation_id, ce.all_contact_company_names AS company_name, cm.time_to_first_response_minutes AS resp_delay, cm.time_to_last_close_minutes AS duration, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce JOIN intercom__conversation_metrics AS cm ON ce.conversation_id = cm.conversation_id WHERE cm.time_to_last_close_minutes BETWEEN 91 AND 1030 AND cm.time_to_first_response_minutes BETWEEN 11 AND 42) SELECT co.segment, COUNT(*) AS total_convs, COUNT(DISTINCT c.company_name) AS customers, ROUND(AVG(c.resp_delay), 2) AS avg_resp_delay_min, ROUND(AVG(c.duration), 2) AS avg_duration_min, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*), 2) AS bot_ratio_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment ORDER BY co.segment",
+          "time": 1788918027.3647995,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Retention by segment using company_metrics */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate) SELECT cd.segment, COUNT(*) AS companies, ROUND(AVG(cm.registration_retention_7d), 4) AS avg_weekly_retention, ROUND(AVG(cm.registration_retention_30d), 4) AS avg_monthly_retention, ROUND(AVG(cm.contacts_active_7d), 2) AS avg_active_contacts_7d, ROUND(AVG(cm.contacts_active_30d), 2) AS avg_active_contacts_30d FROM company_dim AS cd JOIN intercom__company_metrics AS cm ON cd.company_name = cm.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "time": 1788918027.3991077,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Conversion rate by segment */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT conv.company_name) AS customers_with_convs, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN (SELECT DISTINCT company_name FROM conv_end) AS conv ON cd.company_name = conv.company_name LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "time": 1788918027.4068327,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Topic distribution by segment */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.all_contact_company_names AS company_name, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce) SELECT co.segment, CASE WHEN c.all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN c.all_conversation_tags LIKE '%topic:billing%' THEN 'billing' WHEN c.all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN c.all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN c.all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN c.all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN c.all_conversation_tags LIKE '%topic:escalation%' THEN 'escalation' WHEN c.all_conversation_tags LIKE '%topic:feature_request%' THEN 'feature_request' WHEN c.all_conversation_tags LIKE '%topic:integration%' THEN 'integration' WHEN c.all_conversation_tags LIKE '%topic:success_plan%' THEN 'success_plan' ELSE 'other' END AS topic, COUNT(*) AS total FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment, 2 ORDER BY co.segment, total DESC",
+          "time": 1788918027.4431138,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Bot ratio and SLA by segment */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.all_contact_company_names AS company_name, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce) SELECT co.segment, COUNT(*) AS total_convs, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS bot_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:breached%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS sla_breached_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:met%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS sla_met_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:warning%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS sla_warning_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment",
+          "time": 1788918027.4642975,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Channel distribution by segment */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.all_contact_company_names AS company_name, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce) SELECT co.segment, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%channel:email%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS email_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%channel:messenger%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS messenger_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%channel:product_tour%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS product_tour_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment",
+          "time": 1788918027.4822438,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.conversation_id, ce.all_contact_company_names AS company_name, cm.time_to_first_response_minutes AS resp_delay, cm.time_to_last_close_minutes AS duration, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce JOIN intercom__conversation_metrics AS cm ON ce.conversation_id = cm.conversation_id WHERE cm.time_to_last_close_minutes BETWEEN 91 AND 1030 AND cm.time_to_first_response_minutes BETWEEN 11 AND 42) SELECT co.segment, COUNT(*) AS total_convs, COUNT(DISTINCT c.company_name) AS customers, AVG(c.resp_delay) AS avg_resp_delay_min, AVG(c.duration) AS avg_duration_min, 100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*) AS bot_ratio_pct, 100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:breached%' THEN 1 ELSE 0 END) / COUNT(*) AS sla_breach_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment ORDER BY co.segment",
+          "time": 1788918027.498198,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH company_dim AS (SELECT * FROM temp.reuse_candidate) SELECT cd.segment, COUNT(*) AS companies, AVG(cm.registration_retention_7d) AS weekly_retention, AVG(cm.registration_retention_30d) AS monthly_retention FROM company_dim AS cd JOIN intercom__company_metrics AS cm ON cd.company_name = cm.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "time": 1788918027.5323982,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, 100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "time": 1788918027.5389519,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Topic distribution by segment (churn_watch vs renewal vs new_contract), with bot ratio */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate) SELECT co.segment, CASE WHEN c.all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN c.all_conversation_tags LIKE '%topic:escalation%' THEN 'escalation' WHEN c.all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN c.all_conversation_tags LIKE '%topic:integration%' THEN 'integration' WHEN c.all_conversation_tags LIKE '%topic:feature_request%' THEN 'feature_request' WHEN c.all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN c.all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN c.all_conversation_tags LIKE '%topic:success_plan%' THEN 'success_plan' WHEN c.all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN c.all_conversation_tags LIKE '%topic:billing%' THEN 'billing' ELSE 'other' END AS topic, COUNT(*) AS total, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS bot_pct FROM intercom__conversation_enhanced AS c JOIN company_dim AS co ON c.all_contact_company_names = co.company_name GROUP BY co.segment, 2 ORDER BY co.segment, total DESC",
+          "time": 1788918027.5663526,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Monthly volume by segment */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate) SELECT co.segment, STRFTIME('%Y-%m', ce.conversation_created_at) AS month, COUNT(*) AS total_convs FROM intercom__conversation_enhanced AS ce JOIN company_dim AS co ON ce.all_contact_company_names = co.company_name GROUP BY co.segment, month ORDER BY co.segment, month",
+          "time": 1788918027.5886652,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 4.162753000855446,
+      "intermediate_rows": 2508,
+      "intermediate_columns": [
+        "company_name",
+        "segment"
+      ],
+      "validation_ended_at": 1788918027.604295,
+      "checks": [
+        {
+          "sql_id": "S58",
+          "rewritten_sql": "/* Metrics by segment (outlier-filtered) */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.conversation_id, ce.all_contact_company_names AS company_name, cm.time_to_first_response_minutes AS resp_delay, cm.time_to_last_close_minutes AS duration, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce JOIN intercom__conversation_metrics AS cm ON ce.conversation_id = cm.conversation_id WHERE cm.time_to_last_close_minutes BETWEEN 91 AND 1030 AND cm.time_to_first_response_minutes BETWEEN 11 AND 42) SELECT co.segment, COUNT(*) AS total_convs, COUNT(DISTINCT c.company_name) AS customers, ROUND(AVG(c.resp_delay), 2) AS avg_resp_delay_min, ROUND(AVG(c.duration), 2) AS avg_duration_min, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*), 2) AS bot_ratio_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment ORDER BY co.segment",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 34.35234911739826
+        },
+        {
+          "sql_id": "S69",
+          "rewritten_sql": "/* Retention by segment using company_metrics */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate) SELECT cd.segment, COUNT(*) AS companies, ROUND(AVG(cm.registration_retention_7d), 4) AS avg_weekly_retention, ROUND(AVG(cm.registration_retention_30d), 4) AS avg_monthly_retention, ROUND(AVG(cm.contacts_active_7d), 2) AS avg_active_contacts_7d, ROUND(AVG(cm.contacts_active_30d), 2) AS avg_active_contacts_30d FROM company_dim AS cd JOIN intercom__company_metrics AS cm ON cd.company_name = cm.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 7.618021219968796
+        },
+        {
+          "sql_id": "S72",
+          "rewritten_sql": "/* Conversion rate by segment */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT conv.company_name) AS customers_with_convs, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN (SELECT DISTINCT company_name FROM conv_end) AS conv ON cd.company_name = conv.company_name LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 36.301775835454464
+        },
+        {
+          "sql_id": "S80",
+          "rewritten_sql": "/* Topic distribution by segment */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.all_contact_company_names AS company_name, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce) SELECT co.segment, CASE WHEN c.all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN c.all_conversation_tags LIKE '%topic:billing%' THEN 'billing' WHEN c.all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN c.all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN c.all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN c.all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN c.all_conversation_tags LIKE '%topic:escalation%' THEN 'escalation' WHEN c.all_conversation_tags LIKE '%topic:feature_request%' THEN 'feature_request' WHEN c.all_conversation_tags LIKE '%topic:integration%' THEN 'integration' WHEN c.all_conversation_tags LIKE '%topic:success_plan%' THEN 'success_plan' ELSE 'other' END AS topic, COUNT(*) AS total FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment, 2 ORDER BY co.segment, total DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 21.173657849431038
+        },
+        {
+          "sql_id": "S81",
+          "rewritten_sql": "/* Bot ratio and SLA by segment */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.all_contact_company_names AS company_name, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce) SELECT co.segment, COUNT(*) AS total_convs, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS bot_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:breached%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS sla_breached_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:met%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS sla_met_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:warning%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS sla_warning_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 17.963207326829433
+        },
+        {
+          "sql_id": "S82",
+          "rewritten_sql": "/* Channel distribution by segment */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.all_contact_company_names AS company_name, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce) SELECT co.segment, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%channel:email%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS email_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%channel:messenger%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS messenger_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%channel:product_tour%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS product_tour_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 15.90055413544178
+        },
+        {
+          "sql_id": "S87",
+          "rewritten_sql": "WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.conversation_id, ce.all_contact_company_names AS company_name, cm.time_to_first_response_minutes AS resp_delay, cm.time_to_last_close_minutes AS duration, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce JOIN intercom__conversation_metrics AS cm ON ce.conversation_id = cm.conversation_id WHERE cm.time_to_last_close_minutes BETWEEN 91 AND 1030 AND cm.time_to_first_response_minutes BETWEEN 11 AND 42) SELECT co.segment, COUNT(*) AS total_convs, COUNT(DISTINCT c.company_name) AS customers, AVG(c.resp_delay) AS avg_resp_delay_min, AVG(c.duration) AS avg_duration_min, 100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*) AS bot_ratio_pct, 100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:breached%' THEN 1 ELSE 0 END) / COUNT(*) AS sla_breach_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment ORDER BY co.segment",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 34.27773527801037
+        },
+        {
+          "sql_id": "S88",
+          "rewritten_sql": "WITH company_dim AS (SELECT * FROM temp.reuse_candidate) SELECT cd.segment, COUNT(*) AS companies, AVG(cm.registration_retention_7d) AS weekly_retention, AVG(cm.registration_retention_30d) AS monthly_retention FROM company_dim AS cd JOIN intercom__company_metrics AS cm ON cd.company_name = cm.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 6.489642895758152
+        },
+        {
+          "sql_id": "S89",
+          "rewritten_sql": "WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, 100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 27.39318646490574
+        },
+        {
+          "sql_id": "S104",
+          "rewritten_sql": "/* Topic distribution by segment (churn_watch vs renewal vs new_contract), with bot ratio */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate) SELECT co.segment, CASE WHEN c.all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN c.all_conversation_tags LIKE '%topic:escalation%' THEN 'escalation' WHEN c.all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN c.all_conversation_tags LIKE '%topic:integration%' THEN 'integration' WHEN c.all_conversation_tags LIKE '%topic:feature_request%' THEN 'feature_request' WHEN c.all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN c.all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN c.all_conversation_tags LIKE '%topic:success_plan%' THEN 'success_plan' WHEN c.all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN c.all_conversation_tags LIKE '%topic:billing%' THEN 'billing' ELSE 'other' END AS topic, COUNT(*) AS total, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS bot_pct FROM intercom__conversation_enhanced AS c JOIN company_dim AS co ON c.all_contact_company_names = co.company_name GROUP BY co.segment, 2 ORDER BY co.segment, total DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 22.385988384485245
+        },
+        {
+          "sql_id": "S113",
+          "rewritten_sql": "/* Monthly volume by segment */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate) SELECT co.segment, STRFTIME('%Y-%m', ce.conversation_created_at) AS month, COUNT(*) AS total_convs FROM intercom__conversation_enhanced AS ce JOIN company_dim AS co ON ce.all_contact_company_names = co.company_name GROUP BY co.segment, month ORDER BY co.segment, month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 15.499322675168514
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT ce.conversation_id, ce.all_contact_company_names AS company_name, cm.time_to_first_response_minutes AS resp_delay, cm.time_to_last_close_minutes AS duration, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce JOIN intercom__conversation_metrics AS cm ON ce.conversation_id = cm.conversation_id WHERE cm.time_to_last_close_minutes BETWEEN 91 AND 1030 AND cm.time_to_first_response_minutes BETWEEN 11 AND 42",
+      "covered": [
+        "S58",
+        "S59",
+        "S60",
+        "S87"
+      ],
+      "rewrites": {
+        "S58": "/* Metrics by segment (outlier-filtered) */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced), conv AS (SELECT * FROM temp.reuse_candidate) SELECT co.segment, COUNT(*) AS total_convs, COUNT(DISTINCT c.company_name) AS customers, ROUND(AVG(c.resp_delay), 2) AS avg_resp_delay_min, ROUND(AVG(c.duration), 2) AS avg_duration_min, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*), 2) AS bot_ratio_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment ORDER BY co.segment",
+        "S59": "/* Metrics by seat bucket */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%seat_bucket:seats:under_60%' THEN 'under_60' WHEN all_company_tags LIKE '%seat_bucket:seats:60_129%' THEN '60_129' WHEN all_company_tags LIKE '%seat_bucket:seats:130_259%' THEN '130_259' WHEN all_company_tags LIKE '%seat_bucket:seats:260_419%' THEN '260_419' WHEN all_company_tags LIKE '%seat_bucket:seats:420_plus%' THEN '420_plus' ELSE 'unknown' END AS seat_bucket FROM intercom__company_enhanced), conv AS (SELECT * FROM temp.reuse_candidate) SELECT co.seat_bucket, COUNT(*) AS total_convs, COUNT(DISTINCT c.company_name) AS customers, ROUND(AVG(c.resp_delay), 2) AS avg_resp_delay_min, ROUND(AVG(c.duration), 2) AS avg_duration_min, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*), 2) AS bot_ratio_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.seat_bucket ORDER BY co.seat_bucket",
+        "S60": "/* Metrics by ARR bucket */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%arr_bucket:arr:<30k%' THEN '<30k' WHEN all_company_tags LIKE '%arr_bucket:arr:30k_65k%' THEN '30k_65k' WHEN all_company_tags LIKE '%arr_bucket:arr:65k_110k%' THEN '65k_110k' WHEN all_company_tags LIKE '%arr_bucket:arr:110k_200k%' THEN '110k_200k' WHEN all_company_tags LIKE '%arr_bucket:arr:200k_plus%' THEN '200k_plus' ELSE 'unknown' END AS arr_bucket FROM intercom__company_enhanced), conv AS (SELECT * FROM temp.reuse_candidate) SELECT co.arr_bucket, COUNT(*) AS total_convs, COUNT(DISTINCT c.company_name) AS customers, ROUND(AVG(c.resp_delay), 2) AS avg_resp_delay_min, ROUND(AVG(c.duration), 2) AS avg_duration_min, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*), 2) AS bot_ratio_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.arr_bucket ORDER BY co.arr_bucket",
+        "S87": "WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced), conv AS (SELECT * FROM temp.reuse_candidate) SELECT co.segment, COUNT(*) AS total_convs, COUNT(DISTINCT c.company_name) AS customers, AVG(c.resp_delay) AS avg_resp_delay_min, AVG(c.duration) AS avg_duration_min, 100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*) AS bot_ratio_pct, 100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:breached%' THEN 1 ELSE 0 END) / COUNT(*) AS sla_breach_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment ORDER BY co.segment"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S58",
+      "later_reuses": 3,
+      "denominator": 106,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%seat_bucket:seats:under_60%' THEN 'under_60' WHEN all_company_tags LIKE '%seat_bucket:seats:60_129%' THEN '60_129' WHEN all_company_tags LIKE '%seat_bucket:seats:130_259%' THEN '130_259' WHEN all_company_tags LIKE '%seat_bucket:seats:260_419%' THEN '260_419' WHEN all_company_tags LIKE '%seat_bucket:seats:420_plus%' THEN '420_plus' ELSE 'unknown' END AS seat_bucket FROM intercom__company_enhanced",
+      "covered": [
+        "S59",
+        "S70",
+        "S73",
+        "S91",
+        "S93"
+      ],
+      "rewrites": {
+        "S59": "/* Metrics by seat bucket */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.conversation_id, ce.all_contact_company_names AS company_name, cm.time_to_first_response_minutes AS resp_delay, cm.time_to_last_close_minutes AS duration, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce JOIN intercom__conversation_metrics AS cm ON ce.conversation_id = cm.conversation_id WHERE cm.time_to_last_close_minutes BETWEEN 91 AND 1030 AND cm.time_to_first_response_minutes BETWEEN 11 AND 42) SELECT co.seat_bucket, COUNT(*) AS total_convs, COUNT(DISTINCT c.company_name) AS customers, ROUND(AVG(c.resp_delay), 2) AS avg_resp_delay_min, ROUND(AVG(c.duration), 2) AS avg_duration_min, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*), 2) AS bot_ratio_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.seat_bucket ORDER BY co.seat_bucket",
+        "S70": "/* Retention by seat bucket */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate) SELECT cd.seat_bucket, COUNT(*) AS companies, ROUND(AVG(cm.registration_retention_7d), 4) AS avg_weekly_retention, ROUND(AVG(cm.registration_retention_30d), 4) AS avg_monthly_retention FROM company_dim AS cd JOIN intercom__company_metrics AS cm ON cd.company_name = cm.company_name GROUP BY cd.seat_bucket ORDER BY cd.seat_bucket",
+        "S73": "/* Conversion rate by seat bucket */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.seat_bucket, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.seat_bucket ORDER BY cd.seat_bucket",
+        "S91": "WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.all_contact_company_names AS company_name, cm.time_to_first_response_minutes AS resp_delay, cm.time_to_last_close_minutes AS duration, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce JOIN intercom__conversation_metrics AS cm ON ce.conversation_id = cm.conversation_id WHERE cm.time_to_last_close_minutes BETWEEN 91 AND 1030 AND cm.time_to_first_response_minutes BETWEEN 11 AND 42), agg AS (SELECT c.company_name, COUNT(*) AS num_convs, AVG(c.resp_delay) AS avg_resp_delay, AVG(c.duration) AS avg_duration, SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS bot_ratio FROM conv AS c GROUP BY c.company_name) SELECT co.seat_bucket, AVG(agg.num_convs) AS avg_convs_per_company, AVG(agg.avg_resp_delay) AS avg_resp_delay, AVG(agg.avg_duration) AS avg_duration, AVG(agg.bot_ratio) AS avg_bot_ratio_pct FROM agg JOIN company_dim AS co ON agg.company_name = co.company_name GROUP BY co.seat_bucket ORDER BY co.seat_bucket",
+        "S93": "WITH company_dim AS (SELECT * FROM temp.reuse_candidate) SELECT cd.seat_bucket, AVG(cm.registration_retention_7d) AS weekly_retention, AVG(cm.registration_retention_30d) AS monthly_retention, AVG(cm.contacts_active_7d) AS avg_active_7d, AVG(cm.contacts_active_30d) AS avg_active_30d FROM company_dim AS cd JOIN intercom__company_metrics AS cm ON cd.company_name = cm.company_name GROUP BY cd.seat_bucket ORDER BY cd.seat_bucket"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S59",
+      "later_reuses": 4,
+      "denominator": 106,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%arr_bucket:arr:<30k%' THEN '<30k' WHEN all_company_tags LIKE '%arr_bucket:arr:30k_65k%' THEN '30k_65k' WHEN all_company_tags LIKE '%arr_bucket:arr:65k_110k%' THEN '65k_110k' WHEN all_company_tags LIKE '%arr_bucket:arr:110k_200k%' THEN '110k_200k' WHEN all_company_tags LIKE '%arr_bucket:arr:200k_plus%' THEN '200k_plus' ELSE 'unknown' END AS arr_bucket FROM intercom__company_enhanced",
+      "covered": [
+        "S60",
+        "S71",
+        "S74",
+        "S90",
+        "S92"
+      ],
+      "rewrites": {
+        "S60": "/* Metrics by ARR bucket */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.conversation_id, ce.all_contact_company_names AS company_name, cm.time_to_first_response_minutes AS resp_delay, cm.time_to_last_close_minutes AS duration, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce JOIN intercom__conversation_metrics AS cm ON ce.conversation_id = cm.conversation_id WHERE cm.time_to_last_close_minutes BETWEEN 91 AND 1030 AND cm.time_to_first_response_minutes BETWEEN 11 AND 42) SELECT co.arr_bucket, COUNT(*) AS total_convs, COUNT(DISTINCT c.company_name) AS customers, ROUND(AVG(c.resp_delay), 2) AS avg_resp_delay_min, ROUND(AVG(c.duration), 2) AS avg_duration_min, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*), 2) AS bot_ratio_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.arr_bucket ORDER BY co.arr_bucket",
+        "S71": "/* Retention by ARR bucket */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate) SELECT cd.arr_bucket, COUNT(*) AS companies, ROUND(AVG(cm.registration_retention_7d), 4) AS avg_weekly_retention, ROUND(AVG(cm.registration_retention_30d), 4) AS avg_monthly_retention FROM company_dim AS cd JOIN intercom__company_metrics AS cm ON cd.company_name = cm.company_name GROUP BY cd.arr_bucket ORDER BY cd.arr_bucket",
+        "S74": "/* Conversion rate by ARR bucket */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.arr_bucket, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.arr_bucket ORDER BY cd.arr_bucket",
+        "S90": "WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.all_contact_company_names AS company_name, cm.time_to_first_response_minutes AS resp_delay, cm.time_to_last_close_minutes AS duration, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce JOIN intercom__conversation_metrics AS cm ON ce.conversation_id = cm.conversation_id WHERE cm.time_to_last_close_minutes BETWEEN 91 AND 1030 AND cm.time_to_first_response_minutes BETWEEN 11 AND 42), agg AS (SELECT c.company_name, COUNT(*) AS num_convs, AVG(c.resp_delay) AS avg_resp_delay, AVG(c.duration) AS avg_duration, SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS bot_ratio FROM conv AS c GROUP BY c.company_name) SELECT co.arr_bucket, AVG(agg.num_convs) AS avg_convs_per_company, AVG(agg.avg_resp_delay) AS avg_resp_delay, AVG(agg.avg_duration) AS avg_duration, AVG(agg.bot_ratio) AS avg_bot_ratio_pct FROM agg JOIN company_dim AS co ON agg.company_name = co.company_name GROUP BY co.arr_bucket ORDER BY co.arr_bucket",
+        "S92": "WITH company_dim AS (SELECT * FROM temp.reuse_candidate) SELECT cd.arr_bucket, AVG(cm.registration_retention_7d) AS weekly_retention, AVG(cm.registration_retention_30d) AS monthly_retention, AVG(cm.contacts_active_7d) AS avg_active_7d, AVG(cm.contacts_active_30d) AS avg_active_30d FROM company_dim AS cd JOIN intercom__company_metrics AS cm ON cd.company_name = cm.company_name GROUP BY cd.arr_bucket ORDER BY cd.arr_bucket"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S60",
+      "later_reuses": 4,
+      "denominator": 106,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL",
+      "covered": [
+        "S62",
+        "S72",
+        "S73",
+        "S74",
+        "S89",
+        "S105"
+      ],
+      "rewrites": {
+        "S62": "/* Conversation-to-Feature-Usage Conversion Rate - fixed */ WITH company_dim AS (SELECT DISTINCT company_name FROM intercom__company_enhanced), contacts AS (SELECT DISTINCT all_contact_company_names AS company_name FROM intercom__contact_enhanced), conv_end AS (SELECT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT (SELECT COUNT(*) FROM contacts) AS total_customers, (SELECT COUNT(DISTINCT company_name) FROM conv_end) AS customers_with_convs, (SELECT COUNT(*) FROM converted) AS customers_converted, ROUND(100.0 * (SELECT COUNT(*) FROM converted) / (SELECT COUNT(*) FROM contacts), 2) AS conversion_rate_pct",
+        "S72": "/* Conversion rate by segment */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT conv.company_name) AS customers_with_convs, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN (SELECT DISTINCT company_name FROM conv_end) AS conv ON cd.company_name = conv.company_name LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+        "S73": "/* Conversion rate by seat bucket */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%seat_bucket:seats:under_60%' THEN 'under_60' WHEN all_company_tags LIKE '%seat_bucket:seats:60_129%' THEN '60_129' WHEN all_company_tags LIKE '%seat_bucket:seats:130_259%' THEN '130_259' WHEN all_company_tags LIKE '%seat_bucket:seats:260_419%' THEN '260_419' WHEN all_company_tags LIKE '%seat_bucket:seats:420_plus%' THEN '420_plus' ELSE 'unknown' END AS seat_bucket FROM intercom__company_enhanced), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.seat_bucket, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.seat_bucket ORDER BY cd.seat_bucket",
+        "S74": "/* Conversion rate by ARR bucket */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%arr_bucket:arr:<30k%' THEN '<30k' WHEN all_company_tags LIKE '%arr_bucket:arr:30k_65k%' THEN '30k_65k' WHEN all_company_tags LIKE '%arr_bucket:arr:65k_110k%' THEN '65k_110k' WHEN all_company_tags LIKE '%arr_bucket:arr:110k_200k%' THEN '110k_200k' WHEN all_company_tags LIKE '%arr_bucket:arr:200k_plus%' THEN '200k_plus' ELSE 'unknown' END AS arr_bucket FROM intercom__company_enhanced), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.arr_bucket, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.arr_bucket ORDER BY cd.arr_bucket",
+        "S89": "WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, 100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+        "S105": "/* Conversation-to-feature-usage conversion by topic (company-level) */ WITH conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted_companies AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT CASE WHEN c.all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN c.all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN c.all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN c.all_conversation_tags LIKE '%topic:integration%' THEN 'integration' WHEN c.all_conversation_tags LIKE '%topic:feature_request%' THEN 'feature_request' WHEN c.all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN c.all_conversation_tags LIKE '%topic:success_plan%' THEN 'success_plan' WHEN c.all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN c.all_conversation_tags LIKE '%topic:escalation%' THEN 'escalation' WHEN c.all_conversation_tags LIKE '%topic:billing%' THEN 'billing' ELSE 'other' END AS topic, COUNT(DISTINCT c.all_contact_company_names) AS companies_with_topic, COUNT(DISTINCT CASE WHEN NOT cv.company_name IS NULL THEN c.all_contact_company_names END) AS converted_companies FROM intercom__conversation_enhanced AS c LEFT JOIN converted_companies AS cv ON c.all_contact_company_names = cv.company_name GROUP BY 1 ORDER BY 2 DESC"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S62",
+      "later_reuses": 5,
+      "denominator": 106,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788918027.6043677,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL",
+          "phase": "offline_validation",
+          "start_time": 1788918027.6045806,
+          "status": "execute_returned",
+          "end_time": 1788918027.6059048
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788918027.6059103,
+          "status": "execute_returned",
+          "end_time": 1788918027.6059313
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788918027.6059356,
+          "status": "execute_returned",
+          "end_time": 1788918027.6059468
+        },
+        {
+          "sequence": 4,
+          "sql": "/* Conversation-to-Feature-Usage Conversion Rate - fixed */ WITH company_dim AS (SELECT DISTINCT company_name FROM intercom__company_enhanced), contacts AS (SELECT DISTINCT all_contact_company_names AS company_name FROM intercom__contact_enhanced), conv_end AS (SELECT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT (SELECT COUNT(*) FROM contacts) AS total_customers, (SELECT COUNT(DISTINCT company_name) FROM conv_end) AS customers_with_convs, (SELECT COUNT(*) FROM converted) AS customers_converted, ROUND(100.0 * (SELECT COUNT(*) FROM converted) / (SELECT COUNT(*) FROM contacts), 2) AS conversion_rate_pct",
+          "phase": "offline_validation",
+          "start_time": 1788918027.6059566,
+          "status": "execute_returned",
+          "end_time": 1788918027.6240866
+        },
+        {
+          "sequence": 5,
+          "sql": "/* Conversion rate by segment */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT conv.company_name) AS customers_with_convs, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN (SELECT DISTINCT company_name FROM conv_end) AS conv ON cd.company_name = conv.company_name LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "phase": "offline_validation",
+          "start_time": 1788918027.6273825,
+          "status": "execute_returned",
+          "end_time": 1788918027.6596603
+        },
+        {
+          "sequence": 6,
+          "sql": "/* Conversion rate by seat bucket */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%seat_bucket:seats:under_60%' THEN 'under_60' WHEN all_company_tags LIKE '%seat_bucket:seats:60_129%' THEN '60_129' WHEN all_company_tags LIKE '%seat_bucket:seats:130_259%' THEN '130_259' WHEN all_company_tags LIKE '%seat_bucket:seats:260_419%' THEN '260_419' WHEN all_company_tags LIKE '%seat_bucket:seats:420_plus%' THEN '420_plus' ELSE 'unknown' END AS seat_bucket FROM intercom__company_enhanced), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.seat_bucket, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.seat_bucket ORDER BY cd.seat_bucket",
+          "phase": "offline_validation",
+          "start_time": 1788918027.6656835,
+          "status": "execute_returned",
+          "end_time": 1788918027.6908886
+        },
+        {
+          "sequence": 7,
+          "sql": "/* Conversion rate by ARR bucket */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%arr_bucket:arr:<30k%' THEN '<30k' WHEN all_company_tags LIKE '%arr_bucket:arr:30k_65k%' THEN '30k_65k' WHEN all_company_tags LIKE '%arr_bucket:arr:65k_110k%' THEN '65k_110k' WHEN all_company_tags LIKE '%arr_bucket:arr:110k_200k%' THEN '110k_200k' WHEN all_company_tags LIKE '%arr_bucket:arr:200k_plus%' THEN '200k_plus' ELSE 'unknown' END AS arr_bucket FROM intercom__company_enhanced), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.arr_bucket, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.arr_bucket ORDER BY cd.arr_bucket",
+          "phase": "offline_validation",
+          "start_time": 1788918027.6955607,
+          "status": "execute_returned",
+          "end_time": 1788918027.7203143
+        },
+        {
+          "sequence": 8,
+          "sql": "WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, 100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "phase": "offline_validation",
+          "start_time": 1788918027.726569,
+          "status": "execute_returned",
+          "end_time": 1788918027.7511272
+        },
+        {
+          "sequence": 9,
+          "sql": "/* Conversation-to-feature-usage conversion by topic (company-level) */ WITH conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted_companies AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT CASE WHEN c.all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN c.all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN c.all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN c.all_conversation_tags LIKE '%topic:integration%' THEN 'integration' WHEN c.all_conversation_tags LIKE '%topic:feature_request%' THEN 'feature_request' WHEN c.all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN c.all_conversation_tags LIKE '%topic:success_plan%' THEN 'success_plan' WHEN c.all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN c.all_conversation_tags LIKE '%topic:escalation%' THEN 'escalation' WHEN c.all_conversation_tags LIKE '%topic:billing%' THEN 'billing' ELSE 'other' END AS topic, COUNT(DISTINCT c.all_contact_company_names) AS companies_with_topic, COUNT(DISTINCT CASE WHEN NOT cv.company_name IS NULL THEN c.all_contact_company_names END) AS converted_companies FROM intercom__conversation_enhanced AS c LEFT JOIN converted_companies AS cv ON c.all_contact_company_names = cv.company_name GROUP BY 1 ORDER BY 2 DESC",
+          "phase": "offline_validation",
+          "start_time": 1788918027.7556329,
+          "status": "execute_returned",
+          "end_time": 1788918027.7908237
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL",
+          "time": 1788918027.6047964,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788918027.6059256,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788918027.605944,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Conversation-to-Feature-Usage Conversion Rate - fixed */ WITH company_dim AS (SELECT DISTINCT company_name FROM intercom__company_enhanced), contacts AS (SELECT DISTINCT all_contact_company_names AS company_name FROM intercom__contact_enhanced), conv_end AS (SELECT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT (SELECT COUNT(*) FROM contacts) AS total_customers, (SELECT COUNT(DISTINCT company_name) FROM conv_end) AS customers_with_convs, (SELECT COUNT(*) FROM converted) AS customers_converted, ROUND(100.0 * (SELECT COUNT(*) FROM converted) / (SELECT COUNT(*) FROM contacts), 2) AS conversion_rate_pct",
+          "time": 1788918027.606103,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Conversion rate by segment */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT conv.company_name) AS customers_with_convs, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN (SELECT DISTINCT company_name FROM conv_end) AS conv ON cd.company_name = conv.company_name LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "time": 1788918027.627586,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Conversion rate by seat bucket */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%seat_bucket:seats:under_60%' THEN 'under_60' WHEN all_company_tags LIKE '%seat_bucket:seats:60_129%' THEN '60_129' WHEN all_company_tags LIKE '%seat_bucket:seats:130_259%' THEN '130_259' WHEN all_company_tags LIKE '%seat_bucket:seats:260_419%' THEN '260_419' WHEN all_company_tags LIKE '%seat_bucket:seats:420_plus%' THEN '420_plus' ELSE 'unknown' END AS seat_bucket FROM intercom__company_enhanced), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.seat_bucket, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.seat_bucket ORDER BY cd.seat_bucket",
+          "time": 1788918027.665877,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Conversion rate by ARR bucket */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%arr_bucket:arr:<30k%' THEN '<30k' WHEN all_company_tags LIKE '%arr_bucket:arr:30k_65k%' THEN '30k_65k' WHEN all_company_tags LIKE '%arr_bucket:arr:65k_110k%' THEN '65k_110k' WHEN all_company_tags LIKE '%arr_bucket:arr:110k_200k%' THEN '110k_200k' WHEN all_company_tags LIKE '%arr_bucket:arr:200k_plus%' THEN '200k_plus' ELSE 'unknown' END AS arr_bucket FROM intercom__company_enhanced), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.arr_bucket, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.arr_bucket ORDER BY cd.arr_bucket",
+          "time": 1788918027.6957536,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, 100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "time": 1788918027.7267623,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Conversation-to-feature-usage conversion by topic (company-level) */ WITH conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted_companies AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT CASE WHEN c.all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN c.all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN c.all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN c.all_conversation_tags LIKE '%topic:integration%' THEN 'integration' WHEN c.all_conversation_tags LIKE '%topic:feature_request%' THEN 'feature_request' WHEN c.all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN c.all_conversation_tags LIKE '%topic:success_plan%' THEN 'success_plan' WHEN c.all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN c.all_conversation_tags LIKE '%topic:escalation%' THEN 'escalation' WHEN c.all_conversation_tags LIKE '%topic:billing%' THEN 'billing' ELSE 'other' END AS topic, COUNT(DISTINCT c.all_contact_company_names) AS companies_with_topic, COUNT(DISTINCT CASE WHEN NOT cv.company_name IS NULL THEN c.all_contact_company_names END) AS converted_companies FROM intercom__conversation_enhanced AS c LEFT JOIN converted_companies AS cv ON c.all_contact_company_names = cv.company_name GROUP BY 1 ORDER BY 2 DESC",
+          "time": 1788918027.755851,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 1.328514888882637,
+      "intermediate_rows": 2707,
+      "intermediate_columns": [
+        "company_name",
+        "last_activity_ts"
+      ],
+      "validation_ended_at": 1788918027.794645,
+      "checks": [
+        {
+          "sql_id": "S62",
+          "rewritten_sql": "/* Conversation-to-Feature-Usage Conversion Rate - fixed */ WITH company_dim AS (SELECT DISTINCT company_name FROM intercom__company_enhanced), contacts AS (SELECT DISTINCT all_contact_company_names AS company_name FROM intercom__contact_enhanced), conv_end AS (SELECT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT (SELECT COUNT(*) FROM contacts) AS total_customers, (SELECT COUNT(DISTINCT company_name) FROM conv_end) AS customers_with_convs, (SELECT COUNT(*) FROM converted) AS customers_converted, ROUND(100.0 * (SELECT COUNT(*) FROM converted) / (SELECT COUNT(*) FROM contacts), 2) AS conversion_rate_pct",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 21.422002464532852
+        },
+        {
+          "sql_id": "S72",
+          "rewritten_sql": "/* Conversion rate by segment */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT conv.company_name) AS customers_with_convs, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN (SELECT DISTINCT company_name FROM conv_end) AS conv ON cd.company_name = conv.company_name LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 38.298062048852444
+        },
+        {
+          "sql_id": "S73",
+          "rewritten_sql": "/* Conversion rate by seat bucket */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%seat_bucket:seats:under_60%' THEN 'under_60' WHEN all_company_tags LIKE '%seat_bucket:seats:60_129%' THEN '60_129' WHEN all_company_tags LIKE '%seat_bucket:seats:130_259%' THEN '130_259' WHEN all_company_tags LIKE '%seat_bucket:seats:260_419%' THEN '260_419' WHEN all_company_tags LIKE '%seat_bucket:seats:420_plus%' THEN '420_plus' ELSE 'unknown' END AS seat_bucket FROM intercom__company_enhanced), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.seat_bucket, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.seat_bucket ORDER BY cd.seat_bucket",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 29.874740168452263
+        },
+        {
+          "sql_id": "S74",
+          "rewritten_sql": "/* Conversion rate by ARR bucket */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%arr_bucket:arr:<30k%' THEN '<30k' WHEN all_company_tags LIKE '%arr_bucket:arr:30k_65k%' THEN '30k_65k' WHEN all_company_tags LIKE '%arr_bucket:arr:65k_110k%' THEN '65k_110k' WHEN all_company_tags LIKE '%arr_bucket:arr:110k_200k%' THEN '110k_200k' WHEN all_company_tags LIKE '%arr_bucket:arr:200k_plus%' THEN '200k_plus' ELSE 'unknown' END AS arr_bucket FROM intercom__company_enhanced), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.arr_bucket, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.arr_bucket ORDER BY cd.arr_bucket",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 31.00502584129572
+        },
+        {
+          "sql_id": "S89",
+          "rewritten_sql": "WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced), conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, 100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 29.061187990009785
+        },
+        {
+          "sql_id": "S105",
+          "rewritten_sql": "/* Conversation-to-feature-usage conversion by topic (company-level) */ WITH conv_end AS (SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL), contact_act AS (SELECT * FROM temp.reuse_candidate), converted_companies AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT CASE WHEN c.all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN c.all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN c.all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN c.all_conversation_tags LIKE '%topic:integration%' THEN 'integration' WHEN c.all_conversation_tags LIKE '%topic:feature_request%' THEN 'feature_request' WHEN c.all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN c.all_conversation_tags LIKE '%topic:success_plan%' THEN 'success_plan' WHEN c.all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN c.all_conversation_tags LIKE '%topic:escalation%' THEN 'escalation' WHEN c.all_conversation_tags LIKE '%topic:billing%' THEN 'billing' ELSE 'other' END AS topic, COUNT(DISTINCT c.all_contact_company_names) AS companies_with_topic, COUNT(DISTINCT CASE WHEN NOT cv.company_name IS NULL THEN c.all_contact_company_names END) AS converted_companies FROM intercom__conversation_enhanced AS c LEFT JOIN converted_companies AS cv ON c.all_contact_company_names = cv.company_name GROUP BY 1 ORDER BY 2 DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 38.84258586913347
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL",
+      "covered": [
+        "S72",
+        "S73",
+        "S74",
+        "S89",
+        "S105"
+      ],
+      "rewrites": {
+        "S72": "/* Conversion rate by segment */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced), conv_end AS (SELECT * FROM temp.reuse_candidate), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT conv.company_name) AS customers_with_convs, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN (SELECT DISTINCT company_name FROM conv_end) AS conv ON cd.company_name = conv.company_name LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+        "S73": "/* Conversion rate by seat bucket */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%seat_bucket:seats:under_60%' THEN 'under_60' WHEN all_company_tags LIKE '%seat_bucket:seats:60_129%' THEN '60_129' WHEN all_company_tags LIKE '%seat_bucket:seats:130_259%' THEN '130_259' WHEN all_company_tags LIKE '%seat_bucket:seats:260_419%' THEN '260_419' WHEN all_company_tags LIKE '%seat_bucket:seats:420_plus%' THEN '420_plus' ELSE 'unknown' END AS seat_bucket FROM intercom__company_enhanced), conv_end AS (SELECT * FROM temp.reuse_candidate), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.seat_bucket, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.seat_bucket ORDER BY cd.seat_bucket",
+        "S74": "/* Conversion rate by ARR bucket */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%arr_bucket:arr:<30k%' THEN '<30k' WHEN all_company_tags LIKE '%arr_bucket:arr:30k_65k%' THEN '30k_65k' WHEN all_company_tags LIKE '%arr_bucket:arr:65k_110k%' THEN '65k_110k' WHEN all_company_tags LIKE '%arr_bucket:arr:110k_200k%' THEN '110k_200k' WHEN all_company_tags LIKE '%arr_bucket:arr:200k_plus%' THEN '200k_plus' ELSE 'unknown' END AS arr_bucket FROM intercom__company_enhanced), conv_end AS (SELECT * FROM temp.reuse_candidate), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.arr_bucket, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.arr_bucket ORDER BY cd.arr_bucket",
+        "S89": "WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced), conv_end AS (SELECT * FROM temp.reuse_candidate), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, 100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+        "S105": "/* Conversation-to-feature-usage conversion by topic (company-level) */ WITH conv_end AS (SELECT * FROM temp.reuse_candidate), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted_companies AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT CASE WHEN c.all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN c.all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN c.all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN c.all_conversation_tags LIKE '%topic:integration%' THEN 'integration' WHEN c.all_conversation_tags LIKE '%topic:feature_request%' THEN 'feature_request' WHEN c.all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN c.all_conversation_tags LIKE '%topic:success_plan%' THEN 'success_plan' WHEN c.all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN c.all_conversation_tags LIKE '%topic:escalation%' THEN 'escalation' WHEN c.all_conversation_tags LIKE '%topic:billing%' THEN 'billing' ELSE 'other' END AS topic, COUNT(DISTINCT c.all_contact_company_names) AS companies_with_topic, COUNT(DISTINCT CASE WHEN NOT cv.company_name IS NULL THEN c.all_contact_company_names END) AS converted_companies FROM intercom__conversation_enhanced AS c LEFT JOIN converted_companies AS cv ON c.all_contact_company_names = cv.company_name GROUP BY 1 ORDER BY 2 DESC"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C6",
+      "offline": true,
+      "earliest_build_before": "S72",
+      "later_reuses": 4,
+      "denominator": 106,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788918027.794706,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL",
+          "phase": "offline_validation",
+          "start_time": 1788918027.7949233,
+          "status": "execute_returned",
+          "end_time": 1788918027.804039
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788918027.804044,
+          "status": "execute_returned",
+          "end_time": 1788918027.8040726
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788918027.8040774,
+          "status": "execute_returned",
+          "end_time": 1788918027.8040907
+        },
+        {
+          "sequence": 4,
+          "sql": "/* Conversion rate by segment */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced), conv_end AS (SELECT * FROM temp.reuse_candidate), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT conv.company_name) AS customers_with_convs, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN (SELECT DISTINCT company_name FROM conv_end) AS conv ON cd.company_name = conv.company_name LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "phase": "offline_validation",
+          "start_time": 1788918027.8041003,
+          "status": "execute_returned",
+          "end_time": 1788918027.8273823
+        },
+        {
+          "sequence": 5,
+          "sql": "/* Conversion rate by seat bucket */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%seat_bucket:seats:under_60%' THEN 'under_60' WHEN all_company_tags LIKE '%seat_bucket:seats:60_129%' THEN '60_129' WHEN all_company_tags LIKE '%seat_bucket:seats:130_259%' THEN '130_259' WHEN all_company_tags LIKE '%seat_bucket:seats:260_419%' THEN '260_419' WHEN all_company_tags LIKE '%seat_bucket:seats:420_plus%' THEN '420_plus' ELSE 'unknown' END AS seat_bucket FROM intercom__company_enhanced), conv_end AS (SELECT * FROM temp.reuse_candidate), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.seat_bucket, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.seat_bucket ORDER BY cd.seat_bucket",
+          "phase": "offline_validation",
+          "start_time": 1788918027.8332887,
+          "status": "execute_returned",
+          "end_time": 1788918027.850229
+        },
+        {
+          "sequence": 6,
+          "sql": "/* Conversion rate by ARR bucket */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%arr_bucket:arr:<30k%' THEN '<30k' WHEN all_company_tags LIKE '%arr_bucket:arr:30k_65k%' THEN '30k_65k' WHEN all_company_tags LIKE '%arr_bucket:arr:65k_110k%' THEN '65k_110k' WHEN all_company_tags LIKE '%arr_bucket:arr:110k_200k%' THEN '110k_200k' WHEN all_company_tags LIKE '%arr_bucket:arr:200k_plus%' THEN '200k_plus' ELSE 'unknown' END AS arr_bucket FROM intercom__company_enhanced), conv_end AS (SELECT * FROM temp.reuse_candidate), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.arr_bucket, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.arr_bucket ORDER BY cd.arr_bucket",
+          "phase": "offline_validation",
+          "start_time": 1788918027.854822,
+          "status": "execute_returned",
+          "end_time": 1788918027.87174
+        },
+        {
+          "sequence": 7,
+          "sql": "WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced), conv_end AS (SELECT * FROM temp.reuse_candidate), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, 100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "phase": "offline_validation",
+          "start_time": 1788918027.8763118,
+          "status": "execute_returned",
+          "end_time": 1788918027.8931093
+        },
+        {
+          "sequence": 8,
+          "sql": "/* Conversation-to-feature-usage conversion by topic (company-level) */ WITH conv_end AS (SELECT * FROM temp.reuse_candidate), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted_companies AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT CASE WHEN c.all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN c.all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN c.all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN c.all_conversation_tags LIKE '%topic:integration%' THEN 'integration' WHEN c.all_conversation_tags LIKE '%topic:feature_request%' THEN 'feature_request' WHEN c.all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN c.all_conversation_tags LIKE '%topic:success_plan%' THEN 'success_plan' WHEN c.all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN c.all_conversation_tags LIKE '%topic:escalation%' THEN 'escalation' WHEN c.all_conversation_tags LIKE '%topic:billing%' THEN 'billing' ELSE 'other' END AS topic, COUNT(DISTINCT c.all_contact_company_names) AS companies_with_topic, COUNT(DISTINCT CASE WHEN NOT cv.company_name IS NULL THEN c.all_contact_company_names END) AS converted_companies FROM intercom__conversation_enhanced AS c LEFT JOIN converted_companies AS cv ON c.all_contact_company_names = cv.company_name GROUP BY 1 ORDER BY 2 DESC",
+          "phase": "offline_validation",
+          "start_time": 1788918027.8979547,
+          "status": "execute_returned",
+          "end_time": 1788918027.925828
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT DISTINCT all_contact_company_names AS company_name, last_close_at FROM intercom__conversation_enhanced WHERE NOT last_close_at IS NULL",
+          "time": 1788918027.7951696,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788918027.8040626,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788918027.8040879,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Conversion rate by segment */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced), conv_end AS (SELECT * FROM temp.reuse_candidate), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT conv.company_name) AS customers_with_convs, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN (SELECT DISTINCT company_name FROM conv_end) AS conv ON cd.company_name = conv.company_name LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "time": 1788918027.8042972,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Conversion rate by seat bucket */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%seat_bucket:seats:under_60%' THEN 'under_60' WHEN all_company_tags LIKE '%seat_bucket:seats:60_129%' THEN '60_129' WHEN all_company_tags LIKE '%seat_bucket:seats:130_259%' THEN '130_259' WHEN all_company_tags LIKE '%seat_bucket:seats:260_419%' THEN '260_419' WHEN all_company_tags LIKE '%seat_bucket:seats:420_plus%' THEN '420_plus' ELSE 'unknown' END AS seat_bucket FROM intercom__company_enhanced), conv_end AS (SELECT * FROM temp.reuse_candidate), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.seat_bucket, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.seat_bucket ORDER BY cd.seat_bucket",
+          "time": 1788918027.8334599,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Conversion rate by ARR bucket */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%arr_bucket:arr:<30k%' THEN '<30k' WHEN all_company_tags LIKE '%arr_bucket:arr:30k_65k%' THEN '30k_65k' WHEN all_company_tags LIKE '%arr_bucket:arr:65k_110k%' THEN '65k_110k' WHEN all_company_tags LIKE '%arr_bucket:arr:110k_200k%' THEN '110k_200k' WHEN all_company_tags LIKE '%arr_bucket:arr:200k_plus%' THEN '200k_plus' ELSE 'unknown' END AS arr_bucket FROM intercom__company_enhanced), conv_end AS (SELECT * FROM temp.reuse_candidate), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.arr_bucket, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.arr_bucket ORDER BY cd.arr_bucket",
+          "time": 1788918027.854999,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced), conv_end AS (SELECT * FROM temp.reuse_candidate), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, 100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "time": 1788918027.8764732,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Conversation-to-feature-usage conversion by topic (company-level) */ WITH conv_end AS (SELECT * FROM temp.reuse_candidate), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted_companies AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT CASE WHEN c.all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN c.all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN c.all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN c.all_conversation_tags LIKE '%topic:integration%' THEN 'integration' WHEN c.all_conversation_tags LIKE '%topic:feature_request%' THEN 'feature_request' WHEN c.all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN c.all_conversation_tags LIKE '%topic:success_plan%' THEN 'success_plan' WHEN c.all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN c.all_conversation_tags LIKE '%topic:escalation%' THEN 'escalation' WHEN c.all_conversation_tags LIKE '%topic:billing%' THEN 'billing' ELSE 'other' END AS topic, COUNT(DISTINCT c.all_contact_company_names) AS companies_with_topic, COUNT(DISTINCT CASE WHEN NOT cv.company_name IS NULL THEN c.all_contact_company_names END) AS converted_companies FROM intercom__conversation_enhanced AS c LEFT JOIN converted_companies AS cv ON c.all_contact_company_names = cv.company_name GROUP BY 1 ORDER BY 2 DESC",
+          "time": 1788918027.8982265,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 9.11931972950697,
+      "intermediate_rows": 6703,
+      "intermediate_columns": [
+        "company_name",
+        "last_close_at"
+      ],
+      "validation_ended_at": 1788918027.9296288,
+      "checks": [
+        {
+          "sql_id": "S72",
+          "rewritten_sql": "/* Conversion rate by segment */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced), conv_end AS (SELECT * FROM temp.reuse_candidate), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT conv.company_name) AS customers_with_convs, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN (SELECT DISTINCT company_name FROM conv_end) AS conv ON cd.company_name = conv.company_name LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 29.184285551309586
+        },
+        {
+          "sql_id": "S73",
+          "rewritten_sql": "/* Conversion rate by seat bucket */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%seat_bucket:seats:under_60%' THEN 'under_60' WHEN all_company_tags LIKE '%seat_bucket:seats:60_129%' THEN '60_129' WHEN all_company_tags LIKE '%seat_bucket:seats:130_259%' THEN '130_259' WHEN all_company_tags LIKE '%seat_bucket:seats:260_419%' THEN '260_419' WHEN all_company_tags LIKE '%seat_bucket:seats:420_plus%' THEN '420_plus' ELSE 'unknown' END AS seat_bucket FROM intercom__company_enhanced), conv_end AS (SELECT * FROM temp.reuse_candidate), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.seat_bucket, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.seat_bucket ORDER BY cd.seat_bucket",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 21.53019607067108
+        },
+        {
+          "sql_id": "S74",
+          "rewritten_sql": "/* Conversion rate by ARR bucket */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%arr_bucket:arr:<30k%' THEN '<30k' WHEN all_company_tags LIKE '%arr_bucket:arr:30k_65k%' THEN '30k_65k' WHEN all_company_tags LIKE '%arr_bucket:arr:65k_110k%' THEN '65k_110k' WHEN all_company_tags LIKE '%arr_bucket:arr:110k_200k%' THEN '110k_200k' WHEN all_company_tags LIKE '%arr_bucket:arr:200k_plus%' THEN '200k_plus' ELSE 'unknown' END AS arr_bucket FROM intercom__company_enhanced), conv_end AS (SELECT * FROM temp.reuse_candidate), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.arr_bucket, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, ROUND(100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name), 2) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.arr_bucket ORDER BY cd.arr_bucket",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 21.486698649823666
+        },
+        {
+          "sql_id": "S89",
+          "rewritten_sql": "WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced), conv_end AS (SELECT * FROM temp.reuse_candidate), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT cd.segment, COUNT(DISTINCT cd.company_name) AS total_customers, COUNT(DISTINCT cv.company_name) AS customers_converted, 100.0 * COUNT(DISTINCT cv.company_name) / COUNT(DISTINCT cd.company_name) AS conversion_rate_pct FROM company_dim AS cd LEFT JOIN converted AS cv ON cd.company_name = cv.company_name GROUP BY cd.segment ORDER BY cd.segment",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 21.638586185872555
+        },
+        {
+          "sql_id": "S105",
+          "rewritten_sql": "/* Conversation-to-feature-usage conversion by topic (company-level) */ WITH conv_end AS (SELECT * FROM temp.reuse_candidate), contact_act AS (SELECT all_contact_company_names AS company_name, last_activity_ts FROM intercom__contact_enhanced WHERE NOT last_activity_ts IS NULL), converted_companies AS (SELECT DISTINCT c.company_name FROM conv_end AS c JOIN contact_act AS a ON c.company_name = a.company_name WHERE a.last_activity_ts >= c.last_close_at AND a.last_activity_ts <= DATETIME(c.last_close_at, '+72 hours')) SELECT CASE WHEN c.all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN c.all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN c.all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN c.all_conversation_tags LIKE '%topic:integration%' THEN 'integration' WHEN c.all_conversation_tags LIKE '%topic:feature_request%' THEN 'feature_request' WHEN c.all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN c.all_conversation_tags LIKE '%topic:success_plan%' THEN 'success_plan' WHEN c.all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN c.all_conversation_tags LIKE '%topic:escalation%' THEN 'escalation' WHEN c.all_conversation_tags LIKE '%topic:billing%' THEN 'billing' ELSE 'other' END AS topic, COUNT(DISTINCT c.all_contact_company_names) AS companies_with_topic, COUNT(DISTINCT CASE WHEN NOT cv.company_name IS NULL THEN c.all_contact_company_names END) AS converted_companies FROM intercom__conversation_enhanced AS c LEFT JOIN converted_companies AS cv ON c.all_contact_company_names = cv.company_name GROUP BY 1 ORDER BY 2 DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 31.495644710958004
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT ce.all_contact_company_names AS company_name, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce",
+      "covered": [
+        "S80",
+        "S81",
+        "S82",
+        "S84"
+      ],
+      "rewrites": {
+        "S80": "/* Topic distribution by segment */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced), conv AS (SELECT * FROM temp.reuse_candidate) SELECT co.segment, CASE WHEN c.all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN c.all_conversation_tags LIKE '%topic:billing%' THEN 'billing' WHEN c.all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN c.all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN c.all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN c.all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN c.all_conversation_tags LIKE '%topic:escalation%' THEN 'escalation' WHEN c.all_conversation_tags LIKE '%topic:feature_request%' THEN 'feature_request' WHEN c.all_conversation_tags LIKE '%topic:integration%' THEN 'integration' WHEN c.all_conversation_tags LIKE '%topic:success_plan%' THEN 'success_plan' ELSE 'other' END AS topic, COUNT(*) AS total FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment, 2 ORDER BY co.segment, total DESC",
+        "S81": "/* Bot ratio and SLA by segment */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced), conv AS (SELECT * FROM temp.reuse_candidate) SELECT co.segment, COUNT(*) AS total_convs, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS bot_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:breached%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS sla_breached_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:met%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS sla_met_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:warning%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS sla_warning_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment",
+        "S82": "/* Channel distribution by segment */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment FROM intercom__company_enhanced), conv AS (SELECT * FROM temp.reuse_candidate) SELECT co.segment, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%channel:email%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS email_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%channel:messenger%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS messenger_pct, ROUND(100.0 * SUM(CASE WHEN c.all_conversation_tags LIKE '%channel:product_tour%' THEN 1 ELSE 0 END) / COUNT(*), 1) AS product_tour_pct FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name GROUP BY co.segment",
+        "S84": "/* Topic mix for high-value churn_watch customers (ARR 200k+ or seats 420+) */ WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment, CASE WHEN all_company_tags LIKE '%arr_bucket:arr:200k_plus%' THEN 1 ELSE 0 END AS is_high_arr, CASE WHEN all_company_tags LIKE '%seat_bucket:seats:420_plus%' THEN 1 ELSE 0 END AS is_high_seats FROM intercom__company_enhanced), conv AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN co.segment = 'churn_watch' AND (co.is_high_arr = 1 OR co.is_high_seats = 1) THEN 'high_value_churn_watch' WHEN co.segment = 'new_contract' AND (co.is_high_arr = 1 OR co.is_high_seats = 1) THEN 'high_value_new_contract' ELSE co.segment END AS group_label, CASE WHEN c.all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN c.all_conversation_tags LIKE '%topic:billing%' THEN 'billing' WHEN c.all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN c.all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN c.all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN c.all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN c.all_conversation_tags LIKE '%topic:escalation%' THEN 'escalation' WHEN c.all_conversation_tags LIKE '%topic:feature_request%' THEN 'feature_request' WHEN c.all_conversation_tags LIKE '%topic:integration%' THEN 'integration' WHEN c.all_conversation_tags LIKE '%topic:success_plan%' THEN 'success_plan' ELSE 'other' END AS topic, COUNT(*) AS total FROM conv AS c JOIN company_dim AS co ON c.company_name = co.company_name WHERE co.segment IN ('churn_watch', 'new_contract') GROUP BY 1, 2 ORDER BY 1, total DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C7",
+      "offline": true,
+      "earliest_build_before": "S80",
+      "later_reuses": 3,
+      "denominator": 106,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment, CASE WHEN all_company_tags LIKE '%arr_bucket:arr:200k_plus%' THEN '200k_plus' WHEN all_company_tags LIKE '%arr_bucket:arr:110k_200k%' THEN '110k_200k' WHEN all_company_tags LIKE '%arr_bucket:arr:65k_110k%' THEN '65k_110k' WHEN all_company_tags LIKE '%arr_bucket:arr:30k_65k%' THEN '30k_65k' WHEN all_company_tags LIKE '%arr_bucket:arr:<30k%' THEN '<30k' ELSE 'unknown' END AS arr_bucket FROM intercom__company_enhanced",
+      "covered": [
+        "S85",
+        "S103"
+      ],
+      "rewrites": {
+        "S85": "/* Company-level aggregate for correlation analysis with retention */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv AS (SELECT ce.all_contact_company_names AS company_name, cm.time_to_first_response_minutes AS resp_delay, cm.time_to_last_close_minutes AS duration, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce JOIN intercom__conversation_metrics AS cm ON ce.conversation_id = cm.conversation_id), agg AS (SELECT c.company_name, COUNT(*) AS num_convs, AVG(c.resp_delay) AS avg_resp_delay, AVG(c.duration) AS avg_duration, SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS bot_ratio, SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:breached%' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS sla_breach_ratio, SUM(CASE WHEN c.all_conversation_tags LIKE '%channel:product_tour%' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS product_tour_ratio, SUM(CASE WHEN c.all_conversation_tags LIKE '%topic:usage_insight%' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS usage_insight_ratio, SUM(CASE WHEN c.all_conversation_tags LIKE '%topic:adoption%' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS adoption_ratio, SUM(CASE WHEN c.all_conversation_tags LIKE '%topic:escalation%' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS escalation_ratio FROM conv AS c GROUP BY c.company_name) SELECT a.*, co.segment, co.arr_bucket, cm.registration_retention_7d AS ret_7d, cm.registration_retention_30d AS ret_30d, cm.contacts_active_7d AS active_7d, cm.contacts_active_30d AS active_30d FROM agg AS a JOIN company_dim AS co ON a.company_name = co.company_name JOIN intercom__company_metrics AS cm ON a.company_name = cm.company_name LIMIT 3000",
+        "S103": "/* Cross-tab of segment vs ARR */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate) SELECT segment, arr_bucket, COUNT(*) AS cnt FROM company_dim GROUP BY segment, arr_bucket ORDER BY segment, arr_bucket"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C8",
+      "offline": true,
+      "earliest_build_before": "S85",
+      "later_reuses": 1,
+      "denominator": 106,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT ce.all_contact_company_names AS company_name, cm.time_to_first_response_minutes AS resp_delay, cm.time_to_last_close_minutes AS duration, ce.all_conversation_tags FROM intercom__conversation_enhanced AS ce JOIN intercom__conversation_metrics AS cm ON ce.conversation_id = cm.conversation_id WHERE cm.time_to_last_close_minutes BETWEEN 91 AND 1030 AND cm.time_to_first_response_minutes BETWEEN 11 AND 42",
+      "covered": [
+        "S86",
+        "S90",
+        "S91"
+      ],
+      "rewrites": {
+        "S86": "WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%segment:new_contract%' THEN 'new_contract' WHEN all_company_tags LIKE '%segment:renewal%' THEN 'renewal' WHEN all_company_tags LIKE '%segment:churn_watch%' THEN 'churn_watch' WHEN all_company_tags LIKE '%segment:expansion%' THEN 'expansion' ELSE 'unknown' END AS segment, CASE WHEN all_company_tags LIKE '%arr_bucket:arr:200k_plus%' THEN '200k_plus' WHEN all_company_tags LIKE '%arr_bucket:arr:110k_200k%' THEN '110k_200k' WHEN all_company_tags LIKE '%arr_bucket:arr:65k_110k%' THEN '65k_110k' WHEN all_company_tags LIKE '%arr_bucket:arr:30k_65k%' THEN '30k_65k' WHEN all_company_tags LIKE '%arr_bucket:arr:<30k%' THEN '<30k' ELSE 'unknown' END AS arr_bucket, CASE WHEN all_company_tags LIKE '%seat_bucket:seats:under_60%' THEN 'under_60' WHEN all_company_tags LIKE '%seat_bucket:seats:60_129%' THEN '60_129' WHEN all_company_tags LIKE '%seat_bucket:seats:130_259%' THEN '130_259' WHEN all_company_tags LIKE '%seat_bucket:seats:260_419%' THEN '260_419' WHEN all_company_tags LIKE '%seat_bucket:seats:420_plus%' THEN '420_plus' ELSE 'unknown' END AS seat_bucket FROM intercom__company_enhanced), conv AS (SELECT * FROM temp.reuse_candidate), agg AS (SELECT c.company_name, COUNT(*) AS num_convs, AVG(c.resp_delay) AS avg_resp_delay, AVG(c.duration) AS avg_duration, SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS bot_ratio, SUM(CASE WHEN c.all_conversation_tags LIKE '%sla:breached%' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS sla_breach_ratio, SUM(CASE WHEN c.all_conversation_tags LIKE '%channel:product_tour%' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS product_tour_ratio, SUM(CASE WHEN c.all_conversation_tags LIKE '%topic:usage_insight%' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS usage_insight_ratio, SUM(CASE WHEN c.all_conversation_tags LIKE '%topic:adoption%' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS adoption_ratio, SUM(CASE WHEN c.all_conversation_tags LIKE '%topic:escalation%' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS escalation_ratio FROM conv AS c GROUP BY c.company_name) SELECT a.*, co.segment, co.arr_bucket, co.seat_bucket, cm.registration_retention_7d AS ret_7d, cm.registration_retention_30d AS ret_30d, cm.contacts_active_7d AS active_7d, cm.contacts_active_30d AS active_30d FROM agg AS a JOIN company_dim AS co ON a.company_name = co.company_name JOIN intercom__company_metrics AS cm ON a.company_name = cm.company_name",
+        "S90": "WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%arr_bucket:arr:<30k%' THEN '<30k' WHEN all_company_tags LIKE '%arr_bucket:arr:30k_65k%' THEN '30k_65k' WHEN all_company_tags LIKE '%arr_bucket:arr:65k_110k%' THEN '65k_110k' WHEN all_company_tags LIKE '%arr_bucket:arr:110k_200k%' THEN '110k_200k' WHEN all_company_tags LIKE '%arr_bucket:arr:200k_plus%' THEN '200k_plus' ELSE 'unknown' END AS arr_bucket FROM intercom__company_enhanced), conv AS (SELECT * FROM temp.reuse_candidate), agg AS (SELECT c.company_name, COUNT(*) AS num_convs, AVG(c.resp_delay) AS avg_resp_delay, AVG(c.duration) AS avg_duration, SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS bot_ratio FROM conv AS c GROUP BY c.company_name) SELECT co.arr_bucket, AVG(agg.num_convs) AS avg_convs_per_company, AVG(agg.avg_resp_delay) AS avg_resp_delay, AVG(agg.avg_duration) AS avg_duration, AVG(agg.bot_ratio) AS avg_bot_ratio_pct FROM agg JOIN company_dim AS co ON agg.company_name = co.company_name GROUP BY co.arr_bucket ORDER BY co.arr_bucket",
+        "S91": "WITH company_dim AS (SELECT DISTINCT company_name, CASE WHEN all_company_tags LIKE '%seat_bucket:seats:under_60%' THEN 'under_60' WHEN all_company_tags LIKE '%seat_bucket:seats:60_129%' THEN '60_129' WHEN all_company_tags LIKE '%seat_bucket:seats:130_259%' THEN '130_259' WHEN all_company_tags LIKE '%seat_bucket:seats:260_419%' THEN '260_419' WHEN all_company_tags LIKE '%seat_bucket:seats:420_plus%' THEN '420_plus' ELSE 'unknown' END AS seat_bucket FROM intercom__company_enhanced), conv AS (SELECT * FROM temp.reuse_candidate), agg AS (SELECT c.company_name, COUNT(*) AS num_convs, AVG(c.resp_delay) AS avg_resp_delay, AVG(c.duration) AS avg_duration, SUM(CASE WHEN c.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS bot_ratio FROM conv AS c GROUP BY c.company_name) SELECT co.seat_bucket, AVG(agg.num_convs) AS avg_convs_per_company, AVG(agg.avg_resp_delay) AS avg_resp_delay, AVG(agg.avg_duration) AS avg_duration, AVG(agg.bot_ratio) AS avg_bot_ratio_pct FROM agg JOIN company_dim AS co ON agg.company_name = co.company_name GROUP BY co.seat_bucket ORDER BY co.seat_bucket"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C9",
+      "offline": true,
+      "earliest_build_before": "S86",
+      "later_reuses": 2,
+      "denominator": 106,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT DISTINCT company_name FROM intercom__company_enhanced WHERE all_company_tags LIKE '%segment:churn_watch%'",
+      "covered": [
+        "S108",
+        "S109"
+      ],
+      "rewrites": {
+        "S108": "/* Conversation volume per company vs retention within churn_watch */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv_counts AS (SELECT ce.all_contact_company_names AS company_name, COUNT(*) AS total_convs FROM intercom__conversation_enhanced AS ce GROUP BY ce.all_contact_company_names) SELECT CASE WHEN cc.total_convs <= 1 THEN '0-1' WHEN cc.total_convs <= 3 THEN '2-3' WHEN cc.total_convs <= 5 THEN '4-5' ELSE '6+' END AS conv_volume_bucket, COUNT(*) AS companies, ROUND(AVG(cm.registration_retention_7d), 4) AS avg_weekly_retention, ROUND(AVG(cm.registration_retention_30d), 4) AS avg_monthly_retention FROM company_dim AS cd JOIN conv_counts AS cc ON cd.company_name = cc.company_name JOIN intercom__company_metrics AS cm ON cd.company_name = cm.company_name GROUP BY 1 ORDER BY 1",
+        "S109": "/* Bot ratio buckets vs retention within churn_watch */ WITH company_dim AS (SELECT * FROM temp.reuse_candidate), conv_bot AS (SELECT ce.all_contact_company_names AS company_name, COUNT(*) AS total_convs, SUM(CASE WHEN ce.all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS bot_ratio FROM intercom__conversation_enhanced AS ce GROUP BY ce.all_contact_company_names) SELECT CASE WHEN cb.bot_ratio <= 0.25 THEN '0-25%' WHEN cb.bot_ratio <= 0.50 THEN '25-50%' WHEN cb.bot_ratio <= 0.75 THEN '50-75%' ELSE '75-100%' END AS bot_ratio_bucket, COUNT(*) AS companies, ROUND(AVG(cm.registration_retention_7d), 4) AS avg_weekly_retention, ROUND(AVG(cm.registration_retention_30d), 4) AS avg_monthly_retention FROM company_dim AS cd JOIN conv_bot AS cb ON cd.company_name = cb.company_name JOIN intercom__company_metrics AS cm ON cd.company_name = cm.company_name GROUP BY 1 ORDER BY 1"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C10",
+      "offline": true,
+      "earliest_build_before": "S108",
+      "later_reuses": 1,
+      "denominator": 106,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT ROUND(registration_retention_7d, 2) AS __g0, ROUND(registration_retention_30d, 2) AS __g1, SUM(registration_retention_7d) AS __a0_sum, COUNT(registration_retention_7d) AS __a0_n, SUM(registration_retention_30d) AS __a1_sum, COUNT(registration_retention_30d) AS __a1_n, SUM(contacts_active_7d) AS __a2_sum, COUNT(contacts_active_7d) AS __a2_n, SUM(contacts_active_30d) AS __a3_sum, COUNT(contacts_active_30d) AS __a3_n, COUNT(*) AS __a4, SUM(total_conversations) AS __a5_sum, COUNT(total_conversations) AS __a5_n FROM \"intercom__company_metrics\"  GROUP BY ROUND(registration_retention_7d, 2), ROUND(registration_retention_30d, 2)",
+      "covered": [
+        "S49",
+        "S67",
+        "S68",
+        "S112"
+      ],
+      "rewrites": {
+        "S49": "/* company_metrics: distribution of registration retention */ SELECT (1.0 * SUM(__a0_sum) / NULLIF(SUM(__a0_n), 0)) AS avg_ret7, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_ret30, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_act7, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_act30 FROM temp.reuse_candidate",
+        "S67": "/* Company-level retention metrics from company_metrics */ SELECT ROUND((1.0 * SUM(__a0_sum) / NULLIF(SUM(__a0_n), 0)), 4) AS avg_weekly_retention, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_monthly_retention, SUM(__a4) AS total_companies FROM temp.reuse_candidate",
+        "S68": "/* Distribution of company-level retention */ SELECT __g0 AS ret_7d, __g1 AS ret_30d, SUM(__a4) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY ret_7d, ret_30d LIMIT 20",
+        "S112": "/* Final summary stats */ SELECT ROUND((1.0 * SUM(__a0_sum) / NULLIF(SUM(__a0_n), 0)), 4) AS overall_weekly_retention, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS overall_monthly_retention, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_active_7d, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 1) AS avg_active_30d, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 1) AS avg_convs_per_company FROM temp.reuse_candidate"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C11",
+      "offline": true,
+      "earliest_build_before": "S49",
+      "later_reuses": 3,
+      "denominator": 106,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT COUNT(*) AS __a0, SUM(CASE WHEN time_to_first_response_minutes IS NULL THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN time_to_last_close_minutes IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN time_to_first_close_minutes IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN time_to_first_response_minutes < 11 OR time_to_first_response_minutes > 42 THEN 1 ELSE 0 END) AS __a4, SUM(CASE WHEN time_to_last_close_minutes < 91 OR time_to_last_close_minutes > 1030 THEN 1 ELSE 0 END) AS __a5 FROM \"intercom__conversation_metrics\" ",
+      "covered": [
+        "S11",
+        "S43",
+        "S44",
+        "S46"
+      ],
+      "rewrites": {
+        "S11": "SELECT SUM(__a0) AS total_conversations FROM temp.reuse_candidate",
+        "S43": "SELECT SUM(__a0), SUM(__a1) AS null_resp, SUM(__a2) AS null_close, SUM(__a3) AS null_first_close FROM temp.reuse_candidate",
+        "S44": "/* Check how many conversations fall outside P1/P99 bounds */ SELECT SUM(__a4) AS resp_outliers, SUM(__a5) AS dur_outliers FROM temp.reuse_candidate",
+        "S46": "SELECT SUM(__a0) FROM temp.reuse_candidate"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C12",
+      "offline": true,
+      "earliest_build_before": "S11",
+      "later_reuses": 3,
+      "denominator": 106,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT is_active_7d AS __g0, retained_7d AS __g1, is_active_30d AS __g2, retained_30d AS __g3, SUM(is_active_1d) AS __a0, SUM(is_active_7d) AS __a1, SUM(is_active_30d) AS __a2, SUM(retained_7d) AS __a3, SUM(retained_30d) AS __a4, COUNT(*) AS __a5 FROM \"intercom__contact_enhanced\"  GROUP BY is_active_7d, retained_7d, is_active_30d, retained_30d",
+      "covered": [
+        "S48",
+        "S65",
+        "S66"
+      ],
+      "rewrites": {
+        "S48": "SELECT SUM(__a0) AS act_1d, SUM(__a1) AS act_7d, SUM(__a2) AS act_30d, SUM(__a3) AS ret_7d, SUM(__a4) AS ret_30d, SUM(__a5) AS total FROM temp.reuse_candidate",
+        "S65": "/* Check relationship between is_active and retained per contact */ SELECT __g0 AS \"is_active_7d\", __g1 AS \"retained_7d\", SUM(__a5) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+        "S66": "SELECT __g2 AS \"is_active_30d\", __g3 AS \"retained_30d\", SUM(__a5) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g3 ORDER BY __g2, __g3"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C13",
+      "offline": true,
+      "earliest_build_before": "S48",
+      "later_reuses": 2,
+      "denominator": 106,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT all_contact_company_names AS __g0, CASE WHEN all_conversation_tags LIKE '%first_response:bot%' THEN 'bot' ELSE 'human' END AS __g1, CASE WHEN all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN all_conversation_tags LIKE '%topic:billing%' THEN 'billing' WHEN all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN all_conversation_tags LIKE '%topic:product%' THEN 'product' ELSE 'other' END AS __g2, all_conversation_tags AS __g3, CASE WHEN all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN all_conversation_tags LIKE '%topic:billing%' THEN 'billing' WHEN all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN all_conversation_tags LIKE '%topic:escalation%' THEN 'escalation' WHEN all_conversation_tags LIKE '%topic:feature_request%' THEN 'feature_request' WHEN all_conversation_tags LIKE '%topic:integration%' THEN 'integration' WHEN all_conversation_tags LIKE '%topic:success_plan%' THEN 'success_plan' ELSE 'other' END AS __g4, COUNT(*) AS __a0, SUM(CASE WHEN all_conversation_tags LIKE '%first_response:bot%' THEN 1 ELSE 0 END) AS __a1 FROM \"intercom__conversation_enhanced\"  GROUP BY all_contact_company_names, CASE WHEN all_conversation_tags LIKE '%first_response:bot%' THEN 'bot' ELSE 'human' END, CASE WHEN all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN all_conversation_tags LIKE '%topic:billing%' THEN 'billing' WHEN all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN all_conversation_tags LIKE '%topic:product%' THEN 'product' ELSE 'other' END, all_conversation_tags, CASE WHEN all_conversation_tags LIKE '%topic:onboarding%' THEN 'onboarding' WHEN all_conversation_tags LIKE '%topic:billing%' THEN 'billing' WHEN all_conversation_tags LIKE '%topic:usage_insight%' THEN 'usage_insight' WHEN all_conversation_tags LIKE '%topic:security%' THEN 'security' WHEN all_conversation_tags LIKE '%topic:renewal%' THEN 'renewal' WHEN all_conversation_tags LIKE '%topic:adoption%' THEN 'adoption' WHEN all_conversation_tags LIKE '%topic:escalation%' THEN 'escalation' WHEN all_conversation_tags LIKE '%topic:feature_request%' THEN 'feature_request' WHEN all_conversation_tags LIKE '%topic:integration%' THEN 'integration' WHEN all_conversation_tags LIKE '%topic:success_plan%' THEN 'success_plan' ELSE 'other' END",
+      "covered": [
+        "S32",
+        "S40",
+        "S75",
+        "S76",
+        "S98"
+      ],
+      "rewrites": {
+        "S32": "SELECT __g0 AS \"all_contact_company_names\", SUM(__a0) FROM temp.reuse_candidate GROUP BY __g0 ORDER BY SUM(__a0) DESC LIMIT 30",
+        "S40": "/* Check first_response:bot/human tag distribution */ SELECT __g1 AS responder_type, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1",
+        "S75": "/* Topic distribution */ SELECT __g2 AS topic, SUM(__a0) AS total FROM temp.reuse_candidate GROUP BY __g2 ORDER BY total DESC",
+        "S76": "/* Distinct tag fragments in conversation tags */ SELECT __g3 AS \"all_conversation_tags\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3 ORDER BY cnt DESC LIMIT 30",
+        "S98": "SELECT __g4 AS topic, SUM(__a0) AS total, ROUND(100.0 * SUM(__a1) / SUM(__a0), 2) AS bot_pct FROM temp.reuse_candidate GROUP BY __g4 ORDER BY total DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C14",
+      "offline": true,
+      "earliest_build_before": "S32",
+      "later_reuses": 4,
+      "denominator": 106,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

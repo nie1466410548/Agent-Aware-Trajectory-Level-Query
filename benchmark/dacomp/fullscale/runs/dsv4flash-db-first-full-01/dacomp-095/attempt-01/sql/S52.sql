@@ -1,0 +1,1 @@
+SELECT count_received_email, email_open_rate, count_placed_order, days_span FROM klaviyo__persons

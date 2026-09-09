@@ -1,0 +1,1 @@
+SELECT COUNT(*) as total_companies FROM intercom__company_enhanced

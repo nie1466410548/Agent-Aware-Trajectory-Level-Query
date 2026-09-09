@@ -1,0 +1,1 @@
+SELECT NAME, STATUS, COUNT(*) as n FROM (SELECT 'campaigns' as NAME, STATUS FROM klaviyo__campaigns UNION ALL SELECT 'flows' as NAME, status FROM klaviyo__flows) GROUP BY NAME, STATUS

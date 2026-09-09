@@ -1,0 +1,1 @@
+SELECT person_id, email_open_rate, active_retention_rate_week, active_retention_rate_month, active_days, active_weeks, active_months, days_span, weeks_span, months_span, count_received_email, count_opened_email, count_clicked_email FROM klaviyo__persons WHERE person_id IN ('01F366M1ZERT4HM2Z9R2V9G7BY','59bc0505-cb93-40a1-9524-437521d13454')

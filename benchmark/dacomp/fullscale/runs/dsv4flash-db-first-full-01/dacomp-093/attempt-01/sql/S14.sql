@@ -1,0 +1,3 @@
+SELECT DISTINCT campaign_name
+FROM klaviyo__campaigns
+ORDER BY campaign_name

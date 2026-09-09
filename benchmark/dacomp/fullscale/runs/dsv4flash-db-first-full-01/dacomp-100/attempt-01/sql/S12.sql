@@ -1,0 +1,1 @@
+SELECT * FROM intercom__company_enhanced

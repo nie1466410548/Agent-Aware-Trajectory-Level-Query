@@ -1,0 +1,1 @@
+SELECT conversation_id, all_conversation_tags FROM intercom__conversation_enhanced LIMIT 5

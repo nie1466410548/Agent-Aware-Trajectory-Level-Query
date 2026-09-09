@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT all_contact_company_names) FROM intercom__contact_enhanced

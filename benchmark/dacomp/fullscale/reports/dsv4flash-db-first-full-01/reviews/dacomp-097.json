@@ -1,0 +1,74 @@
+{
+  "task_id": "dacomp-097",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "SQL 完成公司级连接及业务指标，但 P1 再按客户段计算话题比例均值、筛选流失关注公司并求平均留存；P2 在 Python merge 三个 SQL 汇总结果。这些分组、过滤和关系连接可由 SQL 完成。相关检验和绘图另计为统计可视化补充。",
+  "route": "SQL 连接、窗口和指标提取 → Python 业务聚合、统计检验与图表 → 报告",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 143,
+          "text": "topic_means = df.groupby('segment')[topic_cols].mean()"
+        },
+        {
+          "line": 148,
+          "text": "high_val = df[df['segment'] == 'churn_watch']"
+        },
+        {
+          "line": 150,
+          "text": "print(f\"Avg ret_7d: {high_val['ret_7d'].mean():.4f}\")"
+        },
+        {
+          "line": 151,
+          "text": "print(f\"Avg ret_30d: {high_val['ret_30d'].mean():.4f}\")"
+        },
+        {
+          "line": 154,
+          "text": "high_val['ret_quartile'] = pd.qcut(high_val['ret_7d'], 4, labels=['Q1', 'Q2', 'Q3', 'Q4'])"
+        },
+        {
+          "line": 155,
+          "text": "top = high_val[high_val['ret_quartile'] == 'Q4']"
+        },
+        {
+          "line": 156,
+          "text": "bottom = high_val[high_val['ret_quartile'] == 'Q1']"
+        },
+        {
+          "line": 160,
+          "text": "print(top[['num_convs', 'avg_resp_delay', 'bot_ratio', 'sla_breach_ratio', 'product_tour_ratio']].mean())"
+        },
+        {
+          "line": 162,
+          "text": "print(bottom[['num_convs', 'avg_resp_delay', 'bot_ratio', 'sla_breach_ratio', 'product_tour_ratio']].mean())"
+        }
+      ]
+    },
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 103,
+          "text": "df = seg_conv.merge(seg_ret, on='segment', how='left').merge(seg_conv_rate, on='segment', how='left')"
+        }
+      ]
+    }
+  ],
+  "review_scope_python_files": [
+    "P1.py",
+    "P2.py",
+    "P3.py",
+    "P4.py"
+  ],
+  "final_run_status": "submitted",
+  "available_python_files": [
+    "P1.py",
+    "P2.py",
+    "P3.py",
+    "P4.py",
+    "P5.py"
+  ],
+  "review_scope": "Execution-location findings supported by the cited source lines; no official answer correctness judgment."
+}

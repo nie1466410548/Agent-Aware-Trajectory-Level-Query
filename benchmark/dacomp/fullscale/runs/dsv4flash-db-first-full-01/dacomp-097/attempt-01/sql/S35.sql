@@ -1,0 +1,5 @@
+SELECT COUNT(DISTINCT all_contact_company_names) FROM intercom__contact_enhanced
+UNION ALL
+SELECT COUNT(DISTINCT company_name) FROM intercom__company_enhanced
+UNION ALL
+SELECT COUNT(DISTINCT all_contact_company_names) FROM intercom__conversation_enhanced

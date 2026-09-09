@@ -1,5 +1,5 @@
 {
-  "event_hash": "00e32b66e8fea29e92d4fdc53155a0a7185e655544d2709bd792035958c83524",
+  "event_hash": "b3832cb70904c0502063b83c9fe6af308acc5eff42c106eed77524709f1463bb",
   "profile_version": "76aa65c62293fc378ce835bea3c03451221c196496e48c314f77f1c33b74d369",
   "profiles": {
     "S1": {},
@@ -13410,6 +13410,1327 @@
           "reason": "ambiguous_or_missing_source"
         }
       ]
+    },
+    "S35": {},
+    "S36": {
+      "parsed": true,
+      "canonical_sql": "SELECT vendor_id, account_type, SUM(CASE WHEN transaction_date >= '2024-10-15' THEN amount ELSE 0 END) AS raw_last12, SUM(CASE WHEN transaction_date < '2024-10-15' THEN amount ELSE 0 END) AS raw_prior12, SUM(CASE WHEN transaction_date >= '2024-10-15' THEN ABS(amount) ELSE 0 END) AS mag_last12, SUM(CASE WHEN transaction_date < '2024-10-15' THEN ABS(amount) ELSE 0 END) AS mag_prior12, COUNT(*) AS n_tx, COUNT(DISTINCT transaction_date) AS n_active_days FROM quickbooks__general_ledger WHERE vendor_id IN (SELECT vendor_id FROM quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7) GROUP BY vendor_id, account_type",
+      "blocks": [
+        {
+          "id": "B1",
+          "parent": "B2",
+          "kind": "Select",
+          "sql": "SELECT vendor_id FROM quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7",
+          "sources": [
+            {
+              "alias": "quickbooks__vendor_performance",
+              "kind": "base",
+              "block": null,
+              "base_tables": [
+                "quickbooks__vendor_performance"
+              ]
+            }
+          ],
+          "joins": [],
+          "group_by": [],
+          "aggregates": [],
+          "windows": [],
+          "filters": [
+            {
+              "kind": "where",
+              "expression": "WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7",
+              "columns": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "annual_spend_growth_pct"
+                },
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "overall_performance_score"
+                }
+              ]
+            }
+          ],
+          "join_inputs": 0,
+          "column_references": [
+            {
+              "expression": "vendor_id",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "vendor_id"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "annual_spend_growth_pct",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "annual_spend_growth_pct"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "overall_performance_score",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "overall_performance_score"
+                }
+              ],
+              "wildcard": false
+            }
+          ]
+        },
+        {
+          "id": "B2",
+          "parent": null,
+          "kind": "Select",
+          "sql": "SELECT vendor_id, account_type, SUM(CASE WHEN transaction_date >= '2024-10-15' THEN amount ELSE 0 END) AS raw_last12, SUM(CASE WHEN transaction_date < '2024-10-15' THEN amount ELSE 0 END) AS raw_prior12, SUM(CASE WHEN transaction_date >= '2024-10-15' THEN ABS(amount) ELSE 0 END) AS mag_last12, SUM(CASE WHEN transaction_date < '2024-10-15' THEN ABS(amount) ELSE 0 END) AS mag_prior12, COUNT(*) AS n_tx, COUNT(DISTINCT transaction_date) AS n_active_days FROM quickbooks__general_ledger WHERE vendor_id IN (SELECT vendor_id FROM quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7) GROUP BY vendor_id, account_type",
+          "sources": [
+            {
+              "alias": "quickbooks__general_ledger",
+              "kind": "base",
+              "block": null,
+              "base_tables": [
+                "quickbooks__general_ledger"
+              ]
+            }
+          ],
+          "joins": [],
+          "group_by": [
+            {
+              "original": "vendor_id",
+              "expression": "vendor_id",
+              "columns": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "vendor_id"
+                }
+              ]
+            },
+            {
+              "original": "account_type",
+              "expression": "account_type",
+              "columns": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "account_type"
+                }
+              ]
+            }
+          ],
+          "aggregates": [
+            {
+              "function": "SUM",
+              "expression": "SUM(CASE WHEN transaction_date >= '2024-10-15' THEN amount ELSE 0 END)",
+              "distinct": false,
+              "metric_columns": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "amount"
+                }
+              ],
+              "condition_columns": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "transaction_date"
+                }
+              ],
+              "row_count": false
+            },
+            {
+              "function": "SUM",
+              "expression": "SUM(CASE WHEN transaction_date < '2024-10-15' THEN amount ELSE 0 END)",
+              "distinct": false,
+              "metric_columns": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "amount"
+                }
+              ],
+              "condition_columns": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "transaction_date"
+                }
+              ],
+              "row_count": false
+            },
+            {
+              "function": "SUM",
+              "expression": "SUM(CASE WHEN transaction_date >= '2024-10-15' THEN ABS(amount) ELSE 0 END)",
+              "distinct": false,
+              "metric_columns": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "amount"
+                }
+              ],
+              "condition_columns": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "transaction_date"
+                }
+              ],
+              "row_count": false
+            },
+            {
+              "function": "SUM",
+              "expression": "SUM(CASE WHEN transaction_date < '2024-10-15' THEN ABS(amount) ELSE 0 END)",
+              "distinct": false,
+              "metric_columns": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "amount"
+                }
+              ],
+              "condition_columns": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "transaction_date"
+                }
+              ],
+              "row_count": false
+            },
+            {
+              "function": "COUNT",
+              "expression": "COUNT(*)",
+              "distinct": false,
+              "metric_columns": [],
+              "condition_columns": [],
+              "row_count": true
+            },
+            {
+              "function": "COUNT",
+              "expression": "COUNT(DISTINCT transaction_date)",
+              "distinct": true,
+              "metric_columns": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "transaction_date"
+                }
+              ],
+              "condition_columns": [],
+              "row_count": false
+            }
+          ],
+          "windows": [],
+          "filters": [
+            {
+              "kind": "where",
+              "expression": "WHERE vendor_id IN (SELECT vendor_id FROM quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7)",
+              "columns": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "vendor_id"
+                },
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "vendor_id"
+                },
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "annual_spend_growth_pct"
+                },
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "overall_performance_score"
+                }
+              ]
+            },
+            {
+              "kind": "case",
+              "expression": "CASE WHEN transaction_date >= '2024-10-15' THEN amount ELSE 0 END",
+              "columns": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "amount"
+                },
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "transaction_date"
+                }
+              ]
+            },
+            {
+              "kind": "case",
+              "expression": "CASE WHEN transaction_date < '2024-10-15' THEN amount ELSE 0 END",
+              "columns": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "amount"
+                },
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "transaction_date"
+                }
+              ]
+            },
+            {
+              "kind": "case",
+              "expression": "CASE WHEN transaction_date >= '2024-10-15' THEN ABS(amount) ELSE 0 END",
+              "columns": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "transaction_date"
+                },
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "amount"
+                }
+              ]
+            },
+            {
+              "kind": "case",
+              "expression": "CASE WHEN transaction_date < '2024-10-15' THEN ABS(amount) ELSE 0 END",
+              "columns": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "transaction_date"
+                },
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "amount"
+                }
+              ]
+            }
+          ],
+          "join_inputs": 0,
+          "group_sets": {},
+          "column_references": [
+            {
+              "expression": "vendor_id",
+              "lineage": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "vendor_id"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "account_type",
+              "lineage": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "account_type"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "transaction_date",
+              "lineage": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "transaction_date"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "amount",
+              "lineage": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "amount"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "transaction_date",
+              "lineage": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "transaction_date"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "amount",
+              "lineage": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "amount"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "transaction_date",
+              "lineage": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "transaction_date"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "amount",
+              "lineage": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "amount"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "transaction_date",
+              "lineage": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "transaction_date"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "amount",
+              "lineage": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "amount"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "transaction_date",
+              "lineage": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "transaction_date"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "vendor_id",
+              "lineage": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "vendor_id"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "vendor_id",
+              "lineage": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "vendor_id"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "account_type",
+              "lineage": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "account_type"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "vendor_id",
+              "lineage": [
+                {
+                  "table": "quickbooks__general_ledger",
+                  "column": "vendor_id"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "annual_spend_growth_pct",
+              "lineage": [
+                {
+                  "unknown": "annual_spend_growth_pct"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "overall_performance_score",
+              "lineage": [
+                {
+                  "unknown": "overall_performance_score"
+                }
+              ],
+              "wildcard": false
+            }
+          ]
+        }
+      ],
+      "base_tables": [
+        "quickbooks__general_ledger",
+        "quickbooks__vendor_performance"
+      ],
+      "table_references": {
+        "quickbooks__vendor_performance": 1,
+        "quickbooks__general_ledger": 1
+      },
+      "max_join_inputs": 0,
+      "join_types": {},
+      "group_dimensions": [
+        2
+      ],
+      "max_group_dimensions": 2,
+      "aggregate_functions": {
+        "SUM": 4,
+        "COUNT": 2
+      },
+      "aggregate_expressions": [
+        {
+          "function": "SUM",
+          "expression": "SUM(CASE WHEN transaction_date >= '2024-10-15' THEN amount ELSE 0 END)",
+          "distinct": false,
+          "metric_columns": [
+            {
+              "table": "quickbooks__general_ledger",
+              "column": "amount"
+            }
+          ],
+          "condition_columns": [
+            {
+              "table": "quickbooks__general_ledger",
+              "column": "transaction_date"
+            }
+          ],
+          "row_count": false
+        },
+        {
+          "function": "SUM",
+          "expression": "SUM(CASE WHEN transaction_date < '2024-10-15' THEN amount ELSE 0 END)",
+          "distinct": false,
+          "metric_columns": [
+            {
+              "table": "quickbooks__general_ledger",
+              "column": "amount"
+            }
+          ],
+          "condition_columns": [
+            {
+              "table": "quickbooks__general_ledger",
+              "column": "transaction_date"
+            }
+          ],
+          "row_count": false
+        },
+        {
+          "function": "SUM",
+          "expression": "SUM(CASE WHEN transaction_date >= '2024-10-15' THEN ABS(amount) ELSE 0 END)",
+          "distinct": false,
+          "metric_columns": [
+            {
+              "table": "quickbooks__general_ledger",
+              "column": "amount"
+            }
+          ],
+          "condition_columns": [
+            {
+              "table": "quickbooks__general_ledger",
+              "column": "transaction_date"
+            }
+          ],
+          "row_count": false
+        },
+        {
+          "function": "SUM",
+          "expression": "SUM(CASE WHEN transaction_date < '2024-10-15' THEN ABS(amount) ELSE 0 END)",
+          "distinct": false,
+          "metric_columns": [
+            {
+              "table": "quickbooks__general_ledger",
+              "column": "amount"
+            }
+          ],
+          "condition_columns": [
+            {
+              "table": "quickbooks__general_ledger",
+              "column": "transaction_date"
+            }
+          ],
+          "row_count": false
+        },
+        {
+          "function": "COUNT",
+          "expression": "COUNT(*)",
+          "distinct": false,
+          "metric_columns": [],
+          "condition_columns": [],
+          "row_count": true
+        },
+        {
+          "function": "COUNT",
+          "expression": "COUNT(DISTINCT transaction_date)",
+          "distinct": true,
+          "metric_columns": [
+            {
+              "table": "quickbooks__general_ledger",
+              "column": "transaction_date"
+            }
+          ],
+          "condition_columns": [],
+          "row_count": false
+        }
+      ],
+      "window_count": 0,
+      "parse_coverage": true,
+      "table_lineage_coverage": true,
+      "column_lineage_coverage": false,
+      "unknowns": [
+        {
+          "block": "B2",
+          "column": "annual_spend_growth_pct",
+          "reason": "ambiguous_or_missing_source"
+        },
+        {
+          "block": "B2",
+          "column": "overall_performance_score",
+          "reason": "ambiguous_or_missing_source"
+        }
+      ]
+    },
+    "S37": {
+      "parsed": true,
+      "canonical_sql": "SELECT vendor_tier, payment_risk_level, performance_rating, recommended_strategy, dependency_level, COUNT(*) AS n FROM quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7 GROUP BY vendor_tier, payment_risk_level, performance_rating, recommended_strategy, dependency_level ORDER BY n DESC",
+      "blocks": [
+        {
+          "id": "B1",
+          "parent": null,
+          "kind": "Select",
+          "sql": "SELECT vendor_tier, payment_risk_level, performance_rating, recommended_strategy, dependency_level, COUNT(*) AS n FROM quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7 GROUP BY vendor_tier, payment_risk_level, performance_rating, recommended_strategy, dependency_level ORDER BY n DESC",
+          "sources": [
+            {
+              "alias": "quickbooks__vendor_performance",
+              "kind": "base",
+              "block": null,
+              "base_tables": [
+                "quickbooks__vendor_performance"
+              ]
+            }
+          ],
+          "joins": [],
+          "group_by": [
+            {
+              "original": "vendor_tier",
+              "expression": "vendor_tier",
+              "columns": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "vendor_tier"
+                }
+              ]
+            },
+            {
+              "original": "payment_risk_level",
+              "expression": "payment_risk_level",
+              "columns": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "payment_risk_level"
+                }
+              ]
+            },
+            {
+              "original": "performance_rating",
+              "expression": "performance_rating",
+              "columns": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "performance_rating"
+                }
+              ]
+            },
+            {
+              "original": "recommended_strategy",
+              "expression": "recommended_strategy",
+              "columns": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "recommended_strategy"
+                }
+              ]
+            },
+            {
+              "original": "dependency_level",
+              "expression": "dependency_level",
+              "columns": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "dependency_level"
+                }
+              ]
+            }
+          ],
+          "aggregates": [
+            {
+              "function": "COUNT",
+              "expression": "COUNT(*)",
+              "distinct": false,
+              "metric_columns": [],
+              "condition_columns": [],
+              "row_count": true
+            }
+          ],
+          "windows": [],
+          "filters": [
+            {
+              "kind": "where",
+              "expression": "WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7",
+              "columns": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "annual_spend_growth_pct"
+                },
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "overall_performance_score"
+                }
+              ]
+            }
+          ],
+          "join_inputs": 0,
+          "group_sets": {},
+          "column_references": [
+            {
+              "expression": "vendor_tier",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "vendor_tier"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "payment_risk_level",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "payment_risk_level"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "performance_rating",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "performance_rating"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "recommended_strategy",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "recommended_strategy"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "dependency_level",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "dependency_level"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "annual_spend_growth_pct",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "annual_spend_growth_pct"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "overall_performance_score",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "overall_performance_score"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "vendor_tier",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "vendor_tier"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "payment_risk_level",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "payment_risk_level"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "performance_rating",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "performance_rating"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "recommended_strategy",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "recommended_strategy"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "dependency_level",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "dependency_level"
+                }
+              ],
+              "wildcard": false
+            }
+          ]
+        }
+      ],
+      "base_tables": [
+        "quickbooks__vendor_performance"
+      ],
+      "table_references": {
+        "quickbooks__vendor_performance": 1
+      },
+      "max_join_inputs": 0,
+      "join_types": {},
+      "group_dimensions": [
+        5
+      ],
+      "max_group_dimensions": 5,
+      "aggregate_functions": {
+        "COUNT": 1
+      },
+      "aggregate_expressions": [
+        {
+          "function": "COUNT",
+          "expression": "COUNT(*)",
+          "distinct": false,
+          "metric_columns": [],
+          "condition_columns": [],
+          "row_count": true
+        }
+      ],
+      "window_count": 0,
+      "parse_coverage": true,
+      "table_lineage_coverage": true,
+      "column_lineage_coverage": true,
+      "unknowns": []
+    },
+    "S38": {
+      "parsed": true,
+      "canonical_sql": "SELECT vendor_tier, payment_risk_level, performance_rating, dependency_level, COUNT(*) AS n FROM quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7 GROUP BY vendor_tier, payment_risk_level, performance_rating, dependency_level ORDER BY n DESC",
+      "blocks": [
+        {
+          "id": "B1",
+          "parent": null,
+          "kind": "Select",
+          "sql": "SELECT vendor_tier, payment_risk_level, performance_rating, dependency_level, COUNT(*) AS n FROM quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7 GROUP BY vendor_tier, payment_risk_level, performance_rating, dependency_level ORDER BY n DESC",
+          "sources": [
+            {
+              "alias": "quickbooks__vendor_performance",
+              "kind": "base",
+              "block": null,
+              "base_tables": [
+                "quickbooks__vendor_performance"
+              ]
+            }
+          ],
+          "joins": [],
+          "group_by": [
+            {
+              "original": "vendor_tier",
+              "expression": "vendor_tier",
+              "columns": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "vendor_tier"
+                }
+              ]
+            },
+            {
+              "original": "payment_risk_level",
+              "expression": "payment_risk_level",
+              "columns": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "payment_risk_level"
+                }
+              ]
+            },
+            {
+              "original": "performance_rating",
+              "expression": "performance_rating",
+              "columns": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "performance_rating"
+                }
+              ]
+            },
+            {
+              "original": "dependency_level",
+              "expression": "dependency_level",
+              "columns": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "dependency_level"
+                }
+              ]
+            }
+          ],
+          "aggregates": [
+            {
+              "function": "COUNT",
+              "expression": "COUNT(*)",
+              "distinct": false,
+              "metric_columns": [],
+              "condition_columns": [],
+              "row_count": true
+            }
+          ],
+          "windows": [],
+          "filters": [
+            {
+              "kind": "where",
+              "expression": "WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7",
+              "columns": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "annual_spend_growth_pct"
+                },
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "overall_performance_score"
+                }
+              ]
+            }
+          ],
+          "join_inputs": 0,
+          "group_sets": {},
+          "column_references": [
+            {
+              "expression": "vendor_tier",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "vendor_tier"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "payment_risk_level",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "payment_risk_level"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "performance_rating",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "performance_rating"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "dependency_level",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "dependency_level"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "annual_spend_growth_pct",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "annual_spend_growth_pct"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "overall_performance_score",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "overall_performance_score"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "vendor_tier",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "vendor_tier"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "payment_risk_level",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "payment_risk_level"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "performance_rating",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "performance_rating"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "dependency_level",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "dependency_level"
+                }
+              ],
+              "wildcard": false
+            }
+          ]
+        }
+      ],
+      "base_tables": [
+        "quickbooks__vendor_performance"
+      ],
+      "table_references": {
+        "quickbooks__vendor_performance": 1
+      },
+      "max_join_inputs": 0,
+      "join_types": {},
+      "group_dimensions": [
+        4
+      ],
+      "max_group_dimensions": 4,
+      "aggregate_functions": {
+        "COUNT": 1
+      },
+      "aggregate_expressions": [
+        {
+          "function": "COUNT",
+          "expression": "COUNT(*)",
+          "distinct": false,
+          "metric_columns": [],
+          "condition_columns": [],
+          "row_count": true
+        }
+      ],
+      "window_count": 0,
+      "parse_coverage": true,
+      "table_lineage_coverage": true,
+      "column_lineage_coverage": true,
+      "unknowns": []
+    },
+    "S39": {
+      "parsed": true,
+      "canonical_sql": "SELECT overall_performance_score, COUNT(*) AS n, ROUND(AVG(annual_spend_growth_pct), 2) AS avg_growth, ROUND(MIN(annual_spend_growth_pct), 2) AS min_growth, ROUND(MAX(annual_spend_growth_pct), 2) AS max_growth FROM quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7 GROUP BY overall_performance_score ORDER BY overall_performance_score",
+      "blocks": [
+        {
+          "id": "B1",
+          "parent": null,
+          "kind": "Select",
+          "sql": "SELECT overall_performance_score, COUNT(*) AS n, ROUND(AVG(annual_spend_growth_pct), 2) AS avg_growth, ROUND(MIN(annual_spend_growth_pct), 2) AS min_growth, ROUND(MAX(annual_spend_growth_pct), 2) AS max_growth FROM quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7 GROUP BY overall_performance_score ORDER BY overall_performance_score",
+          "sources": [
+            {
+              "alias": "quickbooks__vendor_performance",
+              "kind": "base",
+              "block": null,
+              "base_tables": [
+                "quickbooks__vendor_performance"
+              ]
+            }
+          ],
+          "joins": [],
+          "group_by": [
+            {
+              "original": "overall_performance_score",
+              "expression": "overall_performance_score",
+              "columns": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "overall_performance_score"
+                }
+              ]
+            }
+          ],
+          "aggregates": [
+            {
+              "function": "COUNT",
+              "expression": "COUNT(*)",
+              "distinct": false,
+              "metric_columns": [],
+              "condition_columns": [],
+              "row_count": true
+            },
+            {
+              "function": "AVG",
+              "expression": "AVG(annual_spend_growth_pct)",
+              "distinct": false,
+              "metric_columns": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "annual_spend_growth_pct"
+                }
+              ],
+              "condition_columns": [],
+              "row_count": false
+            },
+            {
+              "function": "MIN",
+              "expression": "MIN(annual_spend_growth_pct)",
+              "distinct": false,
+              "metric_columns": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "annual_spend_growth_pct"
+                }
+              ],
+              "condition_columns": [],
+              "row_count": false
+            },
+            {
+              "function": "MAX",
+              "expression": "MAX(annual_spend_growth_pct)",
+              "distinct": false,
+              "metric_columns": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "annual_spend_growth_pct"
+                }
+              ],
+              "condition_columns": [],
+              "row_count": false
+            }
+          ],
+          "windows": [],
+          "filters": [
+            {
+              "kind": "where",
+              "expression": "WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7",
+              "columns": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "annual_spend_growth_pct"
+                },
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "overall_performance_score"
+                }
+              ]
+            }
+          ],
+          "join_inputs": 0,
+          "group_sets": {},
+          "column_references": [
+            {
+              "expression": "overall_performance_score",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "overall_performance_score"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "annual_spend_growth_pct",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "annual_spend_growth_pct"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "annual_spend_growth_pct",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "annual_spend_growth_pct"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "annual_spend_growth_pct",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "annual_spend_growth_pct"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "annual_spend_growth_pct",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "annual_spend_growth_pct"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "overall_performance_score",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "overall_performance_score"
+                }
+              ],
+              "wildcard": false
+            },
+            {
+              "expression": "overall_performance_score",
+              "lineage": [
+                {
+                  "table": "quickbooks__vendor_performance",
+                  "column": "overall_performance_score"
+                }
+              ],
+              "wildcard": false
+            }
+          ]
+        }
+      ],
+      "base_tables": [
+        "quickbooks__vendor_performance"
+      ],
+      "table_references": {
+        "quickbooks__vendor_performance": 1
+      },
+      "max_join_inputs": 0,
+      "join_types": {},
+      "group_dimensions": [
+        1
+      ],
+      "max_group_dimensions": 1,
+      "aggregate_functions": {
+        "COUNT": 1,
+        "AVG": 1,
+        "MIN": 1,
+        "MAX": 1
+      },
+      "aggregate_expressions": [
+        {
+          "function": "COUNT",
+          "expression": "COUNT(*)",
+          "distinct": false,
+          "metric_columns": [],
+          "condition_columns": [],
+          "row_count": true
+        },
+        {
+          "function": "AVG",
+          "expression": "AVG(annual_spend_growth_pct)",
+          "distinct": false,
+          "metric_columns": [
+            {
+              "table": "quickbooks__vendor_performance",
+              "column": "annual_spend_growth_pct"
+            }
+          ],
+          "condition_columns": [],
+          "row_count": false
+        },
+        {
+          "function": "MIN",
+          "expression": "MIN(annual_spend_growth_pct)",
+          "distinct": false,
+          "metric_columns": [
+            {
+              "table": "quickbooks__vendor_performance",
+              "column": "annual_spend_growth_pct"
+            }
+          ],
+          "condition_columns": [],
+          "row_count": false
+        },
+        {
+          "function": "MAX",
+          "expression": "MAX(annual_spend_growth_pct)",
+          "distinct": false,
+          "metric_columns": [
+            {
+              "table": "quickbooks__vendor_performance",
+              "column": "annual_spend_growth_pct"
+            }
+          ],
+          "condition_columns": [],
+          "row_count": false
+        }
+      ],
+      "window_count": 0,
+      "parse_coverage": true,
+      "table_lineage_coverage": true,
+      "column_lineage_coverage": true,
+      "unknowns": []
     }
   }
 }

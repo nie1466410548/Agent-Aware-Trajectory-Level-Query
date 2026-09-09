@@ -1,0 +1,1 @@
+SELECT * FROM klaviyo__persons LIMIT 5

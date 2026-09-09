@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT all_contact_company_names) as companies_with_upgrade FROM intercom__conversation_enhanced WHERE all_conversation_tags LIKE '%Upgrade Opportunity%'

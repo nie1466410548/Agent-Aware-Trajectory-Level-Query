@@ -1,0 +1,1 @@
+SELECT conversation_id, conversation_created_at, conversation_last_updated_at, conversation_type, conversation_rating, count_reopens, count_total_parts, sla_name, sla_status, time_to_first_close_minutes, time_to_last_close_minutes FROM intercom__conversation_metrics LIMIT 5

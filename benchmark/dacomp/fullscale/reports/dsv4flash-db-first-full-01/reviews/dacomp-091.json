@@ -2,8 +2,8 @@
   "task_id": "dacomp-091",
   "status": "database_first_violation",
   "reviewer": "experiment analyst",
-  "conclusion": "这是服务错误停止前的部分轨迹。SQL 已做供应商筛选与主要预测调整，Python 仍求和终身支出、月支出及预测流出，并计算风险指数均值差；这些可在 SQL 完成。绘图单独保留。",
-  "route": "SQL 筛选高质缩支供应商、比较账目并构建预测调整 → Python 汇总与图表 → 服务错误中断。",
+  "conclusion": "同一会话续接后已提交。SQL 完成按供应商与账户类型的基础聚合，但 Python 再计算变化率、按账户类型汇总金额与频率、重新合计分类计数；这些关系运算和常规聚合可在 SQL 完成。",
+  "route": "SQL 供应商筛选和账务聚合 → Python 比率、分组汇总与图表 → 服务中断后同会话继续 → 提交。",
   "evidence": [
     {
       "source": "python/P3.py",
@@ -49,6 +49,50 @@
           "text": "print(f\"LRI change: {df_cf['baseline_lri'].mean() - df_cf['adjusted_lri'].mean():.6f}\")"
         }
       ]
+    },
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 25,
+          "text": "df['mag_change_pct'] = np.where(df['mag_prior12'] > 0,"
+        },
+        {
+          "line": 27,
+          "text": "df['tx_freq_density'] = df['n_tx']/df['n_active_days']"
+        },
+        {
+          "line": 29,
+          "text": "print(\"=== Per-pair magnitude-based spend change rate by account type ===\")"
+        },
+        {
+          "line": 32,
+          "text": "    avg_change=('mag_change_pct','mean'),"
+        },
+        {
+          "line": 34,
+          "text": "    p25=('mag_change_pct', lambda s: s.quantile(0.25)),"
+        },
+        {
+          "line": 41,
+          "text": "print(stats)"
+        },
+        {
+          "line": 42,
+          "text": ""
+        }
+      ]
     }
-  ]
+  ],
+  "continuation_review": true,
+  "final_run_status": "submitted",
+  "available_python_files": [
+    "P1.py",
+    "P2.py",
+    "P3.py",
+    "P4.py",
+    "P5.py",
+    "P6.py"
+  ],
+  "review_scope": "Execution-location findings supported by the cited source lines; no official answer correctness judgment."
 }

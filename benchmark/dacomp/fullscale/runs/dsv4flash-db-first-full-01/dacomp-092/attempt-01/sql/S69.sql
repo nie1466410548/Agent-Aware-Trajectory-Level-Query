@@ -1,0 +1,3 @@
+SELECT DISTINCT profitability_tier, customer_tier, relative_performance 
+FROM quickbooks__profitability_analysis
+LIMIT 20

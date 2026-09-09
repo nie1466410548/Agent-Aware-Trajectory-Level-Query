@@ -1,0 +1,4 @@
+SELECT SUBJECT, COUNT(*) AS n
+FROM klaviyo__campaigns
+GROUP BY SUBJECT
+ORDER BY n DESC

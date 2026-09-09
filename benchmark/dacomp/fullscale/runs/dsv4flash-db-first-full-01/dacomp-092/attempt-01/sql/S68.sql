@@ -1,0 +1,1 @@
+SELECT DISTINCT profitability_sustainability FROM quickbooks__profitability_analysis

@@ -1,0 +1,84 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+Based on `klaviyo__campaigns` (with columns like `STATUS`/`STATUS_ID`, `SENT_AT`, `scheduled_to_send_at`, `EMAIL_TEMPLATE_ID`, `source_relation`, `count_received`, `count_opened`, `count_clicked`) and combined with activity metrics from `marts.klaviyo__persons`, build a campaign health framework.
+
+Use Open Rate = `count_opened` ÷ `count_received` and Click-to-Open Rate = `count_clicked` ÷ `count_opened` as core metrics. Group the data by Campaign Type (e.g., Promotional/New Product/Storytelling) and audience size quantiles (< 10k, 10k–100k, > 100k, based on `count_received`). Calculate the mean and standard deviation of historical data from the last 6 months.
+
+Set rules for anomaly detection: if a single campaign's metric falls below mean − 2σ or exceeds mean + 2σ, it should be flagged as an anomaly. Additionally, if the interval between a campaign's `updated_at` and the previous campaign's is < 24 hours, it should be identified as a high-frequency update anomaly. The analysis must trace the specific causes of anomalous campaigns, including sending time slot (weekday/weekend, morning/afternoon), template reuse frequency (percentage of the same `EMAIL_TEMPLATE_ID`), and copy theme (categorized by `source_relation`).
+
+Finally, produce a diagnostic report that clearly outlines improvement directions for template governance (e.g., reduce reuse of templates with a >50% share), theme optimization (e.g., for theme types with low click-to-open rates), and sending cadence (e.g., avoid deployments with <24 hours between them). Propose at least one actionable A/B test plan (such as adjusting send time or replacing a template) and provide an estimated range for potential gains (e.g., projected 5–10% increase in open rate, 2–5% increase in click-to-open rate).
+
+DATABASE SCHEMA:
+CREATE TABLE "klaviyo__flows" (
+"created_at" TEXT,
+  "flow_id" TEXT,
+  "flow_name" TEXT,
+  "status" TEXT,
+  "updated_at" TEXT,
+  "is_archived" INTEGER,
+  "trigger_type" TEXT,
+  "source_relation" TEXT,
+  "variation_id" TEXT,
+  "total_count_unique_people" INTEGER,
+  "count_received_email" REAL,
+  "count_opened_email" REAL,
+  "count_clicked_email" REAL,
+  "count_placed_order" REAL,
+  "count_ordered_product" REAL,
+  "count_refunded_order" REAL,
+  "gmv_gross" REAL,
+  "gmv_net" REAL,
+  "email_open_rate" REAL,
+  "email_click_to_open_rate" REAL,
+  "flow_variation_key" TEXT,
+  "active_days" INTEGER,
+  "total_placed_orders" REAL,
+  "total_amount_positive" REAL,
+  "total_amount_negative" REAL,
+  "product_view_to_order_rate_flow" REAL,
+  "gmv_net_flow" REAL
+)
+CREATE TABLE "klaviyo__person_campaign_flow" (
+"person_id" TEXT,
+  "last_touch_campaign_id" TEXT,
+  "last_touch_flow_id" TEXT,
+  "variation_id" TEXT,
+  "source_relation" TEXT,
+  "first_event_at" TIMESTAMP,
+  "last_event_at" TIMESTAMP,
+  "sum_revenue_refunded_order" REAL,
+  "sum_revenue_placed_order" REAL,
+  "sum_revenue_ordered_product" REAL,
+  "sum_revenue_checkout_started" REAL,
+  "sum_revenue_cancelled_order" REAL,
+  "count_active_on_site" REAL,
+  "count_viewed_product" REAL,
+  "count_ordered_product" REAL,
+  "count_placed_order" REAL,
+  "count_refunded_order" REAL,
+  "count_received_email" REAL,
+  "count_clicked_email" REAL,
+  "count_opened_email" REAL,
+  "count_marked_email_as_spam" REAL,
+  "count_unsubscribed" REAL,
+  "count_received_sms" REAL,
+  "count_clicked_sms" REAL,
+  "count_sent_sms" REAL,
+  "count_unsubscribed_from_sms" REAL,
+  "touch_span_days" INTEGER,
+  "product_view_to_order_rate_touch" REAL,
+  "email_open_rate_touch" REAL,
+  "email_click_to_open_rate_touch" REAL,
+  "net_revenue_touch" REAL,
+  "has_converted" INTEGER
+)

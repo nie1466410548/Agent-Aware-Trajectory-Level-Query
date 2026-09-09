@@ -1,0 +1,1 @@
+SELECT MIN(conversation_created_at) as min_c, MAX(conversation_created_at) as max_c FROM intercom__conversation_metrics

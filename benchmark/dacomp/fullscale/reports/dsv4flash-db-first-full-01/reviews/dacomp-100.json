@@ -1,0 +1,125 @@
+{
+  "task_id": "dacomp-100",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 导出公司记录后拆解标签、按标签计数、筛选 churn 行并计算日期最值；常规过滤、计数和最值可在 SQL 完成。标签解析应单独评估 SQLite 字符串或 JSON 表达式的可表达性，不能仅凭解析代码将所有后续聚合都认定为必要例外。 后续 P10 明确在 Python 合并会话表与指标表，再按公司求负面比例、平均解决时长和重开比例；P12 按公司和年份分组。这些进一步提供了可下推关系连接与聚合的证据。",
+  "route": "SQL 探索与数据提取 → Python 业务准备和统计 → 报告",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 26,
+          "text": "        print(tags_df[col].value_counts())"
+        }
+      ]
+    },
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 23,
+          "text": "print(\"\\ncreated_at range:\", df['created_at'].min(), df['created_at'].max())"
+        },
+        {
+          "line": 24,
+          "text": "print(\"updated_at range:\", df['updated_at'].min(), df['updated_at'].max())"
+        },
+        {
+          "line": 26,
+          "text": "print(\"\\nrenewal_date range:\", df['renewal_date'].min(), df['renewal_date'].max())"
+        },
+        {
+          "line": 29,
+          "text": "churn_rows = df[df['all_company_tags'].str.contains('churn', case=False, na=False)]"
+        },
+        {
+          "line": 34,
+          "text": "print(df['feature_adoption'].value_counts())"
+        },
+        {
+          "line": 37,
+          "text": "print(df['sentiment_trend'].value_counts())"
+        },
+        {
+          "line": 40,
+          "text": "print(df['last_value_milestone'].value_counts())"
+        }
+      ]
+    },
+    {
+      "source": "python/P10.py",
+      "lines": [
+        {
+          "line": 58,
+          "text": "conv_all = conv_enh.merge(conv_metrics, on='conversation_id', how='left', suffixes=('', '_metrics'))"
+        },
+        {
+          "line": 120,
+          "text": "    neg_prop = convs['is_negative'].mean() if len(convs) > 0 else 0"
+        },
+        {
+          "line": 121,
+          "text": "    avg_res_time = convs['resolution_time_min'].mean()"
+        },
+        {
+          "line": 122,
+          "text": "    reopen_prop = convs['is_reopened'].mean()"
+        }
+      ]
+    },
+    {
+      "source": "python/P12.py",
+      "lines": [
+        {
+          "line": 11,
+          "text": "year_counts = conv.groupby(['all_contact_company_names', 'year']).size().unstack(fill_value=0)"
+        },
+        {
+          "line": 32,
+          "text": "company_neg = conv.groupby(['all_contact_company_names', 'year']).agg("
+        }
+      ]
+    }
+  ],
+  "review_scope_python_files": [
+    "P1.py",
+    "P2.py",
+    "P3.py",
+    "P4.py"
+  ],
+  "final_run_status": "submitted",
+  "available_python_files": [
+    "P1.py",
+    "P10.py",
+    "P11.py",
+    "P12.py",
+    "P13.py",
+    "P14.py",
+    "P15.py",
+    "P16.py",
+    "P17.py",
+    "P18.py",
+    "P19.py",
+    "P2.py",
+    "P20.py",
+    "P21.py",
+    "P22.py",
+    "P23.py",
+    "P24.py",
+    "P25.py",
+    "P26.py",
+    "P27.py",
+    "P28.py",
+    "P29.py",
+    "P3.py",
+    "P30.py",
+    "P4.py",
+    "P5.py",
+    "P6.py",
+    "P7.py",
+    "P8.py",
+    "P9.py"
+  ],
+  "review_scope": "Execution-location findings supported by the cited source lines; no official answer correctness judgment."
+}

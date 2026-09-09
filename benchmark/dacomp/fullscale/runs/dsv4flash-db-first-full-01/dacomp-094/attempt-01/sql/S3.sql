@@ -1,0 +1,1 @@
+SELECT * FROM klaviyo__events LIMIT 5

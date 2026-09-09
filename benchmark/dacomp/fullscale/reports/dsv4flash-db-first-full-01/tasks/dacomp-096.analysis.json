@@ -1,0 +1,494 @@
+{
+  "fingerprint": "720773b573a8c06c5763c9dbf3e2df7362ef9a4674ce9e243345d7ce8ddec41e",
+  "analysis_source_version": "11db36a5cf34662d69d06fb9401b4dd860cf7569546f909da5e0f3edcf66d6d3",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT *, CASE WHEN flow_name LIKE 'Welcome%' THEN 'Onboarding' WHEN flow_name LIKE 'Cart Recovery%' THEN 'Cart Recovery' WHEN flow_name LIKE 'Browse Abandonment%' THEN 'Browse Abandonment' WHEN flow_name LIKE 'Post-Purchase%' THEN 'Post-Purchase' WHEN flow_name LIKE 'Product Discovery%' THEN 'Product Discovery' WHEN flow_name LIKE 'Seasonal%' THEN 'Seasonal' WHEN flow_name LIKE 'VIP Loyalty%' THEN 'VIP Loyalty' WHEN flow_name LIKE 'Winback%' THEN 'Winback' END AS campaign_type, CASE WHEN CAST(STRFTIME('%w', created_at) AS INTEGER) IN (0, 6) THEN 'Weekend' ELSE 'Weekday' END AS weekday_flag, CASE WHEN CAST(STRFTIME('%H', created_at) AS INTEGER) < 12 THEN 'Morning' ELSE 'Afternoon' END AS daypart, count_opened_email / NULLIF(count_received_email, 0) AS or_calc, count_clicked_email / NULLIF(count_opened_email, 0) AS ctor_calc FROM klaviyo__flows",
+      "covered": [
+        "S18",
+        "S19"
+      ],
+      "rewrites": {
+        "S18": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT weekday_flag, daypart, COUNT(*) AS n, ROUND(AVG(or_calc), 4) AS mean_or, ROUND(AVG(ctor_calc), 4) AS mean_ctor FROM base GROUP BY weekday_flag, daypart ORDER BY weekday_flag, daypart",
+        "S19": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT campaign_type, weekday_flag, daypart, COUNT(*) AS n, ROUND(AVG(or_calc), 4) AS mean_or, ROUND(AVG(ctor_calc), 4) AS mean_ctor FROM base GROUP BY campaign_type, weekday_flag, daypart ORDER BY campaign_type, weekday_flag, daypart"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S18",
+      "later_reuses": 1,
+      "denominator": 22,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788917708.6983898,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT *, CASE WHEN flow_name LIKE 'Welcome%' THEN 'Onboarding' WHEN flow_name LIKE 'Cart Recovery%' THEN 'Cart Recovery' WHEN flow_name LIKE 'Browse Abandonment%' THEN 'Browse Abandonment' WHEN flow_name LIKE 'Post-Purchase%' THEN 'Post-Purchase' WHEN flow_name LIKE 'Product Discovery%' THEN 'Product Discovery' WHEN flow_name LIKE 'Seasonal%' THEN 'Seasonal' WHEN flow_name LIKE 'VIP Loyalty%' THEN 'VIP Loyalty' WHEN flow_name LIKE 'Winback%' THEN 'Winback' END AS campaign_type, CASE WHEN CAST(STRFTIME('%w', created_at) AS INTEGER) IN (0, 6) THEN 'Weekend' ELSE 'Weekday' END AS weekday_flag, CASE WHEN CAST(STRFTIME('%H', created_at) AS INTEGER) < 12 THEN 'Morning' ELSE 'Afternoon' END AS daypart, count_opened_email / NULLIF(count_received_email, 0) AS or_calc, count_clicked_email / NULLIF(count_opened_email, 0) AS ctor_calc FROM klaviyo__flows",
+          "phase": "offline_validation",
+          "start_time": 1788917708.6985767,
+          "status": "execute_returned",
+          "end_time": 1788917708.6990864
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788917708.6990905,
+          "status": "execute_returned",
+          "end_time": 1788917708.6991057
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788917708.6991098,
+          "status": "execute_returned",
+          "end_time": 1788917708.6991236
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT weekday_flag, daypart, COUNT(*) AS n, ROUND(AVG(or_calc), 4) AS mean_or, ROUND(AVG(ctor_calc), 4) AS mean_ctor FROM base GROUP BY weekday_flag, daypart ORDER BY weekday_flag, daypart",
+          "phase": "offline_validation",
+          "start_time": 1788917708.699171,
+          "status": "execute_returned",
+          "end_time": 1788917708.6993
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT campaign_type, weekday_flag, daypart, COUNT(*) AS n, ROUND(AVG(or_calc), 4) AS mean_or, ROUND(AVG(ctor_calc), 4) AS mean_ctor FROM base GROUP BY campaign_type, weekday_flag, daypart ORDER BY campaign_type, weekday_flag, daypart",
+          "phase": "offline_validation",
+          "start_time": 1788917708.7019901,
+          "status": "execute_returned",
+          "end_time": 1788917708.7021499
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT *, CASE WHEN flow_name LIKE 'Welcome%' THEN 'Onboarding' WHEN flow_name LIKE 'Cart Recovery%' THEN 'Cart Recovery' WHEN flow_name LIKE 'Browse Abandonment%' THEN 'Browse Abandonment' WHEN flow_name LIKE 'Post-Purchase%' THEN 'Post-Purchase' WHEN flow_name LIKE 'Product Discovery%' THEN 'Product Discovery' WHEN flow_name LIKE 'Seasonal%' THEN 'Seasonal' WHEN flow_name LIKE 'VIP Loyalty%' THEN 'VIP Loyalty' WHEN flow_name LIKE 'Winback%' THEN 'Winback' END AS campaign_type, CASE WHEN CAST(STRFTIME('%w', created_at) AS INTEGER) IN (0, 6) THEN 'Weekend' ELSE 'Weekday' END AS weekday_flag, CASE WHEN CAST(STRFTIME('%H', created_at) AS INTEGER) < 12 THEN 'Morning' ELSE 'Afternoon' END AS daypart, count_opened_email / NULLIF(count_received_email, 0) AS or_calc, count_clicked_email / NULLIF(count_opened_email, 0) AS ctor_calc FROM klaviyo__flows",
+          "time": 1788917708.6988306,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788917708.6991026,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788917708.6991212,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT weekday_flag, daypart, COUNT(*) AS n, ROUND(AVG(or_calc), 4) AS mean_or, ROUND(AVG(ctor_calc), 4) AS mean_ctor FROM base GROUP BY weekday_flag, daypart ORDER BY weekday_flag, daypart",
+          "time": 1788917708.6992512,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT campaign_type, weekday_flag, daypart, COUNT(*) AS n, ROUND(AVG(or_calc), 4) AS mean_or, ROUND(AVG(ctor_calc), 4) AS mean_ctor FROM base GROUP BY campaign_type, weekday_flag, daypart ORDER BY campaign_type, weekday_flag, daypart",
+          "time": 1788917708.702097,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.5138404667377472,
+      "intermediate_rows": 79,
+      "intermediate_columns": [
+        "created_at",
+        "flow_id",
+        "flow_name",
+        "status",
+        "updated_at",
+        "is_archived",
+        "trigger_type",
+        "source_relation",
+        "variation_id",
+        "total_count_unique_people",
+        "count_received_email",
+        "count_opened_email",
+        "count_clicked_email",
+        "count_placed_order",
+        "count_ordered_product",
+        "count_refunded_order",
+        "gmv_gross",
+        "gmv_net",
+        "email_open_rate",
+        "email_click_to_open_rate",
+        "flow_variation_key",
+        "active_days",
+        "total_placed_orders",
+        "total_amount_positive",
+        "total_amount_negative",
+        "product_view_to_order_rate_flow",
+        "gmv_net_flow",
+        "campaign_type",
+        "weekday_flag",
+        "daypart",
+        "or_calc",
+        "ctor_calc"
+      ],
+      "validation_ended_at": 1788917708.7052002,
+      "checks": [
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT weekday_flag, daypart, COUNT(*) AS n, ROUND(AVG(or_calc), 4) AS mean_or, ROUND(AVG(ctor_calc), 4) AS mean_ctor FROM base GROUP BY weekday_flag, daypart ORDER BY weekday_flag, daypart",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.8093094006180763
+        },
+        {
+          "sql_id": "S19",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT campaign_type, weekday_flag, daypart, COUNT(*) AS n, ROUND(AVG(or_calc), 4) AS mean_or, ROUND(AVG(ctor_calc), 4) AS mean_ctor FROM base GROUP BY campaign_type, weekday_flag, daypart ORDER BY campaign_type, weekday_flag, daypart",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.131355158984661
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT *, CASE WHEN flow_name LIKE 'Welcome%' THEN 'Onboarding' WHEN flow_name LIKE 'Cart Recovery%' THEN 'Cart Recovery' WHEN flow_name LIKE 'Browse Abandonment%' THEN 'Browse Abandonment' WHEN flow_name LIKE 'Post-Purchase%' THEN 'Post-Purchase' WHEN flow_name LIKE 'Product Discovery%' THEN 'Product Discovery' WHEN flow_name LIKE 'Seasonal%' THEN 'Seasonal' WHEN flow_name LIKE 'VIP Loyalty%' THEN 'VIP Loyalty' WHEN flow_name LIKE 'Winback%' THEN 'Winback' END AS campaign_type, SUBSTRING(flow_name, INSTR(flow_name, 'Variant ') + 8, 1) AS variant_letter, count_opened_email / NULLIF(count_received_email, 0) AS or_calc, count_clicked_email / NULLIF(count_opened_email, 0) AS ctor_calc FROM klaviyo__flows",
+      "covered": [
+        "S23",
+        "S24"
+      ],
+      "rewrites": {
+        "S23": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT variant_letter, COUNT(*) AS n, ROUND(AVG(or_calc), 4) AS mean_or, ROUND(AVG(ctor_calc), 4) AS mean_ctor, ROUND(MIN(or_calc), 4) AS min_or, ROUND(MAX(or_calc), 4) AS max_or, ROUND(MIN(ctor_calc), 4) AS min_ctor, ROUND(MAX(ctor_calc), 4) AS max_ctor FROM base GROUP BY variant_letter ORDER BY variant_letter",
+        "S24": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT campaign_type, variant_letter, COUNT(*) AS n, ROUND(AVG(or_calc), 4) AS mean_or, ROUND(AVG(ctor_calc), 4) AS mean_ctor FROM base GROUP BY campaign_type, variant_letter ORDER BY campaign_type, variant_letter"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S23",
+      "later_reuses": 1,
+      "denominator": 22,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788917708.705217,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT *, CASE WHEN flow_name LIKE 'Welcome%' THEN 'Onboarding' WHEN flow_name LIKE 'Cart Recovery%' THEN 'Cart Recovery' WHEN flow_name LIKE 'Browse Abandonment%' THEN 'Browse Abandonment' WHEN flow_name LIKE 'Post-Purchase%' THEN 'Post-Purchase' WHEN flow_name LIKE 'Product Discovery%' THEN 'Product Discovery' WHEN flow_name LIKE 'Seasonal%' THEN 'Seasonal' WHEN flow_name LIKE 'VIP Loyalty%' THEN 'VIP Loyalty' WHEN flow_name LIKE 'Winback%' THEN 'Winback' END AS campaign_type, SUBSTRING(flow_name, INSTR(flow_name, 'Variant ') + 8, 1) AS variant_letter, count_opened_email / NULLIF(count_received_email, 0) AS or_calc, count_clicked_email / NULLIF(count_opened_email, 0) AS ctor_calc FROM klaviyo__flows",
+          "phase": "offline_validation",
+          "start_time": 1788917708.7054005,
+          "status": "execute_returned",
+          "end_time": 1788917708.7058475
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788917708.7058513,
+          "status": "execute_returned",
+          "end_time": 1788917708.7058663
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788917708.70587,
+          "status": "execute_returned",
+          "end_time": 1788917708.7058835
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT variant_letter, COUNT(*) AS n, ROUND(AVG(or_calc), 4) AS mean_or, ROUND(AVG(ctor_calc), 4) AS mean_ctor, ROUND(MIN(or_calc), 4) AS min_or, ROUND(MAX(or_calc), 4) AS max_or, ROUND(MIN(ctor_calc), 4) AS min_ctor, ROUND(MAX(ctor_calc), 4) AS max_ctor FROM base GROUP BY variant_letter ORDER BY variant_letter",
+          "phase": "offline_validation",
+          "start_time": 1788917708.705923,
+          "status": "execute_returned",
+          "end_time": 1788917708.7060516
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT campaign_type, variant_letter, COUNT(*) AS n, ROUND(AVG(or_calc), 4) AS mean_or, ROUND(AVG(ctor_calc), 4) AS mean_ctor FROM base GROUP BY campaign_type, variant_letter ORDER BY campaign_type, variant_letter",
+          "phase": "offline_validation",
+          "start_time": 1788917708.7089155,
+          "status": "execute_returned",
+          "end_time": 1788917708.7090602
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT *, CASE WHEN flow_name LIKE 'Welcome%' THEN 'Onboarding' WHEN flow_name LIKE 'Cart Recovery%' THEN 'Cart Recovery' WHEN flow_name LIKE 'Browse Abandonment%' THEN 'Browse Abandonment' WHEN flow_name LIKE 'Post-Purchase%' THEN 'Post-Purchase' WHEN flow_name LIKE 'Product Discovery%' THEN 'Product Discovery' WHEN flow_name LIKE 'Seasonal%' THEN 'Seasonal' WHEN flow_name LIKE 'VIP Loyalty%' THEN 'VIP Loyalty' WHEN flow_name LIKE 'Winback%' THEN 'Winback' END AS campaign_type, SUBSTRING(flow_name, INSTR(flow_name, 'Variant ') + 8, 1) AS variant_letter, count_opened_email / NULLIF(count_received_email, 0) AS or_calc, count_clicked_email / NULLIF(count_opened_email, 0) AS ctor_calc FROM klaviyo__flows",
+          "time": 1788917708.7056322,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788917708.7058635,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788917708.7058809,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT variant_letter, COUNT(*) AS n, ROUND(AVG(or_calc), 4) AS mean_or, ROUND(AVG(ctor_calc), 4) AS mean_ctor, ROUND(MIN(or_calc), 4) AS min_or, ROUND(MAX(or_calc), 4) AS max_or, ROUND(MIN(ctor_calc), 4) AS min_ctor, ROUND(MAX(ctor_calc), 4) AS max_ctor FROM base GROUP BY variant_letter ORDER BY variant_letter",
+          "time": 1788917708.7060115,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT campaign_type, variant_letter, COUNT(*) AS n, ROUND(AVG(or_calc), 4) AS mean_or, ROUND(AVG(ctor_calc), 4) AS mean_ctor FROM base GROUP BY campaign_type, variant_letter ORDER BY campaign_type, variant_letter",
+          "time": 1788917708.7090144,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.44997408986091614,
+      "intermediate_rows": 79,
+      "intermediate_columns": [
+        "created_at",
+        "flow_id",
+        "flow_name",
+        "status",
+        "updated_at",
+        "is_archived",
+        "trigger_type",
+        "source_relation",
+        "variation_id",
+        "total_count_unique_people",
+        "count_received_email",
+        "count_opened_email",
+        "count_clicked_email",
+        "count_placed_order",
+        "count_ordered_product",
+        "count_refunded_order",
+        "gmv_gross",
+        "gmv_net",
+        "email_open_rate",
+        "email_click_to_open_rate",
+        "flow_variation_key",
+        "active_days",
+        "total_placed_orders",
+        "total_amount_positive",
+        "total_amount_negative",
+        "product_view_to_order_rate_flow",
+        "gmv_net_flow",
+        "campaign_type",
+        "variant_letter",
+        "or_calc",
+        "ctor_calc"
+      ],
+      "validation_ended_at": 1788917708.7114913,
+      "checks": [
+        {
+          "sql_id": "S23",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT variant_letter, COUNT(*) AS n, ROUND(AVG(or_calc), 4) AS mean_or, ROUND(AVG(ctor_calc), 4) AS mean_ctor, ROUND(MIN(or_calc), 4) AS min_or, ROUND(MAX(or_calc), 4) AS max_or, ROUND(MIN(ctor_calc), 4) AS min_ctor, ROUND(MAX(ctor_calc), 4) AS max_ctor FROM base GROUP BY variant_letter ORDER BY variant_letter",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.990022301673889
+        },
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT campaign_type, variant_letter, COUNT(*) AS n, ROUND(AVG(or_calc), 4) AS mean_or, ROUND(AVG(ctor_calc), 4) AS mean_ctor FROM base GROUP BY campaign_type, variant_letter ORDER BY campaign_type, variant_letter",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.5053806602954865
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT status AS __g0, trigger_type AS __g1, source_relation AS __g2, flow_name AS __g3, COUNT(*) AS __a0, MAX(created_at) AS __a1, SUM(CASE WHEN created_at >= '2023-02-27' THEN 1 ELSE 0 END) AS __a2 FROM \"klaviyo__flows\"  GROUP BY status, trigger_type, source_relation, flow_name",
+      "covered": [
+        "S6",
+        "S7",
+        "S8",
+        "S13",
+        "S14"
+      ],
+      "rewrites": {
+        "S6": "SELECT __g0 AS \"status\", __g1 AS \"trigger_type\", __g2 AS \"source_relation\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g1, __g2 ORDER BY n DESC",
+        "S7": "SELECT __g3 AS \"flow_name\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC LIMIT 50",
+        "S8": "SELECT __g3 AS \"flow_name\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC LIMIT 100",
+        "S13": "SELECT MAX(__a1) AS max_sent FROM temp.reuse_candidate",
+        "S14": "SELECT SUM(__a0) AS n_total, SUM(__a2) AS n_last6mo FROM temp.reuse_candidate"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S6",
+      "later_reuses": 4,
+      "denominator": 22,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788917708.6940913,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT status AS __g0, trigger_type AS __g1, source_relation AS __g2, flow_name AS __g3, COUNT(*) AS __a0, MAX(created_at) AS __a1, SUM(CASE WHEN created_at >= '2023-02-27' THEN 1 ELSE 0 END) AS __a2 FROM \"klaviyo__flows\"  GROUP BY status, trigger_type, source_relation, flow_name",
+          "phase": "offline_validation",
+          "start_time": 1788917708.6943662,
+          "status": "execute_returned",
+          "end_time": 1788917708.6948419
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788917708.6948469,
+          "status": "execute_returned",
+          "end_time": 1788917708.6948636
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788917708.6948695,
+          "status": "execute_returned",
+          "end_time": 1788917708.6948822
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"status\", __g1 AS \"trigger_type\", __g2 AS \"source_relation\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g1, __g2 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788917708.6948972,
+          "status": "execute_returned",
+          "end_time": 1788917708.6949506
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g3 AS \"flow_name\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC LIMIT 50",
+          "phase": "offline_validation",
+          "start_time": 1788917708.6956944,
+          "status": "execute_returned",
+          "end_time": 1788917708.695768
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g3 AS \"flow_name\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC LIMIT 100",
+          "phase": "offline_validation",
+          "start_time": 1788917708.696412,
+          "status": "execute_returned",
+          "end_time": 1788917708.696479
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT MAX(__a1) AS max_sent FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788917708.6970868,
+          "status": "execute_returned",
+          "end_time": 1788917708.6971195
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT SUM(__a0) AS n_total, SUM(__a2) AS n_last6mo FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788917708.6975095,
+          "status": "execute_returned",
+          "end_time": 1788917708.6975436
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT status AS __g0, trigger_type AS __g1, source_relation AS __g2, flow_name AS __g3, COUNT(*) AS __a0, MAX(created_at) AS __a1, SUM(CASE WHEN created_at >= '2023-02-27' THEN 1 ELSE 0 END) AS __a2 FROM \"klaviyo__flows\"  GROUP BY status, trigger_type, source_relation, flow_name",
+          "time": 1788917708.694658,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788917708.6948607,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788917708.694879,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"status\", __g1 AS \"trigger_type\", __g2 AS \"source_relation\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g1, __g2 ORDER BY n DESC",
+          "time": 1788917708.694916,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS \"flow_name\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC LIMIT 50",
+          "time": 1788917708.6957295,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS \"flow_name\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC LIMIT 100",
+          "time": 1788917708.696443,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MAX(__a1) AS max_sent FROM temp.reuse_candidate",
+          "time": 1788917708.6971104,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n_total, SUM(__a2) AS n_last6mo FROM temp.reuse_candidate",
+          "time": 1788917708.6975331,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.4805903881788254,
+      "intermediate_rows": 46,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__a0",
+        "__a1",
+        "__a2"
+      ],
+      "validation_ended_at": 1788917708.6983752,
+      "checks": [
+        {
+          "sql_id": "S6",
+          "rewritten_sql": "SELECT __g0 AS \"status\", __g1 AS \"trigger_type\", __g2 AS \"source_relation\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g1, __g2 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7932521402835846
+        },
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT __g3 AS \"flow_name\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC LIMIT 50",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7154298946261406
+        },
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT __g3 AS \"flow_name\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC LIMIT 100",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.672241672873497
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT MAX(__a1) AS max_sent FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.4188530147075653
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT SUM(__a0) AS n_total, SUM(__a2) AS n_last6mo FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.8019180968403816
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

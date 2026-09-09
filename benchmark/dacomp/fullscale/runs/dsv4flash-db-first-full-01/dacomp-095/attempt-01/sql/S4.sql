@@ -1,0 +1,1 @@
+SELECT COUNT(*) as total_touches FROM klaviyo__person_campaign_flow

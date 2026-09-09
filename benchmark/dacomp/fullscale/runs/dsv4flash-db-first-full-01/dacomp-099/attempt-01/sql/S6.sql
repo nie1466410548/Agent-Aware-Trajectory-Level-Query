@@ -1,0 +1,1 @@
+SELECT company_id, COUNT(*) as cnt FROM intercom__company_enhanced GROUP BY company_id HAVING cnt > 1 ORDER BY cnt DESC LIMIT 20

@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_events FROM klaviyo__events

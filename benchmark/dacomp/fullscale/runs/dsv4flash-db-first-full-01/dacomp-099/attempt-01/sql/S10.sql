@@ -1,0 +1,1 @@
+SELECT COUNT(*) as total_convs, COUNT(DISTINCT conversation_id) as uniq_convs FROM intercom__conversation_metrics

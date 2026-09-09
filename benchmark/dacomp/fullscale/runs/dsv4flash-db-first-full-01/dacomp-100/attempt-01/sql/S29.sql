@@ -1,0 +1,1 @@
+SELECT conversation_id, conversation_rating_remark FROM intercom__conversation_metrics

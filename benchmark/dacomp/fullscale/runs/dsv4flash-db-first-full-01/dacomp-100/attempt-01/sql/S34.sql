@@ -1,0 +1,1 @@
+SELECT company_id, company_name, all_company_tags FROM intercom__company_enhanced

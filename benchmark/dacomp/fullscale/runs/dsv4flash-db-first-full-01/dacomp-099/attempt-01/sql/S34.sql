@@ -1,0 +1,1 @@
+SELECT COUNT(*) as total_convs, COUNT(DISTINCT all_contact_company_names) as companies_in_convs FROM intercom__conversation_enhanced

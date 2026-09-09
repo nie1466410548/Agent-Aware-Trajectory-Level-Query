@@ -1,0 +1,62 @@
+{
+  "task_id": "dacomp-094",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 读取 S20 结果后按日间时段、月份半段、主题及交互组求打开率、点击率和留存率均值；pivot_table 同时再次聚合。分组均值和图表输入汇总可以通过 SQL GROUP BY 完成。",
+  "route": "SQL 连接和活动指标提取 → Python 分组均值及图表 → 提交",
+  "evidence": [
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 35,
+          "text": "print(df.groupby(['day_part','time_half'])['open_rate'].mean())"
+        },
+        {
+          "line": 38,
+          "text": "print(df.groupby(['day_part','time_half'])['click_rate'].mean())"
+        },
+        {
+          "line": 41,
+          "text": "print(df.groupby(['theme','day_part'])['open_rate'].mean())"
+        },
+        {
+          "line": 44,
+          "text": "print(df.groupby(['theme','day_part'])['click_rate'].mean())"
+        },
+        {
+          "line": 47,
+          "text": "print(df.groupby(['theme','day_part'])['active_retention_rate_week'].mean())"
+        },
+        {
+          "line": 50,
+          "text": "print(df.groupby(['theme','day_part'])['active_retention_rate_month'].mean())"
+        },
+        {
+          "line": 64,
+          "text": "    pivot = df.pivot_table(values=metric, index='theme', columns='day_part', aggfunc='mean')"
+        },
+        {
+          "line": 74,
+          "text": "pivot2 = df.pivot_table(values='open_rate', index='theme', columns='time_half', aggfunc='mean')"
+        },
+        {
+          "line": 105,
+          "text": "print(df.groupby('interaction_group')[['open_rate','click_rate','active_retention_rate_week','active_retention_rate_month']].mean())"
+        }
+      ]
+    }
+  ],
+  "review_scope_python_files": [
+    "P1.py",
+    "P2.py",
+    "P3.py"
+  ],
+  "final_run_status": "submitted",
+  "available_python_files": [
+    "P1.py",
+    "P2.py",
+    "P3.py"
+  ],
+  "review_scope": "Execution-location findings supported by the cited source lines; no official answer correctness judgment."
+}

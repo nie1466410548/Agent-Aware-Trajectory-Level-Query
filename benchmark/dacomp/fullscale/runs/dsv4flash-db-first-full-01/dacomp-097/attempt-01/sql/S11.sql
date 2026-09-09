@@ -1,0 +1,1 @@
+SELECT COUNT(*) as total_conversations FROM intercom__conversation_metrics

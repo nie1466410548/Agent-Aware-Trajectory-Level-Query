@@ -1,0 +1,1 @@
+SELECT person_id, event_id, type, occurred_at, campaign_name, campaign_subject_line, last_touch_campaign_id, is_attributed, day_opened_email, day_clicked_email, day_click_to_open_rate FROM klaviyo__events ORDER BY occurred_at

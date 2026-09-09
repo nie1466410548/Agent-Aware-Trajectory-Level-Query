@@ -1,0 +1,1 @@
+SELECT * FROM intercom__conversation_metrics LIMIT 3

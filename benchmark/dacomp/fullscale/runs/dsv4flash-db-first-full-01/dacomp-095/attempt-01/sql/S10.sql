@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT person_id) as distinct_persons FROM klaviyo__person_campaign_flow

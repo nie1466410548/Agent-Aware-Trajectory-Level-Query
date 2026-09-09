@@ -1,5 +1,5 @@
 {
-  "fingerprint": "00e32b66e8fea29e92d4fdc53155a0a7185e655544d2709bd792035958c83524",
+  "fingerprint": "b3832cb70904c0502063b83c9fe6af308acc5eff42c106eed77524709f1463bb",
   "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
   "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
   "candidates": [
@@ -591,6 +591,76 @@
       "denominator": 30,
       "coverage_includes_trigger": true,
       "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"quickbooks__vendor_performance\" WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7",
+      "covered": [
+        "S6",
+        "S7",
+        "S8",
+        "S15",
+        "S18",
+        "S29",
+        "S30",
+        "S31",
+        "S37",
+        "S38",
+        "S39"
+      ],
+      "rewrites": {
+        "S6": "SELECT vendor_id, vendor_name, vendor_company_name, vendor_display_name, total_lifetime_spend, annual_spend_growth_pct, overall_performance_score, spend_volatility, payment_completion_rate, business_value_score FROM temp.reuse_candidate AS quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7 ORDER BY annual_spend_growth_pct",
+        "S7": "SELECT COUNT(*) AS n_vendors, ROUND(AVG(spend_volatility / NULLIF(total_lifetime_spend, 0)), 6) AS avg_spend_vol_coef, ROUND(MIN(spend_volatility / NULLIF(total_lifetime_spend, 0)), 6) AS min_spend_vol_coef, ROUND(MAX(spend_volatility / NULLIF(total_lifetime_spend, 0)), 6) AS max_spend_vol_coef, ROUND(AVG(payment_completion_rate * 0.4 + business_value_score / 10.0 * 0.6), 6) AS avg_composite_risk, ROUND(MIN(payment_completion_rate * 0.4 + business_value_score / 10.0 * 0.6), 6) AS min_composite_risk, ROUND(MAX(payment_completion_rate * 0.4 + business_value_score / 10.0 * 0.6), 6) AS max_composite_risk, ROUND(SUM(total_lifetime_spend), 2) AS total_lifetime_spend_sum, ROUND(SUM(spend_volatility), 2) AS total_spend_volatility, ROUND(SUM(total_outstanding), 2) AS total_outstanding FROM temp.reuse_candidate AS quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7",
+        "S8": "SELECT annual_spend_growth_pct, overall_performance_score, spend_volatility, total_lifetime_spend, payment_completion_rate, business_value_score FROM temp.reuse_candidate AS quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7",
+        "S15": "SELECT vendor_id, ROUND(spend_volatility / NULLIF(total_lifetime_spend, 0), 6) AS spend_vol_coef, ROUND(payment_completion_rate * 0.4 + business_value_score / 10.0 * 0.6, 6) AS composite_risk_score, annual_spend_growth_pct, overall_performance_score, total_lifetime_spend, ROUND(spend_current_year, 2) AS spend_current_year, ROUND(spend_prev_year, 2) AS spend_prev_year FROM temp.reuse_candidate AS quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7 ORDER BY composite_risk_score DESC",
+        "S18": "SELECT ROUND(SUM(avg_monthly_spend), 2) AS sum_avg_monthly_spend_selected, ROUND(SUM(avg_transaction_size), 2) AS sum_avg_tx_size, ROUND(AVG(avg_monthly_spend), 2) AS avg_monthly_spend_per_vendor FROM temp.reuse_candidate AS quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7",
+        "S29": "SELECT vendor_id, annual_spend_growth_pct, overall_performance_score, spend_volatility, total_lifetime_spend, payment_completion_rate, business_value_score, avg_monthly_spend, spend_current_year, spend_prev_year, vendor_display_name FROM temp.reuse_candidate AS quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7",
+        "S30": "SELECT vendor_id, annual_spend_growth_pct FROM temp.reuse_candidate AS quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7 LIMIT 3",
+        "S31": "SELECT vendor_id, vendor_display_name, annual_spend_growth_pct, overall_performance_score, spend_volatility, total_lifetime_spend, payment_completion_rate, business_value_score, avg_monthly_spend FROM temp.reuse_candidate AS quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7",
+        "S37": "SELECT vendor_tier, payment_risk_level, performance_rating, recommended_strategy, dependency_level, COUNT(*) AS n FROM temp.reuse_candidate AS quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7 GROUP BY vendor_tier, payment_risk_level, performance_rating, recommended_strategy, dependency_level ORDER BY n DESC",
+        "S38": "SELECT vendor_tier, payment_risk_level, performance_rating, dependency_level, COUNT(*) AS n FROM temp.reuse_candidate AS quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7 GROUP BY vendor_tier, payment_risk_level, performance_rating, dependency_level ORDER BY n DESC",
+        "S39": "SELECT overall_performance_score, COUNT(*) AS n, ROUND(AVG(annual_spend_growth_pct), 2) AS avg_growth, ROUND(MIN(annual_spend_growth_pct), 2) AS min_growth, ROUND(MAX(annual_spend_growth_pct), 2) AS max_growth FROM temp.reuse_candidate AS quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7 GROUP BY overall_performance_score ORDER BY overall_performance_score"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C6",
+      "offline": true,
+      "earliest_build_before": "S6",
+      "later_reuses": 10,
+      "denominator": 34,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Final continuation candidate enumerated only; original per-task three-case verification selection retained."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT vendor_tier AS __g0, payment_risk_level AS __g1, performance_rating AS __g2, recommended_strategy AS __g3, dependency_level AS __g4, overall_performance_score AS __g5, COUNT(*) AS __a0, SUM(spend_volatility / NULLIF(total_lifetime_spend, 0)) AS __a1_sum, COUNT(spend_volatility / NULLIF(total_lifetime_spend, 0)) AS __a1_n, MIN(spend_volatility / NULLIF(total_lifetime_spend, 0)) AS __a2, MAX(spend_volatility / NULLIF(total_lifetime_spend, 0)) AS __a3, SUM(payment_completion_rate * 0.4 + business_value_score / 10.0 * 0.6) AS __a4_sum, COUNT(payment_completion_rate * 0.4 + business_value_score / 10.0 * 0.6) AS __a4_n, MIN(payment_completion_rate * 0.4 + business_value_score / 10.0 * 0.6) AS __a5, MAX(payment_completion_rate * 0.4 + business_value_score / 10.0 * 0.6) AS __a6, SUM(total_lifetime_spend) AS __a7, SUM(spend_volatility) AS __a8, SUM(total_outstanding) AS __a9, SUM(avg_monthly_spend) AS __a10, SUM(avg_transaction_size) AS __a11, SUM(avg_monthly_spend) AS __a12_sum, COUNT(avg_monthly_spend) AS __a12_n, SUM(annual_spend_growth_pct) AS __a13_sum, COUNT(annual_spend_growth_pct) AS __a13_n, MIN(annual_spend_growth_pct) AS __a14, MAX(annual_spend_growth_pct) AS __a15 FROM \"quickbooks__vendor_performance\" WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7 GROUP BY vendor_tier, payment_risk_level, performance_rating, recommended_strategy, dependency_level, overall_performance_score",
+      "covered": [
+        "S7",
+        "S18",
+        "S37",
+        "S38",
+        "S39"
+      ],
+      "rewrites": {
+        "S7": "SELECT SUM(__a0) AS n_vendors, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 6) AS avg_spend_vol_coef, ROUND(MIN(__a2), 6) AS min_spend_vol_coef, ROUND(MAX(__a3), 6) AS max_spend_vol_coef, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 6) AS avg_composite_risk, ROUND(MIN(__a5), 6) AS min_composite_risk, ROUND(MAX(__a6), 6) AS max_composite_risk, ROUND(SUM(__a7), 2) AS total_lifetime_spend_sum, ROUND(SUM(__a8), 2) AS total_spend_volatility, ROUND(SUM(__a9), 2) AS total_outstanding FROM temp.reuse_candidate",
+        "S18": "SELECT ROUND(SUM(__a10), 2) AS sum_avg_monthly_spend_selected, ROUND(SUM(__a11), 2) AS sum_avg_tx_size, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 2) AS avg_monthly_spend_per_vendor FROM temp.reuse_candidate",
+        "S37": "SELECT __g0 AS \"vendor_tier\", __g1 AS \"payment_risk_level\", __g2 AS \"performance_rating\", __g3 AS \"recommended_strategy\", __g4 AS \"dependency_level\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g1, __g2, __g3, __g4 ORDER BY n DESC",
+        "S38": "SELECT __g0 AS \"vendor_tier\", __g1 AS \"payment_risk_level\", __g2 AS \"performance_rating\", __g4 AS \"dependency_level\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g1, __g2, __g4 ORDER BY n DESC",
+        "S39": "SELECT __g5 AS \"overall_performance_score\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 2) AS avg_growth, ROUND(MIN(__a14), 2) AS min_growth, ROUND(MAX(__a15), 2) AS max_growth FROM temp.reuse_candidate GROUP BY __g5 ORDER BY __g5"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C7",
+      "offline": true,
+      "earliest_build_before": "S7",
+      "later_reuses": 4,
+      "denominator": 34,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Final continuation candidate enumerated only; original per-task three-case verification selection retained."
     }
-  ]
+  ],
+  "continuation_analysis_scope": "All final SQL enumerated; original verification selections and IDs preserved, added candidates explicitly unverified.",
+  "final_trajectory_fingerprint": "b3832cb70904c0502063b83c9fe6af308acc5eff42c106eed77524709f1463bb"
 }

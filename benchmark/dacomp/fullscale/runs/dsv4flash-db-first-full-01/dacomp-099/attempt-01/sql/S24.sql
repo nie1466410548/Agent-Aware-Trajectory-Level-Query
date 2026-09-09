@@ -1,0 +1,1 @@
+SELECT COUNT(*) as total_tags FROM intercom__conversation_enhanced WHERE all_conversation_tags LIKE '%Downgrade Risk%'

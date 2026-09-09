@@ -1,0 +1,76 @@
+{
+  "task_id": "dacomp-087",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "这是服务错误停止前的部分轨迹。客户重分配搜索算法可作为数值优化补充，但算法前按销售代表求客户收入、联系人总数及行业分布的输入聚合、独立的基线约束计数可以在 SQL 内完成。算法内候选状态的增量核对不一概判为违规。",
+  "route": "SQL 提取销售负荷与客户 → Python 重分配搜索及约束核对 → 服务错误中断，未提交最终答案。",
+  "evidence": [
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 7,
+          "text": "for owner, grp in cust.groupby('owner_id'):"
+        },
+        {
+          "line": 9,
+          "text": "    pct = grp['industry_normalized'].isin(top3).mean()"
+        },
+        {
+          "line": 10,
+          "text": "    compliance.append({'owner_id': owner, 'n': len(grp), 'pct_top3': pct, 'n_top3': grp['industry_normalized'].isin(top3).sum(), 'top3': top3})"
+        },
+        {
+          "line": 14,
+          "text": "print(f\"Reps meeting 60%: {(comp_df['pct_top3'] >= 0.6).sum()} / {len(comp_df)}\")"
+        },
+        {
+          "line": 22,
+          "text": "diversity = cust.groupby('owner_id')['industry_normalized'].nunique()"
+        }
+      ]
+    },
+    {
+      "source": "python/P9.py",
+      "lines": [
+        {
+          "line": 19,
+          "text": "owner_groups = {owner: grp for owner, grp in cust.groupby('owner_id')}"
+        },
+        {
+          "line": 21,
+          "text": "for owner, grp in cust.groupby('owner_id'):"
+        },
+        {
+          "line": 41,
+          "text": "        'total_rev': grp['annual_revenue'].sum(),"
+        },
+        {
+          "line": 42,
+          "text": "        'total_contacts': grp['total_contacts'].sum(),"
+        }
+      ]
+    },
+    {
+      "source": "python/P11.py",
+      "lines": [
+        {
+          "line": 69,
+          "text": "    top3 = grp['industry_normalized'].value_counts().head(3).index.tolist()"
+        },
+        {
+          "line": 70,
+          "text": "    base_comp.append(grp['industry_normalized'].isin(top3).mean())"
+        },
+        {
+          "line": 71,
+          "text": "print(\"\\n===== INDUSTRY COMPLIANCE (>=60% in top 3) =====\")"
+        },
+        {
+          "line": 80,
+          "text": "total_cust = len(cust)"
+        }
+      ]
+    }
+  ]
+}

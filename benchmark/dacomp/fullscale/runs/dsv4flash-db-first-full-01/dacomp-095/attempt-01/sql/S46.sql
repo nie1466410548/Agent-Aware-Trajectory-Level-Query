@@ -1,0 +1,1 @@
+SELECT CAMPAIGN_TYPE, COUNT(*) as n, SUM(count_placed_order) as total_orders, SUM(gmv_net) as total_gmv FROM klaviyo__campaigns GROUP BY CAMPAIGN_TYPE ORDER BY total_gmv DESC

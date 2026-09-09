@@ -1,23 +1,17 @@
 # DAComp-DA：数据库内优先协议下的 Agent 轨迹
 
-计划 100 题，登记 100 题，已开始 93 题，已提交 89 题（其中未截断 87 题、截断提交 2 题）。模型 `glm-custom/DeepSeek-V4-Flash-0731`，OpenCode 1.18.29；全部官方未评分；旧四题独立保留。
+计划 100 题，登记 100 题，已开始 100 题，已提交 100 题（其中未截断 98 题、截断提交 2 题）。模型 `glm-custom/DeepSeek-V4-Flash-0731`，OpenCode 1.18.29；全部官方未评分；旧四题独立保留。
 
 数据固定 revision `2cc22149cdfe16cec41851ccae791c2d2c873bb3`；数据库合计 6,132,805,632 字节，中位数 3,745,792 字节，最大 3,524,939,776 字节。逐表实际行数见各题详情与 [数据清单](../../manifests/databases.csv)。
 
 | 状态 | 任务数 |
 | --- | --- |
-| 未开始 | 7 |
-| 服务中断 | 4 |
-| 已提交 | 89 |
+| 已提交 | 100 |
 
 
 并发调度：4 个任务槽；运行中的轨迹暂不计数，结束后统一审计。串行/并发边界见 state/version_boundaries.jsonl，原始查询耗时可能受并发资源竞争影响。
 
 本批次状态持续由记录生成；提交不等于答案正确。无 FAD 组、无官方模型裁判、无成功率重跑、无金额预算。
-
-**已停止派发：** {"id": "R22", "kind": "service_error", "http_status": 401, "error": "{\"error\":{\"message\":\"Authentication Error, Error in connector: Error querying the database: FATAL: the database system is not yet accepting connections\\nDETAIL: Consistent recovery state has not been yet reached.\",\"type\":\"auth_error\",\"param\":\"None\",\"code\":\"401\"}}", "task_id": "dacomp-092", "time": 1788870325.3412714}
-
-[检查点](../../state/queue.json)；恢复操作见 [恢复说明](../../RECOVERY.md)。
 
 ## 轨迹有多长
 
@@ -111,41 +105,40 @@
 | [dacomp-084](tasks/dacomp-084.md) | The company is redesigning its organizational structure, and I want you to identify the op… | 2 / 0.11 MiB | 已提交 | 36/34 | 34/32 | 9 | 4.55 | 已验证候选 |
 | [dacomp-085](tasks/dacomp-085.md) | In light of business adjustments, we need to re-evaluate the true value of each job profil… | 3 / 87.78 MiB | 已提交 | 17/17 | 15/15 | 11 | 4.5 | 已验证候选 |
 | [dacomp-086](tasks/dacomp-086.md) | We need to build a customer health score model to predict churn risk and formulate operati… | 4 / 31.56 MiB | 已提交 | 18/17 | 16/15 | 11 | 4.48 | 已验证候选 |
-| [dacomp-087](tasks/dacomp-087.md) | A sales team reorganization is imminent, requiring the design of a data-driven customer re… | 7 / 52.52 MiB | 服务中断 | 22/22 | 20/20 | 11 | 9.77 | 已验证候选 |
+| [dacomp-087](tasks/dacomp-087.md) | A sales team reorganization is imminent, requiring the design of a data-driven customer re… | 7 / 52.52 MiB | 已提交 | 22/22 | 20/20 | 14 | 11.11 | 已验证候选; original verified selection retained across continuation |
 | [dacomp-088](tasks/dacomp-088.md) | The Marketing Department is questioning the ROI efficiency of our investments in different… | 5 / 13.14 MiB | 已提交 | 75/75 | 73/73 | 8 | 5.19 | 已验证候选 |
 | [dacomp-089](tasks/dacomp-089.md) | We need to establish a contact configuration risk monitoring system for our key accounts, … | 2 / 17.9 MiB | 已提交 | 43/43 | 41/41 | 14 | 6.85 | 已验证候选 |
 | [dacomp-090](tasks/dacomp-090.md) | We have observed that the payment behavior of some customers is deteriorating. Please filt… | 4 / 4.05 MiB | 已提交 | 46/45 | 44/43 | 2 | 3.72 | 已验证候选 |
-| [dacomp-091](tasks/dacomp-091.md) | From the `quickbooks__vendor_performance` table, identify 'high-quality, shrinking-spend' … | 3 / 19.5 MiB | 服务中断 | 34/32 | 32/30 | 3 | 3.74 | 已验证候选 |
-| [dacomp-092](tasks/dacomp-092.md) | First, from the `profitability_analysis` table, identify the high-volatility customer segm… | 4 / 28.35 MiB | 服务中断 | 40/38 | 38/36 | 0 | 2.28 | 已验证候选 |
-| [dacomp-093](tasks/dacomp-093.md) | Using behavioral data from klaviyo__campaigns and klaviyo__persons, design an analysis on … | 2 / 0.67 MiB | 服务中断 | 2/2 | 0/0 | 0 | 0.27 | 轨迹/解析不足无法判断 |
-| [dacomp-094](tasks/dacomp-094.md) | Based on the behavioral data from `klaviyo__campaigns` and `klaviyo__persons`, design an a… | 3 / 0.48 MiB | 未开始 | 0/0 | 0/0 | 0 | 0.0 | 轨迹/解析不足无法判断 |
-| [dacomp-095](tasks/dacomp-095.md) | Based on `klaviyo__persons`, `klaviyo__person_campaign_flow`, and `marts.klaviyo__events`,… | 4 / 0.57 MiB | 未开始 | 0/0 | 0/0 | 0 | 0.0 | 轨迹/解析不足无法判断 |
-| [dacomp-096](tasks/dacomp-096.md) | Based on `klaviyo__campaigns` (with columns like `STATUS`/`STATUS_ID`, `SENT_AT`, `schedul… | 2 / 0.03 MiB | 未开始 | 0/0 | 0/0 | 0 | 0.0 | 轨迹/解析不足无法判断 |
-| [dacomp-097](tasks/dacomp-097.md) | Using conversation, user profile, and usage event data from the past six months, compare t… | 5 / 10.62 MiB | 未开始 | 0/0 | 0/0 | 0 | 0.0 | 轨迹/解析不足无法判断 |
-| [dacomp-098](tasks/dacomp-098.md) | Evaluate the impact of a bot-led first response strategy on various stages of the sales fu… | 5 / 10.04 MiB | 未开始 | 0/0 | 0/0 | 0 | 0.0 | 轨迹/解析不足无法判断 |
-| [dacomp-099](tasks/dacomp-099.md) | Identify the key factors that lead customers to upgrade or downgrade. On a per-customer ba… | 4 / 8.56 MiB | 未开始 | 0/0 | 0/0 | 0 | 0.0 | 轨迹/解析不足无法判断 |
-| [dacomp-100](tasks/dacomp-100.md) | For customers whose contracts are due for renewal within the next 90 days, build a renewal… | 4 / 11.41 MiB | 未开始 | 0/0 | 0/0 | 0 | 0.0 | 轨迹/解析不足无法判断 |
+| [dacomp-091](tasks/dacomp-091.md) | From the `quickbooks__vendor_performance` table, identify 'high-quality, shrinking-spend' … | 3 / 19.5 MiB | 已提交 | 39/37 | 36/34 | 6 | 4.88 | 已验证候选; original verified selection retained across continuation |
+| [dacomp-092](tasks/dacomp-092.md) | First, from the `profitability_analysis` table, identify the high-volatility customer segm… | 4 / 28.35 MiB | 已提交 | 70/68 | 67/65 | 5 | 7.72 | 已验证候选; original verified selection retained across continuation |
+| [dacomp-093](tasks/dacomp-093.md) | Using behavioral data from klaviyo__campaigns and klaviyo__persons, design an analysis on … | 2 / 0.67 MiB | 已提交 | 41/40 | 38/37 | 5 | 5.22 | 已验证候选; original verified selection retained across continuation |
+| [dacomp-094](tasks/dacomp-094.md) | Based on the behavioral data from `klaviyo__campaigns` and `klaviyo__persons`, design an a… | 3 / 0.48 MiB | 已提交 | 22/18 | 20/16 | 3 | 3.84 | 已验证候选 |
+| [dacomp-095](tasks/dacomp-095.md) | Based on `klaviyo__persons`, `klaviyo__person_campaign_flow`, and `marts.klaviyo__events`,… | 4 / 0.57 MiB | 已提交 | 60/55 | 57/52 | 3 | 5.97 | 已验证候选 |
+| [dacomp-096](tasks/dacomp-096.md) | Based on `klaviyo__campaigns` (with columns like `STATUS`/`STATUS_ID`, `SENT_AT`, `schedul… | 2 / 0.03 MiB | 已提交 | 24/24 | 22/22 | 9 | 4.26 | 已验证候选 |
+| [dacomp-097](tasks/dacomp-097.md) | Using conversation, user profile, and usage event data from the past six months, compare t… | 5 / 10.62 MiB | 已提交 | 113/110 | 108/106 | 5 | 9.42 | 已验证候选 |
+| [dacomp-098](tasks/dacomp-098.md) | Evaluate the impact of a bot-led first response strategy on various stages of the sales fu… | 5 / 10.04 MiB | 已提交 | 47/45 | 44/42 | 12 | 6.85 | 已验证候选 |
+| [dacomp-099](tasks/dacomp-099.md) | Identify the key factors that lead customers to upgrade or downgrade. On a per-customer ba… | 4 / 8.56 MiB | 已提交 | 74/72 | 72/70 | 15 | 9.55 | 已验证候选 |
+| [dacomp-100](tasks/dacomp-100.md) | For customers whose contracts are due for renewal within the next 90 days, build a renewal… | 4 / 11.41 MiB | 已提交 | 78/73 | 76/71 | 30 | 11.39 | 已验证候选 |
 
 
-已提交且未截断：n=87；成功数据 SQL 均值 41.41，中位数 36，P25/P75/P90 27.50/54.50/67.80，范围 15–92。
+已提交且未截断：n=98；成功数据 SQL 均值 42.22，中位数 36.0，P25/P75/P90 27.25/55.00/70.30，范围 15–106。
 
-已结束但截断/失败：n=6；成功数据 SQL 均值 53.33，中位数 33.0，P25/P75/P90 22.50/95.25/117.00，范围 0–119。
+已结束但截断/失败：n=2；成功数据 SQL 均值 117.00，中位数 117.0，P25/P75/P90 116.00/118.00/118.60，范围 115–119。
 
-全批次当前记录：SQL 尝试 4219，其中数据 4015、元数据 111、连接设置 93、维护 0、未知类别 0；SQL 成功 4127、失败 89、取消 3、结果受限 0。Python 773 次，其中 595 次成功；使用 Python 的已开始任务 91/93。
+全批次当前记录：SQL 尝试 4711，其中数据 4485、元数据 122、连接设置 103、维护 0、未知类别 1；SQL 成功 4597、失败 111、取消 3、结果受限 0。Python 866 次，其中 666 次成功；使用 Python 的已开始任务 100/100。
 
 执行位置审查按已结束任务列出；含违例的轨迹继续保留，不能混称严格符合数据库内优先协议。
 
 | Python 执行位置审查状态 | 任务数 |
 | --- | --- |
 | database_first_partial_violation | 2 |
-| database_first_violation | 66 |
-| partial_violation | 10 |
+| database_first_violation | 74 |
+| partial_violation | 11 |
 | reviewed_SQL_dominant_with_chart_arithmetic | 1 |
 | reviewed_SQL_dominant_with_chart_preparation_exceptions | 1 |
 | reviewed_SQL_dominant_with_plot_preparation | 1 |
 | reviewed_SQL_dominant_with_statistical_and_chart_exceptions | 3 |
 | reviewed_SQL_dominant_with_statistical_model_preprocessing | 1 |
-| reviewed_no_python_before_interruption | 2 |
 | reviewed_with_statistical_exceptions_and_SQL_capable_preparation | 1 |
 | reviewed_with_statistical_exceptions_and_SQL_capable_summaries | 4 |
 | reviewed_with_statistical_plotting_exceptions | 1 |
@@ -247,16 +240,16 @@
 | [dacomp-088](tasks/dacomp-088.md) | 73 | 68 | 5 | 5 | 5 | 0 | 0 | 0 |
 | [dacomp-089](tasks/dacomp-089.md) | 41 | 31 | 10 | 2 | 2 | 0 | 0 | 0 |
 | [dacomp-090](tasks/dacomp-090.md) | 43 | 37 | 6 | 6 | 6 | 0 | 0 | 0 |
-| [dacomp-091](tasks/dacomp-091.md) | 30 | 20 | 10 | 3 | 3 | 0 | 0 | 0 |
-| [dacomp-092](tasks/dacomp-092.md) | 36 | 32 | 4 | 10 | 10 | 0 | 0 | 0 |
-| [dacomp-093](tasks/dacomp-093.md) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| [dacomp-094](tasks/dacomp-094.md) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| [dacomp-095](tasks/dacomp-095.md) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| [dacomp-096](tasks/dacomp-096.md) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| [dacomp-097](tasks/dacomp-097.md) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| [dacomp-098](tasks/dacomp-098.md) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| [dacomp-099](tasks/dacomp-099.md) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| [dacomp-100](tasks/dacomp-100.md) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| [dacomp-091](tasks/dacomp-091.md) | 34 | 23 | 11 | 3 | 3 | 0 | 0 | 0 |
+| [dacomp-092](tasks/dacomp-092.md) | 65 | 51 | 14 | 26 | 25 | 1 | 0 | 0 |
+| [dacomp-093](tasks/dacomp-093.md) | 37 | 36 | 1 | 0 | 0 | 0 | 0 | 0 |
+| [dacomp-094](tasks/dacomp-094.md) | 16 | 15 | 1 | 1 | 0 | 1 | 0 | 0 |
+| [dacomp-095](tasks/dacomp-095.md) | 52 | 50 | 2 | 3 | 3 | 0 | 0 | 0 |
+| [dacomp-096](tasks/dacomp-096.md) | 22 | 22 | 0 | 1 | 1 | 0 | 0 | 0 |
+| [dacomp-097](tasks/dacomp-097.md) | 106 | 61 | 45 | 40 | 35 | 5 | 0 | 0 |
+| [dacomp-098](tasks/dacomp-098.md) | 42 | 31 | 11 | 11 | 10 | 1 | 0 | 0 |
+| [dacomp-099](tasks/dacomp-099.md) | 70 | 50 | 20 | 14 | 9 | 5 | 0 | 0 |
+| [dacomp-100](tasks/dacomp-100.md) | 71 | 71 | 0 | 0 | 0 | 0 | 0 | 0 |
 
 
 | 任务 | 含 GROUP BY | 1 维 | 2 维 | 3 维 | ≥4 维 | 含聚合 | 函数 SQL 数 | 含窗口 |
@@ -351,16 +344,16 @@
 | [dacomp-088](tasks/dacomp-088.md) | 42 | 30 | 12 | 0 | 0 | 48 | {"COUNT": 46, "AVG": 15, "SUM": 16, "MIN": 2, "MAX": 2} | 4 |
 | [dacomp-089](tasks/dacomp-089.md) | 21 | 20 | 1 | 0 | 0 | 32 | {"COUNT": 31, "MIN": 4, "MAX": 5, "SUM": 5, "AVG": 3} | 1 |
 | [dacomp-090](tasks/dacomp-090.md) | 14 | 7 | 7 | 0 | 0 | 25 | {"COUNT": 21, "AVG": 9, "MIN": 5, "MAX": 2, "SUM": 13} | 8 |
-| [dacomp-091](tasks/dacomp-091.md) | 7 | 3 | 4 | 0 | 0 | 20 | {"COUNT": 13, "MIN": 5, "MAX": 5, "AVG": 6, "SUM": 15} | 0 |
-| [dacomp-092](tasks/dacomp-092.md) | 18 | 9 | 7 | 2 | 0 | 26 | {"COUNT": 20, "MIN": 3, "MAX": 9, "AVG": 15, "SUM": 4} | 14 |
-| [dacomp-093](tasks/dacomp-093.md) | 0 | 0 | 0 | 0 | 0 | 0 | {} | 0 |
-| [dacomp-094](tasks/dacomp-094.md) | 0 | 0 | 0 | 0 | 0 | 0 | {} | 0 |
-| [dacomp-095](tasks/dacomp-095.md) | 0 | 0 | 0 | 0 | 0 | 0 | {} | 0 |
-| [dacomp-096](tasks/dacomp-096.md) | 0 | 0 | 0 | 0 | 0 | 0 | {} | 0 |
-| [dacomp-097](tasks/dacomp-097.md) | 0 | 0 | 0 | 0 | 0 | 0 | {} | 0 |
-| [dacomp-098](tasks/dacomp-098.md) | 0 | 0 | 0 | 0 | 0 | 0 | {} | 0 |
-| [dacomp-099](tasks/dacomp-099.md) | 0 | 0 | 0 | 0 | 0 | 0 | {} | 0 |
-| [dacomp-100](tasks/dacomp-100.md) | 0 | 0 | 0 | 0 | 0 | 0 | {} | 0 |
+| [dacomp-091](tasks/dacomp-091.md) | 11 | 4 | 5 | 0 | 2 | 24 | {"COUNT": 17, "MIN": 6, "MAX": 6, "AVG": 7, "SUM": 16} | 0 |
+| [dacomp-092](tasks/dacomp-092.md) | 41 | 23 | 15 | 3 | 0 | 50 | {"COUNT": 35, "MIN": 4, "MAX": 14, "AVG": 32, "SUM": 19} | 32 |
+| [dacomp-093](tasks/dacomp-093.md) | 17 | 12 | 2 | 3 | 0 | 24 | {"COUNT": 21, "MIN": 6, "MAX": 5, "AVG": 17, "SUM": 1} | 2 |
+| [dacomp-094](tasks/dacomp-094.md) | 3 | 1 | 2 | 0 | 0 | 7 | {"COUNT": 7, "MIN": 2, "MAX": 2, "AVG": 1} | 1 |
+| [dacomp-095](tasks/dacomp-095.md) | 34 | 31 | 3 | 0 | 0 | 42 | {"COUNT": 34, "AVG": 32, "MIN": 4, "MAX": 5, "SUM": 4} | 2 |
+| [dacomp-096](tasks/dacomp-096.md) | 13 | 4 | 6 | 3 | 0 | 17 | {"COUNT": 16, "MIN": 4, "MAX": 5, "AVG": 9, "SUM": 5} | 3 |
+| [dacomp-097](tasks/dacomp-097.md) | 53 | 44 | 9 | 0 | 0 | 81 | {"MIN": 5, "MAX": 6, "COUNT": 74, "SUM": 23, "AVG": 26} | 1 |
+| [dacomp-098](tasks/dacomp-098.md) | 17 | 15 | 2 | 0 | 0 | 23 | {"COUNT": 20, "MIN": 4, "MAX": 4, "SUM": 1} | 3 |
+| [dacomp-099](tasks/dacomp-099.md) | 26 | 23 | 2 | 0 | 1 | 38 | {"COUNT": 35, "MIN": 7, "MAX": 6, "GROUP_CONCAT": 2, "AVG": 2, "SUM": 6} | 16 |
+| [dacomp-100](tasks/dacomp-100.md) | 5 | 2 | 3 | 0 | 0 | 11 | {"COUNT": 10, "GROUP_CONCAT": 1, "MIN": 1, "MAX": 1, "SUM": 1} | 0 |
 
 
 ## 哪些工作能共享
@@ -455,20 +448,20 @@
 | [dacomp-084](tasks/dacomp-084.md) | 已验证候选 | 2 | 1 | 16/32 |
 | [dacomp-085](tasks/dacomp-085.md) | 已验证候选 | 0 | 1 | 2/15 |
 | [dacomp-086](tasks/dacomp-086.md) | 已验证候选 | 1 | 1 | 4/15 |
-| [dacomp-087](tasks/dacomp-087.md) | 已验证候选 | 0 | 3 | 8/20 |
+| [dacomp-087](tasks/dacomp-087.md) | 已验证候选; original verified selection retained across continuation | 0 | 3 | 8/20 |
 | [dacomp-088](tasks/dacomp-088.md) | 已验证候选 | 0 | 3 | 26/73 |
 | [dacomp-089](tasks/dacomp-089.md) | 已验证候选 | 0 | 3 | 15/41 |
 | [dacomp-090](tasks/dacomp-090.md) | 已验证候选 | 0 | 3 | 9/43 |
-| [dacomp-091](tasks/dacomp-091.md) | 已验证候选 | 0 | 3 | 12/30 |
-| [dacomp-092](tasks/dacomp-092.md) | 已验证候选 | 0 | 3 | 16/36 |
-| [dacomp-093](tasks/dacomp-093.md) | 轨迹/解析不足无法判断 | 0 | 0 | 0/0 |
-| [dacomp-094](tasks/dacomp-094.md) | 轨迹/解析不足无法判断 | 0 | 0 | 0/0 |
-| [dacomp-095](tasks/dacomp-095.md) | 轨迹/解析不足无法判断 | 0 | 0 | 0/0 |
-| [dacomp-096](tasks/dacomp-096.md) | 轨迹/解析不足无法判断 | 0 | 0 | 0/0 |
-| [dacomp-097](tasks/dacomp-097.md) | 轨迹/解析不足无法判断 | 0 | 0 | 0/0 |
-| [dacomp-098](tasks/dacomp-098.md) | 轨迹/解析不足无法判断 | 0 | 0 | 0/0 |
-| [dacomp-099](tasks/dacomp-099.md) | 轨迹/解析不足无法判断 | 0 | 0 | 0/0 |
-| [dacomp-100](tasks/dacomp-100.md) | 轨迹/解析不足无法判断 | 0 | 0 | 0/0 |
+| [dacomp-091](tasks/dacomp-091.md) | 已验证候选; original verified selection retained across continuation | 0 | 3 | 12/34 |
+| [dacomp-092](tasks/dacomp-092.md) | 已验证候选; original verified selection retained across continuation | 0 | 3 | 16/65 |
+| [dacomp-093](tasks/dacomp-093.md) | 已验证候选; original verified selection retained across continuation | 0 | 1 | 2/37 |
+| [dacomp-094](tasks/dacomp-094.md) | 已验证候选 | 0 | 2 | 4/16 |
+| [dacomp-095](tasks/dacomp-095.md) | 已验证候选 | 0 | 1 | 3/52 |
+| [dacomp-096](tasks/dacomp-096.md) | 已验证候选 | 0 | 3 | 9/22 |
+| [dacomp-097](tasks/dacomp-097.md) | 已验证候选 | 0 | 3 | 15/106 |
+| [dacomp-098](tasks/dacomp-098.md) | 已验证候选 | 1 | 2 | 14/42 |
+| [dacomp-099](tasks/dacomp-099.md) | 已验证候选 | 1 | 2 | 18/70 |
+| [dacomp-100](tasks/dacomp-100.md) | 已验证候选 | 3 | 0 | 28/71 |
 
 
 暖缓存代表性性能验证（物化路径含每次构建，五次交替重复）：

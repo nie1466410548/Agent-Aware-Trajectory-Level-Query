@@ -1,0 +1,1 @@
+SELECT conversation_id, all_contact_company_names, conversation_created_at, all_conversation_tags, conversation_state, sla_name, sla_status, conversation_rating FROM intercom__conversation_metrics

@@ -1,0 +1,1 @@
+SELECT trigger_type, COUNT(*) as n, AVG(email_open_rate) as avg_open_rate, AVG(email_click_to_open_rate) as avg_ctr FROM klaviyo__flows GROUP BY trigger_type ORDER BY n DESC

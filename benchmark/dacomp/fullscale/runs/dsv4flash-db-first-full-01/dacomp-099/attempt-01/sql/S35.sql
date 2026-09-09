@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT company_name) as total_customer_names FROM intercom__company_enhanced

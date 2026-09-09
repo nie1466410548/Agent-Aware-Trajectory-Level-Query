@@ -2,7 +2,7 @@
 
 A sales team reorganization is imminent, requiring the design of a data-driven customer re…
 
-运行：服务中断。官方未评分。全部 SQL 尝试/成功 22/22；数据 SQL 20/20；Python 11 次。
+运行：已提交。官方未评分。全部 SQL 尝试/成功 22/22；数据 SQL 20/20；Python 14 次。
 
 完整原题：
 
@@ -19,7 +19,7 @@ A sales team reorganization is imminent, requiring the design of a data-driven c
 | salesforce__sales_performance_dashboard | 1000 | 48 |
 
 
-实际路线（分析者依据 SQL/源码概括，不代表 Agent 自述）：SQL 提取销售负荷与客户 → Python 重分配搜索及约束核对 → 服务错误中断，未提交最终答案。
+实际路线（分析者依据 SQL/源码概括，不代表 Agent 自述）：SQL 销售负荷与客户提取 → Python 重分配搜索 → 服务中断后同会话继续图表与方案汇总 → 提交。
 
 数据库大小：55,074,816 字节。
 
@@ -59,7 +59,7 @@ A sales team reorganization is imminent, requiring the design of a data-driven c
 
 ## Python 与执行位置
 
-人工源码审查：**database_first_violation**。这是服务错误停止前的部分轨迹。客户重分配搜索算法可作为数值优化补充，但算法前按销售代表求客户收入、联系人总数及行业分布的输入聚合、独立的基线约束计数可以在 SQL 内完成。算法内候选状态的增量核对不一概判为违规。 [证据](../reviews/dacomp-087.json)。
+人工源码审查：**database_first_violation**。同一会话续接后已提交。原轨迹按销售代表进行客户收入、联系人及行业分布聚合可下推 SQL；续接还在 Python 内求基线均值、行业合规计数。重分配搜索及其生成方案的内存状态处理属于算法补充，不能一概判为原库可下推操作。 [证据](../reviews/dacomp-087.json)。
 
 P1：Load rep-level workload/efficiency scores (S19 archive) and all customer rows into Python to design and simulate the reallocation algorithm. The optimization/balancing logic (assignment between donors and receivers, feasibility search, impact simulation) is not reasonably supported by SQLite, so it is done in Python.
 
@@ -105,9 +105,21 @@ P11：Fix the evaluation code (clean portfolio construction per rep after transf
 
 [源码](../../../runs/dsv4flash-db-first-full-01/dacomp-087/attempt-01/python/P11.py)；[输出](../../../runs/dsv4flash-db-first-full-01/dacomp-087/attempt-01/python/P11.stdout)；[错误](../../../runs/dsv4flash-db-first-full-01/dacomp-087/attempt-01/python/P11.stderr)。检出需人工核验的 SQL 可实现操作：groupby(；不能仅凭理由判为合规。
 
+P12：Create a visualization comparing baseline vs final workload distribution for the report.
+
+[源码](../../../runs/dsv4flash-db-first-full-01/dacomp-087/attempt-01/python/P12.py)；[输出](../../../runs/dsv4flash-db-first-full-01/dacomp-087/attempt-01/python/P12.stdout)；[错误](../../../runs/dsv4flash-db-first-full-01/dacomp-087/attempt-01/python/P12.stderr)。自动源码筛查未检出预设迁出信号；这不是全面语义合规证明。
+
+P13：Fix the compliance CSV loading (squeeze is deprecated) and generate the industry compliance figure.
+
+[源码](../../../runs/dsv4flash-db-first-full-01/dacomp-087/attempt-01/python/P13.py)；[输出](../../../runs/dsv4flash-db-first-full-01/dacomp-087/attempt-01/python/P13.stdout)；[错误](../../../runs/dsv4flash-db-first-full-01/dacomp-087/attempt-01/python/P13.stderr)。自动源码筛查未检出预设迁出信号；这不是全面语义合规证明。
+
+P14：Produce a concrete excerpt of the transfer plan (top transfers and summary tables) for the report, plus final workload summary table for a few representative reps.
+
+[源码](../../../runs/dsv4flash-db-first-full-01/dacomp-087/attempt-01/python/P14.py)；[输出](../../../runs/dsv4flash-db-first-full-01/dacomp-087/attempt-01/python/P14.stdout)；[错误](../../../runs/dsv4flash-db-first-full-01/dacomp-087/attempt-01/python/P14.stderr)。检出需人工核验的 SQL 可实现操作：groupby(, sort_values(；不能仅凭理由判为合规。
+
 ## 优化机会
 
-已验证候选。筛选限于精确 SQL、相同自包含 CTE、相同单表完整过滤、可分解单表聚合；未覆盖任意 Join 等价和一般谓词蕴含。全部候选都是 offline，未测在线预测。
+已验证候选; original verified selection retained across continuation。筛选限于精确 SQL、相同自包含 CTE、相同单表完整过滤、可分解单表聚合；未覆盖任意 Join 等价和一般谓词蕴含。全部候选都是 offline，未测在线预测。
 
 | 候选 | 类型 | 已有结果 | 覆盖 SQL | 后续次数 | 中间行数 | 验证 | 成本 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -208,7 +220,9 @@ SELECT SUM(__a0) AS n FROM temp.reuse_candidate
 
 结果依赖：自动记录 SQL→Python 的接口父调用，以及源码中引用归档文件的消费者；字面值相同不认定因果。模型方向选择需要人工读取消息，尚未做全面因果标注。
 
-[统一消息](../../../runs/dsv4flash-db-first-full-01/dacomp-087/attempt-01/messages.jsonl)；[原始 OpenCode 事件](../../../runs/dsv4flash-db-first-full-01/dacomp-087/attempt-01/opencode.jsonl)；[SQL 引擎日志](../../../runs/dsv4flash-db-first-full-01/dacomp-087/attempt-01/sql_journal.jsonl)。
+[原始报告](../../../runs/dsv4flash-db-first-full-01/dacomp-087/attempt-01/answer.md)；[统一消息](../../../runs/dsv4flash-db-first-full-01/dacomp-087/attempt-01/messages.jsonl)；[原始 OpenCode 事件](../../../runs/dsv4flash-db-first-full-01/dacomp-087/attempt-01/opencode.jsonl)；[SQL 引擎日志](../../../runs/dsv4flash-db-first-full-01/dacomp-087/attempt-01/sql_journal.jsonl)。
+
+[可读报告（本地图片链接规范化）](../answers/dacomp-087.md)。原始回答保留，分析结论未改写。
 
 ## S1
 

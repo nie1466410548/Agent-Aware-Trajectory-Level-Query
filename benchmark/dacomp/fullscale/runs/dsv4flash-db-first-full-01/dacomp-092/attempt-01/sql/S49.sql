@@ -1,0 +1,1 @@
+SELECT DISTINCT account_type FROM quickbooks__balance_sheet

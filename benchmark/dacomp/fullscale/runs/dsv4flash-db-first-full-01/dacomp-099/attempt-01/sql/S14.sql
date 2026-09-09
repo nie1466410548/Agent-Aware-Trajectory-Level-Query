@@ -1,0 +1,1 @@
+SELECT DISTINCT conversation_state FROM intercom__conversation_enhanced

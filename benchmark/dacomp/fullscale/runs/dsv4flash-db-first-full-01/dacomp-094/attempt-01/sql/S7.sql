@@ -1,0 +1,1 @@
+SELECT type, COUNT(*) AS n, COUNT(DISTINCT metric_id) AS n_metrics FROM klaviyo__events GROUP BY type ORDER BY n DESC

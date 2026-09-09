@@ -1,0 +1,1 @@
+SELECT COUNT(*) FROM intercom__conversation_metrics

@@ -1,0 +1,3 @@
+
+SELECT conversation_id, count_total_parts, time_to_first_response_minutes, conversation_rating
+FROM intercom__conversation_metrics

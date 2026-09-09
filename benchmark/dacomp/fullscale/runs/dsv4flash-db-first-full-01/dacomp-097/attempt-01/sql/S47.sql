@@ -1,0 +1,1 @@
+SELECT MIN(last_activity_ts), MAX(last_activity_ts), COUNT(*) FROM intercom__contact_enhanced

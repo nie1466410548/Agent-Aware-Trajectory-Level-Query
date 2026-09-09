@@ -1,0 +1,1 @@
+SELECT * FROM intercom__conversation_enhanced WHERE all_conversation_tags LIKE '%Bug%' OR all_conversation_tags LIKE '%Outage%' OR all_conversation_tags LIKE '%Downgrade%' OR all_conversation_tags LIKE '%Upgrade%' LIMIT 10

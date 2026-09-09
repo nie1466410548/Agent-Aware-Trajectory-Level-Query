@@ -1,0 +1,1 @@
+SELECT campaign_name, campaign_subject_line, COUNT(*) AS n_events, COUNT(DISTINCT person_id) AS n_persons, MIN(occurred_at) AS min_ts, MAX(occurred_at) AS max_ts FROM klaviyo__events WHERE CAMPAIGN_TYPE='email' GROUP BY campaign_name, campaign_subject_line ORDER BY n_events DESC

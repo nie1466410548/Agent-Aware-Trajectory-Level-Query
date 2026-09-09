@@ -1,0 +1,2 @@
+SELECT conversation_id, conversation_created_at, first_admin_response_at, time_to_first_response_minutes, all_conversation_tags
+FROM intercom__conversation_metrics LIMIT 5

@@ -1,0 +1,1 @@
+SELECT DISTINCT conversation_rating_remark FROM intercom__conversation_metrics LIMIT 50

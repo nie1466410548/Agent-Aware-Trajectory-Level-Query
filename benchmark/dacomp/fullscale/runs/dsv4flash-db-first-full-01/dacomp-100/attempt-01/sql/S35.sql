@@ -1,0 +1,1 @@
+SELECT MIN(conversation_created_at) AS mn, MAX(conversation_created_at) AS mx, COUNT(*) AS n FROM intercom__conversation_enhanced

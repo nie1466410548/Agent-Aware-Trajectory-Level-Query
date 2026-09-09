@@ -1,0 +1,1 @@
+SELECT conversation_initiated_type, COUNT(*) as cnt FROM intercom__conversation_enhanced GROUP BY conversation_initiated_type

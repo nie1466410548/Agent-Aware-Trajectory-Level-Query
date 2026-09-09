@@ -1,0 +1,3 @@
+SELECT campaign_name, active_days, total_placed_orders, total_amount_positive, email_open_rate, email_click_to_open_rate, product_view_to_order_rate_campaign, gmv_net_campaign
+FROM klaviyo__campaigns
+LIMIT 10

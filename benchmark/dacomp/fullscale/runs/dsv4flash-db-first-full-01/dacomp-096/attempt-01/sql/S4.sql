@@ -1,0 +1,1 @@
+SELECT * FROM klaviyo__person_campaign_flow LIMIT 20

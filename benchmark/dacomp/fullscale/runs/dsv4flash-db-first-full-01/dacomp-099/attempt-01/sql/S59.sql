@@ -1,0 +1,4 @@
+
+SELECT conversation_id, count_total_parts
+FROM intercom__conversation_metrics
+LIMIT 100

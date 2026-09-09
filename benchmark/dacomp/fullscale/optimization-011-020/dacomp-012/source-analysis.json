@@ -1,0 +1,605 @@
+{
+  "fingerprint": "a2a22dfee8fc636b4e944deec56f349f4154a3d0db865906934397963d676e2e",
+  "analysis_source_version": "8de7e415afc612625f6160fa268f25449601754c4bbf09c80bf887c3b7ee9a0f",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT \"Price (USD)\" AS price, \"Carat (diamond weight)\" AS carat, CASE WHEN \"Carat (diamond weight)\" <= 0.5 THEN 'A: <=0.5 ct' WHEN \"Carat (diamond weight)\" <= 1.0 THEN 'B: 0.51-1.0 ct' WHEN \"Carat (diamond weight)\" <= 1.5 THEN 'C: 1.01-1.5 ct' ELSE 'D: >1.5 ct' END AS interval FROM sheet1",
+      "covered": [
+        "S9",
+        "S10"
+      ],
+      "rewrites": {
+        "S9": "WITH buckets AS (SELECT * FROM temp.reuse_candidate) SELECT interval, carat AS q, price_per_carat FROM (SELECT interval, carat, price / carat AS price_per_carat, ROW_NUMBER() OVER (PARTITION BY interval ORDER BY price / carat) AS rn, COUNT(*) OVER (PARTITION BY interval) AS cnt FROM buckets) WHERE rn IN ((cnt + 1) / 2, (cnt + 2) / 2) ORDER BY interval, q",
+        "S10": "WITH buckets AS (SELECT * FROM temp.reuse_candidate) SELECT interval, COUNT(*) AS n, ROUND(AVG(carat), 3) AS avg_carat, ROUND(AVG(price), 2) AS avg_price, ROUND(AVG(price / carat), 2) AS avg_ppc, ROUND(MIN(price / carat), 2) AS min_ppc, ROUND(MAX(price / carat), 2) AS max_ppc, ROUND(SQRT(AVG((price / carat) * (price / carat)) - AVG(price / carat) * AVG(price / carat)), 2) AS sd_ppc, ROUND(AVG(price / carat) / SQRT(AVG((price / carat) * (price / carat)) - AVG(price / carat) * AVG(price / carat)), 2) AS cv FROM buckets GROUP BY interval ORDER BY interval"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S9",
+      "later_reuses": 1,
+      "denominator": 18,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788861296.216539,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Price (USD)\" AS price, \"Carat (diamond weight)\" AS carat, CASE WHEN \"Carat (diamond weight)\" <= 0.5 THEN 'A: <=0.5 ct' WHEN \"Carat (diamond weight)\" <= 1.0 THEN 'B: 0.51-1.0 ct' WHEN \"Carat (diamond weight)\" <= 1.5 THEN 'C: 1.01-1.5 ct' ELSE 'D: >1.5 ct' END AS interval FROM sheet1",
+          "phase": "offline_validation",
+          "start_time": 1788861296.2167523,
+          "status": "execute_returned",
+          "end_time": 1788861296.2318692
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788861296.2318735,
+          "status": "execute_returned",
+          "end_time": 1788861296.2319202
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788861296.2319243,
+          "status": "execute_returned",
+          "end_time": 1788861296.231935
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH buckets AS (SELECT * FROM temp.reuse_candidate) SELECT interval, carat AS q, price_per_carat FROM (SELECT interval, carat, price / carat AS price_per_carat, ROW_NUMBER() OVER (PARTITION BY interval ORDER BY price / carat) AS rn, COUNT(*) OVER (PARTITION BY interval) AS cnt FROM buckets) WHERE rn IN ((cnt + 1) / 2, (cnt + 2) / 2) ORDER BY interval, q",
+          "phase": "offline_validation",
+          "start_time": 1788861296.2319436,
+          "status": "execute_returned",
+          "end_time": 1788861296.3748093
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH buckets AS (SELECT * FROM temp.reuse_candidate) SELECT interval, COUNT(*) AS n, ROUND(AVG(carat), 3) AS avg_carat, ROUND(AVG(price), 2) AS avg_price, ROUND(AVG(price / carat), 2) AS avg_ppc, ROUND(MIN(price / carat), 2) AS min_ppc, ROUND(MAX(price / carat), 2) AS max_ppc, ROUND(SQRT(AVG((price / carat) * (price / carat)) - AVG(price / carat) * AVG(price / carat)), 2) AS sd_ppc, ROUND(AVG(price / carat) / SQRT(AVG((price / carat) * (price / carat)) - AVG(price / carat) * AVG(price / carat)), 2) AS cv FROM buckets GROUP BY interval ORDER BY interval",
+          "phase": "offline_validation",
+          "start_time": 1788861296.3777835,
+          "status": "execute_returned",
+          "end_time": 1788861296.4023576
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Price (USD)\" AS price, \"Carat (diamond weight)\" AS carat, CASE WHEN \"Carat (diamond weight)\" <= 0.5 THEN 'A: <=0.5 ct' WHEN \"Carat (diamond weight)\" <= 1.0 THEN 'B: 0.51-1.0 ct' WHEN \"Carat (diamond weight)\" <= 1.5 THEN 'C: 1.01-1.5 ct' ELSE 'D: >1.5 ct' END AS interval FROM sheet1",
+          "time": 1788861296.216874,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788861296.2318883,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788861296.2319324,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH buckets AS (SELECT * FROM temp.reuse_candidate) SELECT interval, carat AS q, price_per_carat FROM (SELECT interval, carat, price / carat AS price_per_carat, ROW_NUMBER() OVER (PARTITION BY interval ORDER BY price / carat) AS rn, COUNT(*) OVER (PARTITION BY interval) AS cnt FROM buckets) WHERE rn IN ((cnt + 1) / 2, (cnt + 2) / 2) ORDER BY interval, q",
+          "time": 1788861296.2320273,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH buckets AS (SELECT * FROM temp.reuse_candidate) SELECT interval, COUNT(*) AS n, ROUND(AVG(carat), 3) AS avg_carat, ROUND(AVG(price), 2) AS avg_price, ROUND(AVG(price / carat), 2) AS avg_ppc, ROUND(MIN(price / carat), 2) AS min_ppc, ROUND(MAX(price / carat), 2) AS max_ppc, ROUND(SQRT(AVG((price / carat) * (price / carat)) - AVG(price / carat) * AVG(price / carat)), 2) AS sd_ppc, ROUND(AVG(price / carat) / SQRT(AVG((price / carat) * (price / carat)) - AVG(price / carat) * AVG(price / carat)), 2) AS cv FROM buckets GROUP BY interval ORDER BY interval",
+          "time": 1788861296.3778992,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 15.12010209262371,
+      "intermediate_rows": 53595,
+      "intermediate_columns": [
+        "price",
+        "carat",
+        "interval"
+      ],
+      "validation_ended_at": 1788861296.4224546,
+      "checks": [
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "WITH buckets AS (SELECT * FROM temp.reuse_candidate) SELECT interval, carat AS q, price_per_carat FROM (SELECT interval, carat, price / carat AS price_per_carat, ROW_NUMBER() OVER (PARTITION BY interval ORDER BY price / carat) AS rn, COUNT(*) OVER (PARTITION BY interval) AS cnt FROM buckets) WHERE rn IN ((cnt + 1) / 2, (cnt + 2) / 2) ORDER BY interval, q",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 145.83562687039375
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "WITH buckets AS (SELECT * FROM temp.reuse_candidate) SELECT interval, COUNT(*) AS n, ROUND(AVG(carat), 3) AS avg_carat, ROUND(AVG(price), 2) AS avg_price, ROUND(AVG(price / carat), 2) AS avg_ppc, ROUND(MIN(price / carat), 2) AS min_ppc, ROUND(MAX(price / carat), 2) AS max_ppc, ROUND(SQRT(AVG((price / carat) * (price / carat)) - AVG(price / carat) * AVG(price / carat)), 2) AS sd_ppc, ROUND(AVG(price / carat) / SQRT(AVG((price / carat) * (price / carat)) - AVG(price / carat) * AVG(price / carat)), 2) AS cv FROM buckets GROUP BY interval ORDER BY interval",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 44.191695749759674
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT \"Price (USD)\" AS price, \"Carat (diamond weight)\" AS carat, \"Cut (quality)\" AS cut, \"Color\" AS color, \"Clarity\" AS clarity, CASE WHEN \"Carat (diamond weight)\" <= 0.5 THEN '<=0.5' WHEN \"Carat (diamond weight)\" <= 1.0 THEN '0.51-1.0' WHEN \"Carat (diamond weight)\" <= 1.5 THEN '1.01-1.5' ELSE '>1.5' END AS interval FROM sheet1",
+      "covered": [
+        "S16",
+        "S17",
+        "S18"
+      ],
+      "rewrites": {
+        "S16": "WITH b AS (SELECT * FROM temp.reuse_candidate) SELECT interval, cut, COUNT(*) AS n, ROUND(AVG(price / carat), 2) AS avg_ppc FROM b GROUP BY interval, cut ORDER BY interval, avg_ppc DESC",
+        "S17": "WITH b AS (SELECT * FROM temp.reuse_candidate) SELECT interval, color, COUNT(*) AS n, ROUND(AVG(price / carat), 2) AS avg_ppc FROM b GROUP BY interval, color ORDER BY interval, color",
+        "S18": "WITH b AS (SELECT * FROM temp.reuse_candidate) SELECT interval, clarity, COUNT(*) AS n, ROUND(AVG(price / carat), 2) AS avg_ppc FROM b GROUP BY interval, clarity ORDER BY interval, clarity"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S16",
+      "later_reuses": 2,
+      "denominator": 18,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788861296.0446546,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Price (USD)\" AS price, \"Carat (diamond weight)\" AS carat, \"Cut (quality)\" AS cut, \"Color\" AS color, \"Clarity\" AS clarity, CASE WHEN \"Carat (diamond weight)\" <= 0.5 THEN '<=0.5' WHEN \"Carat (diamond weight)\" <= 1.0 THEN '0.51-1.0' WHEN \"Carat (diamond weight)\" <= 1.5 THEN '1.01-1.5' ELSE '>1.5' END AS interval FROM sheet1",
+          "phase": "offline_validation",
+          "start_time": 1788861296.044855,
+          "status": "execute_returned",
+          "end_time": 1788861296.0648816
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788861296.064888,
+          "status": "execute_returned",
+          "end_time": 1788861296.0650582
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788861296.0650642,
+          "status": "execute_returned",
+          "end_time": 1788861296.065078
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH b AS (SELECT * FROM temp.reuse_candidate) SELECT interval, cut, COUNT(*) AS n, ROUND(AVG(price / carat), 2) AS avg_ppc FROM b GROUP BY interval, cut ORDER BY interval, avg_ppc DESC",
+          "phase": "offline_validation",
+          "start_time": 1788861296.065092,
+          "status": "execute_returned",
+          "end_time": 1788861296.1138706
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH b AS (SELECT * FROM temp.reuse_candidate) SELECT interval, color, COUNT(*) AS n, ROUND(AVG(price / carat), 2) AS avg_ppc FROM b GROUP BY interval, color ORDER BY interval, color",
+          "phase": "offline_validation",
+          "start_time": 1788861296.1157916,
+          "status": "execute_returned",
+          "end_time": 1788861296.1521847
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH b AS (SELECT * FROM temp.reuse_candidate) SELECT interval, clarity, COUNT(*) AS n, ROUND(AVG(price / carat), 2) AS avg_ppc FROM b GROUP BY interval, clarity ORDER BY interval, clarity",
+          "phase": "offline_validation",
+          "start_time": 1788861296.166318,
+          "status": "execute_returned",
+          "end_time": 1788861296.2012718
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Price (USD)\" AS price, \"Carat (diamond weight)\" AS carat, \"Cut (quality)\" AS cut, \"Color\" AS color, \"Clarity\" AS clarity, CASE WHEN \"Carat (diamond weight)\" <= 0.5 THEN '<=0.5' WHEN \"Carat (diamond weight)\" <= 1.0 THEN '0.51-1.0' WHEN \"Carat (diamond weight)\" <= 1.5 THEN '1.01-1.5' ELSE '>1.5' END AS interval FROM sheet1",
+          "time": 1788861296.044968,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788861296.0649076,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788861296.0650752,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH b AS (SELECT * FROM temp.reuse_candidate) SELECT interval, cut, COUNT(*) AS n, ROUND(AVG(price / carat), 2) AS avg_ppc FROM b GROUP BY interval, cut ORDER BY interval, avg_ppc DESC",
+          "time": 1788861296.0651324,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH b AS (SELECT * FROM temp.reuse_candidate) SELECT interval, color, COUNT(*) AS n, ROUND(AVG(price / carat), 2) AS avg_ppc FROM b GROUP BY interval, color ORDER BY interval, color",
+          "time": 1788861296.11584,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH b AS (SELECT * FROM temp.reuse_candidate) SELECT interval, clarity, COUNT(*) AS n, ROUND(AVG(price / carat), 2) AS avg_ppc FROM b GROUP BY interval, clarity ORDER BY interval, clarity",
+          "time": 1788861296.1663692,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 20.03119047731161,
+      "intermediate_rows": 53595,
+      "intermediate_columns": [
+        "price",
+        "carat",
+        "cut",
+        "color",
+        "clarity",
+        "interval"
+      ],
+      "validation_ended_at": 1788861296.2165124,
+      "checks": [
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "WITH b AS (SELECT * FROM temp.reuse_candidate) SELECT interval, cut, COUNT(*) AS n, ROUND(AVG(price / carat), 2) AS avg_ppc FROM b GROUP BY interval, cut ORDER BY interval, avg_ppc DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 50.69657042622566
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "WITH b AS (SELECT * FROM temp.reuse_candidate) SELECT interval, color, COUNT(*) AS n, ROUND(AVG(price / carat), 2) AS avg_ppc FROM b GROUP BY interval, color ORDER BY interval, color",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 50.523594953119755
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "WITH b AS (SELECT * FROM temp.reuse_candidate) SELECT interval, clarity, COUNT(*) AS n, ROUND(AVG(price / carat), 2) AS avg_ppc FROM b GROUP BY interval, clarity ORDER BY interval, clarity",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 49.508907832205296
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Cut (quality)\" AS __g0, color AS __g1, clarity AS __g2, COUNT(*) AS __a0, SUM(CASE WHEN \"Carat (diamond weight)\" IS NULL THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN \"Cut (quality)\" IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN \"Color\" IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN \"Clarity\" IS NULL THEN 1 ELSE 0 END) AS __a4, SUM(CASE WHEN \"Depth percentage\" IS NULL THEN 1 ELSE 0 END) AS __a5, SUM(CASE WHEN \"Table percentage\" IS NULL THEN 1 ELSE 0 END) AS __a6, SUM(CASE WHEN \"X-axis length (mm)\" IS NULL THEN 1 ELSE 0 END) AS __a7, SUM(CASE WHEN \"Y-axis width (mm)\" IS NULL THEN 1 ELSE 0 END) AS __a8, SUM(CASE WHEN \"Z-axis depth (mm)\" IS NULL THEN 1 ELSE 0 END) AS __a9, SUM(CASE WHEN \"Price (USD)\" IS NULL THEN 1 ELSE 0 END) AS __a10, MIN(\"Price (USD)\") AS __a11, MAX(\"Price (USD)\") AS __a12, SUM(\"Price (USD)\") AS __a13_sum, COUNT(\"Price (USD)\") AS __a13_n, MIN(\"Carat (diamond weight)\") AS __a14, MAX(\"Carat (diamond weight)\") AS __a15, SUM(\"Carat (diamond weight)\") AS __a16_sum, COUNT(\"Carat (diamond weight)\") AS __a16_n, SUM(\"Price (USD)\" / \"Carat (diamond weight)\") AS __a17_sum, COUNT(\"Price (USD)\" / \"Carat (diamond weight)\") AS __a17_n, SUM(\"Depth percentage\") AS __a18_sum, COUNT(\"Depth percentage\") AS __a18_n, SUM(\"Table percentage\") AS __a19_sum, COUNT(\"Table percentage\") AS __a19_n, SUM(\"Carat (diamond weight)\" * \"Price (USD)\") AS __a20_sum, COUNT(\"Carat (diamond weight)\" * \"Price (USD)\") AS __a20_n, SUM(\"Carat (diamond weight)\" * \"Carat (diamond weight)\") AS __a21_sum, COUNT(\"Carat (diamond weight)\" * \"Carat (diamond weight)\") AS __a21_n, SUM(\"Price (USD)\" * \"Price (USD)\") AS __a22_sum, COUNT(\"Price (USD)\" * \"Price (USD)\") AS __a22_n FROM \"sheet1\"  GROUP BY \"Cut (quality)\", color, clarity",
+      "covered": [
+        "S3",
+        "S4",
+        "S5",
+        "S6",
+        "S7",
+        "S11",
+        "S13",
+        "S14",
+        "S15",
+        "S20"
+      ],
+      "rewrites": {
+        "S3": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+        "S4": "SELECT SUM(__a0) AS total, SUM(__a1) AS null_carat, SUM(__a2) AS null_cut, SUM(__a3) AS null_color, SUM(__a4) AS null_clarity, SUM(__a5) AS null_depth, SUM(__a6) AS null_table, SUM(__a7) AS null_x, SUM(__a8) AS null_y, SUM(__a9) AS null_z, SUM(__a10) AS null_price FROM temp.reuse_candidate",
+        "S5": "SELECT __g0 AS cut, SUM(__a0) AS n, MIN(__a11) AS min_price, MAX(__a12) AS max_price, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_price FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+        "S6": "SELECT __g1 AS \"Color\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1",
+        "S7": "SELECT __g2 AS \"Clarity\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY __g2",
+        "S11": "SELECT MIN(__a14) AS min_carat, MAX(__a15) AS max_carat, MIN(__a11) AS min_price, MAX(__a12) AS max_price, ROUND((1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)), 3) AS avg_carat, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 2) AS avg_price, ROUND((1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)), 2) AS avg_ppc, ROUND((1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)), 2) AS avg_depth, ROUND((1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)), 2) AS avg_table FROM temp.reuse_candidate",
+        "S13": "SELECT __g0 AS cut, SUM(__a0) AS n, ROUND((1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)), 2) AS avg_ppc, ROUND((1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)), 3) AS avg_carat FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_ppc DESC",
+        "S14": "SELECT __g1 AS \"Color\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)), 2) AS avg_ppc, ROUND((1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)), 3) AS avg_carat FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1",
+        "S15": "SELECT __g2 AS \"Clarity\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)), 2) AS avg_ppc, ROUND((1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)), 3) AS avg_carat FROM temp.reuse_candidate GROUP BY __g2 ORDER BY __g2",
+        "S20": "SELECT ROUND((1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) - (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) * (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 4) AS carat_price_cov, ROUND(((1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) - (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) * (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0))) / (SQRT((1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)) - (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) * (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0))) * SQRT((1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)) - (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) * (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)))), 4) AS corr_carat_price FROM temp.reuse_candidate"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 9,
+      "denominator": 18,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788861295.8795283,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Cut (quality)\" AS __g0, color AS __g1, clarity AS __g2, COUNT(*) AS __a0, SUM(CASE WHEN \"Carat (diamond weight)\" IS NULL THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN \"Cut (quality)\" IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN \"Color\" IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN \"Clarity\" IS NULL THEN 1 ELSE 0 END) AS __a4, SUM(CASE WHEN \"Depth percentage\" IS NULL THEN 1 ELSE 0 END) AS __a5, SUM(CASE WHEN \"Table percentage\" IS NULL THEN 1 ELSE 0 END) AS __a6, SUM(CASE WHEN \"X-axis length (mm)\" IS NULL THEN 1 ELSE 0 END) AS __a7, SUM(CASE WHEN \"Y-axis width (mm)\" IS NULL THEN 1 ELSE 0 END) AS __a8, SUM(CASE WHEN \"Z-axis depth (mm)\" IS NULL THEN 1 ELSE 0 END) AS __a9, SUM(CASE WHEN \"Price (USD)\" IS NULL THEN 1 ELSE 0 END) AS __a10, MIN(\"Price (USD)\") AS __a11, MAX(\"Price (USD)\") AS __a12, SUM(\"Price (USD)\") AS __a13_sum, COUNT(\"Price (USD)\") AS __a13_n, MIN(\"Carat (diamond weight)\") AS __a14, MAX(\"Carat (diamond weight)\") AS __a15, SUM(\"Carat (diamond weight)\") AS __a16_sum, COUNT(\"Carat (diamond weight)\") AS __a16_n, SUM(\"Price (USD)\" / \"Carat (diamond weight)\") AS __a17_sum, COUNT(\"Price (USD)\" / \"Carat (diamond weight)\") AS __a17_n, SUM(\"Depth percentage\") AS __a18_sum, COUNT(\"Depth percentage\") AS __a18_n, SUM(\"Table percentage\") AS __a19_sum, COUNT(\"Table percentage\") AS __a19_n, SUM(\"Carat (diamond weight)\" * \"Price (USD)\") AS __a20_sum, COUNT(\"Carat (diamond weight)\" * \"Price (USD)\") AS __a20_n, SUM(\"Carat (diamond weight)\" * \"Carat (diamond weight)\") AS __a21_sum, COUNT(\"Carat (diamond weight)\" * \"Carat (diamond weight)\") AS __a21_n, SUM(\"Price (USD)\" * \"Price (USD)\") AS __a22_sum, COUNT(\"Price (USD)\" * \"Price (USD)\") AS __a22_n FROM \"sheet1\"  GROUP BY \"Cut (quality)\", color, clarity",
+          "phase": "offline_validation",
+          "start_time": 1788861295.8798,
+          "status": "execute_returned",
+          "end_time": 1788861296.0316267
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788861296.0316365,
+          "status": "execute_returned",
+          "end_time": 1788861296.0316727
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788861296.03168,
+          "status": "execute_returned",
+          "end_time": 1788861296.031702
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788861296.0317504,
+          "status": "execute_returned",
+          "end_time": 1788861296.0317895
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT SUM(__a0) AS total, SUM(__a1) AS null_carat, SUM(__a2) AS null_cut, SUM(__a3) AS null_color, SUM(__a4) AS null_clarity, SUM(__a5) AS null_depth, SUM(__a6) AS null_table, SUM(__a7) AS null_x, SUM(__a8) AS null_y, SUM(__a9) AS null_z, SUM(__a10) AS null_price FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788861296.0323439,
+          "status": "execute_returned",
+          "end_time": 1788861296.0325086
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS cut, SUM(__a0) AS n, MIN(__a11) AS min_price, MAX(__a12) AS max_price, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_price FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788861296.035339,
+          "status": "execute_returned",
+          "end_time": 1788861296.0355637
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g1 AS \"Color\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1",
+          "phase": "offline_validation",
+          "start_time": 1788861296.0364106,
+          "status": "execute_returned",
+          "end_time": 1788861296.0365024
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g2 AS \"Clarity\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY __g2",
+          "phase": "offline_validation",
+          "start_time": 1788861296.0370376,
+          "status": "execute_returned",
+          "end_time": 1788861296.0371363
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT MIN(__a14) AS min_carat, MAX(__a15) AS max_carat, MIN(__a11) AS min_price, MAX(__a12) AS max_price, ROUND((1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)), 3) AS avg_carat, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 2) AS avg_price, ROUND((1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)), 2) AS avg_ppc, ROUND((1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)), 2) AS avg_depth, ROUND((1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)), 2) AS avg_table FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788861296.037671,
+          "status": "execute_returned",
+          "end_time": 1788861296.0379126
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g0 AS cut, SUM(__a0) AS n, ROUND((1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)), 2) AS avg_ppc, ROUND((1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)), 3) AS avg_carat FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_ppc DESC",
+          "phase": "offline_validation",
+          "start_time": 1788861296.039288,
+          "status": "execute_returned",
+          "end_time": 1788861296.0395136
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g1 AS \"Color\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)), 2) AS avg_ppc, ROUND((1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)), 3) AS avg_carat FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1",
+          "phase": "offline_validation",
+          "start_time": 1788861296.0403788,
+          "status": "execute_returned",
+          "end_time": 1788861296.0405307
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT __g2 AS \"Clarity\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)), 2) AS avg_ppc, ROUND((1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)), 3) AS avg_carat FROM temp.reuse_candidate GROUP BY __g2 ORDER BY __g2",
+          "phase": "offline_validation",
+          "start_time": 1788861296.0416553,
+          "status": "execute_returned",
+          "end_time": 1788861296.041816
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT ROUND((1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) - (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) * (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 4) AS carat_price_cov, ROUND(((1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) - (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) * (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0))) / (SQRT((1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)) - (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) * (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0))) * SQRT((1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)) - (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) * (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)))), 4) AS corr_carat_price FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788861296.0427234,
+          "status": "execute_returned",
+          "end_time": 1788861296.0429494
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Cut (quality)\" AS __g0, color AS __g1, clarity AS __g2, COUNT(*) AS __a0, SUM(CASE WHEN \"Carat (diamond weight)\" IS NULL THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN \"Cut (quality)\" IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN \"Color\" IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN \"Clarity\" IS NULL THEN 1 ELSE 0 END) AS __a4, SUM(CASE WHEN \"Depth percentage\" IS NULL THEN 1 ELSE 0 END) AS __a5, SUM(CASE WHEN \"Table percentage\" IS NULL THEN 1 ELSE 0 END) AS __a6, SUM(CASE WHEN \"X-axis length (mm)\" IS NULL THEN 1 ELSE 0 END) AS __a7, SUM(CASE WHEN \"Y-axis width (mm)\" IS NULL THEN 1 ELSE 0 END) AS __a8, SUM(CASE WHEN \"Z-axis depth (mm)\" IS NULL THEN 1 ELSE 0 END) AS __a9, SUM(CASE WHEN \"Price (USD)\" IS NULL THEN 1 ELSE 0 END) AS __a10, MIN(\"Price (USD)\") AS __a11, MAX(\"Price (USD)\") AS __a12, SUM(\"Price (USD)\") AS __a13_sum, COUNT(\"Price (USD)\") AS __a13_n, MIN(\"Carat (diamond weight)\") AS __a14, MAX(\"Carat (diamond weight)\") AS __a15, SUM(\"Carat (diamond weight)\") AS __a16_sum, COUNT(\"Carat (diamond weight)\") AS __a16_n, SUM(\"Price (USD)\" / \"Carat (diamond weight)\") AS __a17_sum, COUNT(\"Price (USD)\" / \"Carat (diamond weight)\") AS __a17_n, SUM(\"Depth percentage\") AS __a18_sum, COUNT(\"Depth percentage\") AS __a18_n, SUM(\"Table percentage\") AS __a19_sum, COUNT(\"Table percentage\") AS __a19_n, SUM(\"Carat (diamond weight)\" * \"Price (USD)\") AS __a20_sum, COUNT(\"Carat (diamond weight)\" * \"Price (USD)\") AS __a20_n, SUM(\"Carat (diamond weight)\" * \"Carat (diamond weight)\") AS __a21_sum, COUNT(\"Carat (diamond weight)\" * \"Carat (diamond weight)\") AS __a21_n, SUM(\"Price (USD)\" * \"Price (USD)\") AS __a22_sum, COUNT(\"Price (USD)\" * \"Price (USD)\") AS __a22_n FROM \"sheet1\"  GROUP BY \"Cut (quality)\", color, clarity",
+          "time": 1788861295.880137,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788861296.031667,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788861296.0316985,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "time": 1788861296.031765,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total, SUM(__a1) AS null_carat, SUM(__a2) AS null_cut, SUM(__a3) AS null_color, SUM(__a4) AS null_clarity, SUM(__a5) AS null_depth, SUM(__a6) AS null_table, SUM(__a7) AS null_x, SUM(__a8) AS null_y, SUM(__a9) AS null_z, SUM(__a10) AS null_price FROM temp.reuse_candidate",
+          "time": 1788861296.0323951,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS cut, SUM(__a0) AS n, MIN(__a11) AS min_price, MAX(__a12) AS max_price, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_price FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "time": 1788861296.035397,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"Color\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1",
+          "time": 1788861296.036442,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"Clarity\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY __g2",
+          "time": 1788861296.0370696,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a14) AS min_carat, MAX(__a15) AS max_carat, MIN(__a11) AS min_price, MAX(__a12) AS max_price, ROUND((1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)), 3) AS avg_carat, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 2) AS avg_price, ROUND((1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)), 2) AS avg_ppc, ROUND((1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)), 2) AS avg_depth, ROUND((1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)), 2) AS avg_table FROM temp.reuse_candidate",
+          "time": 1788861296.0377524,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS cut, SUM(__a0) AS n, ROUND((1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)), 2) AS avg_ppc, ROUND((1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)), 3) AS avg_carat FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_ppc DESC",
+          "time": 1788861296.0393476,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"Color\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)), 2) AS avg_ppc, ROUND((1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)), 3) AS avg_carat FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1",
+          "time": 1788861296.040431,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"Clarity\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)), 2) AS avg_ppc, ROUND((1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)), 3) AS avg_carat FROM temp.reuse_candidate GROUP BY __g2 ORDER BY __g2",
+          "time": 1788861296.04171,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT ROUND((1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) - (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) * (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 4) AS carat_price_cov, ROUND(((1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) - (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) * (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0))) / (SQRT((1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)) - (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) * (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0))) * SQRT((1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)) - (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) * (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)))), 4) AS corr_carat_price FROM temp.reuse_candidate",
+          "time": 1788861296.042818,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 151.8333749845624,
+      "intermediate_rows": 276,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4",
+        "__a5",
+        "__a6",
+        "__a7",
+        "__a8",
+        "__a9",
+        "__a10",
+        "__a11",
+        "__a12",
+        "__a13_sum",
+        "__a13_n",
+        "__a14",
+        "__a15",
+        "__a16_sum",
+        "__a16_n",
+        "__a17_sum",
+        "__a17_n",
+        "__a18_sum",
+        "__a18_n",
+        "__a19_sum",
+        "__a19_n",
+        "__a20_sum",
+        "__a20_n",
+        "__a21_sum",
+        "__a21_n",
+        "__a22_sum",
+        "__a22_n"
+      ],
+      "validation_ended_at": 1788861296.0446398,
+      "checks": [
+        {
+          "sql_id": "S3",
+          "rewritten_sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5896193906664848
+        },
+        {
+          "sql_id": "S4",
+          "rewritten_sql": "SELECT SUM(__a0) AS total, SUM(__a1) AS null_carat, SUM(__a2) AS null_cut, SUM(__a3) AS null_color, SUM(__a4) AS null_clarity, SUM(__a5) AS null_depth, SUM(__a6) AS null_table, SUM(__a7) AS null_x, SUM(__a8) AS null_y, SUM(__a9) AS null_z, SUM(__a10) AS null_price FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.9926439747214317
+        },
+        {
+          "sql_id": "S5",
+          "rewritten_sql": "SELECT __g0 AS cut, SUM(__a0) AS n, MIN(__a11) AS min_price, MAX(__a12) AS max_price, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_price FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.06895063072443
+        },
+        {
+          "sql_id": "S6",
+          "rewritten_sql": "SELECT __g1 AS \"Color\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6226683035492897
+        },
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT __g2 AS \"Clarity\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6326008588075638
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT MIN(__a14) AS min_carat, MAX(__a15) AS max_carat, MIN(__a11) AS min_price, MAX(__a12) AS max_price, ROUND((1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)), 3) AS avg_carat, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 2) AS avg_price, ROUND((1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)), 2) AS avg_ppc, ROUND((1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)), 2) AS avg_depth, ROUND((1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)), 2) AS avg_table FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.6143294051289558
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT __g0 AS cut, SUM(__a0) AS n, ROUND((1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)), 2) AS avg_ppc, ROUND((1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)), 3) AS avg_carat FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_ppc DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.081276684999466
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT __g1 AS \"Color\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)), 2) AS avg_ppc, ROUND((1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)), 3) AS avg_carat FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.274080015718937
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "SELECT __g2 AS \"Clarity\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)), 2) AS avg_ppc, ROUND((1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)), 3) AS avg_carat FROM temp.reuse_candidate GROUP BY __g2 ORDER BY __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.065993681550026
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "SELECT ROUND((1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) - (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) * (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 4) AS carat_price_cov, ROUND(((1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) - (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) * (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0))) / (SQRT((1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)) - (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) * (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0))) * SQRT((1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)) - (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) * (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)))), 4) AS corr_carat_price FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.7608888447284698
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

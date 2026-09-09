@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_conv FROM intercom__conversation_metrics

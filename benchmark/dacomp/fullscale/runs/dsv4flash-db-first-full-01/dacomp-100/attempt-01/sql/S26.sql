@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n, COUNT(DISTINCT conversation_id) AS uniq FROM intercom__conversation_metrics

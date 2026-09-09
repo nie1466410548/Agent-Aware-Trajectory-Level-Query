@@ -1,0 +1,1125 @@
+{
+  "fingerprint": "0c9dfc70ca4b9b0c4cdc7315d20a3b9087d64ed1d2d0d2571b04a5b23007d9e5",
+  "analysis_source_version": "11db36a5cf34662d69d06fb9401b4dd860cf7569546f909da5e0f3edcf66d6d3",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT CASE WHEN JULIANDAY(first_event_on) - JULIANDAY(created_at) <= 7 THEN 'cold_start_like' ELSE 'delayed_first_touch' END AS __g0, active_months AS __g1, has_30day_retention AS __g2, paid_retention_rate_month AS __g3, CASE WHEN days_span <= 60 THEN 'fast_ramp' WHEN days_span <= 100 THEN 'medium_ramp' WHEN days_span <= 140 THEN 'slow_ramp' ELSE 'very_slow_ramp' END AS __g4, months_span - active_months AS __g5, CASE WHEN count_clicked_email = 0 THEN 'no_clicks' WHEN count_clicked_email <= 5 THEN 'few_clicks' WHEN count_clicked_email <= 10 THEN 'some_clicks' ELSE 'many_clicks' END AS __g6, CASE WHEN count_received_email <= 50 THEN 'low_freq' WHEN count_received_email <= 70 THEN 'med_freq' WHEN count_received_email <= 90 THEN 'high_freq' ELSE 'very_high_freq' END AS __g7, CASE WHEN active_months <= 2 THEN 'Cold Start' WHEN active_months = 3 THEN 'Growth' WHEN active_months = 4 THEN 'Mature' ELSE 'Peak' END AS __g8, CASE WHEN days_span <= 60 THEN 'Fast (≤60d)' WHEN days_span <= 90 THEN 'Medium (61-90d)' WHEN days_span <= 120 THEN 'Slow (91-120d)' ELSE 'Very Slow (>120d)' END AS __g9, CASE WHEN count_placed_order = 0 THEN 'No Orders' WHEN count_placed_order = 1 THEN '1 Order' WHEN count_placed_order <= 3 THEN '2-3 Orders' ELSE '4+ Orders' END AS __g10, CASE WHEN sum_revenue_placed_order > 0 THEN 'Paying' ELSE 'Non-Paying' END AS __g11, CASE WHEN count_received_email * 1.0 / active_months < 20 THEN '<20 emails/mo' WHEN count_received_email * 1.0 / active_months < 30 THEN '20-30 emails/mo' WHEN count_received_email * 1.0 / active_months < 40 THEN '30-40 emails/mo' ELSE '40+ emails/mo' END AS __g12, COUNT(*) AS __a0, MIN(days_span) AS __a1, MAX(days_span) AS __a2, SUM(days_span) AS __a3_sum, COUNT(days_span) AS __a3_n, MIN(active_months) AS __a4, MAX(active_months) AS __a5, SUM(active_months) AS __a6_sum, COUNT(active_months) AS __a6_n, MIN(paid_retained_month_count) AS __a7, MAX(paid_retained_month_count) AS __a8, SUM(paid_retained_month_count) AS __a9_sum, COUNT(paid_retained_month_count) AS __a9_n, SUM(CASE WHEN days_span - active_days >= 90 THEN 1 ELSE 0 END) AS __a10, SUM(CASE WHEN days_span - active_days >= 60 THEN 1 ELSE 0 END) AS __a11, SUM(CASE WHEN days_span - active_days >= 30 THEN 1 ELSE 0 END) AS __a12, SUM(days_span - active_days) AS __a13_sum, COUNT(days_span - active_days) AS __a13_n, SUM(paid_retention_rate_month) AS __a14_sum, COUNT(paid_retention_rate_month) AS __a14_n, SUM(email_open_rate) AS __a15_sum, COUNT(email_open_rate) AS __a15_n, SUM(active_retention_rate_month) AS __a16_sum, COUNT(active_retention_rate_month) AS __a16_n, SUM(count_placed_order) AS __a17_sum, COUNT(count_placed_order) AS __a17_n, SUM(count_received_email) AS __a18_sum, COUNT(count_received_email) AS __a18_n, SUM(count_opened_email) AS __a19_sum, COUNT(count_opened_email) AS __a19_n, SUM(count_clicked_email) AS __a20_sum, COUNT(count_clicked_email) AS __a20_n, SUM(sum_revenue_placed_order) AS __a21_sum, COUNT(sum_revenue_placed_order) AS __a21_n, SUM(active_days * 1.0 / days_span) AS __a22_sum, COUNT(active_days * 1.0 / days_span) AS __a22_n, MAX(days_span - active_days) AS __a23, MAX(count_received_email) AS __a24, SUM(CASE WHEN email_open_rate < 0.3 THEN 1 ELSE 0 END) AS __a25, SUM(CASE WHEN email_open_rate >= 0.3 AND email_open_rate < 0.5 THEN 1 ELSE 0 END) AS __a26, SUM(CASE WHEN email_open_rate >= 0.5 THEN 1 ELSE 0 END) AS __a27 FROM \"klaviyo__persons\"  GROUP BY CASE WHEN JULIANDAY(first_event_on) - JULIANDAY(created_at) <= 7 THEN 'cold_start_like' ELSE 'delayed_first_touch' END, active_months, has_30day_retention, paid_retention_rate_month, CASE WHEN days_span <= 60 THEN 'fast_ramp' WHEN days_span <= 100 THEN 'medium_ramp' WHEN days_span <= 140 THEN 'slow_ramp' ELSE 'very_slow_ramp' END, months_span - active_months, CASE WHEN count_clicked_email = 0 THEN 'no_clicks' WHEN count_clicked_email <= 5 THEN 'few_clicks' WHEN count_clicked_email <= 10 THEN 'some_clicks' ELSE 'many_clicks' END, CASE WHEN count_received_email <= 50 THEN 'low_freq' WHEN count_received_email <= 70 THEN 'med_freq' WHEN count_received_email <= 90 THEN 'high_freq' ELSE 'very_high_freq' END, CASE WHEN active_months <= 2 THEN 'Cold Start' WHEN active_months = 3 THEN 'Growth' WHEN active_months = 4 THEN 'Mature' ELSE 'Peak' END, CASE WHEN days_span <= 60 THEN 'Fast (≤60d)' WHEN days_span <= 90 THEN 'Medium (61-90d)' WHEN days_span <= 120 THEN 'Slow (91-120d)' ELSE 'Very Slow (>120d)' END, CASE WHEN count_placed_order = 0 THEN 'No Orders' WHEN count_placed_order = 1 THEN '1 Order' WHEN count_placed_order <= 3 THEN '2-3 Orders' ELSE '4+ Orders' END, CASE WHEN sum_revenue_placed_order > 0 THEN 'Paying' ELSE 'Non-Paying' END, CASE WHEN count_received_email * 1.0 / active_months < 20 THEN '<20 emails/mo' WHEN count_received_email * 1.0 / active_months < 30 THEN '20-30 emails/mo' WHEN count_received_email * 1.0 / active_months < 40 THEN '30-40 emails/mo' ELSE '40+ emails/mo' END",
+      "covered": [
+        "S3",
+        "S13",
+        "S15",
+        "S16",
+        "S17",
+        "S18",
+        "S19",
+        "S20",
+        "S22",
+        "S24",
+        "S25",
+        "S26",
+        "S29",
+        "S36",
+        "S38",
+        "S43",
+        "S59",
+        "S60"
+      ],
+      "rewrites": {
+        "S3": "SELECT SUM(__a0) AS total_persons FROM temp.reuse_candidate",
+        "S13": "SELECT MIN(__a1) AS min_ds, MAX(__a2) AS max_ds, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds, MIN(__a4) AS min_am, MAX(__a5) AS max_am, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_am, MIN(__a7) AS min_prm, MAX(__a8) AS max_prm, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm FROM temp.reuse_candidate",
+        "S15": "SELECT SUM(__a0) AS n, SUM(__a10) AS inactive_90plus, SUM(__a11) AS inactive_60plus, SUM(__a12) AS inactive_30plus, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_inactive_days FROM temp.reuse_candidate",
+        "S16": "SELECT __g0 AS first_touch_seg, SUM(__a0) AS n, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open FROM temp.reuse_candidate GROUP BY __g0",
+        "S17": "SELECT __g1 AS \"active_months\", SUM(__a0) AS n, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_arm FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1",
+        "S18": "SELECT __g2 AS \"has_30day_retention\", SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders FROM temp.reuse_candidate GROUP BY __g2",
+        "S19": "SELECT __g3 AS \"paid_retention_rate_month\", SUM(__a0) AS n, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_am, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open FROM temp.reuse_candidate GROUP BY __g3 ORDER BY __g3",
+        "S20": "SELECT __g4 AS ramp_speed, SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders FROM temp.reuse_candidate GROUP BY __g4 ORDER BY ramp_speed",
+        "S22": "SELECT __g5 AS inactive_months, SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds FROM temp.reuse_candidate GROUP BY __g5 ORDER BY inactive_months",
+        "S24": "SELECT __g6 AS click_segment, SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open FROM temp.reuse_candidate GROUP BY __g6 ORDER BY avg_orders DESC",
+        "S25": "SELECT __g7 AS freq_segment, SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open FROM temp.reuse_candidate GROUP BY __g7 ORDER BY avg_orders DESC",
+        "S26": "SELECT __g1 AS \"active_months\", (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails, (1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)) AS avg_opens, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_clicks, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open_rate, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_days_span, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1",
+        "S29": "SELECT __g8 AS lifecycle_stage, SUM(__a0) AS n_persons, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_days_span, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_active_months, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_paid_retained_months, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_paid_retention_rate, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)) AS avg_revenue, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open_rate, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails_received, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_clicks, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_active_ret_rate FROM temp.reuse_candidate GROUP BY __g8 ORDER BY avg_active_months",
+        "S36": "SELECT __g9 AS speed_group, SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)) AS avg_revenue, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails, (1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)) AS avg_density FROM temp.reuse_candidate GROUP BY __g9 ORDER BY speed_group",
+        "S38": "SELECT __g10 AS order_tier, SUM(__a0) AS n, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_days_span, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_am, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_clicks FROM temp.reuse_candidate GROUP BY __g10",
+        "S43": "SELECT __g11 AS paying, SUM(__a0) AS n, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_am, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr FROM temp.reuse_candidate GROUP BY __g11",
+        "S59": "SELECT MAX(__a23) AS max_inactive_days, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails, MAX(__a24) AS max_emails, SUM(__a25) AS low_open_n, SUM(__a26) AS mid_open_n, SUM(__a27) AS high_open_n FROM temp.reuse_candidate",
+        "S60": "/* Emails per month distribution to inform frequency recommendations */ SELECT __g12 AS intensity, SUM(__a0) AS n, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr FROM temp.reuse_candidate GROUP BY __g12 ORDER BY intensity"
+      },
+      "status": "rejected_result_mismatch",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 17,
+      "denominator": 52,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788917594.5543323,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT CASE WHEN JULIANDAY(first_event_on) - JULIANDAY(created_at) <= 7 THEN 'cold_start_like' ELSE 'delayed_first_touch' END AS __g0, active_months AS __g1, has_30day_retention AS __g2, paid_retention_rate_month AS __g3, CASE WHEN days_span <= 60 THEN 'fast_ramp' WHEN days_span <= 100 THEN 'medium_ramp' WHEN days_span <= 140 THEN 'slow_ramp' ELSE 'very_slow_ramp' END AS __g4, months_span - active_months AS __g5, CASE WHEN count_clicked_email = 0 THEN 'no_clicks' WHEN count_clicked_email <= 5 THEN 'few_clicks' WHEN count_clicked_email <= 10 THEN 'some_clicks' ELSE 'many_clicks' END AS __g6, CASE WHEN count_received_email <= 50 THEN 'low_freq' WHEN count_received_email <= 70 THEN 'med_freq' WHEN count_received_email <= 90 THEN 'high_freq' ELSE 'very_high_freq' END AS __g7, CASE WHEN active_months <= 2 THEN 'Cold Start' WHEN active_months = 3 THEN 'Growth' WHEN active_months = 4 THEN 'Mature' ELSE 'Peak' END AS __g8, CASE WHEN days_span <= 60 THEN 'Fast (≤60d)' WHEN days_span <= 90 THEN 'Medium (61-90d)' WHEN days_span <= 120 THEN 'Slow (91-120d)' ELSE 'Very Slow (>120d)' END AS __g9, CASE WHEN count_placed_order = 0 THEN 'No Orders' WHEN count_placed_order = 1 THEN '1 Order' WHEN count_placed_order <= 3 THEN '2-3 Orders' ELSE '4+ Orders' END AS __g10, CASE WHEN sum_revenue_placed_order > 0 THEN 'Paying' ELSE 'Non-Paying' END AS __g11, CASE WHEN count_received_email * 1.0 / active_months < 20 THEN '<20 emails/mo' WHEN count_received_email * 1.0 / active_months < 30 THEN '20-30 emails/mo' WHEN count_received_email * 1.0 / active_months < 40 THEN '30-40 emails/mo' ELSE '40+ emails/mo' END AS __g12, COUNT(*) AS __a0, MIN(days_span) AS __a1, MAX(days_span) AS __a2, SUM(days_span) AS __a3_sum, COUNT(days_span) AS __a3_n, MIN(active_months) AS __a4, MAX(active_months) AS __a5, SUM(active_months) AS __a6_sum, COUNT(active_months) AS __a6_n, MIN(paid_retained_month_count) AS __a7, MAX(paid_retained_month_count) AS __a8, SUM(paid_retained_month_count) AS __a9_sum, COUNT(paid_retained_month_count) AS __a9_n, SUM(CASE WHEN days_span - active_days >= 90 THEN 1 ELSE 0 END) AS __a10, SUM(CASE WHEN days_span - active_days >= 60 THEN 1 ELSE 0 END) AS __a11, SUM(CASE WHEN days_span - active_days >= 30 THEN 1 ELSE 0 END) AS __a12, SUM(days_span - active_days) AS __a13_sum, COUNT(days_span - active_days) AS __a13_n, SUM(paid_retention_rate_month) AS __a14_sum, COUNT(paid_retention_rate_month) AS __a14_n, SUM(email_open_rate) AS __a15_sum, COUNT(email_open_rate) AS __a15_n, SUM(active_retention_rate_month) AS __a16_sum, COUNT(active_retention_rate_month) AS __a16_n, SUM(count_placed_order) AS __a17_sum, COUNT(count_placed_order) AS __a17_n, SUM(count_received_email) AS __a18_sum, COUNT(count_received_email) AS __a18_n, SUM(count_opened_email) AS __a19_sum, COUNT(count_opened_email) AS __a19_n, SUM(count_clicked_email) AS __a20_sum, COUNT(count_clicked_email) AS __a20_n, SUM(sum_revenue_placed_order) AS __a21_sum, COUNT(sum_revenue_placed_order) AS __a21_n, SUM(active_days * 1.0 / days_span) AS __a22_sum, COUNT(active_days * 1.0 / days_span) AS __a22_n, MAX(days_span - active_days) AS __a23, MAX(count_received_email) AS __a24, SUM(CASE WHEN email_open_rate < 0.3 THEN 1 ELSE 0 END) AS __a25, SUM(CASE WHEN email_open_rate >= 0.3 AND email_open_rate < 0.5 THEN 1 ELSE 0 END) AS __a26, SUM(CASE WHEN email_open_rate >= 0.5 THEN 1 ELSE 0 END) AS __a27 FROM \"klaviyo__persons\"  GROUP BY CASE WHEN JULIANDAY(first_event_on) - JULIANDAY(created_at) <= 7 THEN 'cold_start_like' ELSE 'delayed_first_touch' END, active_months, has_30day_retention, paid_retention_rate_month, CASE WHEN days_span <= 60 THEN 'fast_ramp' WHEN days_span <= 100 THEN 'medium_ramp' WHEN days_span <= 140 THEN 'slow_ramp' ELSE 'very_slow_ramp' END, months_span - active_months, CASE WHEN count_clicked_email = 0 THEN 'no_clicks' WHEN count_clicked_email <= 5 THEN 'few_clicks' WHEN count_clicked_email <= 10 THEN 'some_clicks' ELSE 'many_clicks' END, CASE WHEN count_received_email <= 50 THEN 'low_freq' WHEN count_received_email <= 70 THEN 'med_freq' WHEN count_received_email <= 90 THEN 'high_freq' ELSE 'very_high_freq' END, CASE WHEN active_months <= 2 THEN 'Cold Start' WHEN active_months = 3 THEN 'Growth' WHEN active_months = 4 THEN 'Mature' ELSE 'Peak' END, CASE WHEN days_span <= 60 THEN 'Fast (≤60d)' WHEN days_span <= 90 THEN 'Medium (61-90d)' WHEN days_span <= 120 THEN 'Slow (91-120d)' ELSE 'Very Slow (>120d)' END, CASE WHEN count_placed_order = 0 THEN 'No Orders' WHEN count_placed_order = 1 THEN '1 Order' WHEN count_placed_order <= 3 THEN '2-3 Orders' ELSE '4+ Orders' END, CASE WHEN sum_revenue_placed_order > 0 THEN 'Paying' ELSE 'Non-Paying' END, CASE WHEN count_received_email * 1.0 / active_months < 20 THEN '<20 emails/mo' WHEN count_received_email * 1.0 / active_months < 30 THEN '20-30 emails/mo' WHEN count_received_email * 1.0 / active_months < 40 THEN '30-40 emails/mo' ELSE '40+ emails/mo' END",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5546143,
+          "status": "execute_returned",
+          "end_time": 1788917594.5613775
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5613837,
+          "status": "execute_returned",
+          "end_time": 1788917594.561406
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5614119,
+          "status": "execute_returned",
+          "end_time": 1788917594.5614474
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS total_persons FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5615115,
+          "status": "execute_returned",
+          "end_time": 1788917594.5615351
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT MIN(__a1) AS min_ds, MAX(__a2) AS max_ds, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds, MIN(__a4) AS min_am, MAX(__a5) AS max_am, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_am, MIN(__a7) AS min_prm, MAX(__a8) AS max_prm, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5619948,
+          "status": "execute_returned",
+          "end_time": 1788917594.5621233
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT SUM(__a0) AS n, SUM(__a10) AS inactive_90plus, SUM(__a11) AS inactive_60plus, SUM(__a12) AS inactive_30plus, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_inactive_days FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788917594.563395,
+          "status": "execute_returned",
+          "end_time": 1788917594.5634806
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g0 AS first_touch_seg, SUM(__a0) AS n, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5647967,
+          "status": "execute_returned",
+          "end_time": 1788917594.5649283
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g1 AS \"active_months\", SUM(__a0) AS n, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_arm FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5659378,
+          "status": "execute_returned",
+          "end_time": 1788917594.5660634
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g2 AS \"has_30day_retention\", SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders FROM temp.reuse_candidate GROUP BY __g2",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5669765,
+          "status": "execute_returned",
+          "end_time": 1788917594.5671175
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g3 AS \"paid_retention_rate_month\", SUM(__a0) AS n, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_am, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open FROM temp.reuse_candidate GROUP BY __g3 ORDER BY __g3",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5679502,
+          "status": "execute_returned",
+          "end_time": 1788917594.568058
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g4 AS ramp_speed, SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders FROM temp.reuse_candidate GROUP BY __g4 ORDER BY ramp_speed",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5688686,
+          "status": "execute_returned",
+          "end_time": 1788917594.568991
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT __g5 AS inactive_months, SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds FROM temp.reuse_candidate GROUP BY __g5 ORDER BY inactive_months",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5703764,
+          "status": "execute_returned",
+          "end_time": 1788917594.570481
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT __g6 AS click_segment, SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open FROM temp.reuse_candidate GROUP BY __g6 ORDER BY avg_orders DESC",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5712118,
+          "status": "execute_returned",
+          "end_time": 1788917594.571349
+        },
+        {
+          "sequence": 14,
+          "sql": "SELECT __g7 AS freq_segment, SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open FROM temp.reuse_candidate GROUP BY __g7 ORDER BY avg_orders DESC",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5724468,
+          "status": "execute_returned",
+          "end_time": 1788917594.5726066
+        },
+        {
+          "sequence": 15,
+          "sql": "SELECT __g1 AS \"active_months\", (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails, (1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)) AS avg_opens, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_clicks, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open_rate, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_days_span, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5737941,
+          "status": "execute_returned",
+          "end_time": 1788917594.5739467
+        },
+        {
+          "sequence": 16,
+          "sql": "SELECT __g8 AS lifecycle_stage, SUM(__a0) AS n_persons, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_days_span, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_active_months, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_paid_retained_months, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_paid_retention_rate, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)) AS avg_revenue, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open_rate, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails_received, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_clicks, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_active_ret_rate FROM temp.reuse_candidate GROUP BY __g8 ORDER BY avg_active_months",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5750268,
+          "status": "execute_returned",
+          "end_time": 1788917594.5752978
+        },
+        {
+          "sequence": 17,
+          "sql": "SELECT __g9 AS speed_group, SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)) AS avg_revenue, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails, (1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)) AS avg_density FROM temp.reuse_candidate GROUP BY __g9 ORDER BY speed_group",
+          "phase": "offline_validation",
+          "start_time": 1788917594.57715,
+          "status": "execute_returned",
+          "end_time": 1788917594.577316
+        },
+        {
+          "sequence": 18,
+          "sql": "SELECT __g10 AS order_tier, SUM(__a0) AS n, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_days_span, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_am, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_clicks FROM temp.reuse_candidate GROUP BY __g10",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5788841,
+          "status": "execute_returned",
+          "end_time": 1788917594.5790389
+        },
+        {
+          "sequence": 19,
+          "sql": "SELECT __g11 AS paying, SUM(__a0) AS n, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_am, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr FROM temp.reuse_candidate GROUP BY __g11",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5804794,
+          "status": "execute_returned",
+          "end_time": 1788917594.5806153
+        },
+        {
+          "sequence": 20,
+          "sql": "SELECT MAX(__a23) AS max_inactive_days, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails, MAX(__a24) AS max_emails, SUM(__a25) AS low_open_n, SUM(__a26) AS mid_open_n, SUM(__a27) AS high_open_n FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5817366,
+          "status": "execute_returned",
+          "end_time": 1788917594.5818253
+        },
+        {
+          "sequence": 21,
+          "sql": "/* Emails per month distribution to inform frequency recommendations */ SELECT __g12 AS intensity, SUM(__a0) AS n, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr FROM temp.reuse_candidate GROUP BY __g12 ORDER BY intensity",
+          "phase": "offline_validation",
+          "start_time": 1788917594.583367,
+          "status": "execute_returned",
+          "end_time": 1788917594.5834973
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT CASE WHEN JULIANDAY(first_event_on) - JULIANDAY(created_at) <= 7 THEN 'cold_start_like' ELSE 'delayed_first_touch' END AS __g0, active_months AS __g1, has_30day_retention AS __g2, paid_retention_rate_month AS __g3, CASE WHEN days_span <= 60 THEN 'fast_ramp' WHEN days_span <= 100 THEN 'medium_ramp' WHEN days_span <= 140 THEN 'slow_ramp' ELSE 'very_slow_ramp' END AS __g4, months_span - active_months AS __g5, CASE WHEN count_clicked_email = 0 THEN 'no_clicks' WHEN count_clicked_email <= 5 THEN 'few_clicks' WHEN count_clicked_email <= 10 THEN 'some_clicks' ELSE 'many_clicks' END AS __g6, CASE WHEN count_received_email <= 50 THEN 'low_freq' WHEN count_received_email <= 70 THEN 'med_freq' WHEN count_received_email <= 90 THEN 'high_freq' ELSE 'very_high_freq' END AS __g7, CASE WHEN active_months <= 2 THEN 'Cold Start' WHEN active_months = 3 THEN 'Growth' WHEN active_months = 4 THEN 'Mature' ELSE 'Peak' END AS __g8, CASE WHEN days_span <= 60 THEN 'Fast (≤60d)' WHEN days_span <= 90 THEN 'Medium (61-90d)' WHEN days_span <= 120 THEN 'Slow (91-120d)' ELSE 'Very Slow (>120d)' END AS __g9, CASE WHEN count_placed_order = 0 THEN 'No Orders' WHEN count_placed_order = 1 THEN '1 Order' WHEN count_placed_order <= 3 THEN '2-3 Orders' ELSE '4+ Orders' END AS __g10, CASE WHEN sum_revenue_placed_order > 0 THEN 'Paying' ELSE 'Non-Paying' END AS __g11, CASE WHEN count_received_email * 1.0 / active_months < 20 THEN '<20 emails/mo' WHEN count_received_email * 1.0 / active_months < 30 THEN '20-30 emails/mo' WHEN count_received_email * 1.0 / active_months < 40 THEN '30-40 emails/mo' ELSE '40+ emails/mo' END AS __g12, COUNT(*) AS __a0, MIN(days_span) AS __a1, MAX(days_span) AS __a2, SUM(days_span) AS __a3_sum, COUNT(days_span) AS __a3_n, MIN(active_months) AS __a4, MAX(active_months) AS __a5, SUM(active_months) AS __a6_sum, COUNT(active_months) AS __a6_n, MIN(paid_retained_month_count) AS __a7, MAX(paid_retained_month_count) AS __a8, SUM(paid_retained_month_count) AS __a9_sum, COUNT(paid_retained_month_count) AS __a9_n, SUM(CASE WHEN days_span - active_days >= 90 THEN 1 ELSE 0 END) AS __a10, SUM(CASE WHEN days_span - active_days >= 60 THEN 1 ELSE 0 END) AS __a11, SUM(CASE WHEN days_span - active_days >= 30 THEN 1 ELSE 0 END) AS __a12, SUM(days_span - active_days) AS __a13_sum, COUNT(days_span - active_days) AS __a13_n, SUM(paid_retention_rate_month) AS __a14_sum, COUNT(paid_retention_rate_month) AS __a14_n, SUM(email_open_rate) AS __a15_sum, COUNT(email_open_rate) AS __a15_n, SUM(active_retention_rate_month) AS __a16_sum, COUNT(active_retention_rate_month) AS __a16_n, SUM(count_placed_order) AS __a17_sum, COUNT(count_placed_order) AS __a17_n, SUM(count_received_email) AS __a18_sum, COUNT(count_received_email) AS __a18_n, SUM(count_opened_email) AS __a19_sum, COUNT(count_opened_email) AS __a19_n, SUM(count_clicked_email) AS __a20_sum, COUNT(count_clicked_email) AS __a20_n, SUM(sum_revenue_placed_order) AS __a21_sum, COUNT(sum_revenue_placed_order) AS __a21_n, SUM(active_days * 1.0 / days_span) AS __a22_sum, COUNT(active_days * 1.0 / days_span) AS __a22_n, MAX(days_span - active_days) AS __a23, MAX(count_received_email) AS __a24, SUM(CASE WHEN email_open_rate < 0.3 THEN 1 ELSE 0 END) AS __a25, SUM(CASE WHEN email_open_rate >= 0.3 AND email_open_rate < 0.5 THEN 1 ELSE 0 END) AS __a26, SUM(CASE WHEN email_open_rate >= 0.5 THEN 1 ELSE 0 END) AS __a27 FROM \"klaviyo__persons\"  GROUP BY CASE WHEN JULIANDAY(first_event_on) - JULIANDAY(created_at) <= 7 THEN 'cold_start_like' ELSE 'delayed_first_touch' END, active_months, has_30day_retention, paid_retention_rate_month, CASE WHEN days_span <= 60 THEN 'fast_ramp' WHEN days_span <= 100 THEN 'medium_ramp' WHEN days_span <= 140 THEN 'slow_ramp' ELSE 'very_slow_ramp' END, months_span - active_months, CASE WHEN count_clicked_email = 0 THEN 'no_clicks' WHEN count_clicked_email <= 5 THEN 'few_clicks' WHEN count_clicked_email <= 10 THEN 'some_clicks' ELSE 'many_clicks' END, CASE WHEN count_received_email <= 50 THEN 'low_freq' WHEN count_received_email <= 70 THEN 'med_freq' WHEN count_received_email <= 90 THEN 'high_freq' ELSE 'very_high_freq' END, CASE WHEN active_months <= 2 THEN 'Cold Start' WHEN active_months = 3 THEN 'Growth' WHEN active_months = 4 THEN 'Mature' ELSE 'Peak' END, CASE WHEN days_span <= 60 THEN 'Fast (≤60d)' WHEN days_span <= 90 THEN 'Medium (61-90d)' WHEN days_span <= 120 THEN 'Slow (91-120d)' ELSE 'Very Slow (>120d)' END, CASE WHEN count_placed_order = 0 THEN 'No Orders' WHEN count_placed_order = 1 THEN '1 Order' WHEN count_placed_order <= 3 THEN '2-3 Orders' ELSE '4+ Orders' END, CASE WHEN sum_revenue_placed_order > 0 THEN 'Paying' ELSE 'Non-Paying' END, CASE WHEN count_received_email * 1.0 / active_months < 20 THEN '<20 emails/mo' WHEN count_received_email * 1.0 / active_months < 30 THEN '20-30 emails/mo' WHEN count_received_email * 1.0 / active_months < 40 THEN '30-40 emails/mo' ELSE '40+ emails/mo' END",
+          "time": 1788917594.5553472,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788917594.5614018,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788917594.561444,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total_persons FROM temp.reuse_candidate",
+          "time": 1788917594.5615256,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a1) AS min_ds, MAX(__a2) AS max_ds, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds, MIN(__a4) AS min_am, MAX(__a5) AS max_am, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_am, MIN(__a7) AS min_prm, MAX(__a8) AS max_prm, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm FROM temp.reuse_candidate",
+          "time": 1788917594.5620701,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n, SUM(__a10) AS inactive_90plus, SUM(__a11) AS inactive_60plus, SUM(__a12) AS inactive_30plus, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_inactive_days FROM temp.reuse_candidate",
+          "time": 1788917594.5634475,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS first_touch_seg, SUM(__a0) AS n, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788917594.5648606,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"active_months\", SUM(__a0) AS n, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_arm FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1",
+          "time": 1788917594.5660107,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"has_30day_retention\", SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders FROM temp.reuse_candidate GROUP BY __g2",
+          "time": 1788917594.5670452,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS \"paid_retention_rate_month\", SUM(__a0) AS n, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_am, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open FROM temp.reuse_candidate GROUP BY __g3 ORDER BY __g3",
+          "time": 1788917594.568013,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS ramp_speed, SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders FROM temp.reuse_candidate GROUP BY __g4 ORDER BY ramp_speed",
+          "time": 1788917594.5689392,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g5 AS inactive_months, SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds FROM temp.reuse_candidate GROUP BY __g5 ORDER BY inactive_months",
+          "time": 1788917594.5704339,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g6 AS click_segment, SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open FROM temp.reuse_candidate GROUP BY __g6 ORDER BY avg_orders DESC",
+          "time": 1788917594.5712795,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g7 AS freq_segment, SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open FROM temp.reuse_candidate GROUP BY __g7 ORDER BY avg_orders DESC",
+          "time": 1788917594.5725217,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"active_months\", (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails, (1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)) AS avg_opens, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_clicks, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open_rate, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_days_span, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1",
+          "time": 1788917594.5738814,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g8 AS lifecycle_stage, SUM(__a0) AS n_persons, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_days_span, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_active_months, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_paid_retained_months, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_paid_retention_rate, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)) AS avg_revenue, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open_rate, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails_received, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_clicks, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_active_ret_rate FROM temp.reuse_candidate GROUP BY __g8 ORDER BY avg_active_months",
+          "time": 1788917594.5751402,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g9 AS speed_group, SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)) AS avg_revenue, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails, (1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)) AS avg_density FROM temp.reuse_candidate GROUP BY __g9 ORDER BY speed_group",
+          "time": 1788917594.5772429,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g10 AS order_tier, SUM(__a0) AS n, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_days_span, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_am, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_clicks FROM temp.reuse_candidate GROUP BY __g10",
+          "time": 1788917594.57896,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g11 AS paying, SUM(__a0) AS n, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_am, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr FROM temp.reuse_candidate GROUP BY __g11",
+          "time": 1788917594.5805485,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MAX(__a23) AS max_inactive_days, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails, MAX(__a24) AS max_emails, SUM(__a25) AS low_open_n, SUM(__a26) AS mid_open_n, SUM(__a27) AS high_open_n FROM temp.reuse_candidate",
+          "time": 1788917594.5817869,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Emails per month distribution to inform frequency recommendations */ SELECT __g12 AS intensity, SUM(__a0) AS n, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr FROM temp.reuse_candidate GROUP BY __g12 ORDER BY intensity",
+          "time": 1788917594.58344,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 6.771390326321125,
+      "intermediate_rows": 81,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__g5",
+        "__g6",
+        "__g7",
+        "__g8",
+        "__g9",
+        "__g10",
+        "__g11",
+        "__g12",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3_sum",
+        "__a3_n",
+        "__a4",
+        "__a5",
+        "__a6_sum",
+        "__a6_n",
+        "__a7",
+        "__a8",
+        "__a9_sum",
+        "__a9_n",
+        "__a10",
+        "__a11",
+        "__a12",
+        "__a13_sum",
+        "__a13_n",
+        "__a14_sum",
+        "__a14_n",
+        "__a15_sum",
+        "__a15_n",
+        "__a16_sum",
+        "__a16_n",
+        "__a17_sum",
+        "__a17_n",
+        "__a18_sum",
+        "__a18_n",
+        "__a19_sum",
+        "__a19_n",
+        "__a20_sum",
+        "__a20_n",
+        "__a21_sum",
+        "__a21_n",
+        "__a22_sum",
+        "__a22_n",
+        "__a23",
+        "__a24",
+        "__a25",
+        "__a26",
+        "__a27"
+      ],
+      "validation_ended_at": 1788917594.5849426,
+      "checks": [
+        {
+          "sql_id": "S3",
+          "rewritten_sql": "SELECT SUM(__a0) AS total_persons FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.48009026795625687
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT MIN(__a1) AS min_ds, MAX(__a2) AS max_ds, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds, MIN(__a4) AS min_am, MAX(__a5) AS max_am, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_am, MIN(__a7) AS min_prm, MAX(__a8) AS max_prm, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.3973461464047432
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "SELECT SUM(__a0) AS n, SUM(__a10) AS inactive_90plus, SUM(__a11) AS inactive_60plus, SUM(__a12) AS inactive_30plus, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_inactive_days FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.398816704750061
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "SELECT __g0 AS first_touch_seg, SUM(__a0) AS n, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.1365367099642754
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "SELECT __g1 AS \"active_months\", SUM(__a0) AS n, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_arm FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.0379506275057793
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT __g2 AS \"has_30day_retention\", SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders FROM temp.reuse_candidate GROUP BY __g2",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.9707789868116379
+        },
+        {
+          "sql_id": "S19",
+          "rewritten_sql": "SELECT __g3 AS \"paid_retention_rate_month\", SUM(__a0) AS n, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_am, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open FROM temp.reuse_candidate GROUP BY __g3 ORDER BY __g3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.9090723469853401
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "SELECT __g4 AS ramp_speed, SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders FROM temp.reuse_candidate GROUP BY __g4 ORDER BY ramp_speed",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.5057036653161049
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "SELECT __g5 AS inactive_months, SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds FROM temp.reuse_candidate GROUP BY __g5 ORDER BY inactive_months",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.8327243849635124
+        },
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "SELECT __g6 AS click_segment, SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open FROM temp.reuse_candidate GROUP BY __g6 ORDER BY avg_orders DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.232803799211979
+        },
+        {
+          "sql_id": "S25",
+          "rewritten_sql": "SELECT __g7 AS freq_segment, SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open FROM temp.reuse_candidate GROUP BY __g7 ORDER BY avg_orders DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.3451166450977325
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "SELECT __g1 AS \"active_months\", (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails, (1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)) AS avg_opens, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_clicks, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open_rate, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_days_span, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.230090856552124
+        },
+        {
+          "sql_id": "S29",
+          "rewritten_sql": "SELECT __g8 AS lifecycle_stage, SUM(__a0) AS n_persons, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_days_span, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_active_months, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_paid_retained_months, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_paid_retention_rate, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)) AS avg_revenue, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open_rate, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails_received, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_clicks, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_active_ret_rate FROM temp.reuse_candidate GROUP BY __g8 ORDER BY avg_active_months",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.1212296560406685
+        },
+        {
+          "sql_id": "S36",
+          "rewritten_sql": "SELECT __g9 AS speed_group, SUM(__a0) AS n, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_prm, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)) AS avg_revenue, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails, (1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)) AS avg_density FROM temp.reuse_candidate GROUP BY __g9 ORDER BY speed_group",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7316443845629692
+        },
+        {
+          "sql_id": "S38",
+          "rewritten_sql": "SELECT __g10 AS order_tier, SUM(__a0) AS n, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_days_span, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_am, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_clicks FROM temp.reuse_candidate GROUP BY __g10",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.5933811664581299
+        },
+        {
+          "sql_id": "S43",
+          "rewritten_sql": "SELECT __g11 AS paying, SUM(__a0) AS n, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_ds, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_am, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr FROM temp.reuse_candidate GROUP BY __g11",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.2549590319395065
+        },
+        {
+          "sql_id": "S59",
+          "rewritten_sql": "SELECT MAX(__a23) AS max_inactive_days, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_emails, MAX(__a24) AS max_emails, SUM(__a25) AS low_open_n, SUM(__a26) AS mid_open_n, SUM(__a27) AS high_open_n FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.6285460442304611
+        },
+        {
+          "sql_id": "S60",
+          "rewritten_sql": "/* Emails per month distribution to inform frequency recommendations */ SELECT __g12 AS intensity, SUM(__a0) AS n, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_open, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_orders, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_prr FROM temp.reuse_candidate GROUP BY __g12 ORDER BY intensity",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.3938071206212044
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT has_converted AS __g0, COUNT(*) AS __a0, SUM(email_open_rate_touch) AS __a1_sum, COUNT(email_open_rate_touch) AS __a1_n, SUM(email_click_to_open_rate_touch) AS __a2_sum, COUNT(email_click_to_open_rate_touch) AS __a2_n, SUM(touch_span_days) AS __a3_sum, COUNT(touch_span_days) AS __a3_n, SUM(count_received_email) AS __a4_sum, COUNT(count_received_email) AS __a4_n, SUM(net_revenue_touch) AS __a5_sum, COUNT(net_revenue_touch) AS __a5_n FROM \"klaviyo__person_campaign_flow\"  GROUP BY has_converted",
+      "covered": [
+        "S4",
+        "S14",
+        "S39"
+      ],
+      "rewrites": {
+        "S4": "SELECT SUM(__a0) AS total_touches FROM temp.reuse_candidate",
+        "S14": "SELECT __g0 AS \"has_converted\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+        "S39": "SELECT __g0 AS \"has_converted\", (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_open_touch, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_ctr_touch, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_touch_span, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_emails, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_net_rev FROM temp.reuse_candidate GROUP BY __g0"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S4",
+      "later_reuses": 2,
+      "denominator": 52,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT campaign_type AS __g0, campaign_variation_key AS __g1, STRFTIME('%Y-%m', scheduled_to_send_at) AS __g2, status AS __g3, COUNT(*) AS __a0, SUM(email_open_rate) AS __a1_sum, COUNT(email_open_rate) AS __a1_n, SUM(email_click_to_open_rate) AS __a2_sum, COUNT(email_click_to_open_rate) AS __a2_n, SUM(total_count_unique_people) AS __a3_sum, COUNT(total_count_unique_people) AS __a3_n, SUM(count_placed_order) AS __a4_sum, COUNT(count_placed_order) AS __a4_n, SUM(gmv_net) AS __a5_sum, COUNT(gmv_net) AS __a5_n, SUM(count_clicked_email) AS __a6_sum, COUNT(count_clicked_email) AS __a6_n, SUM(count_received_email) AS __a7_sum, COUNT(count_received_email) AS __a7_n, MIN(scheduled_to_send_at) AS __a8, MAX(scheduled_to_send_at) AS __a9, SUM(CASE WHEN count_placed_order > 0 THEN 1.0 ELSE 0 END) AS __a10_sum, COUNT(CASE WHEN count_placed_order > 0 THEN 1.0 ELSE 0 END) AS __a10_n, SUM(count_placed_order / NULLIF(count_received_email, 0)) AS __a11_sum, COUNT(count_placed_order / NULLIF(count_received_email, 0)) AS __a11_n, SUM(count_opened_email / NULLIF(count_received_email, 0)) AS __a12_sum, COUNT(count_opened_email / NULLIF(count_received_email, 0)) AS __a12_n, SUM(count_clicked_email / NULLIF(count_received_email, 0)) AS __a13_sum, COUNT(count_clicked_email / NULLIF(count_received_email, 0)) AS __a13_n, SUM(gmv_net / NULLIF(count_received_email, 0)) AS __a14_sum, COUNT(gmv_net / NULLIF(count_received_email, 0)) AS __a14_n, SUM(gmv_net / NULLIF(count_placed_order, 0)) AS __a15_sum, COUNT(gmv_net / NULLIF(count_placed_order, 0)) AS __a15_n, SUM(CASE WHEN status = 'sent' THEN 1 ELSE 0 END) AS __a16, SUM(count_placed_order) AS __a17, SUM(gmv_net) AS __a18 FROM \"klaviyo__campaigns\"  GROUP BY campaign_type, campaign_variation_key, STRFTIME('%Y-%m', scheduled_to_send_at), status",
+      "covered": [
+        "S7",
+        "S11",
+        "S27",
+        "S33",
+        "S34",
+        "S40",
+        "S41",
+        "S42",
+        "S46",
+        "S47"
+      ],
+      "rewrites": {
+        "S7": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+        "S11": "SELECT __g0 AS \"CAMPAIGN_TYPE\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_open_rate, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_ctr FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+        "S27": "SELECT __g0 AS \"CAMPAIGN_TYPE\", SUM(__a0) AS n_campaigns, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_open_rate, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_ctr, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_audience, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_orders, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_gmv_net, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_clicks, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_received FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_gmv_net DESC",
+        "S33": "SELECT __g0 AS \"CAMPAIGN_TYPE\", MIN(__a8) AS first_sent, MAX(__a9) AS last_sent, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS conversion_rate FROM temp.reuse_candidate GROUP BY __g0 ORDER BY first_sent",
+        "S34": "SELECT __g0 AS \"CAMPAIGN_TYPE\", (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS orders_per_received, (1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)) AS open_per_received, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS click_per_received, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS gmv_per_received, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS aov FROM temp.reuse_candidate GROUP BY __g0 ORDER BY gmv_per_received DESC",
+        "S40": "SELECT __g1 AS \"campaign_variation_key\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_open, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_gmv FROM temp.reuse_candidate GROUP BY __g1",
+        "S41": "SELECT __g2 AS month, SUM(__a0) AS n_campaigns, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_open, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_gmv FROM temp.reuse_candidate GROUP BY __g2 ORDER BY month",
+        "S42": "SELECT __g0 AS \"CAMPAIGN_TYPE\", SUM(__a0) AS n, SUM(__a16) AS n_sent FROM temp.reuse_candidate GROUP BY __g0",
+        "S46": "SELECT __g0 AS \"CAMPAIGN_TYPE\", SUM(__a0) AS n, SUM(__a17) AS total_orders, SUM(__a18) AS total_gmv FROM temp.reuse_candidate GROUP BY __g0 ORDER BY total_gmv DESC",
+        "S47": "SELECT __g0 AS \"CAMPAIGN_TYPE\", __g3 AS \"STATUS\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY __g0, __g3"
+      },
+      "status": "rejected_result_mismatch",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S7",
+      "later_reuses": 9,
+      "denominator": 52,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788917594.5849862,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT campaign_type AS __g0, campaign_variation_key AS __g1, STRFTIME('%Y-%m', scheduled_to_send_at) AS __g2, status AS __g3, COUNT(*) AS __a0, SUM(email_open_rate) AS __a1_sum, COUNT(email_open_rate) AS __a1_n, SUM(email_click_to_open_rate) AS __a2_sum, COUNT(email_click_to_open_rate) AS __a2_n, SUM(total_count_unique_people) AS __a3_sum, COUNT(total_count_unique_people) AS __a3_n, SUM(count_placed_order) AS __a4_sum, COUNT(count_placed_order) AS __a4_n, SUM(gmv_net) AS __a5_sum, COUNT(gmv_net) AS __a5_n, SUM(count_clicked_email) AS __a6_sum, COUNT(count_clicked_email) AS __a6_n, SUM(count_received_email) AS __a7_sum, COUNT(count_received_email) AS __a7_n, MIN(scheduled_to_send_at) AS __a8, MAX(scheduled_to_send_at) AS __a9, SUM(CASE WHEN count_placed_order > 0 THEN 1.0 ELSE 0 END) AS __a10_sum, COUNT(CASE WHEN count_placed_order > 0 THEN 1.0 ELSE 0 END) AS __a10_n, SUM(count_placed_order / NULLIF(count_received_email, 0)) AS __a11_sum, COUNT(count_placed_order / NULLIF(count_received_email, 0)) AS __a11_n, SUM(count_opened_email / NULLIF(count_received_email, 0)) AS __a12_sum, COUNT(count_opened_email / NULLIF(count_received_email, 0)) AS __a12_n, SUM(count_clicked_email / NULLIF(count_received_email, 0)) AS __a13_sum, COUNT(count_clicked_email / NULLIF(count_received_email, 0)) AS __a13_n, SUM(gmv_net / NULLIF(count_received_email, 0)) AS __a14_sum, COUNT(gmv_net / NULLIF(count_received_email, 0)) AS __a14_n, SUM(gmv_net / NULLIF(count_placed_order, 0)) AS __a15_sum, COUNT(gmv_net / NULLIF(count_placed_order, 0)) AS __a15_n, SUM(CASE WHEN status = 'sent' THEN 1 ELSE 0 END) AS __a16, SUM(count_placed_order) AS __a17, SUM(gmv_net) AS __a18 FROM \"klaviyo__campaigns\"  GROUP BY campaign_type, campaign_variation_key, STRFTIME('%Y-%m', scheduled_to_send_at), status",
+          "phase": "offline_validation",
+          "start_time": 1788917594.585183,
+          "status": "execute_returned",
+          "end_time": 1788917594.586381
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5863853,
+          "status": "execute_returned",
+          "end_time": 1788917594.586401
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788917594.586405,
+          "status": "execute_returned",
+          "end_time": 1788917594.586419
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788917594.586462,
+          "status": "execute_returned",
+          "end_time": 1788917594.586483
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"CAMPAIGN_TYPE\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_open_rate, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_ctr FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5868669,
+          "status": "execute_returned",
+          "end_time": 1788917594.5870006
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS \"CAMPAIGN_TYPE\", SUM(__a0) AS n_campaigns, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_open_rate, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_ctr, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_audience, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_orders, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_gmv_net, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_clicks, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_received FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_gmv_net DESC",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5877168,
+          "status": "execute_returned",
+          "end_time": 1788917594.587976
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g0 AS \"CAMPAIGN_TYPE\", MIN(__a8) AS first_sent, MAX(__a9) AS last_sent, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS conversion_rate FROM temp.reuse_candidate GROUP BY __g0 ORDER BY first_sent",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5891712,
+          "status": "execute_returned",
+          "end_time": 1788917594.5893095
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g0 AS \"CAMPAIGN_TYPE\", (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS orders_per_received, (1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)) AS open_per_received, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS click_per_received, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS gmv_per_received, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS aov FROM temp.reuse_candidate GROUP BY __g0 ORDER BY gmv_per_received DESC",
+          "phase": "offline_validation",
+          "start_time": 1788917594.590187,
+          "status": "execute_returned",
+          "end_time": 1788917594.590395
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g1 AS \"campaign_variation_key\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_open, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_gmv FROM temp.reuse_candidate GROUP BY __g1",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5919409,
+          "status": "execute_returned",
+          "end_time": 1788917594.5920591
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g2 AS month, SUM(__a0) AS n_campaigns, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_open, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_gmv FROM temp.reuse_candidate GROUP BY __g2 ORDER BY month",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5927103,
+          "status": "execute_returned",
+          "end_time": 1788917594.5928116
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g0 AS \"CAMPAIGN_TYPE\", SUM(__a0) AS n, SUM(__a16) AS n_sent FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5936248,
+          "status": "execute_returned",
+          "end_time": 1788917594.593696
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT __g0 AS \"CAMPAIGN_TYPE\", SUM(__a0) AS n, SUM(__a17) AS total_orders, SUM(__a18) AS total_gmv FROM temp.reuse_candidate GROUP BY __g0 ORDER BY total_gmv DESC",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5945137,
+          "status": "execute_returned",
+          "end_time": 1788917594.5946236
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT __g0 AS \"CAMPAIGN_TYPE\", __g3 AS \"STATUS\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY __g0, __g3",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5953436,
+          "status": "execute_returned",
+          "end_time": 1788917594.5954206
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT campaign_type AS __g0, campaign_variation_key AS __g1, STRFTIME('%Y-%m', scheduled_to_send_at) AS __g2, status AS __g3, COUNT(*) AS __a0, SUM(email_open_rate) AS __a1_sum, COUNT(email_open_rate) AS __a1_n, SUM(email_click_to_open_rate) AS __a2_sum, COUNT(email_click_to_open_rate) AS __a2_n, SUM(total_count_unique_people) AS __a3_sum, COUNT(total_count_unique_people) AS __a3_n, SUM(count_placed_order) AS __a4_sum, COUNT(count_placed_order) AS __a4_n, SUM(gmv_net) AS __a5_sum, COUNT(gmv_net) AS __a5_n, SUM(count_clicked_email) AS __a6_sum, COUNT(count_clicked_email) AS __a6_n, SUM(count_received_email) AS __a7_sum, COUNT(count_received_email) AS __a7_n, MIN(scheduled_to_send_at) AS __a8, MAX(scheduled_to_send_at) AS __a9, SUM(CASE WHEN count_placed_order > 0 THEN 1.0 ELSE 0 END) AS __a10_sum, COUNT(CASE WHEN count_placed_order > 0 THEN 1.0 ELSE 0 END) AS __a10_n, SUM(count_placed_order / NULLIF(count_received_email, 0)) AS __a11_sum, COUNT(count_placed_order / NULLIF(count_received_email, 0)) AS __a11_n, SUM(count_opened_email / NULLIF(count_received_email, 0)) AS __a12_sum, COUNT(count_opened_email / NULLIF(count_received_email, 0)) AS __a12_n, SUM(count_clicked_email / NULLIF(count_received_email, 0)) AS __a13_sum, COUNT(count_clicked_email / NULLIF(count_received_email, 0)) AS __a13_n, SUM(gmv_net / NULLIF(count_received_email, 0)) AS __a14_sum, COUNT(gmv_net / NULLIF(count_received_email, 0)) AS __a14_n, SUM(gmv_net / NULLIF(count_placed_order, 0)) AS __a15_sum, COUNT(gmv_net / NULLIF(count_placed_order, 0)) AS __a15_n, SUM(CASE WHEN status = 'sent' THEN 1 ELSE 0 END) AS __a16, SUM(count_placed_order) AS __a17, SUM(gmv_net) AS __a18 FROM \"klaviyo__campaigns\"  GROUP BY campaign_type, campaign_variation_key, STRFTIME('%Y-%m', scheduled_to_send_at), status",
+          "time": 1788917594.5855145,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788917594.5863976,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788917594.5864167,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "time": 1788917594.5864732,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"CAMPAIGN_TYPE\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_open_rate, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_ctr FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "time": 1788917594.5869176,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"CAMPAIGN_TYPE\", SUM(__a0) AS n_campaigns, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_open_rate, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_ctr, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_audience, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_orders, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_gmv_net, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_clicks, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_received FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_gmv_net DESC",
+          "time": 1788917594.5878024,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"CAMPAIGN_TYPE\", MIN(__a8) AS first_sent, MAX(__a9) AS last_sent, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS conversion_rate FROM temp.reuse_candidate GROUP BY __g0 ORDER BY first_sent",
+          "time": 1788917594.58922,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"CAMPAIGN_TYPE\", (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS orders_per_received, (1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)) AS open_per_received, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS click_per_received, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS gmv_per_received, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS aov FROM temp.reuse_candidate GROUP BY __g0 ORDER BY gmv_per_received DESC",
+          "time": 1788917594.5902576,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"campaign_variation_key\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_open, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_gmv FROM temp.reuse_candidate GROUP BY __g1",
+          "time": 1788917594.5919907,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS month, SUM(__a0) AS n_campaigns, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_open, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_gmv FROM temp.reuse_candidate GROUP BY __g2 ORDER BY month",
+          "time": 1788917594.5927596,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"CAMPAIGN_TYPE\", SUM(__a0) AS n, SUM(__a16) AS n_sent FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788917594.593659,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"CAMPAIGN_TYPE\", SUM(__a0) AS n, SUM(__a17) AS total_orders, SUM(__a18) AS total_gmv FROM temp.reuse_candidate GROUP BY __g0 ORDER BY total_gmv DESC",
+          "time": 1788917594.594553,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"CAMPAIGN_TYPE\", __g3 AS \"STATUS\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY __g0, __g3",
+          "time": 1788917594.5953798,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 1.201815903186798,
+      "intermediate_rows": 112,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__a0",
+        "__a1_sum",
+        "__a1_n",
+        "__a2_sum",
+        "__a2_n",
+        "__a3_sum",
+        "__a3_n",
+        "__a4_sum",
+        "__a4_n",
+        "__a5_sum",
+        "__a5_n",
+        "__a6_sum",
+        "__a6_n",
+        "__a7_sum",
+        "__a7_n",
+        "__a8",
+        "__a9",
+        "__a10_sum",
+        "__a10_n",
+        "__a11_sum",
+        "__a11_n",
+        "__a12_sum",
+        "__a12_n",
+        "__a13_sum",
+        "__a13_n",
+        "__a14_sum",
+        "__a14_n",
+        "__a15_sum",
+        "__a15_n",
+        "__a16",
+        "__a17",
+        "__a18"
+      ],
+      "validation_ended_at": 1788917594.5961256,
+      "checks": [
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.4028528928756714
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT __g0 AS \"CAMPAIGN_TYPE\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_open_rate, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_ctr FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.8474010974168777
+        },
+        {
+          "sql_id": "S27",
+          "rewritten_sql": "SELECT __g0 AS \"CAMPAIGN_TYPE\", SUM(__a0) AS n_campaigns, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_open_rate, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_ctr, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_audience, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_orders, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_gmv_net, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_clicks, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_received FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_gmv_net DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.452326774597168
+        },
+        {
+          "sql_id": "S33",
+          "rewritten_sql": "SELECT __g0 AS \"CAMPAIGN_TYPE\", MIN(__a8) AS first_sent, MAX(__a9) AS last_sent, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS conversion_rate FROM temp.reuse_candidate GROUP BY __g0 ORDER BY first_sent",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.0136933997273445
+        },
+        {
+          "sql_id": "S34",
+          "rewritten_sql": "SELECT __g0 AS \"CAMPAIGN_TYPE\", (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS orders_per_received, (1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)) AS open_per_received, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS click_per_received, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS gmv_per_received, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS aov FROM temp.reuse_candidate GROUP BY __g0 ORDER BY gmv_per_received DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7518606036901474
+        },
+        {
+          "sql_id": "S40",
+          "rewritten_sql": "SELECT __g1 AS \"campaign_variation_key\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_open, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_gmv FROM temp.reuse_candidate GROUP BY __g1",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.7676472887396812
+        },
+        {
+          "sql_id": "S41",
+          "rewritten_sql": "SELECT __g2 AS month, SUM(__a0) AS n_campaigns, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_open, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_gmv FROM temp.reuse_candidate GROUP BY __g2 ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.9125731885433197
+        },
+        {
+          "sql_id": "S42",
+          "rewritten_sql": "SELECT __g0 AS \"CAMPAIGN_TYPE\", SUM(__a0) AS n, SUM(__a16) AS n_sent FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.8872561156749725
+        },
+        {
+          "sql_id": "S46",
+          "rewritten_sql": "SELECT __g0 AS \"CAMPAIGN_TYPE\", SUM(__a0) AS n, SUM(__a17) AS total_orders, SUM(__a18) AS total_gmv FROM temp.reuse_candidate GROUP BY __g0 ORDER BY total_gmv DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.8275695145130157
+        },
+        {
+          "sql_id": "S47",
+          "rewritten_sql": "SELECT __g0 AS \"CAMPAIGN_TYPE\", __g3 AS \"STATUS\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY __g0, __g3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6972486153244972
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT trigger_type AS __g0, COUNT(*) AS __a0, SUM(email_open_rate) AS __a1_sum, COUNT(email_open_rate) AS __a1_n, SUM(email_click_to_open_rate) AS __a2_sum, COUNT(email_click_to_open_rate) AS __a2_n, SUM(total_count_unique_people) AS __a3_sum, COUNT(total_count_unique_people) AS __a3_n, SUM(count_placed_order) AS __a4_sum, COUNT(count_placed_order) AS __a4_n, SUM(gmv_net) AS __a5_sum, COUNT(gmv_net) AS __a5_n FROM \"klaviyo__flows\"  GROUP BY trigger_type",
+      "covered": [
+        "S8",
+        "S12",
+        "S28"
+      ],
+      "rewrites": {
+        "S8": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+        "S12": "SELECT __g0 AS \"trigger_type\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_open_rate, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_ctr FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+        "S28": "SELECT __g0 AS \"trigger_type\", SUM(__a0) AS n_flows, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_open_rate, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_ctr, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_audience, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_orders, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_gmv_net FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_gmv_net DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S8",
+      "later_reuses": 2,
+      "denominator": 52,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"klaviyo__campaigns\" WHERE status = 'SENT'",
+      "covered": [
+        "S49",
+        "S53",
+        "S54"
+      ],
+      "rewrites": {
+        "S49": "SELECT CAMPAIGN_TYPE, AVG(email_open_rate) AS avg_open, AVG(email_click_to_open_rate) AS avg_ctr, AVG(gmv_net / NULLIF(count_placed_order, 0)) AS aov, AVG(count_clicked_email / NULLIF(count_received_email, 0)) AS click_rate_received, AVG(count_placed_order / NULLIF(count_received_email, 0)) AS orders_per_recv, AVG(gmv_net / NULLIF(count_received_email, 0)) AS gmv_per_recv FROM temp.reuse_candidate AS klaviyo__campaigns WHERE STATUS = 'SENT' GROUP BY CAMPAIGN_TYPE ORDER BY gmv_per_recv DESC",
+        "S53": "SELECT CAMPAIGN_TYPE, AVG(product_view_to_order_rate_campaign) AS avg_pv_to_order, AVG(count_ordered_product / NULLIF(count_placed_order, 0)) AS items_per_order, AVG(gmv_net / NULLIF(total_count_unique_people, 0)) AS gmv_per_person FROM temp.reuse_candidate AS klaviyo__campaigns WHERE STATUS = 'SENT' GROUP BY CAMPAIGN_TYPE ORDER BY gmv_per_person DESC",
+        "S54": "SELECT STRFTIME('%Y-%m-%d', scheduled_to_send_at) AS send_date, CAMPAIGN_TYPE, campaign_name FROM temp.reuse_candidate AS klaviyo__campaigns WHERE STATUS = 'SENT' ORDER BY send_date LIMIT 30"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S49",
+      "later_reuses": 2,
+      "denominator": 52,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788917594.5961554,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"klaviyo__campaigns\" WHERE status = 'SENT'",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5963342,
+          "status": "execute_returned",
+          "end_time": 1788917594.5968466
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5968504,
+          "status": "execute_returned",
+          "end_time": 1788917594.5968664
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5968697,
+          "status": "execute_returned",
+          "end_time": 1788917594.596883
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT CAMPAIGN_TYPE, AVG(email_open_rate) AS avg_open, AVG(email_click_to_open_rate) AS avg_ctr, AVG(gmv_net / NULLIF(count_placed_order, 0)) AS aov, AVG(count_clicked_email / NULLIF(count_received_email, 0)) AS click_rate_received, AVG(count_placed_order / NULLIF(count_received_email, 0)) AS orders_per_recv, AVG(gmv_net / NULLIF(count_received_email, 0)) AS gmv_per_recv FROM temp.reuse_candidate AS klaviyo__campaigns WHERE STATUS = 'SENT' GROUP BY CAMPAIGN_TYPE ORDER BY gmv_per_recv DESC",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5969262,
+          "status": "execute_returned",
+          "end_time": 1788917594.597085
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT CAMPAIGN_TYPE, AVG(product_view_to_order_rate_campaign) AS avg_pv_to_order, AVG(count_ordered_product / NULLIF(count_placed_order, 0)) AS items_per_order, AVG(gmv_net / NULLIF(total_count_unique_people, 0)) AS gmv_per_person FROM temp.reuse_candidate AS klaviyo__campaigns WHERE STATUS = 'SENT' GROUP BY CAMPAIGN_TYPE ORDER BY gmv_per_person DESC",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5985105,
+          "status": "execute_returned",
+          "end_time": 1788917594.5986474
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT STRFTIME('%Y-%m-%d', scheduled_to_send_at) AS send_date, CAMPAIGN_TYPE, campaign_name FROM temp.reuse_candidate AS klaviyo__campaigns WHERE STATUS = 'SENT' ORDER BY send_date LIMIT 30",
+          "phase": "offline_validation",
+          "start_time": 1788917594.5997784,
+          "status": "execute_returned",
+          "end_time": 1788917594.5998971
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"klaviyo__campaigns\" WHERE status = 'SENT'",
+          "time": 1788917594.5965676,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788917594.5968628,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788917594.5968804,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT CAMPAIGN_TYPE, AVG(email_open_rate) AS avg_open, AVG(email_click_to_open_rate) AS avg_ctr, AVG(gmv_net / NULLIF(count_placed_order, 0)) AS aov, AVG(count_clicked_email / NULLIF(count_received_email, 0)) AS click_rate_received, AVG(count_placed_order / NULLIF(count_received_email, 0)) AS orders_per_recv, AVG(gmv_net / NULLIF(count_received_email, 0)) AS gmv_per_recv FROM temp.reuse_candidate AS klaviyo__campaigns WHERE STATUS = 'SENT' GROUP BY CAMPAIGN_TYPE ORDER BY gmv_per_recv DESC",
+          "time": 1788917594.596969,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT CAMPAIGN_TYPE, AVG(product_view_to_order_rate_campaign) AS avg_pv_to_order, AVG(count_ordered_product / NULLIF(count_placed_order, 0)) AS items_per_order, AVG(gmv_net / NULLIF(total_count_unique_people, 0)) AS gmv_per_person FROM temp.reuse_candidate AS klaviyo__campaigns WHERE STATUS = 'SENT' GROUP BY CAMPAIGN_TYPE ORDER BY gmv_per_person DESC",
+          "time": 1788917594.5985575,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT STRFTIME('%Y-%m-%d', scheduled_to_send_at) AS send_date, CAMPAIGN_TYPE, campaign_name FROM temp.reuse_candidate AS klaviyo__campaigns WHERE STATUS = 'SENT' ORDER BY send_date LIMIT 30",
+          "time": 1788917594.5998118,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.515475869178772,
+      "intermediate_rows": 124,
+      "intermediate_columns": [
+        "campaign_id",
+        "CAMPAIGN_TYPE",
+        "created_at",
+        "EMAIL_TEMPLATE_ID",
+        "from_email",
+        "FROM_NAME",
+        "campaign_name",
+        "scheduled_to_send_at",
+        "SENT_AT",
+        "STATUS",
+        "STATUS_ID",
+        "SUBJECT",
+        "updated_at",
+        "is_archived",
+        "scheduled_at",
+        "source_relation",
+        "variation_id",
+        "total_count_unique_people",
+        "count_received_email",
+        "count_opened_email",
+        "count_clicked_email",
+        "count_placed_order",
+        "count_ordered_product",
+        "count_refunded_order",
+        "gmv_gross",
+        "gmv_net",
+        "email_open_rate",
+        "email_click_to_open_rate",
+        "campaign_variation_key",
+        "active_days",
+        "total_placed_orders",
+        "total_amount_positive",
+        "total_amount_negative",
+        "product_view_to_order_rate_campaign",
+        "gmv_net_campaign"
+      ],
+      "validation_ended_at": 1788917594.6006587,
+      "checks": [
+        {
+          "sql_id": "S49",
+          "rewritten_sql": "SELECT CAMPAIGN_TYPE, AVG(email_open_rate) AS avg_open, AVG(email_click_to_open_rate) AS avg_ctr, AVG(gmv_net / NULLIF(count_placed_order, 0)) AS aov, AVG(count_clicked_email / NULLIF(count_received_email, 0)) AS click_rate_received, AVG(count_placed_order / NULLIF(count_received_email, 0)) AS orders_per_recv, AVG(gmv_net / NULLIF(count_received_email, 0)) AS gmv_per_recv FROM temp.reuse_candidate AS klaviyo__campaigns WHERE STATUS = 'SENT' GROUP BY CAMPAIGN_TYPE ORDER BY gmv_per_recv DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.582062803208828
+        },
+        {
+          "sql_id": "S53",
+          "rewritten_sql": "SELECT CAMPAIGN_TYPE, AVG(product_view_to_order_rate_campaign) AS avg_pv_to_order, AVG(count_ordered_product / NULLIF(count_placed_order, 0)) AS items_per_order, AVG(gmv_net / NULLIF(total_count_unique_people, 0)) AS gmv_per_person FROM temp.reuse_candidate AS klaviyo__campaigns WHERE STATUS = 'SENT' GROUP BY CAMPAIGN_TYPE ORDER BY gmv_per_person DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.2658247724175453
+        },
+        {
+          "sql_id": "S54",
+          "rewritten_sql": "SELECT STRFTIME('%Y-%m-%d', scheduled_to_send_at) AS send_date, CAMPAIGN_TYPE, campaign_name FROM temp.reuse_candidate AS klaviyo__campaigns WHERE STATUS = 'SENT' ORDER BY send_date LIMIT 30",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.8216910064220428
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT campaign_type AS __g0, SUM(email_open_rate) AS __a0_sum, COUNT(email_open_rate) AS __a0_n, SUM(email_click_to_open_rate) AS __a1_sum, COUNT(email_click_to_open_rate) AS __a1_n, SUM(gmv_net / NULLIF(count_placed_order, 0)) AS __a2_sum, COUNT(gmv_net / NULLIF(count_placed_order, 0)) AS __a2_n, SUM(count_clicked_email / NULLIF(count_received_email, 0)) AS __a3_sum, COUNT(count_clicked_email / NULLIF(count_received_email, 0)) AS __a3_n, SUM(count_placed_order / NULLIF(count_received_email, 0)) AS __a4_sum, COUNT(count_placed_order / NULLIF(count_received_email, 0)) AS __a4_n, SUM(gmv_net / NULLIF(count_received_email, 0)) AS __a5_sum, COUNT(gmv_net / NULLIF(count_received_email, 0)) AS __a5_n, SUM(product_view_to_order_rate_campaign) AS __a6_sum, COUNT(product_view_to_order_rate_campaign) AS __a6_n, SUM(count_ordered_product / NULLIF(count_placed_order, 0)) AS __a7_sum, COUNT(count_ordered_product / NULLIF(count_placed_order, 0)) AS __a7_n, SUM(gmv_net / NULLIF(total_count_unique_people, 0)) AS __a8_sum, COUNT(gmv_net / NULLIF(total_count_unique_people, 0)) AS __a8_n FROM \"klaviyo__campaigns\" WHERE status = 'SENT' GROUP BY campaign_type",
+      "covered": [
+        "S49",
+        "S53"
+      ],
+      "rewrites": {
+        "S49": "SELECT __g0 AS \"CAMPAIGN_TYPE\", (1.0 * SUM(__a0_sum) / NULLIF(SUM(__a0_n), 0)) AS avg_open, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_ctr, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS aov, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS click_rate_received, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS orders_per_recv, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS gmv_per_recv FROM temp.reuse_candidate GROUP BY __g0 ORDER BY gmv_per_recv DESC",
+        "S53": "SELECT __g0 AS \"CAMPAIGN_TYPE\", (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_pv_to_order, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS items_per_order, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS gmv_per_person FROM temp.reuse_candidate GROUP BY __g0 ORDER BY gmv_per_person DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C6",
+      "offline": true,
+      "earliest_build_before": "S49",
+      "later_reuses": 1,
+      "denominator": 52,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

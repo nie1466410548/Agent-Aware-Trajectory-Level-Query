@@ -1,0 +1,1 @@
+SELECT MAX(created_at) AS max_sent FROM klaviyo__flows

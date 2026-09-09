@@ -1,0 +1,1 @@
+SELECT COUNT(*) as n FROM intercom__conversation_enhanced

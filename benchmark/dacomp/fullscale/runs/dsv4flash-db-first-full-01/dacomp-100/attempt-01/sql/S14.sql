@@ -1,0 +1,1 @@
+SELECT conversation_id, all_conversation_tags, all_contact_company_names FROM intercom__conversation_enhanced

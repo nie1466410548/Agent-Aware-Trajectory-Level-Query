@@ -1,8 +1,59 @@
 {
   "task_id": "dacomp-093",
-  "status": "reviewed_no_python_before_interruption",
+  "status": "database_first_violation",
   "reviewer": "experiment analyst",
-  "conclusion": "停止前没有数据 SQL 或 Python 调用，仅有连接设置和元数据访问；不足以评价完整解题路线。",
-  "route": "完成数据库连接设置与 schema 访问后因批次服务错误停止。",
-  "evidence": []
+  "conclusion": "Python 读取活动和人员级数据后按时段、主题、时区、分箱组重复计算均值、计数，pivot_table 也进行均值聚合；这些数据库可完成的准备工作未留在 SQL。ANOVA 与秩相关检验允许作为统计补充，不抵消前述执行位置偏离。",
+  "route": "SQL 结构探索和初步汇总 → 同会话续接 → Python 清洗、分组统计、检验和图表 → 提交",
+  "evidence": [
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 76,
+          "text": "interaction = clean_df.groupby(['timing', 'subject_group'])['email_open_rate'].agg(['mean', 'std', 'count'])"
+        },
+        {
+          "line": 114,
+          "text": "timing_stats = clean_df.groupby('timing').agg("
+        },
+        {
+          "line": 146,
+          "text": "subj_stats = clean_df.groupby('subject_group').agg("
+        }
+      ]
+    },
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 29,
+          "text": "tz_stats = persons_df.groupby('timezone').agg("
+        },
+        {
+          "line": 53,
+          "text": "vol_stats = persons_df.groupby('email_vol_group', observed=True).agg("
+        },
+        {
+          "line": 67,
+          "text": "or_stats = persons_df.groupby('open_rate_group', observed=True).agg("
+        }
+      ]
+    }
+  ],
+  "review_scope_python_files": [
+    "P1.py",
+    "P2.py",
+    "P3.py",
+    "P4.py",
+    "P5.py"
+  ],
+  "final_run_status": "submitted",
+  "available_python_files": [
+    "P1.py",
+    "P2.py",
+    "P3.py",
+    "P4.py",
+    "P5.py"
+  ],
+  "review_scope": "Execution-location findings supported by the cited source lines; no official answer correctness judgment."
 }

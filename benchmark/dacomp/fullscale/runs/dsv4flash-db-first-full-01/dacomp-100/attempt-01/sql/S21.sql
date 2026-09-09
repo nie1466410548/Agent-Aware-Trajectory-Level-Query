@@ -1,0 +1,1 @@
+SELECT conversation_id, all_contact_company_names, conversation_created_at, conversation_subject, conversation_rating_remark FROM intercom__conversation_enhanced LIMIT 10

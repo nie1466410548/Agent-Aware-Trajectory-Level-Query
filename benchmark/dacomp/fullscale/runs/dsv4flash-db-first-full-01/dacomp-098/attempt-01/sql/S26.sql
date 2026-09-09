@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT all_conversation_contacts) as unique_contacts FROM intercom__conversation_enhanced

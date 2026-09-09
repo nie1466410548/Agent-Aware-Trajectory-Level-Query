@@ -1,0 +1,1 @@
+SELECT DISTINCT conversation_author_type FROM intercom__conversation_metrics

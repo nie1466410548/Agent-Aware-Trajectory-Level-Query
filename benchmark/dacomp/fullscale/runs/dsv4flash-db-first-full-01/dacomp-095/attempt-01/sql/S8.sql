@@ -1,0 +1,1 @@
+SELECT COUNT(*) as n FROM klaviyo__flows

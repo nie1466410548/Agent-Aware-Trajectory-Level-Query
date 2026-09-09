@@ -2,9 +2,9 @@
 
 独立批次 `dsv4flash-db-first-full-01`，模型 `glm-custom/DeepSeek-V4-Flash-0731`，数据库内优先协议。旧四题及旧实现保留。
 
-[可读报告](reports/dsv4flash-db-first-full-01/REPORT.md) · [指标口径](reports/dsv4flash-db-first-full-01/METRICS.md) · [任务清单](manifests/tasks.jsonl) · [执行队列](state/queue.json)
+[续接交付](reports/dsv4flash-db-first-full-01/RESUME_REPORT.md) · [可读报告](reports/dsv4flash-db-first-full-01/REPORT.md) · [指标口径](reports/dsv4flash-db-first-full-01/METRICS.md) · [任务清单](manifests/tasks.jsonl) · [执行队列](state/queue.json)
 
-当前因 092 的服务端 HTTP 401 连接器数据库恢复错误停止：89 题提交（其中 2 题截断）、4 题中断、7 题未派发。错误不是明确的余额不足。接续此检查点请先读 [恢复说明](RECOVERY.md)，不要重新执行下面的首次准备/验收命令。
+2026-09-09 已完成全部 100 题提交，其中 033、081 是原 SQL 上限截断提交。087、091、092、093 在原会话和 attempt-01 内续接，094–100 各执行一次主运行。旧四题保留。详见 [续接记录](RECOVERY.md) 和 [追加证据审计](state/continuation_audit.json)。
 
 从仓库根目录运行：
 
@@ -47,6 +47,6 @@ benchmark/dacomp/.venv/bin/python benchmark/dacomp/fullscale/tools/finalize.py
 benchmark/dacomp/.venv/bin/python benchmark/dacomp/fullscale/tools/parallel_run.py --concurrency 4
 ```
 
-状态与恢复证据：`state/queue.json`、`state/parallel-stop.json`（若发生错误）、`state/parallel-run.log`、`state/dacomp-XXX.worker.log`，以及各题原 attempt。不要同时启动旧 `run.py --continue-full`。服务恢复并获用户继续授权后，先核对活动进程、各题 summary 和部分轨迹；当前工具只自动领取 `pending`，不会把中断题伪装为未开始，也不会重跑已提交题。
+状态与恢复证据：`state/queue.json`、`state/parallel-stop.json`（若发生错误）、`state/parallel-run.log`、`state/dacomp-XXX.worker.log`，以及各题原 attempt。不要同时启动旧 `run.py --continue-full`。服务恢复并获用户继续授权后，先核对活动进程、各题 summary 和部分轨迹；调度器领取 `pending`，以及经显式恢复授权、离线验证后标记的 `resume_pending`，不会把中断题伪装为未开始，也不会重跑已提交题。
 
 `tools/test_parallel.py` 使用本机假服务/假 worker，验证跨题额度闩锁只允许第一次上游请求、并行重叠、队列闭合与不重复领取；没有调用真实模型。运行中轨迹不参与报告解析，避免读到半条日志；每题结束后统一审计。并发期间的原始 SQL 耗时可能受资源竞争影响，最终代表性性能实验仍在所有模型任务退出后串行执行。

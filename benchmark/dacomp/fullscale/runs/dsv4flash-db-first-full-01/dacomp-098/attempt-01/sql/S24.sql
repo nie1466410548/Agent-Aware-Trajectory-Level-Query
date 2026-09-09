@@ -1,0 +1,1 @@
+SELECT contact_id, all_contact_company_names, all_contact_tags FROM intercom__contact_enhanced LIMIT 10

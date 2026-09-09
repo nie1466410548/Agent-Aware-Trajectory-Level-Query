@@ -1,0 +1,1 @@
+SELECT all_contact_company_names, COUNT(*) as cnt FROM intercom__conversation_enhanced GROUP BY all_contact_company_names ORDER BY cnt DESC

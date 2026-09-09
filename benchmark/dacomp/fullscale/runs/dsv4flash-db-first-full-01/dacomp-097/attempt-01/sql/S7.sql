@@ -1,0 +1,1 @@
+SELECT * FROM intercom__contact_enhanced LIMIT 5

@@ -1,0 +1,392 @@
+{
+  "fingerprint": "0a3b85272a24eb03e54afb74ab7b8bb92f08049a82595987d1c2f925dd40758e",
+  "analysis_source_version": "45a99de72707faf89f1cea79a579a5ddc61637e5de3cead37f4207d92a3edcc1",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S31",
+      "covered": [
+        "S31",
+        "S32",
+        "S33",
+        "S34"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S31",
+      "later_reuses": 3,
+      "denominator": 38,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788863342.45975,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 264,
+      "validation_ended_at": 1788863342.4723938,
+      "checks": [
+        {
+          "sql_id": "S32",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        },
+        {
+          "sql_id": "S33",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        },
+        {
+          "sql_id": "S34",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Origin / Tier (Domestic/Imported/JV)\" AS __g0, \"GSP Certification Status\" AS __g1, \"Storage conditions (room temperature/cool/refrigerated)\" AS __g2, \"Transportation mode (land/cold chain)\" AS __g3, COUNT(*) AS __a0 FROM \"basic_drug_information\"  GROUP BY \"Origin / Tier (Domestic/Imported/JV)\", \"GSP Certification Status\", \"Storage conditions (room temperature/cool/refrigerated)\", \"Transportation mode (land/cold chain)\"",
+      "covered": [
+        "S7",
+        "S21",
+        "S22",
+        "S23"
+      ],
+      "rewrites": {
+        "S7": "SELECT __g0 AS origin, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+        "S21": "SELECT __g1 AS gsp, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1",
+        "S22": "SELECT __g2 AS storage, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2",
+        "S23": "SELECT __g3 AS transport, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S7",
+      "later_reuses": 3,
+      "denominator": 38,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788863342.476657,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Origin / Tier (Domestic/Imported/JV)\" AS __g0, \"GSP Certification Status\" AS __g1, \"Storage conditions (room temperature/cool/refrigerated)\" AS __g2, \"Transportation mode (land/cold chain)\" AS __g3, COUNT(*) AS __a0 FROM \"basic_drug_information\"  GROUP BY \"Origin / Tier (Domestic/Imported/JV)\", \"GSP Certification Status\", \"Storage conditions (room temperature/cool/refrigerated)\", \"Transportation mode (land/cold chain)\"",
+          "phase": "offline_validation",
+          "start_time": 1788863342.47683,
+          "status": "execute_returned",
+          "end_time": 1788863342.4774175
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788863342.477421,
+          "status": "execute_returned",
+          "end_time": 1788863342.4774356
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788863342.4774394,
+          "status": "execute_returned",
+          "end_time": 1788863342.4774487
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS origin, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788863342.4774592,
+          "status": "execute_returned",
+          "end_time": 1788863342.4774826
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g1 AS gsp, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1",
+          "phase": "offline_validation",
+          "start_time": 1788863342.4779837,
+          "status": "execute_returned",
+          "end_time": 1788863342.4780223
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g2 AS storage, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2",
+          "phase": "offline_validation",
+          "start_time": 1788863342.4784935,
+          "status": "execute_returned",
+          "end_time": 1788863342.478532
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g3 AS transport, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3",
+          "phase": "offline_validation",
+          "start_time": 1788863342.478999,
+          "status": "execute_returned",
+          "end_time": 1788863342.4790363
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Origin / Tier (Domestic/Imported/JV)\" AS __g0, \"GSP Certification Status\" AS __g1, \"Storage conditions (room temperature/cool/refrigerated)\" AS __g2, \"Transportation mode (land/cold chain)\" AS __g3, COUNT(*) AS __a0 FROM \"basic_drug_information\"  GROUP BY \"Origin / Tier (Domestic/Imported/JV)\", \"GSP Certification Status\", \"Storage conditions (room temperature/cool/refrigerated)\", \"Transportation mode (land/cold chain)\"",
+          "time": 1788863342.4769742,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788863342.4774332,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788863342.4774463,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS origin, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788863342.4774718,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS gsp, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1",
+          "time": 1788863342.4780076,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS storage, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2",
+          "time": 1788863342.4785166,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS transport, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3",
+          "time": 1788863342.479021,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.5921320989727974,
+      "intermediate_rows": 36,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__a0"
+      ],
+      "validation_ended_at": 1788863342.4795475,
+      "checks": [
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT __g0 AS origin, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5224654451012611
+        },
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "SELECT __g1 AS gsp, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5079945549368858
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "SELECT __g2 AS storage, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5035130307078362
+        },
+        {
+          "sql_id": "S23",
+          "rewritten_sql": "SELECT __g3 AS transport, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.4991823807358742
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Inventory Status (Normal/Frozen/Scrapped)\" AS __g0, \"Inventory Alert Status\" AS __g1, \"Inventory Discrepancy Rate\" AS __g2, COUNT(*) AS __a0, MIN(\"Last Inbound Date\") AS __a1, MAX(\"Last Inbound Date\") AS __a2, MIN(\"Last Outbound Date\") AS __a3, MAX(\"Last Outbound Date\") AS __a4 FROM \"inventory_management\"  GROUP BY \"Inventory Status (Normal/Frozen/Scrapped)\", \"Inventory Alert Status\", \"Inventory Discrepancy Rate\"",
+      "covered": [
+        "S9",
+        "S10",
+        "S20",
+        "S26"
+      ],
+      "rewrites": {
+        "S9": "SELECT __g0 AS status, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+        "S10": "SELECT __g1 AS alert, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1",
+        "S20": "SELECT MIN(__a1) AS min_in, MAX(__a2) AS max_in, MIN(__a3) AS min_out, MAX(__a4) AS max_out FROM temp.reuse_candidate",
+        "S26": "SELECT __g2 AS \"Inventory Discrepancy Rate\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2 ORDER BY cnt DESC LIMIT 15"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S9",
+      "later_reuses": 3,
+      "denominator": 38,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788863342.4725177,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Inventory Status (Normal/Frozen/Scrapped)\" AS __g0, \"Inventory Alert Status\" AS __g1, \"Inventory Discrepancy Rate\" AS __g2, COUNT(*) AS __a0, MIN(\"Last Inbound Date\") AS __a1, MAX(\"Last Inbound Date\") AS __a2, MIN(\"Last Outbound Date\") AS __a3, MAX(\"Last Outbound Date\") AS __a4 FROM \"inventory_management\"  GROUP BY \"Inventory Status (Normal/Frozen/Scrapped)\", \"Inventory Alert Status\", \"Inventory Discrepancy Rate\"",
+          "phase": "offline_validation",
+          "start_time": 1788863342.472764,
+          "status": "execute_returned",
+          "end_time": 1788863342.4737701
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788863342.4737756,
+          "status": "execute_returned",
+          "end_time": 1788863342.4737935
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788863342.4737988,
+          "status": "execute_returned",
+          "end_time": 1788863342.47381
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS status, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788863342.4738252,
+          "status": "execute_returned",
+          "end_time": 1788863342.473911
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g1 AS alert, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1",
+          "phase": "offline_validation",
+          "start_time": 1788863342.4744558,
+          "status": "execute_returned",
+          "end_time": 1788863342.4745657
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT MIN(__a1) AS min_in, MAX(__a2) AS max_in, MIN(__a3) AS min_out, MAX(__a4) AS max_out FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788863342.4750676,
+          "status": "execute_returned",
+          "end_time": 1788863342.4751954
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g2 AS \"Inventory Discrepancy Rate\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2 ORDER BY cnt DESC LIMIT 15",
+          "phase": "offline_validation",
+          "start_time": 1788863342.4758127,
+          "status": "execute_returned",
+          "end_time": 1788863342.476021
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Inventory Status (Normal/Frozen/Scrapped)\" AS __g0, \"Inventory Alert Status\" AS __g1, \"Inventory Discrepancy Rate\" AS __g2, COUNT(*) AS __a0, MIN(\"Last Inbound Date\") AS __a1, MAX(\"Last Inbound Date\") AS __a2, MIN(\"Last Outbound Date\") AS __a3, MAX(\"Last Outbound Date\") AS __a4 FROM \"inventory_management\"  GROUP BY \"Inventory Status (Normal/Frozen/Scrapped)\", \"Inventory Alert Status\", \"Inventory Discrepancy Rate\"",
+          "time": 1788863342.4729958,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788863342.4737897,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788863342.473807,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS status, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788863342.4738386,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS alert, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1",
+          "time": 1788863342.4744842,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a1) AS min_in, MAX(__a2) AS max_in, MIN(__a3) AS min_out, MAX(__a4) AS max_out FROM temp.reuse_candidate",
+          "time": 1788863342.4750943,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"Inventory Discrepancy Rate\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2 ORDER BY cnt DESC LIMIT 15",
+          "time": 1788863342.4758413,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 1.010878011584282,
+      "intermediate_rows": 401,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4"
+      ],
+      "validation_ended_at": 1788863342.4766428,
+      "checks": [
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT __g0 AS status, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6277486681938171
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT __g1 AS alert, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6096931174397469
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "SELECT MIN(__a1) AS min_in, MAX(__a2) AS max_in, MIN(__a3) AS min_out, MAX(__a4) AS max_out FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.7360773161053658
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "SELECT __g2 AS \"Inventory Discrepancy Rate\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2 ORDER BY cnt DESC LIMIT 15",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7746992632746696
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

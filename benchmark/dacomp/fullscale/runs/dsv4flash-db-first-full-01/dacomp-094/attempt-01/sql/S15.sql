@@ -1,0 +1,1 @@
+SELECT DISTINCT last_touch_campaign_id, campaign_name, campaign_subject_line FROM klaviyo__events ORDER BY last_touch_campaign_id

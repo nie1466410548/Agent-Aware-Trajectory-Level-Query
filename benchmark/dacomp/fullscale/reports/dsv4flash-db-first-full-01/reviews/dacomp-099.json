@@ -1,0 +1,80 @@
+{
+  "task_id": "dacomp-099",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 将事件窗口内会话明细按事件和前后期聚合计数、金额及标签数，再 pivot、计算前后差值和变化率并按升级降级求均值。这些 GROUP BY、条件聚合和算术可在 SQL 中完成。配对及组间 t 检验为统计补充。",
+  "route": "SQL 连接、窗口和指标提取 → Python 业务聚合、统计检验与图表 → 报告",
+  "evidence": [
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 62,
+          "text": "per_event = df.groupby(['event_key', 'company_name', 'event_at', 'event_type', 'prev_plan', 'new_plan', 'period']).agg(agg_cols).reset_index()"
+        },
+        {
+          "line": 65,
+          "text": "pivot = per_event.pivot_table(index=['event_key', 'company_name', 'event_at', 'event_type', 'prev_plan', 'new_plan'],"
+        },
+        {
+          "line": 73,
+          "text": "pivot['conv_delta'] = pivot['after_conv_count'] - pivot['before_conv_count']"
+        },
+        {
+          "line": 79,
+          "text": "pivot['conv_change_pct'] = np.where(pivot['before_conv_count'] > 0,"
+        },
+        {
+          "line": 89,
+          "text": "    print(f\"  Avg convs before: {sub['before_conv_count'].mean():.2f} | after: {sub['after_conv_count'].mean():.2f} | delta: {sub['conv_delta'].mean():.2f} | %change: {sub['conv_change_pct'].mean():.1f}%\")"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 24,
+          "text": "convs = convs.merge(metrics, on='conversation_id', how='left')"
+        },
+        {
+          "line": 64,
+          "text": "            parts=window_df['count_total_parts'].sum(),"
+        },
+        {
+          "line": 65,
+          "text": "            bugs=window_df['all_conversation_tags'].str.contains('Bug', na=False).sum(),"
+        },
+        {
+          "line": 66,
+          "text": "            outages=window_df['all_conversation_tags'].str.contains('Outage', na=False).sum(),"
+        }
+      ]
+    }
+  ],
+  "review_scope_python_files": [
+    "P1.py",
+    "P2.py",
+    "P3.py",
+    "P4.py"
+  ],
+  "final_run_status": "submitted",
+  "available_python_files": [
+    "P1.py",
+    "P10.py",
+    "P11.py",
+    "P12.py",
+    "P13.py",
+    "P14.py",
+    "P15.py",
+    "P2.py",
+    "P3.py",
+    "P4.py",
+    "P5.py",
+    "P6.py",
+    "P7.py",
+    "P8.py",
+    "P9.py"
+  ],
+  "review_scope": "Execution-location findings supported by the cited source lines; no official answer correctness judgment."
+}

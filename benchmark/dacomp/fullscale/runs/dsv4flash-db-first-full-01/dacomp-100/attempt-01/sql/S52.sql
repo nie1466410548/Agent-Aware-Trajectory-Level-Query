@@ -1,0 +1,1 @@
+SELECT company_id, created_at FROM intercom__company_enhanced

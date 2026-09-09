@@ -1,0 +1,1 @@
+SELECT "_id", "Rank", "Title", "Creator", "Overall Score", "Video Category", "Video Tags", "Views", "Danmaku Count", "Comments", "Favorites", "Likes", "Coins", "Shares", "Creator Gender", "Bilibili Personal Verification", "Creator Followers", "Creator Total Views", "Creator Total Likes", "Creator Video Count", "Main Category" FROM temp."reuse_014_c1";

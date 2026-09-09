@@ -1,0 +1,1 @@
+SELECT DISTINCT STATUS FROM klaviyo__campaigns

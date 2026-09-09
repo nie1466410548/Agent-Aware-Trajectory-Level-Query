@@ -1,0 +1,1 @@
+SELECT all_conversation_tags, COUNT(*) as cnt FROM intercom__conversation_enhanced WHERE all_conversation_tags IS NOT NULL AND all_conversation_tags != '' GROUP BY all_conversation_tags ORDER BY cnt DESC LIMIT 100

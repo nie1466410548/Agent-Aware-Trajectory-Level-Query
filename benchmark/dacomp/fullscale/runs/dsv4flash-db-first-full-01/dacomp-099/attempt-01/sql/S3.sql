@@ -1,0 +1,1 @@
+SELECT DISTINCT plan_name, plan_id FROM intercom__company_enhanced ORDER BY plan_name

@@ -2,8 +2,8 @@
   "task_id": "dacomp-087",
   "status": "database_first_violation",
   "reviewer": "experiment analyst",
-  "conclusion": "这是服务错误停止前的部分轨迹。客户重分配搜索算法可作为数值优化补充，但算法前按销售代表求客户收入、联系人总数及行业分布的输入聚合、独立的基线约束计数可以在 SQL 内完成。算法内候选状态的增量核对不一概判为违规。",
-  "route": "SQL 提取销售负荷与客户 → Python 重分配搜索及约束核对 → 服务错误中断，未提交最终答案。",
+  "conclusion": "同一会话续接后已提交。原轨迹按销售代表进行客户收入、联系人及行业分布聚合可下推 SQL；续接还在 Python 内求基线均值、行业合规计数。重分配搜索及其生成方案的内存状态处理属于算法补充，不能一概判为原库可下推操作。",
+  "route": "SQL 销售负荷与客户提取 → Python 重分配搜索 → 服务中断后同会话继续图表与方案汇总 → 提交。",
   "evidence": [
     {
       "source": "python/P6.py",
@@ -71,6 +71,42 @@
           "text": "total_cust = len(cust)"
         }
       ]
+    },
+    {
+      "source": "python/P12.py",
+      "lines": [
+        {
+          "line": 22,
+          "text": "avg_ws = baseline_ws.mean()"
+        },
+        {
+          "line": 23,
+          "text": "lower_target = avg_ws * 0.85"
+        },
+        {
+          "line": 24,
+          "text": "upper_target = avg_ws * 1.15"
+        }
+      ]
     }
-  ]
+  ],
+  "continuation_review": true,
+  "final_run_status": "submitted",
+  "available_python_files": [
+    "P1.py",
+    "P10.py",
+    "P11.py",
+    "P12.py",
+    "P13.py",
+    "P14.py",
+    "P2.py",
+    "P3.py",
+    "P4.py",
+    "P5.py",
+    "P6.py",
+    "P7.py",
+    "P8.py",
+    "P9.py"
+  ],
+  "review_scope": "Execution-location findings supported by the cited source lines; no official answer correctness judgment."
 }

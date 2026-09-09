@@ -1,0 +1,1 @@
+SELECT all_conversation_contacts FROM intercom__conversation_enhanced LIMIT 10

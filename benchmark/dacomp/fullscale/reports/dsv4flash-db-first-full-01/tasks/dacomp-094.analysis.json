@@ -1,0 +1,253 @@
+{
+  "fingerprint": "e31e3611510b90f5dce9bc2a68e96e70648eb8c4dae3d306b051240a80c894c9",
+  "analysis_source_version": "11db36a5cf34662d69d06fb9401b4dd860cf7569546f909da5e0f3edcf66d6d3",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT campaign_name AS __g0, campaign_subject_line AS __g1, COUNT(*) AS __a0 FROM \"klaviyo__events\"  GROUP BY campaign_name, campaign_subject_line",
+      "covered": [
+        "S8",
+        "S22"
+      ],
+      "rewrites": {
+        "S8": "SELECT SUM(__a0) AS total_events FROM temp.reuse_candidate",
+        "S22": "SELECT __g0 AS \"campaign_name\", __g1 AS \"campaign_subject_line\", SUM(__a0) AS n_events_by_campaign FROM temp.reuse_candidate GROUP BY __g0, __g1"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S8",
+      "later_reuses": 1,
+      "denominator": 16,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788917455.2877982,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT campaign_name AS __g0, campaign_subject_line AS __g1, COUNT(*) AS __a0 FROM \"klaviyo__events\"  GROUP BY campaign_name, campaign_subject_line",
+          "phase": "offline_validation",
+          "start_time": 1788917455.287982,
+          "status": "execute_returned",
+          "end_time": 1788917455.2882402
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788917455.2882438,
+          "status": "execute_returned",
+          "end_time": 1788917455.2882576
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788917455.2882638,
+          "status": "execute_returned",
+          "end_time": 1788917455.2882748
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS total_events FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788917455.288284,
+          "status": "execute_returned",
+          "end_time": 1788917455.288297
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"campaign_name\", __g1 AS \"campaign_subject_line\", SUM(__a0) AS n_events_by_campaign FROM temp.reuse_candidate GROUP BY __g0, __g1",
+          "phase": "offline_validation",
+          "start_time": 1788917455.2886808,
+          "status": "execute_returned",
+          "end_time": 1788917455.2887156
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT campaign_name AS __g0, campaign_subject_line AS __g1, COUNT(*) AS __a0 FROM \"klaviyo__events\"  GROUP BY campaign_name, campaign_subject_line",
+          "time": 1788917455.288185,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788917455.2882547,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788917455.288272,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total_events FROM temp.reuse_candidate",
+          "time": 1788917455.2882938,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"campaign_name\", __g1 AS \"campaign_subject_line\", SUM(__a0) AS n_events_by_campaign FROM temp.reuse_candidate GROUP BY __g0, __g1",
+          "time": 1788917455.2887065,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.26086531579494476,
+      "intermediate_rows": 3,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__a0"
+      ],
+      "validation_ended_at": 1788917455.2893448,
+      "checks": [
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT SUM(__a0) AS total_events FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.39437972009181976
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "SELECT __g0 AS \"campaign_name\", __g1 AS \"campaign_subject_line\", SUM(__a0) AS n_events_by_campaign FROM temp.reuse_candidate GROUP BY __g0, __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5882540717720985
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT COUNT(*) AS __a0, SUM(active_retention_rate_week) AS __a1_sum, COUNT(active_retention_rate_week) AS __a1_n, SUM(active_retention_rate_month) AS __a2_sum, COUNT(active_retention_rate_month) AS __a2_n, SUM(email_open_rate) AS __a3_sum, COUNT(email_open_rate) AS __a3_n, MIN(active_retention_rate_week) AS __a4, MAX(active_retention_rate_week) AS __a5, MIN(active_retention_rate_month) AS __a6, MAX(active_retention_rate_month) AS __a7 FROM \"klaviyo__persons\" ",
+      "covered": [
+        "S9",
+        "S21"
+      ],
+      "rewrites": {
+        "S9": "SELECT SUM(__a0) AS total_persons FROM temp.reuse_candidate",
+        "S21": "SELECT SUM(__a0) AS n_persons, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_ret_week, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_ret_month, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_email_open, MIN(__a4) AS min_ret_week, MAX(__a5) AS max_ret_week, MIN(__a6) AS min_ret_month, MAX(__a7) AS max_ret_month FROM temp.reuse_candidate"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S9",
+      "later_reuses": 1,
+      "denominator": 16,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788917455.2846653,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT COUNT(*) AS __a0, SUM(active_retention_rate_week) AS __a1_sum, COUNT(active_retention_rate_week) AS __a1_n, SUM(active_retention_rate_month) AS __a2_sum, COUNT(active_retention_rate_month) AS __a2_n, SUM(email_open_rate) AS __a3_sum, COUNT(email_open_rate) AS __a3_n, MIN(active_retention_rate_week) AS __a4, MAX(active_retention_rate_week) AS __a5, MIN(active_retention_rate_month) AS __a6, MAX(active_retention_rate_month) AS __a7 FROM \"klaviyo__persons\" ",
+          "phase": "offline_validation",
+          "start_time": 1788917455.28494,
+          "status": "execute_returned",
+          "end_time": 1788917455.2860599
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788917455.2860656,
+          "status": "execute_returned",
+          "end_time": 1788917455.2860847
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788917455.286091,
+          "status": "execute_returned",
+          "end_time": 1788917455.2861054
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS total_persons FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788917455.2861247,
+          "status": "execute_returned",
+          "end_time": 1788917455.286138
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT SUM(__a0) AS n_persons, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_ret_week, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_ret_month, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_email_open, MIN(__a4) AS min_ret_week, MAX(__a5) AS max_ret_week, MIN(__a6) AS min_ret_month, MAX(__a7) AS max_ret_month FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788917455.2865949,
+          "status": "execute_returned",
+          "end_time": 1788917455.2866547
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT COUNT(*) AS __a0, SUM(active_retention_rate_week) AS __a1_sum, COUNT(active_retention_rate_week) AS __a1_n, SUM(active_retention_rate_month) AS __a2_sum, COUNT(active_retention_rate_month) AS __a2_n, SUM(email_open_rate) AS __a3_sum, COUNT(email_open_rate) AS __a3_n, MIN(active_retention_rate_week) AS __a4, MAX(active_retention_rate_week) AS __a5, MIN(active_retention_rate_month) AS __a6, MAX(active_retention_rate_month) AS __a7 FROM \"klaviyo__persons\" ",
+          "time": 1788917455.2852898,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788917455.2860813,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788917455.286102,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total_persons FROM temp.reuse_candidate",
+          "time": 1788917455.2861352,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n_persons, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_ret_week, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_ret_month, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_email_open, MIN(__a4) AS min_ret_week, MAX(__a5) AS max_ret_week, MIN(__a6) AS min_ret_month, MAX(__a7) AS max_ret_month FROM temp.reuse_candidate",
+          "time": 1788917455.2866461,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 1.1247694492340088,
+      "intermediate_rows": 1,
+      "intermediate_columns": [
+        "__a0",
+        "__a1_sum",
+        "__a1_n",
+        "__a2_sum",
+        "__a2_n",
+        "__a3_sum",
+        "__a3_n",
+        "__a4",
+        "__a5",
+        "__a6",
+        "__a7"
+      ],
+      "validation_ended_at": 1788917455.287785,
+      "checks": [
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT SUM(__a0) AS total_persons FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.4670945927500725
+        },
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "SELECT SUM(__a0) AS n_persons, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_ret_week, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_ret_month, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_email_open, MIN(__a4) AS min_ret_week, MAX(__a5) AS max_ret_week, MIN(__a6) AS min_ret_month, MAX(__a7) AS max_ret_month FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.1002710089087486
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

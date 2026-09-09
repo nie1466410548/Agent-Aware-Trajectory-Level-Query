@@ -1,0 +1,1 @@
+SELECT DISTINCT conversation_assignee_type, conversation_author_type, conversation_initiated_type FROM intercom__conversation_enhanced

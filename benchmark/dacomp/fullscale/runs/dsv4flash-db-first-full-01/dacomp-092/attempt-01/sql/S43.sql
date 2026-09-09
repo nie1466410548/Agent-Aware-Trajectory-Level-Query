@@ -1,0 +1,1 @@
+SELECT DISTINCT customer_value_segment FROM quickbooks__customer_analytics

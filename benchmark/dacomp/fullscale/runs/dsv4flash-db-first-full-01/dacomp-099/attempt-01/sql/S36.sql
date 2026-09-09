@@ -1,0 +1,1 @@
+SELECT COUNT(*) as matched FROM intercom__conversation_enhanced c INNER JOIN intercom__company_enhanced ce ON ce.company_name = c.all_contact_company_names

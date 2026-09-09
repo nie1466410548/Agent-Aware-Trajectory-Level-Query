@@ -1,0 +1,1 @@
+SELECT all_company_tags, COUNT(*) as cnt FROM intercom__company_enhanced GROUP BY all_company_tags ORDER BY cnt DESC LIMIT 100

@@ -1,0 +1,1 @@
+SELECT MIN(created_at) as min_c, MAX(created_at) as max_c, MIN(updated_at) as min_u, MAX(updated_at) as max_u FROM intercom__company_enhanced

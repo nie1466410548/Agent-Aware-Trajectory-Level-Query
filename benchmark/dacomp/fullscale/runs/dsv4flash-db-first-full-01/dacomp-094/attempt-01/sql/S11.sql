@@ -1,0 +1,1 @@
+SELECT DISTINCT campaign_subject_line FROM klaviyo__events
