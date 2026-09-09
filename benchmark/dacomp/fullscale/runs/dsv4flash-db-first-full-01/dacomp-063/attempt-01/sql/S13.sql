@@ -1,0 +1,1 @@
+SELECT DISTINCT trajectory_status FROM jira__project_risk_assessment

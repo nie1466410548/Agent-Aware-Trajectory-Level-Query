@@ -1,0 +1,1 @@
+SELECT "Registration Date", COUNT(*) AS cnt FROM autohome GROUP BY strftime('%Y', "Registration Date") ORDER BY strftime('%Y', "Registration Date")

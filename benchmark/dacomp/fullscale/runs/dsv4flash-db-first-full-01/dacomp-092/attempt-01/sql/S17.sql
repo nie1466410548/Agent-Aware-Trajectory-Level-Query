@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT customer_id) as cnt FROM quickbooks__profitability_analysis

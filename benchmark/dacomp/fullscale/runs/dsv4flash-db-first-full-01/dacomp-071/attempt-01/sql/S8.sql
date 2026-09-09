@@ -1,0 +1,1 @@
+SELECT DISTINCT archive_reason FROM lever__opportunity_stage_history ORDER BY archive_reason

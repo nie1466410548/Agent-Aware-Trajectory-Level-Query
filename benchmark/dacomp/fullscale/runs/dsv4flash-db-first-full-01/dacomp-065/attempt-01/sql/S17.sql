@@ -1,0 +1,1 @@
+SELECT stage_technical_interview, COUNT(*) AS n FROM greenhouse__application_enhanced GROUP BY stage_technical_interview

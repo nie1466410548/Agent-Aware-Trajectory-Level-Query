@@ -1,5 +1,7 @@
 # DAComp-DA 小规模自然轨迹试验
 
+后续全量实验见 [执行报告](fullscale/reports/dsv4flash-db-first-full-01/REPORT.md)、[100 题交接计划](FULL_RUN_HANDOFF_PLAN.md)和[恢复说明](fullscale/RECOVERY.md)。新批次使用 **OpenCode + `glm-custom/DeepSeek-V4-Flash-0731`**，采用数据库内优先协议，与下述 Kimi 旧四题分开。当前已提交 89 题（其中 2 题截断），4 题因服务错误中断，7 题未派发；完整证据已保存。
+
 状态：**四题各一次自然运行已完成，均正常提交报告，无预算截断。** 共 27 次 SQL 尝试、26 次成功、18 条含 GROUP BY；官方未评分。未运行 FAD 组或额外重跑。
 
 先读 [五个 RQ 的总报告](reports/REPORT.md)，再按其中的逐题链接查看完整 SQL、Python 和具体复用证据。三个离线候选已经过结果重放核验，尚未做性能收益或 frontier 预测实验。

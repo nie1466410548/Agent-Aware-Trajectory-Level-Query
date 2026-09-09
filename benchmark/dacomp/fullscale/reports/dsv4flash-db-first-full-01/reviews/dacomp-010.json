@@ -1,0 +1,50 @@
+{
+  "task_id": "dacomp-010",
+  "status": "partial_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "SQL prepares joins and product/season aggregates. Python performs Kruskal-Wallis and Mann-Whitney tests, which justify statistical inputs, but P2 also computes channel/promotion count, sum, mean and seasonal share summaries outside SQL. Those portions are SQL-capable; plotting/statistical use alone does not make the entire trajectory compliant.",
+  "evidence": [
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 27,
+          "text": "print(df.groupby('channel').agg(n=('qty','size'), total_qty=('qty','sum'),"
+        },
+        {
+          "line": 28,
+          "text": "      avg_qty_per_trans=('qty','mean'), med_qty=('qty','median'),"
+        },
+        {
+          "line": 29,
+          "text": "      avg_price=('price','mean'), avg_amount=('amount','mean')).round(2).to_string())"
+        },
+        {
+          "line": 37,
+          "text": "H, p = stats.kruskal(*groups)"
+        },
+        {
+          "line": 42,
+          "text": "Hq, pq = stats.kruskal(*groups_q)"
+        },
+        {
+          "line": 48,
+          "text": "u, pu = stats.mannwhitneyu(ec, wm, alternative='two-sided')"
+        },
+        {
+          "line": 58,
+          "text": "print(df[df['channel']=='E-commerce Platform'].groupby('promo').agg(n=('qty','size'), total_qty=('qty','sum')).to_string())"
+        },
+        {
+          "line": 73,
+          "text": "pct = piv.div(piv.sum(axis=1), axis=0).round(3)*100"
+        },
+        {
+          "line": 78,
+          "text": "season_totals = df2.groupby('season')['total_qty'].sum()"
+        }
+      ]
+    }
+  ],
+  "route": "按产品、季节、渠道汇总销量与销售额 → 提取小麦交易明细做渠道检验 → 汇总促销和季节占比 → 绘图及两两统计比较。"
+}

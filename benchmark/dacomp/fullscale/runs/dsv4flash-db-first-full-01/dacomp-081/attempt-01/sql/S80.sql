@@ -1,0 +1,1 @@
+SELECT survey_id, COUNT(*) AS cnt FROM qualtrics__survey GROUP BY survey_id HAVING cnt > 1 LIMIT 20

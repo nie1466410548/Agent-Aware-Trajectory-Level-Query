@@ -1,0 +1,1 @@
+SELECT MIN("Rank") as min_rank, MAX("Rank") as max_rank FROM sheet1

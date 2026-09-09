@@ -1,0 +1,69 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+The company needs to analyze the reasons behind the decline in project delivery efficiency. Based on the existing data: first compute each user’s average task completion time (asana__user.avg_close_time_assigned_days), identify the user cohort whose completion time exceeds 1.5× the overall average, then analyze the distribution characteristics of the tasks handled by these users across complexity_score, urgency_score, and project_health_score. Meanwhile, compute each team’s task completion rate (completed_tasks/total_tasks) and average project health score, and identify underperforming teams. On this basis, dig deeper into the root causes of inefficiency, analyze the fit between individual capability and task assignment, explore opportunities to improve team collaboration models, and, combined with time trends, identify key influencing factors. Finally, produce concrete recommendations to improve efficiency.
+
+DATABASE SCHEMA:
+CREATE TABLE "asana__task_lifecycle_analysis" (
+"task_id" INTEGER,
+  "task_name" TEXT,
+  "created_at" TIMESTAMP,
+  "completed_at" TIMESTAMP,
+  "due_date" TIMESTAMP,
+  "is_completed" INTEGER,
+  "assignee_user_id" INTEGER,
+  "parent_task_id" INTEGER,
+  "task_status_category" TEXT,
+  "performance_grade" TEXT,
+  "health_score" INTEGER,
+  "response_time_days" INTEGER,
+  "delay_days" INTEGER,
+  "complexity_score" INTEGER,
+  "urgency_score" INTEGER,
+  "activity_score" INTEGER,
+  "creation_timestamp" TIMESTAMP,
+  "first_assignment_timestamp" TIMESTAMP,
+  "last_assignment_timestamp" TIMESTAMP,
+  "last_modification_timestamp" TIMESTAMP,
+  "completion_timestamp" TIMESTAMP,
+  "hours_to_assignment" INTEGER,
+  "hours_assigned_to_completion" INTEGER,
+  "total_lifecycle_hours" INTEGER,
+  "total_story_events" INTEGER,
+  "unique_action_types" INTEGER,
+  "days_with_activity" INTEGER,
+  "avg_daily_activity_rate" REAL,
+  "lifecycle_efficiency_category" TEXT,
+  "activity_level" TEXT,
+  "lifecycle_health_score" INTEGER,
+  "current_lifecycle_stage" TEXT,
+  "anomaly_patterns" TEXT,
+  "success_patterns" TEXT,
+  "improvement_opportunities" TEXT,
+  "complexity_execution_match" TEXT,
+  "project_name" TEXT,
+  "team_id" INTEGER,
+  "project_health_score" INTEGER,
+  "assignee_name" TEXT,
+  "assignee_performance_grade" TEXT,
+  "relative_performance_vs_project" TEXT,
+  "is_valid_record" INTEGER
+)
+CREATE TABLE "asana__user" (
+"user_id" TEXT,
+  "user_name" TEXT,
+  "email" TEXT,
+  "number_of_open_tasks" INTEGER,
+  "number_of_tasks_completed" INTEGER,
+  "avg_close_time_days" REAL,
+  "avg_close_time_assigned_days" REAL
+)

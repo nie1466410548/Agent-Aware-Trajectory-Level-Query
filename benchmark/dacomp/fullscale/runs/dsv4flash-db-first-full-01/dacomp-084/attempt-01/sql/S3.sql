@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_overview FROM workday__organization_overview

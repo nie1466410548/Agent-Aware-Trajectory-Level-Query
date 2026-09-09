@@ -1,0 +1,1 @@
+SELECT response_text, COUNT(*) AS n FROM qualtrics__response GROUP BY response_text ORDER BY n DESC

@@ -1,0 +1,1 @@
+SELECT "Part-time job", COUNT(*) as n FROM sheet1 GROUP BY "Part-time job"

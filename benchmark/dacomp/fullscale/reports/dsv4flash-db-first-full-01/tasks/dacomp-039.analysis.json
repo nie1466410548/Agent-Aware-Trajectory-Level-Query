@@ -1,0 +1,951 @@
+{
+  "fingerprint": "d3da70c23a8067c220debc12a375fe5966a4ac777488c5aaef7035c6fd9708e2",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S11",
+      "covered": [
+        "S11",
+        "S13",
+        "S14",
+        "S15",
+        "S22",
+        "S23",
+        "S26",
+        "S29"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S11",
+      "later_reuses": 7,
+      "denominator": 25,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865293.305955,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 3142,
+      "validation_ended_at": 1788865293.759716,
+      "checks": [
+        {
+          "sql_id": "S13",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S14",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S15",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S22",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S23",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S26",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S29",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"game_game_level_content_data_ta\" WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+      "covered": [
+        "S6",
+        "S7",
+        "S8",
+        "S9",
+        "S11",
+        "S13",
+        "S14",
+        "S15",
+        "S16",
+        "S17",
+        "S18",
+        "S20",
+        "S21",
+        "S22",
+        "S23",
+        "S26",
+        "S27",
+        "S29"
+      ],
+      "rewrites": {
+        "S6": "SELECT COUNT(*) AS total_2024 FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+        "S7": "SELECT \"Difficulty Level\", \"Level Type\", COUNT(*) AS level_count, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating, ROUND(AVG(\"Clear Rate\"), 4) AS avg_clear_rate, ROUND(AVG(\"Average Retry Count\"), 2) AS avg_retries FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\", \"Level Type\" ORDER BY \"Difficulty Level\", \"Level Type\"",
+        "S8": "SELECT \"Difficulty Level\", COUNT(*) AS cnt, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\" ORDER BY avg_churn DESC",
+        "S9": "SELECT \"Level Type\", COUNT(*) AS cnt, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Level Type\" ORDER BY avg_churn DESC",
+        "S11": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+        "S13": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+        "S14": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+        "S15": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+        "S16": "/* Stat summary by difficulty for 2024 */ SELECT \"Difficulty Level\", COUNT(*) AS cnt, ROUND(MIN(\"Churn Rate\"), 4) AS min_churn, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(MAX(\"Churn Rate\"), 4) AS max_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating, ROUND(AVG(\"Clear Rate\"), 4) AS avg_clear, ROUND(AVG(\"Average Retry Count\"), 2) AS avg_retries, ROUND(AVG(\"Level Completion Rate\"), 4) AS avg_completion FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\" ORDER BY avg_churn DESC",
+        "S17": "/* Monthly trends in 2024 */ SELECT STRFTIME('%Y-%m', \"Launch Time\") AS launch_month, COUNT(*) AS level_count, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY launch_month ORDER BY launch_month",
+        "S18": "SELECT \"Reward Type\", COUNT(*) AS cnt, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Reward Type\" ORDER BY avg_churn DESC",
+        "S20": "/* Cross-tab Difficulty x Reward Type for 2024 */ SELECT \"Difficulty Level\", \"Reward Type\", COUNT(*) AS cnt FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\", \"Reward Type\" ORDER BY \"Difficulty Level\", cnt DESC",
+        "S21": "/* Correlation proxy: reward value ranges by difficulty */ SELECT \"Difficulty Level\", MIN(\"Reward Value\") AS min_rw, MAX(\"Reward Value\") AS max_rw, ROUND(AVG(\"Reward Value\"), 2) AS avg_rw FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\" ORDER BY avg_rw DESC",
+        "S22": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+        "S23": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+        "S26": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+        "S27": "SELECT MIN(\"Level Completion Rate\" + \"Churn Rate\") AS min_sum, MAX(\"Level Completion Rate\" + \"Churn Rate\") AS max_sum, ROUND(AVG(\"Level Completion Rate\" + \"Churn Rate\"), 4) AS avg_sum FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+        "S29": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S6",
+      "later_reuses": 17,
+      "denominator": 25,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865292.634061,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"game_game_level_content_data_ta\" WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "phase": "offline_validation",
+          "start_time": 1788865292.6343536,
+          "status": "execute_returned",
+          "end_time": 1788865292.6389728
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865292.6389797,
+          "status": "execute_returned",
+          "end_time": 1788865292.6390178
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865292.6390247,
+          "status": "execute_returned",
+          "end_time": 1788865292.6390414
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT COUNT(*) AS total_2024 FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "phase": "offline_validation",
+          "start_time": 1788865292.6390688,
+          "status": "execute_returned",
+          "end_time": 1788865292.6402023
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT \"Difficulty Level\", \"Level Type\", COUNT(*) AS level_count, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating, ROUND(AVG(\"Clear Rate\"), 4) AS avg_clear_rate, ROUND(AVG(\"Average Retry Count\"), 2) AS avg_retries FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\", \"Level Type\" ORDER BY \"Difficulty Level\", \"Level Type\"",
+          "phase": "offline_validation",
+          "start_time": 1788865292.64084,
+          "status": "execute_returned",
+          "end_time": 1788865292.6436007
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT \"Difficulty Level\", COUNT(*) AS cnt, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\" ORDER BY avg_churn DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865292.645806,
+          "status": "execute_returned",
+          "end_time": 1788865292.6480868
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT \"Level Type\", COUNT(*) AS cnt, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Level Type\" ORDER BY avg_churn DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865292.6490326,
+          "status": "execute_returned",
+          "end_time": 1788865292.651302
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "phase": "offline_validation",
+          "start_time": 1788865292.6522338,
+          "status": "execute_returned",
+          "end_time": 1788865292.6522908
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "phase": "offline_validation",
+          "start_time": 1788865292.7294333,
+          "status": "execute_returned",
+          "end_time": 1788865292.7294743
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "phase": "offline_validation",
+          "start_time": 1788865292.8053775,
+          "status": "execute_returned",
+          "end_time": 1788865292.8054256
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "phase": "offline_validation",
+          "start_time": 1788865292.8816233,
+          "status": "execute_returned",
+          "end_time": 1788865292.8816686
+        },
+        {
+          "sequence": 12,
+          "sql": "/* Stat summary by difficulty for 2024 */ SELECT \"Difficulty Level\", COUNT(*) AS cnt, ROUND(MIN(\"Churn Rate\"), 4) AS min_churn, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(MAX(\"Churn Rate\"), 4) AS max_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating, ROUND(AVG(\"Clear Rate\"), 4) AS avg_clear, ROUND(AVG(\"Average Retry Count\"), 2) AS avg_retries, ROUND(AVG(\"Level Completion Rate\"), 4) AS avg_completion FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\" ORDER BY avg_churn DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865292.9574664,
+          "status": "execute_returned",
+          "end_time": 1788865292.9607003
+        },
+        {
+          "sequence": 13,
+          "sql": "/* Monthly trends in 2024 */ SELECT STRFTIME('%Y-%m', \"Launch Time\") AS launch_month, COUNT(*) AS level_count, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY launch_month ORDER BY launch_month",
+          "phase": "offline_validation",
+          "start_time": 1788865292.9644623,
+          "status": "execute_returned",
+          "end_time": 1788865292.9672377
+        },
+        {
+          "sequence": 14,
+          "sql": "SELECT \"Reward Type\", COUNT(*) AS cnt, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Reward Type\" ORDER BY avg_churn DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865292.9688334,
+          "status": "execute_returned",
+          "end_time": 1788865292.971165
+        },
+        {
+          "sequence": 15,
+          "sql": "/* Cross-tab Difficulty x Reward Type for 2024 */ SELECT \"Difficulty Level\", \"Reward Type\", COUNT(*) AS cnt FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\", \"Reward Type\" ORDER BY \"Difficulty Level\", cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865292.9720697,
+          "status": "execute_returned",
+          "end_time": 1788865292.9748158
+        },
+        {
+          "sequence": 16,
+          "sql": "/* Correlation proxy: reward value ranges by difficulty */ SELECT \"Difficulty Level\", MIN(\"Reward Value\") AS min_rw, MAX(\"Reward Value\") AS max_rw, ROUND(AVG(\"Reward Value\"), 2) AS avg_rw FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\" ORDER BY avg_rw DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865292.9755921,
+          "status": "execute_returned",
+          "end_time": 1788865292.9779558
+        },
+        {
+          "sequence": 17,
+          "sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "phase": "offline_validation",
+          "start_time": 1788865292.9788382,
+          "status": "execute_returned",
+          "end_time": 1788865292.978857
+        },
+        {
+          "sequence": 18,
+          "sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "phase": "offline_validation",
+          "start_time": 1788865293.050855,
+          "status": "execute_returned",
+          "end_time": 1788865293.0508847
+        },
+        {
+          "sequence": 19,
+          "sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "phase": "offline_validation",
+          "start_time": 1788865293.126553,
+          "status": "execute_returned",
+          "end_time": 1788865293.1265965
+        },
+        {
+          "sequence": 20,
+          "sql": "SELECT MIN(\"Level Completion Rate\" + \"Churn Rate\") AS min_sum, MAX(\"Level Completion Rate\" + \"Churn Rate\") AS max_sum, ROUND(AVG(\"Level Completion Rate\" + \"Churn Rate\"), 4) AS avg_sum FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "phase": "offline_validation",
+          "start_time": 1788865293.2024455,
+          "status": "execute_returned",
+          "end_time": 1788865293.2042491
+        },
+        {
+          "sequence": 21,
+          "sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "phase": "offline_validation",
+          "start_time": 1788865293.2070873,
+          "status": "execute_returned",
+          "end_time": 1788865293.2071116
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"game_game_level_content_data_ta\" WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "time": 1788865292.6346006,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865292.6389997,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865292.6390378,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) AS total_2024 FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "time": 1788865292.6390853,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Difficulty Level\", \"Level Type\", COUNT(*) AS level_count, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating, ROUND(AVG(\"Clear Rate\"), 4) AS avg_clear_rate, ROUND(AVG(\"Average Retry Count\"), 2) AS avg_retries FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\", \"Level Type\" ORDER BY \"Difficulty Level\", \"Level Type\"",
+          "time": 1788865292.640898,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Difficulty Level\", COUNT(*) AS cnt, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\" ORDER BY avg_churn DESC",
+          "time": 1788865292.645852,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Level Type\", COUNT(*) AS cnt, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Level Type\" ORDER BY avg_churn DESC",
+          "time": 1788865292.6490822,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "time": 1788865292.6522815,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "time": 1788865292.7294507,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "time": 1788865292.8053992,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "time": 1788865292.8816442,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Stat summary by difficulty for 2024 */ SELECT \"Difficulty Level\", COUNT(*) AS cnt, ROUND(MIN(\"Churn Rate\"), 4) AS min_churn, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(MAX(\"Churn Rate\"), 4) AS max_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating, ROUND(AVG(\"Clear Rate\"), 4) AS avg_clear, ROUND(AVG(\"Average Retry Count\"), 2) AS avg_retries, ROUND(AVG(\"Level Completion Rate\"), 4) AS avg_completion FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\" ORDER BY avg_churn DESC",
+          "time": 1788865292.9576092,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Monthly trends in 2024 */ SELECT STRFTIME('%Y-%m', \"Launch Time\") AS launch_month, COUNT(*) AS level_count, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY launch_month ORDER BY launch_month",
+          "time": 1788865292.9645386,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Reward Type\", COUNT(*) AS cnt, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Reward Type\" ORDER BY avg_churn DESC",
+          "time": 1788865292.9688885,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Cross-tab Difficulty x Reward Type for 2024 */ SELECT \"Difficulty Level\", \"Reward Type\", COUNT(*) AS cnt FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\", \"Reward Type\" ORDER BY \"Difficulty Level\", cnt DESC",
+          "time": 1788865292.9721153,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Correlation proxy: reward value ranges by difficulty */ SELECT \"Difficulty Level\", MIN(\"Reward Value\") AS min_rw, MAX(\"Reward Value\") AS max_rw, ROUND(AVG(\"Reward Value\"), 2) AS avg_rw FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\" ORDER BY avg_rw DESC",
+          "time": 1788865292.9756446,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "time": 1788865292.978845,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "time": 1788865293.0508673,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "time": 1788865293.126571,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(\"Level Completion Rate\" + \"Churn Rate\") AS min_sum, MAX(\"Level Completion Rate\" + \"Churn Rate\") AS max_sum, ROUND(AVG(\"Level Completion Rate\" + \"Churn Rate\"), 4) AS avg_sum FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "time": 1788865293.2025602,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "time": 1788865293.2070966,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 4.6240417286753654,
+      "intermediate_rows": 3142,
+      "intermediate_columns": [
+        "Level ID",
+        "Level Name",
+        "Level Chapter",
+        "Difficulty Level",
+        "Clear Rate",
+        "Average Clear Time (S)",
+        "Average Retry Count",
+        "Level Type",
+        "Number of Participating Players",
+        "Reward Type",
+        "Reward Value",
+        "Level Completion Rate",
+        "Churn Rate",
+        "Level Rating",
+        "Launch Time"
+      ],
+      "validation_ended_at": 1788865293.2809985,
+      "checks": [
+        {
+          "sql_id": "S6",
+          "rewritten_sql": "SELECT COUNT(*) AS total_2024 FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.7683133482933044
+        },
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT \"Difficulty Level\", \"Level Type\", COUNT(*) AS level_count, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating, ROUND(AVG(\"Clear Rate\"), 4) AS avg_clear_rate, ROUND(AVG(\"Average Retry Count\"), 2) AS avg_retries FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\", \"Level Type\" ORDER BY \"Difficulty Level\", \"Level Type\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 4.963230341672897
+        },
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT \"Difficulty Level\", COUNT(*) AS cnt, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\" ORDER BY avg_churn DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.223516047000885
+        },
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT \"Level Type\", COUNT(*) AS cnt, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Level Type\" ORDER BY avg_churn DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.1967302784323692
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 77.19399407505989
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 75.93808230012655
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 76.23225077986717
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 75.83806850016117
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "/* Stat summary by difficulty for 2024 */ SELECT \"Difficulty Level\", COUNT(*) AS cnt, ROUND(MIN(\"Churn Rate\"), 4) AS min_churn, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(MAX(\"Churn Rate\"), 4) AS max_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating, ROUND(AVG(\"Clear Rate\"), 4) AS avg_clear, ROUND(AVG(\"Average Retry Count\"), 2) AS avg_retries, ROUND(AVG(\"Level Completion Rate\"), 4) AS avg_completion FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\" ORDER BY avg_churn DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 6.9932639598846436
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "/* Monthly trends in 2024 */ SELECT STRFTIME('%Y-%m', \"Launch Time\") AS launch_month, COUNT(*) AS level_count, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY launch_month ORDER BY launch_month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 4.369270987808704
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT \"Reward Type\", COUNT(*) AS cnt, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Reward Type\" ORDER BY avg_churn DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.233514726161957
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "/* Cross-tab Difficulty x Reward Type for 2024 */ SELECT \"Difficulty Level\", \"Reward Type\", COUNT(*) AS cnt FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\", \"Reward Type\" ORDER BY \"Difficulty Level\", cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.5205231979489326
+        },
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "/* Correlation proxy: reward value ranges by difficulty */ SELECT \"Difficulty Level\", MIN(\"Reward Value\") AS min_rw, MAX(\"Reward Value\") AS max_rw, ROUND(AVG(\"Reward Value\"), 2) AS avg_rw FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\" ORDER BY avg_rw DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.243928775191307
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 72.01208546757698
+        },
+        {
+          "sql_id": "S23",
+          "rewritten_sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 75.69288276135921
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 75.88748726993799
+        },
+        {
+          "sql_id": "S27",
+          "rewritten_sql": "SELECT MIN(\"Level Completion Rate\" + \"Churn Rate\") AS min_sum, MAX(\"Level Completion Rate\" + \"Churn Rate\") AS max_sum, ROUND(AVG(\"Level Completion Rate\" + \"Churn Rate\"), 4) AS avg_sum FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 4.639117047190666
+        },
+        {
+          "sql_id": "S29",
+          "rewritten_sql": "SELECT * FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") = '2024'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 73.71412962675095
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Difficulty Level\" AS __g0, \"Level Type\" AS __g1, STRFTIME('%Y-%m', \"Launch Time\") AS __g2, \"Reward Type\" AS __g3, COUNT(*) AS __a0, SUM(\"Churn Rate\") AS __a1_sum, COUNT(\"Churn Rate\") AS __a1_n, SUM(\"Level Rating\") AS __a2_sum, COUNT(\"Level Rating\") AS __a2_n, SUM(\"Clear Rate\") AS __a3_sum, COUNT(\"Clear Rate\") AS __a3_n, SUM(\"Average Retry Count\") AS __a4_sum, COUNT(\"Average Retry Count\") AS __a4_n, MIN(\"Churn Rate\") AS __a5, MAX(\"Churn Rate\") AS __a6, SUM(\"Level Completion Rate\") AS __a7_sum, COUNT(\"Level Completion Rate\") AS __a7_n, MIN(\"Reward Value\") AS __a8, MAX(\"Reward Value\") AS __a9, SUM(\"Reward Value\") AS __a10_sum, COUNT(\"Reward Value\") AS __a10_n, MIN(\"Level Completion Rate\" + \"Churn Rate\") AS __a11, MAX(\"Level Completion Rate\" + \"Churn Rate\") AS __a12, SUM(\"Level Completion Rate\" + \"Churn Rate\") AS __a13_sum, COUNT(\"Level Completion Rate\" + \"Churn Rate\") AS __a13_n FROM \"game_game_level_content_data_ta\" WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\", \"Level Type\", STRFTIME('%Y-%m', \"Launch Time\"), \"Reward Type\"",
+      "covered": [
+        "S6",
+        "S7",
+        "S8",
+        "S9",
+        "S16",
+        "S17",
+        "S18",
+        "S20",
+        "S21",
+        "S27"
+      ],
+      "rewrites": {
+        "S6": "SELECT SUM(__a0) AS total_2024 FROM temp.reuse_candidate",
+        "S7": "SELECT __g0 AS \"Difficulty Level\", __g1 AS \"Level Type\", SUM(__a0) AS level_count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 4) AS avg_clear_rate, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_retries FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+        "S8": "SELECT __g0 AS \"Difficulty Level\", SUM(__a0) AS cnt, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_churn DESC",
+        "S9": "SELECT __g1 AS \"Level Type\", SUM(__a0) AS cnt, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_churn DESC",
+        "S16": "/* Stat summary by difficulty for 2024 */ SELECT __g0 AS \"Difficulty Level\", SUM(__a0) AS cnt, ROUND(MIN(__a5), 4) AS min_churn, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND(MAX(__a6), 4) AS max_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 4) AS avg_clear, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_retries, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 4) AS avg_completion FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_churn DESC",
+        "S17": "/* Monthly trends in 2024 */ SELECT __g2 AS launch_month, SUM(__a0) AS level_count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating FROM temp.reuse_candidate GROUP BY __g2 ORDER BY launch_month",
+        "S18": "SELECT __g3 AS \"Reward Type\", SUM(__a0) AS cnt, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_churn DESC",
+        "S20": "/* Cross-tab Difficulty x Reward Type for 2024 */ SELECT __g0 AS \"Difficulty Level\", __g3 AS \"Reward Type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY __g0, cnt DESC",
+        "S21": "/* Correlation proxy: reward value ranges by difficulty */ SELECT __g0 AS \"Difficulty Level\", MIN(__a8) AS min_rw, MAX(__a9) AS max_rw, ROUND((1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)), 2) AS avg_rw FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_rw DESC",
+        "S27": "SELECT MIN(__a11) AS min_sum, MAX(__a12) AS max_sum, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 4) AS avg_sum FROM temp.reuse_candidate"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S6",
+      "later_reuses": 9,
+      "denominator": 25,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865293.282719,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Difficulty Level\" AS __g0, \"Level Type\" AS __g1, STRFTIME('%Y-%m', \"Launch Time\") AS __g2, \"Reward Type\" AS __g3, COUNT(*) AS __a0, SUM(\"Churn Rate\") AS __a1_sum, COUNT(\"Churn Rate\") AS __a1_n, SUM(\"Level Rating\") AS __a2_sum, COUNT(\"Level Rating\") AS __a2_n, SUM(\"Clear Rate\") AS __a3_sum, COUNT(\"Clear Rate\") AS __a3_n, SUM(\"Average Retry Count\") AS __a4_sum, COUNT(\"Average Retry Count\") AS __a4_n, MIN(\"Churn Rate\") AS __a5, MAX(\"Churn Rate\") AS __a6, SUM(\"Level Completion Rate\") AS __a7_sum, COUNT(\"Level Completion Rate\") AS __a7_n, MIN(\"Reward Value\") AS __a8, MAX(\"Reward Value\") AS __a9, SUM(\"Reward Value\") AS __a10_sum, COUNT(\"Reward Value\") AS __a10_n, MIN(\"Level Completion Rate\" + \"Churn Rate\") AS __a11, MAX(\"Level Completion Rate\" + \"Churn Rate\") AS __a12, SUM(\"Level Completion Rate\" + \"Churn Rate\") AS __a13_sum, COUNT(\"Level Completion Rate\" + \"Churn Rate\") AS __a13_n FROM \"game_game_level_content_data_ta\" WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\", \"Level Type\", STRFTIME('%Y-%m', \"Launch Time\"), \"Reward Type\"",
+          "phase": "offline_validation",
+          "start_time": 1788865293.2829723,
+          "status": "execute_returned",
+          "end_time": 1788865293.2931564
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865293.293166,
+          "status": "execute_returned",
+          "end_time": 1788865293.2931857
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865293.2931907,
+          "status": "execute_returned",
+          "end_time": 1788865293.293206
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS total_2024 FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865293.293238,
+          "status": "execute_returned",
+          "end_time": 1788865293.2932734
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"Difficulty Level\", __g1 AS \"Level Type\", SUM(__a0) AS level_count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 4) AS avg_clear_rate, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_retries FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "phase": "offline_validation",
+          "start_time": 1788865293.2939062,
+          "status": "execute_returned",
+          "end_time": 1788865293.294182
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS \"Difficulty Level\", SUM(__a0) AS cnt, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_churn DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865293.2957284,
+          "status": "execute_returned",
+          "end_time": 1788865293.2959728
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g1 AS \"Level Type\", SUM(__a0) AS cnt, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_churn DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865293.296913,
+          "status": "execute_returned",
+          "end_time": 1788865293.297171
+        },
+        {
+          "sequence": 8,
+          "sql": "/* Stat summary by difficulty for 2024 */ SELECT __g0 AS \"Difficulty Level\", SUM(__a0) AS cnt, ROUND(MIN(__a5), 4) AS min_churn, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND(MAX(__a6), 4) AS max_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 4) AS avg_clear, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_retries, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 4) AS avg_completion FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_churn DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865293.2980618,
+          "status": "execute_returned",
+          "end_time": 1788865293.298554
+        },
+        {
+          "sequence": 9,
+          "sql": "/* Monthly trends in 2024 */ SELECT __g2 AS launch_month, SUM(__a0) AS level_count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating FROM temp.reuse_candidate GROUP BY __g2 ORDER BY launch_month",
+          "phase": "offline_validation",
+          "start_time": 1788865293.3003225,
+          "status": "execute_returned",
+          "end_time": 1788865293.3005059
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g3 AS \"Reward Type\", SUM(__a0) AS cnt, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_churn DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865293.3016303,
+          "status": "execute_returned",
+          "end_time": 1788865293.3019009
+        },
+        {
+          "sequence": 11,
+          "sql": "/* Cross-tab Difficulty x Reward Type for 2024 */ SELECT __g0 AS \"Difficulty Level\", __g3 AS \"Reward Type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY __g0, cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865293.302799,
+          "status": "execute_returned",
+          "end_time": 1788865293.3030193
+        },
+        {
+          "sequence": 12,
+          "sql": "/* Correlation proxy: reward value ranges by difficulty */ SELECT __g0 AS \"Difficulty Level\", MIN(__a8) AS min_rw, MAX(__a9) AS max_rw, ROUND((1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)), 2) AS avg_rw FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_rw DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865293.3037758,
+          "status": "execute_returned",
+          "end_time": 1788865293.304005
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT MIN(__a11) AS min_sum, MAX(__a12) AS max_sum, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 4) AS avg_sum FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865293.304872,
+          "status": "execute_returned",
+          "end_time": 1788865293.304985
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Difficulty Level\" AS __g0, \"Level Type\" AS __g1, STRFTIME('%Y-%m', \"Launch Time\") AS __g2, \"Reward Type\" AS __g3, COUNT(*) AS __a0, SUM(\"Churn Rate\") AS __a1_sum, COUNT(\"Churn Rate\") AS __a1_n, SUM(\"Level Rating\") AS __a2_sum, COUNT(\"Level Rating\") AS __a2_n, SUM(\"Clear Rate\") AS __a3_sum, COUNT(\"Clear Rate\") AS __a3_n, SUM(\"Average Retry Count\") AS __a4_sum, COUNT(\"Average Retry Count\") AS __a4_n, MIN(\"Churn Rate\") AS __a5, MAX(\"Churn Rate\") AS __a6, SUM(\"Level Completion Rate\") AS __a7_sum, COUNT(\"Level Completion Rate\") AS __a7_n, MIN(\"Reward Value\") AS __a8, MAX(\"Reward Value\") AS __a9, SUM(\"Reward Value\") AS __a10_sum, COUNT(\"Reward Value\") AS __a10_n, MIN(\"Level Completion Rate\" + \"Churn Rate\") AS __a11, MAX(\"Level Completion Rate\" + \"Churn Rate\") AS __a12, SUM(\"Level Completion Rate\" + \"Churn Rate\") AS __a13_sum, COUNT(\"Level Completion Rate\" + \"Churn Rate\") AS __a13_n FROM \"game_game_level_content_data_ta\" WHERE STRFTIME('%Y', \"Launch Time\") = '2024' GROUP BY \"Difficulty Level\", \"Level Type\", STRFTIME('%Y-%m', \"Launch Time\"), \"Reward Type\"",
+          "time": 1788865293.2832363,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865293.2931817,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865293.2932034,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total_2024 FROM temp.reuse_candidate",
+          "time": 1788865293.2932484,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Difficulty Level\", __g1 AS \"Level Type\", SUM(__a0) AS level_count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 4) AS avg_clear_rate, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_retries FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "time": 1788865293.293984,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Difficulty Level\", SUM(__a0) AS cnt, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_churn DESC",
+          "time": 1788865293.2957864,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"Level Type\", SUM(__a0) AS cnt, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_churn DESC",
+          "time": 1788865293.296972,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Stat summary by difficulty for 2024 */ SELECT __g0 AS \"Difficulty Level\", SUM(__a0) AS cnt, ROUND(MIN(__a5), 4) AS min_churn, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND(MAX(__a6), 4) AS max_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 4) AS avg_clear, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_retries, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 4) AS avg_completion FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_churn DESC",
+          "time": 1788865293.2981555,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Monthly trends in 2024 */ SELECT __g2 AS launch_month, SUM(__a0) AS level_count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating FROM temp.reuse_candidate GROUP BY __g2 ORDER BY launch_month",
+          "time": 1788865293.3003812,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS \"Reward Type\", SUM(__a0) AS cnt, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_churn DESC",
+          "time": 1788865293.3016913,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Cross-tab Difficulty x Reward Type for 2024 */ SELECT __g0 AS \"Difficulty Level\", __g3 AS \"Reward Type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY __g0, cnt DESC",
+          "time": 1788865293.302837,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Correlation proxy: reward value ranges by difficulty */ SELECT __g0 AS \"Difficulty Level\", MIN(__a8) AS min_rw, MAX(__a9) AS max_rw, ROUND((1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)), 2) AS avg_rw FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_rw DESC",
+          "time": 1788865293.303828,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a11) AS min_sum, MAX(__a12) AS max_sum, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 4) AS avg_sum FROM temp.reuse_candidate",
+          "time": 1788865293.3049111,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 10.188637301325798,
+      "intermediate_rows": 341,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__a0",
+        "__a1_sum",
+        "__a1_n",
+        "__a2_sum",
+        "__a2_n",
+        "__a3_sum",
+        "__a3_n",
+        "__a4_sum",
+        "__a4_n",
+        "__a5",
+        "__a6",
+        "__a7_sum",
+        "__a7_n",
+        "__a8",
+        "__a9",
+        "__a10_sum",
+        "__a10_n",
+        "__a11",
+        "__a12",
+        "__a13_sum",
+        "__a13_n"
+      ],
+      "validation_ended_at": 1788865293.3059359,
+      "checks": [
+        {
+          "sql_id": "S6",
+          "rewritten_sql": "SELECT SUM(__a0) AS total_2024 FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6655389443039894
+        },
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT __g0 AS \"Difficulty Level\", __g1 AS \"Level Type\", SUM(__a0) AS level_count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 4) AS avg_clear_rate, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_retries FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.8201489001512527
+        },
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT __g0 AS \"Difficulty Level\", SUM(__a0) AS cnt, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_churn DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.1824583634734154
+        },
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT __g1 AS \"Level Type\", SUM(__a0) AS cnt, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_churn DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.1463304981589317
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "/* Stat summary by difficulty for 2024 */ SELECT __g0 AS \"Difficulty Level\", SUM(__a0) AS cnt, ROUND(MIN(__a5), 4) AS min_churn, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND(MAX(__a6), 4) AS max_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 4) AS avg_clear, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_retries, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 4) AS avg_completion FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_churn DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.2584032267332077
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "/* Monthly trends in 2024 */ SELECT __g2 AS launch_month, SUM(__a0) AS level_count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating FROM temp.reuse_candidate GROUP BY __g2 ORDER BY launch_month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.3057375326752663
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT __g3 AS \"Reward Type\", SUM(__a0) AS cnt, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_churn DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.1666268110275269
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "/* Cross-tab Difficulty x Reward Type for 2024 */ SELECT __g0 AS \"Difficulty Level\", __g3 AS \"Reward Type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY __g0, cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.9743459522724152
+        },
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "/* Correlation proxy: reward value ranges by difficulty */ SELECT __g0 AS \"Difficulty Level\", MIN(__a8) AS min_rw, MAX(__a9) AS max_rw, ROUND((1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)), 2) AS avg_rw FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_rw DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.093689352273941
+        },
+        {
+          "sql_id": "S27",
+          "rewritten_sql": "SELECT MIN(__a11) AS min_sum, MAX(__a12) AS max_sum, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 4) AS avg_sum FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.957016833126545
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"game_game_level_content_data_ta\" WHERE STRFTIME('%Y', \"Launch Time\") IN ('2022', '2023', '2024')",
+      "covered": [
+        "S25",
+        "S28"
+      ],
+      "rewrites": {
+        "S25": "/* Yearly trend of churn and rating by difficulty to check stability */ SELECT STRFTIME('%Y', \"Launch Time\") AS yr, \"Difficulty Level\", COUNT(*) AS cnt, ROUND(AVG(\"Churn Rate\"), 4) AS avg_churn, ROUND(AVG(\"Level Rating\"), 4) AS avg_rating FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") IN ('2022', '2023', '2024') GROUP BY yr, \"Difficulty Level\" ORDER BY yr, avg_churn DESC",
+        "S28": "/* Difficulty mix by year (share of levels) */ SELECT STRFTIME('%Y', \"Launch Time\") AS yr, \"Difficulty Level\", COUNT(*) AS cnt FROM temp.reuse_candidate AS game_game_level_content_data_ta WHERE STRFTIME('%Y', \"Launch Time\") IN ('2022', '2023', '2024') GROUP BY yr, \"Difficulty Level\" ORDER BY yr, cnt DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S25",
+      "later_reuses": 1,
+      "denominator": 25,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT STRFTIME('%Y', \"Launch Time\") AS __g0, \"Difficulty Level\" AS __g1, COUNT(*) AS __a0, SUM(\"Churn Rate\") AS __a1_sum, COUNT(\"Churn Rate\") AS __a1_n, SUM(\"Level Rating\") AS __a2_sum, COUNT(\"Level Rating\") AS __a2_n FROM \"game_game_level_content_data_ta\" WHERE STRFTIME('%Y', \"Launch Time\") IN ('2022', '2023', '2024') GROUP BY STRFTIME('%Y', \"Launch Time\"), \"Difficulty Level\"",
+      "covered": [
+        "S25",
+        "S28"
+      ],
+      "rewrites": {
+        "S25": "/* Yearly trend of churn and rating by difficulty to check stability */ SELECT __g0 AS yr, __g1 AS \"Difficulty Level\", SUM(__a0) AS cnt, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_churn, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 4) AS avg_rating FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY yr, avg_churn DESC",
+        "S28": "/* Difficulty mix by year (share of levels) */ SELECT __g0 AS yr, __g1 AS \"Difficulty Level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY yr, cnt DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S25",
+      "later_reuses": 1,
+      "denominator": 25,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

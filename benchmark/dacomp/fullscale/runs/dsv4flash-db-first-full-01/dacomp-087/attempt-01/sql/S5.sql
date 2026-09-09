@@ -1,0 +1,1 @@
+SELECT owner_id, rep_name, rep_is_active, rep_role, manager_id, total_revenue_usd, avg_deal_size_usd, win_rate_pct, close_rate_pct, avg_sales_cycle_days, unique_accounts, total_opportunities, won_opportunities, high_value_accounts, territory_coverage FROM salesforce__sales_performance_dashboard LIMIT 20

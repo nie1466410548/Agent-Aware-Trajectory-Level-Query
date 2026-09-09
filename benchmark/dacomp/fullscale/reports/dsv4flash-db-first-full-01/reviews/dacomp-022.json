@@ -1,0 +1,120 @@
+{
+  "task_id": "dacomp-022",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "route": "SQL 比较车型、时段、评分与每公里车费 → Python 对完成订单做分组检验与图表汇总 → 细分距离/接驾区域 → 计算工作安排的年度流水情景。",
+  "conclusion": "Python performs repeated vehicle/hour/rating/location grouping, binning, counts/means and annual arithmetic scenarios over completed-ride rows. These are SQL-capable preparation and scenario calculations. Kruskal-Wallis/Mann-Whitney tests and plots are separately justified uses. A 93,000-row aggregate candidate has no row-count compression; correctness alone does not imply useful materialization or net speedup.",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 43,
+          "text": "vt_order = df.groupby('Vehicle Type')['fare_per_km'].mean().sort_values(ascending=False).index"
+        },
+        {
+          "line": 50,
+          "text": "vt_count = df.groupby('Vehicle Type').size().sort_values(ascending=False)"
+        },
+        {
+          "line": 85,
+          "text": "hourly = df.groupby('hour').agg("
+        },
+        {
+          "line": 117,
+          "text": "df['rating_band'] = pd.cut(df['Driver Ratings'], "
+        },
+        {
+          "line": 120,
+          "text": "rating_analysis = df.groupby('rating_band').agg("
+        }
+      ]
+    },
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 20,
+          "text": "kw_bv = stats.kruskal(*groups)"
+        },
+        {
+          "line": 25,
+          "text": "kw_fpk = stats.kruskal(*groups2)"
+        },
+        {
+          "line": 32,
+          "text": "mw = stats.mannwhitneyu(weekend, weekday, alternative='two-sided')"
+        },
+        {
+          "line": 41,
+          "text": "kw_r = stats.kruskal(*groups3)"
+        },
+        {
+          "line": 45,
+          "text": "kw_r2 = stats.kruskal(*groups4)"
+        },
+        {
+          "line": 71,
+          "text": "        annual_gross = annual_rides * avg_ride"
+        },
+        {
+          "line": 72,
+          "text": "        print(f\"  {rides_per_day} rides/day × {days_per_week} days/wk → {annual_rides} rides/yr → gross ₹{annual_gross:,.0f}\")"
+        },
+        {
+          "line": 79,
+          "text": "annual_mixed = (5*wkd*10 + 2*wke*10)*52"
+        },
+        {
+          "line": 83,
+          "text": "print(f\"Scenario B (10 rides/day, actual weekend mix): ₹{annual_mixed:,.0f}\")"
+        }
+      ]
+    },
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 30,
+          "text": "dow_means = df.groupby('is_weekend')['Booking Value'].mean()"
+        },
+        {
+          "line": 35,
+          "text": "loc_stats = df.groupby('Pickup Location')['fare_per_km'].mean()"
+        },
+        {
+          "line": 36,
+          "text": "loc_common = loc_stats[df.groupby('Pickup Location').size() >= 300]"
+        },
+        {
+          "line": 43,
+          "text": "vt_fpk = df.groupby('Vehicle Type')['fare_per_km'].mean()"
+        },
+        {
+          "line": 64,
+          "text": "dist_stats = df.groupby('dist_band', observed=True).agg("
+        },
+        {
+          "line": 83,
+          "text": "rb = df.groupby('rating_band', observed=True)['Booking Value'].mean()"
+        },
+        {
+          "line": 100,
+          "text": "scenarios = {"
+        },
+        {
+          "line": 101,
+          "text": "    'Baseline: 10 rides/day, 6 days/wk, weekday rates': 10*6*52*dow_means[False],"
+        },
+        {
+          "line": 102,
+          "text": "    'Recommended: 10 rides/day, 6 days/wk, weekend+weekday mix': 10*6*52*df['Booking Value'].mean(),"
+        },
+        {
+          "line": 103,
+          "text": "    'Weekend-focused: 12 rides Sat-Sun + 8 rides weekday': (8*5*dow_means[False] + 12*2*dow_means[True])*52,"
+        }
+      ]
+    }
+  ]
+}

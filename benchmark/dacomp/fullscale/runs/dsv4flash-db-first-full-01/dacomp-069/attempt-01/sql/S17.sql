@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n, COUNT(DISTINCT date_day) AS days, SUM(research_budget_usd) AS total_budget, MIN(overall_performance_score) AS min_ops, MAX(overall_performance_score) AS max_ops FROM google_play__comprehensive_performance_dashboard WHERE package_name='com.dev.photoeditor'

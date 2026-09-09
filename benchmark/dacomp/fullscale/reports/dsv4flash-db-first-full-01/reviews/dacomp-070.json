@@ -1,0 +1,73 @@
+{
+  "task_id": "dacomp-070",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 进行线性、非线性和交互效应回归是统计补充；但在其前后按地区、月份、设备、应用及质量分箱计算均值和数量，仍可在 SQL 内完成。模型残差平方和等不作为违规聚合证据。",
+  "route": "SQL 提取地区设备与应用时序 → Python 再分组、分箱并拟合衰退及交互模型 → 产品和市场建议。",
+  "evidence": [
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 24,
+          "text": "monthly_region = df_rd.groupby(['region', 'month_num', 'month'])['conv_rate'].mean().reset_index()"
+        },
+        {
+          "line": 55,
+          "text": "cost_reg = df_rd.groupby(['region', 'month'])['cost_per_acq'].mean().reset_index()"
+        },
+        {
+          "line": 66,
+          "text": "dev_avg = df_rd.groupby('device')[['conv_rate', 'cost_per_acq', 'installs_per_acq', 'update_rate', 'actives']].mean().round(3)"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 67,
+          "text": "df_pkg_monthly = df_daily.groupby(['package_name', 'month']).agg({"
+        },
+        {
+          "line": 75,
+          "text": "print(df_pkg_monthly.groupby('package_name')[['revenue_per_active_device', 'quality_score', 'crash_rate_per_1k', 'active_devices']].mean().round(4))"
+        }
+      ]
+    },
+    {
+      "source": "python/P9.py",
+      "lines": [
+        {
+          "line": 37,
+          "text": "df_rm = df_cr.groupby(['region', 'month']).agg({"
+        },
+        {
+          "line": 166,
+          "text": "    daily = sub.groupby('date_dt').agg({'update_intensity': 'mean', 'active_devices_last_30_days': 'sum'}).reset_index()"
+        },
+        {
+          "line": 178,
+          "text": "    daily = sub.groupby('date_dt').agg({'update_intensity': 'mean', 'rolling_total_average_rating': 'mean'}).reset_index()"
+        }
+      ]
+    },
+    {
+      "source": "python/P11.py",
+      "lines": [
+        {
+          "line": 22,
+          "text": "binned_q = df_daily_rp.groupby('quality_bin', observed=True)['conv_rate'].agg(['mean', 'count']).round(3)"
+        },
+        {
+          "line": 27,
+          "text": "binned_c = df_daily_rp.groupby('crash_bin', observed=True)['conv_rate'].agg(['mean', 'count']).round(3)"
+        },
+        {
+          "line": 104,
+          "text": "print(df_daily.groupby('scale_bin')['revenue_per_active_device'].agg(['mean', 'count']).round(5))"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_contacts FROM salesforce__contact_enhanced

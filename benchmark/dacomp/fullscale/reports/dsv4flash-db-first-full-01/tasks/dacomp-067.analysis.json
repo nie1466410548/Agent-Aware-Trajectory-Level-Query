@@ -1,0 +1,1383 @@
+{
+  "fingerprint": "5638046503257ab5e40d103a44f9e866f70c6e479df7ea3ecaf044892899b117",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT status AS __g0, sourced_from AS __g1, sourced_from_type AS __g2, source_id AS __g3, current_job_stage AS __g4, candidate_gender AS __g5, candidate_race AS __g6, COUNT(*) AS __a0, MIN(applied_at) AS __a1, MAX(applied_at) AS __a2, MIN(candidate_created_at) AS __a3, MAX(candidate_created_at) AS __a4, SUM(CASE WHEN source_id <= 8 THEN 1 ELSE 0 END) AS __a5, MIN(source_id) AS __a6, MAX(source_id) AS __a7, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS __a8, SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) AS __a9, SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) AS __a10, SUM(CASE WHEN status = 'withdrawn' THEN 1 ELSE 0 END) AS __a11, MAX(has_interviewed_w_hiring_manager) AS __a12, MIN(has_interviewed_w_hiring_manager) AS __a13, SUM(has_interviewed_w_hiring_manager) AS __a14, SUM(count_interviews) AS __a15_sum, COUNT(count_interviews) AS __a15_n, SUM(CASE WHEN count_interviews > 0 THEN 1 ELSE 0 END) AS __a16, SUM(CASE WHEN candidate_gender = 'Female' AND status = 'hired' THEN 1 ELSE 0 END) AS __a17, SUM(CASE WHEN NOT candidate_gender IS NULL AND status = 'hired' THEN 1 ELSE 0 END) AS __a18, SUM(CASE WHEN candidate_race <> 'White' AND NOT candidate_race IS NULL AND status = 'hired' THEN 1 ELSE 0 END) AS __a19, SUM(CASE WHEN status = 'hired' AND NOT candidate_race IS NULL THEN 1 ELSE 0 END) AS __a20 FROM \"greenhouse__application_enhanced\"  GROUP BY status, sourced_from, sourced_from_type, source_id, current_job_stage, candidate_gender, candidate_race",
+      "covered": [
+        "S11",
+        "S18",
+        "S19",
+        "S20",
+        "S23",
+        "S26",
+        "S28",
+        "S29",
+        "S32",
+        "S35",
+        "S42",
+        "S43",
+        "S44",
+        "S46",
+        "S63",
+        "S68",
+        "S69",
+        "S75"
+      ],
+      "rewrites": {
+        "S11": "SELECT __g0 AS \"status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+        "S18": "SELECT MIN(__a1) AS min_a, MAX(__a2) AS max_a, MIN(__a3) AS min_c, MAX(__a4) AS max_c, SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+        "S19": "SELECT __g1 AS \"sourced_from\", __g2 AS \"sourced_from_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1, __g2 ORDER BY cnt DESC LIMIT 20",
+        "S20": "SELECT __g3 AS \"source_id\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3 ORDER BY cnt DESC",
+        "S23": "SELECT __g1 AS \"sourced_from\", SUM(__a0) AS cnt, SUM(__a5) AS mapped, MIN(__a6) AS min_sid, MAX(__a7) AS max_sid FROM temp.reuse_candidate GROUP BY __g1",
+        "S26": "SELECT __g4 AS \"current_job_stage\", SUM(__a0) AS cnt, SUM(__a8) AS hired FROM temp.reuse_candidate GROUP BY __g4 ORDER BY cnt DESC",
+        "S28": "SELECT __g5 AS \"candidate_gender\", SUM(__a0) AS total, SUM(__a8) AS hired FROM temp.reuse_candidate GROUP BY __g5",
+        "S29": "SELECT __g6 AS \"candidate_race\", SUM(__a0) AS total, SUM(__a8) AS hired FROM temp.reuse_candidate GROUP BY __g6",
+        "S32": "SELECT __g1 AS \"sourced_from\", SUM(__a0) AS total_apps, SUM(__a8) AS hires, SUM(__a9) AS rejected, SUM(__a10) AS active, SUM(__a11) AS withdrawn, ROUND(100.0 * SUM(__a8) / SUM(__a0), 1) AS hire_rate FROM temp.reuse_candidate GROUP BY __g1 ORDER BY hires DESC",
+        "S35": "SELECT MAX(__a12) AS max_hm, MIN(__a13) AS min_hm, SUM(__a14) AS sum_hm FROM temp.reuse_candidate",
+        "S42": "SELECT __g1 AS \"sourced_from\", __g4 AS \"current_job_stage\", SUM(__a0) AS cnt, SUM(__a8) AS hired FROM temp.reuse_candidate GROUP BY __g1, __g4 ORDER BY __g1, __g4",
+        "S43": "SELECT __g1 AS channel, SUM(__a0) AS applications, SUM(__a8) AS hires, ROUND(100.0 * SUM(__a8) / SUM(__a0), 1) AS hire_rate, ROUND(100.0 * SUM(__a16) / SUM(__a0), 1) AS interview_rate, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_interviews_per_app FROM temp.reuse_candidate GROUP BY __g1 ORDER BY hires DESC",
+        "S44": "SELECT __g1 AS \"sourced_from\", SUM(__a17) AS female_hires, SUM(__a8) AS total_hires_with_gender, ROUND(100.0 * SUM(__a17) / NULLIF(SUM(__a18), 0), 1) AS female_pct FROM temp.reuse_candidate GROUP BY __g1",
+        "S46": "SELECT __g1 AS \"sourced_from\", SUM(__a19) AS non_white_hires, SUM(__a20) AS total_hires_with_race, ROUND(100.0 * SUM(__a19) / NULLIF(SUM(__a20), 0), 1) AS non_white_pct FROM temp.reuse_candidate GROUP BY __g1",
+        "S63": "SELECT __g1 AS \"sourced_from\", SUM(__a8) AS hires, SUM(__a0) AS applications, ROUND(100.0 * SUM(__a8) / SUM(__a0), 1) AS hire_rate FROM temp.reuse_candidate GROUP BY __g1 ORDER BY hires DESC",
+        "S68": "SELECT __g4 AS \"current_job_stage\", SUM(__a0) AS cnt, SUM(__a8) AS hired, SUM(__a11) AS withdrawn, SUM(__a9) AS rejected, SUM(__a10) AS active FROM temp.reuse_candidate GROUP BY __g4 ORDER BY cnt DESC",
+        "S69": "SELECT __g1 AS \"sourced_from\", SUM(__a0) AS apps, SUM(__a16) AS interviewed, SUM(__a8) AS hired FROM temp.reuse_candidate GROUP BY __g1",
+        "S75": "SELECT __g4 AS \"current_job_stage\", SUM(__a0) AS total, SUM(__a8) AS hired, SUM(__a9) AS rejected, SUM(__a11) AS withdrawn, SUM(__a10) AS active FROM temp.reuse_candidate GROUP BY __g4 ORDER BY CASE __g4 WHEN 'Application Review' THEN 1 WHEN 'Phone Screen' THEN 2 WHEN 'Technical Interview' THEN 3 WHEN 'Panel Interview' THEN 4 WHEN 'Final Interview' THEN 5 WHEN 'Offer' THEN 6 ELSE 7 END"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S11",
+      "later_reuses": 17,
+      "denominator": 88,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788868168.171099,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT status AS __g0, sourced_from AS __g1, sourced_from_type AS __g2, source_id AS __g3, current_job_stage AS __g4, candidate_gender AS __g5, candidate_race AS __g6, COUNT(*) AS __a0, MIN(applied_at) AS __a1, MAX(applied_at) AS __a2, MIN(candidate_created_at) AS __a3, MAX(candidate_created_at) AS __a4, SUM(CASE WHEN source_id <= 8 THEN 1 ELSE 0 END) AS __a5, MIN(source_id) AS __a6, MAX(source_id) AS __a7, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS __a8, SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) AS __a9, SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) AS __a10, SUM(CASE WHEN status = 'withdrawn' THEN 1 ELSE 0 END) AS __a11, MAX(has_interviewed_w_hiring_manager) AS __a12, MIN(has_interviewed_w_hiring_manager) AS __a13, SUM(has_interviewed_w_hiring_manager) AS __a14, SUM(count_interviews) AS __a15_sum, COUNT(count_interviews) AS __a15_n, SUM(CASE WHEN count_interviews > 0 THEN 1 ELSE 0 END) AS __a16, SUM(CASE WHEN candidate_gender = 'Female' AND status = 'hired' THEN 1 ELSE 0 END) AS __a17, SUM(CASE WHEN NOT candidate_gender IS NULL AND status = 'hired' THEN 1 ELSE 0 END) AS __a18, SUM(CASE WHEN candidate_race <> 'White' AND NOT candidate_race IS NULL AND status = 'hired' THEN 1 ELSE 0 END) AS __a19, SUM(CASE WHEN status = 'hired' AND NOT candidate_race IS NULL THEN 1 ELSE 0 END) AS __a20 FROM \"greenhouse__application_enhanced\"  GROUP BY status, sourced_from, sourced_from_type, source_id, current_job_stage, candidate_gender, candidate_race",
+          "phase": "offline_validation",
+          "start_time": 1788868168.172618,
+          "status": "execute_returned",
+          "end_time": 1788868168.2573214
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788868168.2573328,
+          "status": "execute_returned",
+          "end_time": 1788868168.2576103
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788868168.2576349,
+          "status": "execute_returned",
+          "end_time": 1788868168.2576737
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788868168.2577226,
+          "status": "execute_returned",
+          "end_time": 1788868168.2604408
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT MIN(__a1) AS min_a, MAX(__a2) AS max_a, MIN(__a3) AS min_c, MAX(__a4) AS max_c, SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788868168.2629368,
+          "status": "execute_returned",
+          "end_time": 1788868168.2663047
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS \"sourced_from\", __g2 AS \"sourced_from_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1, __g2 ORDER BY cnt DESC LIMIT 20",
+          "phase": "offline_validation",
+          "start_time": 1788868168.2672238,
+          "status": "execute_returned",
+          "end_time": 1788868168.2727158
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g3 AS \"source_id\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868168.2734652,
+          "status": "execute_returned",
+          "end_time": 1788868168.2769785
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g1 AS \"sourced_from\", SUM(__a0) AS cnt, SUM(__a5) AS mapped, MIN(__a6) AS min_sid, MAX(__a7) AS max_sid FROM temp.reuse_candidate GROUP BY __g1",
+          "phase": "offline_validation",
+          "start_time": 1788868168.2783062,
+          "status": "execute_returned",
+          "end_time": 1788868168.2821796
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g4 AS \"current_job_stage\", SUM(__a0) AS cnt, SUM(__a8) AS hired FROM temp.reuse_candidate GROUP BY __g4 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868168.2851381,
+          "status": "execute_returned",
+          "end_time": 1788868168.290455
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g5 AS \"candidate_gender\", SUM(__a0) AS total, SUM(__a8) AS hired FROM temp.reuse_candidate GROUP BY __g5",
+          "phase": "offline_validation",
+          "start_time": 1788868168.2913275,
+          "status": "execute_returned",
+          "end_time": 1788868168.297032
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g6 AS \"candidate_race\", SUM(__a0) AS total, SUM(__a8) AS hired FROM temp.reuse_candidate GROUP BY __g6",
+          "phase": "offline_validation",
+          "start_time": 1788868168.2985342,
+          "status": "execute_returned",
+          "end_time": 1788868168.3043542
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT __g1 AS \"sourced_from\", SUM(__a0) AS total_apps, SUM(__a8) AS hires, SUM(__a9) AS rejected, SUM(__a10) AS active, SUM(__a11) AS withdrawn, ROUND(100.0 * SUM(__a8) / SUM(__a0), 1) AS hire_rate FROM temp.reuse_candidate GROUP BY __g1 ORDER BY hires DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868168.3058496,
+          "status": "execute_returned",
+          "end_time": 1788868168.312484
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT MAX(__a12) AS max_hm, MIN(__a13) AS min_hm, SUM(__a14) AS sum_hm FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788868168.3144686,
+          "status": "execute_returned",
+          "end_time": 1788868168.3166358
+        },
+        {
+          "sequence": 14,
+          "sql": "SELECT __g1 AS \"sourced_from\", __g4 AS \"current_job_stage\", SUM(__a0) AS cnt, SUM(__a8) AS hired FROM temp.reuse_candidate GROUP BY __g1, __g4 ORDER BY __g1, __g4",
+          "phase": "offline_validation",
+          "start_time": 1788868168.317264,
+          "status": "execute_returned",
+          "end_time": 1788868168.3240752
+        },
+        {
+          "sequence": 15,
+          "sql": "SELECT __g1 AS channel, SUM(__a0) AS applications, SUM(__a8) AS hires, ROUND(100.0 * SUM(__a8) / SUM(__a0), 1) AS hire_rate, ROUND(100.0 * SUM(__a16) / SUM(__a0), 1) AS interview_rate, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_interviews_per_app FROM temp.reuse_candidate GROUP BY __g1 ORDER BY hires DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868168.3270383,
+          "status": "execute_returned",
+          "end_time": 1788868168.3336315
+        },
+        {
+          "sequence": 16,
+          "sql": "SELECT __g1 AS \"sourced_from\", SUM(__a17) AS female_hires, SUM(__a8) AS total_hires_with_gender, ROUND(100.0 * SUM(__a17) / NULLIF(SUM(__a18), 0), 1) AS female_pct FROM temp.reuse_candidate GROUP BY __g1",
+          "phase": "offline_validation",
+          "start_time": 1788868168.335472,
+          "status": "execute_returned",
+          "end_time": 1788868168.3390794
+        },
+        {
+          "sequence": 17,
+          "sql": "SELECT __g1 AS \"sourced_from\", SUM(__a19) AS non_white_hires, SUM(__a20) AS total_hires_with_race, ROUND(100.0 * SUM(__a19) / NULLIF(SUM(__a20), 0), 1) AS non_white_pct FROM temp.reuse_candidate GROUP BY __g1",
+          "phase": "offline_validation",
+          "start_time": 1788868168.3422945,
+          "status": "execute_returned",
+          "end_time": 1788868168.3457837
+        },
+        {
+          "sequence": 18,
+          "sql": "SELECT __g1 AS \"sourced_from\", SUM(__a8) AS hires, SUM(__a0) AS applications, ROUND(100.0 * SUM(__a8) / SUM(__a0), 1) AS hire_rate FROM temp.reuse_candidate GROUP BY __g1 ORDER BY hires DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868168.349808,
+          "status": "execute_returned",
+          "end_time": 1788868168.354333
+        },
+        {
+          "sequence": 19,
+          "sql": "SELECT __g4 AS \"current_job_stage\", SUM(__a0) AS cnt, SUM(__a8) AS hired, SUM(__a11) AS withdrawn, SUM(__a9) AS rejected, SUM(__a10) AS active FROM temp.reuse_candidate GROUP BY __g4 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868168.3555725,
+          "status": "execute_returned",
+          "end_time": 1788868168.3627806
+        },
+        {
+          "sequence": 20,
+          "sql": "SELECT __g1 AS \"sourced_from\", SUM(__a0) AS apps, SUM(__a16) AS interviewed, SUM(__a8) AS hired FROM temp.reuse_candidate GROUP BY __g1",
+          "phase": "offline_validation",
+          "start_time": 1788868168.3642733,
+          "status": "execute_returned",
+          "end_time": 1788868168.3679922
+        },
+        {
+          "sequence": 21,
+          "sql": "SELECT __g4 AS \"current_job_stage\", SUM(__a0) AS total, SUM(__a8) AS hired, SUM(__a9) AS rejected, SUM(__a11) AS withdrawn, SUM(__a10) AS active FROM temp.reuse_candidate GROUP BY __g4 ORDER BY CASE __g4 WHEN 'Application Review' THEN 1 WHEN 'Phone Screen' THEN 2 WHEN 'Technical Interview' THEN 3 WHEN 'Panel Interview' THEN 4 WHEN 'Final Interview' THEN 5 WHEN 'Offer' THEN 6 ELSE 7 END",
+          "phase": "offline_validation",
+          "start_time": 1788868168.3704603,
+          "status": "execute_returned",
+          "end_time": 1788868168.3778524
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT status AS __g0, sourced_from AS __g1, sourced_from_type AS __g2, source_id AS __g3, current_job_stage AS __g4, candidate_gender AS __g5, candidate_race AS __g6, COUNT(*) AS __a0, MIN(applied_at) AS __a1, MAX(applied_at) AS __a2, MIN(candidate_created_at) AS __a3, MAX(candidate_created_at) AS __a4, SUM(CASE WHEN source_id <= 8 THEN 1 ELSE 0 END) AS __a5, MIN(source_id) AS __a6, MAX(source_id) AS __a7, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS __a8, SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) AS __a9, SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) AS __a10, SUM(CASE WHEN status = 'withdrawn' THEN 1 ELSE 0 END) AS __a11, MAX(has_interviewed_w_hiring_manager) AS __a12, MIN(has_interviewed_w_hiring_manager) AS __a13, SUM(has_interviewed_w_hiring_manager) AS __a14, SUM(count_interviews) AS __a15_sum, COUNT(count_interviews) AS __a15_n, SUM(CASE WHEN count_interviews > 0 THEN 1 ELSE 0 END) AS __a16, SUM(CASE WHEN candidate_gender = 'Female' AND status = 'hired' THEN 1 ELSE 0 END) AS __a17, SUM(CASE WHEN NOT candidate_gender IS NULL AND status = 'hired' THEN 1 ELSE 0 END) AS __a18, SUM(CASE WHEN candidate_race <> 'White' AND NOT candidate_race IS NULL AND status = 'hired' THEN 1 ELSE 0 END) AS __a19, SUM(CASE WHEN status = 'hired' AND NOT candidate_race IS NULL THEN 1 ELSE 0 END) AS __a20 FROM \"greenhouse__application_enhanced\"  GROUP BY status, sourced_from, sourced_from_type, source_id, current_job_stage, candidate_gender, candidate_race",
+          "time": 1788868168.1754243,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788868168.257366,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788868168.2576685,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788868168.2577438,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a1) AS min_a, MAX(__a2) AS max_a, MIN(__a3) AS min_c, MAX(__a4) AS max_c, SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "time": 1788868168.2630126,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"sourced_from\", __g2 AS \"sourced_from_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1, __g2 ORDER BY cnt DESC LIMIT 20",
+          "time": 1788868168.2673244,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS \"source_id\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3 ORDER BY cnt DESC",
+          "time": 1788868168.2735171,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"sourced_from\", SUM(__a0) AS cnt, SUM(__a5) AS mapped, MIN(__a6) AS min_sid, MAX(__a7) AS max_sid FROM temp.reuse_candidate GROUP BY __g1",
+          "time": 1788868168.2783988,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS \"current_job_stage\", SUM(__a0) AS cnt, SUM(__a8) AS hired FROM temp.reuse_candidate GROUP BY __g4 ORDER BY cnt DESC",
+          "time": 1788868168.2852437,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g5 AS \"candidate_gender\", SUM(__a0) AS total, SUM(__a8) AS hired FROM temp.reuse_candidate GROUP BY __g5",
+          "time": 1788868168.29139,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g6 AS \"candidate_race\", SUM(__a0) AS total, SUM(__a8) AS hired FROM temp.reuse_candidate GROUP BY __g6",
+          "time": 1788868168.2985904,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"sourced_from\", SUM(__a0) AS total_apps, SUM(__a8) AS hires, SUM(__a9) AS rejected, SUM(__a10) AS active, SUM(__a11) AS withdrawn, ROUND(100.0 * SUM(__a8) / SUM(__a0), 1) AS hire_rate FROM temp.reuse_candidate GROUP BY __g1 ORDER BY hires DESC",
+          "time": 1788868168.3060951,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MAX(__a12) AS max_hm, MIN(__a13) AS min_hm, SUM(__a14) AS sum_hm FROM temp.reuse_candidate",
+          "time": 1788868168.3145287,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"sourced_from\", __g4 AS \"current_job_stage\", SUM(__a0) AS cnt, SUM(__a8) AS hired FROM temp.reuse_candidate GROUP BY __g1, __g4 ORDER BY __g1, __g4",
+          "time": 1788868168.3173618,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS channel, SUM(__a0) AS applications, SUM(__a8) AS hires, ROUND(100.0 * SUM(__a8) / SUM(__a0), 1) AS hire_rate, ROUND(100.0 * SUM(__a16) / SUM(__a0), 1) AS interview_rate, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_interviews_per_app FROM temp.reuse_candidate GROUP BY __g1 ORDER BY hires DESC",
+          "time": 1788868168.3273022,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"sourced_from\", SUM(__a17) AS female_hires, SUM(__a8) AS total_hires_with_gender, ROUND(100.0 * SUM(__a17) / NULLIF(SUM(__a18), 0), 1) AS female_pct FROM temp.reuse_candidate GROUP BY __g1",
+          "time": 1788868168.335594,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"sourced_from\", SUM(__a19) AS non_white_hires, SUM(__a20) AS total_hires_with_race, ROUND(100.0 * SUM(__a19) / NULLIF(SUM(__a20), 0), 1) AS non_white_pct FROM temp.reuse_candidate GROUP BY __g1",
+          "time": 1788868168.342433,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"sourced_from\", SUM(__a8) AS hires, SUM(__a0) AS applications, ROUND(100.0 * SUM(__a8) / SUM(__a0), 1) AS hire_rate FROM temp.reuse_candidate GROUP BY __g1 ORDER BY hires DESC",
+          "time": 1788868168.3500004,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS \"current_job_stage\", SUM(__a0) AS cnt, SUM(__a8) AS hired, SUM(__a11) AS withdrawn, SUM(__a9) AS rejected, SUM(__a10) AS active FROM temp.reuse_candidate GROUP BY __g4 ORDER BY cnt DESC",
+          "time": 1788868168.3557453,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"sourced_from\", SUM(__a0) AS apps, SUM(__a16) AS interviewed, SUM(__a8) AS hired FROM temp.reuse_candidate GROUP BY __g1",
+          "time": 1788868168.3644178,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS \"current_job_stage\", SUM(__a0) AS total, SUM(__a8) AS hired, SUM(__a9) AS rejected, SUM(__a11) AS withdrawn, SUM(__a10) AS active FROM temp.reuse_candidate GROUP BY __g4 ORDER BY CASE __g4 WHEN 'Application Review' THEN 1 WHEN 'Phone Screen' THEN 2 WHEN 'Technical Interview' THEN 3 WHEN 'Panel Interview' THEN 4 WHEN 'Final Interview' THEN 5 WHEN 'Offer' THEN 6 ELSE 7 END",
+          "time": 1788868168.3706913,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 84.72425490617752,
+      "intermediate_rows": 11564,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__g5",
+        "__g6",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4",
+        "__a5",
+        "__a6",
+        "__a7",
+        "__a8",
+        "__a9",
+        "__a10",
+        "__a11",
+        "__a12",
+        "__a13",
+        "__a14",
+        "__a15_sum",
+        "__a15_n",
+        "__a16",
+        "__a17",
+        "__a18",
+        "__a19",
+        "__a20"
+      ],
+      "validation_ended_at": 1788868168.3807194,
+      "checks": [
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT __g0 AS \"status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 5.204508081078529
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT MIN(__a1) AS min_a, MAX(__a2) AS max_a, MIN(__a3) AS min_c, MAX(__a4) AS max_c, SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 4.283118061721325
+        },
+        {
+          "sql_id": "S19",
+          "rewritten_sql": "SELECT __g1 AS \"sourced_from\", __g2 AS \"sourced_from_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1, __g2 ORDER BY cnt DESC LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 6.237245164811611
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "SELECT __g3 AS \"source_id\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 4.8355842009186745
+        },
+        {
+          "sql_id": "S23",
+          "rewritten_sql": "SELECT __g1 AS \"sourced_from\", SUM(__a0) AS cnt, SUM(__a5) AS mapped, MIN(__a6) AS min_sid, MAX(__a7) AS max_sid FROM temp.reuse_candidate GROUP BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 6.829752586781979
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "SELECT __g4 AS \"current_job_stage\", SUM(__a0) AS cnt, SUM(__a8) AS hired FROM temp.reuse_candidate GROUP BY __g4 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 6.185789592564106
+        },
+        {
+          "sql_id": "S28",
+          "rewritten_sql": "SELECT __g5 AS \"candidate_gender\", SUM(__a0) AS total, SUM(__a8) AS hired FROM temp.reuse_candidate GROUP BY __g5",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 7.1969106793403625
+        },
+        {
+          "sql_id": "S29",
+          "rewritten_sql": "SELECT __g6 AS \"candidate_race\", SUM(__a0) AS total, SUM(__a8) AS hired FROM temp.reuse_candidate GROUP BY __g6",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 7.3126330971717834
+        },
+        {
+          "sql_id": "S32",
+          "rewritten_sql": "SELECT __g1 AS \"sourced_from\", SUM(__a0) AS total_apps, SUM(__a8) AS hires, SUM(__a9) AS rejected, SUM(__a10) AS active, SUM(__a11) AS withdrawn, ROUND(100.0 * SUM(__a8) / SUM(__a0), 1) AS hire_rate FROM temp.reuse_candidate GROUP BY __g1 ORDER BY hires DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 8.615856058895588
+        },
+        {
+          "sql_id": "S35",
+          "rewritten_sql": "SELECT MAX(__a12) AS max_hm, MIN(__a13) AS min_hm, SUM(__a14) AS sum_hm FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.7927346527576447
+        },
+        {
+          "sql_id": "S42",
+          "rewritten_sql": "SELECT __g1 AS \"sourced_from\", __g4 AS \"current_job_stage\", SUM(__a0) AS cnt, SUM(__a8) AS hired FROM temp.reuse_candidate GROUP BY __g1, __g4 ORDER BY __g1, __g4",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 9.771179407835007
+        },
+        {
+          "sql_id": "S43",
+          "rewritten_sql": "SELECT __g1 AS channel, SUM(__a0) AS applications, SUM(__a8) AS hires, ROUND(100.0 * SUM(__a8) / SUM(__a0), 1) AS hire_rate, ROUND(100.0 * SUM(__a16) / SUM(__a0), 1) AS interview_rate, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_interviews_per_app FROM temp.reuse_candidate GROUP BY __g1 ORDER BY hires DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 8.431073278188705
+        },
+        {
+          "sql_id": "S44",
+          "rewritten_sql": "SELECT __g1 AS \"sourced_from\", SUM(__a17) AS female_hires, SUM(__a8) AS total_hires_with_gender, ROUND(100.0 * SUM(__a17) / NULLIF(SUM(__a18), 0), 1) AS female_pct FROM temp.reuse_candidate GROUP BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 6.819463334977627
+        },
+        {
+          "sql_id": "S46",
+          "rewritten_sql": "SELECT __g1 AS \"sourced_from\", SUM(__a19) AS non_white_hires, SUM(__a20) AS total_hires_with_race, ROUND(100.0 * SUM(__a19) / NULLIF(SUM(__a20), 0), 1) AS non_white_pct FROM temp.reuse_candidate GROUP BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 7.511133328080177
+        },
+        {
+          "sql_id": "S63",
+          "rewritten_sql": "SELECT __g1 AS \"sourced_from\", SUM(__a8) AS hires, SUM(__a0) AS applications, ROUND(100.0 * SUM(__a8) / SUM(__a0), 1) AS hire_rate FROM temp.reuse_candidate GROUP BY __g1 ORDER BY hires DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 5.76197262853384
+        },
+        {
+          "sql_id": "S68",
+          "rewritten_sql": "SELECT __g4 AS \"current_job_stage\", SUM(__a0) AS cnt, SUM(__a8) AS hired, SUM(__a11) AS withdrawn, SUM(__a9) AS rejected, SUM(__a10) AS active FROM temp.reuse_candidate GROUP BY __g4 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 8.698231540620327
+        },
+        {
+          "sql_id": "S69",
+          "rewritten_sql": "SELECT __g1 AS \"sourced_from\", SUM(__a0) AS apps, SUM(__a16) AS interviewed, SUM(__a8) AS hired FROM temp.reuse_candidate GROUP BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 6.183684803545475
+        },
+        {
+          "sql_id": "S75",
+          "rewritten_sql": "SELECT __g4 AS \"current_job_stage\", SUM(__a0) AS total, SUM(__a8) AS hired, SUM(__a9) AS rejected, SUM(__a11) AS withdrawn, SUM(__a10) AS active FROM temp.reuse_candidate GROUP BY __g4 ORDER BY CASE __g4 WHEN 'Application Review' THEN 1 WHEN 'Phone Screen' THEN 2 WHEN 'Technical Interview' THEN 3 WHEN 'Panel Interview' THEN 4 WHEN 'Final Interview' THEN 5 WHEN 'Offer' THEN 6 ELSE 7 END",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 9.335375390946865
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"greenhouse__application_enhanced\" WHERE NOT job_parent_departments IS NULL",
+      "covered": [
+        "S7",
+        "S12",
+        "S33",
+        "S47",
+        "S62",
+        "S71",
+        "S72"
+      ],
+      "rewrites": {
+        "S7": "SELECT DISTINCT job_parent_departments FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL",
+        "S12": "SELECT job_parent_departments, COUNT(*) AS apps, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS hires, ROUND(100.0 * SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) / COUNT(*), 1) AS hire_rate FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY job_parent_departments ORDER BY hires DESC LIMIT 20",
+        "S33": "SELECT job_parent_departments, COUNT(*) AS total_apps, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS hires, ROUND(100.0 * SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) / COUNT(*), 1) AS hire_rate FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY job_parent_departments ORDER BY hires DESC LIMIT 15",
+        "S47": "SELECT job_parent_departments, SUM(CASE WHEN candidate_gender = 'Female' AND status = 'hired' THEN 1 ELSE 0 END) AS female_hires, SUM(CASE WHEN status = 'hired' AND NOT candidate_gender IS NULL THEN 1 ELSE 0 END) AS hires_with_gender, ROUND(100.0 * SUM(CASE WHEN candidate_gender = 'Female' AND status = 'hired' THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN status = 'hired' AND NOT candidate_gender IS NULL THEN 1 ELSE 0 END), 0), 1) AS female_pct FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY job_parent_departments HAVING hires_with_gender >= 5 ORDER BY female_pct DESC LIMIT 15",
+        "S62": "SELECT CASE WHEN job_parent_departments LIKE '%Engineering%' THEN 'Engineering' WHEN job_parent_departments LIKE '%Product%' THEN 'Product' WHEN job_parent_departments LIKE '%Design%' THEN 'Design' WHEN job_parent_departments LIKE '%Marketing%' THEN 'Marketing' WHEN job_parent_departments LIKE '%Sales%' THEN 'Sales' ELSE 'Other' END AS dept_group, COUNT(*) AS applications, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS hires, ROUND(100.0 * SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) / COUNT(*), 1) AS hire_rate, AVG(count_interviews) AS avg_interviews FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY dept_group ORDER BY hires DESC",
+        "S71": "SELECT CASE WHEN job_parent_departments LIKE '%Engineering%' THEN 'Engineering' WHEN job_parent_departments LIKE '%Product%' THEN 'Product' WHEN job_parent_departments LIKE '%Design%' THEN 'Design' WHEN job_parent_departments LIKE '%Marketing%' THEN 'Marketing' WHEN job_parent_departments LIKE '%Sales%' THEN 'Sales' ELSE 'Other' END AS dept, SUM(CASE WHEN status = 'hired' AND candidate_gender = 'Female' THEN 1 ELSE 0 END) AS fh, SUM(CASE WHEN status = 'hired' AND NOT candidate_gender IS NULL THEN 1 ELSE 0 END) AS th_g, SUM(CASE WHEN status = 'hired' AND candidate_race <> 'White' AND NOT candidate_race IS NULL THEN 1 ELSE 0 END) AS nwh, SUM(CASE WHEN status = 'hired' AND NOT candidate_race IS NULL THEN 1 ELSE 0 END) AS th_r FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY dept ORDER BY th_g DESC",
+        "S72": "SELECT CASE WHEN job_parent_departments LIKE '%Engineering%' THEN 'Engineering' WHEN job_parent_departments LIKE '%Product%' THEN 'Product' WHEN job_parent_departments LIKE '%Design%' THEN 'Design' WHEN job_parent_departments LIKE '%Marketing%' THEN 'Marketing' WHEN job_parent_departments LIKE '%Sales%' THEN 'Sales' ELSE 'Other' END AS dept, COUNT(*) AS apps, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS hires, ROUND(100.0 * SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) / COUNT(*), 1) AS hire_rate FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY dept ORDER BY hires DESC"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S7",
+      "later_reuses": 6,
+      "denominator": 88,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788868168.3808181,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"greenhouse__application_enhanced\" WHERE NOT job_parent_departments IS NULL",
+          "phase": "offline_validation",
+          "start_time": 1788868168.3810675,
+          "status": "execute_returned",
+          "end_time": 1788868168.4103327
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788868168.4103405,
+          "status": "execute_returned",
+          "end_time": 1788868168.4117963
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788868168.411804,
+          "status": "execute_returned",
+          "end_time": 1788868168.4118345
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT DISTINCT job_parent_departments FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL",
+          "phase": "offline_validation",
+          "start_time": 1788868168.411906,
+          "status": "execute_returned",
+          "end_time": 1788868168.4119754
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT job_parent_departments, COUNT(*) AS apps, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS hires, ROUND(100.0 * SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) / COUNT(*), 1) AS hire_rate FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY job_parent_departments ORDER BY hires DESC LIMIT 20",
+          "phase": "offline_validation",
+          "start_time": 1788868168.4190083,
+          "status": "execute_returned",
+          "end_time": 1788868168.4252532
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT job_parent_departments, COUNT(*) AS total_apps, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS hires, ROUND(100.0 * SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) / COUNT(*), 1) AS hire_rate FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY job_parent_departments ORDER BY hires DESC LIMIT 15",
+          "phase": "offline_validation",
+          "start_time": 1788868168.4267907,
+          "status": "execute_returned",
+          "end_time": 1788868168.4327796
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT job_parent_departments, SUM(CASE WHEN candidate_gender = 'Female' AND status = 'hired' THEN 1 ELSE 0 END) AS female_hires, SUM(CASE WHEN status = 'hired' AND NOT candidate_gender IS NULL THEN 1 ELSE 0 END) AS hires_with_gender, ROUND(100.0 * SUM(CASE WHEN candidate_gender = 'Female' AND status = 'hired' THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN status = 'hired' AND NOT candidate_gender IS NULL THEN 1 ELSE 0 END), 0), 1) AS female_pct FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY job_parent_departments HAVING hires_with_gender >= 5 ORDER BY female_pct DESC LIMIT 15",
+          "phase": "offline_validation",
+          "start_time": 1788868168.4342217,
+          "status": "execute_returned",
+          "end_time": 1788868168.441028
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT CASE WHEN job_parent_departments LIKE '%Engineering%' THEN 'Engineering' WHEN job_parent_departments LIKE '%Product%' THEN 'Product' WHEN job_parent_departments LIKE '%Design%' THEN 'Design' WHEN job_parent_departments LIKE '%Marketing%' THEN 'Marketing' WHEN job_parent_departments LIKE '%Sales%' THEN 'Sales' ELSE 'Other' END AS dept_group, COUNT(*) AS applications, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS hires, ROUND(100.0 * SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) / COUNT(*), 1) AS hire_rate, AVG(count_interviews) AS avg_interviews FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY dept_group ORDER BY hires DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868168.443324,
+          "status": "execute_returned",
+          "end_time": 1788868168.4515939
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT CASE WHEN job_parent_departments LIKE '%Engineering%' THEN 'Engineering' WHEN job_parent_departments LIKE '%Product%' THEN 'Product' WHEN job_parent_departments LIKE '%Design%' THEN 'Design' WHEN job_parent_departments LIKE '%Marketing%' THEN 'Marketing' WHEN job_parent_departments LIKE '%Sales%' THEN 'Sales' ELSE 'Other' END AS dept, SUM(CASE WHEN status = 'hired' AND candidate_gender = 'Female' THEN 1 ELSE 0 END) AS fh, SUM(CASE WHEN status = 'hired' AND NOT candidate_gender IS NULL THEN 1 ELSE 0 END) AS th_g, SUM(CASE WHEN status = 'hired' AND candidate_race <> 'White' AND NOT candidate_race IS NULL THEN 1 ELSE 0 END) AS nwh, SUM(CASE WHEN status = 'hired' AND NOT candidate_race IS NULL THEN 1 ELSE 0 END) AS th_r FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY dept ORDER BY th_g DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868168.4535255,
+          "status": "execute_returned",
+          "end_time": 1788868168.4633505
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT CASE WHEN job_parent_departments LIKE '%Engineering%' THEN 'Engineering' WHEN job_parent_departments LIKE '%Product%' THEN 'Product' WHEN job_parent_departments LIKE '%Design%' THEN 'Design' WHEN job_parent_departments LIKE '%Marketing%' THEN 'Marketing' WHEN job_parent_departments LIKE '%Sales%' THEN 'Sales' ELSE 'Other' END AS dept, COUNT(*) AS apps, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS hires, ROUND(100.0 * SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) / COUNT(*), 1) AS hire_rate FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY dept ORDER BY hires DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868168.4657629,
+          "status": "execute_returned",
+          "end_time": 1788868168.47357
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"greenhouse__application_enhanced\" WHERE NOT job_parent_departments IS NULL",
+          "time": 1788868168.3820062,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788868168.4103627,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788868168.4118304,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT DISTINCT job_parent_departments FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL",
+          "time": 1788868168.4119341,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT job_parent_departments, COUNT(*) AS apps, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS hires, ROUND(100.0 * SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) / COUNT(*), 1) AS hire_rate FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY job_parent_departments ORDER BY hires DESC LIMIT 20",
+          "time": 1788868168.419087,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT job_parent_departments, COUNT(*) AS total_apps, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS hires, ROUND(100.0 * SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) / COUNT(*), 1) AS hire_rate FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY job_parent_departments ORDER BY hires DESC LIMIT 15",
+          "time": 1788868168.4268649,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT job_parent_departments, SUM(CASE WHEN candidate_gender = 'Female' AND status = 'hired' THEN 1 ELSE 0 END) AS female_hires, SUM(CASE WHEN status = 'hired' AND NOT candidate_gender IS NULL THEN 1 ELSE 0 END) AS hires_with_gender, ROUND(100.0 * SUM(CASE WHEN candidate_gender = 'Female' AND status = 'hired' THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN status = 'hired' AND NOT candidate_gender IS NULL THEN 1 ELSE 0 END), 0), 1) AS female_pct FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY job_parent_departments HAVING hires_with_gender >= 5 ORDER BY female_pct DESC LIMIT 15",
+          "time": 1788868168.4343655,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT CASE WHEN job_parent_departments LIKE '%Engineering%' THEN 'Engineering' WHEN job_parent_departments LIKE '%Product%' THEN 'Product' WHEN job_parent_departments LIKE '%Design%' THEN 'Design' WHEN job_parent_departments LIKE '%Marketing%' THEN 'Marketing' WHEN job_parent_departments LIKE '%Sales%' THEN 'Sales' ELSE 'Other' END AS dept_group, COUNT(*) AS applications, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS hires, ROUND(100.0 * SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) / COUNT(*), 1) AS hire_rate, AVG(count_interviews) AS avg_interviews FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY dept_group ORDER BY hires DESC",
+          "time": 1788868168.4435363,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT CASE WHEN job_parent_departments LIKE '%Engineering%' THEN 'Engineering' WHEN job_parent_departments LIKE '%Product%' THEN 'Product' WHEN job_parent_departments LIKE '%Design%' THEN 'Design' WHEN job_parent_departments LIKE '%Marketing%' THEN 'Marketing' WHEN job_parent_departments LIKE '%Sales%' THEN 'Sales' ELSE 'Other' END AS dept, SUM(CASE WHEN status = 'hired' AND candidate_gender = 'Female' THEN 1 ELSE 0 END) AS fh, SUM(CASE WHEN status = 'hired' AND NOT candidate_gender IS NULL THEN 1 ELSE 0 END) AS th_g, SUM(CASE WHEN status = 'hired' AND candidate_race <> 'White' AND NOT candidate_race IS NULL THEN 1 ELSE 0 END) AS nwh, SUM(CASE WHEN status = 'hired' AND NOT candidate_race IS NULL THEN 1 ELSE 0 END) AS th_r FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY dept ORDER BY th_g DESC",
+          "time": 1788868168.453817,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT CASE WHEN job_parent_departments LIKE '%Engineering%' THEN 'Engineering' WHEN job_parent_departments LIKE '%Product%' THEN 'Product' WHEN job_parent_departments LIKE '%Design%' THEN 'Design' WHEN job_parent_departments LIKE '%Marketing%' THEN 'Marketing' WHEN job_parent_departments LIKE '%Sales%' THEN 'Sales' ELSE 'Other' END AS dept, COUNT(*) AS apps, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS hires, ROUND(100.0 * SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) / COUNT(*), 1) AS hire_rate FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY dept ORDER BY hires DESC",
+          "time": 1788868168.4660485,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 29.271005652844906,
+      "intermediate_rows": 9233,
+      "intermediate_columns": [
+        "application_id",
+        "applied_at",
+        "candidate_id",
+        "current_stage_id",
+        "last_activity_at",
+        "prospect",
+        "rejected_at",
+        "source_id",
+        "status",
+        "candidate_full_name",
+        "candidate_company",
+        "referrer_name",
+        "prospect_owner_name",
+        "applied_at_1",
+        "current_stage_id_1",
+        "last_activity_at_1",
+        "prospect_1",
+        "source_id_1",
+        "current_title",
+        "current_company",
+        "first_contact_date",
+        "last_contact_date",
+        "primary_email",
+        "website",
+        "linkedin_url",
+        "candidate_created_at",
+        "candidate_tags",
+        "current_job_stage",
+        "sourced_from",
+        "sourced_from_type",
+        "count_activities",
+        "job_title",
+        "job_status",
+        "hiring_managers",
+        "recruiter_name",
+        "job_id",
+        "job_requisition_id",
+        "job_sourcers",
+        "job_offices",
+        "job_departments",
+        "job_parent_departments",
+        "prospect_pool",
+        "prospect_stage",
+        "candidate_gender",
+        "candidate_disability_status",
+        "candidate_race",
+        "candidate_veteran_status",
+        "application_job_key",
+        "has_interviewed_w_hiring_manager",
+        "count_interviews",
+        "count_interview_scorecards",
+        "count_distinct_interviewers",
+        "latest_interview_scheduled_at"
+      ],
+      "validation_ended_at": 1788868168.4763677,
+      "checks": [
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT DISTINCT job_parent_departments FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 7.098999805748463
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT job_parent_departments, COUNT(*) AS apps, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS hires, ROUND(100.0 * SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) / COUNT(*), 1) AS hire_rate FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY job_parent_departments ORDER BY hires DESC LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 7.778809405863285
+        },
+        {
+          "sql_id": "S33",
+          "rewritten_sql": "SELECT job_parent_departments, COUNT(*) AS total_apps, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS hires, ROUND(100.0 * SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) / COUNT(*), 1) AS hire_rate FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY job_parent_departments ORDER BY hires DESC LIMIT 15",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 7.4201952666044235
+        },
+        {
+          "sql_id": "S47",
+          "rewritten_sql": "SELECT job_parent_departments, SUM(CASE WHEN candidate_gender = 'Female' AND status = 'hired' THEN 1 ELSE 0 END) AS female_hires, SUM(CASE WHEN status = 'hired' AND NOT candidate_gender IS NULL THEN 1 ELSE 0 END) AS hires_with_gender, ROUND(100.0 * SUM(CASE WHEN candidate_gender = 'Female' AND status = 'hired' THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN status = 'hired' AND NOT candidate_gender IS NULL THEN 1 ELSE 0 END), 0), 1) AS female_pct FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY job_parent_departments HAVING hires_with_gender >= 5 ORDER BY female_pct DESC LIMIT 15",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 9.099946357309818
+        },
+        {
+          "sql_id": "S62",
+          "rewritten_sql": "SELECT CASE WHEN job_parent_departments LIKE '%Engineering%' THEN 'Engineering' WHEN job_parent_departments LIKE '%Product%' THEN 'Product' WHEN job_parent_departments LIKE '%Design%' THEN 'Design' WHEN job_parent_departments LIKE '%Marketing%' THEN 'Marketing' WHEN job_parent_departments LIKE '%Sales%' THEN 'Sales' ELSE 'Other' END AS dept_group, COUNT(*) AS applications, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS hires, ROUND(100.0 * SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) / COUNT(*), 1) AS hire_rate, AVG(count_interviews) AS avg_interviews FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY dept_group ORDER BY hires DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 10.198219679296017
+        },
+        {
+          "sql_id": "S71",
+          "rewritten_sql": "SELECT CASE WHEN job_parent_departments LIKE '%Engineering%' THEN 'Engineering' WHEN job_parent_departments LIKE '%Product%' THEN 'Product' WHEN job_parent_departments LIKE '%Design%' THEN 'Design' WHEN job_parent_departments LIKE '%Marketing%' THEN 'Marketing' WHEN job_parent_departments LIKE '%Sales%' THEN 'Sales' ELSE 'Other' END AS dept, SUM(CASE WHEN status = 'hired' AND candidate_gender = 'Female' THEN 1 ELSE 0 END) AS fh, SUM(CASE WHEN status = 'hired' AND NOT candidate_gender IS NULL THEN 1 ELSE 0 END) AS th_g, SUM(CASE WHEN status = 'hired' AND candidate_race <> 'White' AND NOT candidate_race IS NULL THEN 1 ELSE 0 END) AS nwh, SUM(CASE WHEN status = 'hired' AND NOT candidate_race IS NULL THEN 1 ELSE 0 END) AS th_r FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY dept ORDER BY th_g DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 12.234581634402275
+        },
+        {
+          "sql_id": "S72",
+          "rewritten_sql": "SELECT CASE WHEN job_parent_departments LIKE '%Engineering%' THEN 'Engineering' WHEN job_parent_departments LIKE '%Product%' THEN 'Product' WHEN job_parent_departments LIKE '%Design%' THEN 'Design' WHEN job_parent_departments LIKE '%Marketing%' THEN 'Marketing' WHEN job_parent_departments LIKE '%Sales%' THEN 'Sales' ELSE 'Other' END AS dept, COUNT(*) AS apps, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS hires, ROUND(100.0 * SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) / COUNT(*), 1) AS hire_rate FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT job_parent_departments IS NULL GROUP BY dept ORDER BY hires DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 9.595043025910854
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT job_parent_departments AS __g0, CASE WHEN job_parent_departments LIKE '%Engineering%' THEN 'Engineering' WHEN job_parent_departments LIKE '%Product%' THEN 'Product' WHEN job_parent_departments LIKE '%Design%' THEN 'Design' WHEN job_parent_departments LIKE '%Marketing%' THEN 'Marketing' WHEN job_parent_departments LIKE '%Sales%' THEN 'Sales' ELSE 'Other' END AS __g1, COUNT(*) AS __a0, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS __a1, SUM(count_interviews) AS __a2_sum, COUNT(count_interviews) AS __a2_n, SUM(CASE WHEN status = 'hired' AND candidate_gender = 'Female' THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN status = 'hired' AND NOT candidate_gender IS NULL THEN 1 ELSE 0 END) AS __a4, SUM(CASE WHEN status = 'hired' AND candidate_race <> 'White' AND NOT candidate_race IS NULL THEN 1 ELSE 0 END) AS __a5, SUM(CASE WHEN status = 'hired' AND NOT candidate_race IS NULL THEN 1 ELSE 0 END) AS __a6 FROM \"greenhouse__application_enhanced\" WHERE NOT job_parent_departments IS NULL GROUP BY job_parent_departments, CASE WHEN job_parent_departments LIKE '%Engineering%' THEN 'Engineering' WHEN job_parent_departments LIKE '%Product%' THEN 'Product' WHEN job_parent_departments LIKE '%Design%' THEN 'Design' WHEN job_parent_departments LIKE '%Marketing%' THEN 'Marketing' WHEN job_parent_departments LIKE '%Sales%' THEN 'Sales' ELSE 'Other' END",
+      "covered": [
+        "S12",
+        "S33",
+        "S62",
+        "S71",
+        "S72"
+      ],
+      "rewrites": {
+        "S12": "SELECT __g0 AS \"job_parent_departments\", SUM(__a0) AS apps, SUM(__a1) AS hires, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS hire_rate FROM temp.reuse_candidate GROUP BY __g0 ORDER BY hires DESC LIMIT 20",
+        "S33": "SELECT __g0 AS \"job_parent_departments\", SUM(__a0) AS total_apps, SUM(__a1) AS hires, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS hire_rate FROM temp.reuse_candidate GROUP BY __g0 ORDER BY hires DESC LIMIT 15",
+        "S62": "SELECT __g1 AS dept_group, SUM(__a0) AS applications, SUM(__a1) AS hires, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS hire_rate, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_interviews FROM temp.reuse_candidate GROUP BY __g1 ORDER BY hires DESC",
+        "S71": "SELECT __g1 AS dept, SUM(__a3) AS fh, SUM(__a4) AS th_g, SUM(__a5) AS nwh, SUM(__a6) AS th_r FROM temp.reuse_candidate GROUP BY __g1 ORDER BY th_g DESC",
+        "S72": "SELECT __g1 AS dept, SUM(__a0) AS apps, SUM(__a1) AS hires, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS hire_rate FROM temp.reuse_candidate GROUP BY __g1 ORDER BY hires DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S12",
+      "later_reuses": 4,
+      "denominator": 88,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT interviewer_is_hiring_manager AS __g0, interview_name AS __g1, status AS __g2, COUNT(*) AS __a0, SUM(duration_interview_minutes) AS __a1_sum, COUNT(duration_interview_minutes) AS __a1_n, SUM(CASE WHEN LOWER(overall_recommendation) IN ('strong_yes', 'yes', 'strong yes', 'yes') THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN NOT scorecard_submitted_at IS NULL THEN 1 ELSE 0 END) AS __a3 FROM \"greenhouse__interview_enhanced\"  GROUP BY interviewer_is_hiring_manager, interview_name, status",
+      "covered": [
+        "S39",
+        "S41",
+        "S87",
+        "S89",
+        "S91"
+      ],
+      "rewrites": {
+        "S39": "SELECT __g0 AS \"interviewer_is_hiring_manager\", SUM(__a0) AS cnt, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_duration FROM temp.reuse_candidate GROUP BY __g0",
+        "S41": "SELECT __g1 AS \"interview_name\", SUM(__a0) AS cnt, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_duration, ROUND(SUM(__a2) * 100.0 / NULLIF(SUM(__a0), 0), 1) AS positive_pct FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+        "S87": "SELECT __g1 AS \"interview_name\", __g2 AS \"status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1, __g2 ORDER BY __g1, cnt DESC",
+        "S89": "SELECT SUM(__a0) AS total_scorecards, SUM(__a3) AS submitted, ROUND(100.0 * SUM(__a3) / SUM(__a0), 1) AS submission_rate FROM temp.reuse_candidate",
+        "S91": "SELECT __g1 AS \"interview_name\", __g2 AS \"status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1, __g2 ORDER BY __g1, __g2"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S39",
+      "later_reuses": 4,
+      "denominator": 88,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"greenhouse__application_enhanced\" WHERE NOT candidate_gender IS NULL",
+      "covered": [
+        "S13",
+        "S57"
+      ],
+      "rewrites": {
+        "S13": "SELECT candidate_gender, COUNT(*) AS cnt, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS hires FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT candidate_gender IS NULL GROUP BY candidate_gender",
+        "S57": "SELECT candidate_gender, COUNT(*) AS cnt, ROUND(100.0 * SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) / COUNT(*), 1) AS hire_rate FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT candidate_gender IS NULL GROUP BY candidate_gender"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S13",
+      "later_reuses": 1,
+      "denominator": 88,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT candidate_gender AS __g0, COUNT(*) AS __a0, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS __a1 FROM \"greenhouse__application_enhanced\" WHERE NOT candidate_gender IS NULL GROUP BY candidate_gender",
+      "covered": [
+        "S13",
+        "S57"
+      ],
+      "rewrites": {
+        "S13": "SELECT __g0 AS \"candidate_gender\", SUM(__a0) AS cnt, SUM(__a1) AS hires FROM temp.reuse_candidate GROUP BY __g0",
+        "S57": "SELECT __g0 AS \"candidate_gender\", SUM(__a0) AS cnt, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS hire_rate FROM temp.reuse_candidate GROUP BY __g0"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C6",
+      "offline": true,
+      "earliest_build_before": "S13",
+      "later_reuses": 1,
+      "denominator": 88,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"greenhouse__application_enhanced\" WHERE status = 'hired'",
+      "covered": [
+        "S24",
+        "S25"
+      ],
+      "rewrites": {
+        "S24": "SELECT candidate_gender, candidate_race, COUNT(*) AS cnt FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE status = 'hired' GROUP BY candidate_gender, candidate_race ORDER BY cnt DESC",
+        "S25": "SELECT COUNT(*) AS total_hires, SUM(CASE WHEN candidate_gender = 'Female' THEN 1 ELSE 0 END) AS female_hires, ROUND(100.0 * SUM(CASE WHEN candidate_gender = 'Female' THEN 1 ELSE 0 END) / COUNT(*), 1) AS female_pct, SUM(CASE WHEN candidate_race <> 'White' AND NOT candidate_race IS NULL THEN 1 ELSE 0 END) AS non_white_hires, ROUND(100.0 * SUM(CASE WHEN candidate_race <> 'White' AND NOT candidate_race IS NULL THEN 1 ELSE 0 END) / COUNT(*), 1) AS non_white_pct FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE status = 'hired'"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C7",
+      "offline": true,
+      "earliest_build_before": "S24",
+      "later_reuses": 1,
+      "denominator": 88,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT candidate_gender AS __g0, candidate_race AS __g1, COUNT(*) AS __a0, SUM(CASE WHEN candidate_gender = 'Female' THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN candidate_race <> 'White' AND NOT candidate_race IS NULL THEN 1 ELSE 0 END) AS __a2 FROM \"greenhouse__application_enhanced\" WHERE status = 'hired' GROUP BY candidate_gender, candidate_race",
+      "covered": [
+        "S24",
+        "S25"
+      ],
+      "rewrites": {
+        "S24": "SELECT __g0 AS \"candidate_gender\", __g1 AS \"candidate_race\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY cnt DESC",
+        "S25": "SELECT SUM(__a0) AS total_hires, SUM(__a1) AS female_hires, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS female_pct, SUM(__a2) AS non_white_hires, ROUND(100.0 * SUM(__a2) / SUM(__a0), 1) AS non_white_pct FROM temp.reuse_candidate"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C8",
+      "offline": true,
+      "earliest_build_before": "S24",
+      "later_reuses": 1,
+      "denominator": 88,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"greenhouse__interview_enhanced\" WHERE NOT overall_recommendation IS NULL",
+      "covered": [
+        "S27",
+        "S48",
+        "S64",
+        "S65",
+        "S86"
+      ],
+      "rewrites": {
+        "S27": "SELECT COUNT(*) AS total_interviews, COUNT(DISTINCT interview_id) AS unique_interviews, AVG(duration_interview_minutes) AS avg_duration, overall_recommendation, COUNT(*) AS cnt FROM temp.reuse_candidate AS greenhouse__interview_enhanced WHERE NOT overall_recommendation IS NULL GROUP BY overall_recommendation ORDER BY cnt DESC",
+        "S48": "SELECT ie.interviewer_name, ie.job_title, ie.job_departments, ie.job_parent_departments, ie.overall_recommendation, ie.application_id, ie.candidate_id FROM temp.reuse_candidate AS ie WHERE NOT ie.overall_recommendation IS NULL LIMIT 20",
+        "S64": "SELECT CASE WHEN LOWER(overall_recommendation) IN ('strong_yes', 'yes') THEN 'Positive' WHEN LOWER(overall_recommendation) IN ('strong_no', 'no', 'maybe') THEN 'Non-Positive' ELSE 'Other' END AS rec_group, COUNT(*) AS cnt FROM temp.reuse_candidate AS greenhouse__interview_enhanced WHERE NOT overall_recommendation IS NULL GROUP BY rec_group",
+        "S65": "SELECT interview_name, COUNT(*) AS total, ROUND(SUM(CASE WHEN LOWER(overall_recommendation) IN ('strong_yes', 'yes') THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS positive_pct, AVG(duration_interview_minutes) AS avg_duration FROM temp.reuse_candidate AS greenhouse__interview_enhanced WHERE NOT overall_recommendation IS NULL GROUP BY interview_name ORDER BY total DESC",
+        "S86": "SELECT CASE WHEN LOWER(overall_recommendation) IN ('strong_yes', 'strong yes') THEN 5 WHEN LOWER(overall_recommendation) IN ('yes') THEN 4 WHEN LOWER(overall_recommendation) IN ('maybe') THEN 3 WHEN LOWER(overall_recommendation) IN ('no') THEN 2 WHEN LOWER(overall_recommendation) IN ('strong_no', 'strong no') THEN 1 ELSE NULL END AS rec_score, COUNT(*) AS cnt FROM temp.reuse_candidate AS greenhouse__interview_enhanced WHERE NOT overall_recommendation IS NULL GROUP BY rec_score ORDER BY rec_score"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C9",
+      "offline": true,
+      "earliest_build_before": "S27",
+      "later_reuses": 4,
+      "denominator": 88,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT CASE WHEN LOWER(overall_recommendation) IN ('strong_yes', 'yes') THEN 'Positive' WHEN LOWER(overall_recommendation) IN ('strong_no', 'no', 'maybe') THEN 'Non-Positive' ELSE 'Other' END AS __g0, interview_name AS __g1, CASE WHEN LOWER(overall_recommendation) IN ('strong_yes', 'strong yes') THEN 5 WHEN LOWER(overall_recommendation) IN ('yes') THEN 4 WHEN LOWER(overall_recommendation) IN ('maybe') THEN 3 WHEN LOWER(overall_recommendation) IN ('no') THEN 2 WHEN LOWER(overall_recommendation) IN ('strong_no', 'strong no') THEN 1 ELSE NULL END AS __g2, COUNT(*) AS __a0, SUM(duration_interview_minutes) AS __a1_sum, COUNT(duration_interview_minutes) AS __a1_n, SUM(CASE WHEN LOWER(overall_recommendation) IN ('strong_yes', 'yes') THEN 1 ELSE 0 END) AS __a2 FROM \"greenhouse__interview_enhanced\" WHERE NOT overall_recommendation IS NULL GROUP BY CASE WHEN LOWER(overall_recommendation) IN ('strong_yes', 'yes') THEN 'Positive' WHEN LOWER(overall_recommendation) IN ('strong_no', 'no', 'maybe') THEN 'Non-Positive' ELSE 'Other' END, interview_name, CASE WHEN LOWER(overall_recommendation) IN ('strong_yes', 'strong yes') THEN 5 WHEN LOWER(overall_recommendation) IN ('yes') THEN 4 WHEN LOWER(overall_recommendation) IN ('maybe') THEN 3 WHEN LOWER(overall_recommendation) IN ('no') THEN 2 WHEN LOWER(overall_recommendation) IN ('strong_no', 'strong no') THEN 1 ELSE NULL END",
+      "covered": [
+        "S64",
+        "S65",
+        "S86"
+      ],
+      "rewrites": {
+        "S64": "SELECT __g0 AS rec_group, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+        "S65": "SELECT __g1 AS \"interview_name\", SUM(__a0) AS total, ROUND(SUM(__a2) * 100.0 / SUM(__a0), 1) AS positive_pct, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_duration FROM temp.reuse_candidate GROUP BY __g1 ORDER BY total DESC",
+        "S86": "SELECT __g2 AS rec_score, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2 ORDER BY rec_score"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C10",
+      "offline": true,
+      "earliest_build_before": "S64",
+      "later_reuses": 2,
+      "denominator": 88,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"greenhouse__application_enhanced\" WHERE count_interviews > 0",
+      "covered": [
+        "S34",
+        "S88"
+      ],
+      "rewrites": {
+        "S34": "SELECT sourced_from, ROUND(AVG(count_interviews), 2) AS avg_interviews, ROUND(AVG(count_distinct_interviewers), 2) AS avg_interviewers, SUM(CASE WHEN has_interviewed_w_hiring_manager = 1 THEN 1 ELSE 0 END) AS interviewed_with_hm, COUNT(*) AS total_with_interview_data FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE count_interviews > 0 GROUP BY sourced_from",
+        "S88": "SELECT count_interviews, COUNT(*) AS apps, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS hired, ROUND(100.0 * SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) / COUNT(*), 1) AS hire_rate FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE count_interviews > 0 GROUP BY count_interviews ORDER BY count_interviews"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C11",
+      "offline": true,
+      "earliest_build_before": "S34",
+      "later_reuses": 1,
+      "denominator": 88,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT sourced_from AS __g0, count_interviews AS __g1, SUM(CASE WHEN has_interviewed_w_hiring_manager = 1 THEN 1 ELSE 0 END) AS __a0, COUNT(*) AS __a1, SUM(count_interviews) AS __a2_sum, COUNT(count_interviews) AS __a2_n, SUM(count_distinct_interviewers) AS __a3_sum, COUNT(count_distinct_interviewers) AS __a3_n, SUM(CASE WHEN status = 'hired' THEN 1 ELSE 0 END) AS __a4 FROM \"greenhouse__application_enhanced\" WHERE count_interviews > 0 GROUP BY sourced_from, count_interviews",
+      "covered": [
+        "S34",
+        "S88"
+      ],
+      "rewrites": {
+        "S34": "SELECT __g0 AS \"sourced_from\", ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_interviews, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_interviewers, SUM(__a0) AS interviewed_with_hm, SUM(__a1) AS total_with_interview_data FROM temp.reuse_candidate GROUP BY __g0",
+        "S88": "SELECT __g1 AS \"count_interviews\", SUM(__a1) AS apps, SUM(__a4) AS hired, ROUND(100.0 * SUM(__a4) / SUM(__a1), 1) AS hire_rate FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C12",
+      "offline": true,
+      "earliest_build_before": "S34",
+      "later_reuses": 1,
+      "denominator": 88,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT attribute_category AS __g0, COUNT(*) AS __a0, SUM(rating) AS __a1_sum, COUNT(rating) AS __a1_n, MIN(rating) AS __a2, MAX(rating) AS __a3 FROM \"greenhouse__interview_scorecard_detail\"  GROUP BY attribute_category",
+      "covered": [
+        "S36",
+        "S37"
+      ],
+      "rewrites": {
+        "S36": "SELECT SUM(__a0) AS total_scores, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_rating, MIN(__a2) AS min_rating, MAX(__a3) AS max_rating FROM temp.reuse_candidate",
+        "S37": "SELECT __g0 AS \"attribute_category\", SUM(__a0) AS cnt, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_rating FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C13",
+      "offline": true,
+      "earliest_build_before": "S36",
+      "later_reuses": 1,
+      "denominator": 88,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"greenhouse__interview_scorecard_detail\" WHERE NOT rating IS NULL",
+      "covered": [
+        "S50",
+        "S80",
+        "S81",
+        "S82",
+        "S85"
+      ],
+      "rewrites": {
+        "S50": "SELECT ROUND(AVG(rating), 2) AS avg_rating, ROUND(AVG(CASE WHEN overall_recommendation IN ('strong_yes', 'yes', 'Strong Yes', 'Yes') THEN rating END), 2) AS avg_positive_rating, ROUND(AVG(CASE WHEN overall_recommendation IN ('strong_no', 'no', 'Strong No', 'No') THEN rating END), 2) AS avg_negative_rating, ROUND(AVG(CASE WHEN overall_recommendation = 'Maybe' THEN rating END), 2) AS avg_maybe_rating FROM temp.reuse_candidate AS greenhouse__interview_scorecard_detail WHERE NOT rating IS NULL",
+        "S80": "SELECT scorecard_id, AVG(rating) AS avg_scorecard_rating, MAX(rating) AS max_rating, MIN(rating) AS min_rating, overall_recommendation FROM temp.reuse_candidate AS greenhouse__interview_scorecard_detail WHERE NOT rating IS NULL GROUP BY scorecard_id",
+        "S81": "SELECT scd.application_id, AVG(scd.rating) AS avg_candidate_rating, COUNT(scd.scorecard_id) AS num_scorecards FROM temp.reuse_candidate AS scd WHERE NOT scd.rating IS NULL GROUP BY scd.application_id",
+        "S82": "SELECT AVG(rating) AS avg_all FROM temp.reuse_candidate AS greenhouse__interview_scorecard_detail WHERE NOT rating IS NULL",
+        "S85": "SELECT rating, COUNT(*) AS cnt FROM temp.reuse_candidate AS greenhouse__interview_scorecard_detail WHERE NOT rating IS NULL GROUP BY rating ORDER BY rating"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C14",
+      "offline": true,
+      "earliest_build_before": "S50",
+      "later_reuses": 4,
+      "denominator": 88,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788868168.476445,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"greenhouse__interview_scorecard_detail\" WHERE NOT rating IS NULL",
+          "phase": "offline_validation",
+          "start_time": 1788868168.47671,
+          "status": "execute_returned",
+          "end_time": 1788868168.5059106
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788868168.5059159,
+          "status": "execute_returned",
+          "end_time": 1788868168.507362
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788868168.5073688,
+          "status": "execute_returned",
+          "end_time": 1788868168.507392
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT ROUND(AVG(rating), 2) AS avg_rating, ROUND(AVG(CASE WHEN overall_recommendation IN ('strong_yes', 'yes', 'Strong Yes', 'Yes') THEN rating END), 2) AS avg_positive_rating, ROUND(AVG(CASE WHEN overall_recommendation IN ('strong_no', 'no', 'Strong No', 'No') THEN rating END), 2) AS avg_negative_rating, ROUND(AVG(CASE WHEN overall_recommendation = 'Maybe' THEN rating END), 2) AS avg_maybe_rating FROM temp.reuse_candidate AS greenhouse__interview_scorecard_detail WHERE NOT rating IS NULL",
+          "phase": "offline_validation",
+          "start_time": 1788868168.5074193,
+          "status": "execute_returned",
+          "end_time": 1788868168.5199194
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT scorecard_id, AVG(rating) AS avg_scorecard_rating, MAX(rating) AS max_rating, MIN(rating) AS min_rating, overall_recommendation FROM temp.reuse_candidate AS greenhouse__interview_scorecard_detail WHERE NOT rating IS NULL GROUP BY scorecard_id",
+          "phase": "offline_validation",
+          "start_time": 1788868168.5219648,
+          "status": "execute_returned",
+          "end_time": 1788868168.5326412
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT scd.application_id, AVG(scd.rating) AS avg_candidate_rating, COUNT(scd.scorecard_id) AS num_scorecards FROM temp.reuse_candidate AS scd WHERE NOT scd.rating IS NULL GROUP BY scd.application_id",
+          "phase": "offline_validation",
+          "start_time": 1788868168.5792823,
+          "status": "execute_returned",
+          "end_time": 1788868168.5886595
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT AVG(rating) AS avg_all FROM temp.reuse_candidate AS greenhouse__interview_scorecard_detail WHERE NOT rating IS NULL",
+          "phase": "offline_validation",
+          "start_time": 1788868168.627548,
+          "status": "execute_returned",
+          "end_time": 1788868168.6311312
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT rating, COUNT(*) AS cnt FROM temp.reuse_candidate AS greenhouse__interview_scorecard_detail WHERE NOT rating IS NULL GROUP BY rating ORDER BY rating",
+          "phase": "offline_validation",
+          "start_time": 1788868168.6319878,
+          "status": "execute_returned",
+          "end_time": 1788868168.639321
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"greenhouse__interview_scorecard_detail\" WHERE NOT rating IS NULL",
+          "time": 1788868168.4772098,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788868168.5059373,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788868168.5073879,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT ROUND(AVG(rating), 2) AS avg_rating, ROUND(AVG(CASE WHEN overall_recommendation IN ('strong_yes', 'yes', 'Strong Yes', 'Yes') THEN rating END), 2) AS avg_positive_rating, ROUND(AVG(CASE WHEN overall_recommendation IN ('strong_no', 'no', 'Strong No', 'No') THEN rating END), 2) AS avg_negative_rating, ROUND(AVG(CASE WHEN overall_recommendation = 'Maybe' THEN rating END), 2) AS avg_maybe_rating FROM temp.reuse_candidate AS greenhouse__interview_scorecard_detail WHERE NOT rating IS NULL",
+          "time": 1788868168.5074623,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT scorecard_id, AVG(rating) AS avg_scorecard_rating, MAX(rating) AS max_rating, MIN(rating) AS min_rating, overall_recommendation FROM temp.reuse_candidate AS greenhouse__interview_scorecard_detail WHERE NOT rating IS NULL GROUP BY scorecard_id",
+          "time": 1788868168.522004,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT scd.application_id, AVG(scd.rating) AS avg_candidate_rating, COUNT(scd.scorecard_id) AS num_scorecards FROM temp.reuse_candidate AS scd WHERE NOT scd.rating IS NULL GROUP BY scd.application_id",
+          "time": 1788868168.5793269,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT AVG(rating) AS avg_all FROM temp.reuse_candidate AS greenhouse__interview_scorecard_detail WHERE NOT rating IS NULL",
+          "time": 1788868168.6275823,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT rating, COUNT(*) AS cnt FROM temp.reuse_candidate AS greenhouse__interview_scorecard_detail WHERE NOT rating IS NULL GROUP BY rating ORDER BY rating",
+          "time": 1788868168.6320264,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 29.204067774116993,
+      "intermediate_rows": 29107,
+      "intermediate_columns": [
+        "index",
+        "attribute_name",
+        "note",
+        "rating",
+        "scorecard_id",
+        "attribute_category",
+        "overall_recommendation",
+        "candidate_name",
+        "interviewer_name",
+        "interview_name",
+        "interview_start_at",
+        "scorecard_submitted_at",
+        "application_id",
+        "job_title",
+        "job_id",
+        "hiring_managers",
+        "interview_scorecard_key",
+        "scorecard_attribute_key"
+      ],
+      "validation_ended_at": 1788868168.6418374,
+      "checks": [
+        {
+          "sql_id": "S50",
+          "rewritten_sql": "SELECT ROUND(AVG(rating), 2) AS avg_rating, ROUND(AVG(CASE WHEN overall_recommendation IN ('strong_yes', 'yes', 'Strong Yes', 'Yes') THEN rating END), 2) AS avg_positive_rating, ROUND(AVG(CASE WHEN overall_recommendation IN ('strong_no', 'no', 'Strong No', 'No') THEN rating END), 2) AS avg_negative_rating, ROUND(AVG(CASE WHEN overall_recommendation = 'Maybe' THEN rating END), 2) AS avg_maybe_rating FROM temp.reuse_candidate AS greenhouse__interview_scorecard_detail WHERE NOT rating IS NULL",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 14.541679061949253
+        },
+        {
+          "sql_id": "S80",
+          "rewritten_sql": "SELECT scorecard_id, AVG(rating) AS avg_scorecard_rating, MAX(rating) AS max_rating, MIN(rating) AS min_rating, overall_recommendation FROM temp.reuse_candidate AS greenhouse__interview_scorecard_detail WHERE NOT rating IS NULL GROUP BY scorecard_id",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 57.31347296386957
+        },
+        {
+          "sql_id": "S81",
+          "rewritten_sql": "SELECT scd.application_id, AVG(scd.rating) AS avg_candidate_rating, COUNT(scd.scorecard_id) AS num_scorecards FROM temp.reuse_candidate AS scd WHERE NOT scd.rating IS NULL GROUP BY scd.application_id",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 48.26196376234293
+        },
+        {
+          "sql_id": "S82",
+          "rewritten_sql": "SELECT AVG(rating) AS avg_all FROM temp.reuse_candidate AS greenhouse__interview_scorecard_detail WHERE NOT rating IS NULL",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 4.4364770874381065
+        },
+        {
+          "sql_id": "S85",
+          "rewritten_sql": "SELECT rating, COUNT(*) AS cnt FROM temp.reuse_candidate AS greenhouse__interview_scorecard_detail WHERE NOT rating IS NULL GROUP BY rating ORDER BY rating",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 9.098687209188938
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT application_id AS __g0, rating AS __g1, SUM(rating) AS __a0_sum, COUNT(rating) AS __a0_n, SUM(CASE WHEN overall_recommendation IN ('strong_yes', 'yes', 'Strong Yes', 'Yes') THEN rating END) AS __a1_sum, COUNT(CASE WHEN overall_recommendation IN ('strong_yes', 'yes', 'Strong Yes', 'Yes') THEN rating END) AS __a1_n, SUM(CASE WHEN overall_recommendation IN ('strong_no', 'no', 'Strong No', 'No') THEN rating END) AS __a2_sum, COUNT(CASE WHEN overall_recommendation IN ('strong_no', 'no', 'Strong No', 'No') THEN rating END) AS __a2_n, SUM(CASE WHEN overall_recommendation = 'Maybe' THEN rating END) AS __a3_sum, COUNT(CASE WHEN overall_recommendation = 'Maybe' THEN rating END) AS __a3_n, COUNT(scorecard_id) AS __a4, COUNT(*) AS __a5 FROM \"greenhouse__interview_scorecard_detail\" WHERE NOT rating IS NULL GROUP BY application_id, rating",
+      "covered": [
+        "S50",
+        "S81",
+        "S82",
+        "S85"
+      ],
+      "rewrites": {
+        "S50": "SELECT ROUND((1.0 * SUM(__a0_sum) / NULLIF(SUM(__a0_n), 0)), 2) AS avg_rating, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_positive_rating, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_negative_rating, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_maybe_rating FROM temp.reuse_candidate",
+        "S81": "SELECT __g0 AS \"application_id\", (1.0 * SUM(__a0_sum) / NULLIF(SUM(__a0_n), 0)) AS avg_candidate_rating, SUM(__a4) AS num_scorecards FROM temp.reuse_candidate GROUP BY __g0",
+        "S82": "SELECT (1.0 * SUM(__a0_sum) / NULLIF(SUM(__a0_n), 0)) AS avg_all FROM temp.reuse_candidate",
+        "S85": "SELECT __g1 AS \"rating\", SUM(__a5) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C15",
+      "offline": true,
+      "earliest_build_before": "S50",
+      "later_reuses": 3,
+      "denominator": 88,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"greenhouse__interview_scorecard_detail\" WHERE NOT attribute_name IS NULL AND NOT rating IS NULL",
+      "covered": [
+        "S51",
+        "S66"
+      ],
+      "rewrites": {
+        "S51": "SELECT attribute_name, COUNT(*) AS cnt, AVG(rating) AS avg_rating, ROUND(SUM(CASE WHEN rating >= 4 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS high_score_pct FROM temp.reuse_candidate AS greenhouse__interview_scorecard_detail WHERE NOT attribute_name IS NULL AND NOT rating IS NULL GROUP BY attribute_name ORDER BY avg_rating DESC",
+        "S66": "SELECT attribute_name, COUNT(*) AS cnt, AVG(rating) AS avg_rating FROM temp.reuse_candidate AS greenhouse__interview_scorecard_detail WHERE NOT attribute_name IS NULL AND NOT rating IS NULL GROUP BY attribute_name ORDER BY avg_rating DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C16",
+      "offline": true,
+      "earliest_build_before": "S51",
+      "later_reuses": 1,
+      "denominator": 88,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT attribute_name AS __g0, COUNT(*) AS __a0, SUM(rating) AS __a1_sum, COUNT(rating) AS __a1_n, SUM(CASE WHEN rating >= 4 THEN 1 ELSE 0 END) AS __a2 FROM \"greenhouse__interview_scorecard_detail\" WHERE NOT attribute_name IS NULL AND NOT rating IS NULL GROUP BY attribute_name",
+      "covered": [
+        "S51",
+        "S66"
+      ],
+      "rewrites": {
+        "S51": "SELECT __g0 AS \"attribute_name\", SUM(__a0) AS cnt, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_rating, ROUND(SUM(__a2) * 100.0 / SUM(__a0), 1) AS high_score_pct FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_rating DESC",
+        "S66": "SELECT __g0 AS \"attribute_name\", SUM(__a0) AS cnt, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_rating FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_rating DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C17",
+      "offline": true,
+      "earliest_build_before": "S51",
+      "later_reuses": 1,
+      "denominator": 88,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"greenhouse__application_enhanced\" WHERE NOT last_activity_at IS NULL AND NOT applied_at IS NULL",
+      "covered": [
+        "S55",
+        "S56"
+      ],
+      "rewrites": {
+        "S55": "SELECT sourced_from, AVG(JULIANDAY(last_activity_at) - JULIANDAY(applied_at)) AS avg_days, MIN(JULIANDAY(last_activity_at) - JULIANDAY(applied_at)) AS min_days, MAX(JULIANDAY(last_activity_at) - JULIANDAY(applied_at)) AS max_days FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT last_activity_at IS NULL AND NOT applied_at IS NULL GROUP BY sourced_from",
+        "S56": "SELECT current_job_stage, COUNT(*) AS cnt, AVG(JULIANDAY(last_activity_at) - JULIANDAY(applied_at)) AS avg_days_in_process FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE NOT last_activity_at IS NULL AND NOT applied_at IS NULL GROUP BY current_job_stage ORDER BY avg_days_in_process"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C18",
+      "offline": true,
+      "earliest_build_before": "S55",
+      "later_reuses": 1,
+      "denominator": 88,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT sourced_from AS __g0, current_job_stage AS __g1, SUM(JULIANDAY(last_activity_at) - JULIANDAY(applied_at)) AS __a0_sum, COUNT(JULIANDAY(last_activity_at) - JULIANDAY(applied_at)) AS __a0_n, MIN(JULIANDAY(last_activity_at) - JULIANDAY(applied_at)) AS __a1, MAX(JULIANDAY(last_activity_at) - JULIANDAY(applied_at)) AS __a2, COUNT(*) AS __a3 FROM \"greenhouse__application_enhanced\" WHERE NOT last_activity_at IS NULL AND NOT applied_at IS NULL GROUP BY sourced_from, current_job_stage",
+      "covered": [
+        "S55",
+        "S56"
+      ],
+      "rewrites": {
+        "S55": "SELECT __g0 AS \"sourced_from\", (1.0 * SUM(__a0_sum) / NULLIF(SUM(__a0_n), 0)) AS avg_days, MIN(__a1) AS min_days, MAX(__a2) AS max_days FROM temp.reuse_candidate GROUP BY __g0",
+        "S56": "SELECT __g1 AS \"current_job_stage\", SUM(__a3) AS cnt, (1.0 * SUM(__a0_sum) / NULLIF(SUM(__a0_n), 0)) AS avg_days_in_process FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_days_in_process"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C19",
+      "offline": true,
+      "earliest_build_before": "S55",
+      "later_reuses": 1,
+      "denominator": 88,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

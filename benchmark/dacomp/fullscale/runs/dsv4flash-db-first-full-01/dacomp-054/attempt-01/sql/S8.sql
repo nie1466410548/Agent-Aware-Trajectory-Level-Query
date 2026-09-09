@@ -1,0 +1,1 @@
+SELECT DISTINCT customer_tier FROM customer360__conversion_funnel_analysis ORDER BY customer_tier

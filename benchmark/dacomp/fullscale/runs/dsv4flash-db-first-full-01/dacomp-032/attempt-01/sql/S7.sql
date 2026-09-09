@@ -1,0 +1,1 @@
+SELECT * FROM complaints_table LIMIT 5

@@ -1,0 +1,1 @@
+SELECT status, COUNT(*) as cnt FROM greenhouse__application_enhanced GROUP BY status

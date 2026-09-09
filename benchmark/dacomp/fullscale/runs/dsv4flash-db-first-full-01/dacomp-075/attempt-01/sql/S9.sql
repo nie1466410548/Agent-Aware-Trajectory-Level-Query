@@ -1,0 +1,1 @@
+SELECT DISTINCT environmental_rating FROM netsuite2_vendor_risk_analysis

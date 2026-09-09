@@ -1,0 +1,1 @@
+SELECT DISTINCT retention_difficulty_level FROM workday__job_overview

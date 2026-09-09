@@ -1,0 +1,1 @@
+SELECT LEFT("Customer ID",1) as prefix, LENGTH("Customer ID") as len, COUNT(*) as cnt FROM membership_table GROUP BY prefix, len

@@ -1,0 +1,1 @@
+SELECT "Item Code", "Item Name", "Loss Rate (%)" FROM product_loss ORDER BY "Loss Rate (%)" DESC LIMIT 10

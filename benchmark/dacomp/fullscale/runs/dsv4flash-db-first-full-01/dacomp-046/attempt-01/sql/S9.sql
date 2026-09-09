@@ -1,0 +1,1 @@
+SELECT DISTINCT "Membership Level" FROM user_basic_information_table_1

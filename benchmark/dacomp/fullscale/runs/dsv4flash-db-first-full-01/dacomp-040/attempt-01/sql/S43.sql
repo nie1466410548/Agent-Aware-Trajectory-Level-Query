@@ -1,0 +1,20 @@
+SELECT 
+  SUM("Population Aged 6 and Over - Male") AS male_pop,
+  SUM("Population Aged 6 and Over - Female") AS female_pop,
+  SUM("Never Attended School - Total") - SUM("Never Attended School - Female") AS male_never,
+  SUM("Never Attended School - Female") AS female_never,
+  SUM("Primary School - Male") AS male_prim,
+  SUM("Primary School - Female") AS female_prim,
+  SUM("Junior High School - Male") AS male_junior,
+  SUM("Junior High School - Female") AS female_junior,
+  SUM("Senior High School - Male") AS male_senior,
+  SUM("Senior High School - Female") AS female_senior,
+  SUM("Vocational School - Male") AS male_voc,
+  SUM("Vocational School - Female") AS female_voc,
+  SUM("Junior College - Male") AS male_jcollege,
+  SUM("Undergraduate - Total") - SUM("Junior College - Male") - SUM("Junior College - Total") AS junk,
+  SUM("Undergraduate - Male") AS male_undergrad,
+  SUM("Undergraduate - Female") AS female_undergrad,
+  SUM("Postgraduate - Male") AS male_postgrad,
+  SUM("Postgraduate - Female") AS female_postgrad
+FROM "2000_cn_pop_6_up_age_sex_edu"

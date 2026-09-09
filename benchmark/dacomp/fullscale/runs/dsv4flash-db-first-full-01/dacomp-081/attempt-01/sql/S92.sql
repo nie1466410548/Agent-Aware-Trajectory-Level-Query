@@ -1,0 +1,1 @@
+SELECT r.user_language, COUNT(*) AS n, AVG(r.value) AS avg_v, MIN(r.value) AS min_v, MAX(r.value) AS max_v FROM qualtrics__response r WHERE r.survey_id = 'SUR10000974099' GROUP BY r.user_language ORDER BY avg_v DESC

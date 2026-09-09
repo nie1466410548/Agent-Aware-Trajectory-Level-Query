@@ -1,0 +1,9 @@
+SELECT o.Region, sp."Regional Manager",
+       CAST(strftime('%Y', o."Order Date") AS INTEGER) AS yr,
+       SUM(o.Sales) AS sales,
+       SUM(o.profit) AS profit,
+       COUNT(DISTINCT o."Order ID") AS n_orders
+FROM "order" o
+LEFT JOIN salesperson sp ON o.Region = sp.Region
+GROUP BY o.Region, sp."Regional Manager", yr
+ORDER BY o.Region, yr

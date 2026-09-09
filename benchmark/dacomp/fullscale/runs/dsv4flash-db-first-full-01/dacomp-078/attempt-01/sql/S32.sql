@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT vf.feature_id) AS vf_features, COUNT(DISTINCT vf.visitor_id) AS vf_visitors FROM pendo__visitor_feature vf

@@ -1,0 +1,1 @@
+SELECT "Warehouse Status", COUNT(*) AS cnt, ROUND(AVG("Utilization (%)"),1) AS avg_util, ROUND(AVG("Inventory Accuracy (%)"),1) AS avg_acc FROM distribution_hubs hub JOIN disaster_events de ON de."Disaster Event ID"=hub."Disaster Event Reference ID" WHERE de."Disaster Severity Level"='Level 5' GROUP BY "Warehouse Status" ORDER BY cnt DESC

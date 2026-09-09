@@ -1,0 +1,1 @@
+SELECT DISTINCT stage_technical_interview FROM greenhouse__application_enhanced

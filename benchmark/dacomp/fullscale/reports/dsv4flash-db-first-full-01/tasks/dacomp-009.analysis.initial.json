@@ -1,0 +1,99 @@
+{
+  "fingerprint": "9963d8443b6780082c0b8cb04fff4b18042e7ca60c15b9baf6235853a1313f6a",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Total Time Away\" AS __g0, \"Pass Rate\" AS __g1, \"Hire Date\" AS __g2, \"Disciplinary Issue\" AS __g3, \"Payment Method\" AS __g4, COUNT(*) AS __a0, MIN(\"Units Produced\") AS __a1, MAX(\"Units Produced\") AS __a2, COUNT(CASE WHEN \"Units Produced\" <= 0 THEN 1 END) AS __a3 FROM \"sheet1\"  GROUP BY \"Total Time Away\", \"Pass Rate\", \"Hire Date\", \"Disciplinary Issue\", \"Payment Method\"",
+      "covered": [
+        "S14",
+        "S15",
+        "S16",
+        "S18",
+        "S19",
+        "S34"
+      ],
+      "rewrites": {
+        "S14": "SELECT __g0 AS \"Total Time Away\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 30",
+        "S15": "SELECT __g1 AS \"Pass Rate\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC LIMIT 20",
+        "S16": "SELECT __g2 AS \"Hire Date\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2 ORDER BY cnt DESC LIMIT 25",
+        "S18": "SELECT __g3 AS \"Disciplinary Issue\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3",
+        "S19": "SELECT __g4 AS \"Payment Method\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g4",
+        "S34": "SELECT MIN(__a1) AS min_units, MAX(__a2) AS max_units, SUM(__a0) AS n, SUM(__a3) AS nonpos FROM temp.reuse_candidate"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S14",
+      "later_reuses": 5,
+      "denominator": 34,
+      "coverage_includes_trigger": true,
+      "build_ms": 1.0666949674487114,
+      "intermediate_rows": 479,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3"
+      ],
+      "checks": [
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT __g0 AS \"Total Time Away\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 30",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.9004222229123116
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "SELECT __g1 AS \"Pass Rate\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7387278601527214
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "SELECT __g2 AS \"Hire Date\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2 ORDER BY cnt DESC LIMIT 25",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7803458720445633
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT __g3 AS \"Disciplinary Issue\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6229542195796967
+        },
+        {
+          "sql_id": "S19",
+          "rewritten_sql": "SELECT __g4 AS \"Payment Method\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g4",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5815951153635979
+        },
+        {
+          "sql_id": "S34",
+          "rewritten_sql": "SELECT MIN(__a1) AS min_units, MAX(__a2) AS max_units, SUM(__a0) AS n, SUM(__a3) AS nonpos FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.8665071800351143
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

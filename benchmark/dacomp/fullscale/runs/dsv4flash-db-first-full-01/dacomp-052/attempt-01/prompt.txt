@@ -1,0 +1,70 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+Noticing that some teams have high project health scores but low actual completion rates, you need to analyze teams from the `asana__team_efficiency_metrics` table where both `collaboration_efficiency_score` and `resource_optimization_score` are 8 or higher, but their `avg_completion_rate` is below 70%. Conduct an in-depth analysis of these teams' characteristics in terms of project size distribution, member workload, and task complexity to identify the underlying reasons for the mismatch between health scores and actual execution performance. Propose targeted team management optimization recommendations based on your findings.
+
+DATABASE SCHEMA:
+CREATE TABLE "asana__team_efficiency_metrics" (
+"team_id" INTEGER,
+  "team_name" TEXT,
+  "total_projects" INTEGER,
+  "active_projects" INTEGER,
+  "completed_projects" INTEGER,
+  "overdue_projects" INTEGER,
+  "avg_project_health" REAL,
+  "avg_project_performance" REAL,
+  "avg_completion_rate" REAL,
+  "avg_quality_rate" REAL,
+  "avg_risk_percentage" REAL,
+  "enterprise_projects" INTEGER,
+  "large_projects" INTEGER,
+  "medium_projects" INTEGER,
+  "small_projects" INTEGER,
+  "total_team_tasks" INTEGER,
+  "completed_team_tasks" INTEGER,
+  "active_team_tasks" INTEGER,
+  "overdue_team_tasks" INTEGER,
+  "total_project_assignments" INTEGER,
+  "avg_tasks_per_assignee_across_projects" REAL,
+  "avg_project_velocity" REAL,
+  "avg_estimated_completion_days" REAL,
+  "on_schedule_rate_pct" REAL,
+  "quality_completion_rate_pct" REAL,
+  "unique_team_members" INTEGER,
+  "avg_member_performance" REAL,
+  "avg_member_completion_rate" REAL,
+  "avg_member_quality_rate" REAL,
+  "top_performers" INTEGER,
+  "high_performers" INTEGER,
+  "solid_performers" INTEGER,
+  "developing_performers" INTEGER,
+  "underperformers" INTEGER,
+  "high_workload_members" INTEGER,
+  "high_risk_members" INTEGER,
+  "avg_tasks_per_member" REAL,
+  "project_management_score" INTEGER,
+  "quality_management_score" INTEGER,
+  "collaboration_efficiency_score" INTEGER,
+  "resource_optimization_score" INTEGER,
+  "overall_team_efficiency_score" INTEGER,
+  "efficiency_grade" TEXT,
+  "team_size_category" TEXT,
+  "workload_balance_status" TEXT,
+  "team_maturity_level" TEXT,
+  "improvement_recommendations" TEXT,
+  "team_strengths" TEXT,
+  "is_valid_record" INTEGER,
+  "efficiency_rank" INTEGER,
+  "performance_rank" INTEGER,
+  "schedule_reliability_rank" INTEGER,
+  "quality_rank" INTEGER
+)

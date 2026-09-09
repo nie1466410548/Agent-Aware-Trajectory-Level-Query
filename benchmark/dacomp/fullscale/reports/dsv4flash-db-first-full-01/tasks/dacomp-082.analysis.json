@@ -1,0 +1,770 @@
+{
+  "fingerprint": "8bbd2b9f4dd3920888e8fa6852d01e69eb9bc5f512dfd2ea9724ea4bc557a002",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT project_category AS __g0, project_type AS __g1, survey_status AS __g2, COUNT(*) AS __a0, SUM(count_survey_responses) AS __a1, SUM(count_completed_survey_responses) AS __a2, SUM(count_email_survey_responses) AS __a3, SUM(count_email_completed_survey_responses) AS __a4, SUM(count_sms_survey_responses) AS __a5, SUM(count_sms_completed_survey_responses) AS __a6, SUM(count_social_media_survey_responses) AS __a7, SUM(count_social_media_completed_survey_responses) AS __a8, SUM(count_personal_link_survey_responses) AS __a9, SUM(count_personal_link_completed_survey_responses) AS __a10, SUM(count_qr_code_survey_responses) AS __a11, SUM(count_qr_code_completed_survey_responses) AS __a12, SUM(count_anonymous_survey_responses) AS __a13, SUM(count_anonymous_completed_survey_responses) AS __a14, SUM(count_uncategorized_survey_responses) AS __a15, SUM(count_uncategorized_completed_survey_responses) AS __a16, SUM(CASE WHEN count_email_survey_responses > 0 THEN 1 ELSE 0 END) AS __a17, SUM(CASE WHEN count_sms_survey_responses > 0 THEN 1 ELSE 0 END) AS __a18, SUM(CASE WHEN count_social_media_survey_responses > 0 THEN 1 ELSE 0 END) AS __a19, SUM(CASE WHEN count_personal_link_survey_responses > 0 THEN 1 ELSE 0 END) AS __a20, SUM(CASE WHEN count_qr_code_survey_responses > 0 THEN 1 ELSE 0 END) AS __a21, SUM(CASE WHEN count_anonymous_survey_responses > 0 THEN 1 ELSE 0 END) AS __a22, SUM(CASE WHEN count_uncategorized_survey_responses > 0 THEN 1 ELSE 0 END) AS __a23, SUM(count_email_survey_responses) AS __a24_sum, COUNT(count_email_survey_responses) AS __a24_n, SUM(count_sms_survey_responses) AS __a25_sum, COUNT(count_sms_survey_responses) AS __a25_n, SUM(count_social_media_survey_responses) AS __a26_sum, COUNT(count_social_media_survey_responses) AS __a26_n, SUM(count_uncategorized_survey_responses) AS __a27_sum, COUNT(count_uncategorized_survey_responses) AS __a27_n, SUM(count_questions) AS __a28_sum, COUNT(count_questions) AS __a28_n FROM \"qualtrics__survey\"  GROUP BY project_category, project_type, survey_status",
+      "covered": [
+        "S7",
+        "S9",
+        "S13",
+        "S14",
+        "S17",
+        "S18",
+        "S30",
+        "S31",
+        "S32",
+        "S36",
+        "S37",
+        "S38"
+      ],
+      "rewrites": {
+        "S7": "SELECT __g0 AS \"project_category\", SUM(__a0) AS survey_count, SUM(__a1) AS total_responses, SUM(__a2) AS total_completed FROM temp.reuse_candidate GROUP BY __g0",
+        "S9": "SELECT __g0 AS \"project_category\", SUM(__a3) AS email_responses, SUM(__a4) AS email_completed, SUM(__a5) AS sms_responses, SUM(__a6) AS sms_completed, SUM(__a7) AS social_responses, SUM(__a8) AS social_completed, SUM(__a9) AS personal_link_responses, SUM(__a10) AS personal_link_completed, SUM(__a11) AS qr_responses, SUM(__a12) AS qr_completed, SUM(__a13) AS anon_responses, SUM(__a14) AS anon_completed, SUM(__a15) AS uncat_responses, SUM(__a16) AS uncat_completed FROM temp.reuse_candidate GROUP BY __g0",
+        "S13": "SELECT SUM(__a17) AS surveys_email, SUM(__a18) AS surveys_sms, SUM(__a19) AS surveys_social, SUM(__a20) AS surveys_plink, SUM(__a21) AS surveys_qr, SUM(__a22) AS surveys_anon, SUM(__a23) AS surveys_uncat FROM temp.reuse_candidate",
+        "S14": "SELECT SUM(__a1) AS total_responses, SUM(__a2) AS total_completed, SUM(__a0) AS n_surveys FROM temp.reuse_candidate",
+        "S17": "SELECT __g0 AS \"project_category\", SUM(__a3) AS email_resp, SUM(__a4) AS email_comp, SUM(__a5) AS sms_resp, SUM(__a6) AS sms_comp, SUM(__a7) AS social_resp, SUM(__a8) AS social_comp, SUM(__a15) AS web_mobile_resp, SUM(__a16) AS web_mobile_comp FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+        "S18": "SELECT __g0 AS \"project_category\", __g1 AS \"project_type\", SUM(__a3) AS email_resp, SUM(__a4) AS email_comp, SUM(__a5) AS sms_resp, SUM(__a6) AS sms_comp, SUM(__a7) AS social_resp, SUM(__a8) AS social_comp, SUM(__a15) AS web_mobile_resp, SUM(__a16) AS web_mobile_comp FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+        "S30": "SELECT __g0 AS \"project_category\", SUM(__a3) AS email_r, SUM(__a5) AS sms_r, SUM(__a7) AS social_r, SUM(__a15) AS uncat_r, SUM(__a9) AS plink_r, SUM(__a11) AS qr_r FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+        "S31": "SELECT __g2 AS \"survey_status\", SUM(__a0) AS n, SUM(__a1) AS resp FROM temp.reuse_candidate GROUP BY __g2",
+        "S32": "SELECT __g0 AS \"project_category\", SUM(__a3) AS email_r, SUM(__a4) AS email_c, SUM(__a5) AS sms_r, SUM(__a6) AS sms_c, SUM(__a7) AS social_r, SUM(__a8) AS social_c, SUM(__a15) AS wm_r, SUM(__a16) AS wm_c FROM temp.reuse_candidate GROUP BY __g0",
+        "S36": "SELECT __g0 AS \"project_category\", SUM(__a0) AS total_surveys, SUM(__a17) AS surveys_use_email, SUM(__a18) AS surveys_use_sms, SUM(__a19) AS surveys_use_social, SUM(__a23) AS surveys_use_uncat FROM temp.reuse_candidate GROUP BY __g0",
+        "S37": "SELECT __g0 AS \"project_category\", SUM(__a0) AS n, (1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)) AS avg_email_resp, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_sms_resp, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS avg_social_resp, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS avg_uncat_resp, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_questions FROM temp.reuse_candidate GROUP BY __g0",
+        "S38": "SELECT __g0 AS \"project_category\", __g1 AS \"project_type\", (1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)) AS avg_email, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_sms, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS avg_social, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS avg_uncat, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_questions FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S7",
+      "later_reuses": 11,
+      "denominator": 34,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869737.6430058,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT project_category AS __g0, project_type AS __g1, survey_status AS __g2, COUNT(*) AS __a0, SUM(count_survey_responses) AS __a1, SUM(count_completed_survey_responses) AS __a2, SUM(count_email_survey_responses) AS __a3, SUM(count_email_completed_survey_responses) AS __a4, SUM(count_sms_survey_responses) AS __a5, SUM(count_sms_completed_survey_responses) AS __a6, SUM(count_social_media_survey_responses) AS __a7, SUM(count_social_media_completed_survey_responses) AS __a8, SUM(count_personal_link_survey_responses) AS __a9, SUM(count_personal_link_completed_survey_responses) AS __a10, SUM(count_qr_code_survey_responses) AS __a11, SUM(count_qr_code_completed_survey_responses) AS __a12, SUM(count_anonymous_survey_responses) AS __a13, SUM(count_anonymous_completed_survey_responses) AS __a14, SUM(count_uncategorized_survey_responses) AS __a15, SUM(count_uncategorized_completed_survey_responses) AS __a16, SUM(CASE WHEN count_email_survey_responses > 0 THEN 1 ELSE 0 END) AS __a17, SUM(CASE WHEN count_sms_survey_responses > 0 THEN 1 ELSE 0 END) AS __a18, SUM(CASE WHEN count_social_media_survey_responses > 0 THEN 1 ELSE 0 END) AS __a19, SUM(CASE WHEN count_personal_link_survey_responses > 0 THEN 1 ELSE 0 END) AS __a20, SUM(CASE WHEN count_qr_code_survey_responses > 0 THEN 1 ELSE 0 END) AS __a21, SUM(CASE WHEN count_anonymous_survey_responses > 0 THEN 1 ELSE 0 END) AS __a22, SUM(CASE WHEN count_uncategorized_survey_responses > 0 THEN 1 ELSE 0 END) AS __a23, SUM(count_email_survey_responses) AS __a24_sum, COUNT(count_email_survey_responses) AS __a24_n, SUM(count_sms_survey_responses) AS __a25_sum, COUNT(count_sms_survey_responses) AS __a25_n, SUM(count_social_media_survey_responses) AS __a26_sum, COUNT(count_social_media_survey_responses) AS __a26_n, SUM(count_uncategorized_survey_responses) AS __a27_sum, COUNT(count_uncategorized_survey_responses) AS __a27_n, SUM(count_questions) AS __a28_sum, COUNT(count_questions) AS __a28_n FROM \"qualtrics__survey\"  GROUP BY project_category, project_type, survey_status",
+          "phase": "offline_validation",
+          "start_time": 1788869737.643285,
+          "status": "execute_returned",
+          "end_time": 1788869737.6650848
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869737.665091,
+          "status": "execute_returned",
+          "end_time": 1788869737.665116
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788869737.6651223,
+          "status": "execute_returned",
+          "end_time": 1788869737.6651428
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"project_category\", SUM(__a0) AS survey_count, SUM(__a1) AS total_responses, SUM(__a2) AS total_completed FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788869737.665196,
+          "status": "execute_returned",
+          "end_time": 1788869737.6652434
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"project_category\", SUM(__a3) AS email_responses, SUM(__a4) AS email_completed, SUM(__a5) AS sms_responses, SUM(__a6) AS sms_completed, SUM(__a7) AS social_responses, SUM(__a8) AS social_completed, SUM(__a9) AS personal_link_responses, SUM(__a10) AS personal_link_completed, SUM(__a11) AS qr_responses, SUM(__a12) AS qr_completed, SUM(__a13) AS anon_responses, SUM(__a14) AS anon_completed, SUM(__a15) AS uncat_responses, SUM(__a16) AS uncat_completed FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788869737.6660075,
+          "status": "execute_returned",
+          "end_time": 1788869737.666125
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT SUM(__a17) AS surveys_email, SUM(__a18) AS surveys_sms, SUM(__a19) AS surveys_social, SUM(__a20) AS surveys_plink, SUM(__a21) AS surveys_qr, SUM(__a22) AS surveys_anon, SUM(__a23) AS surveys_uncat FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869737.6678746,
+          "status": "execute_returned",
+          "end_time": 1788869737.6679375
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT SUM(__a1) AS total_responses, SUM(__a2) AS total_completed, SUM(__a0) AS n_surveys FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869737.6707778,
+          "status": "execute_returned",
+          "end_time": 1788869737.6708207
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g0 AS \"project_category\", SUM(__a3) AS email_resp, SUM(__a4) AS email_comp, SUM(__a5) AS sms_resp, SUM(__a6) AS sms_comp, SUM(__a7) AS social_resp, SUM(__a8) AS social_comp, SUM(__a15) AS web_mobile_resp, SUM(__a16) AS web_mobile_comp FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788869737.6713839,
+          "status": "execute_returned",
+          "end_time": 1788869737.6714716
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g0 AS \"project_category\", __g1 AS \"project_type\", SUM(__a3) AS email_resp, SUM(__a4) AS email_comp, SUM(__a5) AS sms_resp, SUM(__a6) AS sms_comp, SUM(__a7) AS social_resp, SUM(__a8) AS social_comp, SUM(__a15) AS web_mobile_resp, SUM(__a16) AS web_mobile_comp FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "phase": "offline_validation",
+          "start_time": 1788869737.672614,
+          "status": "execute_returned",
+          "end_time": 1788869737.6727114
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g0 AS \"project_category\", SUM(__a3) AS email_r, SUM(__a5) AS sms_r, SUM(__a7) AS social_r, SUM(__a15) AS uncat_r, SUM(__a9) AS plink_r, SUM(__a11) AS qr_r FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788869737.6740036,
+          "status": "execute_returned",
+          "end_time": 1788869737.6740808
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g2 AS \"survey_status\", SUM(__a0) AS n, SUM(__a1) AS resp FROM temp.reuse_candidate GROUP BY __g2",
+          "phase": "offline_validation",
+          "start_time": 1788869737.67505,
+          "status": "execute_returned",
+          "end_time": 1788869737.6751082
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT __g0 AS \"project_category\", SUM(__a3) AS email_r, SUM(__a4) AS email_c, SUM(__a5) AS sms_r, SUM(__a6) AS sms_c, SUM(__a7) AS social_r, SUM(__a8) AS social_c, SUM(__a15) AS wm_r, SUM(__a16) AS wm_c FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788869737.6757035,
+          "status": "execute_returned",
+          "end_time": 1788869737.675788
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT __g0 AS \"project_category\", SUM(__a0) AS total_surveys, SUM(__a17) AS surveys_use_email, SUM(__a18) AS surveys_use_sms, SUM(__a19) AS surveys_use_social, SUM(__a23) AS surveys_use_uncat FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788869737.6770473,
+          "status": "execute_returned",
+          "end_time": 1788869737.6771166
+        },
+        {
+          "sequence": 14,
+          "sql": "SELECT __g0 AS \"project_category\", SUM(__a0) AS n, (1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)) AS avg_email_resp, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_sms_resp, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS avg_social_resp, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS avg_uncat_resp, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_questions FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788869737.6785429,
+          "status": "execute_returned",
+          "end_time": 1788869737.6786635
+        },
+        {
+          "sequence": 15,
+          "sql": "SELECT __g0 AS \"project_category\", __g1 AS \"project_type\", (1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)) AS avg_email, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_sms, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS avg_social, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS avg_uncat, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_questions FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "phase": "offline_validation",
+          "start_time": 1788869737.679647,
+          "status": "execute_returned",
+          "end_time": 1788869737.679765
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT project_category AS __g0, project_type AS __g1, survey_status AS __g2, COUNT(*) AS __a0, SUM(count_survey_responses) AS __a1, SUM(count_completed_survey_responses) AS __a2, SUM(count_email_survey_responses) AS __a3, SUM(count_email_completed_survey_responses) AS __a4, SUM(count_sms_survey_responses) AS __a5, SUM(count_sms_completed_survey_responses) AS __a6, SUM(count_social_media_survey_responses) AS __a7, SUM(count_social_media_completed_survey_responses) AS __a8, SUM(count_personal_link_survey_responses) AS __a9, SUM(count_personal_link_completed_survey_responses) AS __a10, SUM(count_qr_code_survey_responses) AS __a11, SUM(count_qr_code_completed_survey_responses) AS __a12, SUM(count_anonymous_survey_responses) AS __a13, SUM(count_anonymous_completed_survey_responses) AS __a14, SUM(count_uncategorized_survey_responses) AS __a15, SUM(count_uncategorized_completed_survey_responses) AS __a16, SUM(CASE WHEN count_email_survey_responses > 0 THEN 1 ELSE 0 END) AS __a17, SUM(CASE WHEN count_sms_survey_responses > 0 THEN 1 ELSE 0 END) AS __a18, SUM(CASE WHEN count_social_media_survey_responses > 0 THEN 1 ELSE 0 END) AS __a19, SUM(CASE WHEN count_personal_link_survey_responses > 0 THEN 1 ELSE 0 END) AS __a20, SUM(CASE WHEN count_qr_code_survey_responses > 0 THEN 1 ELSE 0 END) AS __a21, SUM(CASE WHEN count_anonymous_survey_responses > 0 THEN 1 ELSE 0 END) AS __a22, SUM(CASE WHEN count_uncategorized_survey_responses > 0 THEN 1 ELSE 0 END) AS __a23, SUM(count_email_survey_responses) AS __a24_sum, COUNT(count_email_survey_responses) AS __a24_n, SUM(count_sms_survey_responses) AS __a25_sum, COUNT(count_sms_survey_responses) AS __a25_n, SUM(count_social_media_survey_responses) AS __a26_sum, COUNT(count_social_media_survey_responses) AS __a26_n, SUM(count_uncategorized_survey_responses) AS __a27_sum, COUNT(count_uncategorized_survey_responses) AS __a27_n, SUM(count_questions) AS __a28_sum, COUNT(count_questions) AS __a28_n FROM \"qualtrics__survey\"  GROUP BY project_category, project_type, survey_status",
+          "time": 1788869737.6437101,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788869737.6651123,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788869737.6651394,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"project_category\", SUM(__a0) AS survey_count, SUM(__a1) AS total_responses, SUM(__a2) AS total_completed FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788869737.6652246,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"project_category\", SUM(__a3) AS email_responses, SUM(__a4) AS email_completed, SUM(__a5) AS sms_responses, SUM(__a6) AS sms_completed, SUM(__a7) AS social_responses, SUM(__a8) AS social_completed, SUM(__a9) AS personal_link_responses, SUM(__a10) AS personal_link_completed, SUM(__a11) AS qr_responses, SUM(__a12) AS qr_completed, SUM(__a13) AS anon_responses, SUM(__a14) AS anon_completed, SUM(__a15) AS uncat_responses, SUM(__a16) AS uncat_completed FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788869737.666077,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a17) AS surveys_email, SUM(__a18) AS surveys_sms, SUM(__a19) AS surveys_social, SUM(__a20) AS surveys_plink, SUM(__a21) AS surveys_qr, SUM(__a22) AS surveys_anon, SUM(__a23) AS surveys_uncat FROM temp.reuse_candidate",
+          "time": 1788869737.6679156,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a1) AS total_responses, SUM(__a2) AS total_completed, SUM(__a0) AS n_surveys FROM temp.reuse_candidate",
+          "time": 1788869737.6708086,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"project_category\", SUM(__a3) AS email_resp, SUM(__a4) AS email_comp, SUM(__a5) AS sms_resp, SUM(__a6) AS sms_comp, SUM(__a7) AS social_resp, SUM(__a8) AS social_comp, SUM(__a15) AS web_mobile_resp, SUM(__a16) AS web_mobile_comp FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "time": 1788869737.671437,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"project_category\", __g1 AS \"project_type\", SUM(__a3) AS email_resp, SUM(__a4) AS email_comp, SUM(__a5) AS sms_resp, SUM(__a6) AS sms_comp, SUM(__a7) AS social_resp, SUM(__a8) AS social_comp, SUM(__a15) AS web_mobile_resp, SUM(__a16) AS web_mobile_comp FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "time": 1788869737.672672,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"project_category\", SUM(__a3) AS email_r, SUM(__a5) AS sms_r, SUM(__a7) AS social_r, SUM(__a15) AS uncat_r, SUM(__a9) AS plink_r, SUM(__a11) AS qr_r FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "time": 1788869737.6740534,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"survey_status\", SUM(__a0) AS n, SUM(__a1) AS resp FROM temp.reuse_candidate GROUP BY __g2",
+          "time": 1788869737.6750867,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"project_category\", SUM(__a3) AS email_r, SUM(__a4) AS email_c, SUM(__a5) AS sms_r, SUM(__a6) AS sms_c, SUM(__a7) AS social_r, SUM(__a8) AS social_c, SUM(__a15) AS wm_r, SUM(__a16) AS wm_c FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788869737.6757538,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"project_category\", SUM(__a0) AS total_surveys, SUM(__a17) AS surveys_use_email, SUM(__a18) AS surveys_use_sms, SUM(__a19) AS surveys_use_social, SUM(__a23) AS surveys_use_uncat FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788869737.6770897,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"project_category\", SUM(__a0) AS n, (1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)) AS avg_email_resp, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_sms_resp, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS avg_social_resp, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS avg_uncat_resp, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_questions FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788869737.6786203,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"project_category\", __g1 AS \"project_type\", (1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)) AS avg_email, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_sms, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS avg_social, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS avg_uncat, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_questions FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "time": 1788869737.6797252,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 21.805918775498867,
+      "intermediate_rows": 45,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4",
+        "__a5",
+        "__a6",
+        "__a7",
+        "__a8",
+        "__a9",
+        "__a10",
+        "__a11",
+        "__a12",
+        "__a13",
+        "__a14",
+        "__a15",
+        "__a16",
+        "__a17",
+        "__a18",
+        "__a19",
+        "__a20",
+        "__a21",
+        "__a22",
+        "__a23",
+        "__a24_sum",
+        "__a24_n",
+        "__a25_sum",
+        "__a25_n",
+        "__a26_sum",
+        "__a26_n",
+        "__a27_sum",
+        "__a27_n",
+        "__a28_sum",
+        "__a28_n"
+      ],
+      "validation_ended_at": 1788869737.6809433,
+      "checks": [
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT __g0 AS \"project_category\", SUM(__a0) AS survey_count, SUM(__a1) AS total_responses, SUM(__a2) AS total_completed FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.8077574893832207
+        },
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT __g0 AS \"project_category\", SUM(__a3) AS email_responses, SUM(__a4) AS email_completed, SUM(__a5) AS sms_responses, SUM(__a6) AS sms_completed, SUM(__a7) AS social_responses, SUM(__a8) AS social_completed, SUM(__a9) AS personal_link_responses, SUM(__a10) AS personal_link_completed, SUM(__a11) AS qr_responses, SUM(__a12) AS qr_completed, SUM(__a13) AS anon_responses, SUM(__a14) AS anon_completed, SUM(__a15) AS uncat_responses, SUM(__a16) AS uncat_completed FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.8645795062184334
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT SUM(__a17) AS surveys_email, SUM(__a18) AS surveys_sms, SUM(__a19) AS surveys_social, SUM(__a20) AS surveys_plink, SUM(__a21) AS surveys_qr, SUM(__a22) AS surveys_anon, SUM(__a23) AS surveys_uncat FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.9000742360949516
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT SUM(__a1) AS total_responses, SUM(__a2) AS total_completed, SUM(__a0) AS n_surveys FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6016762927174568
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "SELECT __g0 AS \"project_category\", SUM(__a3) AS email_resp, SUM(__a4) AS email_comp, SUM(__a5) AS sms_resp, SUM(__a6) AS sms_comp, SUM(__a7) AS social_resp, SUM(__a8) AS social_comp, SUM(__a15) AS web_mobile_resp, SUM(__a16) AS web_mobile_comp FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.2292154133319855
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT __g0 AS \"project_category\", __g1 AS \"project_type\", SUM(__a3) AS email_resp, SUM(__a4) AS email_comp, SUM(__a5) AS sms_resp, SUM(__a6) AS sms_comp, SUM(__a7) AS social_resp, SUM(__a8) AS social_comp, SUM(__a15) AS web_mobile_resp, SUM(__a16) AS web_mobile_comp FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.3865139335393906
+        },
+        {
+          "sql_id": "S30",
+          "rewritten_sql": "SELECT __g0 AS \"project_category\", SUM(__a3) AS email_r, SUM(__a5) AS sms_r, SUM(__a7) AS social_r, SUM(__a15) AS uncat_r, SUM(__a9) AS plink_r, SUM(__a11) AS qr_r FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.0369187220931053
+        },
+        {
+          "sql_id": "S31",
+          "rewritten_sql": "SELECT __g2 AS \"survey_status\", SUM(__a0) AS n, SUM(__a1) AS resp FROM temp.reuse_candidate GROUP BY __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6516091525554657
+        },
+        {
+          "sql_id": "S32",
+          "rewritten_sql": "SELECT __g0 AS \"project_category\", SUM(__a3) AS email_r, SUM(__a4) AS email_c, SUM(__a5) AS sms_r, SUM(__a6) AS sms_c, SUM(__a7) AS social_r, SUM(__a8) AS social_c, SUM(__a15) AS wm_r, SUM(__a16) AS wm_c FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.3415664434432983
+        },
+        {
+          "sql_id": "S36",
+          "rewritten_sql": "SELECT __g0 AS \"project_category\", SUM(__a0) AS total_surveys, SUM(__a17) AS surveys_use_email, SUM(__a18) AS surveys_use_sms, SUM(__a19) AS surveys_use_social, SUM(__a23) AS surveys_use_uncat FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.4928905293345451
+        },
+        {
+          "sql_id": "S37",
+          "rewritten_sql": "SELECT __g0 AS \"project_category\", SUM(__a0) AS n, (1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)) AS avg_email_resp, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_sms_resp, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS avg_social_resp, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS avg_uncat_resp, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_questions FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.101435162127018
+        },
+        {
+          "sql_id": "S38",
+          "rewritten_sql": "SELECT __g0 AS \"project_category\", __g1 AS \"project_type\", (1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)) AS avg_email, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_sms, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS avg_social, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS avg_uncat, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_questions FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.135428436100483
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT email_domain AS __g0, CASE WHEN total_count_completed_surveys = 0 THEN '0_inactive' WHEN total_count_completed_surveys <= 2 THEN '1_low' WHEN total_count_completed_surveys <= 6 THEN '2_mid' ELSE '3_high' END AS __g1, CASE WHEN count_surveys_sent_email > count_surveys_sent_sms THEN 'email_dominant' WHEN count_surveys_sent_sms > count_surveys_sent_email THEN 'sms_dominant' ELSE 'balanced' END AS __g2, CASE WHEN count_surveys_sent_email > 0 THEN 1 ELSE 0 END AS __g3, CASE WHEN count_surveys_sent_sms > 0 THEN 1 ELSE 0 END AS __g4, is_xm_directory_contact AS __g5, is_research_core_contact AS __g6, CASE WHEN count_surveys_sent_email > 0 AND count_surveys_sent_sms > 0 THEN 'both' WHEN count_surveys_sent_email > 0 THEN 'email_only' WHEN count_surveys_sent_sms > 0 THEN 'sms_only' ELSE 'neither' END AS __g7, COUNT(*) AS __a0, MIN(total_count_surveys) AS __a1, SUM(total_count_surveys) AS __a2_sum, COUNT(total_count_surveys) AS __a2_n, MAX(total_count_surveys) AS __a3, MIN(total_count_completed_surveys) AS __a4, SUM(total_count_completed_surveys) AS __a5_sum, COUNT(total_count_completed_surveys) AS __a5_n, MAX(total_count_completed_surveys) AS __a6, MIN(avg_survey_progress_pct) AS __a7, SUM(avg_survey_progress_pct) AS __a8_sum, COUNT(avg_survey_progress_pct) AS __a8_n, MAX(avg_survey_progress_pct) AS __a9, MIN(avg_survey_duration_in_seconds) AS __a10, SUM(avg_survey_duration_in_seconds) AS __a11_sum, COUNT(avg_survey_duration_in_seconds) AS __a11_n, MAX(avg_survey_duration_in_seconds) AS __a12, SUM(CASE WHEN count_surveys_sent_email > 0 THEN 1 ELSE 0 END) AS __a13, SUM(CASE WHEN count_surveys_sent_sms > 0 THEN 1 ELSE 0 END) AS __a14, SUM(CASE WHEN count_surveys_sent_email > 0 AND count_surveys_sent_sms > 0 THEN 1 ELSE 0 END) AS __a15, SUM(count_surveys_sent_email) AS __a16, SUM(count_surveys_sent_sms) AS __a17, SUM(count_surveys_opened_email) AS __a18, SUM(count_surveys_opened_sms) AS __a19, SUM(count_surveys_started_email) AS __a20, SUM(count_surveys_started_sms) AS __a21, SUM(count_surveys_completed_email) AS __a22, SUM(count_surveys_completed_sms) AS __a23, SUM(count_surveys_completed_email) AS __a24_sum, COUNT(count_surveys_completed_email) AS __a24_n, SUM(count_surveys_completed_sms) AS __a25_sum, COUNT(count_surveys_completed_sms) AS __a25_n, SUM(count_surveys_opened_email * 1.0 / NULLIF(count_surveys_sent_email, 0)) AS __a26_sum, COUNT(count_surveys_opened_email * 1.0 / NULLIF(count_surveys_sent_email, 0)) AS __a26_n, SUM(count_surveys_opened_sms * 1.0 / NULLIF(count_surveys_sent_sms, 0)) AS __a27_sum, COUNT(count_surveys_opened_sms * 1.0 / NULLIF(count_surveys_sent_sms, 0)) AS __a27_n, SUM(count_surveys_sent_email) AS __a28_sum, COUNT(count_surveys_sent_email) AS __a28_n, SUM(count_surveys_sent_sms) AS __a29_sum, COUNT(count_surveys_sent_sms) AS __a29_n, SUM(count_surveys_started_email * 1.0 / NULLIF(count_surveys_sent_email, 0)) AS __a30_sum, COUNT(count_surveys_started_email * 1.0 / NULLIF(count_surveys_sent_email, 0)) AS __a30_n, SUM(count_surveys_completed_email * 1.0 / NULLIF(count_surveys_sent_email, 0)) AS __a31_sum, COUNT(count_surveys_completed_email * 1.0 / NULLIF(count_surveys_sent_email, 0)) AS __a31_n, SUM(count_surveys_started_sms * 1.0 / NULLIF(count_surveys_sent_sms, 0)) AS __a32_sum, COUNT(count_surveys_started_sms * 1.0 / NULLIF(count_surveys_sent_sms, 0)) AS __a32_n, SUM(count_surveys_completed_sms * 1.0 / NULLIF(count_surveys_sent_sms, 0)) AS __a33_sum, COUNT(count_surveys_completed_sms * 1.0 / NULLIF(count_surveys_sent_sms, 0)) AS __a33_n, SUM(total_count_completed_surveys) AS __a34 FROM \"qualtrics__contact\"  GROUP BY email_domain, CASE WHEN total_count_completed_surveys = 0 THEN '0_inactive' WHEN total_count_completed_surveys <= 2 THEN '1_low' WHEN total_count_completed_surveys <= 6 THEN '2_mid' ELSE '3_high' END, CASE WHEN count_surveys_sent_email > count_surveys_sent_sms THEN 'email_dominant' WHEN count_surveys_sent_sms > count_surveys_sent_email THEN 'sms_dominant' ELSE 'balanced' END, CASE WHEN count_surveys_sent_email > 0 THEN 1 ELSE 0 END, CASE WHEN count_surveys_sent_sms > 0 THEN 1 ELSE 0 END, is_xm_directory_contact, is_research_core_contact, CASE WHEN count_surveys_sent_email > 0 AND count_surveys_sent_sms > 0 THEN 'both' WHEN count_surveys_sent_email > 0 THEN 'email_only' WHEN count_surveys_sent_sms > 0 THEN 'sms_only' ELSE 'neither' END",
+      "covered": [
+        "S5",
+        "S10",
+        "S11",
+        "S12",
+        "S15",
+        "S16",
+        "S22",
+        "S24",
+        "S33",
+        "S34",
+        "S35"
+      ],
+      "rewrites": {
+        "S5": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+        "S10": "SELECT DISTINCT __g0 AS \"email_domain\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 10",
+        "S11": "SELECT MIN(__a1) AS min_surveys, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_surveys, MAX(__a3) AS max_surveys, MIN(__a4) AS min_completed, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_completed, MAX(__a6) AS max_completed, MIN(__a7) AS min_progress, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_progress, MAX(__a9) AS max_progress, MIN(__a10) AS min_duration, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_duration, MAX(__a12) AS max_duration FROM temp.reuse_candidate",
+        "S12": "SELECT SUM(__a0) AS total_contacts, SUM(__a13) AS email_contacts, SUM(__a14) AS sms_contacts, SUM(__a15) AS multi_channel_contacts, SUM(__a16) AS total_email_sent, SUM(__a17) AS total_sms_sent, SUM(__a18) AS total_email_opened, SUM(__a19) AS total_sms_opened, SUM(__a20) AS total_email_started, SUM(__a21) AS total_sms_started, SUM(__a22) AS total_email_completed, SUM(__a23) AS total_sms_completed FROM temp.reuse_candidate",
+        "S15": "SELECT __g1 AS cohort, SUM(__a0) AS users, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_progress, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_duration, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_surveys_sent, (1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)) AS avg_email_completed, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_sms_completed, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS email_open_rate, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS sms_open_rate FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cohort",
+        "S16": "SELECT __g2 AS channel_pref, SUM(__a0) AS users, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_completed, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_progress, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_duration FROM temp.reuse_candidate GROUP BY __g2",
+        "S22": "SELECT SUM(__a0) AS users, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_email_sent, (1.0 * SUM(__a29_sum) / NULLIF(SUM(__a29_n), 0)) AS avg_sms_sent, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS email_open, (1.0 * SUM(__a30_sum) / NULLIF(SUM(__a30_n), 0)) AS email_start, (1.0 * SUM(__a31_sum) / NULLIF(SUM(__a31_n), 0)) AS email_complete, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS sms_open, (1.0 * SUM(__a32_sum) / NULLIF(SUM(__a32_n), 0)) AS sms_start, (1.0 * SUM(__a33_sum) / NULLIF(SUM(__a33_n), 0)) AS sms_complete, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_lifecycle_completed FROM temp.reuse_candidate",
+        "S24": "SELECT __g3 AS email_user, __g4 AS sms_user, SUM(__a0) AS users, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_lifecycle_completed, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_progress, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_duration, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_email_sent, (1.0 * SUM(__a29_sum) / NULLIF(SUM(__a29_n), 0)) AS avg_sms_sent, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS email_open_rate, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS sms_open_rate, (1.0 * SUM(__a31_sum) / NULLIF(SUM(__a31_n), 0)) AS email_complete_rate, (1.0 * SUM(__a33_sum) / NULLIF(SUM(__a33_n), 0)) AS sms_complete_rate FROM temp.reuse_candidate GROUP BY __g3, __g4 ORDER BY email_user, sms_user",
+        "S33": "SELECT __g5 AS \"is_xm_directory_contact\", __g6 AS \"is_research_core_contact\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_ltv, SUM(__a34) AS total_ltv FROM temp.reuse_candidate GROUP BY __g5, __g6",
+        "S34": "SELECT __g7 AS channel_group, SUM(__a0) AS users, SUM(__a34) AS total_ltv, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_ltv, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_progress, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_duration, SUM(__a22) AS email_completed, SUM(__a23) AS sms_completed FROM temp.reuse_candidate GROUP BY __g7 ORDER BY channel_group",
+        "S35": "SELECT __g0 AS \"email_domain\", SUM(__a0) AS users, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_ltv, SUM(__a34) AS total_ltv FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_ltv DESC"
+      },
+      "status": "rejected_result_mismatch",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S5",
+      "later_reuses": 10,
+      "denominator": 34,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869737.6809652,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT email_domain AS __g0, CASE WHEN total_count_completed_surveys = 0 THEN '0_inactive' WHEN total_count_completed_surveys <= 2 THEN '1_low' WHEN total_count_completed_surveys <= 6 THEN '2_mid' ELSE '3_high' END AS __g1, CASE WHEN count_surveys_sent_email > count_surveys_sent_sms THEN 'email_dominant' WHEN count_surveys_sent_sms > count_surveys_sent_email THEN 'sms_dominant' ELSE 'balanced' END AS __g2, CASE WHEN count_surveys_sent_email > 0 THEN 1 ELSE 0 END AS __g3, CASE WHEN count_surveys_sent_sms > 0 THEN 1 ELSE 0 END AS __g4, is_xm_directory_contact AS __g5, is_research_core_contact AS __g6, CASE WHEN count_surveys_sent_email > 0 AND count_surveys_sent_sms > 0 THEN 'both' WHEN count_surveys_sent_email > 0 THEN 'email_only' WHEN count_surveys_sent_sms > 0 THEN 'sms_only' ELSE 'neither' END AS __g7, COUNT(*) AS __a0, MIN(total_count_surveys) AS __a1, SUM(total_count_surveys) AS __a2_sum, COUNT(total_count_surveys) AS __a2_n, MAX(total_count_surveys) AS __a3, MIN(total_count_completed_surveys) AS __a4, SUM(total_count_completed_surveys) AS __a5_sum, COUNT(total_count_completed_surveys) AS __a5_n, MAX(total_count_completed_surveys) AS __a6, MIN(avg_survey_progress_pct) AS __a7, SUM(avg_survey_progress_pct) AS __a8_sum, COUNT(avg_survey_progress_pct) AS __a8_n, MAX(avg_survey_progress_pct) AS __a9, MIN(avg_survey_duration_in_seconds) AS __a10, SUM(avg_survey_duration_in_seconds) AS __a11_sum, COUNT(avg_survey_duration_in_seconds) AS __a11_n, MAX(avg_survey_duration_in_seconds) AS __a12, SUM(CASE WHEN count_surveys_sent_email > 0 THEN 1 ELSE 0 END) AS __a13, SUM(CASE WHEN count_surveys_sent_sms > 0 THEN 1 ELSE 0 END) AS __a14, SUM(CASE WHEN count_surveys_sent_email > 0 AND count_surveys_sent_sms > 0 THEN 1 ELSE 0 END) AS __a15, SUM(count_surveys_sent_email) AS __a16, SUM(count_surveys_sent_sms) AS __a17, SUM(count_surveys_opened_email) AS __a18, SUM(count_surveys_opened_sms) AS __a19, SUM(count_surveys_started_email) AS __a20, SUM(count_surveys_started_sms) AS __a21, SUM(count_surveys_completed_email) AS __a22, SUM(count_surveys_completed_sms) AS __a23, SUM(count_surveys_completed_email) AS __a24_sum, COUNT(count_surveys_completed_email) AS __a24_n, SUM(count_surveys_completed_sms) AS __a25_sum, COUNT(count_surveys_completed_sms) AS __a25_n, SUM(count_surveys_opened_email * 1.0 / NULLIF(count_surveys_sent_email, 0)) AS __a26_sum, COUNT(count_surveys_opened_email * 1.0 / NULLIF(count_surveys_sent_email, 0)) AS __a26_n, SUM(count_surveys_opened_sms * 1.0 / NULLIF(count_surveys_sent_sms, 0)) AS __a27_sum, COUNT(count_surveys_opened_sms * 1.0 / NULLIF(count_surveys_sent_sms, 0)) AS __a27_n, SUM(count_surveys_sent_email) AS __a28_sum, COUNT(count_surveys_sent_email) AS __a28_n, SUM(count_surveys_sent_sms) AS __a29_sum, COUNT(count_surveys_sent_sms) AS __a29_n, SUM(count_surveys_started_email * 1.0 / NULLIF(count_surveys_sent_email, 0)) AS __a30_sum, COUNT(count_surveys_started_email * 1.0 / NULLIF(count_surveys_sent_email, 0)) AS __a30_n, SUM(count_surveys_completed_email * 1.0 / NULLIF(count_surveys_sent_email, 0)) AS __a31_sum, COUNT(count_surveys_completed_email * 1.0 / NULLIF(count_surveys_sent_email, 0)) AS __a31_n, SUM(count_surveys_started_sms * 1.0 / NULLIF(count_surveys_sent_sms, 0)) AS __a32_sum, COUNT(count_surveys_started_sms * 1.0 / NULLIF(count_surveys_sent_sms, 0)) AS __a32_n, SUM(count_surveys_completed_sms * 1.0 / NULLIF(count_surveys_sent_sms, 0)) AS __a33_sum, COUNT(count_surveys_completed_sms * 1.0 / NULLIF(count_surveys_sent_sms, 0)) AS __a33_n, SUM(total_count_completed_surveys) AS __a34 FROM \"qualtrics__contact\"  GROUP BY email_domain, CASE WHEN total_count_completed_surveys = 0 THEN '0_inactive' WHEN total_count_completed_surveys <= 2 THEN '1_low' WHEN total_count_completed_surveys <= 6 THEN '2_mid' ELSE '3_high' END, CASE WHEN count_surveys_sent_email > count_surveys_sent_sms THEN 'email_dominant' WHEN count_surveys_sent_sms > count_surveys_sent_email THEN 'sms_dominant' ELSE 'balanced' END, CASE WHEN count_surveys_sent_email > 0 THEN 1 ELSE 0 END, CASE WHEN count_surveys_sent_sms > 0 THEN 1 ELSE 0 END, is_xm_directory_contact, is_research_core_contact, CASE WHEN count_surveys_sent_email > 0 AND count_surveys_sent_sms > 0 THEN 'both' WHEN count_surveys_sent_email > 0 THEN 'email_only' WHEN count_surveys_sent_sms > 0 THEN 'sms_only' ELSE 'neither' END",
+          "phase": "offline_validation",
+          "start_time": 1788869737.6811745,
+          "status": "execute_returned",
+          "end_time": 1788869737.6969082
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869737.6969125,
+          "status": "execute_returned",
+          "end_time": 1788869737.6969304
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788869737.696935,
+          "status": "execute_returned",
+          "end_time": 1788869737.6969554
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869737.6970186,
+          "status": "execute_returned",
+          "end_time": 1788869737.697041
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT DISTINCT __g0 AS \"email_domain\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 10",
+          "phase": "offline_validation",
+          "start_time": 1788869737.6974304,
+          "status": "execute_returned",
+          "end_time": 1788869737.6975102
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT MIN(__a1) AS min_surveys, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_surveys, MAX(__a3) AS max_surveys, MIN(__a4) AS min_completed, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_completed, MAX(__a6) AS max_completed, MIN(__a7) AS min_progress, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_progress, MAX(__a9) AS max_progress, MIN(__a10) AS min_duration, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_duration, MAX(__a12) AS max_duration FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869737.698054,
+          "status": "execute_returned",
+          "end_time": 1788869737.6982114
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT SUM(__a0) AS total_contacts, SUM(__a13) AS email_contacts, SUM(__a14) AS sms_contacts, SUM(__a15) AS multi_channel_contacts, SUM(__a16) AS total_email_sent, SUM(__a17) AS total_sms_sent, SUM(__a18) AS total_email_opened, SUM(__a19) AS total_sms_opened, SUM(__a20) AS total_email_started, SUM(__a21) AS total_sms_started, SUM(__a22) AS total_email_completed, SUM(__a23) AS total_sms_completed FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869737.6997232,
+          "status": "execute_returned",
+          "end_time": 1788869737.6998293
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g1 AS cohort, SUM(__a0) AS users, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_progress, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_duration, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_surveys_sent, (1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)) AS avg_email_completed, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_sms_completed, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS email_open_rate, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS sms_open_rate FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cohort",
+          "phase": "offline_validation",
+          "start_time": 1788869737.7016664,
+          "status": "execute_returned",
+          "end_time": 1788869737.701851
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g2 AS channel_pref, SUM(__a0) AS users, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_completed, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_progress, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_duration FROM temp.reuse_candidate GROUP BY __g2",
+          "phase": "offline_validation",
+          "start_time": 1788869737.7036111,
+          "status": "execute_returned",
+          "end_time": 1788869737.7037253
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT SUM(__a0) AS users, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_email_sent, (1.0 * SUM(__a29_sum) / NULLIF(SUM(__a29_n), 0)) AS avg_sms_sent, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS email_open, (1.0 * SUM(__a30_sum) / NULLIF(SUM(__a30_n), 0)) AS email_start, (1.0 * SUM(__a31_sum) / NULLIF(SUM(__a31_n), 0)) AS email_complete, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS sms_open, (1.0 * SUM(__a32_sum) / NULLIF(SUM(__a32_n), 0)) AS sms_start, (1.0 * SUM(__a33_sum) / NULLIF(SUM(__a33_n), 0)) AS sms_complete, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_lifecycle_completed FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869737.7047946,
+          "status": "execute_returned",
+          "end_time": 1788869737.7049706
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g3 AS email_user, __g4 AS sms_user, SUM(__a0) AS users, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_lifecycle_completed, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_progress, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_duration, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_email_sent, (1.0 * SUM(__a29_sum) / NULLIF(SUM(__a29_n), 0)) AS avg_sms_sent, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS email_open_rate, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS sms_open_rate, (1.0 * SUM(__a31_sum) / NULLIF(SUM(__a31_n), 0)) AS email_complete_rate, (1.0 * SUM(__a33_sum) / NULLIF(SUM(__a33_n), 0)) AS sms_complete_rate FROM temp.reuse_candidate GROUP BY __g3, __g4 ORDER BY email_user, sms_user",
+          "phase": "offline_validation",
+          "start_time": 1788869737.7069776,
+          "status": "execute_returned",
+          "end_time": 1788869737.7071846
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT __g5 AS \"is_xm_directory_contact\", __g6 AS \"is_research_core_contact\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_ltv, SUM(__a34) AS total_ltv FROM temp.reuse_candidate GROUP BY __g5, __g6",
+          "phase": "offline_validation",
+          "start_time": 1788869737.709398,
+          "status": "execute_returned",
+          "end_time": 1788869737.7095068
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT __g7 AS channel_group, SUM(__a0) AS users, SUM(__a34) AS total_ltv, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_ltv, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_progress, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_duration, SUM(__a22) AS email_completed, SUM(__a23) AS sms_completed FROM temp.reuse_candidate GROUP BY __g7 ORDER BY channel_group",
+          "phase": "offline_validation",
+          "start_time": 1788869737.71021,
+          "status": "execute_returned",
+          "end_time": 1788869737.7103667
+        },
+        {
+          "sequence": 14,
+          "sql": "SELECT __g0 AS \"email_domain\", SUM(__a0) AS users, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_ltv, SUM(__a34) AS total_ltv FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_ltv DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869737.7119648,
+          "status": "execute_returned",
+          "end_time": 1788869737.7120798
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT email_domain AS __g0, CASE WHEN total_count_completed_surveys = 0 THEN '0_inactive' WHEN total_count_completed_surveys <= 2 THEN '1_low' WHEN total_count_completed_surveys <= 6 THEN '2_mid' ELSE '3_high' END AS __g1, CASE WHEN count_surveys_sent_email > count_surveys_sent_sms THEN 'email_dominant' WHEN count_surveys_sent_sms > count_surveys_sent_email THEN 'sms_dominant' ELSE 'balanced' END AS __g2, CASE WHEN count_surveys_sent_email > 0 THEN 1 ELSE 0 END AS __g3, CASE WHEN count_surveys_sent_sms > 0 THEN 1 ELSE 0 END AS __g4, is_xm_directory_contact AS __g5, is_research_core_contact AS __g6, CASE WHEN count_surveys_sent_email > 0 AND count_surveys_sent_sms > 0 THEN 'both' WHEN count_surveys_sent_email > 0 THEN 'email_only' WHEN count_surveys_sent_sms > 0 THEN 'sms_only' ELSE 'neither' END AS __g7, COUNT(*) AS __a0, MIN(total_count_surveys) AS __a1, SUM(total_count_surveys) AS __a2_sum, COUNT(total_count_surveys) AS __a2_n, MAX(total_count_surveys) AS __a3, MIN(total_count_completed_surveys) AS __a4, SUM(total_count_completed_surveys) AS __a5_sum, COUNT(total_count_completed_surveys) AS __a5_n, MAX(total_count_completed_surveys) AS __a6, MIN(avg_survey_progress_pct) AS __a7, SUM(avg_survey_progress_pct) AS __a8_sum, COUNT(avg_survey_progress_pct) AS __a8_n, MAX(avg_survey_progress_pct) AS __a9, MIN(avg_survey_duration_in_seconds) AS __a10, SUM(avg_survey_duration_in_seconds) AS __a11_sum, COUNT(avg_survey_duration_in_seconds) AS __a11_n, MAX(avg_survey_duration_in_seconds) AS __a12, SUM(CASE WHEN count_surveys_sent_email > 0 THEN 1 ELSE 0 END) AS __a13, SUM(CASE WHEN count_surveys_sent_sms > 0 THEN 1 ELSE 0 END) AS __a14, SUM(CASE WHEN count_surveys_sent_email > 0 AND count_surveys_sent_sms > 0 THEN 1 ELSE 0 END) AS __a15, SUM(count_surveys_sent_email) AS __a16, SUM(count_surveys_sent_sms) AS __a17, SUM(count_surveys_opened_email) AS __a18, SUM(count_surveys_opened_sms) AS __a19, SUM(count_surveys_started_email) AS __a20, SUM(count_surveys_started_sms) AS __a21, SUM(count_surveys_completed_email) AS __a22, SUM(count_surveys_completed_sms) AS __a23, SUM(count_surveys_completed_email) AS __a24_sum, COUNT(count_surveys_completed_email) AS __a24_n, SUM(count_surveys_completed_sms) AS __a25_sum, COUNT(count_surveys_completed_sms) AS __a25_n, SUM(count_surveys_opened_email * 1.0 / NULLIF(count_surveys_sent_email, 0)) AS __a26_sum, COUNT(count_surveys_opened_email * 1.0 / NULLIF(count_surveys_sent_email, 0)) AS __a26_n, SUM(count_surveys_opened_sms * 1.0 / NULLIF(count_surveys_sent_sms, 0)) AS __a27_sum, COUNT(count_surveys_opened_sms * 1.0 / NULLIF(count_surveys_sent_sms, 0)) AS __a27_n, SUM(count_surveys_sent_email) AS __a28_sum, COUNT(count_surveys_sent_email) AS __a28_n, SUM(count_surveys_sent_sms) AS __a29_sum, COUNT(count_surveys_sent_sms) AS __a29_n, SUM(count_surveys_started_email * 1.0 / NULLIF(count_surveys_sent_email, 0)) AS __a30_sum, COUNT(count_surveys_started_email * 1.0 / NULLIF(count_surveys_sent_email, 0)) AS __a30_n, SUM(count_surveys_completed_email * 1.0 / NULLIF(count_surveys_sent_email, 0)) AS __a31_sum, COUNT(count_surveys_completed_email * 1.0 / NULLIF(count_surveys_sent_email, 0)) AS __a31_n, SUM(count_surveys_started_sms * 1.0 / NULLIF(count_surveys_sent_sms, 0)) AS __a32_sum, COUNT(count_surveys_started_sms * 1.0 / NULLIF(count_surveys_sent_sms, 0)) AS __a32_n, SUM(count_surveys_completed_sms * 1.0 / NULLIF(count_surveys_sent_sms, 0)) AS __a33_sum, COUNT(count_surveys_completed_sms * 1.0 / NULLIF(count_surveys_sent_sms, 0)) AS __a33_n, SUM(total_count_completed_surveys) AS __a34 FROM \"qualtrics__contact\"  GROUP BY email_domain, CASE WHEN total_count_completed_surveys = 0 THEN '0_inactive' WHEN total_count_completed_surveys <= 2 THEN '1_low' WHEN total_count_completed_surveys <= 6 THEN '2_mid' ELSE '3_high' END, CASE WHEN count_surveys_sent_email > count_surveys_sent_sms THEN 'email_dominant' WHEN count_surveys_sent_sms > count_surveys_sent_email THEN 'sms_dominant' ELSE 'balanced' END, CASE WHEN count_surveys_sent_email > 0 THEN 1 ELSE 0 END, CASE WHEN count_surveys_sent_sms > 0 THEN 1 ELSE 0 END, is_xm_directory_contact, is_research_core_contact, CASE WHEN count_surveys_sent_email > 0 AND count_surveys_sent_sms > 0 THEN 'both' WHEN count_surveys_sent_email > 0 THEN 'email_only' WHEN count_surveys_sent_sms > 0 THEN 'sms_only' ELSE 'neither' END",
+          "time": 1788869737.6816182,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788869737.6969273,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788869737.6969528,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+          "time": 1788869737.6970322,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT DISTINCT __g0 AS \"email_domain\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 10",
+          "time": 1788869737.6974638,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a1) AS min_surveys, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_surveys, MAX(__a3) AS max_surveys, MIN(__a4) AS min_completed, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_completed, MAX(__a6) AS max_completed, MIN(__a7) AS min_progress, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_progress, MAX(__a9) AS max_progress, MIN(__a10) AS min_duration, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_duration, MAX(__a12) AS max_duration FROM temp.reuse_candidate",
+          "time": 1788869737.6981254,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total_contacts, SUM(__a13) AS email_contacts, SUM(__a14) AS sms_contacts, SUM(__a15) AS multi_channel_contacts, SUM(__a16) AS total_email_sent, SUM(__a17) AS total_sms_sent, SUM(__a18) AS total_email_opened, SUM(__a19) AS total_sms_opened, SUM(__a20) AS total_email_started, SUM(__a21) AS total_sms_started, SUM(__a22) AS total_email_completed, SUM(__a23) AS total_sms_completed FROM temp.reuse_candidate",
+          "time": 1788869737.6997736,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS cohort, SUM(__a0) AS users, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_progress, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_duration, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_surveys_sent, (1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)) AS avg_email_completed, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_sms_completed, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS email_open_rate, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS sms_open_rate FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cohort",
+          "time": 1788869737.701748,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS channel_pref, SUM(__a0) AS users, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_completed, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_progress, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_duration FROM temp.reuse_candidate GROUP BY __g2",
+          "time": 1788869737.7036667,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS users, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_email_sent, (1.0 * SUM(__a29_sum) / NULLIF(SUM(__a29_n), 0)) AS avg_sms_sent, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS email_open, (1.0 * SUM(__a30_sum) / NULLIF(SUM(__a30_n), 0)) AS email_start, (1.0 * SUM(__a31_sum) / NULLIF(SUM(__a31_n), 0)) AS email_complete, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS sms_open, (1.0 * SUM(__a32_sum) / NULLIF(SUM(__a32_n), 0)) AS sms_start, (1.0 * SUM(__a33_sum) / NULLIF(SUM(__a33_n), 0)) AS sms_complete, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_lifecycle_completed FROM temp.reuse_candidate",
+          "time": 1788869737.7048833,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS email_user, __g4 AS sms_user, SUM(__a0) AS users, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_lifecycle_completed, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_progress, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_duration, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_email_sent, (1.0 * SUM(__a29_sum) / NULLIF(SUM(__a29_n), 0)) AS avg_sms_sent, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS email_open_rate, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS sms_open_rate, (1.0 * SUM(__a31_sum) / NULLIF(SUM(__a31_n), 0)) AS email_complete_rate, (1.0 * SUM(__a33_sum) / NULLIF(SUM(__a33_n), 0)) AS sms_complete_rate FROM temp.reuse_candidate GROUP BY __g3, __g4 ORDER BY email_user, sms_user",
+          "time": 1788869737.7070823,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g5 AS \"is_xm_directory_contact\", __g6 AS \"is_research_core_contact\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_ltv, SUM(__a34) AS total_ltv FROM temp.reuse_candidate GROUP BY __g5, __g6",
+          "time": 1788869737.7094457,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g7 AS channel_group, SUM(__a0) AS users, SUM(__a34) AS total_ltv, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_ltv, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_progress, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_duration, SUM(__a22) AS email_completed, SUM(__a23) AS sms_completed FROM temp.reuse_candidate GROUP BY __g7 ORDER BY channel_group",
+          "time": 1788869737.7102735,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"email_domain\", SUM(__a0) AS users, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_ltv, SUM(__a34) AS total_ltv FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_ltv DESC",
+          "time": 1788869737.7120147,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 15.738566406071186,
+      "intermediate_rows": 92,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__g5",
+        "__g6",
+        "__g7",
+        "__a0",
+        "__a1",
+        "__a2_sum",
+        "__a2_n",
+        "__a3",
+        "__a4",
+        "__a5_sum",
+        "__a5_n",
+        "__a6",
+        "__a7",
+        "__a8_sum",
+        "__a8_n",
+        "__a9",
+        "__a10",
+        "__a11_sum",
+        "__a11_n",
+        "__a12",
+        "__a13",
+        "__a14",
+        "__a15",
+        "__a16",
+        "__a17",
+        "__a18",
+        "__a19",
+        "__a20",
+        "__a21",
+        "__a22",
+        "__a23",
+        "__a24_sum",
+        "__a24_n",
+        "__a25_sum",
+        "__a25_n",
+        "__a26_sum",
+        "__a26_n",
+        "__a27_sum",
+        "__a27_n",
+        "__a28_sum",
+        "__a28_n",
+        "__a29_sum",
+        "__a29_n",
+        "__a30_sum",
+        "__a30_n",
+        "__a31_sum",
+        "__a31_n",
+        "__a32_sum",
+        "__a32_n",
+        "__a33_sum",
+        "__a33_n",
+        "__a34"
+      ],
+      "validation_ended_at": 1788869737.712905,
+      "checks": [
+        {
+          "sql_id": "S5",
+          "rewritten_sql": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.40974002331495285
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT DISTINCT __g0 AS \"email_domain\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 10",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.621783547103405
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT MIN(__a1) AS min_surveys, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_surveys, MAX(__a3) AS max_surveys, MIN(__a4) AS min_completed, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_completed, MAX(__a6) AS max_completed, MIN(__a7) AS min_progress, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_progress, MAX(__a9) AS max_progress, MIN(__a10) AS min_duration, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_duration, MAX(__a12) AS max_duration FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.6671139746904373
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT SUM(__a0) AS total_contacts, SUM(__a13) AS email_contacts, SUM(__a14) AS sms_contacts, SUM(__a15) AS multi_channel_contacts, SUM(__a16) AS total_email_sent, SUM(__a17) AS total_sms_sent, SUM(__a18) AS total_email_opened, SUM(__a19) AS total_sms_opened, SUM(__a20) AS total_email_started, SUM(__a21) AS total_sms_started, SUM(__a22) AS total_email_completed, SUM(__a23) AS total_sms_completed FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.9409200176596642
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "SELECT __g1 AS cohort, SUM(__a0) AS users, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_progress, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_duration, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_surveys_sent, (1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)) AS avg_email_completed, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_sms_completed, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS email_open_rate, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS sms_open_rate FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cohort",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.9422546029090881
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "SELECT __g2 AS channel_pref, SUM(__a0) AS users, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_completed, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_progress, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_duration FROM temp.reuse_candidate GROUP BY __g2",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.1814776808023453
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "SELECT SUM(__a0) AS users, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_email_sent, (1.0 * SUM(__a29_sum) / NULLIF(SUM(__a29_n), 0)) AS avg_sms_sent, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS email_open, (1.0 * SUM(__a30_sum) / NULLIF(SUM(__a30_n), 0)) AS email_start, (1.0 * SUM(__a31_sum) / NULLIF(SUM(__a31_n), 0)) AS email_complete, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS sms_open, (1.0 * SUM(__a32_sum) / NULLIF(SUM(__a32_n), 0)) AS sms_start, (1.0 * SUM(__a33_sum) / NULLIF(SUM(__a33_n), 0)) AS sms_complete, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_lifecycle_completed FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.1809227764606476
+        },
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "SELECT __g3 AS email_user, __g4 AS sms_user, SUM(__a0) AS users, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_lifecycle_completed, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_progress, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_duration, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_email_sent, (1.0 * SUM(__a29_sum) / NULLIF(SUM(__a29_n), 0)) AS avg_sms_sent, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS email_open_rate, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS sms_open_rate, (1.0 * SUM(__a31_sum) / NULLIF(SUM(__a31_n), 0)) AS email_complete_rate, (1.0 * SUM(__a33_sum) / NULLIF(SUM(__a33_n), 0)) AS sms_complete_rate FROM temp.reuse_candidate GROUP BY __g3, __g4 ORDER BY email_user, sms_user",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.4180570617318153
+        },
+        {
+          "sql_id": "S33",
+          "rewritten_sql": "SELECT __g5 AS \"is_xm_directory_contact\", __g6 AS \"is_research_core_contact\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_ltv, SUM(__a34) AS total_ltv FROM temp.reuse_candidate GROUP BY __g5, __g6",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.8096629753708839
+        },
+        {
+          "sql_id": "S34",
+          "rewritten_sql": "SELECT __g7 AS channel_group, SUM(__a0) AS users, SUM(__a34) AS total_ltv, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_ltv, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_progress, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_duration, SUM(__a22) AS email_completed, SUM(__a23) AS sms_completed FROM temp.reuse_candidate GROUP BY __g7 ORDER BY channel_group",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7527369782328606
+        },
+        {
+          "sql_id": "S35",
+          "rewritten_sql": "SELECT __g0 AS \"email_domain\", SUM(__a0) AS users, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_ltv, SUM(__a34) AS total_ltv FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_ltv DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.809953548014164
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

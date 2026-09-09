@@ -1,0 +1,1 @@
+SELECT DISTINCT Floor FROM data ORDER BY Floor

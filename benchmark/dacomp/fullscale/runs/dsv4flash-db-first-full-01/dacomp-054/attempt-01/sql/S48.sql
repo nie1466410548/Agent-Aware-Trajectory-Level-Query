@@ -1,0 +1,1 @@
+SELECT DISTINCT source_system, address_type FROM customer360__address ORDER BY source_system, address_type

@@ -1,0 +1,1 @@
+SELECT "Satisfaction Rating", COUNT(*) as cnt FROM customer_feedback_table GROUP BY "Satisfaction Rating"

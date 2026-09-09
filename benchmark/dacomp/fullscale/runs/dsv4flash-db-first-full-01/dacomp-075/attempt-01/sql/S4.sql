@@ -1,0 +1,1 @@
+SELECT * FROM netsuite2_vendor_risk_analysis LIMIT 5

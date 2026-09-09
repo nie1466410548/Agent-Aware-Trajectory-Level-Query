@@ -1,0 +1,1 @@
+SELECT * FROM product_loss WHERE "Item Code" = 102900005115823

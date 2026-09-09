@@ -1,0 +1,93 @@
+{
+  "task_id": "dacomp-073",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 重新按部门和月份计数、统计去重招聘经理、求和未结机会及岗位需求，并整理增长率和压力预测输入。这些筛选、去重和分组聚合可在 SQL 完成，存在明确的数据库优先偏离。",
+  "route": "SQL 探查岗位、编制与经理及月趋势 → Python 再聚合部门需求和经理容量 → 招聘压力与资源预测。",
+  "evidence": [
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 33,
+          "text": "print(postings.groupby('ym').size())"
+        },
+        {
+          "line": 37,
+          "text": "print(postings.groupby(['categories_department', 'ym']).size().unstack(fill_value=0))"
+        },
+        {
+          "line": 46,
+          "text": "print(postings.groupby('categories_department')['posting_hiring_manager_name'].nunique())"
+        },
+        {
+          "line": 50,
+          "text": "print(active.groupby('categories_department')['posting_hiring_manager_name'].nunique())"
+        }
+      ]
+    },
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 12,
+          "text": "monthly = postings.groupby(['categories_department', 'ym']).size().unstack(fill_value=0)"
+        },
+        {
+          "line": 48,
+          "text": "active_counts = active.groupby('categories_department').size()"
+        },
+        {
+          "line": 53,
+          "text": "active_hms = active.groupby('categories_department')['posting_hiring_manager_name'].nunique()"
+        },
+        {
+          "line": 54,
+          "text": "all_hms = postings.groupby('categories_department')['posting_hiring_manager_name'].nunique()"
+        },
+        {
+          "line": 76,
+          "text": "open_opp = active.groupby('categories_department')['count_open_opportunities'].sum()"
+        }
+      ]
+    },
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 48,
+          "text": "print(open_req.groupby('dept').size().sort_values(ascending=False))"
+        },
+        {
+          "line": 88,
+          "text": "open_req_postings = open_req.groupby('dept')['count_postings'].sum()"
+        },
+        {
+          "line": 97,
+          "text": "total_postings = postings.groupby('categories_department').size()"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 12,
+          "text": "monthly = postings.groupby(['categories_department', 'ym']).size().unstack(fill_value=0)"
+        },
+        {
+          "line": 30,
+          "text": "active_counts = active.groupby('categories_department').size()"
+        },
+        {
+          "line": 31,
+          "text": "active_hms = active.groupby('categories_department')['posting_hiring_manager_name'].nunique()"
+        },
+        {
+          "line": 50,
+          "text": "    open_opp = active[active['categories_department'] == dept]['count_open_opportunities'].sum()"
+        }
+      ]
+    }
+  ]
+}

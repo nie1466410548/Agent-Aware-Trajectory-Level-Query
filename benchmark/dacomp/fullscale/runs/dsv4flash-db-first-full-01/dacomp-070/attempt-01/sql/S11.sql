@@ -1,0 +1,1 @@
+SELECT strftime('%Y-%m', date_day) AS month, device, SUM(update_events) AS updates, SUM(device_installs) AS installs, SUM(device_uninstalls) AS uninstalls, ROUND(AVG(rolling_total_average_rating),3) AS avg_rating, SUM(active_devices_last_30_days) AS actives FROM google_play__device_report GROUP BY month, device ORDER BY month, device

@@ -1,0 +1,111 @@
+{
+  "task_id": "dacomp-040",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "SQL 主要读取不同年份人口教育表及少量总量。P4–P8 在 Python 中按年龄范围筛选、求各教育层级人口和性别总量、计算占比、再按年龄区间和地区循环汇总；这些可用 SQL WHERE、SUM、CASE 和 GROUP BY 完成。原轨迹没有 GROUP BY SQL，不把 Python 汇总虚构成 SQL。绘图另行允许。",
+  "route": "分别读取 2000/2010/2020 教育人口数据 → Python 对齐年龄和教育层级口径 → 汇总年龄、性别和地区比例 → 绘制长期变化。",
+  "evidence": [
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 22,
+          "text": "print(\"2000 total pop:\", d2000['Population Aged 6 and Over - Total'].sum())"
+        },
+        {
+          "line": 23,
+          "text": "print(\"2010 total pop:\", d2010['Population Aged 6 and Over - Total'].sum())"
+        },
+        {
+          "line": 24,
+          "text": "print(\"2020 total pop(3+):\", d2020['Population Aged 3 and Over - Total'].sum())"
+        },
+        {
+          "line": 25,
+          "text": "print(\"2020 total pop(6+):\", d2020.loc[d2020['age_num']>=6,'Population Aged 3 and Over - Total'].sum())"
+        },
+        {
+          "line": 29,
+          "text": "print(\"2000 cat sum:\", d2000[cols2000].sum().sum(), \"vs total:\", d2000['Population Aged 6 and Over - Total'].sum())"
+        },
+        {
+          "line": 32,
+          "text": "print(\"2010 cat sum:\", d2010[cols2010].sum().sum(), \"vs total:\", d2010['Population Aged 6 and Over - Total'].sum())"
+        },
+        {
+          "line": 36,
+          "text": "print(\"2020 cat sum(6+):\", sub[cols2020].sum().sum(), \"vs total:\", sub['Population Aged 3 and Over - Total'].sum())"
+        },
+        {
+          "line": 38,
+          "text": "print(\"2020 preschool(6+):\", sub['Preschool - Total'].sum())"
+        },
+        {
+          "line": 39,
+          "text": "print(\"2020 never+preschool+cat(6+):\", sub[cols2020].sum().sum()+sub['Preschool - Total'].sum())"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 24,
+          "text": "    tot = sub['Population Aged 6 and Over - Total' if yr!=2020 else 'Population Aged 3 and Over - Total'].sum()"
+        },
+        {
+          "line": 50,
+          "text": "    tot = sub[tot_col].sum()"
+        },
+        {
+          "line": 51,
+          "text": "    male_tot = sub[male_col].sum()"
+        },
+        {
+          "line": 52,
+          "text": "    female_tot = sub[female_col].sum()"
+        },
+        {
+          "line": 117,
+          "text": "    tot = sub[tot_col].sum()"
+        },
+        {
+          "line": 125,
+          "text": "        sub['age_bin'] = pd.cut(sub['age_num'], bins=bins, labels=labs, right=True)"
+        },
+        {
+          "line": 127,
+          "text": "        sub['age_bin'] = pd.cut(sub['age_num'], bins=bins, labels=labs, right=True)"
+        },
+        {
+          "line": 133,
+          "text": "        gtot = grp[tot_col].sum()"
+        },
+        {
+          "line": 135,
+          "text": "            higher = grp['Junior College - Total'].sum() + grp['Undergraduate - Total'].sum() + grp['Postgraduate - Total'].sum()"
+        },
+        {
+          "line": 138,
+          "text": "            higher = grp['Junior College - Total'].sum() + grp['Undergraduate - Total'].sum() + grp['Postgraduate - Total'].sum()"
+        },
+        {
+          "line": 141,
+          "text": "            higher = grp['Junior College - Total'].sum() + grp['Undergraduate - Total'].sum() + grp[\"Master's Degree - Total\"].sum() + grp['Doctoral Degree - Total'].sum()"
+        },
+        {
+          "line": 169,
+          "text": "            tot = rsub['Population Aged 3 and Over - Total'].sum()"
+        },
+        {
+          "line": 179,
+          "text": "            tot = rsub['Population Aged 6 and Over - Total'].sum()"
+        },
+        {
+          "line": 192,
+          "text": "        higher = jcollege + undergrad + postgrad"
+        }
+      ]
+    }
+  ]
+}

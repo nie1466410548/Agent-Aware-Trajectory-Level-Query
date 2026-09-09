@@ -1,0 +1,1 @@
+SELECT DISTINCT "Sales Date" FROM sales_records WHERE "Sales Date" LIKE '2023-06-30%' OR "Sales Date" LIKE '2023-06-30%' OR "Sales Date" >= '2023-06-29'

@@ -1,0 +1,1 @@
+SELECT * FROM google_play__product_portfolio_analysis

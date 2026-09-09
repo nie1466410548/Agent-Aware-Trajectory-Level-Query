@@ -1,0 +1,1 @@
+SELECT DISTINCT source_id, sourced_from FROM greenhouse__application_enhanced ORDER BY source_id LIMIT 20

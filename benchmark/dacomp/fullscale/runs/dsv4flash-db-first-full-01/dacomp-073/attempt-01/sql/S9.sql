@@ -1,0 +1,1 @@
+SELECT status, COUNT(*) as cnt FROM lever__requisition_enhanced GROUP BY status

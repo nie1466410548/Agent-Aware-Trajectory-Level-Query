@@ -1,0 +1,1 @@
+SELECT * FROM attachment_3 WHERE promotion_type = 4 LIMIT 5

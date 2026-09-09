@@ -1,0 +1,1 @@
+SELECT "Product Code", "Product Name", "Market Name", "Collection Date", "Average Price", "Price Type" FROM agricultural_product_price_tren WHERE "Product Code" IN (SELECT "Product Code" FROM agricultural_product_price_tren GROUP BY "Product Code" HAVING COUNT(*) = 2) ORDER BY "Product Code", "Market Name" LIMIT 40

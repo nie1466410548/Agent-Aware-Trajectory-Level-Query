@@ -1,0 +1,1 @@
+SELECT "Major Category Name", "Sales Month", ROUND(SUM("Sales Amount"),2) AS monthly_amount, SUM("Sales Quantity") AS monthly_qty, COUNT(*) AS trans_count FROM sheet1 GROUP BY "Major Category Name", "Sales Month" ORDER BY "Major Category Name", "Sales Month"

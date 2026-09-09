@@ -1,0 +1,1 @@
+SELECT assignee, reporter FROM jira__daily_issue_field_history LIMIT 10

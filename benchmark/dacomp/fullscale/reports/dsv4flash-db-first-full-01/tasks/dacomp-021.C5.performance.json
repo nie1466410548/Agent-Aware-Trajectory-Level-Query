@@ -1,0 +1,373 @@
+{
+  "task_id": "dacomp-021",
+  "candidate_id": "C5",
+  "covered": [
+    "S23",
+    "S32",
+    "S33"
+  ],
+  "build_sql": "SELECT PRINTF('%04d-%02d-%02d', CAST(SUBSTRING(\"Date\", 1, 4) AS INTEGER), CAST(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + 1, INSTR(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + 1), '/') - 1) AS INTEGER), CAST(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + INSTR(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + 1), '/') + 1) AS INTEGER)) AS date_key, \"Booking Status\" AS status, \"Booking Value\" AS value, \"Ride Distance\" AS dist FROM sheet1",
+  "rewrites": {
+    "S23": "WITH parsed AS (SELECT * FROM temp.reuse_candidate) SELECT date_key, COUNT(*) AS bookings, SUM(CASE WHEN status IN ('Cancelled by Customer', 'Cancelled by Driver') THEN 1 ELSE 0 END) AS cancellations, SUM(CASE WHEN status = 'No Driver Found' THEN 1 ELSE 0 END) AS no_driver, SUM(CASE WHEN status = 'Incomplete' THEN 1 ELSE 0 END) AS incomplete, SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) AS completed, ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 4) AS cost_per_km FROM parsed GROUP BY date_key ORDER BY date_key",
+    "S32": "WITH parsed AS (SELECT * FROM temp.reuse_candidate), daily_agg AS (SELECT date_key, COUNT(*) AS bookings, ROUND(100.0 * SUM(CASE WHEN status IN ('Cancelled by Customer', 'Cancelled by Driver') THEN 1 ELSE 0 END) / COUNT(*), 2) AS cancel_pct, ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 2) AS cost_per_km FROM parsed GROUP BY date_key) SELECT date_key, CASE CAST(STRFTIME('%w', date_key) AS INTEGER) WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed' WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow, bookings, cancel_pct, cost_per_km FROM daily_agg ORDER BY bookings DESC LIMIT 10",
+    "S33": "WITH parsed AS (SELECT * FROM temp.reuse_candidate), daily_agg AS (SELECT date_key, COUNT(*) AS bookings, ROUND(100.0 * SUM(CASE WHEN status IN ('Cancelled by Customer', 'Cancelled by Driver') THEN 1 ELSE 0 END) / COUNT(*), 2) AS cancel_pct, ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 2) AS cost_per_km FROM parsed GROUP BY date_key) SELECT date_key, CASE CAST(STRFTIME('%w', date_key) AS INTEGER) WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed' WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow, bookings, cancel_pct, cost_per_km FROM daily_agg ORDER BY bookings ASC LIMIT 10"
+  },
+  "phase": "offline_performance",
+  "cache": "warm/uncontrolled OS cache",
+  "timing_boundary": "execute + fetch all row arrays; candidate includes CREATE TEMP TABLE AS and all rewrites; includes DROP cleanup and excludes result comparison, identical consumption on both paths",
+  "teardown": "DROP is included in candidate total_ms and reported separately; no additional indexes used",
+  "rounds": [
+    {
+      "round": 1,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline": {
+        "total_ms": 803.313422948122,
+        "build_ms": 0,
+        "teardown_ms": 0
+      },
+      "candidate": {
+        "total_ms": 554.6998595818877,
+        "build_ms": 185.8642678707838,
+        "teardown_ms": 8.052454330027103
+      }
+    },
+    {
+      "round": 2,
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "candidate": {
+        "total_ms": 557.4439633637667,
+        "build_ms": 186.70984916388988,
+        "teardown_ms": 8.179967291653156
+      },
+      "baseline": {
+        "total_ms": 820.1214829459786,
+        "build_ms": 0,
+        "teardown_ms": 0
+      }
+    },
+    {
+      "round": 3,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline": {
+        "total_ms": 802.050057798624,
+        "build_ms": 0,
+        "teardown_ms": 0
+      },
+      "candidate": {
+        "total_ms": 556.0709955170751,
+        "build_ms": 184.89531241357327,
+        "teardown_ms": 8.038979955017567
+      }
+    },
+    {
+      "round": 4,
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "candidate": {
+        "total_ms": 552.0698530599475,
+        "build_ms": 185.33010222017765,
+        "teardown_ms": 8.097339421510696
+      },
+      "baseline": {
+        "total_ms": 806.3668524846435,
+        "build_ms": 0,
+        "teardown_ms": 0
+      }
+    },
+    {
+      "round": 5,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline": {
+        "total_ms": 803.2426927238703,
+        "build_ms": 0,
+        "teardown_ms": 0
+      },
+      "candidate": {
+        "total_ms": 555.9278260916471,
+        "build_ms": 186.11933384090662,
+        "teardown_ms": 9.368962608277798
+      }
+    }
+  ],
+  "engine_trace": [
+    {
+      "phase": "offline_performance",
+      "sql": "\nWITH parsed AS (\n  SELECT\n    printf('%04d-%02d-%02d',\n           CAST(substr(\"Date\",1,4) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+1, instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')-1) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')+1) AS INTEGER)) AS date_key,\n    \"Booking Status\" AS status,\n    \"Booking Value\" AS value,\n    \"Ride Distance\" AS dist\n  FROM sheet1\n)\nSELECT date_key,\n  COUNT(*) AS bookings,\n  SUM(CASE WHEN status IN ('Cancelled by Customer','Cancelled by Driver') THEN 1 ELSE 0 END) AS cancellations,\n  SUM(CASE WHEN status = 'No Driver Found' THEN 1 ELSE 0 END) AS no_driver,\n  SUM(CASE WHEN status = 'Incomplete' THEN 1 ELSE 0 END) AS incomplete,\n  SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) AS completed,\n  ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 4) AS cost_per_km\nFROM parsed\nGROUP BY date_key\nORDER BY date_key\n",
+      "time": 1788871663.2331488
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (\n  SELECT\n    printf('%04d-%02d-%02d',\n           CAST(substr(\"Date\",1,4) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+1, instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')-1) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')+1) AS INTEGER)) AS date_key,\n    \"Booking Status\" AS status,\n    \"Booking Value\" AS value,\n    \"Ride Distance\" AS dist\n  FROM sheet1\n),\ndaily_agg AS (\n  SELECT date_key,\n    COUNT(*) AS bookings,\n    ROUND(100.0*SUM(CASE WHEN status IN ('Cancelled by Customer','Cancelled by Driver') THEN 1 ELSE 0 END)/COUNT(*),2) AS cancel_pct,\n    ROUND(AVG(CASE WHEN status='Completed' AND dist>0 THEN value/dist END),2) AS cost_per_km\n  FROM parsed\n  GROUP BY date_key\n)\nSELECT date_key,\n  CASE CAST(strftime('%w', date_key) AS INTEGER)\n    WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed'\n    WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow,\n  bookings, cancel_pct, cost_per_km\nFROM daily_agg\nORDER BY bookings DESC\nLIMIT 10",
+      "time": 1788871663.5201328
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (\n  SELECT\n    printf('%04d-%02d-%02d',\n           CAST(substr(\"Date\",1,4) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+1, instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')-1) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')+1) AS INTEGER)) AS date_key,\n    \"Booking Status\" AS status,\n    \"Booking Value\" AS value,\n    \"Ride Distance\" AS dist\n  FROM sheet1\n),\ndaily_agg AS (\n  SELECT date_key,\n    COUNT(*) AS bookings,\n    ROUND(100.0*SUM(CASE WHEN status IN ('Cancelled by Customer','Cancelled by Driver') THEN 1 ELSE 0 END)/COUNT(*),2) AS cancel_pct,\n    ROUND(AVG(CASE WHEN status='Completed' AND dist>0 THEN value/dist END),2) AS cost_per_km\n  FROM parsed\n  GROUP BY date_key\n)\nSELECT date_key,\n  CASE CAST(strftime('%w', date_key) AS INTEGER)\n    WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed'\n    WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow,\n  bookings, cancel_pct, cost_per_km\nFROM daily_agg\nORDER BY bookings ASC\nLIMIT 10",
+      "time": 1788871663.778646
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT PRINTF('%04d-%02d-%02d', CAST(SUBSTRING(\"Date\", 1, 4) AS INTEGER), CAST(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + 1, INSTR(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + 1), '/') - 1) AS INTEGER), CAST(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + INSTR(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + 1), '/') + 1) AS INTEGER)) AS date_key, \"Booking Status\" AS status, \"Booking Value\" AS value, \"Ride Distance\" AS dist FROM sheet1",
+      "time": 1788871664.0500379
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (SELECT * FROM temp.reuse_candidate) SELECT date_key, COUNT(*) AS bookings, SUM(CASE WHEN status IN ('Cancelled by Customer', 'Cancelled by Driver') THEN 1 ELSE 0 END) AS cancellations, SUM(CASE WHEN status = 'No Driver Found' THEN 1 ELSE 0 END) AS no_driver, SUM(CASE WHEN status = 'Incomplete' THEN 1 ELSE 0 END) AS incomplete, SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) AS completed, ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 4) AS cost_per_km FROM parsed GROUP BY date_key ORDER BY date_key",
+      "time": 1788871664.2359273
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (SELECT * FROM temp.reuse_candidate), daily_agg AS (SELECT date_key, COUNT(*) AS bookings, ROUND(100.0 * SUM(CASE WHEN status IN ('Cancelled by Customer', 'Cancelled by Driver') THEN 1 ELSE 0 END) / COUNT(*), 2) AS cancel_pct, ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 2) AS cost_per_km FROM parsed GROUP BY date_key) SELECT date_key, CASE CAST(STRFTIME('%w', date_key) AS INTEGER) WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed' WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow, bookings, cancel_pct, cost_per_km FROM daily_agg ORDER BY bookings DESC LIMIT 10",
+      "time": 1788871664.3731582
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (SELECT * FROM temp.reuse_candidate), daily_agg AS (SELECT date_key, COUNT(*) AS bookings, ROUND(100.0 * SUM(CASE WHEN status IN ('Cancelled by Customer', 'Cancelled by Driver') THEN 1 ELSE 0 END) / COUNT(*), 2) AS cancel_pct, ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 2) AS cost_per_km FROM parsed GROUP BY date_key) SELECT date_key, CASE CAST(STRFTIME('%w', date_key) AS INTEGER) WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed' WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow, bookings, cancel_pct, cost_per_km FROM daily_agg ORDER BY bookings ASC LIMIT 10",
+      "time": 1788871664.4866486
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871664.5980287
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nWITH parsed AS (\n  SELECT\n    printf('%04d-%02d-%02d',\n           CAST(substr(\"Date\",1,4) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+1, instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')-1) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')+1) AS INTEGER)) AS date_key,\n    \"Booking Status\" AS status,\n    \"Booking Value\" AS value,\n    \"Ride Distance\" AS dist\n  FROM sheet1\n)\nSELECT date_key,\n  COUNT(*) AS bookings,\n  SUM(CASE WHEN status IN ('Cancelled by Customer','Cancelled by Driver') THEN 1 ELSE 0 END) AS cancellations,\n  SUM(CASE WHEN status = 'No Driver Found' THEN 1 ELSE 0 END) AS no_driver,\n  SUM(CASE WHEN status = 'Incomplete' THEN 1 ELSE 0 END) AS incomplete,\n  SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) AS completed,\n  ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 4) AS cost_per_km\nFROM parsed\nGROUP BY date_key\nORDER BY date_key\n",
+      "time": 1788871664.6189392
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (\n  SELECT\n    printf('%04d-%02d-%02d',\n           CAST(substr(\"Date\",1,4) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+1, instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')-1) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')+1) AS INTEGER)) AS date_key,\n    \"Booking Status\" AS status,\n    \"Booking Value\" AS value,\n    \"Ride Distance\" AS dist\n  FROM sheet1\n),\ndaily_agg AS (\n  SELECT date_key,\n    COUNT(*) AS bookings,\n    ROUND(100.0*SUM(CASE WHEN status IN ('Cancelled by Customer','Cancelled by Driver') THEN 1 ELSE 0 END)/COUNT(*),2) AS cancel_pct,\n    ROUND(AVG(CASE WHEN status='Completed' AND dist>0 THEN value/dist END),2) AS cost_per_km\n  FROM parsed\n  GROUP BY date_key\n)\nSELECT date_key,\n  CASE CAST(strftime('%w', date_key) AS INTEGER)\n    WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed'\n    WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow,\n  bookings, cancel_pct, cost_per_km\nFROM daily_agg\nORDER BY bookings DESC\nLIMIT 10",
+      "time": 1788871664.9038749
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (\n  SELECT\n    printf('%04d-%02d-%02d',\n           CAST(substr(\"Date\",1,4) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+1, instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')-1) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')+1) AS INTEGER)) AS date_key,\n    \"Booking Status\" AS status,\n    \"Booking Value\" AS value,\n    \"Ride Distance\" AS dist\n  FROM sheet1\n),\ndaily_agg AS (\n  SELECT date_key,\n    COUNT(*) AS bookings,\n    ROUND(100.0*SUM(CASE WHEN status IN ('Cancelled by Customer','Cancelled by Driver') THEN 1 ELSE 0 END)/COUNT(*),2) AS cancel_pct,\n    ROUND(AVG(CASE WHEN status='Completed' AND dist>0 THEN value/dist END),2) AS cost_per_km\n  FROM parsed\n  GROUP BY date_key\n)\nSELECT date_key,\n  CASE CAST(strftime('%w', date_key) AS INTEGER)\n    WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed'\n    WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow,\n  bookings, cancel_pct, cost_per_km\nFROM daily_agg\nORDER BY bookings ASC\nLIMIT 10",
+      "time": 1788871665.1627486
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT PRINTF('%04d-%02d-%02d', CAST(SUBSTRING(\"Date\", 1, 4) AS INTEGER), CAST(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + 1, INSTR(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + 1), '/') - 1) AS INTEGER), CAST(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + INSTR(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + 1), '/') + 1) AS INTEGER)) AS date_key, \"Booking Status\" AS status, \"Booking Value\" AS value, \"Ride Distance\" AS dist FROM sheet1",
+      "time": 1788871665.4339893
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (SELECT * FROM temp.reuse_candidate) SELECT date_key, COUNT(*) AS bookings, SUM(CASE WHEN status IN ('Cancelled by Customer', 'Cancelled by Driver') THEN 1 ELSE 0 END) AS cancellations, SUM(CASE WHEN status = 'No Driver Found' THEN 1 ELSE 0 END) AS no_driver, SUM(CASE WHEN status = 'Incomplete' THEN 1 ELSE 0 END) AS incomplete, SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) AS completed, ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 4) AS cost_per_km FROM parsed GROUP BY date_key ORDER BY date_key",
+      "time": 1788871665.6198263
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (SELECT * FROM temp.reuse_candidate), daily_agg AS (SELECT date_key, COUNT(*) AS bookings, ROUND(100.0 * SUM(CASE WHEN status IN ('Cancelled by Customer', 'Cancelled by Driver') THEN 1 ELSE 0 END) / COUNT(*), 2) AS cancel_pct, ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 2) AS cost_per_km FROM parsed GROUP BY date_key) SELECT date_key, CASE CAST(STRFTIME('%w', date_key) AS INTEGER) WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed' WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow, bookings, cancel_pct, cost_per_km FROM daily_agg ORDER BY bookings DESC LIMIT 10",
+      "time": 1788871665.757955
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (SELECT * FROM temp.reuse_candidate), daily_agg AS (SELECT date_key, COUNT(*) AS bookings, ROUND(100.0 * SUM(CASE WHEN status IN ('Cancelled by Customer', 'Cancelled by Driver') THEN 1 ELSE 0 END) / COUNT(*), 2) AS cancel_pct, ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 2) AS cost_per_km FROM parsed GROUP BY date_key) SELECT date_key, CASE CAST(STRFTIME('%w', date_key) AS INTEGER) WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed' WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow, bookings, cancel_pct, cost_per_km FROM daily_agg ORDER BY bookings ASC LIMIT 10",
+      "time": 1788871665.8697233
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871665.9805229
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT PRINTF('%04d-%02d-%02d', CAST(SUBSTRING(\"Date\", 1, 4) AS INTEGER), CAST(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + 1, INSTR(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + 1), '/') - 1) AS INTEGER), CAST(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + INSTR(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + 1), '/') + 1) AS INTEGER)) AS date_key, \"Booking Status\" AS status, \"Booking Value\" AS value, \"Ride Distance\" AS dist FROM sheet1",
+      "time": 1788871666.0013158
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (SELECT * FROM temp.reuse_candidate) SELECT date_key, COUNT(*) AS bookings, SUM(CASE WHEN status IN ('Cancelled by Customer', 'Cancelled by Driver') THEN 1 ELSE 0 END) AS cancellations, SUM(CASE WHEN status = 'No Driver Found' THEN 1 ELSE 0 END) AS no_driver, SUM(CASE WHEN status = 'Incomplete' THEN 1 ELSE 0 END) AS incomplete, SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) AS completed, ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 4) AS cost_per_km FROM parsed GROUP BY date_key ORDER BY date_key",
+      "time": 1788871666.18803
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (SELECT * FROM temp.reuse_candidate), daily_agg AS (SELECT date_key, COUNT(*) AS bookings, ROUND(100.0 * SUM(CASE WHEN status IN ('Cancelled by Customer', 'Cancelled by Driver') THEN 1 ELSE 0 END) / COUNT(*), 2) AS cancel_pct, ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 2) AS cost_per_km FROM parsed GROUP BY date_key) SELECT date_key, CASE CAST(STRFTIME('%w', date_key) AS INTEGER) WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed' WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow, bookings, cancel_pct, cost_per_km FROM daily_agg ORDER BY bookings DESC LIMIT 10",
+      "time": 1788871666.3248723
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (SELECT * FROM temp.reuse_candidate), daily_agg AS (SELECT date_key, COUNT(*) AS bookings, ROUND(100.0 * SUM(CASE WHEN status IN ('Cancelled by Customer', 'Cancelled by Driver') THEN 1 ELSE 0 END) / COUNT(*), 2) AS cancel_pct, ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 2) AS cost_per_km FROM parsed GROUP BY date_key) SELECT date_key, CASE CAST(STRFTIME('%w', date_key) AS INTEGER) WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed' WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow, bookings, cancel_pct, cost_per_km FROM daily_agg ORDER BY bookings ASC LIMIT 10",
+      "time": 1788871666.438248
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871666.5505188
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nWITH parsed AS (\n  SELECT\n    printf('%04d-%02d-%02d',\n           CAST(substr(\"Date\",1,4) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+1, instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')-1) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')+1) AS INTEGER)) AS date_key,\n    \"Booking Status\" AS status,\n    \"Booking Value\" AS value,\n    \"Ride Distance\" AS dist\n  FROM sheet1\n)\nSELECT date_key,\n  COUNT(*) AS bookings,\n  SUM(CASE WHEN status IN ('Cancelled by Customer','Cancelled by Driver') THEN 1 ELSE 0 END) AS cancellations,\n  SUM(CASE WHEN status = 'No Driver Found' THEN 1 ELSE 0 END) AS no_driver,\n  SUM(CASE WHEN status = 'Incomplete' THEN 1 ELSE 0 END) AS incomplete,\n  SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) AS completed,\n  ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 4) AS cost_per_km\nFROM parsed\nGROUP BY date_key\nORDER BY date_key\n",
+      "time": 1788871666.5708754
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (\n  SELECT\n    printf('%04d-%02d-%02d',\n           CAST(substr(\"Date\",1,4) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+1, instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')-1) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')+1) AS INTEGER)) AS date_key,\n    \"Booking Status\" AS status,\n    \"Booking Value\" AS value,\n    \"Ride Distance\" AS dist\n  FROM sheet1\n),\ndaily_agg AS (\n  SELECT date_key,\n    COUNT(*) AS bookings,\n    ROUND(100.0*SUM(CASE WHEN status IN ('Cancelled by Customer','Cancelled by Driver') THEN 1 ELSE 0 END)/COUNT(*),2) AS cancel_pct,\n    ROUND(AVG(CASE WHEN status='Completed' AND dist>0 THEN value/dist END),2) AS cost_per_km\n  FROM parsed\n  GROUP BY date_key\n)\nSELECT date_key,\n  CASE CAST(strftime('%w', date_key) AS INTEGER)\n    WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed'\n    WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow,\n  bookings, cancel_pct, cost_per_km\nFROM daily_agg\nORDER BY bookings DESC\nLIMIT 10",
+      "time": 1788871666.8737385
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (\n  SELECT\n    printf('%04d-%02d-%02d',\n           CAST(substr(\"Date\",1,4) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+1, instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')-1) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')+1) AS INTEGER)) AS date_key,\n    \"Booking Status\" AS status,\n    \"Booking Value\" AS value,\n    \"Ride Distance\" AS dist\n  FROM sheet1\n),\ndaily_agg AS (\n  SELECT date_key,\n    COUNT(*) AS bookings,\n    ROUND(100.0*SUM(CASE WHEN status IN ('Cancelled by Customer','Cancelled by Driver') THEN 1 ELSE 0 END)/COUNT(*),2) AS cancel_pct,\n    ROUND(AVG(CASE WHEN status='Completed' AND dist>0 THEN value/dist END),2) AS cost_per_km\n  FROM parsed\n  GROUP BY date_key\n)\nSELECT date_key,\n  CASE CAST(strftime('%w', date_key) AS INTEGER)\n    WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed'\n    WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow,\n  bookings, cancel_pct, cost_per_km\nFROM daily_agg\nORDER BY bookings ASC\nLIMIT 10",
+      "time": 1788871667.1327734
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nWITH parsed AS (\n  SELECT\n    printf('%04d-%02d-%02d',\n           CAST(substr(\"Date\",1,4) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+1, instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')-1) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')+1) AS INTEGER)) AS date_key,\n    \"Booking Status\" AS status,\n    \"Booking Value\" AS value,\n    \"Ride Distance\" AS dist\n  FROM sheet1\n)\nSELECT date_key,\n  COUNT(*) AS bookings,\n  SUM(CASE WHEN status IN ('Cancelled by Customer','Cancelled by Driver') THEN 1 ELSE 0 END) AS cancellations,\n  SUM(CASE WHEN status = 'No Driver Found' THEN 1 ELSE 0 END) AS no_driver,\n  SUM(CASE WHEN status = 'Incomplete' THEN 1 ELSE 0 END) AS incomplete,\n  SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) AS completed,\n  ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 4) AS cost_per_km\nFROM parsed\nGROUP BY date_key\nORDER BY date_key\n",
+      "time": 1788871667.4022818
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (\n  SELECT\n    printf('%04d-%02d-%02d',\n           CAST(substr(\"Date\",1,4) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+1, instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')-1) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')+1) AS INTEGER)) AS date_key,\n    \"Booking Status\" AS status,\n    \"Booking Value\" AS value,\n    \"Ride Distance\" AS dist\n  FROM sheet1\n),\ndaily_agg AS (\n  SELECT date_key,\n    COUNT(*) AS bookings,\n    ROUND(100.0*SUM(CASE WHEN status IN ('Cancelled by Customer','Cancelled by Driver') THEN 1 ELSE 0 END)/COUNT(*),2) AS cancel_pct,\n    ROUND(AVG(CASE WHEN status='Completed' AND dist>0 THEN value/dist END),2) AS cost_per_km\n  FROM parsed\n  GROUP BY date_key\n)\nSELECT date_key,\n  CASE CAST(strftime('%w', date_key) AS INTEGER)\n    WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed'\n    WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow,\n  bookings, cancel_pct, cost_per_km\nFROM daily_agg\nORDER BY bookings DESC\nLIMIT 10",
+      "time": 1788871667.6881144
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (\n  SELECT\n    printf('%04d-%02d-%02d',\n           CAST(substr(\"Date\",1,4) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+1, instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')-1) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')+1) AS INTEGER)) AS date_key,\n    \"Booking Status\" AS status,\n    \"Booking Value\" AS value,\n    \"Ride Distance\" AS dist\n  FROM sheet1\n),\ndaily_agg AS (\n  SELECT date_key,\n    COUNT(*) AS bookings,\n    ROUND(100.0*SUM(CASE WHEN status IN ('Cancelled by Customer','Cancelled by Driver') THEN 1 ELSE 0 END)/COUNT(*),2) AS cancel_pct,\n    ROUND(AVG(CASE WHEN status='Completed' AND dist>0 THEN value/dist END),2) AS cost_per_km\n  FROM parsed\n  GROUP BY date_key\n)\nSELECT date_key,\n  CASE CAST(strftime('%w', date_key) AS INTEGER)\n    WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed'\n    WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow,\n  bookings, cancel_pct, cost_per_km\nFROM daily_agg\nORDER BY bookings ASC\nLIMIT 10",
+      "time": 1788871667.9460871
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT PRINTF('%04d-%02d-%02d', CAST(SUBSTRING(\"Date\", 1, 4) AS INTEGER), CAST(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + 1, INSTR(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + 1), '/') - 1) AS INTEGER), CAST(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + INSTR(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + 1), '/') + 1) AS INTEGER)) AS date_key, \"Booking Status\" AS status, \"Booking Value\" AS value, \"Ride Distance\" AS dist FROM sheet1",
+      "time": 1788871668.2164838
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (SELECT * FROM temp.reuse_candidate) SELECT date_key, COUNT(*) AS bookings, SUM(CASE WHEN status IN ('Cancelled by Customer', 'Cancelled by Driver') THEN 1 ELSE 0 END) AS cancellations, SUM(CASE WHEN status = 'No Driver Found' THEN 1 ELSE 0 END) AS no_driver, SUM(CASE WHEN status = 'Incomplete' THEN 1 ELSE 0 END) AS incomplete, SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) AS completed, ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 4) AS cost_per_km FROM parsed GROUP BY date_key ORDER BY date_key",
+      "time": 1788871668.4013615
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (SELECT * FROM temp.reuse_candidate), daily_agg AS (SELECT date_key, COUNT(*) AS bookings, ROUND(100.0 * SUM(CASE WHEN status IN ('Cancelled by Customer', 'Cancelled by Driver') THEN 1 ELSE 0 END) / COUNT(*), 2) AS cancel_pct, ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 2) AS cost_per_km FROM parsed GROUP BY date_key) SELECT date_key, CASE CAST(STRFTIME('%w', date_key) AS INTEGER) WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed' WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow, bookings, cancel_pct, cost_per_km FROM daily_agg ORDER BY bookings DESC LIMIT 10",
+      "time": 1788871668.5416355
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (SELECT * FROM temp.reuse_candidate), daily_agg AS (SELECT date_key, COUNT(*) AS bookings, ROUND(100.0 * SUM(CASE WHEN status IN ('Cancelled by Customer', 'Cancelled by Driver') THEN 1 ELSE 0 END) / COUNT(*), 2) AS cancel_pct, ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 2) AS cost_per_km FROM parsed GROUP BY date_key) SELECT date_key, CASE CAST(STRFTIME('%w', date_key) AS INTEGER) WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed' WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow, bookings, cancel_pct, cost_per_km FROM daily_agg ORDER BY bookings ASC LIMIT 10",
+      "time": 1788871668.6534567
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871668.764411
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT PRINTF('%04d-%02d-%02d', CAST(SUBSTRING(\"Date\", 1, 4) AS INTEGER), CAST(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + 1, INSTR(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + 1), '/') - 1) AS INTEGER), CAST(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + INSTR(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + 1), '/') + 1) AS INTEGER)) AS date_key, \"Booking Status\" AS status, \"Booking Value\" AS value, \"Ride Distance\" AS dist FROM sheet1",
+      "time": 1788871668.7856784
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (SELECT * FROM temp.reuse_candidate) SELECT date_key, COUNT(*) AS bookings, SUM(CASE WHEN status IN ('Cancelled by Customer', 'Cancelled by Driver') THEN 1 ELSE 0 END) AS cancellations, SUM(CASE WHEN status = 'No Driver Found' THEN 1 ELSE 0 END) AS no_driver, SUM(CASE WHEN status = 'Incomplete' THEN 1 ELSE 0 END) AS incomplete, SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) AS completed, ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 4) AS cost_per_km FROM parsed GROUP BY date_key ORDER BY date_key",
+      "time": 1788871668.9710054
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (SELECT * FROM temp.reuse_candidate), daily_agg AS (SELECT date_key, COUNT(*) AS bookings, ROUND(100.0 * SUM(CASE WHEN status IN ('Cancelled by Customer', 'Cancelled by Driver') THEN 1 ELSE 0 END) / COUNT(*), 2) AS cancel_pct, ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 2) AS cost_per_km FROM parsed GROUP BY date_key) SELECT date_key, CASE CAST(STRFTIME('%w', date_key) AS INTEGER) WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed' WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow, bookings, cancel_pct, cost_per_km FROM daily_agg ORDER BY bookings DESC LIMIT 10",
+      "time": 1788871669.1069627
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (SELECT * FROM temp.reuse_candidate), daily_agg AS (SELECT date_key, COUNT(*) AS bookings, ROUND(100.0 * SUM(CASE WHEN status IN ('Cancelled by Customer', 'Cancelled by Driver') THEN 1 ELSE 0 END) / COUNT(*), 2) AS cancel_pct, ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 2) AS cost_per_km FROM parsed GROUP BY date_key) SELECT date_key, CASE CAST(STRFTIME('%w', date_key) AS INTEGER) WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed' WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow, bookings, cancel_pct, cost_per_km FROM daily_agg ORDER BY bookings ASC LIMIT 10",
+      "time": 1788871669.218129
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871669.3295767
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nWITH parsed AS (\n  SELECT\n    printf('%04d-%02d-%02d',\n           CAST(substr(\"Date\",1,4) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+1, instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')-1) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')+1) AS INTEGER)) AS date_key,\n    \"Booking Status\" AS status,\n    \"Booking Value\" AS value,\n    \"Ride Distance\" AS dist\n  FROM sheet1\n)\nSELECT date_key,\n  COUNT(*) AS bookings,\n  SUM(CASE WHEN status IN ('Cancelled by Customer','Cancelled by Driver') THEN 1 ELSE 0 END) AS cancellations,\n  SUM(CASE WHEN status = 'No Driver Found' THEN 1 ELSE 0 END) AS no_driver,\n  SUM(CASE WHEN status = 'Incomplete' THEN 1 ELSE 0 END) AS incomplete,\n  SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) AS completed,\n  ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 4) AS cost_per_km\nFROM parsed\nGROUP BY date_key\nORDER BY date_key\n",
+      "time": 1788871669.3494492
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (\n  SELECT\n    printf('%04d-%02d-%02d',\n           CAST(substr(\"Date\",1,4) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+1, instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')-1) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')+1) AS INTEGER)) AS date_key,\n    \"Booking Status\" AS status,\n    \"Booking Value\" AS value,\n    \"Ride Distance\" AS dist\n  FROM sheet1\n),\ndaily_agg AS (\n  SELECT date_key,\n    COUNT(*) AS bookings,\n    ROUND(100.0*SUM(CASE WHEN status IN ('Cancelled by Customer','Cancelled by Driver') THEN 1 ELSE 0 END)/COUNT(*),2) AS cancel_pct,\n    ROUND(AVG(CASE WHEN status='Completed' AND dist>0 THEN value/dist END),2) AS cost_per_km\n  FROM parsed\n  GROUP BY date_key\n)\nSELECT date_key,\n  CASE CAST(strftime('%w', date_key) AS INTEGER)\n    WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed'\n    WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow,\n  bookings, cancel_pct, cost_per_km\nFROM daily_agg\nORDER BY bookings DESC\nLIMIT 10",
+      "time": 1788871669.6368363
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (\n  SELECT\n    printf('%04d-%02d-%02d',\n           CAST(substr(\"Date\",1,4) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+1, instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')-1) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')+1) AS INTEGER)) AS date_key,\n    \"Booking Status\" AS status,\n    \"Booking Value\" AS value,\n    \"Ride Distance\" AS dist\n  FROM sheet1\n),\ndaily_agg AS (\n  SELECT date_key,\n    COUNT(*) AS bookings,\n    ROUND(100.0*SUM(CASE WHEN status IN ('Cancelled by Customer','Cancelled by Driver') THEN 1 ELSE 0 END)/COUNT(*),2) AS cancel_pct,\n    ROUND(AVG(CASE WHEN status='Completed' AND dist>0 THEN value/dist END),2) AS cost_per_km\n  FROM parsed\n  GROUP BY date_key\n)\nSELECT date_key,\n  CASE CAST(strftime('%w', date_key) AS INTEGER)\n    WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed'\n    WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow,\n  bookings, cancel_pct, cost_per_km\nFROM daily_agg\nORDER BY bookings ASC\nLIMIT 10",
+      "time": 1788871669.8974416
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nWITH parsed AS (\n  SELECT\n    printf('%04d-%02d-%02d',\n           CAST(substr(\"Date\",1,4) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+1, instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')-1) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')+1) AS INTEGER)) AS date_key,\n    \"Booking Status\" AS status,\n    \"Booking Value\" AS value,\n    \"Ride Distance\" AS dist\n  FROM sheet1\n)\nSELECT date_key,\n  COUNT(*) AS bookings,\n  SUM(CASE WHEN status IN ('Cancelled by Customer','Cancelled by Driver') THEN 1 ELSE 0 END) AS cancellations,\n  SUM(CASE WHEN status = 'No Driver Found' THEN 1 ELSE 0 END) AS no_driver,\n  SUM(CASE WHEN status = 'Incomplete' THEN 1 ELSE 0 END) AS incomplete,\n  SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) AS completed,\n  ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 4) AS cost_per_km\nFROM parsed\nGROUP BY date_key\nORDER BY date_key\n",
+      "time": 1788871670.1676784
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (\n  SELECT\n    printf('%04d-%02d-%02d',\n           CAST(substr(\"Date\",1,4) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+1, instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')-1) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')+1) AS INTEGER)) AS date_key,\n    \"Booking Status\" AS status,\n    \"Booking Value\" AS value,\n    \"Ride Distance\" AS dist\n  FROM sheet1\n),\ndaily_agg AS (\n  SELECT date_key,\n    COUNT(*) AS bookings,\n    ROUND(100.0*SUM(CASE WHEN status IN ('Cancelled by Customer','Cancelled by Driver') THEN 1 ELSE 0 END)/COUNT(*),2) AS cancel_pct,\n    ROUND(AVG(CASE WHEN status='Completed' AND dist>0 THEN value/dist END),2) AS cost_per_km\n  FROM parsed\n  GROUP BY date_key\n)\nSELECT date_key,\n  CASE CAST(strftime('%w', date_key) AS INTEGER)\n    WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed'\n    WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow,\n  bookings, cancel_pct, cost_per_km\nFROM daily_agg\nORDER BY bookings DESC\nLIMIT 10",
+      "time": 1788871670.4510841
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (\n  SELECT\n    printf('%04d-%02d-%02d',\n           CAST(substr(\"Date\",1,4) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+1, instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')-1) AS INTEGER),\n           CAST(substr(\"Date\", instr(\"Date\",'/')+instr(substr(\"Date\", instr(\"Date\",'/')+1),'/')+1) AS INTEGER)) AS date_key,\n    \"Booking Status\" AS status,\n    \"Booking Value\" AS value,\n    \"Ride Distance\" AS dist\n  FROM sheet1\n),\ndaily_agg AS (\n  SELECT date_key,\n    COUNT(*) AS bookings,\n    ROUND(100.0*SUM(CASE WHEN status IN ('Cancelled by Customer','Cancelled by Driver') THEN 1 ELSE 0 END)/COUNT(*),2) AS cancel_pct,\n    ROUND(AVG(CASE WHEN status='Completed' AND dist>0 THEN value/dist END),2) AS cost_per_km\n  FROM parsed\n  GROUP BY date_key\n)\nSELECT date_key,\n  CASE CAST(strftime('%w', date_key) AS INTEGER)\n    WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed'\n    WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow,\n  bookings, cancel_pct, cost_per_km\nFROM daily_agg\nORDER BY bookings ASC\nLIMIT 10",
+      "time": 1788871670.7121727
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT PRINTF('%04d-%02d-%02d', CAST(SUBSTRING(\"Date\", 1, 4) AS INTEGER), CAST(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + 1, INSTR(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + 1), '/') - 1) AS INTEGER), CAST(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + INSTR(SUBSTRING(\"Date\", INSTR(\"Date\", '/') + 1), '/') + 1) AS INTEGER)) AS date_key, \"Booking Status\" AS status, \"Booking Value\" AS value, \"Ride Distance\" AS dist FROM sheet1",
+      "time": 1788871670.9831002
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (SELECT * FROM temp.reuse_candidate) SELECT date_key, COUNT(*) AS bookings, SUM(CASE WHEN status IN ('Cancelled by Customer', 'Cancelled by Driver') THEN 1 ELSE 0 END) AS cancellations, SUM(CASE WHEN status = 'No Driver Found' THEN 1 ELSE 0 END) AS no_driver, SUM(CASE WHEN status = 'Incomplete' THEN 1 ELSE 0 END) AS incomplete, SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) AS completed, ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 4) AS cost_per_km FROM parsed GROUP BY date_key ORDER BY date_key",
+      "time": 1788871671.1692035
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (SELECT * FROM temp.reuse_candidate), daily_agg AS (SELECT date_key, COUNT(*) AS bookings, ROUND(100.0 * SUM(CASE WHEN status IN ('Cancelled by Customer', 'Cancelled by Driver') THEN 1 ELSE 0 END) / COUNT(*), 2) AS cancel_pct, ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 2) AS cost_per_km FROM parsed GROUP BY date_key) SELECT date_key, CASE CAST(STRFTIME('%w', date_key) AS INTEGER) WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed' WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow, bookings, cancel_pct, cost_per_km FROM daily_agg ORDER BY bookings DESC LIMIT 10",
+      "time": 1788871671.3063216
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH parsed AS (SELECT * FROM temp.reuse_candidate), daily_agg AS (SELECT date_key, COUNT(*) AS bookings, ROUND(100.0 * SUM(CASE WHEN status IN ('Cancelled by Customer', 'Cancelled by Driver') THEN 1 ELSE 0 END) / COUNT(*), 2) AS cancel_pct, ROUND(AVG(CASE WHEN status = 'Completed' AND dist > 0 THEN value / dist END), 2) AS cost_per_km FROM parsed GROUP BY date_key) SELECT date_key, CASE CAST(STRFTIME('%w', date_key) AS INTEGER) WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue' WHEN 3 THEN 'Wed' WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat' END AS dow, bookings, cancel_pct, cost_per_km FROM daily_agg ORDER BY bookings ASC LIMIT 10",
+      "time": 1788871671.41787
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871671.529571
+    }
+  ],
+  "correctness_warmup": {
+    "baseline": {
+      "total_ms": 805.1137337461114,
+      "build_ms": 0,
+      "teardown_ms": 0
+    },
+    "candidate": {
+      "total_ms": 556.8966995924711,
+      "build_ms": 185.9075492247939,
+      "teardown_ms": 8.81933979690075
+    }
+  },
+  "status": "measured",
+  "baseline_median_ms": 803.313422948122,
+  "baseline_range_ms": [
+    802.050057798624,
+    820.1214829459786
+  ],
+  "candidate_median_ms": 555.9278260916471,
+  "candidate_range_ms": [
+    552.0698530599475,
+    557.4439633637667
+  ],
+  "ratio_baseline_over_candidate": 1.4449958883973768,
+  "duration_s": 8.322161436080933
+}

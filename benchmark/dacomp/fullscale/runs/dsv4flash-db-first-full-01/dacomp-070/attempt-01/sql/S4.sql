@@ -1,0 +1,1 @@
+SELECT region, COUNT(*) AS n, COUNT(DISTINCT country_short) AS n_countries, MIN(date_day) AS min_d, MAX(date_day) AS max_d FROM google_play__country_report GROUP BY region ORDER BY n DESC

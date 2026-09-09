@@ -1,0 +1,1 @@
+SELECT * FROM health_checkup_indicators LIMIT 20

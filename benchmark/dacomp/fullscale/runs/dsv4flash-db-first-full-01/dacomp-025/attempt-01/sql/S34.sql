@@ -1,0 +1,1 @@
+SELECT COUNT(*) as cnt FROM sales_records s LEFT JOIN purchase_price pp ON s."Item Code" = pp."Item Code" AND date(s."Sales Date") = date(pp."Date") WHERE s."Sales Date" >= '2020-06-01' AND s."Sales Date" < '2023-06-30' AND date(s."Sales Date") >= '2020-06-01'

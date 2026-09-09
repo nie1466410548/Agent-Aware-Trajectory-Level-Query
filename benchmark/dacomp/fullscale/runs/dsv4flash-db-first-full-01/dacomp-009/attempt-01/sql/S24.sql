@@ -1,0 +1,1 @@
+SELECT Gender, COUNT(*) AS cnt FROM (SELECT DISTINCT "Employee ID", Gender FROM sheet1) GROUP BY Gender

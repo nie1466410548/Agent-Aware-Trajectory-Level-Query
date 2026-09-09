@@ -1,0 +1,1 @@
+SELECT * FROM sheet1 WHERE "Year" = 2020 ORDER BY "Region Name" LIMIT 8

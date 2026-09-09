@@ -1,0 +1,1 @@
+SELECT r.survey_id, s.survey_name, r.user_language, COUNT(*) AS n, AVG(r.value) AS avg_v FROM qualtrics__response r JOIN qualtrics__survey s ON r.survey_id = s.survey_id GROUP BY r.survey_id, r.user_language HAVING n >= 5 ORDER BY r.survey_id, r.user_language LIMIT 50

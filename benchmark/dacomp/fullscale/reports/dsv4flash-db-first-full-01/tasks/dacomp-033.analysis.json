@@ -1,0 +1,1527 @@
+{
+  "fingerprint": "9b50155ac1adf611033246ad41840bf336c62b1003d212cedbb2874e80949a06",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT \"Customer ID\", SUM(\"Transaction Amount\") AS paid_amt, COUNT(*) AS n_tx FROM transaction_history_table WHERE \"Transaction Payment Status\" = 'Paid' GROUP BY \"Customer ID\" HAVING SUM(\"Transaction Amount\") > 5000",
+      "covered": [
+        "S21",
+        "S56"
+      ],
+      "rewrites": {
+        "S21": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Membership Level\", COUNT(DISTINCT hv.\"Customer ID\") AS hv_customers FROM hv LEFT JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Membership Level\" ORDER BY hv_customers DESC",
+        "S56": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT MIN(paid_amt) AS min_amt, MAX(paid_amt) AS max_amt, AVG(paid_amt) AS avg_amt, SUM(paid_amt) AS total_amt, COUNT(*) AS n_customers, AVG(n_tx) AS avg_tx_count FROM hv"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S21",
+      "later_reuses": 1,
+      "denominator": 115,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT \"Customer ID\", SUM(\"Transaction Amount\") AS paid_amt FROM transaction_history_table WHERE \"Transaction Payment Status\" = 'Paid' GROUP BY \"Customer ID\" HAVING SUM(\"Transaction Amount\") > 5000",
+      "covered": [
+        "S22",
+        "S23",
+        "S24"
+      ],
+      "rewrites": {
+        "S22": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT t.\"Tag Name\", COUNT(DISTINCT hv.\"Customer ID\") AS hv_customers, SUM(t.\"Tag Weight Value\") AS tot_weight FROM hv LEFT JOIN customer_tag_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" GROUP BY t.\"Tag Name\" ORDER BY hv_customers DESC",
+        "S23": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT c.\"Credit Grade\", COUNT(DISTINCT hv.\"Customer ID\") AS hv_customers, AVG(c.\"Credit Score\") AS avg_score FROM hv LEFT JOIN customer_account_table AS a ON hv.\"Customer ID\" = a.\"Customer ID\" LEFT JOIN customer_credit_rating_table AS c ON a.\"Account ID\" = c.\"Account ID\" GROUP BY c.\"Credit Grade\" ORDER BY hv_customers DESC",
+        "S24": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT s.\"Segment Name\", COUNT(DISTINCT hv.\"Customer ID\") AS hv_customers FROM hv LEFT JOIN customer_segments_table AS s ON hv.\"Customer ID\" = s.\"Customer ID\" GROUP BY s.\"Segment Name\" ORDER BY hv_customers DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S22",
+      "later_reuses": 2,
+      "denominator": 115,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT DISTINCT \"Customer ID\" FROM transaction_history_table WHERE \"Transaction Payment Status\" = 'Paid' GROUP BY \"Customer ID\" HAVING SUM(\"Transaction Amount\") > 5000",
+      "covered": [
+        "S46",
+        "S47",
+        "S48",
+        "S49",
+        "S50",
+        "S51",
+        "S52",
+        "S53",
+        "S54",
+        "S55",
+        "S60",
+        "S61",
+        "S62",
+        "S63",
+        "S64",
+        "S65",
+        "S74",
+        "S80",
+        "S82",
+        "S87",
+        "S88",
+        "S91",
+        "S93",
+        "S95",
+        "S100",
+        "S103",
+        "S105",
+        "S107",
+        "S109",
+        "S111",
+        "S113",
+        "S120",
+        "S122"
+      ],
+      "rewrites": {
+        "S46": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT (SELECT COUNT(*) FROM hv) AS total_hv, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM membership_table)) AS in_membership, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM customer_tag_table)) AS in_tags, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM customer_contact_table)) AS in_contact, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM contracts_table)) AS in_contracts, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM financials_table)) AS in_financials, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM product_service_order_table)) AS in_orders, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM customer_account_table)) AS in_accounts, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM sales_follow_up_table)) AS in_followup",
+        "S47": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Membership Level\", COUNT(*) AS cnt FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Membership Level\" ORDER BY cnt DESC",
+        "S48": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Member Status\", COUNT(*) AS cnt FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Member Status\" ORDER BY cnt DESC",
+        "S49": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Privilege Level\", COUNT(*) AS cnt FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Privilege Level\" ORDER BY cnt DESC",
+        "S50": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Automatic Renewal\", COUNT(*) AS cnt FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Automatic Renewal\" ORDER BY cnt DESC",
+        "S51": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT t.\"Tag Name\", COUNT(*) AS cnt, AVG(t.\"Tag Weight Value\") AS avg_weight FROM hv JOIN customer_tag_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" GROUP BY t.\"Tag Name\" ORDER BY cnt DESC",
+        "S52": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT c.\"Gender\", COUNT(*) AS cnt FROM hv JOIN customer_contact_table AS c ON hv.\"Customer ID\" = c.\"Customer ID\" GROUP BY c.\"Gender\"",
+        "S53": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT ct.\"Contract Type\", COUNT(*) AS cnt FROM hv JOIN contracts_table AS ct ON hv.\"Customer ID\" = ct.\"Customer ID\" GROUP BY ct.\"Contract Type\" ORDER BY cnt DESC",
+        "S54": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cr.\"Credit Grade\", COUNT(*) AS cnt, AVG(cr.\"Credit Score\") AS avg_score, AVG(cr.\"Credit Limit\") AS avg_limit FROM hv JOIN customer_account_table AS a ON hv.\"Customer ID\" = a.\"Customer ID\" JOIN customer_credit_rating_table AS cr ON a.\"Account ID\" = cr.\"Account ID\" GROUP BY cr.\"Credit Grade\" ORDER BY cnt DESC",
+        "S55": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT t.\"Transaction Payment Method\", COUNT(*) AS tx_count, SUM(t.\"Transaction Amount\") AS total_amt FROM hv JOIN transaction_history_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" AND t.\"Transaction Payment Status\" = 'Paid' GROUP BY t.\"Transaction Payment Method\" ORDER BY total_amt DESC",
+        "S60": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT f.\"Outstanding Amount\" AS outstanding, COUNT(*) AS cnt, AVG(f.\"Outstanding Amount\") AS avg_out, AVG(f.\"Amount Received\") AS avg_recv, AVG(f.\"Receivable Amount\") AS avg_recvbl FROM hv JOIN financials_table AS f ON hv.\"Customer ID\" = f.\"Customer ID\" GROUP BY f.\"Outstanding Amount\" ORDER BY cnt DESC",
+        "S61": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT po.\"Subscribed Product Name\", COUNT(*) AS cnt, SUM(po.\"Total Amount\") AS tot_amt FROM hv JOIN product_service_order_table AS po ON hv.\"Customer ID\" = po.\"Customer ID\" GROUP BY po.\"Subscribed Product Name\" ORDER BY cnt DESC LIMIT 15",
+        "S62": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cs.\"Channel Name\", COUNT(*) AS cnt FROM hv JOIN channel_source_table AS cs ON hv.\"Customer ID\" = cs.\"Customer ID\" GROUP BY cs.\"Channel Name\" ORDER BY cnt DESC LIMIT 15",
+        "S63": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT ct.\"Contract Performance Status\", COUNT(*) AS cnt FROM hv JOIN contracts_table AS ct ON hv.\"Customer ID\" = ct.\"Customer ID\" GROUP BY ct.\"Contract Performance Status\" ORDER BY cnt DESC",
+        "S64": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT po.\"Current Service Status\", COUNT(*) AS cnt, SUM(po.\"Total Amount\") AS tot_amt FROM hv JOIN product_service_order_table AS po ON hv.\"Customer ID\" = po.\"Customer ID\" GROUP BY po.\"Current Service Status\" ORDER BY cnt DESC",
+        "S65": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT sf.\"Follow-up Result Status\", sf.\"Follow-up Priority\", COUNT(*) AS cnt FROM hv JOIN sales_follow_up_table AS sf ON hv.\"Customer ID\" = sf.\"Customer ID\" GROUP BY sf.\"Follow-up Result Status\", sf.\"Follow-up Priority\" ORDER BY cnt DESC",
+        "S74": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Membership Level\", COUNT(*) AS hv_cust FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Membership Level\" ORDER BY hv_cust DESC",
+        "S80": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT c.\"Gender\", COUNT(*) AS hv_cust FROM hv JOIN customer_contact_table AS c ON hv.\"Customer ID\" = c.\"Customer ID\" GROUP BY c.\"Gender\"",
+        "S82": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cs.\"Channel Name\", COUNT(*) AS hv_cust FROM hv JOIN channel_source_table AS cs ON hv.\"Customer ID\" = cs.\"Customer ID\" GROUP BY cs.\"Channel Name\" ORDER BY hv_cust DESC",
+        "S87": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT s.\"Ticket customer satisfaction score\", COUNT(*) AS cnt FROM hv JOIN contracts_table AS c ON hv.\"Customer ID\" = c.\"Customer ID\" JOIN service_ticket_table AS s ON c.\"Contract ID\" = s.\"Contract ID\" GROUP BY s.\"Ticket customer satisfaction score\"",
+        "S88": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT comp.\"Complaint Customer Satisfaction\", COUNT(*) AS cnt FROM hv JOIN contracts_table AS c ON hv.\"Customer ID\" = c.\"Customer ID\" JOIN service_ticket_table AS s ON c.\"Contract ID\" = s.\"Contract ID\" JOIN complaints_table AS comp ON s.\"Work Order ID\" = comp.\"Work Order ID\" GROUP BY comp.\"Complaint Customer Satisfaction\"",
+        "S91": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT COUNT(DISTINCT s.\"Work Order ID\") AS hv_tickets, AVG(s.\"Ticket customer satisfaction score\") AS avg_sat, AVG(s.\"Ticket resolution duration\") AS avg_duration FROM hv JOIN contracts_table AS c ON hv.\"Customer ID\" = c.\"Customer ID\" JOIN service_ticket_table AS s ON c.\"Contract ID\" = s.\"Contract ID\"",
+        "S93": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT AVG(m.\"Current Points\") AS avg_cur, AVG(m.\"Lifetime Points\") AS avg_life, MIN(m.\"Lifetime Points\") AS min_life, MAX(m.\"Lifetime Points\") AS max_life FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\"",
+        "S95": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Upgrade Requirements Met\", COUNT(*) AS cnt FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Upgrade Requirements Met\"",
+        "S100": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cr.\"Credit Grade\", COUNT(*) AS cnt, AVG(cr.\"Credit Score\") AS avg_score, AVG(cr.\"Credit Limit\") AS avg_limit FROM hv JOIN transaction_history_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" AND t.\"Transaction Payment Status\" = 'Paid' JOIN customer_credit_rating_table AS cr ON t.\"Account ID\" = cr.\"Account ID\" GROUP BY cr.\"Credit Grade\" ORDER BY cnt DESC",
+        "S103": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT AVG(f.\"Receivable Amount\") AS avg_recvbl, AVG(f.\"Amount Received\") AS avg_recvd, AVG(f.\"Outstanding Amount\") AS avg_out, AVG(f.\"Tax Amount\") AS avg_tax FROM hv JOIN financials_table AS f ON hv.\"Customer ID\" = f.\"Customer ID\"",
+        "S105": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT t.\"Transaction Currency\", COUNT(*) AS cnt, SUM(t.\"Transaction Amount\") AS total_amt FROM hv JOIN transaction_history_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" AND t.\"Transaction Payment Status\" = 'Paid' GROUP BY t.\"Transaction Currency\"",
+        "S107": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT d.\"Device Type\", COUNT(*) AS cnt FROM hv JOIN customer_device_table AS d ON hv.\"Customer ID\" = d.\"Customer ID\" GROUP BY d.\"Device Type\" ORDER BY cnt DESC",
+        "S109": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT p.\"Role Name\", COUNT(*) AS cnt FROM hv JOIN permissions_table AS p ON hv.\"Customer ID\" = p.\"Customer ID\" GROUP BY p.\"Role Name\" ORDER BY cnt DESC",
+        "S111": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cp.\"Event Participation Prize Level\", COUNT(*) AS cnt FROM hv JOIN campaign_participation_table AS cp ON hv.\"Customer ID\" = cp.\"Event Participant Contact ID\" GROUP BY cp.\"Event Participation Prize Level\" ORDER BY cnt DESC",
+        "S113": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cf.\"Satisfaction Rating\", COUNT(*) AS cnt FROM hv JOIN customer_feedback_table AS cf ON hv.\"Customer ID\" = cf.\"Contact ID\" GROUP BY cf.\"Satisfaction Rating\"",
+        "S120": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cf.\"Satisfaction Rating\", COUNT(*) AS cnt FROM hv JOIN customer_tag_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" JOIN customer_feedback_table AS cf ON t.\"Contact ID\" = cf.\"Contact ID\" GROUP BY cf.\"Satisfaction Rating\"",
+        "S122": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cp.\"Event Participation Prize Level\", COUNT(*) AS cnt FROM hv JOIN customer_tag_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" JOIN campaign_participation_table AS cp ON t.\"Contact ID\" = cp.\"Event Participant Contact ID\" GROUP BY cp.\"Event Participation Prize Level\""
+      },
+      "status": "rejected_result_mismatch",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S46",
+      "later_reuses": 32,
+      "denominator": 115,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865054.9409688,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT DISTINCT \"Customer ID\" FROM transaction_history_table WHERE \"Transaction Payment Status\" = 'Paid' GROUP BY \"Customer ID\" HAVING SUM(\"Transaction Amount\") > 5000",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9412587,
+          "status": "execute_returned",
+          "end_time": 1788865054.9418352
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9418404,
+          "status": "execute_returned",
+          "end_time": 1788865054.9418576
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865054.941863,
+          "status": "execute_returned",
+          "end_time": 1788865054.941875
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT (SELECT COUNT(*) FROM hv) AS total_hv, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM membership_table)) AS in_membership, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM customer_tag_table)) AS in_tags, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM customer_contact_table)) AS in_contact, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM contracts_table)) AS in_contracts, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM financials_table)) AS in_financials, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM product_service_order_table)) AS in_orders, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM customer_account_table)) AS in_accounts, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM sales_follow_up_table)) AS in_followup",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9418828,
+          "status": "execute_returned",
+          "end_time": 1788865054.9441564
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Membership Level\", COUNT(*) AS cnt FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Membership Level\" ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9479296,
+          "status": "execute_returned",
+          "end_time": 1788865054.9483192
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Member Status\", COUNT(*) AS cnt FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Member Status\" ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9494298,
+          "status": "execute_returned",
+          "end_time": 1788865054.9497664
+        },
+        {
+          "sequence": 7,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Privilege Level\", COUNT(*) AS cnt FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Privilege Level\" ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9508276,
+          "status": "execute_returned",
+          "end_time": 1788865054.9511518
+        },
+        {
+          "sequence": 8,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Automatic Renewal\", COUNT(*) AS cnt FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Automatic Renewal\" ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865054.95222,
+          "status": "execute_returned",
+          "end_time": 1788865054.9525368
+        },
+        {
+          "sequence": 9,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT t.\"Tag Name\", COUNT(*) AS cnt, AVG(t.\"Tag Weight Value\") AS avg_weight FROM hv JOIN customer_tag_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" GROUP BY t.\"Tag Name\" ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9535756,
+          "status": "execute_returned",
+          "end_time": 1788865054.9541595
+        },
+        {
+          "sequence": 10,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT c.\"Gender\", COUNT(*) AS cnt FROM hv JOIN customer_contact_table AS c ON hv.\"Customer ID\" = c.\"Customer ID\" GROUP BY c.\"Gender\"",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9555938,
+          "status": "execute_returned",
+          "end_time": 1788865054.9559665
+        },
+        {
+          "sequence": 11,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT ct.\"Contract Type\", COUNT(*) AS cnt FROM hv JOIN contracts_table AS ct ON hv.\"Customer ID\" = ct.\"Customer ID\" GROUP BY ct.\"Contract Type\" ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9570003,
+          "status": "execute_returned",
+          "end_time": 1788865054.9574687
+        },
+        {
+          "sequence": 12,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cr.\"Credit Grade\", COUNT(*) AS cnt, AVG(cr.\"Credit Score\") AS avg_score, AVG(cr.\"Credit Limit\") AS avg_limit FROM hv JOIN customer_account_table AS a ON hv.\"Customer ID\" = a.\"Customer ID\" JOIN customer_credit_rating_table AS cr ON a.\"Account ID\" = cr.\"Account ID\" GROUP BY cr.\"Credit Grade\" ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865054.958522,
+          "status": "execute_returned",
+          "end_time": 1788865054.9593668
+        },
+        {
+          "sequence": 13,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT t.\"Transaction Payment Method\", COUNT(*) AS tx_count, SUM(t.\"Transaction Amount\") AS total_amt FROM hv JOIN transaction_history_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" AND t.\"Transaction Payment Status\" = 'Paid' GROUP BY t.\"Transaction Payment Method\" ORDER BY total_amt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9607964,
+          "status": "execute_returned",
+          "end_time": 1788865054.9610114
+        },
+        {
+          "sequence": 14,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT f.\"Outstanding Amount\" AS outstanding, COUNT(*) AS cnt, AVG(f.\"Outstanding Amount\") AS avg_out, AVG(f.\"Amount Received\") AS avg_recv, AVG(f.\"Receivable Amount\") AS avg_recvbl FROM hv JOIN financials_table AS f ON hv.\"Customer ID\" = f.\"Customer ID\" GROUP BY f.\"Outstanding Amount\" ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9624298,
+          "status": "execute_returned",
+          "end_time": 1788865054.9629214
+        },
+        {
+          "sequence": 15,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT po.\"Subscribed Product Name\", COUNT(*) AS cnt, SUM(po.\"Total Amount\") AS tot_amt FROM hv JOIN product_service_order_table AS po ON hv.\"Customer ID\" = po.\"Customer ID\" GROUP BY po.\"Subscribed Product Name\" ORDER BY cnt DESC LIMIT 15",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9644895,
+          "status": "execute_returned",
+          "end_time": 1788865054.9649599
+        },
+        {
+          "sequence": 16,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cs.\"Channel Name\", COUNT(*) AS cnt FROM hv JOIN channel_source_table AS cs ON hv.\"Customer ID\" = cs.\"Customer ID\" GROUP BY cs.\"Channel Name\" ORDER BY cnt DESC LIMIT 15",
+          "phase": "offline_validation",
+          "start_time": 1788865054.966207,
+          "status": "execute_returned",
+          "end_time": 1788865054.9666555
+        },
+        {
+          "sequence": 17,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT ct.\"Contract Performance Status\", COUNT(*) AS cnt FROM hv JOIN contracts_table AS ct ON hv.\"Customer ID\" = ct.\"Customer ID\" GROUP BY ct.\"Contract Performance Status\" ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9677556,
+          "status": "execute_returned",
+          "end_time": 1788865054.9682145
+        },
+        {
+          "sequence": 18,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT po.\"Current Service Status\", COUNT(*) AS cnt, SUM(po.\"Total Amount\") AS tot_amt FROM hv JOIN product_service_order_table AS po ON hv.\"Customer ID\" = po.\"Customer ID\" GROUP BY po.\"Current Service Status\" ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9694495,
+          "status": "execute_returned",
+          "end_time": 1788865054.9698887
+        },
+        {
+          "sequence": 19,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT sf.\"Follow-up Result Status\", sf.\"Follow-up Priority\", COUNT(*) AS cnt FROM hv JOIN sales_follow_up_table AS sf ON hv.\"Customer ID\" = sf.\"Customer ID\" GROUP BY sf.\"Follow-up Result Status\", sf.\"Follow-up Priority\" ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9710517,
+          "status": "execute_returned",
+          "end_time": 1788865054.9715056
+        },
+        {
+          "sequence": 20,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Membership Level\", COUNT(*) AS hv_cust FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Membership Level\" ORDER BY hv_cust DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9726686,
+          "status": "execute_returned",
+          "end_time": 1788865054.9730597
+        },
+        {
+          "sequence": 21,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT c.\"Gender\", COUNT(*) AS hv_cust FROM hv JOIN customer_contact_table AS c ON hv.\"Customer ID\" = c.\"Customer ID\" GROUP BY c.\"Gender\"",
+          "phase": "offline_validation",
+          "start_time": 1788865054.97411,
+          "status": "execute_returned",
+          "end_time": 1788865054.9745233
+        },
+        {
+          "sequence": 22,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cs.\"Channel Name\", COUNT(*) AS hv_cust FROM hv JOIN channel_source_table AS cs ON hv.\"Customer ID\" = cs.\"Customer ID\" GROUP BY cs.\"Channel Name\" ORDER BY hv_cust DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9755678,
+          "status": "execute_returned",
+          "end_time": 1788865054.9759915
+        },
+        {
+          "sequence": 23,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT s.\"Ticket customer satisfaction score\", COUNT(*) AS cnt FROM hv JOIN contracts_table AS c ON hv.\"Customer ID\" = c.\"Customer ID\" JOIN service_ticket_table AS s ON c.\"Contract ID\" = s.\"Contract ID\" GROUP BY s.\"Ticket customer satisfaction score\"",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9772258,
+          "status": "execute_returned",
+          "end_time": 1788865054.9779465
+        },
+        {
+          "sequence": 24,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT comp.\"Complaint Customer Satisfaction\", COUNT(*) AS cnt FROM hv JOIN contracts_table AS c ON hv.\"Customer ID\" = c.\"Customer ID\" JOIN service_ticket_table AS s ON c.\"Contract ID\" = s.\"Contract ID\" JOIN complaints_table AS comp ON s.\"Work Order ID\" = comp.\"Work Order ID\" GROUP BY comp.\"Complaint Customer Satisfaction\"",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9791114,
+          "status": "execute_returned",
+          "end_time": 1788865054.9802313
+        },
+        {
+          "sequence": 25,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT COUNT(DISTINCT s.\"Work Order ID\") AS hv_tickets, AVG(s.\"Ticket customer satisfaction score\") AS avg_sat, AVG(s.\"Ticket resolution duration\") AS avg_duration FROM hv JOIN contracts_table AS c ON hv.\"Customer ID\" = c.\"Customer ID\" JOIN service_ticket_table AS s ON c.\"Contract ID\" = s.\"Contract ID\"",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9815283,
+          "status": "execute_returned",
+          "end_time": 1788865054.9822686
+        },
+        {
+          "sequence": 26,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT AVG(m.\"Current Points\") AS avg_cur, AVG(m.\"Lifetime Points\") AS avg_life, MIN(m.\"Lifetime Points\") AS min_life, MAX(m.\"Lifetime Points\") AS max_life FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\"",
+          "phase": "offline_validation",
+          "start_time": 1788865054.983563,
+          "status": "execute_returned",
+          "end_time": 1788865054.9839425
+        },
+        {
+          "sequence": 27,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Upgrade Requirements Met\", COUNT(*) AS cnt FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Upgrade Requirements Met\"",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9853942,
+          "status": "execute_returned",
+          "end_time": 1788865054.9857447
+        },
+        {
+          "sequence": 28,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cr.\"Credit Grade\", COUNT(*) AS cnt, AVG(cr.\"Credit Score\") AS avg_score, AVG(cr.\"Credit Limit\") AS avg_limit FROM hv JOIN transaction_history_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" AND t.\"Transaction Payment Status\" = 'Paid' JOIN customer_credit_rating_table AS cr ON t.\"Account ID\" = cr.\"Account ID\" GROUP BY cr.\"Credit Grade\" ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9867566,
+          "status": "execute_returned",
+          "end_time": 1788865054.987409
+        },
+        {
+          "sequence": 29,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT AVG(f.\"Receivable Amount\") AS avg_recvbl, AVG(f.\"Amount Received\") AS avg_recvd, AVG(f.\"Outstanding Amount\") AS avg_out, AVG(f.\"Tax Amount\") AS avg_tax FROM hv JOIN financials_table AS f ON hv.\"Customer ID\" = f.\"Customer ID\"",
+          "phase": "offline_validation",
+          "start_time": 1788865054.988895,
+          "status": "execute_returned",
+          "end_time": 1788865054.9894345
+        },
+        {
+          "sequence": 30,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT t.\"Transaction Currency\", COUNT(*) AS cnt, SUM(t.\"Transaction Amount\") AS total_amt FROM hv JOIN transaction_history_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" AND t.\"Transaction Payment Status\" = 'Paid' GROUP BY t.\"Transaction Currency\"",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9907138,
+          "status": "execute_returned",
+          "end_time": 1788865054.9909194
+        },
+        {
+          "sequence": 31,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT d.\"Device Type\", COUNT(*) AS cnt FROM hv JOIN customer_device_table AS d ON hv.\"Customer ID\" = d.\"Customer ID\" GROUP BY d.\"Device Type\" ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9929268,
+          "status": "execute_returned",
+          "end_time": 1788865054.9933882
+        },
+        {
+          "sequence": 32,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT p.\"Role Name\", COUNT(*) AS cnt FROM hv JOIN permissions_table AS p ON hv.\"Customer ID\" = p.\"Customer ID\" GROUP BY p.\"Role Name\" ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9944386,
+          "status": "execute_returned",
+          "end_time": 1788865054.9949582
+        },
+        {
+          "sequence": 33,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cp.\"Event Participation Prize Level\", COUNT(*) AS cnt FROM hv JOIN campaign_participation_table AS cp ON hv.\"Customer ID\" = cp.\"Event Participant Contact ID\" GROUP BY cp.\"Event Participation Prize Level\" ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9960124,
+          "status": "execute_returned",
+          "end_time": 1788865054.9964576
+        },
+        {
+          "sequence": 34,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cf.\"Satisfaction Rating\", COUNT(*) AS cnt FROM hv JOIN customer_feedback_table AS cf ON hv.\"Customer ID\" = cf.\"Contact ID\" GROUP BY cf.\"Satisfaction Rating\"",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9974816,
+          "status": "execute_returned",
+          "end_time": 1788865054.9979017
+        },
+        {
+          "sequence": 35,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cf.\"Satisfaction Rating\", COUNT(*) AS cnt FROM hv JOIN customer_tag_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" JOIN customer_feedback_table AS cf ON t.\"Contact ID\" = cf.\"Contact ID\" GROUP BY cf.\"Satisfaction Rating\"",
+          "phase": "offline_validation",
+          "start_time": 1788865054.9988663,
+          "status": "execute_returned",
+          "end_time": 1788865054.999725
+        },
+        {
+          "sequence": 36,
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cp.\"Event Participation Prize Level\", COUNT(*) AS cnt FROM hv JOIN customer_tag_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" JOIN campaign_participation_table AS cp ON t.\"Contact ID\" = cp.\"Event Participant Contact ID\" GROUP BY cp.\"Event Participation Prize Level\"",
+          "phase": "offline_validation",
+          "start_time": 1788865055.0010574,
+          "status": "execute_returned",
+          "end_time": 1788865055.0018878
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT DISTINCT \"Customer ID\" FROM transaction_history_table WHERE \"Transaction Payment Status\" = 'Paid' GROUP BY \"Customer ID\" HAVING SUM(\"Transaction Amount\") > 5000",
+          "time": 1788865054.9416242,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865054.9418547,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865054.9418716,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT (SELECT COUNT(*) FROM hv) AS total_hv, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM membership_table)) AS in_membership, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM customer_tag_table)) AS in_tags, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM customer_contact_table)) AS in_contact, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM contracts_table)) AS in_contracts, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM financials_table)) AS in_financials, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM product_service_order_table)) AS in_orders, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM customer_account_table)) AS in_accounts, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM sales_follow_up_table)) AS in_followup",
+          "time": 1788865054.9420156,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Membership Level\", COUNT(*) AS cnt FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Membership Level\" ORDER BY cnt DESC",
+          "time": 1788865054.9479876,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Member Status\", COUNT(*) AS cnt FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Member Status\" ORDER BY cnt DESC",
+          "time": 1788865054.9494736,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Privilege Level\", COUNT(*) AS cnt FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Privilege Level\" ORDER BY cnt DESC",
+          "time": 1788865054.9508698,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Automatic Renewal\", COUNT(*) AS cnt FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Automatic Renewal\" ORDER BY cnt DESC",
+          "time": 1788865054.9522622,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT t.\"Tag Name\", COUNT(*) AS cnt, AVG(t.\"Tag Weight Value\") AS avg_weight FROM hv JOIN customer_tag_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" GROUP BY t.\"Tag Name\" ORDER BY cnt DESC",
+          "time": 1788865054.9536266,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT c.\"Gender\", COUNT(*) AS cnt FROM hv JOIN customer_contact_table AS c ON hv.\"Customer ID\" = c.\"Customer ID\" GROUP BY c.\"Gender\"",
+          "time": 1788865054.9556375,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT ct.\"Contract Type\", COUNT(*) AS cnt FROM hv JOIN contracts_table AS ct ON hv.\"Customer ID\" = ct.\"Customer ID\" GROUP BY ct.\"Contract Type\" ORDER BY cnt DESC",
+          "time": 1788865054.9570482,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cr.\"Credit Grade\", COUNT(*) AS cnt, AVG(cr.\"Credit Score\") AS avg_score, AVG(cr.\"Credit Limit\") AS avg_limit FROM hv JOIN customer_account_table AS a ON hv.\"Customer ID\" = a.\"Customer ID\" JOIN customer_credit_rating_table AS cr ON a.\"Account ID\" = cr.\"Account ID\" GROUP BY cr.\"Credit Grade\" ORDER BY cnt DESC",
+          "time": 1788865054.9585958,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT t.\"Transaction Payment Method\", COUNT(*) AS tx_count, SUM(t.\"Transaction Amount\") AS total_amt FROM hv JOIN transaction_history_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" AND t.\"Transaction Payment Status\" = 'Paid' GROUP BY t.\"Transaction Payment Method\" ORDER BY total_amt DESC",
+          "time": 1788865054.960857,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT f.\"Outstanding Amount\" AS outstanding, COUNT(*) AS cnt, AVG(f.\"Outstanding Amount\") AS avg_out, AVG(f.\"Amount Received\") AS avg_recv, AVG(f.\"Receivable Amount\") AS avg_recvbl FROM hv JOIN financials_table AS f ON hv.\"Customer ID\" = f.\"Customer ID\" GROUP BY f.\"Outstanding Amount\" ORDER BY cnt DESC",
+          "time": 1788865054.9624937,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT po.\"Subscribed Product Name\", COUNT(*) AS cnt, SUM(po.\"Total Amount\") AS tot_amt FROM hv JOIN product_service_order_table AS po ON hv.\"Customer ID\" = po.\"Customer ID\" GROUP BY po.\"Subscribed Product Name\" ORDER BY cnt DESC LIMIT 15",
+          "time": 1788865054.9645505,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cs.\"Channel Name\", COUNT(*) AS cnt FROM hv JOIN channel_source_table AS cs ON hv.\"Customer ID\" = cs.\"Customer ID\" GROUP BY cs.\"Channel Name\" ORDER BY cnt DESC LIMIT 15",
+          "time": 1788865054.966262,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT ct.\"Contract Performance Status\", COUNT(*) AS cnt FROM hv JOIN contracts_table AS ct ON hv.\"Customer ID\" = ct.\"Customer ID\" GROUP BY ct.\"Contract Performance Status\" ORDER BY cnt DESC",
+          "time": 1788865054.967808,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT po.\"Current Service Status\", COUNT(*) AS cnt, SUM(po.\"Total Amount\") AS tot_amt FROM hv JOIN product_service_order_table AS po ON hv.\"Customer ID\" = po.\"Customer ID\" GROUP BY po.\"Current Service Status\" ORDER BY cnt DESC",
+          "time": 1788865054.9695086,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT sf.\"Follow-up Result Status\", sf.\"Follow-up Priority\", COUNT(*) AS cnt FROM hv JOIN sales_follow_up_table AS sf ON hv.\"Customer ID\" = sf.\"Customer ID\" GROUP BY sf.\"Follow-up Result Status\", sf.\"Follow-up Priority\" ORDER BY cnt DESC",
+          "time": 1788865054.971111,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Membership Level\", COUNT(*) AS hv_cust FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Membership Level\" ORDER BY hv_cust DESC",
+          "time": 1788865054.9727213,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT c.\"Gender\", COUNT(*) AS hv_cust FROM hv JOIN customer_contact_table AS c ON hv.\"Customer ID\" = c.\"Customer ID\" GROUP BY c.\"Gender\"",
+          "time": 1788865054.97416,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cs.\"Channel Name\", COUNT(*) AS hv_cust FROM hv JOIN channel_source_table AS cs ON hv.\"Customer ID\" = cs.\"Customer ID\" GROUP BY cs.\"Channel Name\" ORDER BY hv_cust DESC",
+          "time": 1788865054.9756231,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT s.\"Ticket customer satisfaction score\", COUNT(*) AS cnt FROM hv JOIN contracts_table AS c ON hv.\"Customer ID\" = c.\"Customer ID\" JOIN service_ticket_table AS s ON c.\"Contract ID\" = s.\"Contract ID\" GROUP BY s.\"Ticket customer satisfaction score\"",
+          "time": 1788865054.9772882,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT comp.\"Complaint Customer Satisfaction\", COUNT(*) AS cnt FROM hv JOIN contracts_table AS c ON hv.\"Customer ID\" = c.\"Customer ID\" JOIN service_ticket_table AS s ON c.\"Contract ID\" = s.\"Contract ID\" JOIN complaints_table AS comp ON s.\"Work Order ID\" = comp.\"Work Order ID\" GROUP BY comp.\"Complaint Customer Satisfaction\"",
+          "time": 1788865054.9791925,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT COUNT(DISTINCT s.\"Work Order ID\") AS hv_tickets, AVG(s.\"Ticket customer satisfaction score\") AS avg_sat, AVG(s.\"Ticket resolution duration\") AS avg_duration FROM hv JOIN contracts_table AS c ON hv.\"Customer ID\" = c.\"Customer ID\" JOIN service_ticket_table AS s ON c.\"Contract ID\" = s.\"Contract ID\"",
+          "time": 1788865054.9815934,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT AVG(m.\"Current Points\") AS avg_cur, AVG(m.\"Lifetime Points\") AS avg_life, MIN(m.\"Lifetime Points\") AS min_life, MAX(m.\"Lifetime Points\") AS max_life FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\"",
+          "time": 1788865054.983624,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Upgrade Requirements Met\", COUNT(*) AS cnt FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Upgrade Requirements Met\"",
+          "time": 1788865054.9854462,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cr.\"Credit Grade\", COUNT(*) AS cnt, AVG(cr.\"Credit Score\") AS avg_score, AVG(cr.\"Credit Limit\") AS avg_limit FROM hv JOIN transaction_history_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" AND t.\"Transaction Payment Status\" = 'Paid' JOIN customer_credit_rating_table AS cr ON t.\"Account ID\" = cr.\"Account ID\" GROUP BY cr.\"Credit Grade\" ORDER BY cnt DESC",
+          "time": 1788865054.9868371,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT AVG(f.\"Receivable Amount\") AS avg_recvbl, AVG(f.\"Amount Received\") AS avg_recvd, AVG(f.\"Outstanding Amount\") AS avg_out, AVG(f.\"Tax Amount\") AS avg_tax FROM hv JOIN financials_table AS f ON hv.\"Customer ID\" = f.\"Customer ID\"",
+          "time": 1788865054.988958,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT t.\"Transaction Currency\", COUNT(*) AS cnt, SUM(t.\"Transaction Amount\") AS total_amt FROM hv JOIN transaction_history_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" AND t.\"Transaction Payment Status\" = 'Paid' GROUP BY t.\"Transaction Currency\"",
+          "time": 1788865054.9907756,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT d.\"Device Type\", COUNT(*) AS cnt FROM hv JOIN customer_device_table AS d ON hv.\"Customer ID\" = d.\"Customer ID\" GROUP BY d.\"Device Type\" ORDER BY cnt DESC",
+          "time": 1788865054.9929843,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT p.\"Role Name\", COUNT(*) AS cnt FROM hv JOIN permissions_table AS p ON hv.\"Customer ID\" = p.\"Customer ID\" GROUP BY p.\"Role Name\" ORDER BY cnt DESC",
+          "time": 1788865054.9944928,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cp.\"Event Participation Prize Level\", COUNT(*) AS cnt FROM hv JOIN campaign_participation_table AS cp ON hv.\"Customer ID\" = cp.\"Event Participant Contact ID\" GROUP BY cp.\"Event Participation Prize Level\" ORDER BY cnt DESC",
+          "time": 1788865054.9960687,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cf.\"Satisfaction Rating\", COUNT(*) AS cnt FROM hv JOIN customer_feedback_table AS cf ON hv.\"Customer ID\" = cf.\"Contact ID\" GROUP BY cf.\"Satisfaction Rating\"",
+          "time": 1788865054.9975324,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cf.\"Satisfaction Rating\", COUNT(*) AS cnt FROM hv JOIN customer_tag_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" JOIN customer_feedback_table AS cf ON t.\"Contact ID\" = cf.\"Contact ID\" GROUP BY cf.\"Satisfaction Rating\"",
+          "time": 1788865054.9989293,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cp.\"Event Participation Prize Level\", COUNT(*) AS cnt FROM hv JOIN customer_tag_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" JOIN campaign_participation_table AS cp ON t.\"Contact ID\" = cp.\"Event Participant Contact ID\" GROUP BY cp.\"Event Participation Prize Level\"",
+          "time": 1788865055.0011194,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.5810074508190155,
+      "intermediate_rows": 71,
+      "intermediate_columns": [
+        "Customer ID"
+      ],
+      "validation_ended_at": 1788865055.0031743,
+      "checks": [
+        {
+          "sql_id": "S46",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT (SELECT COUNT(*) FROM hv) AS total_hv, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM membership_table)) AS in_membership, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM customer_tag_table)) AS in_tags, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM customer_contact_table)) AS in_contact, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM contracts_table)) AS in_contracts, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM financials_table)) AS in_financials, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM product_service_order_table)) AS in_orders, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM customer_account_table)) AS in_accounts, (SELECT COUNT(*) FROM hv WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM sales_follow_up_table)) AS in_followup",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 6.042942404747009
+        },
+        {
+          "sql_id": "S47",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Membership Level\", COUNT(*) AS cnt FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Membership Level\" ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.4974772930145264
+        },
+        {
+          "sql_id": "S48",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Member Status\", COUNT(*) AS cnt FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Member Status\" ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.395215280354023
+        },
+        {
+          "sql_id": "S49",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Privilege Level\", COUNT(*) AS cnt FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Privilege Level\" ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.3881558552384377
+        },
+        {
+          "sql_id": "S50",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Automatic Renewal\", COUNT(*) AS cnt FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Automatic Renewal\" ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.3546599075198174
+        },
+        {
+          "sql_id": "S51",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT t.\"Tag Name\", COUNT(*) AS cnt, AVG(t.\"Tag Weight Value\") AS avg_weight FROM hv JOIN customer_tag_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" GROUP BY t.\"Tag Name\" ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.014448866248131
+        },
+        {
+          "sql_id": "S52",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT c.\"Gender\", COUNT(*) AS cnt FROM hv JOIN customer_contact_table AS c ON hv.\"Customer ID\" = c.\"Customer ID\" GROUP BY c.\"Gender\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.3969726860523224
+        },
+        {
+          "sql_id": "S53",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT ct.\"Contract Type\", COUNT(*) AS cnt FROM hv JOIN contracts_table AS ct ON hv.\"Customer ID\" = ct.\"Customer ID\" GROUP BY ct.\"Contract Type\" ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.5197601169347763
+        },
+        {
+          "sql_id": "S54",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cr.\"Credit Grade\", COUNT(*) AS cnt, AVG(cr.\"Credit Score\") AS avg_score, AVG(cr.\"Credit Limit\") AS avg_limit FROM hv JOIN customer_account_table AS a ON hv.\"Customer ID\" = a.\"Customer ID\" JOIN customer_credit_rating_table AS cr ON a.\"Account ID\" = cr.\"Account ID\" GROUP BY cr.\"Credit Grade\" ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.271813340485096
+        },
+        {
+          "sql_id": "S55",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT t.\"Transaction Payment Method\", COUNT(*) AS tx_count, SUM(t.\"Transaction Amount\") AS total_amt FROM hv JOIN transaction_history_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" AND t.\"Transaction Payment Status\" = 'Paid' GROUP BY t.\"Transaction Payment Method\" ORDER BY total_amt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.6311639919877052
+        },
+        {
+          "sql_id": "S60",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT f.\"Outstanding Amount\" AS outstanding, COUNT(*) AS cnt, AVG(f.\"Outstanding Amount\") AS avg_out, AVG(f.\"Amount Received\") AS avg_recv, AVG(f.\"Receivable Amount\") AS avg_recvbl FROM hv JOIN financials_table AS f ON hv.\"Customer ID\" = f.\"Customer ID\" GROUP BY f.\"Outstanding Amount\" ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.057078294456005
+        },
+        {
+          "sql_id": "S61",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT po.\"Subscribed Product Name\", COUNT(*) AS cnt, SUM(po.\"Total Amount\") AS tot_amt FROM hv JOIN product_service_order_table AS po ON hv.\"Customer ID\" = po.\"Customer ID\" GROUP BY po.\"Subscribed Product Name\" ORDER BY cnt DESC LIMIT 15",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7152121290564537
+        },
+        {
+          "sql_id": "S62",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cs.\"Channel Name\", COUNT(*) AS cnt FROM hv JOIN channel_source_table AS cs ON hv.\"Customer ID\" = cs.\"Customer ID\" GROUP BY cs.\"Channel Name\" ORDER BY cnt DESC LIMIT 15",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.5458669513463974
+        },
+        {
+          "sql_id": "S63",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT ct.\"Contract Performance Status\", COUNT(*) AS cnt FROM hv JOIN contracts_table AS ct ON hv.\"Customer ID\" = ct.\"Customer ID\" GROUP BY ct.\"Contract Performance Status\" ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.6916310414671898
+        },
+        {
+          "sql_id": "S64",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT po.\"Current Service Status\", COUNT(*) AS cnt, SUM(po.\"Total Amount\") AS tot_amt FROM hv JOIN product_service_order_table AS po ON hv.\"Customer ID\" = po.\"Customer ID\" GROUP BY po.\"Current Service Status\" ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.599879004061222
+        },
+        {
+          "sql_id": "S65",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT sf.\"Follow-up Result Status\", sf.\"Follow-up Priority\", COUNT(*) AS cnt FROM hv JOIN sales_follow_up_table AS sf ON hv.\"Customer ID\" = sf.\"Customer ID\" GROUP BY sf.\"Follow-up Result Status\", sf.\"Follow-up Priority\" ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.614636741578579
+        },
+        {
+          "sql_id": "S74",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Membership Level\", COUNT(*) AS hv_cust FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Membership Level\" ORDER BY hv_cust DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.438552513718605
+        },
+        {
+          "sql_id": "S80",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT c.\"Gender\", COUNT(*) AS hv_cust FROM hv JOIN customer_contact_table AS c ON hv.\"Customer ID\" = c.\"Customer ID\" GROUP BY c.\"Gender\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.455516554415226
+        },
+        {
+          "sql_id": "S82",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cs.\"Channel Name\", COUNT(*) AS hv_cust FROM hv JOIN channel_source_table AS cs ON hv.\"Customer ID\" = cs.\"Customer ID\" GROUP BY cs.\"Channel Name\" ORDER BY hv_cust DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.65560282766819
+        },
+        {
+          "sql_id": "S87",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT s.\"Ticket customer satisfaction score\", COUNT(*) AS cnt FROM hv JOIN contracts_table AS c ON hv.\"Customer ID\" = c.\"Customer ID\" JOIN service_ticket_table AS s ON c.\"Contract ID\" = s.\"Contract ID\" GROUP BY s.\"Ticket customer satisfaction score\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.883319579064846
+        },
+        {
+          "sql_id": "S88",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT comp.\"Complaint Customer Satisfaction\", COUNT(*) AS cnt FROM hv JOIN contracts_table AS c ON hv.\"Customer ID\" = c.\"Customer ID\" JOIN service_ticket_table AS s ON c.\"Contract ID\" = s.\"Contract ID\" JOIN complaints_table AS comp ON s.\"Work Order ID\" = comp.\"Work Order ID\" GROUP BY comp.\"Complaint Customer Satisfaction\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.4146847426891327
+        },
+        {
+          "sql_id": "S91",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT COUNT(DISTINCT s.\"Work Order ID\") AS hv_tickets, AVG(s.\"Ticket customer satisfaction score\") AS avg_sat, AVG(s.\"Ticket resolution duration\") AS avg_duration FROM hv JOIN contracts_table AS c ON hv.\"Customer ID\" = c.\"Customer ID\" JOIN service_ticket_table AS s ON c.\"Contract ID\" = s.\"Contract ID\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.031901851296425
+        },
+        {
+          "sql_id": "S93",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT AVG(m.\"Current Points\") AS avg_cur, AVG(m.\"Lifetime Points\") AS avg_life, MIN(m.\"Lifetime Points\") AS min_life, MAX(m.\"Lifetime Points\") AS max_life FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.8290793523192406
+        },
+        {
+          "sql_id": "S95",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT m.\"Upgrade Requirements Met\", COUNT(*) AS cnt FROM hv JOIN membership_table AS m ON hv.\"Customer ID\" = m.\"Customer ID\" GROUP BY m.\"Upgrade Requirements Met\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.3604434207081795
+        },
+        {
+          "sql_id": "S100",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cr.\"Credit Grade\", COUNT(*) AS cnt, AVG(cr.\"Credit Score\") AS avg_score, AVG(cr.\"Credit Limit\") AS avg_limit FROM hv JOIN transaction_history_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" AND t.\"Transaction Payment Status\" = 'Paid' JOIN customer_credit_rating_table AS cr ON t.\"Account ID\" = cr.\"Account ID\" GROUP BY cr.\"Credit Grade\" ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.1351268514990807
+        },
+        {
+          "sql_id": "S103",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT AVG(f.\"Receivable Amount\") AS avg_recvbl, AVG(f.\"Amount Received\") AS avg_recvd, AVG(f.\"Outstanding Amount\") AS avg_out, AVG(f.\"Tax Amount\") AS avg_tax FROM hv JOIN financials_table AS f ON hv.\"Customer ID\" = f.\"Customer ID\"",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.8166974186897278
+        },
+        {
+          "sql_id": "S105",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT t.\"Transaction Currency\", COUNT(*) AS cnt, SUM(t.\"Transaction Amount\") AS total_amt FROM hv JOIN transaction_history_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" AND t.\"Transaction Payment Status\" = 'Paid' GROUP BY t.\"Transaction Currency\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.2106384858489037
+        },
+        {
+          "sql_id": "S107",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT d.\"Device Type\", COUNT(*) AS cnt FROM hv JOIN customer_device_table AS d ON hv.\"Customer ID\" = d.\"Customer ID\" GROUP BY d.\"Device Type\" ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.50963943451643
+        },
+        {
+          "sql_id": "S109",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT p.\"Role Name\", COUNT(*) AS cnt FROM hv JOIN permissions_table AS p ON hv.\"Customer ID\" = p.\"Customer ID\" GROUP BY p.\"Role Name\" ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.57170370221138
+        },
+        {
+          "sql_id": "S111",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cp.\"Event Participation Prize Level\", COUNT(*) AS cnt FROM hv JOIN campaign_participation_table AS cp ON hv.\"Customer ID\" = cp.\"Event Participant Contact ID\" GROUP BY cp.\"Event Participation Prize Level\" ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.466473564505577
+        },
+        {
+          "sql_id": "S113",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cf.\"Satisfaction Rating\", COUNT(*) AS cnt FROM hv JOIN customer_feedback_table AS cf ON hv.\"Customer ID\" = cf.\"Contact ID\" GROUP BY cf.\"Satisfaction Rating\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.3829246163368225
+        },
+        {
+          "sql_id": "S120",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cf.\"Satisfaction Rating\", COUNT(*) AS cnt FROM hv JOIN customer_tag_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" JOIN customer_feedback_table AS cf ON t.\"Contact ID\" = cf.\"Contact ID\" GROUP BY cf.\"Satisfaction Rating\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.1885884925723076
+        },
+        {
+          "sql_id": "S122",
+          "rewritten_sql": "WITH hv AS (SELECT * FROM temp.reuse_candidate) SELECT cp.\"Event Participation Prize Level\", COUNT(*) AS cnt FROM hv JOIN customer_tag_table AS t ON hv.\"Customer ID\" = t.\"Customer ID\" JOIN campaign_participation_table AS cp ON t.\"Contact ID\" = cp.\"Event Participant Contact ID\" GROUP BY cp.\"Event Participation Prize Level\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.9052773714065552
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Customer ID\" AS __g0, SUBSTRING(\"Customer ID\", 1, 1) AS __g1, LENGTH(\"Customer ID\") AS __g2, SUBSTRING(\"Account ID\", 1, 1) AS __g3, LENGTH(\"Account ID\") AS __g4, \"Transaction Payment Status\" AS __g5, COUNT(*) AS __a0, SUM(\"Transaction Amount\") AS __a1, SUM(CASE WHEN \"Transaction Payment Status\" = 'Paid' THEN \"Transaction Amount\" ELSE 0 END) AS __a2 FROM \"transaction_history_table\"  GROUP BY \"Customer ID\", SUBSTRING(\"Customer ID\", 1, 1), LENGTH(\"Customer ID\"), SUBSTRING(\"Account ID\", 1, 1), LENGTH(\"Account ID\"), \"Transaction Payment Status\"",
+      "covered": [
+        "S7",
+        "S29",
+        "S45",
+        "S59"
+      ],
+      "rewrites": {
+        "S7": "SELECT __g0 AS \"Customer ID\", SUM(__a0) AS n_tx, SUM(__a1) AS total_amt, SUM(__a2) AS paid_amt FROM temp.reuse_candidate GROUP BY __g0 HAVING SUM(__a2) > 5000 ORDER BY paid_amt DESC",
+        "S29": "SELECT __g1 AS prefix, __g2 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1, __g2",
+        "S45": "SELECT __g3 AS prefix, __g4 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3, __g4",
+        "S59": "SELECT __g5 AS \"Transaction Payment Status\", SUM(__a0) AS cnt, SUM(__a1) AS amt FROM temp.reuse_candidate GROUP BY __g5"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S7",
+      "later_reuses": 3,
+      "denominator": 115,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Membership Level\" AS __g0, SUBSTRING(\"Customer ID\", 1, 1) AS __g1, LENGTH(\"Customer ID\") AS __g2, \"Upgrade Requirements Met\" AS __g3, COUNT(*) AS __a0, SUM(\"Current Points\") AS __a1_sum, COUNT(\"Current Points\") AS __a1_n, SUM(\"Lifetime Points\") AS __a2_sum, COUNT(\"Lifetime Points\") AS __a2_n, MIN(\"Lifetime Points\") AS __a3, MAX(\"Lifetime Points\") AS __a4 FROM \"membership_table\"  GROUP BY \"Membership Level\", SUBSTRING(\"Customer ID\", 1, 1), LENGTH(\"Customer ID\"), \"Upgrade Requirements Met\"",
+      "covered": [
+        "S11",
+        "S30",
+        "S73",
+        "S94",
+        "S96"
+      ],
+      "rewrites": {
+        "S11": "SELECT __g0 AS \"Membership Level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+        "S30": "SELECT __g1 AS prefix, __g2 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1, __g2",
+        "S73": "SELECT __g0 AS \"Membership Level\", SUM(__a0) AS all_cust FROM temp.reuse_candidate GROUP BY __g0 ORDER BY all_cust DESC",
+        "S94": "SELECT (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_cur_all, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_life_all, MIN(__a3) AS min_life_all, MAX(__a4) AS max_life_all FROM temp.reuse_candidate",
+        "S96": "SELECT __g3 AS \"Upgrade Requirements Met\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S11",
+      "later_reuses": 4,
+      "denominator": 115,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865055.003232,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Membership Level\" AS __g0, SUBSTRING(\"Customer ID\", 1, 1) AS __g1, LENGTH(\"Customer ID\") AS __g2, \"Upgrade Requirements Met\" AS __g3, COUNT(*) AS __a0, SUM(\"Current Points\") AS __a1_sum, COUNT(\"Current Points\") AS __a1_n, SUM(\"Lifetime Points\") AS __a2_sum, COUNT(\"Lifetime Points\") AS __a2_n, MIN(\"Lifetime Points\") AS __a3, MAX(\"Lifetime Points\") AS __a4 FROM \"membership_table\"  GROUP BY \"Membership Level\", SUBSTRING(\"Customer ID\", 1, 1), LENGTH(\"Customer ID\"), \"Upgrade Requirements Met\"",
+          "phase": "offline_validation",
+          "start_time": 1788865055.00343,
+          "status": "execute_returned",
+          "end_time": 1788865055.0041907
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865055.0041943,
+          "status": "execute_returned",
+          "end_time": 1788865055.0042088
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865055.0042124,
+          "status": "execute_returned",
+          "end_time": 1788865055.0042255
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"Membership Level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865055.0042446,
+          "status": "execute_returned",
+          "end_time": 1788865055.0042706
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g1 AS prefix, __g2 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1, __g2",
+          "phase": "offline_validation",
+          "start_time": 1788865055.0047803,
+          "status": "execute_returned",
+          "end_time": 1788865055.0048158
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS \"Membership Level\", SUM(__a0) AS all_cust FROM temp.reuse_candidate GROUP BY __g0 ORDER BY all_cust DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865055.00545,
+          "status": "execute_returned",
+          "end_time": 1788865055.0054908
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_cur_all, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_life_all, MIN(__a3) AS min_life_all, MAX(__a4) AS max_life_all FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865055.005977,
+          "status": "execute_returned",
+          "end_time": 1788865055.006024
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g3 AS \"Upgrade Requirements Met\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3",
+          "phase": "offline_validation",
+          "start_time": 1788865055.0066514,
+          "status": "execute_returned",
+          "end_time": 1788865055.0066853
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Membership Level\" AS __g0, SUBSTRING(\"Customer ID\", 1, 1) AS __g1, LENGTH(\"Customer ID\") AS __g2, \"Upgrade Requirements Met\" AS __g3, COUNT(*) AS __a0, SUM(\"Current Points\") AS __a1_sum, COUNT(\"Current Points\") AS __a1_n, SUM(\"Lifetime Points\") AS __a2_sum, COUNT(\"Lifetime Points\") AS __a2_n, MIN(\"Lifetime Points\") AS __a3, MAX(\"Lifetime Points\") AS __a4 FROM \"membership_table\"  GROUP BY \"Membership Level\", SUBSTRING(\"Customer ID\", 1, 1), LENGTH(\"Customer ID\"), \"Upgrade Requirements Met\"",
+          "time": 1788865055.0036988,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865055.0042064,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865055.0042226,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Membership Level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "time": 1788865055.00426,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS prefix, __g2 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1, __g2",
+          "time": 1788865055.0048044,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Membership Level\", SUM(__a0) AS all_cust FROM temp.reuse_candidate GROUP BY __g0 ORDER BY all_cust DESC",
+          "time": 1788865055.0054772,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_cur_all, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_life_all, MIN(__a3) AS min_life_all, MAX(__a4) AS max_life_all FROM temp.reuse_candidate",
+          "time": 1788865055.0060139,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS \"Upgrade Requirements Met\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3",
+          "time": 1788865055.0066748,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.7641129195690155,
+      "intermediate_rows": 10,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__a0",
+        "__a1_sum",
+        "__a1_n",
+        "__a2_sum",
+        "__a2_n",
+        "__a3",
+        "__a4"
+      ],
+      "validation_ended_at": 1788865055.0072002,
+      "checks": [
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT __g0 AS \"Membership Level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.53352490067482
+        },
+        {
+          "sql_id": "S30",
+          "rewritten_sql": "SELECT __g1 AS prefix, __g2 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1, __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6676753982901573
+        },
+        {
+          "sql_id": "S73",
+          "rewritten_sql": "SELECT __g0 AS \"Membership Level\", SUM(__a0) AS all_cust FROM temp.reuse_candidate GROUP BY __g0 ORDER BY all_cust DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5250880494713783
+        },
+        {
+          "sql_id": "S94",
+          "rewritten_sql": "SELECT (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_cur_all, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_life_all, MIN(__a3) AS min_life_all, MAX(__a4) AS max_life_all FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6725359708070755
+        },
+        {
+          "sql_id": "S96",
+          "rewritten_sql": "SELECT __g3 AS \"Upgrade Requirements Met\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.47087855637073517
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Tag Name\" AS __g0, SUBSTRING(\"Customer ID\", 1, 1) AS __g1, LENGTH(\"Customer ID\") AS __g2, SUBSTRING(\"Contact ID\", 1, 1) AS __g3, LENGTH(\"Contact ID\") AS __g4, COUNT(*) AS __a0 FROM \"customer_tag_table\"  GROUP BY \"Tag Name\", SUBSTRING(\"Customer ID\", 1, 1), LENGTH(\"Customer ID\"), SUBSTRING(\"Contact ID\", 1, 1), LENGTH(\"Contact ID\")",
+      "covered": [
+        "S12",
+        "S31",
+        "S75",
+        "S118"
+      ],
+      "rewrites": {
+        "S12": "SELECT __g0 AS \"Tag Name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 20",
+        "S31": "SELECT __g1 AS prefix, __g2 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1, __g2",
+        "S75": "SELECT __g0 AS \"Tag Name\", SUM(__a0) AS all_cust FROM temp.reuse_candidate GROUP BY __g0 ORDER BY all_cust DESC",
+        "S118": "SELECT __g3 AS prefix, __g4 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3, __g4"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C6",
+      "offline": true,
+      "earliest_build_before": "S12",
+      "later_reuses": 3,
+      "denominator": 115,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865055.0072417,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Tag Name\" AS __g0, SUBSTRING(\"Customer ID\", 1, 1) AS __g1, LENGTH(\"Customer ID\") AS __g2, SUBSTRING(\"Contact ID\", 1, 1) AS __g3, LENGTH(\"Contact ID\") AS __g4, COUNT(*) AS __a0 FROM \"customer_tag_table\"  GROUP BY \"Tag Name\", SUBSTRING(\"Customer ID\", 1, 1), LENGTH(\"Customer ID\"), SUBSTRING(\"Contact ID\", 1, 1), LENGTH(\"Contact ID\")",
+          "phase": "offline_validation",
+          "start_time": 1788865055.0074122,
+          "status": "execute_returned",
+          "end_time": 1788865055.0082314
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865055.0082347,
+          "status": "execute_returned",
+          "end_time": 1788865055.008249
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865055.0082526,
+          "status": "execute_returned",
+          "end_time": 1788865055.0082626
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"Tag Name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 20",
+          "phase": "offline_validation",
+          "start_time": 1788865055.0082736,
+          "status": "execute_returned",
+          "end_time": 1788865055.008305
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g1 AS prefix, __g2 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1, __g2",
+          "phase": "offline_validation",
+          "start_time": 1788865055.0088663,
+          "status": "execute_returned",
+          "end_time": 1788865055.0089025
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS \"Tag Name\", SUM(__a0) AS all_cust FROM temp.reuse_candidate GROUP BY __g0 ORDER BY all_cust DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865055.0095716,
+          "status": "execute_returned",
+          "end_time": 1788865055.0096133
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g3 AS prefix, __g4 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3, __g4",
+          "phase": "offline_validation",
+          "start_time": 1788865055.0101206,
+          "status": "execute_returned",
+          "end_time": 1788865055.010156
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Tag Name\" AS __g0, SUBSTRING(\"Customer ID\", 1, 1) AS __g1, LENGTH(\"Customer ID\") AS __g2, SUBSTRING(\"Contact ID\", 1, 1) AS __g3, LENGTH(\"Contact ID\") AS __g4, COUNT(*) AS __a0 FROM \"customer_tag_table\"  GROUP BY \"Tag Name\", SUBSTRING(\"Customer ID\", 1, 1), LENGTH(\"Customer ID\"), SUBSTRING(\"Contact ID\", 1, 1), LENGTH(\"Contact ID\")",
+          "time": 1788865055.0076568,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865055.0082462,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865055.00826,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Tag Name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 20",
+          "time": 1788865055.0082896,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS prefix, __g2 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1, __g2",
+          "time": 1788865055.0088909,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Tag Name\", SUM(__a0) AS all_cust FROM temp.reuse_candidate GROUP BY __g0 ORDER BY all_cust DESC",
+          "time": 1788865055.009599,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS prefix, __g4 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3, __g4",
+          "time": 1788865055.010145,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.8217981085181236,
+      "intermediate_rows": 10,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__a0"
+      ],
+      "validation_ended_at": 1788865055.0108378,
+      "checks": [
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT __g0 AS \"Tag Name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.590294599533081
+        },
+        {
+          "sql_id": "S31",
+          "rewritten_sql": "SELECT __g1 AS prefix, __g2 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1, __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.7030479609966278
+        },
+        {
+          "sql_id": "S75",
+          "rewritten_sql": "SELECT __g0 AS \"Tag Name\", SUM(__a0) AS all_cust FROM temp.reuse_candidate GROUP BY __g0 ORDER BY all_cust DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5475105717778206
+        },
+        {
+          "sql_id": "S118",
+          "rewritten_sql": "SELECT __g3 AS prefix, __g4 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3, __g4",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6507672369480133
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Credit Grade\" AS __g0, SUBSTRING(\"Account ID\", 1, 1) AS __g1, LENGTH(\"Account ID\") AS __g2, COUNT(*) AS __a0, SUM(\"Credit Score\") AS __a1_sum, COUNT(\"Credit Score\") AS __a1_n, SUM(\"Credit Limit\") AS __a2_sum, COUNT(\"Credit Limit\") AS __a2_n FROM \"customer_credit_rating_table\"  GROUP BY \"Credit Grade\", SUBSTRING(\"Account ID\", 1, 1), LENGTH(\"Account ID\")",
+      "covered": [
+        "S13",
+        "S43",
+        "S102"
+      ],
+      "rewrites": {
+        "S13": "SELECT __g0 AS \"Credit Grade\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+        "S43": "SELECT __g1 AS prefix, __g2 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1, __g2",
+        "S102": "SELECT __g0 AS \"Credit Grade\", SUM(__a0) AS cnt_all, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_score_all, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_limit_all FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt_all DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C7",
+      "offline": true,
+      "earliest_build_before": "S13",
+      "later_reuses": 2,
+      "denominator": 115,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Segment Name\" AS __g0, SUBSTRING(\"Customer ID\", 1, 1) AS __g1, LENGTH(\"Customer ID\") AS __g2, COUNT(*) AS __a0 FROM \"customer_segments_table\"  GROUP BY \"Segment Name\", SUBSTRING(\"Customer ID\", 1, 1), LENGTH(\"Customer ID\")",
+      "covered": [
+        "S14",
+        "S32"
+      ],
+      "rewrites": {
+        "S14": "SELECT __g0 AS \"Segment Name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+        "S32": "SELECT __g1 AS prefix, __g2 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1, __g2"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C8",
+      "offline": true,
+      "earliest_build_before": "S14",
+      "later_reuses": 1,
+      "denominator": 115,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT SUBSTRING(\"Customer ID\", 1, 1) AS __g0, LENGTH(\"Customer ID\") AS __g1, \"Gender\" AS __g2, SUBSTRING(\"Contact\", 1, 1) AS __g3, LENGTH(\"Contact\") AS __g4, COUNT(*) AS __a0 FROM \"customer_contact_table\"  GROUP BY SUBSTRING(\"Customer ID\", 1, 1), LENGTH(\"Customer ID\"), \"Gender\", SUBSTRING(\"Contact\", 1, 1), LENGTH(\"Contact\")",
+      "covered": [
+        "S33",
+        "S79",
+        "S115"
+      ],
+      "rewrites": {
+        "S33": "SELECT __g0 AS prefix, __g1 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1",
+        "S79": "SELECT __g2 AS \"Gender\", SUM(__a0) AS all_cust FROM temp.reuse_candidate GROUP BY __g2",
+        "S115": "SELECT __g3 AS prefix, __g4 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3, __g4"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C9",
+      "offline": true,
+      "earliest_build_before": "S33",
+      "later_reuses": 2,
+      "denominator": 115,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT SUBSTRING(\"Customer ID\", 1, 1) AS __g0, LENGTH(\"Customer ID\") AS __g1, \"Contract Type\" AS __g2, \"Contract Performance Status\" AS __g3, COUNT(*) AS __a0 FROM \"contracts_table\"  GROUP BY SUBSTRING(\"Customer ID\", 1, 1), LENGTH(\"Customer ID\"), \"Contract Type\", \"Contract Performance Status\"",
+      "covered": [
+        "S35",
+        "S76",
+        "S77"
+      ],
+      "rewrites": {
+        "S35": "SELECT __g0 AS prefix, __g1 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1",
+        "S76": "SELECT __g2 AS \"Contract Type\", SUM(__a0) AS all_cust FROM temp.reuse_candidate GROUP BY __g2 ORDER BY all_cust DESC",
+        "S77": "SELECT __g3 AS \"Contract Performance Status\", SUM(__a0) AS all_cust FROM temp.reuse_candidate GROUP BY __g3 ORDER BY all_cust DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C10",
+      "offline": true,
+      "earliest_build_before": "S35",
+      "later_reuses": 2,
+      "denominator": 115,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT SUBSTRING(\"Customer ID\", 1, 1) AS __g0, LENGTH(\"Customer ID\") AS __g1, SUBSTRING(\"Account ID\", 1, 1) AS __g2, LENGTH(\"Account ID\") AS __g3, \"Account Type\" AS __g4, \"Account Credit Rating\" AS __g5, COUNT(*) AS __a0 FROM \"customer_account_table\"  GROUP BY SUBSTRING(\"Customer ID\", 1, 1), LENGTH(\"Customer ID\"), SUBSTRING(\"Account ID\", 1, 1), LENGTH(\"Account ID\"), \"Account Type\", \"Account Credit Rating\"",
+      "covered": [
+        "S34",
+        "S44",
+        "S69",
+        "S72"
+      ],
+      "rewrites": {
+        "S34": "SELECT __g0 AS prefix, __g1 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1",
+        "S44": "SELECT __g2 AS prefix, __g3 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g3",
+        "S69": "SELECT __g4 AS \"Account Type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g4",
+        "S72": "SELECT __g5 AS \"Account Credit Rating\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g5"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C11",
+      "offline": true,
+      "earliest_build_before": "S34",
+      "later_reuses": 3,
+      "denominator": 115,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT SUBSTRING(\"Customer ID\", 1, 1) AS __g0, LENGTH(\"Customer ID\") AS __g1, COUNT(*) AS __a0, SUM(\"Receivable Amount\") AS __a1_sum, COUNT(\"Receivable Amount\") AS __a1_n, SUM(\"Amount Received\") AS __a2_sum, COUNT(\"Amount Received\") AS __a2_n, SUM(\"Outstanding Amount\") AS __a3_sum, COUNT(\"Outstanding Amount\") AS __a3_n, SUM(\"Tax Amount\") AS __a4_sum, COUNT(\"Tax Amount\") AS __a4_n FROM \"financials_table\"  GROUP BY SUBSTRING(\"Customer ID\", 1, 1), LENGTH(\"Customer ID\")",
+      "covered": [
+        "S36",
+        "S104"
+      ],
+      "rewrites": {
+        "S36": "SELECT __g0 AS prefix, __g1 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1",
+        "S104": "SELECT (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_recvbl_all, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_recvd_all, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_out_all, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_tax_all FROM temp.reuse_candidate"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C12",
+      "offline": true,
+      "earliest_build_before": "S36",
+      "later_reuses": 1,
+      "denominator": 115,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT SUBSTRING(\"Customer ID\", 1, 1) AS __g0, LENGTH(\"Customer ID\") AS __g1, \"Subscribed Product Name\" AS __g2, COUNT(*) AS __a0, SUM(\"Total Amount\") AS __a1 FROM \"product_service_order_table\"  GROUP BY SUBSTRING(\"Customer ID\", 1, 1), LENGTH(\"Customer ID\"), \"Subscribed Product Name\"",
+      "covered": [
+        "S37",
+        "S78"
+      ],
+      "rewrites": {
+        "S37": "SELECT __g0 AS prefix, __g1 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1",
+        "S78": "SELECT __g2 AS \"Subscribed Product Name\", SUM(__a0) AS all_cust, SUM(__a1) AS total_amt FROM temp.reuse_candidate GROUP BY __g2 ORDER BY all_cust DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C13",
+      "offline": true,
+      "earliest_build_before": "S37",
+      "later_reuses": 1,
+      "denominator": 115,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Complaint Customer Satisfaction\" AS __g0, COUNT(*) AS __a0 FROM \"complaints_table\"  GROUP BY \"Complaint Customer Satisfaction\"",
+      "covered": [
+        "S83",
+        "S90"
+      ],
+      "rewrites": {
+        "S83": "SELECT __g0 AS \"Complaint Customer Satisfaction\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+        "S90": "SELECT __g0 AS \"Complaint Customer Satisfaction\", SUM(__a0) AS cnt_all FROM temp.reuse_candidate GROUP BY __g0"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C14",
+      "offline": true,
+      "earliest_build_before": "S83",
+      "later_reuses": 1,
+      "denominator": 115,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Ticket customer satisfaction score\" AS __g0, COUNT(*) AS __a0, SUM(\"Ticket customer satisfaction score\") AS __a1_sum, COUNT(\"Ticket customer satisfaction score\") AS __a1_n, SUM(\"Ticket resolution duration\") AS __a2_sum, COUNT(\"Ticket resolution duration\") AS __a2_n FROM \"service_ticket_table\"  GROUP BY \"Ticket customer satisfaction score\"",
+      "covered": [
+        "S84",
+        "S89",
+        "S92"
+      ],
+      "rewrites": {
+        "S84": "SELECT __g0 AS \"Ticket customer satisfaction score\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+        "S89": "SELECT __g0 AS \"Ticket customer satisfaction score\", SUM(__a0) AS cnt_all FROM temp.reuse_candidate GROUP BY __g0",
+        "S92": "SELECT (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_sat_all, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_duration_all FROM temp.reuse_candidate"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C15",
+      "offline": true,
+      "earliest_build_before": "S84",
+      "later_reuses": 2,
+      "denominator": 115,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Event Participation Prize Level\" AS __g0, SUBSTRING(\"Event Participant Contact ID\", 1, 1) AS __g1, LENGTH(\"Event Participant Contact ID\") AS __g2, COUNT(*) AS __a0 FROM \"campaign_participation_table\"  GROUP BY \"Event Participation Prize Level\", SUBSTRING(\"Event Participant Contact ID\", 1, 1), LENGTH(\"Event Participant Contact ID\")",
+      "covered": [
+        "S112",
+        "S116"
+      ],
+      "rewrites": {
+        "S112": "SELECT __g0 AS \"Event Participation Prize Level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+        "S116": "SELECT __g1 AS prefix, __g2 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1, __g2"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C16",
+      "offline": true,
+      "earliest_build_before": "S112",
+      "later_reuses": 1,
+      "denominator": 115,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Satisfaction Rating\" AS __g0, SUBSTRING(\"Contact ID\", 1, 1) AS __g1, LENGTH(\"Contact ID\") AS __g2, COUNT(*) AS __a0 FROM \"customer_feedback_table\"  GROUP BY \"Satisfaction Rating\", SUBSTRING(\"Contact ID\", 1, 1), LENGTH(\"Contact ID\")",
+      "covered": [
+        "S114",
+        "S117"
+      ],
+      "rewrites": {
+        "S114": "SELECT __g0 AS \"Satisfaction Rating\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+        "S117": "SELECT __g1 AS prefix, __g2 AS len, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1, __g2"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C17",
+      "offline": true,
+      "earliest_build_before": "S114",
+      "later_reuses": 1,
+      "denominator": 115,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

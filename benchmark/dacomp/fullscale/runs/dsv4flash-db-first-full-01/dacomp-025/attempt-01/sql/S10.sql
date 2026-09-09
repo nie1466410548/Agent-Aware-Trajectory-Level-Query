@@ -1,0 +1,1 @@
+SELECT DISTINCT strftime('%Y-%m', "Date") as ym FROM purchase_price ORDER BY ym

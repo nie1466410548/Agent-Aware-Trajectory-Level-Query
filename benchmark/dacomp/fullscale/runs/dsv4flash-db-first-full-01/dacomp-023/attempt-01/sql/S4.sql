@@ -1,0 +1,1 @@
+SELECT MIN("Order Date") AS min_date, MAX("Order Date") AS max_date, COUNT(*) AS n FROM "order"

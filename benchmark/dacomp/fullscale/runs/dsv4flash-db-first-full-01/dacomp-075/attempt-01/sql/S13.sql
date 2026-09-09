@@ -1,0 +1,1 @@
+SELECT DISTINCT supplier_tier FROM netsuite2_vendor_risk_analysis

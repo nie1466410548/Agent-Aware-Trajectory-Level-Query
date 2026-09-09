@@ -1,0 +1,1 @@
+SELECT "Search Box Location", COUNT(*) AS cnt FROM search_behavior_records_table GROUP BY "Search Box Location" ORDER BY cnt DESC

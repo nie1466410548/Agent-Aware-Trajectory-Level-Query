@@ -1,0 +1,1 @@
+SELECT years_of_experience, COUNT(*) AS n FROM greenhouse__application_enhanced GROUP BY years_of_experience ORDER BY n DESC LIMIT 15

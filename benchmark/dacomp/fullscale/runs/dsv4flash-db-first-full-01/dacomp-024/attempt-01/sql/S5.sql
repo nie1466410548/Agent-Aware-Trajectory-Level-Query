@@ -1,0 +1,1 @@
+SELECT DISTINCT Segment FROM sheet1 ORDER BY Segment

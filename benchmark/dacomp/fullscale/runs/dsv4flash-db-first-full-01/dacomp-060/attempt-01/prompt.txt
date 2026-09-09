@@ -1,0 +1,144 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+It has been observed that some ad groups exhibit a high Click-Through Rate (CTR) but a low Conversion Rate (CVR), suggesting a potential mismatch between user intent and ad content. Using the `google_ads__ad_group_report` table and related conversion data, identify problematic ad groups based on the criteria of CTR > 75th percentile and CVR < 25th percentile. Analyze the common characteristics of these high-CTR, low-CVR ad groups, with a focus on assessing the Intent Match Ratio (Actual CVR / Expected CVR) and traffic quality. Finally, propose targeted optimization recommendations, including improvements for keyword strategy, audience targeting, and landing page experience.
+
+DATABASE SCHEMA:
+CREATE TABLE "google_ads__ad_group_report" (
+"source_relation" TEXT,
+  "date_day" TEXT,
+  "account_name" TEXT,
+  "account_id" TEXT,
+  "currency_code" TEXT,
+  "campaign_name" TEXT,
+  "campaign_id" TEXT,
+  "ad_group_name" TEXT,
+  "ad_group_id" TEXT,
+  "ad_group_type" TEXT,
+  "status" TEXT,
+  "spend" REAL,
+  "clicks" REAL,
+  "impressions" REAL,
+  "conversions" REAL,
+  "conversions_value" REAL,
+  "view_through_conversions" REAL
+)
+CREATE TABLE "google_ads__ad_report" (
+"source_relation" TEXT,
+  "date_day" TEXT,
+  "account_name" TEXT,
+  "account_id" TEXT,
+  "currency_code" TEXT,
+  "campaign_name" TEXT,
+  "campaign_id" TEXT,
+  "ad_group_name" TEXT,
+  "ad_group_id" TEXT,
+  "ad_name" TEXT,
+  "ad_id" TEXT,
+  "ad_type" TEXT,
+  "status" TEXT,
+  "display_url" TEXT,
+  "spend" REAL,
+  "clicks" REAL,
+  "impressions" REAL,
+  "conversions" REAL,
+  "conversions_value" REAL,
+  "view_through_conversions" REAL
+)
+CREATE TABLE "google_ads__campaign_report" (
+"source_relation" TEXT,
+  "date_day" TEXT,
+  "account_name" TEXT,
+  "account_id" TEXT,
+  "currency_code" TEXT,
+  "campaign_name" TEXT,
+  "campaign_id" TEXT,
+  "advertising_channel_type" TEXT,
+  "advertising_channel_subtype" TEXT,
+  "status" TEXT,
+  "spend" REAL,
+  "clicks" REAL,
+  "impressions" REAL,
+  "conversions" REAL,
+  "conversions_value" REAL,
+  "view_through_conversions" REAL
+)
+CREATE TABLE "google_ads__keyword_report" (
+"source_relation" TEXT,
+  "date_day" TEXT,
+  "account_name" TEXT,
+  "account_id" TEXT,
+  "currency_code" TEXT,
+  "campaign_name" TEXT,
+  "campaign_id" TEXT,
+  "ad_group_name" TEXT,
+  "ad_group_id" TEXT,
+  "criterion_id" TEXT,
+  "type" TEXT,
+  "status" TEXT,
+  "keyword_match_type" TEXT,
+  "keyword_text" TEXT,
+  "spend" REAL,
+  "clicks" REAL,
+  "impressions" REAL,
+  "conversions" REAL,
+  "conversions_value" REAL,
+  "view_through_conversions" REAL
+)
+CREATE TABLE "google_ads__search_term_report" (
+"source_relation" TEXT,
+  "date_day" TEXT,
+  "account_name" TEXT,
+  "account_id" TEXT,
+  "currency_code" TEXT,
+  "campaign_name" TEXT,
+  "campaign_id" TEXT,
+  "ad_group_name" TEXT,
+  "ad_group_id" TEXT,
+  "criterion_id" TEXT,
+  "keyword_text" TEXT,
+  "keyword_match_type" TEXT,
+  "search_term" TEXT,
+  "search_term_match_type" TEXT,
+  "spend" REAL,
+  "clicks" REAL,
+  "impressions" REAL,
+  "conversions" REAL,
+  "conversions_value" REAL,
+  "view_through_conversions" REAL
+)
+CREATE TABLE "google_ads__url_report" (
+"source_relation" TEXT,
+  "date_day" TEXT,
+  "account_name" TEXT,
+  "account_id" TEXT,
+  "currency_code" TEXT,
+  "campaign_name" TEXT,
+  "campaign_id" TEXT,
+  "ad_group_name" TEXT,
+  "ad_group_id" TEXT,
+  "ad_id" TEXT,
+  "base_url" TEXT,
+  "url_host" TEXT,
+  "url_path" TEXT,
+  "utm_source" TEXT,
+  "utm_medium" TEXT,
+  "utm_campaign" TEXT,
+  "utm_content" TEXT,
+  "utm_term" TEXT,
+  "spend" REAL,
+  "clicks" REAL,
+  "impressions" REAL,
+  "conversions" REAL,
+  "conversions_value" REAL,
+  "view_through_conversions" REAL
+)

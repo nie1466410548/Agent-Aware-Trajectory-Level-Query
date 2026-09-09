@@ -1,0 +1,1 @@
+SELECT "Salary Range", COUNT(*) AS cnt FROM sheet1 WHERE "Education Requirement" = 'Vocational school or above' AND "Salary Range" NOT LIKE '%yuan/month%' AND "Salary Range" NOT LIKE '%RMB/month%' AND "Salary Range" NOT LIKE '%天%' AND "Salary Range" NOT LIKE '%小时%' GROUP BY "Salary Range" ORDER BY cnt DESC LIMIT 30

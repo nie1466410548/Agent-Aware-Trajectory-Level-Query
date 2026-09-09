@@ -1,0 +1,1 @@
+SELECT DISTINCT account_name FROM google_ads__ad_group_report ORDER BY account_name

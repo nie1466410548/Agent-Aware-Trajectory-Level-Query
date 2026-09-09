@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT e."Visit Record Number") FROM encounters e

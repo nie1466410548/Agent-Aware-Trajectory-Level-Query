@@ -1,0 +1,1 @@
+SELECT * FROM environment_and_health LIMIT 5

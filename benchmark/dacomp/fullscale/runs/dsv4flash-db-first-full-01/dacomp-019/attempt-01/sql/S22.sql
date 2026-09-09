@@ -1,0 +1,1 @@
+SELECT "Storage conditions (room temperature/cool/refrigerated)" AS storage, COUNT(*) AS cnt FROM basic_drug_information GROUP BY 1

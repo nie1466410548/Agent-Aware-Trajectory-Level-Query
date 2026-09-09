@@ -1,0 +1,1 @@
+SELECT * FROM authentication_methods_table LIMIT 5

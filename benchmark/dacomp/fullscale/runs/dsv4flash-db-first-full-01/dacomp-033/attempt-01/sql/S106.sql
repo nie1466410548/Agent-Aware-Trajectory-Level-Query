@@ -1,0 +1,1 @@
+SELECT DISTINCT "Transaction Currency" FROM transaction_history_table

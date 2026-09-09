@@ -1,0 +1,97 @@
+{
+  "task_id": "dacomp-002",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python performs category/month groupby sums, ranking and shift-based growth calculations that SQLite GROUP BY and window functions support. Plot rendering is allowed; these preparations violate database_first_v1. Preserve failed Python attempts and the single main session.",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 15,
+          "text": "monthly_total = df.groupby('Sales_Month')['Monthly_Amount'].sum().reset_index()"
+        },
+        {
+          "line": 19,
+          "text": "top8 = df.groupby('Major_Category')['Monthly_Amount'].sum().sort_values(ascending=False).head(8).index.tolist()"
+        },
+        {
+          "line": 46,
+          "text": "top8_order = df.groupby('Major_Category')['Monthly_Amount'].sum().sort_values(ascending=False).head(8).index.tolist()"
+        },
+        {
+          "line": 66,
+          "text": "df_growth['Prev_Amount'] = df_growth.groupby('Major_Category')['Monthly_Amount'].shift(1)"
+        }
+      ]
+    },
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 20,
+          "text": "top8 = df.groupby('Major_Category')['Monthly_Amount'].sum().sort_values(ascending=False).head(8).index.tolist()"
+        },
+        {
+          "line": 46,
+          "text": "top8_order = df.groupby('Major_Category')['Monthly_Amount'].sum().sort_values(ascending=False).head(8).index.tolist()"
+        },
+        {
+          "line": 67,
+          "text": "df_growth['Prev_Amount'] = df_growth.groupby('Major_Category')['Monthly_Amount'].shift(1)"
+        }
+      ]
+    },
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 26,
+          "text": "    top_inter = cat_df.groupby('Intermediate_Category')['Monthly_Amount'].sum().sort_values(ascending=False).head(5).index.tolist()"
+        },
+        {
+          "line": 50,
+          "text": "promo_by_cat = df_full.groupby(['Major_Cat_Name', 'Is_Promotional']).agg("
+        },
+        {
+          "line": 60,
+          "text": "top_cats = df_full.groupby('Major_Cat_Name')['Sales_Amount'].sum().sort_values(ascending=False).head(10).index.tolist()"
+        },
+        {
+          "line": 77,
+          "text": "    top_inter = cat_df.groupby('Intermediate_Category')['Monthly_Amount'].sum().sort_values(ascending=False).head(3).index.tolist()"
+        }
+      ]
+    },
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 25,
+          "text": "    top_inter = cat_df.groupby('Intermediate_Category')['Monthly_Amount'].sum().sort_values(ascending=False).head(5).index.tolist()"
+        },
+        {
+          "line": 46,
+          "text": "    top_inter = cat_df.groupby('Intermediate_Category')['Monthly_Amount'].sum().sort_values(ascending=False).head(3).index.tolist()"
+        },
+        {
+          "line": 61,
+          "text": "df['Rank'] = df.groupby('Sales_Month')['Monthly_Amount'].rank(ascending=False, method='dense')"
+        },
+        {
+          "line": 67,
+          "text": "monthly_totals = df.groupby('Month_Label')['Monthly_Amount'].sum()"
+        }
+      ]
+    },
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 24,
+          "text": "    top_inter = cat_df.groupby('Intermediate_Category')['Monthly_Amount'].sum().sort_values(ascending=False).head(3).index.tolist()"
+        }
+      ]
+    }
+  ]
+}

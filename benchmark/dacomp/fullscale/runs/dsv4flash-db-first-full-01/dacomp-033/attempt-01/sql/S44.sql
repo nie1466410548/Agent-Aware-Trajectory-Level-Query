@@ -1,0 +1,1 @@
+SELECT SUBSTR("Account ID",1,1) as prefix, LENGTH("Account ID") as len, COUNT(*) as cnt FROM customer_account_table GROUP BY prefix, len

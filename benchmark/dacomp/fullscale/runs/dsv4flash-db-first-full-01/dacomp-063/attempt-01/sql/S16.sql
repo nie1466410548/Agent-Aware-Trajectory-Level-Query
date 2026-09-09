@@ -1,0 +1,1 @@
+SELECT DISTINCT performance_tier FROM jira__team_performance_dashboard

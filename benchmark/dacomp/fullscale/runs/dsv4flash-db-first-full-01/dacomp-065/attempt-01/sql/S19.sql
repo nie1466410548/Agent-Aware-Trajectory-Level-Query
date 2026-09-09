@@ -1,0 +1,1 @@
+SELECT application_id, COUNT(*) AS n FROM greenhouse__interview_enhanced GROUP BY application_id HAVING n > 1 ORDER BY n DESC LIMIT 10

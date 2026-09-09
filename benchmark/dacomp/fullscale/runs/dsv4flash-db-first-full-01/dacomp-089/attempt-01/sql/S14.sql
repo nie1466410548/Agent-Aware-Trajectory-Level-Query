@@ -1,0 +1,1 @@
+SELECT title, COUNT(*) AS cnt FROM salesforce__contact_enhanced WHERE title LIKE '%CEO%' OR title LIKE '%CFO%' OR title LIKE '%COO%' OR title LIKE '%CTO%' OR title LIKE '%CIO%' OR title LIKE '%CMO%' OR title LIKE '%VP%' OR title LIKE '%Vice President%' OR title LIKE '%President%' OR title LIKE '%Chief%' GROUP BY title ORDER BY cnt DESC LIMIT 50

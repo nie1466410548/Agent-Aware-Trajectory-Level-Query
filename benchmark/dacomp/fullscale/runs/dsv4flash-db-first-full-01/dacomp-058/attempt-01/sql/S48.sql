@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT campaign_id) AS campaigns_with_bad_roas FROM google_ads__campaign_report WHERE roas < 0.8

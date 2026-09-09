@@ -1,0 +1,1 @@
+SELECT Age FROM "2010_cn_pop_6_up_age_sex_edu" ORDER BY rowid DESC LIMIT 8

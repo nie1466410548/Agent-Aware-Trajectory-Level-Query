@@ -1,0 +1,400 @@
+{
+  "fingerprint": "96d73d0db343891cf19daf5ba5336a39b128f07bb96410c61aa4d84b4fada120",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT job_profile_id, job_title, job_value_tier, talent_competition_level, job_health_score, avg_career_development_score, retention_difficulty_level, is_work_shift_required, avg_weekly_hours, current_employees_count, active_positions_count, ROUND(current_employees_count * 1.0 / active_positions_count, 4) AS talent_saturation, ROUND(high_performer_percentage * career_growth_potential_percentage, 6) AS talent_quality_index FROM workday__job_overview WHERE job_value_tier IN ('Tier 1', 'Tier 2') AND talent_competition_level IN ('High', 'Very High')",
+      "covered": [
+        "S13",
+        "S15"
+      ],
+      "rewrites": {
+        "S13": "WITH subset AS (SELECT * FROM temp.reuse_candidate) SELECT ROUND(AVG(job_health_score), 2) AS mean_health, MIN(job_health_score) AS min_health, MAX(job_health_score) AS max_health, ROUND(AVG(avg_career_development_score), 2) AS mean_dev, MIN(avg_career_development_score) AS min_dev, MAX(avg_career_development_score) AS max_dev, ROUND(AVG(talent_saturation), 3) AS mean_sat, ROUND(AVG(talent_quality_index), 5) AS mean_quality FROM subset",
+        "S15": "WITH subset AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM subset ORDER BY job_profile_id"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S13",
+      "later_reuses": 1,
+      "denominator": 15,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869891.0385702,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT job_profile_id, job_title, job_value_tier, talent_competition_level, job_health_score, avg_career_development_score, retention_difficulty_level, is_work_shift_required, avg_weekly_hours, current_employees_count, active_positions_count, ROUND(current_employees_count * 1.0 / active_positions_count, 4) AS talent_saturation, ROUND(high_performer_percentage * career_growth_potential_percentage, 6) AS talent_quality_index FROM workday__job_overview WHERE job_value_tier IN ('Tier 1', 'Tier 2') AND talent_competition_level IN ('High', 'Very High')",
+          "phase": "offline_validation",
+          "start_time": 1788869891.0387623,
+          "status": "execute_returned",
+          "end_time": 1788869891.0399916
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869891.039996,
+          "status": "execute_returned",
+          "end_time": 1788869891.040013
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788869891.0400171,
+          "status": "execute_returned",
+          "end_time": 1788869891.0400283
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH subset AS (SELECT * FROM temp.reuse_candidate) SELECT ROUND(AVG(job_health_score), 2) AS mean_health, MIN(job_health_score) AS min_health, MAX(job_health_score) AS max_health, ROUND(AVG(avg_career_development_score), 2) AS mean_dev, MIN(avg_career_development_score) AS min_dev, MAX(avg_career_development_score) AS max_dev, ROUND(AVG(talent_saturation), 3) AS mean_sat, ROUND(AVG(talent_quality_index), 5) AS mean_quality FROM subset",
+          "phase": "offline_validation",
+          "start_time": 1788869891.0400486,
+          "status": "execute_returned",
+          "end_time": 1788869891.040323
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH subset AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM subset ORDER BY job_profile_id",
+          "phase": "offline_validation",
+          "start_time": 1788869891.0426404,
+          "status": "execute_returned",
+          "end_time": 1788869891.0431173
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT job_profile_id, job_title, job_value_tier, talent_competition_level, job_health_score, avg_career_development_score, retention_difficulty_level, is_work_shift_required, avg_weekly_hours, current_employees_count, active_positions_count, ROUND(current_employees_count * 1.0 / active_positions_count, 4) AS talent_saturation, ROUND(high_performer_percentage * career_growth_potential_percentage, 6) AS talent_quality_index FROM workday__job_overview WHERE job_value_tier IN ('Tier 1', 'Tier 2') AND talent_competition_level IN ('High', 'Very High')",
+          "time": 1788869891.0390158,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788869891.0400093,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788869891.040026,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH subset AS (SELECT * FROM temp.reuse_candidate) SELECT ROUND(AVG(job_health_score), 2) AS mean_health, MIN(job_health_score) AS min_health, MAX(job_health_score) AS max_health, ROUND(AVG(avg_career_development_score), 2) AS mean_dev, MIN(avg_career_development_score) AS min_dev, MAX(avg_career_development_score) AS max_dev, ROUND(AVG(talent_saturation), 3) AS mean_sat, ROUND(AVG(talent_quality_index), 5) AS mean_quality FROM subset",
+          "time": 1788869891.0400963,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH subset AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM subset ORDER BY job_profile_id",
+          "time": 1788869891.0426912,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 1.2333914637565613,
+      "intermediate_rows": 660,
+      "intermediate_columns": [
+        "job_profile_id",
+        "job_title",
+        "job_value_tier",
+        "talent_competition_level",
+        "job_health_score",
+        "avg_career_development_score",
+        "retention_difficulty_level",
+        "is_work_shift_required",
+        "avg_weekly_hours",
+        "current_employees_count",
+        "active_positions_count",
+        "talent_saturation",
+        "talent_quality_index"
+      ],
+      "validation_ended_at": 1788869891.0504587,
+      "checks": [
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "WITH subset AS (SELECT * FROM temp.reuse_candidate) SELECT ROUND(AVG(job_health_score), 2) AS mean_health, MIN(job_health_score) AS min_health, MAX(job_health_score) AS max_health, ROUND(AVG(avg_career_development_score), 2) AS mean_dev, MIN(avg_career_development_score) AS min_dev, MAX(avg_career_development_score) AS max_dev, ROUND(AVG(talent_saturation), 3) AS mean_sat, ROUND(AVG(talent_quality_index), 5) AS mean_quality FROM subset",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.5892918929457664
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "WITH subset AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM subset ORDER BY job_profile_id",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 7.645995356142521
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT job_value_tier AS __g0, talent_competition_level AS __g1, COUNT(*) AS __a0, SUM(CASE WHEN active_positions_count IS NULL OR active_positions_count = 0 THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN current_employees_count IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN high_performer_percentage IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN career_growth_potential_percentage IS NULL THEN 1 ELSE 0 END) AS __a4, SUM(CASE WHEN job_health_score IS NULL THEN 1 ELSE 0 END) AS __a5, SUM(CASE WHEN avg_career_development_score IS NULL THEN 1 ELSE 0 END) AS __a6, MIN(active_positions_count) AS __a7, MAX(active_positions_count) AS __a8, MIN(high_performer_percentage) AS __a9, MAX(high_performer_percentage) AS __a10, SUM(high_performer_percentage) AS __a11_sum, COUNT(high_performer_percentage) AS __a11_n, MIN(career_growth_potential_percentage) AS __a12, MAX(career_growth_potential_percentage) AS __a13, SUM(career_growth_potential_percentage) AS __a14_sum, COUNT(career_growth_potential_percentage) AS __a14_n, MIN(job_health_score) AS __a15, MAX(job_health_score) AS __a16, SUM(job_health_score) AS __a17_sum, COUNT(job_health_score) AS __a17_n, MIN(avg_career_development_score) AS __a18, MAX(avg_career_development_score) AS __a19, SUM(avg_career_development_score) AS __a20_sum, COUNT(avg_career_development_score) AS __a20_n, MIN(current_employees_count) AS __a21, MAX(current_employees_count) AS __a22, MIN(avg_weekly_hours) AS __a23, MAX(avg_weekly_hours) AS __a24, SUM(current_employees_count * 1.0 / active_positions_count) AS __a25_sum, COUNT(current_employees_count * 1.0 / active_positions_count) AS __a25_n FROM \"workday__job_overview\"  GROUP BY job_value_tier, talent_competition_level",
+      "covered": [
+        "S3",
+        "S4",
+        "S5",
+        "S7",
+        "S8",
+        "S9",
+        "S10"
+      ],
+      "rewrites": {
+        "S3": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+        "S4": "SELECT __g0 AS \"job_value_tier\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+        "S5": "SELECT __g1 AS \"talent_competition_level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+        "S7": "SELECT SUM(__a0) AS total, SUM(__a1) AS zero_active_pos, SUM(__a2) AS null_curr_emp, SUM(__a3) AS null_hp, SUM(__a4) AS null_cgp, SUM(__a5) AS null_jhs, SUM(__a6) AS null_ads, MIN(__a7) AS min_active, MAX(__a8) AS max_active FROM temp.reuse_candidate",
+        "S8": "SELECT __g0 AS \"job_value_tier\", __g1 AS \"talent_competition_level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, cnt DESC",
+        "S9": "SELECT MIN(__a9) AS min_hp, MAX(__a10) AS max_hp, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_hp, MIN(__a12) AS min_cgp, MAX(__a13) AS max_cgp, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_cgp, MIN(__a15) AS min_jhs, MAX(__a16) AS max_jhs, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_jhs, MIN(__a18) AS min_ads, MAX(__a19) AS max_ads, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_ads, MIN(__a21) AS min_ce, MAX(__a22) AS max_ce, MIN(__a23) AS min_wk, MAX(__a24) AS max_wk FROM temp.reuse_candidate",
+        "S10": "SELECT __g0 AS \"job_value_tier\", (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_health, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_dev, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_hp, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_cgp, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_saturation FROM temp.reuse_candidate GROUP BY __g0"
+      },
+      "status": "rejected_result_mismatch",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 6,
+      "denominator": 15,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869891.0285373,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT job_value_tier AS __g0, talent_competition_level AS __g1, COUNT(*) AS __a0, SUM(CASE WHEN active_positions_count IS NULL OR active_positions_count = 0 THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN current_employees_count IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN high_performer_percentage IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN career_growth_potential_percentage IS NULL THEN 1 ELSE 0 END) AS __a4, SUM(CASE WHEN job_health_score IS NULL THEN 1 ELSE 0 END) AS __a5, SUM(CASE WHEN avg_career_development_score IS NULL THEN 1 ELSE 0 END) AS __a6, MIN(active_positions_count) AS __a7, MAX(active_positions_count) AS __a8, MIN(high_performer_percentage) AS __a9, MAX(high_performer_percentage) AS __a10, SUM(high_performer_percentage) AS __a11_sum, COUNT(high_performer_percentage) AS __a11_n, MIN(career_growth_potential_percentage) AS __a12, MAX(career_growth_potential_percentage) AS __a13, SUM(career_growth_potential_percentage) AS __a14_sum, COUNT(career_growth_potential_percentage) AS __a14_n, MIN(job_health_score) AS __a15, MAX(job_health_score) AS __a16, SUM(job_health_score) AS __a17_sum, COUNT(job_health_score) AS __a17_n, MIN(avg_career_development_score) AS __a18, MAX(avg_career_development_score) AS __a19, SUM(avg_career_development_score) AS __a20_sum, COUNT(avg_career_development_score) AS __a20_n, MIN(current_employees_count) AS __a21, MAX(current_employees_count) AS __a22, MIN(avg_weekly_hours) AS __a23, MAX(avg_weekly_hours) AS __a24, SUM(current_employees_count * 1.0 / active_positions_count) AS __a25_sum, COUNT(current_employees_count * 1.0 / active_positions_count) AS __a25_n FROM \"workday__job_overview\"  GROUP BY job_value_tier, talent_competition_level",
+          "phase": "offline_validation",
+          "start_time": 1788869891.0288184,
+          "status": "execute_returned",
+          "end_time": 1788869891.0311732
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869891.0311792,
+          "status": "execute_returned",
+          "end_time": 1788869891.0312
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788869891.031206,
+          "status": "execute_returned",
+          "end_time": 1788869891.0312223
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869891.031263,
+          "status": "execute_returned",
+          "end_time": 1788869891.0312784
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"job_value_tier\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869891.0317185,
+          "status": "execute_returned",
+          "end_time": 1788869891.031764
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS \"talent_competition_level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869891.0322764,
+          "status": "execute_returned",
+          "end_time": 1788869891.0323205
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT SUM(__a0) AS total, SUM(__a1) AS zero_active_pos, SUM(__a2) AS null_curr_emp, SUM(__a3) AS null_hp, SUM(__a4) AS null_cgp, SUM(__a5) AS null_jhs, SUM(__a6) AS null_ads, MIN(__a7) AS min_active, MAX(__a8) AS max_active FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869891.0328135,
+          "status": "execute_returned",
+          "end_time": 1788869891.0328684
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g0 AS \"job_value_tier\", __g1 AS \"talent_competition_level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869891.0349603,
+          "status": "execute_returned",
+          "end_time": 1788869891.0350196
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT MIN(__a9) AS min_hp, MAX(__a10) AS max_hp, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_hp, MIN(__a12) AS min_cgp, MAX(__a13) AS max_cgp, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_cgp, MIN(__a15) AS min_jhs, MAX(__a16) AS max_jhs, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_jhs, MIN(__a18) AS min_ads, MAX(__a19) AS max_ads, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_ads, MIN(__a21) AS min_ce, MAX(__a22) AS max_ce, MIN(__a23) AS min_wk, MAX(__a24) AS max_wk FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869891.0356157,
+          "status": "execute_returned",
+          "end_time": 1788869891.035728
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g0 AS \"job_value_tier\", (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_health, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_dev, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_hp, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_cgp, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_saturation FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788869891.0374281,
+          "status": "execute_returned",
+          "end_time": 1788869891.0375192
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT job_value_tier AS __g0, talent_competition_level AS __g1, COUNT(*) AS __a0, SUM(CASE WHEN active_positions_count IS NULL OR active_positions_count = 0 THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN current_employees_count IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN high_performer_percentage IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN career_growth_potential_percentage IS NULL THEN 1 ELSE 0 END) AS __a4, SUM(CASE WHEN job_health_score IS NULL THEN 1 ELSE 0 END) AS __a5, SUM(CASE WHEN avg_career_development_score IS NULL THEN 1 ELSE 0 END) AS __a6, MIN(active_positions_count) AS __a7, MAX(active_positions_count) AS __a8, MIN(high_performer_percentage) AS __a9, MAX(high_performer_percentage) AS __a10, SUM(high_performer_percentage) AS __a11_sum, COUNT(high_performer_percentage) AS __a11_n, MIN(career_growth_potential_percentage) AS __a12, MAX(career_growth_potential_percentage) AS __a13, SUM(career_growth_potential_percentage) AS __a14_sum, COUNT(career_growth_potential_percentage) AS __a14_n, MIN(job_health_score) AS __a15, MAX(job_health_score) AS __a16, SUM(job_health_score) AS __a17_sum, COUNT(job_health_score) AS __a17_n, MIN(avg_career_development_score) AS __a18, MAX(avg_career_development_score) AS __a19, SUM(avg_career_development_score) AS __a20_sum, COUNT(avg_career_development_score) AS __a20_n, MIN(current_employees_count) AS __a21, MAX(current_employees_count) AS __a22, MIN(avg_weekly_hours) AS __a23, MAX(avg_weekly_hours) AS __a24, SUM(current_employees_count * 1.0 / active_positions_count) AS __a25_sum, COUNT(current_employees_count * 1.0 / active_positions_count) AS __a25_n FROM \"workday__job_overview\"  GROUP BY job_value_tier, talent_competition_level",
+          "time": 1788869891.0293176,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788869891.0311968,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788869891.0312195,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "time": 1788869891.0312753,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"job_value_tier\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "time": 1788869891.0317519,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"talent_competition_level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "time": 1788869891.0323086,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total, SUM(__a1) AS zero_active_pos, SUM(__a2) AS null_curr_emp, SUM(__a3) AS null_hp, SUM(__a4) AS null_cgp, SUM(__a5) AS null_jhs, SUM(__a6) AS null_ads, MIN(__a7) AS min_active, MAX(__a8) AS max_active FROM temp.reuse_candidate",
+          "time": 1788869891.0328586,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"job_value_tier\", __g1 AS \"talent_competition_level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, cnt DESC",
+          "time": 1788869891.0350025,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a9) AS min_hp, MAX(__a10) AS max_hp, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_hp, MIN(__a12) AS min_cgp, MAX(__a13) AS max_cgp, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_cgp, MIN(__a15) AS min_jhs, MAX(__a16) AS max_jhs, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_jhs, MIN(__a18) AS min_ads, MAX(__a19) AS max_ads, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_ads, MIN(__a21) AS min_ce, MAX(__a22) AS max_ce, MIN(__a23) AS min_wk, MAX(__a24) AS max_wk FROM temp.reuse_candidate",
+          "time": 1788869891.0357072,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"job_value_tier\", (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_health, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_dev, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_hp, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_cgp, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_saturation FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788869891.0375004,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 2.360191196203232,
+      "intermediate_rows": 4,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4",
+        "__a5",
+        "__a6",
+        "__a7",
+        "__a8",
+        "__a9",
+        "__a10",
+        "__a11_sum",
+        "__a11_n",
+        "__a12",
+        "__a13",
+        "__a14_sum",
+        "__a14_n",
+        "__a15",
+        "__a16",
+        "__a17_sum",
+        "__a17_n",
+        "__a18",
+        "__a19",
+        "__a20_sum",
+        "__a20_n",
+        "__a21",
+        "__a22",
+        "__a23",
+        "__a24",
+        "__a25_sum",
+        "__a25_n"
+      ],
+      "validation_ended_at": 1788869891.0385566,
+      "checks": [
+        {
+          "sql_id": "S3",
+          "rewritten_sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.45233964920043945
+        },
+        {
+          "sql_id": "S4",
+          "rewritten_sql": "SELECT __g0 AS \"job_value_tier\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5554351955652237
+        },
+        {
+          "sql_id": "S5",
+          "rewritten_sql": "SELECT __g1 AS \"talent_competition_level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5348389968276024
+        },
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT SUM(__a0) AS total, SUM(__a1) AS zero_active_pos, SUM(__a2) AS null_curr_emp, SUM(__a3) AS null_hp, SUM(__a4) AS null_cgp, SUM(__a5) AS null_jhs, SUM(__a6) AS null_ads, MIN(__a7) AS min_active, MAX(__a8) AS max_active FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.1429667249321938
+        },
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT __g0 AS \"job_value_tier\", __g1 AS \"talent_competition_level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6544217467308044
+        },
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT MIN(__a9) AS min_hp, MAX(__a10) AS max_hp, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_hp, MIN(__a12) AS min_cgp, MAX(__a13) AS max_cgp, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_cgp, MIN(__a15) AS min_jhs, MAX(__a16) AS max_jhs, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_jhs, MIN(__a18) AS min_ads, MAX(__a19) AS max_ads, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_ads, MIN(__a21) AS min_ce, MAX(__a22) AS max_ce, MIN(__a23) AS min_wk, MAX(__a24) AS max_wk FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.809791661798954
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT __g0 AS \"job_value_tier\", (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_health, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_dev, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_hp, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_cgp, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_saturation FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.0018879547715187
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

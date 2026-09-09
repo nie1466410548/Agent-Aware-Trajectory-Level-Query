@@ -1,0 +1,1 @@
+SELECT zendesk_user_id, COUNT(*) AS cnt FROM customer360__mapping WHERE zendesk_user_id IS NOT NULL GROUP BY zendesk_user_id ORDER BY cnt DESC LIMIT 5

@@ -1,0 +1,1 @@
+SELECT "Region Name", COUNT(*) AS n FROM sheet1 GROUP BY "Region Name" ORDER BY "Region Name"

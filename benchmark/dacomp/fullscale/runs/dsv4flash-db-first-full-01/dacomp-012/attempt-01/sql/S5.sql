@@ -1,0 +1,1 @@
+SELECT "Cut (quality)" AS cut, COUNT(*) AS n, MIN("Price (USD)") AS min_price, MAX("Price (USD)") AS max_price, AVG("Price (USD)") AS avg_price FROM sheet1 GROUP BY "Cut (quality)" ORDER BY n DESC

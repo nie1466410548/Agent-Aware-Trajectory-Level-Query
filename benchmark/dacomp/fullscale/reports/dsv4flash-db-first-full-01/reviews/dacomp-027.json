@@ -1,0 +1,120 @@
+{
+  "task_id": "dacomp-027",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "SQL builds joined disaster/environment/coordination inputs. Python executes legitimate correlation and chi-square tests, but also bins incident counts, merges damage attributes, computes grouped financial/environmental means and normalized contingency summaries for reporting and figures. Those SQL-capable grouping/join/conditional proportions are deviations; chi-square evaluation itself is a statistical exception.",
+  "route": "关联灾害等级、次生事故、环境健康与运营数据 → 相关及分类关联检验 → 分箱比较疾病、资源缺口和反馈 → 细查交通限制与卫生指标并绘图。",
+  "evidence": [
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 11,
+          "text": "df['sec_group'] = pd.cut(df['Secincident Count'], bins=[-1, 32, 65, 100], labels=['Low (0-32)','Medium (33-65)','High (66-100)'])"
+        },
+        {
+          "line": 12,
+          "text": "cat_df['sec_group'] = pd.cut(cat_df['Secincident Count'], bins=[-1, 32, 65, 100], labels=['Low (0-32)','Medium (33-65)','High (66-100)'])"
+        },
+        {
+          "line": 18,
+          "text": "risk_ct = pd.crosstab(df['sec_group'], df['Disease Risk'], normalize='index')"
+        },
+        {
+          "line": 30,
+          "text": "mon_ct = pd.crosstab(cat_df['sec_group'], cat_df['monitoringfreq'], normalize='index')"
+        },
+        {
+          "line": 41,
+          "text": "aud_ct = pd.crosstab(cat_df['sec_group'], cat_df['auditstate'], normalize='index')"
+        },
+        {
+          "line": 64,
+          "text": "means = sub_high_risk.groupby('sec_group')['vaccination'].mean()"
+        },
+        {
+          "line": 74,
+          "text": "ll_ct = pd.crosstab(cat_df['sec_group'], cat_df['lessonslearnedstage'], normalize='index')"
+        },
+        {
+          "line": 89,
+          "text": "op_ct = pd.crosstab(df['Disaster Level'], df['Operation Status'], normalize='index')"
+        },
+        {
+          "line": 109,
+          "text": "review_df['sec_group'] = pd.cut(review_df['Secincident Count'], bins=[-1, 32, 65, 100], labels=['Low (0-32)','Medium (33-65)','High (66-100)'])"
+        },
+        {
+          "line": 111,
+          "text": "print(review_df.groupby('sec_group')['days_till_review'].agg(['mean','median','min','max']).round(1))"
+        },
+        {
+          "line": 116,
+          "text": "print(review_df.groupby('sec_group')['overdue'].mean().round(3))"
+        }
+      ]
+    },
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 15,
+          "text": "df2 = df.merge(dl, on='Disaster Event ID')"
+        },
+        {
+          "line": 20,
+          "text": "chi2, p, _, _ = stats.chi2_contingency(pd.crosstab(df2['sec_group'], df2['damage_level']))"
+        },
+        {
+          "line": 26,
+          "text": "chi2b, pb, _, _ = stats.chi2_contingency(pd.crosstab(df2['Disaster Level'], df2['damage_level']))"
+        },
+        {
+          "line": 32,
+          "text": "chi2c, pc, _, _ = stats.chi2_contingency(pd.crosstab(df2['sec_group'], df2['communication']))"
+        },
+        {
+          "line": 38,
+          "text": "chi2d, pd_, _, _ = stats.chi2_contingency(pd.crosstab(df2['sec_group'], df2['transportation']))"
+        },
+        {
+          "line": 43,
+          "text": "    chi2 = stats.chi2_contingency(ct)[0]"
+        },
+        {
+          "line": 53,
+          "text": "piv = df.pivot_table(index='Disaster Level', columns='sec_group', values='Disease Risk',"
+        },
+        {
+          "line": 59,
+          "text": "piv2 = df.pivot_table(index='Disaster Level', columns='sec_group', values='Environmental Impact Rate',"
+        },
+        {
+          "line": 65,
+          "text": "print(df.pivot_table(index='Disaster Level', values='Operation Status', aggfunc=lambda x: (x=='Active').mean()).round(3))"
+        },
+        {
+          "line": 69,
+          "text": "print(df.pivot_table(index='Disaster Level', values='Operation Status', aggfunc=lambda x: (x=='Completed').mean()).round(3))"
+        },
+        {
+          "line": 73,
+          "text": "print(df.groupby('Disaster Level')['duration'].agg(['mean','median']).round(1))"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 21,
+          "text": "print(fin.groupby('sec_group')[['costbene(USD)','budgetallot(USD)','donorcommitments(USD)']].mean().round(0))"
+        },
+        {
+          "line": 57,
+          "text": "print(part.groupby('sec_group')[['partnerorgs','dataqualityvalue','lessonsrecorded','bestpracticeslisted','improvementrecs']].mean().round(1))"
+        }
+      ]
+    }
+  ]
+}

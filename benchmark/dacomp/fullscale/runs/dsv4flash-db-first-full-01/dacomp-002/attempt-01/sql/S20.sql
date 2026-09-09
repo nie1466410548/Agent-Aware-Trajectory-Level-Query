@@ -1,0 +1,1 @@
+SELECT DISTINCT "Sales Date" FROM sheet1 ORDER BY "Sales Date" LIMIT 10

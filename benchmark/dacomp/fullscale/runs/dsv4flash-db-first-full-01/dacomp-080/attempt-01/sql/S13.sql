@@ -1,0 +1,1 @@
+SELECT DISTINCT survey_response_status, COUNT(*) AS n FROM qualtrics__response GROUP BY survey_response_status

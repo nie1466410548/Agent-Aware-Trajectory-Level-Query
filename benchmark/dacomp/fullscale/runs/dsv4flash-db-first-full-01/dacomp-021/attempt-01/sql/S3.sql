@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_rows, COUNT(DISTINCT "Booking ID") AS unique_bookings, MIN("Date") AS min_date, MAX("Date") AS max_date, COUNT(DISTINCT "Date") AS distinct_dates FROM sheet1

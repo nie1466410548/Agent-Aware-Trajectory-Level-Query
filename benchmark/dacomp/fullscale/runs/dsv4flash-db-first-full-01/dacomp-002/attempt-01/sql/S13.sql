@@ -1,0 +1,1 @@
+SELECT "Major Category Name", "Intermediate Category Name", ROUND(SUM("Sales Amount"),2) AS total_amount, ROUND(AVG("Sales Amount" * 1.0 / "Sales Quantity"),2) AS avg_unit_price FROM sheet1 WHERE "Sales Quantity" > 0 GROUP BY "Major Category Name", "Intermediate Category Name" ORDER BY "Major Category Name", total_amount DESC

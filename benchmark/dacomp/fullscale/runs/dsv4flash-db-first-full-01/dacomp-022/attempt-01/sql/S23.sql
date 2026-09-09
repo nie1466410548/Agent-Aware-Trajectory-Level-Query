@@ -1,0 +1,3 @@
+SELECT DISTINCT CAST(SUBSTR("Date", 6, INSTR(SUBSTR("Date", 6), '/') - 1) AS INTEGER) as month
+FROM sheet1
+ORDER BY month

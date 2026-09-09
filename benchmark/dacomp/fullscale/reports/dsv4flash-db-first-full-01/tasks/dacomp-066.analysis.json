@@ -1,0 +1,758 @@
+{
+  "fingerprint": "baf8bbea76eae278070fe7979d6041b98113a2322552c7246d578fbad32125cb",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S12",
+      "covered": [
+        "S12",
+        "S20"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S12",
+      "later_reuses": 1,
+      "denominator": 42,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S43",
+      "covered": [
+        "S43",
+        "S44"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S43",
+      "later_reuses": 1,
+      "denominator": 42,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867868.3186233,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 154,
+      "validation_ended_at": 1788867868.322507,
+      "checks": [
+        {
+          "sql_id": "S44",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT r.*, j.name AS job_name, j.departments, CASE WHEN j.name LIKE 'Frontend%' THEN 'Frontend' WHEN j.name LIKE 'Backend%' THEN 'Backend' WHEN j.name LIKE 'Full Stack%' THEN 'Full Stack' WHEN j.name LIKE 'Data Engineer%' THEN 'Data Engineer' WHEN j.name LIKE 'DevOps%' THEN 'DevOps' WHEN j.name LIKE 'Mobile%' THEN 'Mobile' WHEN j.name LIKE 'QA%' THEN 'QA' WHEN j.name LIKE 'Machine Learning%' THEN 'Machine Learning' ELSE 'Other' END AS role_category FROM greenhouse__recruitment_performance AS r JOIN greenhouse__job_enhanced AS j ON r.job_id = j.job_id WHERE j.departments = 'Engineering'",
+      "covered": [
+        "S22",
+        "S23"
+      ],
+      "rewrites": {
+        "S22": "WITH eng AS (SELECT * FROM temp.reuse_candidate) SELECT role_category, SUM(CASE WHEN application_quarter = 3 THEN total_applications END) AS q3_apps, SUM(CASE WHEN application_quarter = 4 THEN total_applications END) AS q4_apps, ROUND(100.0 * SUM(CASE WHEN application_quarter = 3 THEN total_interviews END) / SUM(CASE WHEN application_quarter = 3 THEN total_applications END), 2) AS q3_interview_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 4 THEN total_interviews END) / SUM(CASE WHEN application_quarter = 4 THEN total_applications END), 2) AS q4_interview_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 3 THEN hired_count END) / SUM(CASE WHEN application_quarter = 3 THEN total_applications END), 2) AS q3_hire_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 4 THEN hired_count END) / SUM(CASE WHEN application_quarter = 4 THEN total_applications END), 2) AS q4_hire_rate, ROUND(100.0 * (SUM(CASE WHEN application_quarter = 4 THEN total_interviews END) / SUM(CASE WHEN application_quarter = 4 THEN total_applications END)) - 100.0 * (SUM(CASE WHEN application_quarter = 3 THEN total_interviews END) / SUM(CASE WHEN application_quarter = 3 THEN total_applications END)), 2) AS interview_rate_pp_change FROM eng GROUP BY role_category ORDER BY interview_rate_pp_change ASC",
+        "S23": "WITH eng AS (SELECT * FROM temp.reuse_candidate) SELECT role_category, SUM(CASE WHEN application_quarter = 3 THEN total_applications END) AS q3_apps, SUM(CASE WHEN application_quarter = 4 THEN total_applications END) AS q4_apps, SUM(CASE WHEN application_quarter = 3 THEN total_interviews END) AS q3_interviews, SUM(CASE WHEN application_quarter = 4 THEN total_interviews END) AS q4_interviews, ROUND(100.0 * SUM(CASE WHEN application_quarter = 3 THEN total_interviews END) / NULLIF(SUM(CASE WHEN application_quarter = 3 THEN total_applications END), 0), 2) AS q3_interview_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 4 THEN total_interviews END) / NULLIF(SUM(CASE WHEN application_quarter = 4 THEN total_applications END), 0), 2) AS q4_interview_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 3 THEN hired_count END) / NULLIF(SUM(CASE WHEN application_quarter = 3 THEN total_applications END), 0), 2) AS q3_hire_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 4 THEN hired_count END) / NULLIF(SUM(CASE WHEN application_quarter = 4 THEN total_applications END), 0), 2) AS q4_hire_rate FROM eng GROUP BY role_category ORDER BY role_category"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S22",
+      "later_reuses": 1,
+      "denominator": 42,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867868.3059318,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT r.*, j.name AS job_name, j.departments, CASE WHEN j.name LIKE 'Frontend%' THEN 'Frontend' WHEN j.name LIKE 'Backend%' THEN 'Backend' WHEN j.name LIKE 'Full Stack%' THEN 'Full Stack' WHEN j.name LIKE 'Data Engineer%' THEN 'Data Engineer' WHEN j.name LIKE 'DevOps%' THEN 'DevOps' WHEN j.name LIKE 'Mobile%' THEN 'Mobile' WHEN j.name LIKE 'QA%' THEN 'QA' WHEN j.name LIKE 'Machine Learning%' THEN 'Machine Learning' ELSE 'Other' END AS role_category FROM greenhouse__recruitment_performance AS r JOIN greenhouse__job_enhanced AS j ON r.job_id = j.job_id WHERE j.departments = 'Engineering'",
+          "phase": "offline_validation",
+          "start_time": 1788867868.3061335,
+          "status": "execute_returned",
+          "end_time": 1788867868.3069613
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867868.3069658,
+          "status": "execute_returned",
+          "end_time": 1788867868.3069813
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788867868.3069854,
+          "status": "execute_returned",
+          "end_time": 1788867868.3069983
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH eng AS (SELECT * FROM temp.reuse_candidate) SELECT role_category, SUM(CASE WHEN application_quarter = 3 THEN total_applications END) AS q3_apps, SUM(CASE WHEN application_quarter = 4 THEN total_applications END) AS q4_apps, ROUND(100.0 * SUM(CASE WHEN application_quarter = 3 THEN total_interviews END) / SUM(CASE WHEN application_quarter = 3 THEN total_applications END), 2) AS q3_interview_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 4 THEN total_interviews END) / SUM(CASE WHEN application_quarter = 4 THEN total_applications END), 2) AS q4_interview_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 3 THEN hired_count END) / SUM(CASE WHEN application_quarter = 3 THEN total_applications END), 2) AS q3_hire_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 4 THEN hired_count END) / SUM(CASE WHEN application_quarter = 4 THEN total_applications END), 2) AS q4_hire_rate, ROUND(100.0 * (SUM(CASE WHEN application_quarter = 4 THEN total_interviews END) / SUM(CASE WHEN application_quarter = 4 THEN total_applications END)) - 100.0 * (SUM(CASE WHEN application_quarter = 3 THEN total_interviews END) / SUM(CASE WHEN application_quarter = 3 THEN total_applications END)), 2) AS interview_rate_pp_change FROM eng GROUP BY role_category ORDER BY interview_rate_pp_change ASC",
+          "phase": "offline_validation",
+          "start_time": 1788867868.3070314,
+          "status": "execute_returned",
+          "end_time": 1788867868.3072903
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH eng AS (SELECT * FROM temp.reuse_candidate) SELECT role_category, SUM(CASE WHEN application_quarter = 3 THEN total_applications END) AS q3_apps, SUM(CASE WHEN application_quarter = 4 THEN total_applications END) AS q4_apps, SUM(CASE WHEN application_quarter = 3 THEN total_interviews END) AS q3_interviews, SUM(CASE WHEN application_quarter = 4 THEN total_interviews END) AS q4_interviews, ROUND(100.0 * SUM(CASE WHEN application_quarter = 3 THEN total_interviews END) / NULLIF(SUM(CASE WHEN application_quarter = 3 THEN total_applications END), 0), 2) AS q3_interview_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 4 THEN total_interviews END) / NULLIF(SUM(CASE WHEN application_quarter = 4 THEN total_applications END), 0), 2) AS q4_interview_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 3 THEN hired_count END) / NULLIF(SUM(CASE WHEN application_quarter = 3 THEN total_applications END), 0), 2) AS q3_hire_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 4 THEN hired_count END) / NULLIF(SUM(CASE WHEN application_quarter = 4 THEN total_applications END), 0), 2) AS q4_hire_rate FROM eng GROUP BY role_category ORDER BY role_category",
+          "phase": "offline_validation",
+          "start_time": 1788867868.3131692,
+          "status": "execute_returned",
+          "end_time": 1788867868.3133755
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT r.*, j.name AS job_name, j.departments, CASE WHEN j.name LIKE 'Frontend%' THEN 'Frontend' WHEN j.name LIKE 'Backend%' THEN 'Backend' WHEN j.name LIKE 'Full Stack%' THEN 'Full Stack' WHEN j.name LIKE 'Data Engineer%' THEN 'Data Engineer' WHEN j.name LIKE 'DevOps%' THEN 'DevOps' WHEN j.name LIKE 'Mobile%' THEN 'Mobile' WHEN j.name LIKE 'QA%' THEN 'QA' WHEN j.name LIKE 'Machine Learning%' THEN 'Machine Learning' ELSE 'Other' END AS role_category FROM greenhouse__recruitment_performance AS r JOIN greenhouse__job_enhanced AS j ON r.job_id = j.job_id WHERE j.departments = 'Engineering'",
+          "time": 1788867868.3063698,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788867868.3069782,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788867868.3069956,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH eng AS (SELECT * FROM temp.reuse_candidate) SELECT role_category, SUM(CASE WHEN application_quarter = 3 THEN total_applications END) AS q3_apps, SUM(CASE WHEN application_quarter = 4 THEN total_applications END) AS q4_apps, ROUND(100.0 * SUM(CASE WHEN application_quarter = 3 THEN total_interviews END) / SUM(CASE WHEN application_quarter = 3 THEN total_applications END), 2) AS q3_interview_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 4 THEN total_interviews END) / SUM(CASE WHEN application_quarter = 4 THEN total_applications END), 2) AS q4_interview_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 3 THEN hired_count END) / SUM(CASE WHEN application_quarter = 3 THEN total_applications END), 2) AS q3_hire_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 4 THEN hired_count END) / SUM(CASE WHEN application_quarter = 4 THEN total_applications END), 2) AS q4_hire_rate, ROUND(100.0 * (SUM(CASE WHEN application_quarter = 4 THEN total_interviews END) / SUM(CASE WHEN application_quarter = 4 THEN total_applications END)) - 100.0 * (SUM(CASE WHEN application_quarter = 3 THEN total_interviews END) / SUM(CASE WHEN application_quarter = 3 THEN total_applications END)), 2) AS interview_rate_pp_change FROM eng GROUP BY role_category ORDER BY interview_rate_pp_change ASC",
+          "time": 1788867868.3071766,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH eng AS (SELECT * FROM temp.reuse_candidate) SELECT role_category, SUM(CASE WHEN application_quarter = 3 THEN total_applications END) AS q3_apps, SUM(CASE WHEN application_quarter = 4 THEN total_applications END) AS q4_apps, SUM(CASE WHEN application_quarter = 3 THEN total_interviews END) AS q3_interviews, SUM(CASE WHEN application_quarter = 4 THEN total_interviews END) AS q4_interviews, ROUND(100.0 * SUM(CASE WHEN application_quarter = 3 THEN total_interviews END) / NULLIF(SUM(CASE WHEN application_quarter = 3 THEN total_applications END), 0), 2) AS q3_interview_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 4 THEN total_interviews END) / NULLIF(SUM(CASE WHEN application_quarter = 4 THEN total_applications END), 0), 2) AS q4_interview_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 3 THEN hired_count END) / NULLIF(SUM(CASE WHEN application_quarter = 3 THEN total_applications END), 0), 2) AS q3_hire_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 4 THEN hired_count END) / NULLIF(SUM(CASE WHEN application_quarter = 4 THEN total_applications END), 0), 2) AS q4_hire_rate FROM eng GROUP BY role_category ORDER BY role_category",
+          "time": 1788867868.3133125,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.8315630257129669,
+      "intermediate_rows": 154,
+      "intermediate_columns": [
+        "job_id",
+        "job_title",
+        "job_status",
+        "job_created_at",
+        "application_year",
+        "application_quarter",
+        "total_applications",
+        "unique_candidates",
+        "hired_count",
+        "active_count",
+        "rejected_count",
+        "avg_process_days",
+        "total_interviews",
+        "completed_interviews",
+        "total_scorecards",
+        "avg_interview_score",
+        "hire_rate",
+        "interview_rate",
+        "interview_to_hire_rate",
+        "interview_completion_rate",
+        "performance_tier",
+        "is_fast_process",
+        "has_good_interview_quality",
+        "job_name",
+        "departments",
+        "role_category"
+      ],
+      "validation_ended_at": 1788867868.3186028,
+      "checks": [
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "WITH eng AS (SELECT * FROM temp.reuse_candidate) SELECT role_category, SUM(CASE WHEN application_quarter = 3 THEN total_applications END) AS q3_apps, SUM(CASE WHEN application_quarter = 4 THEN total_applications END) AS q4_apps, ROUND(100.0 * SUM(CASE WHEN application_quarter = 3 THEN total_interviews END) / SUM(CASE WHEN application_quarter = 3 THEN total_applications END), 2) AS q3_interview_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 4 THEN total_interviews END) / SUM(CASE WHEN application_quarter = 4 THEN total_applications END), 2) AS q4_interview_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 3 THEN hired_count END) / SUM(CASE WHEN application_quarter = 3 THEN total_applications END), 2) AS q3_hire_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 4 THEN hired_count END) / SUM(CASE WHEN application_quarter = 4 THEN total_applications END), 2) AS q4_hire_rate, ROUND(100.0 * (SUM(CASE WHEN application_quarter = 4 THEN total_interviews END) / SUM(CASE WHEN application_quarter = 4 THEN total_applications END)) - 100.0 * (SUM(CASE WHEN application_quarter = 3 THEN total_interviews END) / SUM(CASE WHEN application_quarter = 3 THEN total_applications END)), 2) AS interview_rate_pp_change FROM eng GROUP BY role_category ORDER BY interview_rate_pp_change ASC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 6.129877641797066
+        },
+        {
+          "sql_id": "S23",
+          "rewritten_sql": "WITH eng AS (SELECT * FROM temp.reuse_candidate) SELECT role_category, SUM(CASE WHEN application_quarter = 3 THEN total_applications END) AS q3_apps, SUM(CASE WHEN application_quarter = 4 THEN total_applications END) AS q4_apps, SUM(CASE WHEN application_quarter = 3 THEN total_interviews END) AS q3_interviews, SUM(CASE WHEN application_quarter = 4 THEN total_interviews END) AS q4_interviews, ROUND(100.0 * SUM(CASE WHEN application_quarter = 3 THEN total_interviews END) / NULLIF(SUM(CASE WHEN application_quarter = 3 THEN total_applications END), 0), 2) AS q3_interview_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 4 THEN total_interviews END) / NULLIF(SUM(CASE WHEN application_quarter = 4 THEN total_applications END), 0), 2) AS q4_interview_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 3 THEN hired_count END) / NULLIF(SUM(CASE WHEN application_quarter = 3 THEN total_applications END), 0), 2) AS q3_hire_rate, ROUND(100.0 * SUM(CASE WHEN application_quarter = 4 THEN hired_count END) / NULLIF(SUM(CASE WHEN application_quarter = 4 THEN total_applications END), 0), 2) AS q4_hire_rate FROM eng GROUP BY role_category ORDER BY role_category",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 5.367479287087917
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"greenhouse__job_enhanced\" WHERE departments = 'Engineering'",
+      "covered": [
+        "S6",
+        "S12",
+        "S15",
+        "S18",
+        "S20",
+        "S21",
+        "S25",
+        "S26",
+        "S28",
+        "S31",
+        "S32",
+        "S33",
+        "S36",
+        "S37",
+        "S38",
+        "S42",
+        "S43",
+        "S44"
+      ],
+      "rewrites": {
+        "S6": "SELECT DISTINCT j.name, j.departments, j.hiring_managers FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' LIMIT 30",
+        "S12": "SELECT DISTINCT j.name FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' ORDER BY j.name",
+        "S15": "SELECT j.name, j.departments, j.hiring_managers, j.recruiters, j.sourcers FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' ORDER BY j.name",
+        "S18": "SELECT job_id, name, hiring_managers, recruiters, sourcers, count_total_interviews, count_completed_interviews, count_total_applications, count_completed_interviews FROM temp.reuse_candidate AS greenhouse__job_enhanced WHERE departments = 'Engineering' LIMIT 10",
+        "S20": "SELECT DISTINCT j.name FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' ORDER BY j.name",
+        "S21": "SELECT DISTINCT CASE WHEN j.name LIKE 'Frontend%' THEN 'Frontend' WHEN j.name LIKE 'Backend%' THEN 'Backend' WHEN j.name LIKE 'Full Stack%' THEN 'Full Stack' WHEN j.name LIKE 'Data Engineer%' THEN 'Data Engineer' WHEN j.name LIKE 'DevOps%' THEN 'DevOps' WHEN j.name LIKE 'Mobile%' THEN 'Mobile' WHEN j.name LIKE 'QA%' THEN 'QA' WHEN j.name LIKE 'Security%' THEN 'Security' WHEN j.name LIKE 'Site Reliability%' THEN 'Site Reliability' WHEN j.name LIKE 'Machine Learning%' THEN 'Machine Learning' WHEN j.name LIKE 'Systems%' THEN 'Systems' WHEN j.name LIKE 'Engineering Manager%' THEN 'Engineering Manager' ELSE 'Other' END AS role_category FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' ORDER BY role_category",
+        "S25": "SELECT j.application_to_interview_rate, j.overall_conversion_rate, j.count_total_applications, j.count_completed_interviews, j.departments FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' LIMIT 10",
+        "S26": "SELECT j.created_year, j.created_month, COUNT(DISTINCT j.job_id) AS n_jobs, SUM(j.count_total_applications) AS apps, SUM(j.count_completed_interviews) AS interviews, ROUND(100.0 * SUM(j.count_completed_interviews) / SUM(j.count_total_applications), 2) AS weighted_interview_rate, ROUND(AVG(j.application_to_interview_rate), 2) AS avg_job_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' GROUP BY j.created_year, j.created_month ORDER BY j.created_year, j.created_month",
+        "S28": "SELECT hiring_managers, COUNT(*) AS n_jobs, SUM(count_total_applications) AS apps, SUM(count_completed_interviews) AS interviews, ROUND(100.0 * SUM(count_completed_interviews) / SUM(count_total_applications), 2) AS weighted_rate FROM temp.reuse_candidate AS greenhouse__job_enhanced WHERE departments = 'Engineering' GROUP BY hiring_managers ORDER BY weighted_rate",
+        "S31": "/* Per-job factors for Engineering jobs */ SELECT j.job_id, j.name, j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, j.created_month, j.count_total_applications AS apps, j.count_total_interviews AS total_interviews, j.count_completed_interviews AS completed_interviews, j.avg_interviews_per_application, j.avg_job_rating, j.rating_completion_rate, j.application_to_interview_rate, j.interview_to_hire_rate, j.overall_conversion_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' ORDER BY j.job_id",
+        "S32": "SELECT j.job_id, j.name, j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, j.created_month, j.count_total_applications AS apps, j.count_total_interviews AS total_interviews, j.count_completed_interviews AS completed_interviews, j.avg_interviews_per_application, j.avg_job_rating, j.rating_completion_rate, j.application_to_interview_rate AS app_to_int_rate, j.interview_to_hire_rate, j.overall_conversion_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering'",
+        "S33": "SELECT j.job_id, j.name, j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, j.created_month, j.count_total_applications AS apps, j.count_total_interviews AS total_interviews, j.avg_job_rating, j.rating_completion_rate, j.application_to_interview_rate AS app_to_int_rate, j.interview_to_hire_rate, j.overall_conversion_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering'",
+        "S36": "SELECT j.created_month, COUNT(DISTINCT j.job_id) AS n_jobs, SUM(j.count_total_applications) AS apps, SUM(j.count_completed_interviews) AS interviews, 100.0 * SUM(j.count_completed_interviews) / SUM(j.count_total_applications) AS interview_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' GROUP BY j.created_month ORDER BY j.created_month",
+        "S37": "SELECT hiring_managers, MIN(created_month) AS first_month, MAX(created_month) AS last_month, COUNT(DISTINCT created_month) AS months_active, COUNT(DISTINCT name) AS distinct_job_titles, COUNT(*) AS n_jobs, SUM(count_total_applications) AS total_apps FROM temp.reuse_candidate AS greenhouse__job_enhanced WHERE departments = 'Engineering' GROUP BY hiring_managers ORDER BY hiring_managers",
+        "S38": "/* Does number of interviewers vary systematically by hiring manager? */ SELECT j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, COUNT(*) AS n_jobs, ROUND(AVG(j.application_to_interview_rate), 2) AS avg_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' GROUP BY j.hiring_managers, n_interviewers ORDER BY j.hiring_managers, n_interviewers",
+        "S42": "SELECT j.hiring_managers, j.departments, COUNT(DISTINCT j.name) AS distinct_roles, COUNT(DISTINCT j.created_month) AS months_active, COUNT(*) AS n_jobs, SUM(j.count_total_applications) AS apps, ROUND(AVG(j.application_to_interview_rate), 2) AS avg_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' GROUP BY j.hiring_managers ORDER BY avg_rate",
+        "S43": "SELECT j.job_id, j.name, j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, j.created_month, j.count_total_applications AS apps, j.avg_job_rating, j.application_to_interview_rate AS app_to_int_rate, j.overall_conversion_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering'",
+        "S44": "SELECT j.job_id, j.name, j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, j.created_month, j.count_total_applications AS apps, j.avg_job_rating, j.application_to_interview_rate AS app_to_int_rate, j.overall_conversion_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering'"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S6",
+      "later_reuses": 17,
+      "denominator": 42,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867868.2696288,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"greenhouse__job_enhanced\" WHERE departments = 'Engineering'",
+          "phase": "offline_validation",
+          "start_time": 1788867868.2698996,
+          "status": "execute_returned",
+          "end_time": 1788867868.2704666
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867868.270472,
+          "status": "execute_returned",
+          "end_time": 1788867868.2704916
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788867868.270497,
+          "status": "execute_returned",
+          "end_time": 1788867868.2705128
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT DISTINCT j.name, j.departments, j.hiring_managers FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' LIMIT 30",
+          "phase": "offline_validation",
+          "start_time": 1788867868.270551,
+          "status": "execute_returned",
+          "end_time": 1788867868.270578
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT DISTINCT j.name FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' ORDER BY j.name",
+          "phase": "offline_validation",
+          "start_time": 1788867868.27153,
+          "status": "execute_returned",
+          "end_time": 1788867868.2716115
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT j.name, j.departments, j.hiring_managers, j.recruiters, j.sourcers FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' ORDER BY j.name",
+          "phase": "offline_validation",
+          "start_time": 1788867868.2722569,
+          "status": "execute_returned",
+          "end_time": 1788867868.2723515
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT job_id, name, hiring_managers, recruiters, sourcers, count_total_interviews, count_completed_interviews, count_total_applications, count_completed_interviews FROM temp.reuse_candidate AS greenhouse__job_enhanced WHERE departments = 'Engineering' LIMIT 10",
+          "phase": "offline_validation",
+          "start_time": 1788867868.2736714,
+          "status": "execute_returned",
+          "end_time": 1788867868.2737193
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT DISTINCT j.name FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' ORDER BY j.name",
+          "phase": "offline_validation",
+          "start_time": 1788867868.2745264,
+          "status": "execute_returned",
+          "end_time": 1788867868.2745764
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT DISTINCT CASE WHEN j.name LIKE 'Frontend%' THEN 'Frontend' WHEN j.name LIKE 'Backend%' THEN 'Backend' WHEN j.name LIKE 'Full Stack%' THEN 'Full Stack' WHEN j.name LIKE 'Data Engineer%' THEN 'Data Engineer' WHEN j.name LIKE 'DevOps%' THEN 'DevOps' WHEN j.name LIKE 'Mobile%' THEN 'Mobile' WHEN j.name LIKE 'QA%' THEN 'QA' WHEN j.name LIKE 'Security%' THEN 'Security' WHEN j.name LIKE 'Site Reliability%' THEN 'Site Reliability' WHEN j.name LIKE 'Machine Learning%' THEN 'Machine Learning' WHEN j.name LIKE 'Systems%' THEN 'Systems' WHEN j.name LIKE 'Engineering Manager%' THEN 'Engineering Manager' ELSE 'Other' END AS role_category FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' ORDER BY role_category",
+          "phase": "offline_validation",
+          "start_time": 1788867868.275197,
+          "status": "execute_returned",
+          "end_time": 1788867868.275413
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT j.application_to_interview_rate, j.overall_conversion_rate, j.count_total_applications, j.count_completed_interviews, j.departments FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' LIMIT 10",
+          "phase": "offline_validation",
+          "start_time": 1788867868.277097,
+          "status": "execute_returned",
+          "end_time": 1788867868.2771392
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT j.created_year, j.created_month, COUNT(DISTINCT j.job_id) AS n_jobs, SUM(j.count_total_applications) AS apps, SUM(j.count_completed_interviews) AS interviews, ROUND(100.0 * SUM(j.count_completed_interviews) / SUM(j.count_total_applications), 2) AS weighted_interview_rate, ROUND(AVG(j.application_to_interview_rate), 2) AS avg_job_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' GROUP BY j.created_year, j.created_month ORDER BY j.created_year, j.created_month",
+          "phase": "offline_validation",
+          "start_time": 1788867868.277881,
+          "status": "execute_returned",
+          "end_time": 1788867868.2780325
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT hiring_managers, COUNT(*) AS n_jobs, SUM(count_total_applications) AS apps, SUM(count_completed_interviews) AS interviews, ROUND(100.0 * SUM(count_completed_interviews) / SUM(count_total_applications), 2) AS weighted_rate FROM temp.reuse_candidate AS greenhouse__job_enhanced WHERE departments = 'Engineering' GROUP BY hiring_managers ORDER BY weighted_rate",
+          "phase": "offline_validation",
+          "start_time": 1788867868.2795496,
+          "status": "execute_returned",
+          "end_time": 1788867868.2796974
+        },
+        {
+          "sequence": 13,
+          "sql": "/* Per-job factors for Engineering jobs */ SELECT j.job_id, j.name, j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, j.created_month, j.count_total_applications AS apps, j.count_total_interviews AS total_interviews, j.count_completed_interviews AS completed_interviews, j.avg_interviews_per_application, j.avg_job_rating, j.rating_completion_rate, j.application_to_interview_rate, j.interview_to_hire_rate, j.overall_conversion_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' ORDER BY j.job_id",
+          "phase": "offline_validation",
+          "start_time": 1788867868.2806842,
+          "status": "execute_returned",
+          "end_time": 1788867868.2809052
+        },
+        {
+          "sequence": 14,
+          "sql": "SELECT j.job_id, j.name, j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, j.created_month, j.count_total_applications AS apps, j.count_total_interviews AS total_interviews, j.count_completed_interviews AS completed_interviews, j.avg_interviews_per_application, j.avg_job_rating, j.rating_completion_rate, j.application_to_interview_rate AS app_to_int_rate, j.interview_to_hire_rate, j.overall_conversion_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering'",
+          "phase": "offline_validation",
+          "start_time": 1788867868.283541,
+          "status": "execute_returned",
+          "end_time": 1788867868.2836225
+        },
+        {
+          "sequence": 15,
+          "sql": "SELECT j.job_id, j.name, j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, j.created_month, j.count_total_applications AS apps, j.count_total_interviews AS total_interviews, j.avg_job_rating, j.rating_completion_rate, j.application_to_interview_rate AS app_to_int_rate, j.interview_to_hire_rate, j.overall_conversion_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering'",
+          "phase": "offline_validation",
+          "start_time": 1788867868.2882042,
+          "status": "execute_returned",
+          "end_time": 1788867868.288278
+        },
+        {
+          "sequence": 16,
+          "sql": "SELECT j.created_month, COUNT(DISTINCT j.job_id) AS n_jobs, SUM(j.count_total_applications) AS apps, SUM(j.count_completed_interviews) AS interviews, 100.0 * SUM(j.count_completed_interviews) / SUM(j.count_total_applications) AS interview_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' GROUP BY j.created_month ORDER BY j.created_month",
+          "phase": "offline_validation",
+          "start_time": 1788867868.2925944,
+          "status": "execute_returned",
+          "end_time": 1788867868.2927082
+        },
+        {
+          "sequence": 17,
+          "sql": "SELECT hiring_managers, MIN(created_month) AS first_month, MAX(created_month) AS last_month, COUNT(DISTINCT created_month) AS months_active, COUNT(DISTINCT name) AS distinct_job_titles, COUNT(*) AS n_jobs, SUM(count_total_applications) AS total_apps FROM temp.reuse_candidate AS greenhouse__job_enhanced WHERE departments = 'Engineering' GROUP BY hiring_managers ORDER BY hiring_managers",
+          "phase": "offline_validation",
+          "start_time": 1788867868.2938957,
+          "status": "execute_returned",
+          "end_time": 1788867868.2940361
+        },
+        {
+          "sequence": 18,
+          "sql": "/* Does number of interviewers vary systematically by hiring manager? */ SELECT j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, COUNT(*) AS n_jobs, ROUND(AVG(j.application_to_interview_rate), 2) AS avg_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' GROUP BY j.hiring_managers, n_interviewers ORDER BY j.hiring_managers, n_interviewers",
+          "phase": "offline_validation",
+          "start_time": 1788867868.29518,
+          "status": "execute_returned",
+          "end_time": 1788867868.2953963
+        },
+        {
+          "sequence": 19,
+          "sql": "SELECT j.hiring_managers, j.departments, COUNT(DISTINCT j.name) AS distinct_roles, COUNT(DISTINCT j.created_month) AS months_active, COUNT(*) AS n_jobs, SUM(j.count_total_applications) AS apps, ROUND(AVG(j.application_to_interview_rate), 2) AS avg_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' GROUP BY j.hiring_managers ORDER BY avg_rate",
+          "phase": "offline_validation",
+          "start_time": 1788867868.2966654,
+          "status": "execute_returned",
+          "end_time": 1788867868.2968824
+        },
+        {
+          "sequence": 20,
+          "sql": "SELECT j.job_id, j.name, j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, j.created_month, j.count_total_applications AS apps, j.avg_job_rating, j.application_to_interview_rate AS app_to_int_rate, j.overall_conversion_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering'",
+          "phase": "offline_validation",
+          "start_time": 1788867868.298243,
+          "status": "execute_returned",
+          "end_time": 1788867868.2983084
+        },
+        {
+          "sequence": 21,
+          "sql": "SELECT j.job_id, j.name, j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, j.created_month, j.count_total_applications AS apps, j.avg_job_rating, j.application_to_interview_rate AS app_to_int_rate, j.overall_conversion_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering'",
+          "phase": "offline_validation",
+          "start_time": 1788867868.3019667,
+          "status": "execute_returned",
+          "end_time": 1788867868.3019829
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"greenhouse__job_enhanced\" WHERE departments = 'Engineering'",
+          "time": 1788867868.270188,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788867868.2704878,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788867868.2705097,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT DISTINCT j.name, j.departments, j.hiring_managers FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' LIMIT 30",
+          "time": 1788867868.2705681,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT DISTINCT j.name FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' ORDER BY j.name",
+          "time": 1788867868.2715616,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT j.name, j.departments, j.hiring_managers, j.recruiters, j.sourcers FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' ORDER BY j.name",
+          "time": 1788867868.2722921,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT job_id, name, hiring_managers, recruiters, sourcers, count_total_interviews, count_completed_interviews, count_total_applications, count_completed_interviews FROM temp.reuse_candidate AS greenhouse__job_enhanced WHERE departments = 'Engineering' LIMIT 10",
+          "time": 1788867868.2737124,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT DISTINCT j.name FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' ORDER BY j.name",
+          "time": 1788867868.274533,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT DISTINCT CASE WHEN j.name LIKE 'Frontend%' THEN 'Frontend' WHEN j.name LIKE 'Backend%' THEN 'Backend' WHEN j.name LIKE 'Full Stack%' THEN 'Full Stack' WHEN j.name LIKE 'Data Engineer%' THEN 'Data Engineer' WHEN j.name LIKE 'DevOps%' THEN 'DevOps' WHEN j.name LIKE 'Mobile%' THEN 'Mobile' WHEN j.name LIKE 'QA%' THEN 'QA' WHEN j.name LIKE 'Security%' THEN 'Security' WHEN j.name LIKE 'Site Reliability%' THEN 'Site Reliability' WHEN j.name LIKE 'Machine Learning%' THEN 'Machine Learning' WHEN j.name LIKE 'Systems%' THEN 'Systems' WHEN j.name LIKE 'Engineering Manager%' THEN 'Engineering Manager' ELSE 'Other' END AS role_category FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' ORDER BY role_category",
+          "time": 1788867868.2753239,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT j.application_to_interview_rate, j.overall_conversion_rate, j.count_total_applications, j.count_completed_interviews, j.departments FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' LIMIT 10",
+          "time": 1788867868.2771332,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT j.created_year, j.created_month, COUNT(DISTINCT j.job_id) AS n_jobs, SUM(j.count_total_applications) AS apps, SUM(j.count_completed_interviews) AS interviews, ROUND(100.0 * SUM(j.count_completed_interviews) / SUM(j.count_total_applications), 2) AS weighted_interview_rate, ROUND(AVG(j.application_to_interview_rate), 2) AS avg_job_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' GROUP BY j.created_year, j.created_month ORDER BY j.created_year, j.created_month",
+          "time": 1788867868.277954,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT hiring_managers, COUNT(*) AS n_jobs, SUM(count_total_applications) AS apps, SUM(count_completed_interviews) AS interviews, ROUND(100.0 * SUM(count_completed_interviews) / SUM(count_total_applications), 2) AS weighted_rate FROM temp.reuse_candidate AS greenhouse__job_enhanced WHERE departments = 'Engineering' GROUP BY hiring_managers ORDER BY weighted_rate",
+          "time": 1788867868.2796092,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Per-job factors for Engineering jobs */ SELECT j.job_id, j.name, j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, j.created_month, j.count_total_applications AS apps, j.count_total_interviews AS total_interviews, j.count_completed_interviews AS completed_interviews, j.avg_interviews_per_application, j.avg_job_rating, j.rating_completion_rate, j.application_to_interview_rate, j.interview_to_hire_rate, j.overall_conversion_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' ORDER BY j.job_id",
+          "time": 1788867868.2807596,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT j.job_id, j.name, j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, j.created_month, j.count_total_applications AS apps, j.count_total_interviews AS total_interviews, j.count_completed_interviews AS completed_interviews, j.avg_interviews_per_application, j.avg_job_rating, j.rating_completion_rate, j.application_to_interview_rate AS app_to_int_rate, j.interview_to_hire_rate, j.overall_conversion_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering'",
+          "time": 1788867868.2836134,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT j.job_id, j.name, j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, j.created_month, j.count_total_applications AS apps, j.count_total_interviews AS total_interviews, j.avg_job_rating, j.rating_completion_rate, j.application_to_interview_rate AS app_to_int_rate, j.interview_to_hire_rate, j.overall_conversion_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering'",
+          "time": 1788867868.2882695,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT j.created_month, COUNT(DISTINCT j.job_id) AS n_jobs, SUM(j.count_total_applications) AS apps, SUM(j.count_completed_interviews) AS interviews, 100.0 * SUM(j.count_completed_interviews) / SUM(j.count_total_applications) AS interview_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' GROUP BY j.created_month ORDER BY j.created_month",
+          "time": 1788867868.2926521,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT hiring_managers, MIN(created_month) AS first_month, MAX(created_month) AS last_month, COUNT(DISTINCT created_month) AS months_active, COUNT(DISTINCT name) AS distinct_job_titles, COUNT(*) AS n_jobs, SUM(count_total_applications) AS total_apps FROM temp.reuse_candidate AS greenhouse__job_enhanced WHERE departments = 'Engineering' GROUP BY hiring_managers ORDER BY hiring_managers",
+          "time": 1788867868.2939515,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Does number of interviewers vary systematically by hiring manager? */ SELECT j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, COUNT(*) AS n_jobs, ROUND(AVG(j.application_to_interview_rate), 2) AS avg_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' GROUP BY j.hiring_managers, n_interviewers ORDER BY j.hiring_managers, n_interviewers",
+          "time": 1788867868.295256,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT j.hiring_managers, j.departments, COUNT(DISTINCT j.name) AS distinct_roles, COUNT(DISTINCT j.created_month) AS months_active, COUNT(*) AS n_jobs, SUM(j.count_total_applications) AS apps, ROUND(AVG(j.application_to_interview_rate), 2) AS avg_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' GROUP BY j.hiring_managers ORDER BY avg_rate",
+          "time": 1788867868.2967281,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT j.job_id, j.name, j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, j.created_month, j.count_total_applications AS apps, j.avg_job_rating, j.application_to_interview_rate AS app_to_int_rate, j.overall_conversion_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering'",
+          "time": 1788867868.2983003,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT j.job_id, j.name, j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, j.created_month, j.count_total_applications AS apps, j.avg_job_rating, j.application_to_interview_rate AS app_to_int_rate, j.overall_conversion_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering'",
+          "time": 1788867868.3019738,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.5714967846870422,
+      "intermediate_rows": 154,
+      "intermediate_columns": [
+        "job_id",
+        "name",
+        "status",
+        "requisition_id",
+        "created_at",
+        "departments",
+        "offices",
+        "hiring_managers",
+        "recruiters",
+        "sourcers",
+        "count_total_applications",
+        "count_active_applications",
+        "count_hired_applications",
+        "count_rejected_applications",
+        "count_prospect_applications",
+        "count_total_interviews",
+        "count_completed_interviews",
+        "avg_interviews_per_application",
+        "avg_job_rating",
+        "count_rated_applications",
+        "rating_completion_rate",
+        "application_to_interview_rate",
+        "interview_to_hire_rate",
+        "overall_conversion_rate",
+        "created_year",
+        "created_month",
+        "days_since_created"
+      ],
+      "validation_ended_at": 1788867868.3058856,
+      "checks": [
+        {
+          "sql_id": "S6",
+          "rewritten_sql": "SELECT DISTINCT j.name, j.departments, j.hiring_managers FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' LIMIT 30",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.9758928790688515
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT DISTINCT j.name FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' ORDER BY j.name",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7240138947963715
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "SELECT j.name, j.departments, j.hiring_managers, j.recruiters, j.sourcers FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' ORDER BY j.name",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.411397010087967
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT job_id, name, hiring_managers, recruiters, sourcers, count_total_interviews, count_completed_interviews, count_total_applications, count_completed_interviews FROM temp.reuse_candidate AS greenhouse__job_enhanced WHERE departments = 'Engineering' LIMIT 10",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.8509662002325058
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "SELECT DISTINCT j.name FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' ORDER BY j.name",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6697308272123337
+        },
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "SELECT DISTINCT CASE WHEN j.name LIKE 'Frontend%' THEN 'Frontend' WHEN j.name LIKE 'Backend%' THEN 'Backend' WHEN j.name LIKE 'Full Stack%' THEN 'Full Stack' WHEN j.name LIKE 'Data Engineer%' THEN 'Data Engineer' WHEN j.name LIKE 'DevOps%' THEN 'DevOps' WHEN j.name LIKE 'Mobile%' THEN 'Mobile' WHEN j.name LIKE 'QA%' THEN 'QA' WHEN j.name LIKE 'Security%' THEN 'Security' WHEN j.name LIKE 'Site Reliability%' THEN 'Site Reliability' WHEN j.name LIKE 'Machine Learning%' THEN 'Machine Learning' WHEN j.name LIKE 'Systems%' THEN 'Systems' WHEN j.name LIKE 'Engineering Manager%' THEN 'Engineering Manager' ELSE 'Other' END AS role_category FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' ORDER BY role_category",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.8970919772982597
+        },
+        {
+          "sql_id": "S25",
+          "rewritten_sql": "SELECT j.application_to_interview_rate, j.overall_conversion_rate, j.count_total_applications, j.count_completed_interviews, j.departments FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' LIMIT 10",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.7748240604996681
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "SELECT j.created_year, j.created_month, COUNT(DISTINCT j.job_id) AS n_jobs, SUM(j.count_total_applications) AS apps, SUM(j.count_completed_interviews) AS interviews, ROUND(100.0 * SUM(j.count_completed_interviews) / SUM(j.count_total_applications), 2) AS weighted_interview_rate, ROUND(AVG(j.application_to_interview_rate), 2) AS avg_job_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' GROUP BY j.created_year, j.created_month ORDER BY j.created_year, j.created_month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.6666855663061142
+        },
+        {
+          "sql_id": "S28",
+          "rewritten_sql": "SELECT hiring_managers, COUNT(*) AS n_jobs, SUM(count_total_applications) AS apps, SUM(count_completed_interviews) AS interviews, ROUND(100.0 * SUM(count_completed_interviews) / SUM(count_total_applications), 2) AS weighted_rate FROM temp.reuse_candidate AS greenhouse__job_enhanced WHERE departments = 'Engineering' GROUP BY hiring_managers ORDER BY weighted_rate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.132187433540821
+        },
+        {
+          "sql_id": "S31",
+          "rewritten_sql": "/* Per-job factors for Engineering jobs */ SELECT j.job_id, j.name, j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, j.created_month, j.count_total_applications AS apps, j.count_total_interviews AS total_interviews, j.count_completed_interviews AS completed_interviews, j.avg_interviews_per_application, j.avg_job_rating, j.rating_completion_rate, j.application_to_interview_rate, j.interview_to_hire_rate, j.overall_conversion_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' ORDER BY j.job_id",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.8542615473270416
+        },
+        {
+          "sql_id": "S32",
+          "rewritten_sql": "SELECT j.job_id, j.name, j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, j.created_month, j.count_total_applications AS apps, j.count_total_interviews AS total_interviews, j.count_completed_interviews AS completed_interviews, j.avg_interviews_per_application, j.avg_job_rating, j.rating_completion_rate, j.application_to_interview_rate AS app_to_int_rate, j.interview_to_hire_rate, j.overall_conversion_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 4.661467857658863
+        },
+        {
+          "sql_id": "S33",
+          "rewritten_sql": "SELECT j.job_id, j.name, j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, j.created_month, j.count_total_applications AS apps, j.count_total_interviews AS total_interviews, j.avg_job_rating, j.rating_completion_rate, j.application_to_interview_rate AS app_to_int_rate, j.interview_to_hire_rate, j.overall_conversion_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 4.388066940009594
+        },
+        {
+          "sql_id": "S36",
+          "rewritten_sql": "SELECT j.created_month, COUNT(DISTINCT j.job_id) AS n_jobs, SUM(j.count_total_applications) AS apps, SUM(j.count_completed_interviews) AS interviews, 100.0 * SUM(j.count_completed_interviews) / SUM(j.count_total_applications) AS interview_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' GROUP BY j.created_month ORDER BY j.created_month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.2989155948162079
+        },
+        {
+          "sql_id": "S37",
+          "rewritten_sql": "SELECT hiring_managers, MIN(created_month) AS first_month, MAX(created_month) AS last_month, COUNT(DISTINCT created_month) AS months_active, COUNT(DISTINCT name) AS distinct_job_titles, COUNT(*) AS n_jobs, SUM(count_total_applications) AS total_apps FROM temp.reuse_candidate AS greenhouse__job_enhanced WHERE departments = 'Engineering' GROUP BY hiring_managers ORDER BY hiring_managers",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.282133162021637
+        },
+        {
+          "sql_id": "S38",
+          "rewritten_sql": "/* Does number of interviewers vary systematically by hiring manager? */ SELECT j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, COUNT(*) AS n_jobs, ROUND(AVG(j.application_to_interview_rate), 2) AS avg_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' GROUP BY j.hiring_managers, n_interviewers ORDER BY j.hiring_managers, n_interviewers",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.4830557629466057
+        },
+        {
+          "sql_id": "S42",
+          "rewritten_sql": "SELECT j.hiring_managers, j.departments, COUNT(DISTINCT j.name) AS distinct_roles, COUNT(DISTINCT j.created_month) AS months_active, COUNT(*) AS n_jobs, SUM(j.count_total_applications) AS apps, ROUND(AVG(j.application_to_interview_rate), 2) AS avg_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering' GROUP BY j.hiring_managers ORDER BY avg_rate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.5755947679281235
+        },
+        {
+          "sql_id": "S43",
+          "rewritten_sql": "SELECT j.job_id, j.name, j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, j.created_month, j.count_total_applications AS apps, j.avg_job_rating, j.application_to_interview_rate AS app_to_int_rate, j.overall_conversion_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 3.721502609550953
+        },
+        {
+          "sql_id": "S44",
+          "rewritten_sql": "SELECT j.job_id, j.name, j.hiring_managers, (LENGTH(j.recruiters) - LENGTH(REPLACE(j.recruiters, ',', '')) + 1) AS n_interviewers, j.created_month, j.count_total_applications AS apps, j.avg_job_rating, j.application_to_interview_rate AS app_to_int_rate, j.overall_conversion_rate FROM temp.reuse_candidate AS j WHERE j.departments = 'Engineering'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 3.7804022431373596
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT hiring_managers AS __g0, (LENGTH(recruiters) - LENGTH(REPLACE(recruiters, ',', '')) + 1) AS __g1, COUNT(*) AS __a0, SUM(count_total_applications) AS __a1, SUM(count_completed_interviews) AS __a2, SUM(application_to_interview_rate) AS __a3_sum, COUNT(application_to_interview_rate) AS __a3_n FROM \"greenhouse__job_enhanced\" WHERE departments = 'Engineering' GROUP BY hiring_managers, (LENGTH(recruiters) - LENGTH(REPLACE(recruiters, ',', '')) + 1)",
+      "covered": [
+        "S28",
+        "S38"
+      ],
+      "rewrites": {
+        "S28": "SELECT __g0 AS \"hiring_managers\", SUM(__a0) AS n_jobs, SUM(__a1) AS apps, SUM(__a2) AS interviews, ROUND(100.0 * SUM(__a2) / SUM(__a1), 2) AS weighted_rate FROM temp.reuse_candidate GROUP BY __g0 ORDER BY weighted_rate",
+        "S38": "/* Does number of interviewers vary systematically by hiring manager? */ SELECT __g0 AS \"hiring_managers\", __g1 AS n_interviewers, SUM(__a0) AS n_jobs, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_rate FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, n_interviewers"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S28",
+      "later_reuses": 1,
+      "denominator": 42,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"greenhouse__job_enhanced\" WHERE departments = 'Marketing'",
+      "covered": [
+        "S7",
+        "S13"
+      ],
+      "rewrites": {
+        "S7": "SELECT DISTINCT j.name, j.departments, j.hiring_managers FROM temp.reuse_candidate AS j WHERE j.departments = 'Marketing' LIMIT 30",
+        "S13": "SELECT DISTINCT j.name FROM temp.reuse_candidate AS j WHERE j.departments = 'Marketing' ORDER BY j.name"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C6",
+      "offline": true,
+      "earliest_build_before": "S7",
+      "later_reuses": 1,
+      "denominator": 42,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

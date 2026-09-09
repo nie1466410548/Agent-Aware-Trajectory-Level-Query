@@ -1,0 +1,435 @@
+{
+  "task_id": "dacomp-034",
+  "candidate_id": "C2",
+  "covered": [
+    "S9",
+    "S10",
+    "S13",
+    "S20"
+  ],
+  "build_sql": "SELECT promotion_type AS __g0, state AS __g1, COUNT(*) AS __a0, MIN(create_dt) AS __a1, MAX(create_dt) AS __a2 FROM \"attachment_3\"  GROUP BY promotion_type, state",
+  "rewrites": {
+    "S9": "SELECT __g0 AS \"promotion_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+    "S10": "SELECT __g1 AS \"state\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+    "S13": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+    "S20": "SELECT MIN(__a1) AS mn, MAX(__a2) AS mx FROM temp.reuse_candidate"
+  },
+  "phase": "offline_performance",
+  "cache": "warm/uncontrolled OS cache",
+  "timing_boundary": "execute + fetch all row arrays; candidate includes CREATE TEMP TABLE AS and all rewrites; includes DROP cleanup and excludes result comparison, identical consumption on both paths",
+  "teardown": "DROP is included in candidate total_ms and reported separately; no additional indexes used",
+  "rounds": [
+    {
+      "round": 1,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline": {
+        "total_ms": 866.0092828795314,
+        "build_ms": 0,
+        "teardown_ms": 0
+      },
+      "candidate": {
+        "total_ms": 600.07428470999,
+        "build_ms": 599.8894181102514,
+        "teardown_ms": 0.04424247890710831
+      }
+    },
+    {
+      "round": 2,
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "candidate": {
+        "total_ms": 600.9229812771082,
+        "build_ms": 600.7031593471766,
+        "teardown_ms": 0.046953558921813965
+      },
+      "baseline": {
+        "total_ms": 867.3777570948005,
+        "build_ms": 0,
+        "teardown_ms": 0
+      }
+    },
+    {
+      "round": 3,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline": {
+        "total_ms": 863.6228432878852,
+        "build_ms": 0,
+        "teardown_ms": 0
+      },
+      "candidate": {
+        "total_ms": 597.7901583537459,
+        "build_ms": 597.5864324718714,
+        "teardown_ms": 0.04681199789047241
+      }
+    },
+    {
+      "round": 4,
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "candidate": {
+        "total_ms": 599.2158846929669,
+        "build_ms": 599.0083636716008,
+        "teardown_ms": 0.044922344386577606
+      },
+      "baseline": {
+        "total_ms": 866.3109391927719,
+        "build_ms": 0,
+        "teardown_ms": 0
+      }
+    },
+    {
+      "round": 5,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline": {
+        "total_ms": 858.6493358016014,
+        "build_ms": 0,
+        "teardown_ms": 0
+      },
+      "candidate": {
+        "total_ms": 599.0143585950136,
+        "build_ms": 598.816741257906,
+        "teardown_ms": 0.04441477358341217
+      }
+    }
+  ],
+  "engine_trace": [
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT promotion_type, COUNT(*) AS cnt FROM attachment_3 GROUP BY promotion_type ORDER BY cnt DESC",
+      "time": 1788871671.5555859
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT state, COUNT(*) AS cnt FROM attachment_3 GROUP BY state ORDER BY cnt DESC",
+      "time": 1788871671.934686
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS n FROM attachment_3",
+      "time": 1788871672.2888675
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(create_dt) AS mn, MAX(create_dt) AS mx FROM attachment_3",
+      "time": 1788871672.300749
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT promotion_type AS __g0, state AS __g1, COUNT(*) AS __a0, MIN(create_dt) AS __a1, MAX(create_dt) AS __a2 FROM \"attachment_3\"  GROUP BY promotion_type, state",
+      "time": 1788871672.4225888
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g0 AS \"promotion_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+      "time": 1788871673.0225658
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g1 AS \"state\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+      "time": 1788871673.0226173
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+      "time": 1788871673.0226424
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(__a1) AS mn, MAX(__a2) AS mx FROM temp.reuse_candidate",
+      "time": 1788871673.0226614
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871673.022699
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT promotion_type, COUNT(*) AS cnt FROM attachment_3 GROUP BY promotion_type ORDER BY cnt DESC",
+      "time": 1788871673.0247881
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT state, COUNT(*) AS cnt FROM attachment_3 GROUP BY state ORDER BY cnt DESC",
+      "time": 1788871673.404321
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS n FROM attachment_3",
+      "time": 1788871673.7594702
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(create_dt) AS mn, MAX(create_dt) AS mx FROM attachment_3",
+      "time": 1788871673.7710705
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT promotion_type AS __g0, state AS __g1, COUNT(*) AS __a0, MIN(create_dt) AS __a1, MAX(create_dt) AS __a2 FROM \"attachment_3\"  GROUP BY promotion_type, state",
+      "time": 1788871673.8926234
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g0 AS \"promotion_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+      "time": 1788871674.49245
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g1 AS \"state\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+      "time": 1788871674.4924946
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+      "time": 1788871674.4925191
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(__a1) AS mn, MAX(__a2) AS mx FROM temp.reuse_candidate",
+      "time": 1788871674.4925363
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871674.4925702
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT promotion_type AS __g0, state AS __g1, COUNT(*) AS __a0, MIN(create_dt) AS __a1, MAX(create_dt) AS __a2 FROM \"attachment_3\"  GROUP BY promotion_type, state",
+      "time": 1788871674.494395
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g0 AS \"promotion_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+      "time": 1788871675.095073
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g1 AS \"state\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+      "time": 1788871675.0951283
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+      "time": 1788871675.0951533
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(__a1) AS mn, MAX(__a2) AS mx FROM temp.reuse_candidate",
+      "time": 1788871675.0951774
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871675.0952132
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT promotion_type, COUNT(*) AS cnt FROM attachment_3 GROUP BY promotion_type ORDER BY cnt DESC",
+      "time": 1788871675.0969973
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT state, COUNT(*) AS cnt FROM attachment_3 GROUP BY state ORDER BY cnt DESC",
+      "time": 1788871675.4747734
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS n FROM attachment_3",
+      "time": 1788871675.8313649
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(create_dt) AS mn, MAX(create_dt) AS mx FROM attachment_3",
+      "time": 1788871675.8437576
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT promotion_type, COUNT(*) AS cnt FROM attachment_3 GROUP BY promotion_type ORDER BY cnt DESC",
+      "time": 1788871675.9661202
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT state, COUNT(*) AS cnt FROM attachment_3 GROUP BY state ORDER BY cnt DESC",
+      "time": 1788871676.3447537
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS n FROM attachment_3",
+      "time": 1788871676.698599
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(create_dt) AS mn, MAX(create_dt) AS mx FROM attachment_3",
+      "time": 1788871676.711246
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT promotion_type AS __g0, state AS __g1, COUNT(*) AS __a0, MIN(create_dt) AS __a1, MAX(create_dt) AS __a2 FROM \"attachment_3\"  GROUP BY promotion_type, state",
+      "time": 1788871676.831827
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g0 AS \"promotion_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+      "time": 1788871677.4293427
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g1 AS \"state\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+      "time": 1788871677.4293919
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+      "time": 1788871677.4294174
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(__a1) AS mn, MAX(__a2) AS mx FROM temp.reuse_candidate",
+      "time": 1788871677.429436
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871677.4294713
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT promotion_type AS __g0, state AS __g1, COUNT(*) AS __a0, MIN(create_dt) AS __a1, MAX(create_dt) AS __a2 FROM \"attachment_3\"  GROUP BY promotion_type, state",
+      "time": 1788871677.4313214
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g0 AS \"promotion_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+      "time": 1788871678.030303
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g1 AS \"state\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+      "time": 1788871678.0303555
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+      "time": 1788871678.0303807
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(__a1) AS mn, MAX(__a2) AS mx FROM temp.reuse_candidate",
+      "time": 1788871678.030398
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871678.030433
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT promotion_type, COUNT(*) AS cnt FROM attachment_3 GROUP BY promotion_type ORDER BY cnt DESC",
+      "time": 1788871678.0322309
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT state, COUNT(*) AS cnt FROM attachment_3 GROUP BY state ORDER BY cnt DESC",
+      "time": 1788871678.410252
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS n FROM attachment_3",
+      "time": 1788871678.7676096
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(create_dt) AS mn, MAX(create_dt) AS mx FROM attachment_3",
+      "time": 1788871678.7802827
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT promotion_type, COUNT(*) AS cnt FROM attachment_3 GROUP BY promotion_type ORDER BY cnt DESC",
+      "time": 1788871678.900279
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT state, COUNT(*) AS cnt FROM attachment_3 GROUP BY state ORDER BY cnt DESC",
+      "time": 1788871679.276364
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS n FROM attachment_3",
+      "time": 1788871679.628553
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(create_dt) AS mn, MAX(create_dt) AS mx FROM attachment_3",
+      "time": 1788871679.6384127
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT promotion_type AS __g0, state AS __g1, COUNT(*) AS __a0, MIN(create_dt) AS __a1, MAX(create_dt) AS __a2 FROM \"attachment_3\"  GROUP BY promotion_type, state",
+      "time": 1788871679.7608178
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g0 AS \"promotion_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+      "time": 1788871680.3595562
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g1 AS \"state\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+      "time": 1788871680.3596053
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+      "time": 1788871680.3596308
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(__a1) AS mn, MAX(__a2) AS mx FROM temp.reuse_candidate",
+      "time": 1788871680.3596482
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871680.3596818
+    }
+  ],
+  "correctness_warmup": {
+    "baseline": {
+      "total_ms": 865.3082260861993,
+      "build_ms": 0,
+      "teardown_ms": 0
+    },
+    "candidate": {
+      "total_ms": 600.2346100285649,
+      "build_ms": 600.0186372548342,
+      "teardown_ms": 0.04859641194343567
+    }
+  },
+  "status": "measured",
+  "baseline_median_ms": 866.0092828795314,
+  "baseline_range_ms": [
+    858.6493358016014,
+    867.3777570948005
+  ],
+  "candidate_median_ms": 599.2158846929669,
+  "candidate_range_ms": [
+    597.7901583537459,
+    600.9229812771082
+  ],
+  "ratio_baseline_over_candidate": 1.445237526243596,
+  "duration_s": 8.807477951049805
+}

@@ -1,0 +1,1 @@
+SELECT "Segment Name", COUNT(*) as cnt FROM customer_segments_table GROUP BY "Segment Name" ORDER BY cnt DESC

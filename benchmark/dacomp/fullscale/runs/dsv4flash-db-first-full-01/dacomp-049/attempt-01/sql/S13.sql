@@ -1,0 +1,1 @@
+SELECT "Job Title", "Company Name" FROM sheet1 WHERE "Company Name" LIKE '%人保%' OR "Company Name" LIKE '%PICC%' OR "Company Name" LIKE '%人寿%' OR "Company Name" LIKE '%Life Insurance%'

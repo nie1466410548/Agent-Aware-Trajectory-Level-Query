@@ -1,0 +1,119 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+From the `quickbooks__vendor_performance` table, identify 'high-quality, shrinking-spend' vendors where `annual_spend_growth_pct` is negative but the `overall_performance_score` is 7 or higher. For these vendors, calculate the spend volatility coefficient (`spend_volatility` / `total_lifetime_spend`) and a composite risk score (`payment_completion_rate` * 0.4 + `business_value_score`/10 * 0.6). Using the corresponding transaction records for each `vendor_id` from the `quickbooks__general_ledger` table, calculate the spend change rate for the last 12 months versus the prior 12 months for each vendor, categorized by `account_type`. Also, calculate the transaction frequency density (number of transactions / active days) for each account type. Based on the `quickbooks__cashflow_forecast` data, build a cash flow impact model assuming a 30% reduction in collaboration with these vendors, and calculate the adjusted monthly outflow forecast and the change in the liquidity risk index.
+
+DATABASE SCHEMA:
+CREATE TABLE "quickbooks__cashflow_forecast" (
+"forecast_month" TIMESTAMP,
+  "forecast_year" INTEGER,
+  "forecast_quarter" INTEGER,
+  "forecast_month_num" INTEGER,
+  "forecasted_inflows" REAL,
+  "forecasted_outflows" REAL,
+  "forecasted_net_cash_flow" REAL,
+  "risk_adjusted_inflows" REAL,
+  "blended_forecast" REAL,
+  "forecast_confidence" TEXT,
+  "forecast_counterparties" INTEGER,
+  "cumulative_forecast_cash_flow" REAL,
+  "next_3_months_cash_flow" REAL,
+  "worst_case_3_months" REAL,
+  "liquidity_status" TEXT,
+  "cash_flow_health_score" INTEGER,
+  "liquidity_risk_level" TEXT,
+  "management_recommendation" TEXT,
+  "forecast_reliability" TEXT
+)
+CREATE TABLE "quickbooks__general_ledger" (
+"unique_id" TEXT,
+  "transaction_id" TEXT,
+  "source_relation" TEXT,
+  "transaction_index" INTEGER,
+  "transaction_date" TIMESTAMP,
+  "customer_id" TEXT,
+  "vendor_id" TEXT,
+  "amount" REAL,
+  "account_id" TEXT,
+  "class_id" TEXT,
+  "department_id" TEXT,
+  "account_number" TEXT,
+  "account_name" TEXT,
+  "is_sub_account" INTEGER,
+  "parent_account_number" TEXT,
+  "parent_account_name" TEXT,
+  "account_type" TEXT,
+  "account_sub_type" TEXT,
+  "financial_statement_helper" TEXT,
+  "account_current_balance" REAL,
+  "account_class" TEXT,
+  "transaction_type" TEXT,
+  "transaction_source" TEXT,
+  "account_transaction_type" TEXT,
+  "created_at" TIMESTAMP,
+  "updated_at" TIMESTAMP,
+  "adjusted_amount" REAL,
+  "adjusted_converted_amount" REAL,
+  "running_balance" REAL,
+  "running_converted_balance" REAL
+)
+CREATE TABLE "quickbooks__vendor_performance" (
+"vendor_id" TEXT,
+  "source_relation" TEXT,
+  "vendor_name" TEXT,
+  "vendor_company_name" TEXT,
+  "vendor_display_name" TEXT,
+  "total_lifetime_spend" REAL,
+  "avg_bill_amount" REAL,
+  "total_transactions" INTEGER,
+  "active_months" INTEGER,
+  "first_transaction_date" TIMESTAMP,
+  "last_transaction_date" TIMESTAMP,
+  "days_since_last_transaction" INTEGER,
+  "spend_current_quarter" REAL,
+  "spend_prev_quarter" REAL,
+  "spend_current_year" REAL,
+  "spend_prev_year" REAL,
+  "spend_volatility" REAL,
+  "payment_completion_rate" REAL,
+  "on_time_payment_rate" REAL,
+  "total_outstanding" REAL,
+  "primary_purchase_category" TEXT,
+  "primary_category_spend" REAL,
+  "category_diversity" INTEGER,
+  "vendor_tier" TEXT,
+  "payment_risk_level" TEXT,
+  "payment_reliability_score" INTEGER,
+  "timeliness_score" INTEGER,
+  "relationship_stability_score" INTEGER,
+  "business_value_score" INTEGER,
+  "overall_performance_score" INTEGER,
+  "quarterly_spend_growth_pct" REAL,
+  "annual_spend_growth_pct" REAL,
+  "transaction_value_profile" TEXT,
+  "performance_rating" TEXT,
+  "risk_assessment" TEXT,
+  "recommended_strategy" TEXT,
+  "avg_monthly_spend" REAL,
+  "avg_transaction_size" REAL,
+  "dependency_level" TEXT,
+  "vendor_total_potential_savings" REAL,
+  "vendor_avg_discount_rate" REAL,
+  "vendor_savings_category" TEXT,
+  "vendor_monthly_savings" REAL,
+  "vendor_monthly_opp_rate" REAL,
+  "dq_completeness_score" REAL,
+  "dq_grade" TEXT,
+  "dq_needs_improvement" INTEGER,
+  "dq_has_issues" INTEGER,
+  "data_quality_flag" TEXT
+)

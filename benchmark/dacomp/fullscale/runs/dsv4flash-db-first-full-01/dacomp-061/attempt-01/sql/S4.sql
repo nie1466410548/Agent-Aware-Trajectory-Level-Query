@@ -1,0 +1,1 @@
+SELECT COUNT(*) as cnt, AVG(avg_close_time_days) as avg_close, MIN(avg_close_time_days) as min_close, MAX(avg_close_time_days) as max_close FROM jira__project_enhanced

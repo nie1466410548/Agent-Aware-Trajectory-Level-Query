@@ -1,0 +1,690 @@
+{
+  "fingerprint": "bd81a0d5c5644b88e7dd97296c0c41d3335e79c27386a5defd5afcbe57d1e937",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S21",
+      "covered": [
+        "S21",
+        "S23"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S21",
+      "later_reuses": 1,
+      "denominator": 56,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S49",
+      "covered": [
+        "S49",
+        "S51",
+        "S53",
+        "S55"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S49",
+      "later_reuses": 3,
+      "denominator": 56,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867624.3080745,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 4324,
+      "validation_ended_at": 1788867624.6421945,
+      "checks": [
+        {
+          "sql_id": "S51",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S53",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S55",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S52",
+      "covered": [
+        "S52",
+        "S54",
+        "S56"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S52",
+      "later_reuses": 2,
+      "denominator": 56,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT ad_group_id, SUM(clicks) AS clicks, SUM(impressions) AS impressions, SUM(conversions) AS conversions, SUM(spend) AS spend, SUM(conversions_value) AS conv_value FROM google_ads__ad_group_report GROUP BY ad_group_id HAVING SUM(clicks) > 0 AND SUM(impressions) > 0",
+      "covered": [
+        "S29",
+        "S31",
+        "S32",
+        "S33"
+      ],
+      "rewrites": {
+        "S29": "WITH agg AS (SELECT * FROM temp.reuse_candidate), metrics AS (SELECT ad_group_id, clicks, impressions, conversions, spend, conv_value, clicks * 1.0 / impressions AS ctr, conversions * 1.0 / clicks AS cvr FROM agg), ranked AS (SELECT m.*, ROW_NUMBER() OVER (ORDER BY ctr) AS rn_ctr, ROW_NUMBER() OVER (ORDER BY cvr) AS rn_cvr, COUNT(*) OVER () AS n FROM metrics AS m) SELECT 'ctr_p75' AS metric, MIN(ctr) AS value, MAX(rn_ctr) AS rank FROM ranked WHERE rn_ctr >= CAST(0.75 * n AS INTEGER) AND rn_ctr <= CAST(0.75 * n AS INTEGER) + 1 UNION ALL SELECT 'ctr_p25', MIN(ctr), MAX(rn_ctr) FROM ranked WHERE rn_ctr >= CAST(0.25 * n AS INTEGER) AND rn_ctr <= CAST(0.25 * n AS INTEGER) + 1 UNION ALL SELECT 'cvr_p75', MIN(cvr), MAX(rn_cvr) FROM ranked WHERE rn_cvr >= CAST(0.75 * n AS INTEGER) AND rn_cvr <= CAST(0.75 * n AS INTEGER) + 1 UNION ALL SELECT 'cvr_p25', MIN(cvr), MAX(rn_cvr) FROM ranked WHERE rn_cvr >= CAST(0.25 * n AS INTEGER) AND rn_cvr <= CAST(0.25 * n AS INTEGER) + 1 UNION ALL SELECT 'n', MIN(n), MAX(n) FROM ranked",
+        "S31": "WITH agg AS (SELECT * FROM temp.reuse_candidate), metrics AS (SELECT ad_group_id, clicks, impressions, conversions, spend, conv_value, clicks * 1.0 / impressions AS ctr, conversions * 1.0 / clicks AS cvr FROM agg), ranked AS (SELECT m.*, ROW_NUMBER() OVER (ORDER BY ctr) AS rn_ctr, ROW_NUMBER() OVER (ORDER BY cvr) AS rn_cvr, COUNT(*) OVER () AS n FROM metrics AS m) SELECT ctr_value, cvr_value, n FROM (SELECT ctr AS ctr_value, rn_ctr, n FROM ranked WHERE rn_ctr = CAST(0.75 * n AS INTEGER)) AS ctr_t CROSS JOIN (SELECT cvr AS cvr_value, rn_cvr FROM ranked WHERE rn_cvr = CAST(0.25 * n AS INTEGER)) AS cvr_t",
+        "S32": "WITH agg AS (SELECT * FROM temp.reuse_candidate), metrics AS (SELECT ad_group_id, clicks, impressions, conversions, spend, conv_value, clicks * 1.0 / impressions AS ctr, conversions * 1.0 / clicks AS cvr FROM agg) SELECT COUNT(*) AS total, SUM(CASE WHEN ctr > 0.035874 AND cvr < 0.038462 THEN 1 ELSE 0 END) AS problem_count FROM metrics",
+        "S33": "WITH agg AS (SELECT * FROM temp.reuse_candidate), metrics AS (SELECT ad_group_id, clicks, impressions, conversions, spend, conv_value, clicks * 1.0 / impressions AS ctr, conversions * 1.0 / clicks AS cvr FROM agg) SELECT ad_group_id, clicks, impressions, conversions, ROUND(ctr * 100, 4) AS ctr_pct, ROUND(cvr * 100, 4) AS cvr_pct, ROUND(spend, 2) AS spend FROM metrics WHERE ctr > 0.035874 AND cvr < 0.038462 ORDER BY ctr DESC, cvr ASC LIMIT 30"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S29",
+      "later_reuses": 3,
+      "denominator": 56,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT r.ad_group_id, r.account_name, r.campaign_name, SUM(r.clicks) AS clicks, SUM(r.impressions) AS impressions, SUM(r.conversions) AS conversions, SUM(r.spend) AS spend, SUM(r.clicks) * 1.0 / SUM(r.impressions) AS ctr, SUM(r.conversions) * 1.0 / SUM(r.clicks) AS cvr FROM google_ads__ad_group_report AS r GROUP BY r.ad_group_id HAVING SUM(r.clicks) > 0 AND SUM(r.impressions) > 0",
+      "covered": [
+        "S36",
+        "S37"
+      ],
+      "rewrites": {
+        "S36": "WITH master AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN campaign_name LIKE 'Brand%' THEN 'Brand' WHEN campaign_name LIKE 'Display%' THEN 'Display' WHEN campaign_name LIKE 'Performance%' THEN 'Performance' WHEN campaign_name LIKE 'Search%' THEN 'Search' WHEN campaign_name LIKE 'Shopping%' THEN 'Shopping' END AS channel, (ctr > 0.0358744 AND cvr < 0.0384615) AS is_problem, COUNT(*) AS ad_groups, ROUND(100.0 * SUM(clicks) / SUM(impressions), 3) AS ctr_pct, ROUND(100.0 * SUM(conversions) / SUM(clicks), 3) AS cvr_pct, ROUND(SUM(spend), 2) AS spend FROM master GROUP BY channel, is_problem ORDER BY channel, is_problem",
+        "S37": "WITH master AS (SELECT * FROM temp.reuse_candidate) SELECT (ctr > 0.03587443946188341 AND cvr < 0.038461538461538464) AS is_problem, COUNT(*) AS n, ROUND(100.0 * SUM(clicks) / SUM(impressions), 3) AS ctr_pct, ROUND(100.0 * SUM(conversions) / SUM(clicks), 3) AS cvr_pct, ROUND(SUM(spend), 2) AS spend, SUM(clicks) AS clicks FROM master GROUP BY is_problem"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S36",
+      "later_reuses": 1,
+      "denominator": 56,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT r.ad_group_id, r.account_name, r.campaign_name, r.status, r.ad_group_type, SUM(r.clicks) AS clicks, SUM(r.impressions) AS impressions, SUM(r.conversions) AS conversions, SUM(r.spend) AS spend, SUM(r.clicks) * 1.0 / SUM(r.impressions) AS ctr, SUM(r.conversions) * 1.0 / SUM(r.clicks) AS cvr, CASE WHEN r.account_name LIKE '%Automotive%' THEN 'Automotive' WHEN r.account_name LIKE '%Education%' THEN 'Education' WHEN r.account_name LIKE '%Entertainment%' THEN 'Entertainment' WHEN r.account_name LIKE '%Fashion%' THEN 'Fashion' WHEN r.account_name LIKE '%Finance%' THEN 'Finance' WHEN r.account_name LIKE '%Food%' THEN 'Food' WHEN r.account_name LIKE '%Healthcare%' THEN 'Healthcare' WHEN r.account_name LIKE '%Real Estate%' THEN 'Real Estate' WHEN r.account_name LIKE '%Retail%' THEN 'Retail' WHEN r.account_name LIKE '%Sports%' THEN 'Sports' WHEN r.account_name LIKE '%Technology%' THEN 'Technology' WHEN r.account_name LIKE '%Travel%' THEN 'Travel' ELSE 'Other' END AS industry, CASE WHEN r.campaign_name LIKE 'Brand%' THEN 'Brand' WHEN r.campaign_name LIKE 'Display%' THEN 'Display' WHEN r.campaign_name LIKE 'Performance%' THEN 'Performance' WHEN r.campaign_name LIKE 'Search%' THEN 'Search' WHEN r.campaign_name LIKE 'Shopping%' THEN 'Shopping' END AS channel, CASE WHEN r.campaign_name LIKE '% Audience%' THEN 'Audience' WHEN r.campaign_name LIKE '% Broad%' THEN 'Broad' WHEN r.campaign_name LIKE '% Exact%' THEN 'Exact' WHEN r.campaign_name LIKE '% Keywords%' THEN 'Keywords' WHEN r.campaign_name LIKE '% Remarketing%' THEN 'Remarketing' END AS strategy, LTRIM(SUBSTRING(r.campaign_name, INSTR(r.campaign_name, ' -') + 2)) AS period FROM google_ads__ad_group_report AS r GROUP BY r.ad_group_id HAVING SUM(r.clicks) > 0 AND SUM(r.impressions) > 0",
+      "covered": [
+        "S49",
+        "S51",
+        "S53",
+        "S55"
+      ],
+      "rewrites": {
+        "S49": "WITH agg AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM agg",
+        "S51": "WITH agg AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM agg",
+        "S53": "WITH agg AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM agg",
+        "S55": "WITH agg AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM agg"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C6",
+      "offline": true,
+      "earliest_build_before": "S49",
+      "later_reuses": 3,
+      "denominator": 56,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867624.6444337,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT r.ad_group_id, r.account_name, r.campaign_name, r.status, r.ad_group_type, SUM(r.clicks) AS clicks, SUM(r.impressions) AS impressions, SUM(r.conversions) AS conversions, SUM(r.spend) AS spend, SUM(r.clicks) * 1.0 / SUM(r.impressions) AS ctr, SUM(r.conversions) * 1.0 / SUM(r.clicks) AS cvr, CASE WHEN r.account_name LIKE '%Automotive%' THEN 'Automotive' WHEN r.account_name LIKE '%Education%' THEN 'Education' WHEN r.account_name LIKE '%Entertainment%' THEN 'Entertainment' WHEN r.account_name LIKE '%Fashion%' THEN 'Fashion' WHEN r.account_name LIKE '%Finance%' THEN 'Finance' WHEN r.account_name LIKE '%Food%' THEN 'Food' WHEN r.account_name LIKE '%Healthcare%' THEN 'Healthcare' WHEN r.account_name LIKE '%Real Estate%' THEN 'Real Estate' WHEN r.account_name LIKE '%Retail%' THEN 'Retail' WHEN r.account_name LIKE '%Sports%' THEN 'Sports' WHEN r.account_name LIKE '%Technology%' THEN 'Technology' WHEN r.account_name LIKE '%Travel%' THEN 'Travel' ELSE 'Other' END AS industry, CASE WHEN r.campaign_name LIKE 'Brand%' THEN 'Brand' WHEN r.campaign_name LIKE 'Display%' THEN 'Display' WHEN r.campaign_name LIKE 'Performance%' THEN 'Performance' WHEN r.campaign_name LIKE 'Search%' THEN 'Search' WHEN r.campaign_name LIKE 'Shopping%' THEN 'Shopping' END AS channel, CASE WHEN r.campaign_name LIKE '% Audience%' THEN 'Audience' WHEN r.campaign_name LIKE '% Broad%' THEN 'Broad' WHEN r.campaign_name LIKE '% Exact%' THEN 'Exact' WHEN r.campaign_name LIKE '% Keywords%' THEN 'Keywords' WHEN r.campaign_name LIKE '% Remarketing%' THEN 'Remarketing' END AS strategy, LTRIM(SUBSTRING(r.campaign_name, INSTR(r.campaign_name, ' -') + 2)) AS period FROM google_ads__ad_group_report AS r GROUP BY r.ad_group_id HAVING SUM(r.clicks) > 0 AND SUM(r.impressions) > 0",
+          "phase": "offline_validation",
+          "start_time": 1788867624.644694,
+          "status": "execute_returned",
+          "end_time": 1788867624.6645226
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867624.6645293,
+          "status": "execute_returned",
+          "end_time": 1788867624.66457
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788867624.6645753,
+          "status": "execute_returned",
+          "end_time": 1788867624.6645908
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH agg AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM agg",
+          "phase": "offline_validation",
+          "start_time": 1788867624.6646144,
+          "status": "execute_returned",
+          "end_time": 1788867624.6646676
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH agg AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM agg",
+          "phase": "offline_validation",
+          "start_time": 1788867624.8969176,
+          "status": "execute_returned",
+          "end_time": 1788867624.8969564
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH agg AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM agg",
+          "phase": "offline_validation",
+          "start_time": 1788867625.0184643,
+          "status": "execute_returned",
+          "end_time": 1788867625.0185034
+        },
+        {
+          "sequence": 7,
+          "sql": "WITH agg AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM agg",
+          "phase": "offline_validation",
+          "start_time": 1788867625.138657,
+          "status": "execute_returned",
+          "end_time": 1788867625.1386883
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT r.ad_group_id, r.account_name, r.campaign_name, r.status, r.ad_group_type, SUM(r.clicks) AS clicks, SUM(r.impressions) AS impressions, SUM(r.conversions) AS conversions, SUM(r.spend) AS spend, SUM(r.clicks) * 1.0 / SUM(r.impressions) AS ctr, SUM(r.conversions) * 1.0 / SUM(r.clicks) AS cvr, CASE WHEN r.account_name LIKE '%Automotive%' THEN 'Automotive' WHEN r.account_name LIKE '%Education%' THEN 'Education' WHEN r.account_name LIKE '%Entertainment%' THEN 'Entertainment' WHEN r.account_name LIKE '%Fashion%' THEN 'Fashion' WHEN r.account_name LIKE '%Finance%' THEN 'Finance' WHEN r.account_name LIKE '%Food%' THEN 'Food' WHEN r.account_name LIKE '%Healthcare%' THEN 'Healthcare' WHEN r.account_name LIKE '%Real Estate%' THEN 'Real Estate' WHEN r.account_name LIKE '%Retail%' THEN 'Retail' WHEN r.account_name LIKE '%Sports%' THEN 'Sports' WHEN r.account_name LIKE '%Technology%' THEN 'Technology' WHEN r.account_name LIKE '%Travel%' THEN 'Travel' ELSE 'Other' END AS industry, CASE WHEN r.campaign_name LIKE 'Brand%' THEN 'Brand' WHEN r.campaign_name LIKE 'Display%' THEN 'Display' WHEN r.campaign_name LIKE 'Performance%' THEN 'Performance' WHEN r.campaign_name LIKE 'Search%' THEN 'Search' WHEN r.campaign_name LIKE 'Shopping%' THEN 'Shopping' END AS channel, CASE WHEN r.campaign_name LIKE '% Audience%' THEN 'Audience' WHEN r.campaign_name LIKE '% Broad%' THEN 'Broad' WHEN r.campaign_name LIKE '% Exact%' THEN 'Exact' WHEN r.campaign_name LIKE '% Keywords%' THEN 'Keywords' WHEN r.campaign_name LIKE '% Remarketing%' THEN 'Remarketing' END AS strategy, LTRIM(SUBSTRING(r.campaign_name, INSTR(r.campaign_name, ' -') + 2)) AS period FROM google_ads__ad_group_report AS r GROUP BY r.ad_group_id HAVING SUM(r.clicks) > 0 AND SUM(r.impressions) > 0",
+          "time": 1788867624.6450458,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788867624.6645515,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788867624.6645877,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH agg AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM agg",
+          "time": 1788867624.664663,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH agg AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM agg",
+          "time": 1788867624.8969367,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH agg AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM agg",
+          "time": 1788867625.0184839,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH agg AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM agg",
+          "time": 1788867625.1386728,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 19.83465440571308,
+      "intermediate_rows": 4324,
+      "intermediate_columns": [
+        "ad_group_id",
+        "account_name",
+        "campaign_name",
+        "status",
+        "ad_group_type",
+        "clicks",
+        "impressions",
+        "conversions",
+        "spend",
+        "ctr",
+        "cvr",
+        "industry",
+        "channel",
+        "strategy",
+        "period"
+      ],
+      "validation_ended_at": 1788867625.2618158,
+      "checks": [
+        {
+          "sql_id": "S49",
+          "rewritten_sql": "WITH agg AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM agg",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 232.29576740413904
+        },
+        {
+          "sql_id": "S51",
+          "rewritten_sql": "WITH agg AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM agg",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 121.54129892587662
+        },
+        {
+          "sql_id": "S53",
+          "rewritten_sql": "WITH agg AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM agg",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 120.18677312880754
+        },
+        {
+          "sql_id": "S55",
+          "rewritten_sql": "WITH agg AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM agg",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 122.90934100747108
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT campaign_name AS __g0, ad_group_name AS __g1, ad_group_type AS __g2, status AS __g3, account_name AS __g4, SUBSTRING(campaign_name, 1, INSTR(campaign_name, ' -') - 1) AS __g5, currency_code AS __g6, date_day AS __g7, ad_group_id AS __g8, COUNT(*) AS __a0, SUM(clicks) AS __a1, SUM(impressions) AS __a2, SUM(conversions) AS __a3, SUM(spend) AS __a4, MIN(clicks) AS __a5, MAX(clicks) AS __a6, MIN(impressions) AS __a7, MAX(impressions) AS __a8, MIN(conversions) AS __a9, MAX(conversions) AS __a10, MIN(spend) AS __a11, MAX(spend) AS __a12, SUM(conversions_value) AS __a13 FROM \"google_ads__ad_group_report\"  GROUP BY campaign_name, ad_group_name, ad_group_type, status, account_name, SUBSTRING(campaign_name, 1, INSTR(campaign_name, ' -') - 1), currency_code, date_day, ad_group_id",
+      "covered": [
+        "S7",
+        "S8",
+        "S9",
+        "S11",
+        "S14",
+        "S17",
+        "S18",
+        "S20",
+        "S27",
+        "S50",
+        "S57",
+        "S58"
+      ],
+      "rewrites": {
+        "S7": "SELECT __g0 AS \"campaign_name\", SUM(__a0) AS cnt, SUM(__a1) AS clicks, SUM(__a2) AS imp, SUM(__a3) AS conv, SUM(__a4) AS spend FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 100",
+        "S8": "SELECT __g1 AS \"ad_group_name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC LIMIT 60",
+        "S9": "SELECT __g2 AS \"ad_group_type\", __g3 AS \"status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g3 ORDER BY cnt DESC",
+        "S11": "SELECT __g4 AS \"account_name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g4 ORDER BY cnt DESC LIMIT 50",
+        "S14": "SELECT __g0 AS \"campaign_name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 200",
+        "S17": "SELECT __g5 AS campaign_type, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g5 ORDER BY cnt DESC",
+        "S18": "SELECT __g6 AS \"currency_code\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g6 ORDER BY cnt DESC",
+        "S20": "SELECT __g7 AS \"date_day\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g7 ORDER BY __g7",
+        "S27": "SELECT MIN(__a5) AS min_clk, MAX(__a6) AS max_clk, MIN(__a7) AS min_imp, MAX(__a8) AS max_imp, MIN(__a9) AS min_conv, MAX(__a10) AS max_conv, MIN(__a11) AS min_spend, MAX(__a12) AS max_spend FROM temp.reuse_candidate",
+        "S50": "SELECT __g8 AS \"ad_group_id\", SUM(__a1) AS clicks FROM temp.reuse_candidate GROUP BY __g8 LIMIT 3",
+        "S57": "SELECT __g8 AS \"ad_group_id\", SUM(__a13) AS conv_value, SUM(__a3) AS conv FROM temp.reuse_candidate GROUP BY __g8 HAVING SUM(__a1) > 0 AND SUM(__a2) > 0",
+        "S58": "SELECT __g8 AS \"ad_group_id\", SUM(__a13) AS conv_value FROM temp.reuse_candidate GROUP BY __g8"
+      },
+      "status": "rejected_result_mismatch",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C7",
+      "offline": true,
+      "earliest_build_before": "S7",
+      "later_reuses": 11,
+      "denominator": 56,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867624.0859208,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT campaign_name AS __g0, ad_group_name AS __g1, ad_group_type AS __g2, status AS __g3, account_name AS __g4, SUBSTRING(campaign_name, 1, INSTR(campaign_name, ' -') - 1) AS __g5, currency_code AS __g6, date_day AS __g7, ad_group_id AS __g8, COUNT(*) AS __a0, SUM(clicks) AS __a1, SUM(impressions) AS __a2, SUM(conversions) AS __a3, SUM(spend) AS __a4, MIN(clicks) AS __a5, MAX(clicks) AS __a6, MIN(impressions) AS __a7, MAX(impressions) AS __a8, MIN(conversions) AS __a9, MAX(conversions) AS __a10, MIN(spend) AS __a11, MAX(spend) AS __a12, SUM(conversions_value) AS __a13 FROM \"google_ads__ad_group_report\"  GROUP BY campaign_name, ad_group_name, ad_group_type, status, account_name, SUBSTRING(campaign_name, 1, INSTR(campaign_name, ' -') - 1), currency_code, date_day, ad_group_id",
+          "phase": "offline_validation",
+          "start_time": 1788867624.0862107,
+          "status": "execute_returned",
+          "end_time": 1788867624.132238
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867624.1322465,
+          "status": "execute_returned",
+          "end_time": 1788867624.1327946
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788867624.1328037,
+          "status": "execute_returned",
+          "end_time": 1788867624.1328292
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"campaign_name\", SUM(__a0) AS cnt, SUM(__a1) AS clicks, SUM(__a2) AS imp, SUM(__a3) AS conv, SUM(__a4) AS spend FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 100",
+          "phase": "offline_validation",
+          "start_time": 1788867624.1328676,
+          "status": "execute_returned",
+          "end_time": 1788867624.1390235
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g1 AS \"ad_group_name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC LIMIT 60",
+          "phase": "offline_validation",
+          "start_time": 1788867624.1410017,
+          "status": "execute_returned",
+          "end_time": 1788867624.1441696
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g2 AS \"ad_group_type\", __g3 AS \"status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g3 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867624.144855,
+          "status": "execute_returned",
+          "end_time": 1788867624.1510541
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g4 AS \"account_name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g4 ORDER BY cnt DESC LIMIT 50",
+          "phase": "offline_validation",
+          "start_time": 1788867624.1516786,
+          "status": "execute_returned",
+          "end_time": 1788867624.1558895
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g0 AS \"campaign_name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 200",
+          "phase": "offline_validation",
+          "start_time": 1788867624.1566615,
+          "status": "execute_returned",
+          "end_time": 1788867624.1601377
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g5 AS campaign_type, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g5 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867624.1615274,
+          "status": "execute_returned",
+          "end_time": 1788867624.164762
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g6 AS \"currency_code\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g6 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867624.1655931,
+          "status": "execute_returned",
+          "end_time": 1788867624.1696546
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g7 AS \"date_day\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g7 ORDER BY __g7",
+          "phase": "offline_validation",
+          "start_time": 1788867624.1702425,
+          "status": "execute_returned",
+          "end_time": 1788867624.1740685
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT MIN(__a5) AS min_clk, MAX(__a6) AS max_clk, MIN(__a7) AS min_imp, MAX(__a8) AS max_imp, MIN(__a9) AS min_conv, MAX(__a10) AS max_conv, MIN(__a11) AS min_spend, MAX(__a12) AS max_spend FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867624.180975,
+          "status": "execute_returned",
+          "end_time": 1788867624.1850164
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT __g8 AS \"ad_group_id\", SUM(__a1) AS clicks FROM temp.reuse_candidate GROUP BY __g8 LIMIT 3",
+          "phase": "offline_validation",
+          "start_time": 1788867624.1861932,
+          "status": "execute_returned",
+          "end_time": 1788867624.1900864
+        },
+        {
+          "sequence": 14,
+          "sql": "SELECT __g8 AS \"ad_group_id\", SUM(__a13) AS conv_value, SUM(__a3) AS conv FROM temp.reuse_candidate GROUP BY __g8 HAVING SUM(__a1) > 0 AND SUM(__a2) > 0",
+          "phase": "offline_validation",
+          "start_time": 1788867624.1906462,
+          "status": "execute_returned",
+          "end_time": 1788867624.1954777
+        },
+        {
+          "sequence": 15,
+          "sql": "SELECT __g8 AS \"ad_group_id\", SUM(__a13) AS conv_value FROM temp.reuse_candidate GROUP BY __g8",
+          "phase": "offline_validation",
+          "start_time": 1788867624.252403,
+          "status": "execute_returned",
+          "end_time": 1788867624.2570043
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT campaign_name AS __g0, ad_group_name AS __g1, ad_group_type AS __g2, status AS __g3, account_name AS __g4, SUBSTRING(campaign_name, 1, INSTR(campaign_name, ' -') - 1) AS __g5, currency_code AS __g6, date_day AS __g7, ad_group_id AS __g8, COUNT(*) AS __a0, SUM(clicks) AS __a1, SUM(impressions) AS __a2, SUM(conversions) AS __a3, SUM(spend) AS __a4, MIN(clicks) AS __a5, MAX(clicks) AS __a6, MIN(impressions) AS __a7, MAX(impressions) AS __a8, MIN(conversions) AS __a9, MAX(conversions) AS __a10, MIN(spend) AS __a11, MAX(spend) AS __a12, SUM(conversions_value) AS __a13 FROM \"google_ads__ad_group_report\"  GROUP BY campaign_name, ad_group_name, ad_group_type, status, account_name, SUBSTRING(campaign_name, 1, INSTR(campaign_name, ' -') - 1), currency_code, date_day, ad_group_id",
+          "time": 1788867624.0865338,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788867624.132275,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788867624.132825,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"campaign_name\", SUM(__a0) AS cnt, SUM(__a1) AS clicks, SUM(__a2) AS imp, SUM(__a3) AS conv, SUM(__a4) AS spend FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 100",
+          "time": 1788867624.1329024,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"ad_group_name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC LIMIT 60",
+          "time": 1788867624.141036,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"ad_group_type\", __g3 AS \"status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g3 ORDER BY cnt DESC",
+          "time": 1788867624.1448905,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS \"account_name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g4 ORDER BY cnt DESC LIMIT 50",
+          "time": 1788867624.151711,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"campaign_name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 200",
+          "time": 1788867624.1566963,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g5 AS campaign_type, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g5 ORDER BY cnt DESC",
+          "time": 1788867624.161561,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g6 AS \"currency_code\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g6 ORDER BY cnt DESC",
+          "time": 1788867624.1656272,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g7 AS \"date_day\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g7 ORDER BY __g7",
+          "time": 1788867624.1702757,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a5) AS min_clk, MAX(__a6) AS max_clk, MIN(__a7) AS min_imp, MAX(__a8) AS max_imp, MIN(__a9) AS min_conv, MAX(__a10) AS max_conv, MIN(__a11) AS min_spend, MAX(__a12) AS max_spend FROM temp.reuse_candidate",
+          "time": 1788867624.1810257,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g8 AS \"ad_group_id\", SUM(__a1) AS clicks FROM temp.reuse_candidate GROUP BY __g8 LIMIT 3",
+          "time": 1788867624.1862268,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g8 AS \"ad_group_id\", SUM(__a13) AS conv_value, SUM(__a3) AS conv FROM temp.reuse_candidate GROUP BY __g8 HAVING SUM(__a1) > 0 AND SUM(__a2) > 0",
+          "time": 1788867624.1906927,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g8 AS \"ad_group_id\", SUM(__a13) AS conv_value FROM temp.reuse_candidate GROUP BY __g8",
+          "time": 1788867624.2524765,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 46.03298008441925,
+      "intermediate_rows": 10000,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__g5",
+        "__g6",
+        "__g7",
+        "__g8",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4",
+        "__a5",
+        "__a6",
+        "__a7",
+        "__a8",
+        "__a9",
+        "__a10",
+        "__a11",
+        "__a12",
+        "__a13"
+      ],
+      "validation_ended_at": 1788867624.3071697,
+      "checks": [
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT __g0 AS \"campaign_name\", SUM(__a0) AS cnt, SUM(__a1) AS clicks, SUM(__a2) AS imp, SUM(__a3) AS conv, SUM(__a4) AS spend FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 100",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 8.130265399813652
+        },
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT __g1 AS \"ad_group_name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC LIMIT 60",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.8508716970682144
+        },
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT __g2 AS \"ad_group_type\", __g3 AS \"status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g3 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 6.82000070810318
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT __g4 AS \"account_name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g4 ORDER BY cnt DESC LIMIT 50",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 4.978417418897152
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT __g0 AS \"campaign_name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 200",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 4.8646098002791405
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "SELECT __g5 AS campaign_type, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g5 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 4.062816500663757
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT __g6 AS \"currency_code\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g6 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 4.6398937702178955
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "SELECT __g7 AS \"date_day\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g7 ORDER BY __g7",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 10.729439556598663
+        },
+        {
+          "sql_id": "S27",
+          "rewritten_sql": "SELECT MIN(__a5) AS min_clk, MAX(__a6) AS max_clk, MIN(__a7) AS min_imp, MAX(__a8) AS max_imp, MIN(__a9) AS min_conv, MAX(__a10) AS max_conv, MIN(__a11) AS min_spend, MAX(__a12) AS max_spend FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 5.215933546423912
+        },
+        {
+          "sql_id": "S50",
+          "rewritten_sql": "SELECT __g8 AS \"ad_group_id\", SUM(__a1) AS clicks FROM temp.reuse_candidate GROUP BY __g8 LIMIT 3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 4.451042972505093
+        },
+        {
+          "sql_id": "S57",
+          "rewritten_sql": "SELECT __g8 AS \"ad_group_id\", SUM(__a13) AS conv_value, SUM(__a3) AS conv FROM temp.reuse_candidate GROUP BY __g8 HAVING SUM(__a1) > 0 AND SUM(__a2) > 0",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 61.75185739994049
+        },
+        {
+          "sql_id": "S58",
+          "rewritten_sql": "SELECT __g8 AS \"ad_group_id\", SUM(__a13) AS conv_value FROM temp.reuse_candidate GROUP BY __g8",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 54.141050204634666
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+SELECT MIN(win_rate_pct), AVG(win_rate_pct), MAX(win_rate_pct), MIN(avg_deal_size_usd), AVG(avg_deal_size_usd), MAX(avg_deal_size_usd), MIN(avg_sales_cycle_days), AVG(avg_sales_cycle_days), MAX(avg_sales_cycle_days), MIN(close_rate_pct), AVG(close_rate_pct), MAX(close_rate_pct) FROM salesforce__sales_performance_dashboard

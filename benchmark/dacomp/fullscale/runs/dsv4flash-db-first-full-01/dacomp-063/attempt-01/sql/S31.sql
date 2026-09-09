@@ -1,0 +1,1 @@
+SELECT user_display_name, COUNT(*) as cnt FROM jira__stakeholder_engagement_insights GROUP BY user_display_name HAVING cnt > 1 LIMIT 5

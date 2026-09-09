@@ -1,0 +1,56 @@
+{
+  "task_id": "dacomp-025",
+  "status": "reviewed_SQL_dominant_with_plot_preparation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Core sales/price/loss joins, summer filters, profitability arithmetic and per-item/month aggregation remain in logged SQL, including SQL initiated from Python. P1/P2/P6 mainly retrieve/display results. P3/P5 filter non-null summarized items and sort them for figures, and P7 selects each item series for plotting; these limited SQL-capable presentation preparations are disclosed, without equating this trajectory to full-table pandas aggregation.",
+  "route": "核查 6 月 30 日销售和历年夏季价格 → SQL 关联批发价/损耗率计算单位盈利 → 按商品与月份汇总 → 深查低盈利商品并用 Python 绘制 SQL 结果。",
+  "evidence": [
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 54,
+          "text": "res = db.query(sql)"
+        },
+        {
+          "line": 56,
+          "text": "print(df.to_string())"
+        }
+      ]
+    },
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 49,
+          "text": "res = db.query(sql)"
+        },
+        {
+          "line": 51,
+          "text": "df = df[df['n22'].notna()].copy()"
+        },
+        {
+          "line": 53,
+          "text": "df = df.sort_values('avgp22', ascending=True)"
+        }
+      ]
+    },
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 26,
+          "text": "FROM summer_analysis GROUP BY \"Item Code\", mo"
+        },
+        {
+          "line": 34,
+          "text": "    sub = df[df['Item Code']==code].sort_values('mo')"
+        },
+        {
+          "line": 69,
+          "text": "res3 = db.query(sql3)"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT visitor_id) AS distinct_visitors FROM pendo__visitor_daily_metrics

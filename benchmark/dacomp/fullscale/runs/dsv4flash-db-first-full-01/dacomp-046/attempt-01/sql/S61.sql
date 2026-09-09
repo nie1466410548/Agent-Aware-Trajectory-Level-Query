@@ -1,0 +1,1 @@
+SELECT "Age group", "Education Level", COUNT(*) as cnt FROM user_basic_information_table_1 GROUP BY "Age group", "Education Level"

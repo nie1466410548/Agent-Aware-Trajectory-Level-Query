@@ -1,0 +1,1 @@
+SELECT COUNT(*) as total_tasks, COUNT(DISTINCT team_id) as teams, COUNT(DISTINCT assignee_user_id) as users FROM asana__task_lifecycle_analysis WHERE is_valid_record = 1

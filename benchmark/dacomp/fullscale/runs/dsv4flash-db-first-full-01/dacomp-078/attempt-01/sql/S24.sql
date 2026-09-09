@@ -1,0 +1,1 @@
+SELECT MIN(first_click_at) AS min_fc, MAX(last_click_at) AS max_fc FROM pendo__visitor_feature

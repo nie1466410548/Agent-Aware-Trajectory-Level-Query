@@ -1,0 +1,1 @@
+SELECT "Complaint Customer Satisfaction", COUNT(*) AS cnt FROM complaints_table cp JOIN sales_follow_up_table s ON cp."Work Order ID" = s."Work Order ID" JOIN customer_contact_table cc ON cc."Customer ID" = s."Customer ID" WHERE cc."Contact priority" != 1 GROUP BY "Complaint Customer Satisfaction" ORDER BY "Complaint Customer Satisfaction"

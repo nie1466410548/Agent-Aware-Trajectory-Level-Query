@@ -1,0 +1,1 @@
+PRAGMA table_info("2000_cn_pop_6_up_age_sex_edu")

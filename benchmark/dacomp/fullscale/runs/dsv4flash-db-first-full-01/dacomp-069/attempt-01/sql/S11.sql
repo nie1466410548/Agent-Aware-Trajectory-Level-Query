@@ -1,0 +1,1 @@
+SELECT country, country_name, region, avg_daily_revenue, avg_transaction_value, average_revenue_per_user, revenue_last_30_days, revenue_tier FROM google_play__geo_market_analysis WHERE package_name = 'com.dev.photoeditor' ORDER BY average_revenue_per_user DESC

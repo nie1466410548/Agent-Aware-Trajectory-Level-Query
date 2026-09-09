@@ -1,0 +1,1 @@
+SELECT DISTINCT "Event Name" FROM marketing_campaign_interaction LIMIT 20

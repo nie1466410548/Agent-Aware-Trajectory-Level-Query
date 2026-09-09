@@ -1,0 +1,1 @@
+SELECT source_id, source_name, source_type FROM greenhouse__talent_pipeline_simplified

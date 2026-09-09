@@ -1,0 +1,1 @@
+SELECT DISTINCT "Is Potential Conversion User" FROM user_tags_table

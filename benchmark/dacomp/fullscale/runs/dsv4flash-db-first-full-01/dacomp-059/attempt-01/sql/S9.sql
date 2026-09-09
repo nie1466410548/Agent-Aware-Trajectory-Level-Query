@@ -1,0 +1,1 @@
+SELECT ad_group_type, status, COUNT(*) AS cnt FROM google_ads__ad_group_report GROUP BY ad_group_type, status ORDER BY cnt DESC

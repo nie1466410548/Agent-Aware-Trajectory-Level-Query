@@ -1,0 +1,1 @@
+SELECT education_level, COUNT(*) AS n FROM greenhouse__application_enhanced GROUP BY education_level ORDER BY n DESC

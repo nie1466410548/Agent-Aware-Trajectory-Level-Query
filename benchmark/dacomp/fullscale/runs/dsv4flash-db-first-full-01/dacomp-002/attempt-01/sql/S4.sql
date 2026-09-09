@@ -1,0 +1,1 @@
+SELECT "Major Category Code", "Major Category Name", COUNT(*) AS n, SUM("Sales Amount") AS total_amount, SUM("Sales Quantity") AS total_qty FROM sheet1 GROUP BY "Major Category Code", "Major Category Name" ORDER BY total_amount DESC

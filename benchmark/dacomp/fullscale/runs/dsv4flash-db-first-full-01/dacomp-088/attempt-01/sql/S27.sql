@@ -1,0 +1,1 @@
+SELECT MIN(created_date), MAX(created_date), MIN(close_date), MAX(close_date) FROM salesforce__opportunity_enhanced

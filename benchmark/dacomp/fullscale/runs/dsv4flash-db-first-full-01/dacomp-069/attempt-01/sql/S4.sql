@@ -1,0 +1,1 @@
+SELECT * FROM google_play__comprehensive_performance_dashboard WHERE package_name = 'com.dev.photoeditor' ORDER BY date_day LIMIT 10

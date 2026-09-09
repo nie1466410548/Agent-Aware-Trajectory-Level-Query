@@ -1,0 +1,1 @@
+SELECT DISTINCT "Authentication Level" FROM login_records_table WHERE substr("Login Time",1,4)='2024'

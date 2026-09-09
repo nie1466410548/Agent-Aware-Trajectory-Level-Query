@@ -1,0 +1,1 @@
+SELECT package_name, COUNT(*) AS n FROM google_play__geo_market_analysis GROUP BY package_name

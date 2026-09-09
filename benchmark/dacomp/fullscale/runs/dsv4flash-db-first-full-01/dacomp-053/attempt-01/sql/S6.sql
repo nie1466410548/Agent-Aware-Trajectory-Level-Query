@@ -1,0 +1,1 @@
+SELECT MIN(roi_efficiency_ratio), MAX(roi_efficiency_ratio), AVG(roi_efficiency_ratio) FROM asana__project_analytics

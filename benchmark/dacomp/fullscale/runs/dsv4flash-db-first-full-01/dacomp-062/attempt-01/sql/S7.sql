@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_stakeholders FROM jira__stakeholder_engagement_insights

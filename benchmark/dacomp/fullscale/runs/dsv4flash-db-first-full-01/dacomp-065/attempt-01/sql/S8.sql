@@ -1,0 +1,1 @@
+SELECT status, COUNT(*) AS n FROM greenhouse__application_enhanced GROUP BY status ORDER BY n DESC

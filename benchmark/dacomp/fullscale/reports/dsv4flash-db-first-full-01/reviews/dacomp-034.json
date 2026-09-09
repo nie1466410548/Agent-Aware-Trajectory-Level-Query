@@ -1,0 +1,92 @@
+{
+  "task_id": "dacomp-034",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "SQL 提取促销、商品和品类数据；Python 的相关、回归与 Kruskal 检验有合理统计用途。但 P8–P11 还按折扣深度分箱，汇总销量/销售额并筛选头部品类，这些可由 SQLite CASE、GROUP BY 和排序完成。绘图不能作为将这些准备计算整体移出数据库的理由。",
+  "route": "关联单品直降促销与一级品类 → 提取折扣和销量 → Python 相关/回归、折扣分箱和品类对比 → 绘图及细分品类分析。",
+  "evidence": [
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 17,
+          "text": "slope, intercept, r_val, p_val, stderr = stats.linregress(df['discount_depth'], df['sale_count'])"
+        },
+        {
+          "line": 34,
+          "text": "df['dd_bin'] = pd.cut(df['discount_depth'], bins=bins, labels=labels, include_lowest=True)"
+        },
+        {
+          "line": 35,
+          "text": "bin_avg = df.groupby('dd_bin', observed=True)['sale_count'].agg(['mean','median','count']).reset_index()"
+        },
+        {
+          "line": 52,
+          "text": "top_cats = df.groupby('cat_name')['sale_count'].sum().sort_values(ascending=False).head(8).index"
+        },
+        {
+          "line": 58,
+          "text": "        s, ic, rv, pv, se = stats.linregress(sub['discount_depth'], sub['sale_count'])"
+        },
+        {
+          "line": 73,
+          "text": "cat_sum = df.groupby('cat_name').agg("
+        },
+        {
+          "line": 98,
+          "text": "meat['dd_bin'] = pd.cut(meat['discount_depth'], bins=[0,0.15,0.2,0.25,0.3,0.5,1.0], "
+        },
+        {
+          "line": 100,
+          "text": "print(meat.groupby('dd_bin', observed=True)['sale_count'].agg(['mean','median','count']))"
+        },
+        {
+          "line": 107,
+          "text": "snack['dd_bin'] = pd.cut(snack['discount_depth'], bins=[0,0.15,0.2,0.25,0.3,0.4,1.0],"
+        },
+        {
+          "line": 109,
+          "text": "print(snack.groupby('dd_bin', observed=True)['sale_count'].agg(['mean','median','count']))"
+        }
+      ]
+    },
+    {
+      "source": "python/P11.py",
+      "lines": [
+        {
+          "line": 16,
+          "text": "pivot_units = df.groupby(['cat_name','dd_bin'], observed=True)['sale_count'].mean().unstack('dd_bin')"
+        },
+        {
+          "line": 18,
+          "text": "pivot_rev = df.groupby(['cat_name','dd_bin'], observed=True)['revenue'].mean().unstack('dd_bin')"
+        },
+        {
+          "line": 20,
+          "text": "pivot_cnt = df.groupby(['cat_name','dd_bin'], observed=True)['sale_count'].count().unstack('dd_bin')"
+        },
+        {
+          "line": 23,
+          "text": "cnt = df.groupby('cat_name')['sale_count'].count()"
+        }
+      ]
+    },
+    {
+      "source": "python/P13.py",
+      "lines": [
+        {
+          "line": 9,
+          "text": "    r_dd_sales, _ = stats.pearsonr(sub['discount_depth'], sub['sale_count'])"
+        },
+        {
+          "line": 10,
+          "text": "    r_dd_price, _ = stats.pearsonr(sub['discount_depth'], sub['promotion_price'])"
+        },
+        {
+          "line": 11,
+          "text": "    r_price_sales, _ = stats.pearsonr(sub['promotion_price'], sub['sale_count'])"
+        }
+      ]
+    }
+  ]
+}

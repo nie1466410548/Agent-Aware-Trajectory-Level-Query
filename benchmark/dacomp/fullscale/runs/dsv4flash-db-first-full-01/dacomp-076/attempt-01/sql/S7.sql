@@ -1,0 +1,1 @@
+SELECT DISTINCT lifecycle_stage FROM netsuite2_customer_analytics ORDER BY lifecycle_stage

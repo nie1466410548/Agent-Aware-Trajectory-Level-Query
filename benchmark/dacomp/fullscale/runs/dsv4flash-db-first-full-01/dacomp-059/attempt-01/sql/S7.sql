@@ -1,0 +1,1 @@
+SELECT campaign_name, COUNT(*) AS cnt, SUM(clicks) AS clicks, SUM(impressions) AS imp, SUM(conversions) AS conv, SUM(spend) AS spend FROM google_ads__ad_group_report GROUP BY campaign_name ORDER BY cnt DESC LIMIT 100

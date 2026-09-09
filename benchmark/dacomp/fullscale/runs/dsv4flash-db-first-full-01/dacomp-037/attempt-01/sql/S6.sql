@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_rows FROM health_status

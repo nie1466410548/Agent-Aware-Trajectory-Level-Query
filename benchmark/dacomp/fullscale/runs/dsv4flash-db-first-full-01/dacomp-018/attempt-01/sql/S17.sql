@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS inconsistent_segments FROM (SELECT "Customer ID", COUNT(DISTINCT "Customer Segment") AS seg_cnt FROM customer_information GROUP BY "Customer ID" HAVING seg_cnt > 1)

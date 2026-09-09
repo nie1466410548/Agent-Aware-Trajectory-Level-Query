@@ -1,0 +1,1 @@
+SELECT * FROM jira__project_enhanced WHERE avg_close_time_days < 15 ORDER BY avg_close_time_days ASC

@@ -1,0 +1,1 @@
+SELECT country, region, average_revenue_per_user, avg_transaction_value, app_quality_score, app_crash_rate_per_1k, day_30_retention_rate, daily_churn_rate, weekly_growth_rate, overall_market_score, avg_daily_revenue, avg_active_devices, avg_daily_installs, revenue_tier, market_tier FROM google_play__geo_market_analysis WHERE package_name='com.dev.photoeditor'

@@ -1,0 +1,90 @@
+{
+  "task_id": "dacomp-084",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 合并组织绩效数据，按规模与管理比例分箱计算均值和数量，并用组内排名/计数识别前 10%。这些 SQL 可支持的连接、聚合和窗口操作迁出数据库；相关分析与绘图另行评价。",
+  "route": "SQL 提取组织规模、健康与绩效 → Python 合并、分箱排名和前十分位比较 → 管理配置建议。",
+  "evidence": [
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 23,
+          "text": "ov_df = ov_df.merge(pf_df, on='organization_id', how='left')"
+        },
+        {
+          "line": 29,
+          "text": "dist = ov_df.groupby('organization_size_category', observed=True)['organization_health_score'].agg("
+        },
+        {
+          "line": 36,
+          "text": "comp = ov_df.groupby(['organization_size_category','performance_category'], observed=True).size().unstack(fill_value=0)"
+        },
+        {
+          "line": 37,
+          "text": "comp_pct = comp.div(comp.sum(axis=1), axis=0) * 100"
+        },
+        {
+          "line": 42,
+          "text": "mr = ov_df.groupby('organization_size_category', observed=True)['management_ratio'].agg(['count','mean','std','min','max'])"
+        }
+      ]
+    },
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 45,
+          "text": "results = ov_df.groupby(['organization_size_category','mr_bin'], observed=True).agg("
+        },
+        {
+          "line": 83,
+          "text": "density = ov_df.groupby('organization_size_category', observed=True)['employees_per_manager'].agg(['mean','std','min','max']).round(1)"
+        }
+      ]
+    },
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 21,
+          "text": "ov_df['rn'] = ov_df.groupby('organization_size_category', observed=True)['organization_health_score'].rank(method='first', ascending=False)"
+        },
+        {
+          "line": 22,
+          "text": "ov_df['n'] = ov_df.groupby('organization_size_category', observed=True)['organization_id'].transform('count')"
+        },
+        {
+          "line": 26,
+          "text": "top10 = ov_df[ov_df['top10']].groupby('organization_size_category', observed=True).agg("
+        },
+        {
+          "line": 38,
+          "text": "rest = ov_df[~ov_df['top10']].groupby('organization_size_category', observed=True).agg("
+        }
+      ]
+    },
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 81,
+          "text": "    bin_stats = tdf.groupby('mr_bin', observed=True).agg("
+        },
+        {
+          "line": 88,
+          "text": "    best_bin = bin_stats.loc[bin_stats['avg_health'].idxmax()]"
+        }
+      ]
+    },
+    {
+      "source": "python/P9.py",
+      "lines": [
+        {
+          "line": 25,
+          "text": "    r, p = stats.pearsonr(tdf['management_ratio'], tdf['organization_health_score'])"
+        }
+      ]
+    }
+  ]
+}

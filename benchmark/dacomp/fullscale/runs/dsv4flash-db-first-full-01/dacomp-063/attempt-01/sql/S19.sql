@@ -1,0 +1,1 @@
+SELECT DISTINCT total_projects_involved FROM jira__stakeholder_engagement_insights ORDER BY total_projects_involved DESC LIMIT 10

@@ -1,0 +1,1 @@
+SELECT stage_id, stage, COUNT(*) as cnt FROM lever__opportunity_stage_history GROUP BY stage_id, stage ORDER BY stage_id

@@ -1,0 +1,1 @@
+SELECT * FROM inventory_management LIMIT 5

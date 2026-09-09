@@ -1,0 +1,1 @@
+SELECT * FROM purchase_price WHERE "Date" >= '2023-07-01' AND "Date" < '2023-07-02' LIMIT 10

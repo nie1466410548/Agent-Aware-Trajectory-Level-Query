@@ -1,0 +1,2 @@
+SELECT Clarity, COUNT(*) AS n, ROUND(AVG("Price (USD)"/"Carat (diamond weight)"),2) AS avg_ppc, ROUND(AVG("Carat (diamond weight)"),3) AS avg_carat
+FROM sheet1 GROUP BY Clarity ORDER BY Clarity

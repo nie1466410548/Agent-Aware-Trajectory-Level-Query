@@ -1,0 +1,1 @@
+SELECT DISTINCT current_job_stage FROM greenhouse__application_enhanced

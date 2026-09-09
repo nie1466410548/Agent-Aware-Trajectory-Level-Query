@@ -1,0 +1,1 @@
+SELECT DISTINCT retention_category FROM netsuite2_customer_analytics ORDER BY retention_category

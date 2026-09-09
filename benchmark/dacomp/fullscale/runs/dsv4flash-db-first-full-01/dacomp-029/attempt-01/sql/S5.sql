@@ -1,0 +1,1 @@
+SELECT MIN(Price) AS min_price, MAX(Price) AS max_price, AVG(Price) AS avg_price FROM autohome

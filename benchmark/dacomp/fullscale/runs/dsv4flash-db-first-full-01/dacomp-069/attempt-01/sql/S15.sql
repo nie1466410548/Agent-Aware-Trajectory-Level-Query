@@ -1,0 +1,1 @@
+SELECT DISTINCT package_name FROM google_play__finance_report

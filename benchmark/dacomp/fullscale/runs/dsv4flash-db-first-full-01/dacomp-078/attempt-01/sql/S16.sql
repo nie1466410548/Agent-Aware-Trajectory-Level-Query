@@ -1,0 +1,1 @@
+SELECT substr(date_day,1,7) AS month, COUNT(*) AS rows, COUNT(DISTINCT visitor_id) AS visitors FROM pendo__visitor_daily_metrics GROUP BY month ORDER BY month

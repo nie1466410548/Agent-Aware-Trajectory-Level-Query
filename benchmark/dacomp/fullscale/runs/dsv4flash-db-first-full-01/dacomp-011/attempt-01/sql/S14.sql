@@ -1,0 +1,1 @@
+SELECT "Part-time job" AS val, COUNT(*) AS n, ROUND(AVG("Exam score"),2) AS avg_exam, ROUND(STDEV("Exam score"),2) AS std_exam FROM sheet1 GROUP BY "Part-time job"

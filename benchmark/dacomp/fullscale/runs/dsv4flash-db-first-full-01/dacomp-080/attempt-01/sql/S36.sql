@@ -1,0 +1,1 @@
+SELECT cohort_month, cohort_size, avg_responses_per_user, avg_completion_rate, power_users, high_value_users, medium_value_users, low_value_users, one_time_users, cohort_health_score FROM qualtrics__user_cohort_analysis ORDER BY cohort_month

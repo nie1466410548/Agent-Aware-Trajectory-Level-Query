@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS rows_per_ag FROM google_ads__ad_group_report GROUP BY ad_group_id ORDER BY rows_per_ag DESC LIMIT 10

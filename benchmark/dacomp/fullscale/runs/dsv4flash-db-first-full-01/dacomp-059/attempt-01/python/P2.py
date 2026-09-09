@@ -1,0 +1,12 @@
+result = db.query("SELECT ad_group_id, SUM(clicks) AS clicks FROM google_ads__ad_group_report GROUP BY ad_group_id LIMIT 3")
+print("Result keys:", result.keys() if hasattr(result, 'keys') else type(result))
+print(result)
+execs = result['executions']
+print("Execution keys:", execs[0].keys())
+print("columns:", execs[0]['columns'])
+print("row_count:", execs[0]['row_count'])
+print("result_file:", execs[0]['result_file'])
+rows = db.rows(result)
+print("rows type:", type(rows), "len:", len(rows))
+print("first row:", rows[0])
+print("second row:", rows[1])

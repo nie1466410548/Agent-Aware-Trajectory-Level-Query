@@ -1,0 +1,1 @@
+SELECT * FROM contract_information_table LIMIT 20

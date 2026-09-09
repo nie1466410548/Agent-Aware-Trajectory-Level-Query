@@ -1,0 +1,1 @@
+SELECT DISTINCT "Promotion Date" FROM sheet1 ORDER BY "Promotion Date"

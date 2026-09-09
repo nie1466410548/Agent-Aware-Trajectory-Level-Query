@@ -1,0 +1,1 @@
+SELECT DISTINCT billing_state FROM salesforce__account_daily_history ORDER BY billing_state

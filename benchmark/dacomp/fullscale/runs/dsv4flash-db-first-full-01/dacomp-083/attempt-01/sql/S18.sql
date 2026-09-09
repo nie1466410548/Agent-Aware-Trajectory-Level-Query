@@ -1,0 +1,1 @@
+SELECT DISTINCT career_phase FROM workday__employee_overview

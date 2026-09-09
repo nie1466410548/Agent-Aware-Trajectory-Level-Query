@@ -1,0 +1,1 @@
+SELECT account_id, days_since_last_activity, total_activities_30d, total_contacts, contacts_with_email, annual_revenue, total_won_amount, account_size_segment, number_of_employees, industry_normalized, current_pipeline_amount, customer_health_score, churn_risk_level, account_name, account_type FROM salesforce__customer_360_view

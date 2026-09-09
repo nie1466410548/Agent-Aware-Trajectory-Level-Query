@@ -1,0 +1,73 @@
+{
+  "task_id": "dacomp-011",
+  "status": "reviewed_with_statistical_exceptions_and_SQL_capable_preparation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python implements ANOVA, Kruskal-Wallis, pairwise tests and multiple regression, and renders figures. Intermediate matrix reductions belong to those statistical procedures. Separate null-count checks and categorical binning for plots are SQL-capable preparation performed in Python; this is not labeled fully strict database-first.",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 16,
+          "text": "print(f\"\\nNull counts:\\n{df.isnull().sum()}\")"
+        }
+      ]
+    },
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 20,
+          "text": "kw = stats.kruskal(*groups)"
+        },
+        {
+          "line": 24,
+          "text": "f_stat, p_val = stats.f_oneway(*groups)"
+        },
+        {
+          "line": 31,
+          "text": "    u, p = stats.mannwhitneyu(df.loc[df[col]==a,'Exam score'], df.loc[df[col]==b,'Exam score'])"
+        }
+      ]
+    },
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 43,
+          "text": "beta = np.linalg.lstsq(X_with_const, y, rcond=None)[0]"
+        },
+        {
+          "line": 74,
+          "text": "beta_std = np.linalg.lstsq(X_std, y_std, rcond=None)[0]"
+        }
+      ]
+    },
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 29,
+          "text": "df['study_cat'] = pd.cut(df['Daily study time'], bins=[0,2,4,6,24], labels=['<2h','2-4h','4-6h','6h+'])"
+        },
+        {
+          "line": 36,
+          "text": "df['mh_cat'] = pd.cut(df['Mental health score'], bins=[-1,3,6,10], labels=['Low (0-3)','Medium (4-6)','High (7-10)'])"
+        },
+        {
+          "line": 43,
+          "text": "df['social_cat'] = pd.cut(df['Social media usage time'], bins=[0,1,3,5,10], labels=['<1h','1-3h','3-5h','5h+'])"
+        },
+        {
+          "line": 50,
+          "text": "df['sleep_cat'] = pd.cut(df['Sleep duration'], bins=[0,5,7,9,12], labels=['<5h','5-7h','7-9h','9h+'])"
+        },
+        {
+          "line": 57,
+          "text": "df['ex_cat'] = pd.cut(df['Exercise frequency'], bins=[-1,1,3,5,7], labels=['0-1','2-3','4-5','6-7'])"
+        }
+      ]
+    }
+  ],
+  "route": "检查学习与考试数据 → 比较父母教育背景对应的考试分数 → 多变量回归 → 按学习、社交、睡眠等分箱绘图。"
+}

@@ -1,0 +1,1 @@
+SELECT DISTINCT "Treatment Barriers" FROM encounters

@@ -1,0 +1,68 @@
+{
+  "task_id": "dacomp-062",
+  "status": "reviewed_SQL_dominant_with_statistical_and_chart_exceptions",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 主要用于 Pearson 相关、层次聚类、模型标准化与图表。聚类后组别来自数值算法，其画像均值应与原始 SQL 维度聚合区别处理。仍有可在 SQL 完成的成功率阈值计数、高连接人数计数和分项风险求和，属于明确的执行位置例外，不能称完全遵守。",
+  "route": "SQL 描述利益相关者连接和项目风险 → Python 相关分析及层次聚类 → 项目画像与协作建议。",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 34,
+          "text": "    r, p = stats.pearsonr(stake_df[conn_col], stake_df[col])"
+        },
+        {
+          "line": 43,
+          "text": "    r, p = stats.pearsonr(proj_df[comp_col], proj_df[col])"
+        },
+        {
+          "line": 82,
+          "text": "ax.axvline(np.mean(stake_df['direct_network_connections']), color='orange', linestyle='--', label=f\"Mean: {np.mean(stake_df['direct_network_connections']):.1f}\")"
+        }
+      ]
+    },
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 31,
+          "text": "print(f\"  Projects with success_probability >= 0.90: {(proj_df['success_probability'] >= 0.90).sum()} / {len(proj_df)}\")"
+        },
+        {
+          "line": 32,
+          "text": "print(f\"  Projects with success_probability >= 0.95: {(proj_df['success_probability'] >= 0.95).sum()} / {len(proj_df)}\")"
+        },
+        {
+          "line": 43,
+          "text": "proj_df['sum_sub_scores'] = (proj_df['health_risk_score'] + proj_df['schedule_risk_score'] + "
+        },
+        {
+          "line": 46,
+          "text": "print(f\"  Max |total_risk - sum|: {(proj_df['total_risk_score'] - proj_df['sum_sub_scores']).abs().max()}\")"
+        },
+        {
+          "line": 58,
+          "text": "Z = linkage(X_scaled, method='ward')"
+        },
+        {
+          "line": 60,
+          "text": "clusters = fcluster(Z, 3, criterion='maxclust')"
+        },
+        {
+          "line": 67,
+          "text": "    print(f\"  Avg complexity: {subset['complexity_risk_score'].mean():.1f}\")"
+        }
+      ]
+    },
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 117,
+          "text": "print(f\"High-conn stakeholders (>=21): {(stake_df['direct_network_connections'] >= 21).sum()} / {len(stake_df)}\")"
+        }
+      ]
+    }
+  ]
+}

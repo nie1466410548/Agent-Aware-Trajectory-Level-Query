@@ -1,0 +1,1 @@
+SELECT DISTINCT "Booking Status" FROM sheet1 ORDER BY "Booking Status"

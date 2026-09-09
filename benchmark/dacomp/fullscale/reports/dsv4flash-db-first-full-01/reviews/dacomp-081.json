@@ -1,0 +1,68 @@
+{
+  "task_id": "dacomp-081",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 对调查、语言及数值高低组计算均值、计数和排序，属于 SQL 可执行的聚合。原题询问应用地域收入，而这些代码使用调查值和语言作代理；仅记录实际轨迹，不据此认定回答了原题。该尝试触及 120 次数据 SQL 上限并有 4 次拒绝，应标为截断提交。",
+  "route": "SQL 探查可用调查数据 → Python 将调查值按语言和高低值聚合 → 代理市场分析；原题与实际分析对象存在差异。",
+  "evidence": [
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 14,
+          "text": "survey_stats = df.groupby('survey_id').agg("
+        }
+      ]
+    },
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 18,
+          "text": "overall_score = df['value'].mean() * 10"
+        },
+        {
+          "line": 22,
+          "text": "lang_perf = df.groupby('user_language').agg("
+        },
+        {
+          "line": 62,
+          "text": "hv_by_lang = top_market.groupby('user_language').agg("
+        },
+        {
+          "line": 69,
+          "text": "lv_by_lang = low_market.groupby('user_language').agg("
+        },
+        {
+          "line": 142,
+          "text": "survey_stats = df2.groupby('survey_id').agg("
+        }
+      ]
+    },
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 55,
+          "text": "lang_order = df.groupby('user_language')['value'].mean().sort_values(ascending=False).index"
+        },
+        {
+          "line": 74,
+          "text": "print(f\"\\nOverall score: {df['value'].mean()*10:.2f}\")"
+        },
+        {
+          "line": 75,
+          "text": "print(f\"Top market segment (value > 7) score: {df[df['value']>7]['value'].mean()*10:.2f}\")"
+        },
+        {
+          "line": 76,
+          "text": "print(f\"Low market segment (value < 3) score: {df[df['value']<3]['value'].mean()*10:.2f}\")"
+        },
+        {
+          "line": 81,
+          "text": "lang_rank = df.groupby('user_language').agg(avg_score=('value', 'mean')).sort_values('avg_score', ascending=False)"
+        }
+      ]
+    }
+  ]
+}

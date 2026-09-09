@@ -1,0 +1,1 @@
+SELECT DISTINCT "Is Checked Out" FROM shopping_cart_operations_table

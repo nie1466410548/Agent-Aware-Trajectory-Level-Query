@@ -1,0 +1,1 @@
+SELECT country_short, region, strftime('%Y-%m', date_day) AS month, sku_id, net_amount, transactions, ROUND(net_amount/transactions,2) AS net_per_tx, new_subscriptions, cancelled_subscriptions, total_active_subscriptions FROM google_play__finance_report WHERE package_name='com.dev.photoeditor' ORDER BY country_short, date_day, sku_id

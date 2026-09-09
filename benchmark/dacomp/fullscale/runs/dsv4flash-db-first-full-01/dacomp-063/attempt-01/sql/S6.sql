@@ -1,0 +1,1 @@
+SELECT * FROM jira__team_performance_dashboard LIMIT 5

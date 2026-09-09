@@ -1,0 +1,1 @@
+SELECT * FROM sales_records WHERE "Sales Date" >= '2023-06-30' AND "Sales Date" < '2023-07-01' LIMIT 10

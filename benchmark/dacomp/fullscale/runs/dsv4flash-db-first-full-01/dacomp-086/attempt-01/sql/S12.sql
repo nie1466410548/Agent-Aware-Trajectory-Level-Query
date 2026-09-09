@@ -1,0 +1,1 @@
+SELECT account_id, days_since_last_activity, total_activities_30d, total_contacts, contacts_with_email, annual_revenue, total_won_amount, account_size_segment, number_of_employees, account_age_days, win_rate_percentage, current_pipeline_amount, industry_normalized FROM salesforce__customer_360_view

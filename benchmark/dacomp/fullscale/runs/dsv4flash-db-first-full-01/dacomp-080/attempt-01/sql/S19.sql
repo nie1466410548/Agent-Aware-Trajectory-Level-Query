@@ -1,0 +1,1 @@
+SELECT ip_address, COUNT(DISTINCT recipient_email) AS n_users, COUNT(*) AS n_rows FROM qualtrics__response GROUP BY ip_address ORDER BY n_users DESC LIMIT 20

@@ -1,0 +1,1 @@
+SELECT * FROM state_economic_data ORDER BY state_name

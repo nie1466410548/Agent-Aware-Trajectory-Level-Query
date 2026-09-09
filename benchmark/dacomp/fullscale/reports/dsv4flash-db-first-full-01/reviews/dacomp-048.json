@@ -1,0 +1,68 @@
+{
+  "task_id": "dacomp-048",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 在招聘明细上计算福利关键词计数，按经验、公司、行业等维度求数量与均薪，并重算薪资区间比例，属于数据库内可执行的清洗与聚合。ANOVA、t 检验、相关分析及绘图是另外的统计补充。",
+  "route": "SQL 筛选职业教育岗位并汇总 → Python 清洗薪资、分组均值和福利比较 → 统计检验与图表。",
+  "evidence": [
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 25,
+          "text": "exp_agg = df_clean.groupby('Work Experience Requirement')['salary_mid'].agg(['count', 'mean', 'median'])"
+        },
+        {
+          "line": 33,
+          "text": "f_stat, p_val = stats.f_oneway(*exp_data)"
+        },
+        {
+          "line": 105,
+          "text": "    if has_benefit.sum() >= 50:"
+        },
+        {
+          "line": 106,
+          "text": "        mean_with = df_clean.loc[has_benefit, 'salary_mid'].mean()"
+        },
+        {
+          "line": 132,
+          "text": "co_agg = df_clean.groupby('Company Type')['salary_mid'].agg(['count', 'mean'])"
+        },
+        {
+          "line": 146,
+          "text": "ind_agg = df_clean.groupby('primary_industry')['salary_mid'].agg(['count', 'mean'])"
+        },
+        {
+          "line": 199,
+          "text": "hours_agg = df_clean.groupby('hours_day')['salary_mid'].agg(['count', 'mean'])"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 15,
+          "text": "    cnt = ((df_clean['salary_mid'] >= lo) & (df_clean['salary_mid'] < hi)).sum()"
+        },
+        {
+          "line": 26,
+          "text": "    cnt = ((df_clean['salary_min'] >= lo) & (df_clean['salary_min'] < hi)).sum()"
+        },
+        {
+          "line": 61,
+          "text": "r, p = stats.pearsonr(corr_valid['exp_years'], corr_valid['salary_mid'])"
+        }
+      ]
+    },
+    {
+      "source": "python/P10.py",
+      "lines": [
+        {
+          "line": 4,
+          "text": "ind_agg = df_clean.groupby('primary_industry')['salary_mid'].agg(['count', 'mean', 'median'])"
+        }
+      ]
+    }
+  ]
+}

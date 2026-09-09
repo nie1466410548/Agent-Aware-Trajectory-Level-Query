@@ -1,0 +1,1 @@
+SELECT DISTINCT "Year" FROM sheet1 WHERE "Region Name" = 'China' ORDER BY "Year"

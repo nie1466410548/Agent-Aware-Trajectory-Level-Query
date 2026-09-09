@@ -1,0 +1,1 @@
+SELECT SUBSTR("Event Participant Contact ID",1,1) as prefix, LENGTH("Event Participant Contact ID") as len, COUNT(*) as cnt FROM campaign_participation_table GROUP BY prefix, len

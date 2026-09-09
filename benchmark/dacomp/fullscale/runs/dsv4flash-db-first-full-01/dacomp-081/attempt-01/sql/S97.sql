@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT contact_id) FROM qualtrics__response

@@ -1,0 +1,1 @@
+SELECT DISTINCT project_name, project_id FROM jira__team_performance_dashboard ORDER BY project_name

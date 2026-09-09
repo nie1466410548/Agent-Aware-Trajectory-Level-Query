@@ -1,0 +1,1 @@
+SELECT DISTINCT advertising_channel_type FROM google_ads__customer_acquisition_analysis

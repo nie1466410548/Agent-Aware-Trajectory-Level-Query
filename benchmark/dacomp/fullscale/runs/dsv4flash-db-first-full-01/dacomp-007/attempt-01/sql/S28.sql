@@ -1,0 +1,1 @@
+SELECT Department, OverTime, COUNT(*) AS total, ROUND(100.0*COUNT(*)/SUM(COUNT(*)) OVER (PARTITION BY Department),1) AS pct_of_dept FROM sheet1 GROUP BY Department, OverTime ORDER BY Department, OverTime;

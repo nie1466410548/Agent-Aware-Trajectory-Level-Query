@@ -1,0 +1,1 @@
+SELECT COUNT(*) as cnt, COUNT(DISTINCT "Title" || '|' || "Creator") as unique_videos FROM sheet1

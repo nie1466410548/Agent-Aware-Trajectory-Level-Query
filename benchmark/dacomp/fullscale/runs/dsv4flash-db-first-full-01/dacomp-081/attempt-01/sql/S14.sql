@@ -1,0 +1,1 @@
+SELECT question_response_id, survey_response_id, survey_id, question_id, question_text, sub_question_key, sub_question_text, question_option_key, value, response_text, question_option_text FROM qualtrics__response LIMIT 25

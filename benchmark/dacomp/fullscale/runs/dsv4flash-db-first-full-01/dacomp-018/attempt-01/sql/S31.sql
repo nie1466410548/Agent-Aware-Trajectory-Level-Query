@@ -1,0 +1,2 @@
+SELECT "Product", COUNT(*) AS browsed, SUM(like) AS likes, SUM(share) AS shares, SUM("Add to Cart") AS carts, AVG("Browsing Time (minutes)") AS avg_browse
+FROM product_browsing WHERE "Product Category" = 'Fashion' GROUP BY "Product" ORDER BY browsed DESC

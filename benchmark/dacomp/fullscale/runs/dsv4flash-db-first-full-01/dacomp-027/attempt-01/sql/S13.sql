@@ -1,0 +1,1 @@
+SELECT e."Environmental Impact Rate", COUNT(*) n FROM environment_and_health e GROUP BY e."Environmental Impact Rate"

@@ -1,0 +1,1 @@
+SELECT MIN(profit), MAX(profit), MIN(Sales), MAX(Sales) FROM order_information

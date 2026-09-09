@@ -1,0 +1,1 @@
+SELECT n_tx, COUNT(*) as n_customers FROM (SELECT "Customer ID", COUNT(*) as n_tx FROM transaction_history_table GROUP BY "Customer ID") GROUP BY n_tx ORDER BY n_tx

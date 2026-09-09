@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT visitor_id) AS vf_visitors FROM pendo__visitor_feature

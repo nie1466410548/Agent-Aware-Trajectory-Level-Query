@@ -1,0 +1,1 @@
+SELECT _id, "Main Category", "Rank" FROM sheet1

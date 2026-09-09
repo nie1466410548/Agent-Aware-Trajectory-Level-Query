@@ -1,0 +1,1 @@
+SELECT substr(created_at, 1, 7) as ym, categories_department, COUNT(*) as cnt FROM lever__posting_enhanced GROUP BY ym, categories_department ORDER BY ym, categories_department

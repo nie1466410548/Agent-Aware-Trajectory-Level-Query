@@ -1,0 +1,114 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+Upon discovering a severe imbalance between input and output in some high-cost campaigns, there is a need to establish a comprehensive campaign health assessment and optimization system. Based on data from multiple tables in the `google_ads` database, use a monthly cost > $1000 and an ROI < 0.8 as initial screening criteria to build a three-dimensional health score model consisting of Cost Efficiency (40%), Conversion Quality (35%), and Competitiveness (25%). The analysis must compare the performance differences across various channel types (`campaign_type`), bidding strategies (`bidding_strategy`), industry categories (`industry`), geographic distributions (`geo_target`), and device types (`device_type`) to identify high-cost, low-conversion risk campaigns. Based on multidimensional competitive metrics such as `quality_score`, `impression_share`, `ctr`, `conversion_rate`, and `avg_position`, propose targeted optimization recommendations. Additionally, consider the trend changes over 18 months, calculating year-over-year growth rates and seasonal fluctuations, to formulate differentiated optimization plans for each problematic campaign, including budget reallocation, keyword optimization, geographic adjustments, and device bidding strategies. The final output should include the health score, risk level, core problem diagnosis, and specific optimization recommendations for each campaign.
+
+DATABASE SCHEMA:
+CREATE TABLE "ad_groups" (
+"ad_group_id" INTEGER,
+  "campaign_id" INTEGER,
+  "ad_group_name" TEXT,
+  "status" TEXT
+)
+CREATE TABLE "campaigns" (
+"campaign_id" INTEGER,
+  "campaign_name" TEXT,
+  "campaign_type" TEXT,
+  "bidding_strategy" TEXT,
+  "industry" TEXT,
+  "status" TEXT,
+  "start_date" TIMESTAMP,
+  "budget_daily" REAL
+)
+CREATE TABLE "google_ads__campaign_report" (
+"year_month" TEXT,
+  "campaign_id" INTEGER,
+  "campaign_name" TEXT,
+  "campaign_type" TEXT,
+  "bidding_strategy" TEXT,
+  "industry" TEXT,
+  "impressions" INTEGER,
+  "clicks" INTEGER,
+  "cost" REAL,
+  "conversions" REAL,
+  "conversion_value" REAL,
+  "ctr" REAL,
+  "cpc" REAL,
+  "conversion_rate" REAL,
+  "cost_per_conversion" REAL,
+  "roas" REAL,
+  "quality_score" REAL,
+  "impression_share" REAL
+)
+CREATE TABLE "google_ads__device_report" (
+"year_month" TEXT,
+  "campaign_id" INTEGER,
+  "device_type" TEXT,
+  "impressions" INTEGER,
+  "clicks" INTEGER,
+  "cost" REAL,
+  "conversions" REAL,
+  "conversion_value" REAL,
+  "ctr" REAL,
+  "cpc" REAL,
+  "conversion_rate" REAL,
+  "cost_per_conversion" REAL,
+  "roas" REAL,
+  "quality_score" REAL,
+  "impression_share" REAL
+)
+CREATE TABLE "google_ads__geo_report" (
+"year_month" TEXT,
+  "campaign_id" INTEGER,
+  "geo_target" TEXT,
+  "impressions" INTEGER,
+  "clicks" INTEGER,
+  "cost" REAL,
+  "conversions" REAL,
+  "conversion_value" REAL,
+  "ctr" REAL,
+  "cpc" REAL,
+  "conversion_rate" REAL,
+  "cost_per_conversion" REAL,
+  "roas" REAL,
+  "quality_score" REAL,
+  "impression_share" REAL
+)
+CREATE TABLE "google_ads__keyword_report" (
+"year_quarter" TEXT,
+  "keyword_id" INTEGER,
+  "ad_group_id" INTEGER,
+  "campaign_id" INTEGER,
+  "keyword_text" TEXT,
+  "match_type" TEXT,
+  "impressions" INTEGER,
+  "clicks" INTEGER,
+  "cost" REAL,
+  "conversions" REAL,
+  "conversion_value" REAL,
+  "ctr" REAL,
+  "cpc" REAL,
+  "conversion_rate" REAL,
+  "cost_per_conversion" REAL,
+  "roas" REAL,
+  "quality_score" REAL,
+  "impression_share" REAL,
+  "avg_position" REAL
+)
+CREATE TABLE "keywords" (
+"keyword_id" INTEGER,
+  "ad_group_id" INTEGER,
+  "campaign_id" INTEGER,
+  "keyword_text" TEXT,
+  "match_type" TEXT,
+  "status" TEXT
+)

@@ -1,0 +1,1 @@
+SELECT DISTINCT posting_hiring_manager_name FROM lever__posting_enhanced LIMIT 20

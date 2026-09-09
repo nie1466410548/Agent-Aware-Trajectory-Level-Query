@@ -1,0 +1,1 @@
+SELECT COUNT(*) as total_rows FROM lever__opportunity_stage_history

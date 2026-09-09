@@ -1,0 +1,1 @@
+SELECT project_name, COUNT(*) as num_instances, AVG(avg_close_time_days) as avg_close_time, MIN(avg_close_time_days) as min_close, MAX(avg_close_time_days) as max_close, SUM(count_closed_issues) as total_closed, SUM(count_open_issues) as total_open FROM jira__project_enhanced GROUP BY project_name

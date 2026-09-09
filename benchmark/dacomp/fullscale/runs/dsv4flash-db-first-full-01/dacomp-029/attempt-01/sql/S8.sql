@@ -1,0 +1,1 @@
+SELECT DISTINCT "Vehicle Class" FROM autohome

@@ -1,0 +1,2 @@
+SELECT "Unit price (yuan/kg)", "Sales volume (kg)", "Whether sold at a discount", "Time of sale (code scan)"
+FROM sales_records WHERE "Item Code" = 102900051000944 AND date("Sales Date") = '2023-06-30'

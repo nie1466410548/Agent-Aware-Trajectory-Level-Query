@@ -1,0 +1,80 @@
+{
+  "task_id": "dacomp-071",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 在招聘阶段明细上执行分组行号、组总数和最大阶段，并连接回原表，反复计算通过/流失数量、平均时长与团队流失率。SQLite 的窗口、连接及条件聚合能够完成这些工作，属于明确的数据库优先偏离。",
+  "route": "SQL 提取招聘阶段与归档信息 → Python 重建阶段推进、终止状态及流失率 → 瓶颈与效率指数建议。",
+  "evidence": [
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 7,
+          "text": "opp_max = df.groupby('opportunity_id')['stage_num'].max().reset_index()"
+        },
+        {
+          "line": 21,
+          "text": "df2 = df.merge(opp_max, on='opportunity_id')"
+        }
+      ]
+    },
+    {
+      "source": "python/P18.py",
+      "lines": [
+        {
+          "line": 12,
+          "text": "df['row_num'] = df.groupby('opportunity_id').cumcount()"
+        },
+        {
+          "line": 13,
+          "text": "df['n_rows'] = df.groupby('opportunity_id')['opportunity_id'].transform('count')"
+        },
+        {
+          "line": 17,
+          "text": "for st, grp in df.groupby('stage_num'):"
+        },
+        {
+          "line": 19,
+          "text": "    avg_days = grp['days_in_stage'].mean()"
+        },
+        {
+          "line": 20,
+          "text": "    advanced = grp['has_next'].sum()"
+        }
+      ]
+    },
+    {
+      "source": "python/P19.py",
+      "lines": [
+        {
+          "line": 9,
+          "text": "df['row_num'] = df.groupby('opportunity_id').cumcount()"
+        },
+        {
+          "line": 10,
+          "text": "df['n_rows'] = df.groupby('opportunity_id')['opportunity_id'].transform('count')"
+        },
+        {
+          "line": 18,
+          "text": "print(neg_advanced.groupby('stage').size().to_string())"
+        },
+        {
+          "line": 30,
+          "text": "    team_tbl = all_sub.groupby('job_team').apply("
+        },
+        {
+          "line": 31,
+          "text": "        lambda g: pd.Series({'entered': len(g), 'attrited': g['terminal'].sum(),"
+        },
+        {
+          "line": 32,
+          "text": "                             'att_rate': round(g['terminal'].mean()*100,1),"
+        },
+        {
+          "line": 33,
+          "text": "                             'avg_days': round(g['days_in_stage'].mean(),1)}),"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+SELECT interviewer_gender, COUNT(*) AS n FROM greenhouse__interview_enhanced GROUP BY interviewer_gender

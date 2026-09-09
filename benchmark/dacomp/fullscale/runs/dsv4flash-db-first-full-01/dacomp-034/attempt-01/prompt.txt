@@ -1,0 +1,97 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+At the Level 1 Category level, analyze the relationship between discount depth and sales for single-item direct price reduction promotions, assess differences in promotion effectiveness across categories, and, based on the findings, propose recommendations to optimize promotion resource allocation and discount strategies.
+
+DATABASE SCHEMA:
+CREATE TABLE "attachment_1" (
+"create_dt" TIMESTAMP,
+  "Order ID" INTEGER,
+  "sku_id" INTEGER,
+  "sku_name" TEXT,
+  "Is Completed" INTEGER,
+  "SKU Quantity" INTEGER,
+  "SKU Price" REAL,
+  "SKU Selling Price" REAL,
+  "SKU Cost Price" REAL,
+  "UPC Code" REAL
+)
+CREATE TABLE "attachment_1_&_attachment_2_fie" (
+"Field Name" TEXT,
+  "Field Comment" TEXT,
+  "Field Definition" TEXT,
+  "Field Type" TEXT,
+  "Confidentiality Level" TEXT,
+  "Creation Time" TEXT,
+  "Update Time" TEXT,
+  "Is Valid" TEXT
+)
+CREATE TABLE "attachment_2" (
+"create_dt" TIMESTAMP,
+  "Order ID" INTEGER,
+  "sku_id" INTEGER,
+  "sku_name" TEXT,
+  "Is Completed" INTEGER,
+  "SKU Quantity" INTEGER,
+  "SKU Price" REAL,
+  "SKU Selling Price" REAL,
+  "SKU Cost Price" REAL,
+  "UPC Code" REAL
+)
+CREATE TABLE "attachment_3" (
+"id" REAL,
+  "promotion_info_id" REAL,
+  "promotion_no" TEXT,
+  "sku_id" REAL,
+  "sku_name" TEXT,
+  "promotion_price" REAL,
+  "pdj_price" REAL,
+  "begin_time" TEXT,
+  "end_time" TEXT,
+  "limit_count" REAL,
+  "sale_count" REAL,
+  "state" REAL,
+  "sys_version" TEXT,
+  "create_time" TEXT,
+  "update_time" TEXT,
+  "create_pin" TEXT,
+  "update_pin" TEXT,
+  "validation" REAL,
+  "timestamp" TEXT,
+  "begin_state" REAL,
+  "end_state" REAL,
+  "cost_price" REAL,
+  "allowance" REAL,
+  "business_version" REAL,
+  "promotion_type" REAL,
+  "time_id" REAL,
+  "create_dt" TIMESTAMP
+)
+CREATE TABLE "attachment_3_field_description" (
+"Field Name" TEXT,
+  "Field Definitions" TEXT,
+  "Explanation" TEXT
+)
+CREATE TABLE "attachment_4" (
+"sku_id" INTEGER,
+  "sku_name" TEXT,
+  "Level 1 Category ID" INTEGER,
+  "Level 2 Category ID" INTEGER,
+  "Level 3 Category ID" INTEGER,
+  "Level 1 Category Name" TEXT,
+  "Level 2 Category Name" TEXT,
+  "Level 3 Category Name" TEXT
+)
+CREATE TABLE "attachment_4_field_description" (
+"Field Name" TEXT,
+  "Field Definitions" TEXT
+)

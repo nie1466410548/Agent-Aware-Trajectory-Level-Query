@@ -1,0 +1,1 @@
+SELECT "Inventory Status (Normal/Frozen/Scrapped)" AS status, COUNT(*) AS cnt FROM inventory_management GROUP BY 1

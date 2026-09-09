@@ -1,0 +1,1 @@
+SELECT distribution_channel, COUNT(*) AS n_rows, COUNT(DISTINCT survey_response_id) AS n_survey_resp FROM qualtrics__response GROUP BY distribution_channel

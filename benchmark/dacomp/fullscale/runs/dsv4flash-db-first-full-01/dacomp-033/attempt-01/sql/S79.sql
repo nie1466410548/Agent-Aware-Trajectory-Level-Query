@@ -1,0 +1,1 @@
+SELECT "Gender", COUNT(*) as all_cust FROM customer_contact_table GROUP BY "Gender"

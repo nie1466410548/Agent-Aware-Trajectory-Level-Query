@@ -1,0 +1,1 @@
+SELECT Color, COUNT(*) AS n FROM sheet1 GROUP BY Color ORDER BY Color

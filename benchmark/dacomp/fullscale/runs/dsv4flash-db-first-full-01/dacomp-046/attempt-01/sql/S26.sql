@@ -1,0 +1,1 @@
+SELECT "Usage Status", COUNT(*) as cnt FROM marketing_campaign_interaction GROUP BY "Usage Status"

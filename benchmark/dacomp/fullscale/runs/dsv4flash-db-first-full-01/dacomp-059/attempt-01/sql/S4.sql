@@ -1,0 +1,1 @@
+SELECT * FROM google_ads__keyword_report LIMIT 5

@@ -1,0 +1,443 @@
+{
+  "fingerprint": "c4e7cd139eebea59c2697b6cca6c3c84b8234e78743628a44114ee4fd48f7ba4",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S14",
+      "covered": [
+        "S14",
+        "S15",
+        "S16",
+        "S17"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S14",
+      "later_reuses": 3,
+      "denominator": 15,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869955.68825,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 10000,
+      "validation_ended_at": 1788869956.5409954,
+      "checks": [
+        {
+          "sql_id": "S15",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S16",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S17",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT account_id, account_name, industry_normalized, account_size_segment, number_of_employees, annual_revenue, total_won_amount, current_pipeline_amount, win_rate_percentage, account_age_days, total_contacts, contacts_with_email, days_since_last_activity, total_activities_30d, ROUND(0.5 * MAX(0, 100 - days_since_last_activity * 1.667) + 0.5 * MIN(100, total_activities_30d * 1.667), 2) AS activity_score, ROUND(contacts_with_email * 100.0 / NULLIF(total_contacts, 0), 2) AS contact_score, ROUND(0.5 * MAX(0, MIN(100, (LOG(10, annual_revenue) - 6) * 25)) + 0.5 * MIN(100, LOG(10, total_won_amount + 1) * 100.0 / 9), 2) AS value_score, ROUND(0.5 * CASE account_size_segment WHEN 'Small Business' THEN 25 WHEN 'Mid-Market' THEN 50 WHEN 'Large' THEN 75 WHEN 'Enterprise' THEN 100 ELSE 50 END + 0.5 * MAX(0, MIN(100, (LOG(10, number_of_employees) - 1.114) * 100.0 / 3.586)), 2) AS scale_score FROM salesforce__customer_360_view",
+      "covered": [
+        "S14",
+        "S15",
+        "S16",
+        "S17"
+      ],
+      "rewrites": {
+        "S14": "WITH scores AS (SELECT * FROM temp.reuse_candidate) SELECT *, ROUND(0.4 * activity_score + 0.3 * contact_score + 0.2 * value_score + 0.1 * scale_score, 1) AS health_score FROM scores",
+        "S15": "WITH scores AS (SELECT * FROM temp.reuse_candidate) SELECT *, ROUND(0.4 * activity_score + 0.3 * contact_score + 0.2 * value_score + 0.1 * scale_score, 1) AS health_score FROM scores",
+        "S16": "WITH scores AS (SELECT * FROM temp.reuse_candidate) SELECT *, ROUND(0.4 * activity_score + 0.3 * contact_score + 0.2 * value_score + 0.1 * scale_score, 1) AS health_score FROM scores",
+        "S17": "WITH scores AS (SELECT * FROM temp.reuse_candidate) SELECT *, ROUND(0.4 * activity_score + 0.3 * contact_score + 0.2 * value_score + 0.1 * scale_score, 1) AS health_score FROM scores"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S14",
+      "later_reuses": 3,
+      "denominator": 15,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869956.5463912,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT account_id, account_name, industry_normalized, account_size_segment, number_of_employees, annual_revenue, total_won_amount, current_pipeline_amount, win_rate_percentage, account_age_days, total_contacts, contacts_with_email, days_since_last_activity, total_activities_30d, ROUND(0.5 * MAX(0, 100 - days_since_last_activity * 1.667) + 0.5 * MIN(100, total_activities_30d * 1.667), 2) AS activity_score, ROUND(contacts_with_email * 100.0 / NULLIF(total_contacts, 0), 2) AS contact_score, ROUND(0.5 * MAX(0, MIN(100, (LOG(10, annual_revenue) - 6) * 25)) + 0.5 * MIN(100, LOG(10, total_won_amount + 1) * 100.0 / 9), 2) AS value_score, ROUND(0.5 * CASE account_size_segment WHEN 'Small Business' THEN 25 WHEN 'Mid-Market' THEN 50 WHEN 'Large' THEN 75 WHEN 'Enterprise' THEN 100 ELSE 50 END + 0.5 * MAX(0, MIN(100, (LOG(10, number_of_employees) - 1.114) * 100.0 / 3.586)), 2) AS scale_score FROM salesforce__customer_360_view",
+          "phase": "offline_validation",
+          "start_time": 1788869956.5466678,
+          "status": "execute_returned",
+          "end_time": 1788869956.571276
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869956.5712821,
+          "status": "execute_returned",
+          "end_time": 1788869956.5713522
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788869956.5713584,
+          "status": "execute_returned",
+          "end_time": 1788869956.5713751
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH scores AS (SELECT * FROM temp.reuse_candidate) SELECT *, ROUND(0.4 * activity_score + 0.3 * contact_score + 0.2 * value_score + 0.1 * scale_score, 1) AS health_score FROM scores",
+          "phase": "offline_validation",
+          "start_time": 1788869956.5714037,
+          "status": "execute_returned",
+          "end_time": 1788869956.5714912
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH scores AS (SELECT * FROM temp.reuse_candidate) SELECT *, ROUND(0.4 * activity_score + 0.3 * contact_score + 0.2 * value_score + 0.1 * scale_score, 1) AS health_score FROM scores",
+          "phase": "offline_validation",
+          "start_time": 1788869956.882229,
+          "status": "execute_returned",
+          "end_time": 1788869956.8822777
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH scores AS (SELECT * FROM temp.reuse_candidate) SELECT *, ROUND(0.4 * activity_score + 0.3 * contact_score + 0.2 * value_score + 0.1 * scale_score, 1) AS health_score FROM scores",
+          "phase": "offline_validation",
+          "start_time": 1788869957.197224,
+          "status": "execute_returned",
+          "end_time": 1788869957.1972733
+        },
+        {
+          "sequence": 7,
+          "sql": "WITH scores AS (SELECT * FROM temp.reuse_candidate) SELECT *, ROUND(0.4 * activity_score + 0.3 * contact_score + 0.2 * value_score + 0.1 * scale_score, 1) AS health_score FROM scores",
+          "phase": "offline_validation",
+          "start_time": 1788869957.6619484,
+          "status": "execute_returned",
+          "end_time": 1788869957.6619973
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT account_id, account_name, industry_normalized, account_size_segment, number_of_employees, annual_revenue, total_won_amount, current_pipeline_amount, win_rate_percentage, account_age_days, total_contacts, contacts_with_email, days_since_last_activity, total_activities_30d, ROUND(0.5 * MAX(0, 100 - days_since_last_activity * 1.667) + 0.5 * MIN(100, total_activities_30d * 1.667), 2) AS activity_score, ROUND(contacts_with_email * 100.0 / NULLIF(total_contacts, 0), 2) AS contact_score, ROUND(0.5 * MAX(0, MIN(100, (LOG(10, annual_revenue) - 6) * 25)) + 0.5 * MIN(100, LOG(10, total_won_amount + 1) * 100.0 / 9), 2) AS value_score, ROUND(0.5 * CASE account_size_segment WHEN 'Small Business' THEN 25 WHEN 'Mid-Market' THEN 50 WHEN 'Large' THEN 75 WHEN 'Enterprise' THEN 100 ELSE 50 END + 0.5 * MAX(0, MIN(100, (LOG(10, number_of_employees) - 1.114) * 100.0 / 3.586)), 2) AS scale_score FROM salesforce__customer_360_view",
+          "time": 1788869956.5470722,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788869956.571303,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788869956.5713716,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH scores AS (SELECT * FROM temp.reuse_candidate) SELECT *, ROUND(0.4 * activity_score + 0.3 * contact_score + 0.2 * value_score + 0.1 * scale_score, 1) AS health_score FROM scores",
+          "time": 1788869956.571484,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH scores AS (SELECT * FROM temp.reuse_candidate) SELECT *, ROUND(0.4 * activity_score + 0.3 * contact_score + 0.2 * value_score + 0.1 * scale_score, 1) AS health_score FROM scores",
+          "time": 1788869956.8822505,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH scores AS (SELECT * FROM temp.reuse_candidate) SELECT *, ROUND(0.4 * activity_score + 0.3 * contact_score + 0.2 * value_score + 0.1 * scale_score, 1) AS health_score FROM scores",
+          "time": 1788869957.1972463,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH scores AS (SELECT * FROM temp.reuse_candidate) SELECT *, ROUND(0.4 * activity_score + 0.3 * contact_score + 0.2 * value_score + 0.1 * scale_score, 1) AS health_score FROM scores",
+          "time": 1788869957.6619706,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 24.613886140286922,
+      "intermediate_rows": 10000,
+      "intermediate_columns": [
+        "account_id",
+        "account_name",
+        "industry_normalized",
+        "account_size_segment",
+        "number_of_employees",
+        "annual_revenue",
+        "total_won_amount",
+        "current_pipeline_amount",
+        "win_rate_percentage",
+        "account_age_days",
+        "total_contacts",
+        "contacts_with_email",
+        "days_since_last_activity",
+        "total_activities_30d",
+        "activity_score",
+        "contact_score",
+        "value_score",
+        "scale_score"
+      ],
+      "validation_ended_at": 1788869957.97367,
+      "checks": [
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "WITH scores AS (SELECT * FROM temp.reuse_candidate) SELECT *, ROUND(0.4 * activity_score + 0.3 * contact_score + 0.2 * value_score + 0.1 * scale_score, 1) AS health_score FROM scores",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 310.81650871783495
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "WITH scores AS (SELECT * FROM temp.reuse_candidate) SELECT *, ROUND(0.4 * activity_score + 0.3 * contact_score + 0.2 * value_score + 0.1 * scale_score, 1) AS health_score FROM scores",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 314.9895817041397
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "WITH scores AS (SELECT * FROM temp.reuse_candidate) SELECT *, ROUND(0.4 * activity_score + 0.3 * contact_score + 0.2 * value_score + 0.1 * scale_score, 1) AS health_score FROM scores",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 464.71972204744816
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "WITH scores AS (SELECT * FROM temp.reuse_candidate) SELECT *, ROUND(0.4 * activity_score + 0.3 * contact_score + 0.2 * value_score + 0.1 * scale_score, 1) AS health_score FROM scores",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 311.38373352587223
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT industry_normalized AS __g0, account_size_segment AS __g1, COUNT(*) AS __a0, MIN(days_since_last_activity) AS __a1, MAX(days_since_last_activity) AS __a2, MIN(total_activities_30d) AS __a3, MAX(total_activities_30d) AS __a4, MIN(total_contacts) AS __a5, MAX(total_contacts) AS __a6, MIN(contacts_with_email) AS __a7, MAX(contacts_with_email) AS __a8, MIN(annual_revenue) AS __a9, MAX(annual_revenue) AS __a10, MIN(total_won_amount) AS __a11, MAX(total_won_amount) AS __a12, MIN(number_of_employees) AS __a13, MAX(number_of_employees) AS __a14, MIN(current_pipeline_amount) AS __a15, MAX(current_pipeline_amount) AS __a16, MIN(contacts_with_email * 1.0 / NULLIF(total_contacts, 0)) AS __a17, MAX(contacts_with_email * 1.0 / NULLIF(total_contacts, 0)) AS __a18, SUM(contacts_with_email * 1.0 / NULLIF(total_contacts, 0)) AS __a19_sum, COUNT(contacts_with_email * 1.0 / NULLIF(total_contacts, 0)) AS __a19_n FROM \"salesforce__customer_360_view\"  GROUP BY industry_normalized, account_size_segment",
+      "covered": [
+        "S3",
+        "S5",
+        "S6",
+        "S7",
+        "S10"
+      ],
+      "rewrites": {
+        "S3": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+        "S5": "SELECT SUM(__a0) AS n, MIN(__a1) AS min_days, MAX(__a2) AS max_days, MIN(__a3) AS min_act30, MAX(__a4) AS max_act30, MIN(__a5) AS min_tc, MAX(__a6) AS max_tc, MIN(__a7) AS min_ce, MAX(__a8) AS max_ce, MIN(__a9) AS min_rev, MAX(__a10) AS max_rev, MIN(__a11) AS min_won, MAX(__a12) AS max_won, MIN(__a13) AS min_emp, MAX(__a14) AS max_emp, MIN(__a15) AS min_pipe, MAX(__a16) AS max_pipe FROM temp.reuse_candidate",
+        "S6": "SELECT __g0 AS \"industry_normalized\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+        "S7": "SELECT __g1 AS \"account_size_segment\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+        "S10": "SELECT MIN(__a17) AS min_ratio, MAX(__a18) AS max_ratio, (1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)) AS avg_ratio FROM temp.reuse_candidate"
+      },
+      "status": "rejected_result_mismatch",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 4,
+      "denominator": 15,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869955.660458,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT industry_normalized AS __g0, account_size_segment AS __g1, COUNT(*) AS __a0, MIN(days_since_last_activity) AS __a1, MAX(days_since_last_activity) AS __a2, MIN(total_activities_30d) AS __a3, MAX(total_activities_30d) AS __a4, MIN(total_contacts) AS __a5, MAX(total_contacts) AS __a6, MIN(contacts_with_email) AS __a7, MAX(contacts_with_email) AS __a8, MIN(annual_revenue) AS __a9, MAX(annual_revenue) AS __a10, MIN(total_won_amount) AS __a11, MAX(total_won_amount) AS __a12, MIN(number_of_employees) AS __a13, MAX(number_of_employees) AS __a14, MIN(current_pipeline_amount) AS __a15, MAX(current_pipeline_amount) AS __a16, MIN(contacts_with_email * 1.0 / NULLIF(total_contacts, 0)) AS __a17, MAX(contacts_with_email * 1.0 / NULLIF(total_contacts, 0)) AS __a18, SUM(contacts_with_email * 1.0 / NULLIF(total_contacts, 0)) AS __a19_sum, COUNT(contacts_with_email * 1.0 / NULLIF(total_contacts, 0)) AS __a19_n FROM \"salesforce__customer_360_view\"  GROUP BY industry_normalized, account_size_segment",
+          "phase": "offline_validation",
+          "start_time": 1788869955.6607428,
+          "status": "execute_returned",
+          "end_time": 1788869955.6832771
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869955.683285,
+          "status": "execute_returned",
+          "end_time": 1788869955.6833105
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788869955.683317,
+          "status": "execute_returned",
+          "end_time": 1788869955.683334
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869955.6833675,
+          "status": "execute_returned",
+          "end_time": 1788869955.6833837
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT SUM(__a0) AS n, MIN(__a1) AS min_days, MAX(__a2) AS max_days, MIN(__a3) AS min_act30, MAX(__a4) AS max_act30, MIN(__a5) AS min_tc, MAX(__a6) AS max_tc, MIN(__a7) AS min_ce, MAX(__a8) AS max_ce, MIN(__a9) AS min_rev, MAX(__a10) AS max_rev, MIN(__a11) AS min_won, MAX(__a12) AS max_won, MIN(__a13) AS min_emp, MAX(__a14) AS max_emp, MIN(__a15) AS min_pipe, MAX(__a16) AS max_pipe FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869955.6839054,
+          "status": "execute_returned",
+          "end_time": 1788869955.6839995
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS \"industry_normalized\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869955.6859713,
+          "status": "execute_returned",
+          "end_time": 1788869955.686022
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g1 AS \"account_size_segment\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869955.6865726,
+          "status": "execute_returned",
+          "end_time": 1788869955.686618
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT MIN(__a17) AS min_ratio, MAX(__a18) AS max_ratio, (1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)) AS avg_ratio FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869955.6871238,
+          "status": "execute_returned",
+          "end_time": 1788869955.68718
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT industry_normalized AS __g0, account_size_segment AS __g1, COUNT(*) AS __a0, MIN(days_since_last_activity) AS __a1, MAX(days_since_last_activity) AS __a2, MIN(total_activities_30d) AS __a3, MAX(total_activities_30d) AS __a4, MIN(total_contacts) AS __a5, MAX(total_contacts) AS __a6, MIN(contacts_with_email) AS __a7, MAX(contacts_with_email) AS __a8, MIN(annual_revenue) AS __a9, MAX(annual_revenue) AS __a10, MIN(total_won_amount) AS __a11, MAX(total_won_amount) AS __a12, MIN(number_of_employees) AS __a13, MAX(number_of_employees) AS __a14, MIN(current_pipeline_amount) AS __a15, MAX(current_pipeline_amount) AS __a16, MIN(contacts_with_email * 1.0 / NULLIF(total_contacts, 0)) AS __a17, MAX(contacts_with_email * 1.0 / NULLIF(total_contacts, 0)) AS __a18, SUM(contacts_with_email * 1.0 / NULLIF(total_contacts, 0)) AS __a19_sum, COUNT(contacts_with_email * 1.0 / NULLIF(total_contacts, 0)) AS __a19_n FROM \"salesforce__customer_360_view\"  GROUP BY industry_normalized, account_size_segment",
+          "time": 1788869955.6611855,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788869955.6833067,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788869955.683331,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+          "time": 1788869955.6833794,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n, MIN(__a1) AS min_days, MAX(__a2) AS max_days, MIN(__a3) AS min_act30, MAX(__a4) AS max_act30, MIN(__a5) AS min_tc, MAX(__a6) AS max_tc, MIN(__a7) AS min_ce, MAX(__a8) AS max_ce, MIN(__a9) AS min_rev, MAX(__a10) AS max_rev, MIN(__a11) AS min_won, MAX(__a12) AS max_won, MIN(__a13) AS min_emp, MAX(__a14) AS max_emp, MIN(__a15) AS min_pipe, MAX(__a16) AS max_pipe FROM temp.reuse_candidate",
+          "time": 1788869955.6839736,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"industry_normalized\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "time": 1788869955.6860032,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"account_size_segment\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "time": 1788869955.6866016,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a17) AS min_ratio, MAX(__a18) AS max_ratio, (1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)) AS avg_ratio FROM temp.reuse_candidate",
+          "time": 1788869955.6871605,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 22.540614940226078,
+      "intermediate_rows": 19,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4",
+        "__a5",
+        "__a6",
+        "__a7",
+        "__a8",
+        "__a9",
+        "__a10",
+        "__a11",
+        "__a12",
+        "__a13",
+        "__a14",
+        "__a15",
+        "__a16",
+        "__a17",
+        "__a18",
+        "__a19_sum",
+        "__a19_n"
+      ],
+      "validation_ended_at": 1788869955.6882353,
+      "checks": [
+        {
+          "sql_id": "S3",
+          "rewritten_sql": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.534404069185257
+        },
+        {
+          "sql_id": "S5",
+          "rewritten_sql": "SELECT SUM(__a0) AS n, MIN(__a1) AS min_days, MAX(__a2) AS max_days, MIN(__a3) AS min_act30, MAX(__a4) AS max_act30, MIN(__a5) AS min_tc, MAX(__a6) AS max_tc, MIN(__a7) AS min_ce, MAX(__a8) AS max_ce, MIN(__a9) AS min_rev, MAX(__a10) AS max_rev, MIN(__a11) AS min_won, MAX(__a12) AS max_won, MIN(__a13) AS min_emp, MAX(__a14) AS max_emp, MIN(__a15) AS min_pipe, MAX(__a16) AS max_pipe FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.0635584369301796
+        },
+        {
+          "sql_id": "S6",
+          "rewritten_sql": "SELECT __g0 AS \"industry_normalized\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5989782512187958
+        },
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT __g1 AS \"account_size_segment\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5472330376505852
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT MIN(__a17) AS min_ratio, MAX(__a18) AS max_ratio, (1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)) AS avg_ratio FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.9598489850759506
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+SELECT accounting_period_id, dashboard_date, subsidiary_id, cash_flow_risk_level FROM netsuite2_financial_dashboard ORDER BY dashboard_date LIMIT 25

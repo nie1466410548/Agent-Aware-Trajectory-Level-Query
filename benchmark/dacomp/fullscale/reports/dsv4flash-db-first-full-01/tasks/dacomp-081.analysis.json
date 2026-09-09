@@ -1,0 +1,1227 @@
+{
+  "fingerprint": "9e57ef92741c7d790e3d257750f426a28dea93ba75d7c1e2474b6894e1033d34",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S89",
+      "covered": [
+        "S89",
+        "S90",
+        "S91"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S89",
+      "later_reuses": 2,
+      "denominator": 119,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S110",
+      "covered": [
+        "S110",
+        "S112"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S110",
+      "later_reuses": 1,
+      "denominator": 119,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S114",
+      "covered": [
+        "S114",
+        "S116"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S114",
+      "later_reuses": 1,
+      "denominator": 119,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT survey_name AS __g0, survey_id AS __g1, COUNT(*) AS __a0 FROM \"qualtrics__survey\"  GROUP BY survey_name, survey_id",
+      "covered": [
+        "S3",
+        "S62",
+        "S88"
+      ],
+      "rewrites": {
+        "S3": "SELECT SUM(__a0) AS total FROM temp.reuse_candidate",
+        "S62": "SELECT __g0 AS \"survey_name\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0 LIMIT 200",
+        "S88": "SELECT __g1 AS \"survey_id\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC LIMIT 10"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 2,
+      "denominator": 119,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT survey_response_id AS __g0, user_language AS __g1, contact_language AS __g2, response_text AS __g3, question_type AS __g4, distribution_channel AS __g5, contact_id AS __g6, CAST(value AS INTEGER) AS __g7, sub_question_text AS __g8, question_option_key AS __g9, survey_id AS __g10, question_text AS __g11, COUNT(*) AS __a0, SUM(CASE WHEN NOT embedded_data IS NULL AND embedded_data <> '' THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN NOT survey_response_recorded_at IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN NOT survey_response_started_at IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN NOT survey_finished_at IS NULL THEN 1 ELSE 0 END) AS __a4, SUM(value) AS __a5_sum, COUNT(value) AS __a5_n, MIN(value) AS __a6, MAX(value) AS __a7 FROM \"qualtrics__response\"  GROUP BY survey_response_id, user_language, contact_language, response_text, question_type, distribution_channel, contact_id, CAST(value AS INTEGER), sub_question_text, question_option_key, survey_id, question_text",
+      "covered": [
+        "S5",
+        "S33",
+        "S44",
+        "S47",
+        "S51",
+        "S52",
+        "S56",
+        "S57",
+        "S58",
+        "S94",
+        "S95",
+        "S96",
+        "S101",
+        "S102",
+        "S103",
+        "S106",
+        "S107",
+        "S108"
+      ],
+      "rewrites": {
+        "S5": "SELECT SUM(__a0) AS total FROM temp.reuse_candidate",
+        "S33": "SELECT SUM(__a0) AS total, SUM(__a1) AS has_embedded FROM temp.reuse_candidate",
+        "S44": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_q_per_resp FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_q_per_resp DESC LIMIT 20",
+        "S47": "SELECT SUM(__a0) AS total, SUM(__a2) AS has_recorded, SUM(__a3) AS has_started, SUM(__a4) AS has_finished FROM temp.reuse_candidate",
+        "S51": "SELECT __g1 AS \"user_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_value DESC",
+        "S52": "SELECT __g2 AS \"contact_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_value DESC",
+        "S56": "SELECT __g3 AS \"response_text\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+        "S57": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+        "S58": "SELECT __g3 AS \"response_text\", MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_v DESC",
+        "S94": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n, MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+        "S95": "SELECT __g5 AS \"distribution_channel\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5 ORDER BY n DESC",
+        "S96": "SELECT __g6 AS \"contact_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6 ORDER BY n DESC LIMIT 10",
+        "S101": "SELECT __g7 AS v_int, SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_val FROM temp.reuse_candidate GROUP BY __g7 ORDER BY v_int",
+        "S102": "SELECT __g8 AS \"sub_question_text\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g8 ORDER BY n DESC LIMIT 30",
+        "S103": "SELECT __g9 AS \"question_option_key\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g9 ORDER BY n DESC LIMIT 30",
+        "S106": "SELECT __g10 AS \"survey_id\", __g4 AS \"question_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g10, __g4 HAVING SUM(__a0) >= 10 ORDER BY cnt DESC LIMIT 20",
+        "S107": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_questions FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_questions DESC LIMIT 20",
+        "S108": "SELECT __g11 AS \"question_text\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g11 ORDER BY cnt DESC LIMIT 30"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S5",
+      "later_reuses": 17,
+      "denominator": 119,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869780.7047105,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT survey_response_id AS __g0, user_language AS __g1, contact_language AS __g2, response_text AS __g3, question_type AS __g4, distribution_channel AS __g5, contact_id AS __g6, CAST(value AS INTEGER) AS __g7, sub_question_text AS __g8, question_option_key AS __g9, survey_id AS __g10, question_text AS __g11, COUNT(*) AS __a0, SUM(CASE WHEN NOT embedded_data IS NULL AND embedded_data <> '' THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN NOT survey_response_recorded_at IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN NOT survey_response_started_at IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN NOT survey_finished_at IS NULL THEN 1 ELSE 0 END) AS __a4, SUM(value) AS __a5_sum, COUNT(value) AS __a5_n, MIN(value) AS __a6, MAX(value) AS __a7 FROM \"qualtrics__response\"  GROUP BY survey_response_id, user_language, contact_language, response_text, question_type, distribution_channel, contact_id, CAST(value AS INTEGER), sub_question_text, question_option_key, survey_id, question_text",
+          "phase": "offline_validation",
+          "start_time": 1788869780.704997,
+          "status": "execute_returned",
+          "end_time": 1788869780.9890678
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869780.9890792,
+          "status": "execute_returned",
+          "end_time": 1788869780.9919767
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788869780.9919896,
+          "status": "execute_returned",
+          "end_time": 1788869780.9920216
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS total FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869780.9920604,
+          "status": "execute_returned",
+          "end_time": 1788869780.999722
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT SUM(__a0) AS total, SUM(__a1) AS has_embedded FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869781.0003626,
+          "status": "execute_returned",
+          "end_time": 1788869781.011038
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_q_per_resp FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_q_per_resp DESC LIMIT 20",
+          "phase": "offline_validation",
+          "start_time": 1788869781.011983,
+          "status": "execute_returned",
+          "end_time": 1788869781.0436802
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT SUM(__a0) AS total, SUM(__a2) AS has_recorded, SUM(__a3) AS has_started, SUM(__a4) AS has_finished FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869781.0447116,
+          "status": "execute_returned",
+          "end_time": 1788869781.0593367
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g1 AS \"user_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_value DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869781.0606904,
+          "status": "execute_returned",
+          "end_time": 1788869781.1132748
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g2 AS \"contact_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_value DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869781.114862,
+          "status": "execute_returned",
+          "end_time": 1788869781.1760862
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g3 AS \"response_text\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869781.177441,
+          "status": "execute_returned",
+          "end_time": 1788869781.2135863
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869781.2144816,
+          "status": "execute_returned",
+          "end_time": 1788869781.244783
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT __g3 AS \"response_text\", MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_v DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869781.2455957,
+          "status": "execute_returned",
+          "end_time": 1788869781.296768
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n, MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869781.29802,
+          "status": "execute_returned",
+          "end_time": 1788869781.3533964
+        },
+        {
+          "sequence": 14,
+          "sql": "SELECT __g5 AS \"distribution_channel\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869781.3547294,
+          "status": "execute_returned",
+          "end_time": 1788869781.3819387
+        },
+        {
+          "sequence": 15,
+          "sql": "SELECT __g6 AS \"contact_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6 ORDER BY n DESC LIMIT 10",
+          "phase": "offline_validation",
+          "start_time": 1788869781.3827283,
+          "status": "execute_returned",
+          "end_time": 1788869781.4198937
+        },
+        {
+          "sequence": 16,
+          "sql": "SELECT __g7 AS v_int, SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_val FROM temp.reuse_candidate GROUP BY __g7 ORDER BY v_int",
+          "phase": "offline_validation",
+          "start_time": 1788869781.4208536,
+          "status": "execute_returned",
+          "end_time": 1788869781.4476202
+        },
+        {
+          "sequence": 17,
+          "sql": "SELECT __g8 AS \"sub_question_text\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g8 ORDER BY n DESC LIMIT 30",
+          "phase": "offline_validation",
+          "start_time": 1788869781.4622035,
+          "status": "execute_returned",
+          "end_time": 1788869781.543276
+        },
+        {
+          "sequence": 18,
+          "sql": "SELECT __g9 AS \"question_option_key\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g9 ORDER BY n DESC LIMIT 30",
+          "phase": "offline_validation",
+          "start_time": 1788869781.5445087,
+          "status": "execute_returned",
+          "end_time": 1788869781.6259425
+        },
+        {
+          "sequence": 19,
+          "sql": "SELECT __g10 AS \"survey_id\", __g4 AS \"question_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g10, __g4 HAVING SUM(__a0) >= 10 ORDER BY cnt DESC LIMIT 20",
+          "phase": "offline_validation",
+          "start_time": 1788869781.6273658,
+          "status": "execute_returned",
+          "end_time": 1788869781.6860561
+        },
+        {
+          "sequence": 20,
+          "sql": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_questions FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_questions DESC LIMIT 20",
+          "phase": "offline_validation",
+          "start_time": 1788869781.687287,
+          "status": "execute_returned",
+          "end_time": 1788869781.720721
+        },
+        {
+          "sequence": 21,
+          "sql": "SELECT __g11 AS \"question_text\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g11 ORDER BY cnt DESC LIMIT 30",
+          "phase": "offline_validation",
+          "start_time": 1788869781.7217562,
+          "status": "execute_returned",
+          "end_time": 1788869781.7633557
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT survey_response_id AS __g0, user_language AS __g1, contact_language AS __g2, response_text AS __g3, question_type AS __g4, distribution_channel AS __g5, contact_id AS __g6, CAST(value AS INTEGER) AS __g7, sub_question_text AS __g8, question_option_key AS __g9, survey_id AS __g10, question_text AS __g11, COUNT(*) AS __a0, SUM(CASE WHEN NOT embedded_data IS NULL AND embedded_data <> '' THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN NOT survey_response_recorded_at IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN NOT survey_response_started_at IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN NOT survey_finished_at IS NULL THEN 1 ELSE 0 END) AS __a4, SUM(value) AS __a5_sum, COUNT(value) AS __a5_n, MIN(value) AS __a6, MAX(value) AS __a7 FROM \"qualtrics__response\"  GROUP BY survey_response_id, user_language, contact_language, response_text, question_type, distribution_channel, contact_id, CAST(value AS INTEGER), sub_question_text, question_option_key, survey_id, question_text",
+          "time": 1788869780.7054174,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788869780.9891105,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788869780.9920168,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total FROM temp.reuse_candidate",
+          "time": 1788869780.9920776,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total, SUM(__a1) AS has_embedded FROM temp.reuse_candidate",
+          "time": 1788869781.0003903,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_q_per_resp FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_q_per_resp DESC LIMIT 20",
+          "time": 1788869781.0120227,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total, SUM(__a2) AS has_recorded, SUM(__a3) AS has_started, SUM(__a4) AS has_finished FROM temp.reuse_candidate",
+          "time": 1788869781.044765,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"user_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_value DESC",
+          "time": 1788869781.0607715,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"contact_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_value DESC",
+          "time": 1788869781.1149528,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS \"response_text\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+          "time": 1788869781.1775131,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+          "time": 1788869781.2145572,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS \"response_text\", MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_v DESC",
+          "time": 1788869781.2456913,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n, MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+          "time": 1788869781.2981205,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g5 AS \"distribution_channel\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5 ORDER BY n DESC",
+          "time": 1788869781.354805,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g6 AS \"contact_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6 ORDER BY n DESC LIMIT 10",
+          "time": 1788869781.3828056,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g7 AS v_int, SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_val FROM temp.reuse_candidate GROUP BY __g7 ORDER BY v_int",
+          "time": 1788869781.4209392,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g8 AS \"sub_question_text\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g8 ORDER BY n DESC LIMIT 30",
+          "time": 1788869781.4622948,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g9 AS \"question_option_key\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g9 ORDER BY n DESC LIMIT 30",
+          "time": 1788869781.5446055,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g10 AS \"survey_id\", __g4 AS \"question_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g10, __g4 HAVING SUM(__a0) >= 10 ORDER BY cnt DESC LIMIT 20",
+          "time": 1788869781.6274583,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_questions FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_questions DESC LIMIT 20",
+          "time": 1788869781.6873662,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g11 AS \"question_text\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g11 ORDER BY cnt DESC LIMIT 30",
+          "time": 1788869781.7218354,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 284.0785291045904,
+      "intermediate_rows": 72000,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__g5",
+        "__g6",
+        "__g7",
+        "__g8",
+        "__g9",
+        "__g10",
+        "__g11",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4",
+        "__a5_sum",
+        "__a5_n",
+        "__a6",
+        "__a7"
+      ],
+      "validation_ended_at": 1788869781.7658956,
+      "checks": [
+        {
+          "sql_id": "S5",
+          "rewritten_sql": "SELECT SUM(__a0) AS total FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 8.298277854919434
+        },
+        {
+          "sql_id": "S33",
+          "rewritten_sql": "SELECT SUM(__a0) AS total, SUM(__a1) AS has_embedded FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 11.616570875048637
+        },
+        {
+          "sql_id": "S44",
+          "rewritten_sql": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_q_per_resp FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_q_per_resp DESC LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 32.724153250455856
+        },
+        {
+          "sql_id": "S47",
+          "rewritten_sql": "SELECT SUM(__a0) AS total, SUM(__a2) AS has_recorded, SUM(__a3) AS has_started, SUM(__a4) AS has_finished FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 15.973835252225399
+        },
+        {
+          "sql_id": "S51",
+          "rewritten_sql": "SELECT __g1 AS \"user_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_value DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 54.16976474225521
+        },
+        {
+          "sql_id": "S52",
+          "rewritten_sql": "SELECT __g2 AS \"contact_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_value DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 62.57378403097391
+        },
+        {
+          "sql_id": "S56",
+          "rewritten_sql": "SELECT __g3 AS \"response_text\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 37.02918067574501
+        },
+        {
+          "sql_id": "S57",
+          "rewritten_sql": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 31.110520474612713
+        },
+        {
+          "sql_id": "S58",
+          "rewritten_sql": "SELECT __g3 AS \"response_text\", MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_v DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 52.419706247746944
+        },
+        {
+          "sql_id": "S94",
+          "rewritten_sql": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n, MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 56.70643597841263
+        },
+        {
+          "sql_id": "S95",
+          "rewritten_sql": "SELECT __g5 AS \"distribution_channel\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 27.99568697810173
+        },
+        {
+          "sql_id": "S96",
+          "rewritten_sql": "SELECT __g6 AS \"contact_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6 ORDER BY n DESC LIMIT 10",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 38.12127932906151
+        },
+        {
+          "sql_id": "S101",
+          "rewritten_sql": "SELECT __g7 AS v_int, SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_val FROM temp.reuse_candidate GROUP BY __g7 ORDER BY v_int",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 41.345869190990925
+        },
+        {
+          "sql_id": "S102",
+          "rewritten_sql": "SELECT __g8 AS \"sub_question_text\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g8 ORDER BY n DESC LIMIT 30",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 82.302151247859
+        },
+        {
+          "sql_id": "S103",
+          "rewritten_sql": "SELECT __g9 AS \"question_option_key\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g9 ORDER BY n DESC LIMIT 30",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 82.85321947187185
+        },
+        {
+          "sql_id": "S106",
+          "rewritten_sql": "SELECT __g10 AS \"survey_id\", __g4 AS \"question_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g10, __g4 HAVING SUM(__a0) >= 10 ORDER BY cnt DESC LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 59.91790629923344
+        },
+        {
+          "sql_id": "S107",
+          "rewritten_sql": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_questions FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_questions DESC LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 34.46612786501646
+        },
+        {
+          "sql_id": "S108",
+          "rewritten_sql": "SELECT __g11 AS \"question_text\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g11 ORDER BY cnt DESC LIMIT 30",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 42.64934081584215
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"qualtrics__response\" WHERE NOT embedded_data IS NULL AND embedded_data <> ''",
+      "covered": [
+        "S8",
+        "S49",
+        "S50"
+      ],
+      "rewrites": {
+        "S8": "SELECT DISTINCT embedded_data FROM temp.reuse_candidate AS qualtrics__response WHERE NOT embedded_data IS NULL AND embedded_data <> '' LIMIT 20",
+        "S49": "SELECT embedded_data, COUNT(*) AS cnt FROM temp.reuse_candidate AS qualtrics__response WHERE NOT embedded_data IS NULL AND embedded_data <> '' GROUP BY embedded_data ORDER BY cnt DESC LIMIT 30",
+        "S50": "SELECT embedded_data, COUNT(*) AS cnt FROM temp.reuse_candidate AS qualtrics__response WHERE NOT embedded_data IS NULL AND embedded_data <> '' GROUP BY embedded_data ORDER BY cnt ASC LIMIT 30"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C6",
+      "offline": true,
+      "earliest_build_before": "S8",
+      "later_reuses": 2,
+      "denominator": 119,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869781.7843275,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"qualtrics__response\" WHERE NOT embedded_data IS NULL AND embedded_data <> ''",
+          "phase": "offline_validation",
+          "start_time": 1788869781.7845266,
+          "status": "execute_returned",
+          "end_time": 1788869781.8371809
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869781.83719,
+          "status": "execute_returned",
+          "end_time": 1788869781.8397696
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788869781.83978,
+          "status": "execute_returned",
+          "end_time": 1788869781.8398156
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT DISTINCT embedded_data FROM temp.reuse_candidate AS qualtrics__response WHERE NOT embedded_data IS NULL AND embedded_data <> '' LIMIT 20",
+          "phase": "offline_validation",
+          "start_time": 1788869781.8398888,
+          "status": "execute_returned",
+          "end_time": 1788869781.8399696
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT embedded_data, COUNT(*) AS cnt FROM temp.reuse_candidate AS qualtrics__response WHERE NOT embedded_data IS NULL AND embedded_data <> '' GROUP BY embedded_data ORDER BY cnt DESC LIMIT 30",
+          "phase": "offline_validation",
+          "start_time": 1788869781.8409038,
+          "status": "execute_returned",
+          "end_time": 1788869781.855755
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT embedded_data, COUNT(*) AS cnt FROM temp.reuse_candidate AS qualtrics__response WHERE NOT embedded_data IS NULL AND embedded_data <> '' GROUP BY embedded_data ORDER BY cnt ASC LIMIT 30",
+          "phase": "offline_validation",
+          "start_time": 1788869781.8567967,
+          "status": "execute_returned",
+          "end_time": 1788869781.870565
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"qualtrics__response\" WHERE NOT embedded_data IS NULL AND embedded_data <> ''",
+          "time": 1788869781.7847998,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788869781.8372216,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788869781.8398116,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT DISTINCT embedded_data FROM temp.reuse_candidate AS qualtrics__response WHERE NOT embedded_data IS NULL AND embedded_data <> '' LIMIT 20",
+          "time": 1788869781.8399167,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT embedded_data, COUNT(*) AS cnt FROM temp.reuse_candidate AS qualtrics__response WHERE NOT embedded_data IS NULL AND embedded_data <> '' GROUP BY embedded_data ORDER BY cnt DESC LIMIT 30",
+          "time": 1788869781.8409488,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT embedded_data, COUNT(*) AS cnt FROM temp.reuse_candidate AS qualtrics__response WHERE NOT embedded_data IS NULL AND embedded_data <> '' GROUP BY embedded_data ORDER BY cnt ASC LIMIT 30",
+          "time": 1788869781.8568451,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 52.66000237315893,
+      "intermediate_rows": 20480,
+      "intermediate_columns": [
+        "question_response_id",
+        "survey_response_id",
+        "survey_id",
+        "question_id",
+        "question_text",
+        "sub_question_key",
+        "sub_question_text",
+        "question_option_key",
+        "value",
+        "response_text",
+        "loop_id",
+        "distribution_channel",
+        "survey_response_status",
+        "survey_progress",
+        "duration_in_seconds",
+        "is_finished_with_survey",
+        "survey_finished_at",
+        "survey_response_last_modified_at",
+        "survey_response_recorded_at",
+        "survey_response_started_at",
+        "recipient_email",
+        "recipient_first_name",
+        "recipient_last_name",
+        "user_language",
+        "ip_address",
+        "location_latitude",
+        "location_longitude",
+        "recode_value",
+        "question_option_text",
+        "first_name",
+        "last_name",
+        "email_domain",
+        "contact_language",
+        "contact_external_data_reference",
+        "is_xm_directory_contact",
+        "is_research_core_contact",
+        "embedded_data",
+        "survey_name",
+        "survey_status",
+        "project_category",
+        "project_type",
+        "brand_base_url",
+        "question_description",
+        "question_type",
+        "block_id",
+        "block_description",
+        "block_question_randomization",
+        "block_type",
+        "block_visibility",
+        "validation_setting_force_response",
+        "validation_setting_force_response_type",
+        "validation_setting_type",
+        "contact_id"
+      ],
+      "validation_ended_at": 1788869781.873006,
+      "checks": [
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT DISTINCT embedded_data FROM temp.reuse_candidate AS qualtrics__response WHERE NOT embedded_data IS NULL AND embedded_data <> '' LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.0116174817085266
+        },
+        {
+          "sql_id": "S49",
+          "rewritten_sql": "SELECT embedded_data, COUNT(*) AS cnt FROM temp.reuse_candidate AS qualtrics__response WHERE NOT embedded_data IS NULL AND embedded_data <> '' GROUP BY embedded_data ORDER BY cnt DESC LIMIT 30",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 15.889582224190235
+        },
+        {
+          "sql_id": "S50",
+          "rewritten_sql": "SELECT embedded_data, COUNT(*) AS cnt FROM temp.reuse_candidate AS qualtrics__response WHERE NOT embedded_data IS NULL AND embedded_data <> '' GROUP BY embedded_data ORDER BY cnt ASC LIMIT 30",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 14.956691302359104
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT embedded_data AS __g0, COUNT(*) AS __a0 FROM \"qualtrics__response\" WHERE NOT embedded_data IS NULL AND embedded_data <> '' GROUP BY embedded_data",
+      "covered": [
+        "S49",
+        "S50"
+      ],
+      "rewrites": {
+        "S49": "SELECT __g0 AS \"embedded_data\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 30",
+        "S50": "SELECT __g0 AS \"embedded_data\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt ASC LIMIT 30"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C7",
+      "offline": true,
+      "earliest_build_before": "S49",
+      "later_reuses": 1,
+      "denominator": 119,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"qualtrics__response\" WHERE NOT sub_question_text IS NULL",
+      "covered": [
+        "S64",
+        "S109"
+      ],
+      "rewrites": {
+        "S64": "SELECT DISTINCT sub_question_text FROM temp.reuse_candidate AS qualtrics__response WHERE NOT sub_question_text IS NULL LIMIT 20",
+        "S109": "SELECT value, sub_question_text, question_option_key, sub_question_key, user_language, question_type, question_id FROM temp.reuse_candidate AS qualtrics__response WHERE NOT sub_question_text IS NULL LIMIT 50000"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C8",
+      "offline": true,
+      "earliest_build_before": "S64",
+      "later_reuses": 1,
+      "denominator": 119,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"qualtrics__response\" WHERE survey_id = 'SUR10002866953'",
+      "covered": [
+        "S70",
+        "S72"
+      ],
+      "rewrites": {
+        "S70": "SELECT r.user_language, COUNT(*) AS n, AVG(r.value) AS avg_v, MIN(r.value) AS min_v, MAX(r.value) AS max_v FROM temp.reuse_candidate AS r WHERE r.survey_id = 'SUR10002866953' GROUP BY r.user_language ORDER BY avg_v DESC",
+        "S72": "SELECT COUNT(*) AS n_resp FROM temp.reuse_candidate AS r WHERE r.survey_id = 'SUR10002866953'"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C9",
+      "offline": true,
+      "earliest_build_before": "S70",
+      "later_reuses": 1,
+      "denominator": 119,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT user_language AS __g0, COUNT(*) AS __a0, SUM(value) AS __a1_sum, COUNT(value) AS __a1_n, MIN(value) AS __a2, MAX(value) AS __a3 FROM \"qualtrics__response\" WHERE survey_id = 'SUR10002866953' GROUP BY user_language",
+      "covered": [
+        "S70",
+        "S72"
+      ],
+      "rewrites": {
+        "S70": "SELECT __g0 AS \"user_language\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_v, MIN(__a2) AS min_v, MAX(__a3) AS max_v FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_v DESC",
+        "S72": "SELECT SUM(__a0) AS n_resp FROM temp.reuse_candidate"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C10",
+      "offline": true,
+      "earliest_build_before": "S70",
+      "later_reuses": 1,
+      "denominator": 119,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"qualtrics__response\" WHERE survey_id = 'SUR10001882036'",
+      "covered": [
+        "S78",
+        "S81",
+        "S83",
+        "S84",
+        "S85"
+      ],
+      "rewrites": {
+        "S78": "SELECT r.user_language, COUNT(*) AS n, AVG(r.value) AS avg_v, MIN(r.value) AS min_v, MAX(r.value) AS max_v FROM temp.reuse_candidate AS r WHERE r.survey_id = 'SUR10001882036' GROUP BY r.user_language ORDER BY avg_v DESC",
+        "S81": "SELECT user_language, COUNT(*) AS n, AVG(value) AS avg_v FROM temp.reuse_candidate AS qualtrics__response WHERE survey_id = 'SUR10001882036' GROUP BY user_language",
+        "S83": "SELECT survey_id, user_language, contact_language, value, response_text, survey_name FROM temp.reuse_candidate AS qualtrics__response WHERE survey_id = 'SUR10001882036'",
+        "S84": "SELECT COUNT(*) FROM temp.reuse_candidate AS qualtrics__response WHERE survey_id = 'SUR10001882036'",
+        "S85": "SELECT * FROM temp.reuse_candidate AS qualtrics__response WHERE survey_id = 'SUR10001882036'"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C11",
+      "offline": true,
+      "earliest_build_before": "S78",
+      "later_reuses": 4,
+      "denominator": 119,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869781.766007,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"qualtrics__response\" WHERE survey_id = 'SUR10001882036'",
+          "phase": "offline_validation",
+          "start_time": 1788869781.7662544,
+          "status": "execute_returned",
+          "end_time": 1788869781.7800977
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869781.7801056,
+          "status": "execute_returned",
+          "end_time": 1788869781.7801323
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788869781.7801387,
+          "status": "execute_returned",
+          "end_time": 1788869781.7801602
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT r.user_language, COUNT(*) AS n, AVG(r.value) AS avg_v, MIN(r.value) AS min_v, MAX(r.value) AS max_v FROM temp.reuse_candidate AS r WHERE r.survey_id = 'SUR10001882036' GROUP BY r.user_language ORDER BY avg_v DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869781.780238,
+          "status": "execute_returned",
+          "end_time": 1788869781.7802944
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT user_language, COUNT(*) AS n, AVG(value) AS avg_v FROM temp.reuse_candidate AS qualtrics__response WHERE survey_id = 'SUR10001882036' GROUP BY user_language",
+          "phase": "offline_validation",
+          "start_time": 1788869781.7814786,
+          "status": "execute_returned",
+          "end_time": 1788869781.7815285
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT survey_id, user_language, contact_language, value, response_text, survey_name FROM temp.reuse_candidate AS qualtrics__response WHERE survey_id = 'SUR10001882036'",
+          "phase": "offline_validation",
+          "start_time": 1788869781.7822244,
+          "status": "execute_returned",
+          "end_time": 1788869781.782265
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate AS qualtrics__response WHERE survey_id = 'SUR10001882036'",
+          "phase": "offline_validation",
+          "start_time": 1788869781.782872,
+          "status": "execute_returned",
+          "end_time": 1788869781.7829013
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT * FROM temp.reuse_candidate AS qualtrics__response WHERE survey_id = 'SUR10001882036'",
+          "phase": "offline_validation",
+          "start_time": 1788869781.783324,
+          "status": "execute_returned",
+          "end_time": 1788869781.7834506
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"qualtrics__response\" WHERE survey_id = 'SUR10001882036'",
+          "time": 1788869781.7665927,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788869781.7801282,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788869781.7801561,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT r.user_language, COUNT(*) AS n, AVG(r.value) AS avg_v, MIN(r.value) AS min_v, MAX(r.value) AS max_v FROM temp.reuse_candidate AS r WHERE r.survey_id = 'SUR10001882036' GROUP BY r.user_language ORDER BY avg_v DESC",
+          "time": 1788869781.78028,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT user_language, COUNT(*) AS n, AVG(value) AS avg_v FROM temp.reuse_candidate AS qualtrics__response WHERE survey_id = 'SUR10001882036' GROUP BY user_language",
+          "time": 1788869781.7815168,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT survey_id, user_language, contact_language, value, response_text, survey_name FROM temp.reuse_candidate AS qualtrics__response WHERE survey_id = 'SUR10001882036'",
+          "time": 1788869781.782259,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate AS qualtrics__response WHERE survey_id = 'SUR10001882036'",
+          "time": 1788869781.7828958,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT * FROM temp.reuse_candidate AS qualtrics__response WHERE survey_id = 'SUR10001882036'",
+          "time": 1788869781.7834332,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 13.849166221916676,
+      "intermediate_rows": 5,
+      "intermediate_columns": [
+        "question_response_id",
+        "survey_response_id",
+        "survey_id",
+        "question_id",
+        "question_text",
+        "sub_question_key",
+        "sub_question_text",
+        "question_option_key",
+        "value",
+        "response_text",
+        "loop_id",
+        "distribution_channel",
+        "survey_response_status",
+        "survey_progress",
+        "duration_in_seconds",
+        "is_finished_with_survey",
+        "survey_finished_at",
+        "survey_response_last_modified_at",
+        "survey_response_recorded_at",
+        "survey_response_started_at",
+        "recipient_email",
+        "recipient_first_name",
+        "recipient_last_name",
+        "user_language",
+        "ip_address",
+        "location_latitude",
+        "location_longitude",
+        "recode_value",
+        "question_option_text",
+        "first_name",
+        "last_name",
+        "email_domain",
+        "contact_language",
+        "contact_external_data_reference",
+        "is_xm_directory_contact",
+        "is_research_core_contact",
+        "embedded_data",
+        "survey_name",
+        "survey_status",
+        "project_category",
+        "project_type",
+        "brand_base_url",
+        "question_description",
+        "question_type",
+        "block_id",
+        "block_description",
+        "block_question_randomization",
+        "block_type",
+        "block_visibility",
+        "validation_setting_force_response",
+        "validation_setting_force_response_type",
+        "validation_setting_type",
+        "contact_id"
+      ],
+      "validation_ended_at": 1788869781.7842555,
+      "checks": [
+        {
+          "sql_id": "S78",
+          "rewritten_sql": "SELECT r.user_language, COUNT(*) AS n, AVG(r.value) AS avg_v, MIN(r.value) AS min_v, MAX(r.value) AS max_v FROM temp.reuse_candidate AS r WHERE r.survey_id = 'SUR10001882036' GROUP BY r.user_language ORDER BY avg_v DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.2370673939585686
+        },
+        {
+          "sql_id": "S81",
+          "rewritten_sql": "SELECT user_language, COUNT(*) AS n, AVG(value) AS avg_v FROM temp.reuse_candidate AS qualtrics__response WHERE survey_id = 'SUR10001882036' GROUP BY user_language",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.7438864558935165
+        },
+        {
+          "sql_id": "S83",
+          "rewritten_sql": "SELECT survey_id, user_language, contact_language, value, response_text, survey_name FROM temp.reuse_candidate AS qualtrics__response WHERE survey_id = 'SUR10001882036'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6458209827542305
+        },
+        {
+          "sql_id": "S84",
+          "rewritten_sql": "SELECT COUNT(*) FROM temp.reuse_candidate AS qualtrics__response WHERE survey_id = 'SUR10001882036'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.44990424066782
+        },
+        {
+          "sql_id": "S85",
+          "rewritten_sql": "SELECT * FROM temp.reuse_candidate AS qualtrics__response WHERE survey_id = 'SUR10001882036'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.7718605920672417
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT user_language AS __g0, COUNT(*) AS __a0, SUM(value) AS __a1_sum, COUNT(value) AS __a1_n, MIN(value) AS __a2, MAX(value) AS __a3 FROM \"qualtrics__response\" WHERE survey_id = 'SUR10001882036' GROUP BY user_language",
+      "covered": [
+        "S78",
+        "S81",
+        "S84"
+      ],
+      "rewrites": {
+        "S78": "SELECT __g0 AS \"user_language\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_v, MIN(__a2) AS min_v, MAX(__a3) AS max_v FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_v DESC",
+        "S81": "SELECT __g0 AS \"user_language\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g0",
+        "S84": "SELECT SUM(__a0) FROM temp.reuse_candidate"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C12",
+      "offline": true,
+      "earliest_build_before": "S78",
+      "later_reuses": 2,
+      "denominator": 119,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"qualtrics__survey\" WHERE survey_id = 'SUR10001882036'",
+      "covered": [
+        "S79",
+        "S82"
+      ],
+      "rewrites": {
+        "S79": "SELECT s.survey_name, s.project_category, s.project_type, s.brand_base_url, s.count_questions, s.count_survey_responses FROM temp.reuse_candidate AS s WHERE s.survey_id = 'SUR10001882036'",
+        "S82": "SELECT survey_id, survey_name, COUNT(*) FROM temp.reuse_candidate AS qualtrics__survey WHERE survey_id = 'SUR10001882036' GROUP BY survey_id, survey_name"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C13",
+      "offline": true,
+      "earliest_build_before": "S79",
+      "later_reuses": 1,
+      "denominator": 119,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"qualtrics__survey\" WHERE survey_id = 'SUR10001791916'",
+      "covered": [
+        "S113",
+        "S115"
+      ],
+      "rewrites": {
+        "S113": "SELECT survey_name, project_category, project_type FROM temp.reuse_candidate AS qualtrics__survey WHERE survey_id = 'SUR10001791916' LIMIT 1",
+        "S115": "SELECT survey_name, project_category, project_type, count_questions FROM temp.reuse_candidate AS qualtrics__survey WHERE survey_id = 'SUR10001791916' LIMIT 1"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C14",
+      "offline": true,
+      "earliest_build_before": "S113",
+      "later_reuses": 1,
+      "denominator": 119,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"qualtrics__response\" WHERE survey_id = 'SUR10001791916'",
+      "covered": [
+        "S114",
+        "S116"
+      ],
+      "rewrites": {
+        "S114": "SELECT AVG(value) AS avg_val, COUNT(*) AS n FROM temp.reuse_candidate AS qualtrics__response WHERE survey_id = 'SUR10001791916'",
+        "S116": "SELECT AVG(value) AS avg_val, COUNT(*) AS n FROM temp.reuse_candidate AS qualtrics__response WHERE survey_id = 'SUR10001791916'"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C15",
+      "offline": true,
+      "earliest_build_before": "S114",
+      "later_reuses": 1,
+      "denominator": 119,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT SUM(value) AS __a0_sum, COUNT(value) AS __a0_n, COUNT(*) AS __a1 FROM \"qualtrics__response\" WHERE survey_id = 'SUR10001791916'",
+      "covered": [
+        "S114",
+        "S116"
+      ],
+      "rewrites": {
+        "S114": "SELECT (1.0 * SUM(__a0_sum) / NULLIF(SUM(__a0_n), 0)) AS avg_val, SUM(__a1) AS n FROM temp.reuse_candidate",
+        "S116": "SELECT (1.0 * SUM(__a0_sum) / NULLIF(SUM(__a0_n), 0)) AS avg_val, SUM(__a1) AS n FROM temp.reuse_candidate"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C16",
+      "offline": true,
+      "earliest_build_before": "S114",
+      "later_reuses": 1,
+      "denominator": 119,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

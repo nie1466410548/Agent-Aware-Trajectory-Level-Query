@@ -1,0 +1,1 @@
+SELECT survey_response_recorded_at, survey_response_started_at, survey_finished_at FROM qualtrics__response WHERE survey_response_recorded_at IS NOT NULL LIMIT 10

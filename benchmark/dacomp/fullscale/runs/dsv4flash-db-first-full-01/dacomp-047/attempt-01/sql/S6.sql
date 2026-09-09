@@ -1,0 +1,1 @@
+SELECT MIN("Sales Date") AS min_date, MAX("Sales Date") AS max_date, COUNT(*) AS n_rows, COUNT(DISTINCT "Item Code") AS n_items FROM sales_records

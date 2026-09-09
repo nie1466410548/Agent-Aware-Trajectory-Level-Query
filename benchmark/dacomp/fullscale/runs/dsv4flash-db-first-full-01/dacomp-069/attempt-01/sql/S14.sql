@@ -1,0 +1,1 @@
+SELECT sku_id, product_title, COUNT(*) AS n, MIN(net_amount/transactions) AS min_net_per_tx, MAX(net_amount/transactions) AS max_net_per_tx FROM google_play__finance_report WHERE package_name='com.dev.photoeditor' GROUP BY sku_id, product_title

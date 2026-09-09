@@ -1,0 +1,1 @@
+SELECT COUNT(*) as cond_count, COUNT(DISTINCT "Inspected Cultural Relic Reference") as distinct_relics, COUNT(DISTINCT "Inspected Display Case Reference") as distinct_cases FROM condition_assessment

@@ -1,0 +1,1 @@
+SELECT * FROM sales_records LIMIT 10

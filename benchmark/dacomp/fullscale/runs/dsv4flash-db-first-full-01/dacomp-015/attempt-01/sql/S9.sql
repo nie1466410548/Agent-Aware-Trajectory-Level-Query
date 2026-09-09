@@ -1,0 +1,1 @@
+SELECT "Floor Plan", COUNT(*) AS cnt FROM data GROUP BY "Floor Plan" ORDER BY cnt DESC

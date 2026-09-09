@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total FROM health_checkup_indicators

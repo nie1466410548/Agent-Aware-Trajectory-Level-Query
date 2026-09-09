@@ -1,0 +1,1 @@
+SELECT DISTINCT industry_vertical FROM customer360__customer_value_analysis ORDER BY industry_vertical

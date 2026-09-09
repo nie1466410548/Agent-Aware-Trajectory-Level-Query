@@ -1,0 +1,1 @@
+SELECT substr("Destination", 13, instr(substr("Destination", 13), '-') - 1) AS province, strftime('%Y-%m', "Date") AS month, SUM("Profit") AS p FROM sheet1 WHERE "Destination" LIKE 'South China%%' GROUP BY province, month ORDER BY province, month

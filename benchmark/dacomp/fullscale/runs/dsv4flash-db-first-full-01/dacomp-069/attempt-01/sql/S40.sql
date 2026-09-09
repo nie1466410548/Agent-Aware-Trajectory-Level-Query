@@ -1,0 +1,1 @@
+SELECT country_short, date_day, sku_id, net_amount, transactions FROM google_play__finance_report WHERE package_name='com.dev.photoeditor' ORDER BY country_short, date_day, sku_id

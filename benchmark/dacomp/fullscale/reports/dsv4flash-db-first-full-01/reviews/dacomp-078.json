@@ -1,0 +1,45 @@
+{
+  "task_id": "dacomp-078",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "逻辑回归、交叉验证和预测误差属于建模计算，算法内均值及混淆矩阵不当作迁出明细聚合。Python 仍连接账户与访客结果，按高价值类别计算画像均值、按留存十分位求比例，属于 SQL 可支持的关系和分组操作；据此记录偏离。",
+  "route": "SQL 提取账户与访客行为 → Python 连接、构造价值模型及交叉验证 → 月趋势预测与画像。",
+  "evidence": [
+    {
+      "source": "python/P9.py",
+      "lines": [
+        {
+          "line": 23,
+          "text": "df = df.merge(vdf, on='account_id', how='left')"
+        }
+      ]
+    },
+    {
+      "source": "python/P21.py",
+      "lines": [
+        {
+          "line": 56,
+          "text": "prof = df.groupby('high_value')[profile_cols].mean().T"
+        }
+      ]
+    },
+    {
+      "source": "python/P22.py",
+      "lines": [
+        {
+          "line": 26,
+          "text": "print(df.groupby('decile')['retained'].mean().round(3).to_string())"
+        }
+      ]
+    },
+    {
+      "source": "python/P25.py",
+      "lines": [
+        {
+          "line": 22,
+          "text": "ret_by_dec = df.groupby('decile')['retained'].mean()"
+        }
+      ]
+    }
+  ]
+}

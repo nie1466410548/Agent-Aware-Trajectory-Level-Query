@@ -1,0 +1,2 @@
+SELECT "Cut (quality)" AS cut, COUNT(*) AS n, ROUND(AVG("Price (USD)"/"Carat (diamond weight)"),2) AS avg_ppc, ROUND(AVG("Carat (diamond weight)"),3) AS avg_carat
+FROM sheet1 GROUP BY "Cut (quality)" ORDER BY avg_ppc DESC

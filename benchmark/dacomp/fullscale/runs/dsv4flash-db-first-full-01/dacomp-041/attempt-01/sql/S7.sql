@@ -1,0 +1,1 @@
+SELECT DISTINCT "Display Case Reference" FROM environmental_monitoring_data LIMIT 20

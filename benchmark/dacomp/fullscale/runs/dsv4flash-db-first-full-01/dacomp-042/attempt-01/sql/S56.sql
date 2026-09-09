@@ -1,0 +1,1 @@
+SELECT DISTINCT "Medication Side Effects" FROM treatmentbasics

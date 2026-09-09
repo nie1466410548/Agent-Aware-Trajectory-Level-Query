@@ -1,0 +1,1 @@
+SELECT * FROM "2020_cn_rural_pop_3up_agesexed"

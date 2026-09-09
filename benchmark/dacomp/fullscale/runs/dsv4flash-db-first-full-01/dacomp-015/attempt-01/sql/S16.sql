@@ -1,0 +1,1 @@
+SELECT GROUP_CONCAT(Floor, ' | ') AS all_floors FROM (SELECT DISTINCT Floor FROM data ORDER BY Floor)

@@ -1,0 +1,1 @@
+SELECT categories_location, COUNT(*) as cnt FROM lever__posting_enhanced GROUP BY categories_location ORDER BY cnt DESC

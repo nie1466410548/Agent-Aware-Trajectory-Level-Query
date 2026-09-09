@@ -1,0 +1,1 @@
+SELECT strftime('%Y-%m', "Date") AS month, SUM("List Price Revenue") AS list_price, SUM("Logistics Value-Added Service Revenue") AS vas, SUM("Discount Amount") AS discount FROM sheet1 WHERE "Destination" LIKE 'South China%%' GROUP BY month ORDER BY month

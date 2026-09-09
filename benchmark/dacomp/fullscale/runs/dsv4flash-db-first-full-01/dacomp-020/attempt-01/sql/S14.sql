@@ -1,0 +1,1 @@
+SELECT "Extracurricular activity participation", COUNT(*) as n FROM sheet1 GROUP BY "Extracurricular activity participation"

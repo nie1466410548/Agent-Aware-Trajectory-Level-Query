@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT user_display_name) FROM jira__team_performance_dashboard

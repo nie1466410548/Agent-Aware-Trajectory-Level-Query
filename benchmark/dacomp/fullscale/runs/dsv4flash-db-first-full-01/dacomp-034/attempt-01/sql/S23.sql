@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT sku_id) AS n_skus FROM attachment_3 WHERE promotion_type = 4

@@ -1,0 +1,1 @@
+SELECT Department, JobRole, AVG(MonthlyIncome) AS avg_income, AVG(JobLevel) AS avg_joblevel, AVG(YearsAtCompany) AS avg_tenure, AVG(TotalWorkingYears) AS avg_twy, AVG(Age) AS avg_age FROM sheet1 GROUP BY Department, JobRole ORDER BY Department, avg_income;

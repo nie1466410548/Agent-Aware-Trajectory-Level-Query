@@ -1,0 +1,1 @@
+SELECT DISTINCT vendor_category_name FROM netsuite2_vendor_risk_analysis

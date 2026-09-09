@@ -1,0 +1,1 @@
+SELECT strftime('%Y-%m', "Collection Date") AS month, "Market Name", "Product Category", COUNT(*) AS n FROM agricultural_product_price_tren GROUP BY month, "Market Name", "Product Category" ORDER BY month, "Market Name"

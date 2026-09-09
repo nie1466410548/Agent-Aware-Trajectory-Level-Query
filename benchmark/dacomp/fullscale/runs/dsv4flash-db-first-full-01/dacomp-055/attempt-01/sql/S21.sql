@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_distinct_rows FROM (SELECT DISTINCT * FROM customer360__customer_value_analysis)

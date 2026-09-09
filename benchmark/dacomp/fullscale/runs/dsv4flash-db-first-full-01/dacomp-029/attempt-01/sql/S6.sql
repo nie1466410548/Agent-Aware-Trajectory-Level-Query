@@ -1,0 +1,1 @@
+SELECT "New Car Price (incl. tax)" AS np, COUNT(*) AS cnt FROM autohome GROUP BY np ORDER BY cnt DESC LIMIT 20

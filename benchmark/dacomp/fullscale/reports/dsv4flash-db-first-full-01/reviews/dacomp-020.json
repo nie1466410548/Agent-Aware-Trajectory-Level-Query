@@ -1,0 +1,85 @@
+{
+  "task_id": "dacomp-020",
+  "status": "reviewed_with_statistical_exceptions_and_SQL_capable_summaries",
+  "reviewer": "experiment analyst",
+  "route": "SQL 检查心理健康与考试数据并汇总均值 → Python 比较线性、多项式和分段趋势 → 拟合控制变量与交互项模型 → 检查边际效应并绘图。",
+  "conclusion": "The task explicitly requests regression, significance, confidence intervals and interactions, which justify Python numerical/statistical procedures and relevant row-level inputs. Matrix arithmetic and prediction curves are parts of those procedures. P4/P5/P15 additionally calculate per-score count/mean summaries and adjacent mean changes in pandas; these can reasonably be prepared in SQL and are disclosed as execution-location deviations. The statistical calls are not wholesale labeled violations merely for using arrays.",
+  "evidence": [
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 10,
+          "text": "r_pearson, p_pearson = stats.pearsonr(mh, exam)"
+        },
+        {
+          "line": 18,
+          "text": "slope, intercept, r_lin, p_lin, se_slope = stats.linregress(mh, exam)"
+        },
+        {
+          "line": 58,
+          "text": "g = df.groupby('Mental health score')['Exam score']"
+        },
+        {
+          "line": 59,
+          "text": "gm = g.mean()"
+        },
+        {
+          "line": 60,
+          "text": "gn = g.count()"
+        }
+      ]
+    },
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 15,
+          "text": "gm = df.groupby('Mental health score')['Exam score'].agg(['mean', 'std', 'count'])"
+        }
+      ]
+    },
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 11,
+          "text": "    XtX_inv = np.linalg.pinv(XtX)"
+        },
+        {
+          "line": 12,
+          "text": "    beta = XtX_inv @ X.T @ y"
+        }
+      ]
+    },
+    {
+      "source": "python/P15.py",
+      "lines": [
+        {
+          "line": 12,
+          "text": "beta = np.linalg.pinv(X.T @ X) @ X.T @ exam"
+        },
+        {
+          "line": 19,
+          "text": "se = np.sqrt(np.diag(np.linalg.pinv(X.T @ X) * sigma2))"
+        },
+        {
+          "line": 29,
+          "text": "beta_lin = np.linalg.pinv(X_lin.T @ X_lin) @ X_lin.T @ exam"
+        },
+        {
+          "line": 40,
+          "text": "    bt = np.linalg.pinv(Xt.T @ Xt) @ Xt.T @ exam"
+        },
+        {
+          "line": 45,
+          "text": "    se_t = np.sqrt(np.diag(np.linalg.pinv(Xt.T @ Xt) * sig2_t))"
+        },
+        {
+          "line": 53,
+          "text": "gm = df.groupby('Mental health score')['Exam score'].mean().values"
+        }
+      ]
+    }
+  ]
+}

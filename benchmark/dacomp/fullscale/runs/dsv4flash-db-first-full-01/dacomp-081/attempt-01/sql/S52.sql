@@ -1,0 +1,1 @@
+SELECT contact_language, COUNT(*) AS n, AVG(value) AS avg_value, MIN(value) AS min_v, MAX(value) AS max_v FROM qualtrics__response GROUP BY contact_language ORDER BY avg_value DESC

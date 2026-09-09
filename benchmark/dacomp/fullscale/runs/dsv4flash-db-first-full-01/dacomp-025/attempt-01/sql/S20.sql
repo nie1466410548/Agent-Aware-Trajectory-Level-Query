@@ -1,0 +1,1 @@
+SELECT "Date", COUNT(*) as cnt FROM purchase_price WHERE "Date" LIKE '2023-%' GROUP BY "Date" ORDER BY "Date"

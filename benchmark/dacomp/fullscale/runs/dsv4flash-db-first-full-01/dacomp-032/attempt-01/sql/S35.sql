@@ -1,0 +1,1 @@
+SELECT "Ticket customer satisfaction score", COUNT(*) AS cnt FROM service_ticket_table t JOIN contracts_table c ON t."Contract ID" = c."Contract ID" JOIN customer_contact_table cc ON cc."Customer ID" = c."Customer ID" WHERE cc."Contact priority" = 1 GROUP BY "Ticket customer satisfaction score" ORDER BY "Ticket customer satisfaction score"

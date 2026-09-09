@@ -1,0 +1,59 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+We want to establish a data-driven performance evaluation system for hiring managers. Please use the `lever__hiring_manager_scorecard` table to calculate a composite efficiency score for each hiring manager based on the following dimensions:
+- Candidate hire rate (30% weight)
+- Whether `avg_total_days_to_hire` is less than 45 days (25% weight)
+- Whether `avg_candidate_experience_score` is greater than 3.5 (25% weight)
+- Whether `feedback_completion_rate_managed` is over 85% (20% weight)
+
+Based on the final score, classify hiring managers into three tiers: Excellent (score ≥ 80), Good (60 ≤ score < 80), and Needs Improvement (score < 60). Only hiring managers who own at least 5 requisitions (`total_requisitions_owned` ≥ 5) should be included in the evaluation.
+
+DATABASE SCHEMA:
+CREATE TABLE "lever__hiring_manager_scorecard" (
+"hiring_manager_id" TEXT,
+  "hiring_manager_name" TEXT,
+  "hiring_manager_email" TEXT,
+  "access_role" TEXT,
+  "joined_date" TEXT,
+  "total_requisitions_owned" INTEGER,
+  "total_postings_owned" INTEGER,
+  "total_applications_received" INTEGER,
+  "total_candidates_managed" INTEGER,
+  "requisition_fill_rate" REAL,
+  "current_open_requisitions" INTEGER,
+  "total_filled_requisitions" INTEGER,
+  "teams_supported" INTEGER,
+  "avg_salary_range_width" REAL,
+  "avg_applications_per_posting" REAL,
+  "avg_posting_conversion_rate" REAL,
+  "high_performing_posting_rate" REAL,
+  "avg_posting_performance_score" REAL,
+  "departments_managed" INTEGER,
+  "candidate_hire_rate" REAL,
+  "total_candidates_hired" INTEGER,
+  "avg_candidate_lifecycle_days" REAL,
+  "avg_candidate_experience_score" REAL,
+  "positive_experience_candidates" INTEGER,
+  "interview_success_rate" REAL,
+  "feedback_completion_rate_managed" REAL,
+  "interviewer_network_size" INTEGER,
+  "total_interviews_coordinated" INTEGER,
+  "avg_total_days_to_hire" REAL,
+  "decision_speed_category" TEXT,
+  "high_efficiency_postings" INTEGER,
+  "overall_performance_score" REAL,
+  "performance_tier" TEXT,
+  "hiring_specialization" TEXT,
+  "development_recommendations" TEXT,
+  "calculated_at" TIMESTAMP
+)

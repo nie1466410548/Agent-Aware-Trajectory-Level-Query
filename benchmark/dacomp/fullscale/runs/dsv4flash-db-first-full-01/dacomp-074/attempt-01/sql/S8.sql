@@ -1,0 +1,1 @@
+SELECT subsidiary_id, subsidiary_name, COUNT(*) AS n FROM netsuite2_income_statement GROUP BY subsidiary_id ORDER BY subsidiary_id LIMIT 20

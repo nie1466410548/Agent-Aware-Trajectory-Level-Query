@@ -1,0 +1,1 @@
+SELECT "Medical history", Gender, COUNT(*) AS n FROM health_status s JOIN health_checkup_indicators i ON s.ID = i.ID GROUP BY "Medical history", Gender ORDER BY "Medical history", Gender

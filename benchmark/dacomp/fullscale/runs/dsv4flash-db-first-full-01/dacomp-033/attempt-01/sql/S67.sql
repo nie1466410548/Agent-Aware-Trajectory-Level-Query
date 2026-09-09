@@ -1,0 +1,1 @@
+SELECT COUNT(*) as matched_tx FROM transaction_history_table t JOIN customer_account_table a ON t."Account ID"=a."Account ID"

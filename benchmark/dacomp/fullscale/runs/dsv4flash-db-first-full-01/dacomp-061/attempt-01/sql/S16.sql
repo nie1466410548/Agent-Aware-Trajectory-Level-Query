@@ -1,0 +1,1 @@
+SELECT intervention_urgency, COUNT(*) as cnt FROM jira__issue_intelligence_analytics GROUP BY intervention_urgency

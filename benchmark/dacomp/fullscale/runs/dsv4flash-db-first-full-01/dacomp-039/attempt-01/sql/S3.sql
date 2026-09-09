@@ -1,0 +1,1 @@
+SELECT DISTINCT "Difficulty Level" FROM game_game_level_content_data_ta ORDER BY 1

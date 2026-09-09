@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT ID) AS distinct_ids, COUNT(*) AS total FROM health_checkup_indicators

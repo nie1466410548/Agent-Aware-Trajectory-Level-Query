@@ -1,0 +1,1 @@
+SELECT vendor_name, COUNT(*) AS n FROM netsuite2_vendor_risk_analysis WHERE vendor_name LIKE 'Vendor_%' GROUP BY vendor_name ORDER BY n DESC LIMIT 20

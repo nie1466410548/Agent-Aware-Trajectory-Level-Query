@@ -1,0 +1,3 @@
+WITH hv AS (SELECT DISTINCT "Customer ID" FROM transaction_history_table WHERE "Transaction Payment Status"='Paid' GROUP BY "Customer ID" HAVING SUM("Transaction Amount")>5000)
+SELECT AVG(f."Receivable Amount") as avg_recvbl, AVG(f."Amount Received") as avg_recvd, AVG(f."Outstanding Amount") as avg_out, AVG(f."Tax Amount") as avg_tax
+FROM hv JOIN financials_table f ON hv."Customer ID"=f."Customer ID"

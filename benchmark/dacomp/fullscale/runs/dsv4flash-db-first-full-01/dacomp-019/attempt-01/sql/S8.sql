@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_inv, COUNT(DISTINCT "Drug ID") AS unique_drugs FROM inventory_management

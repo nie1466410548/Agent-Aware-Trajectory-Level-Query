@@ -1,0 +1,1 @@
+SELECT "Channel Name", COUNT(*) as all_cust FROM channel_source_table GROUP BY "Channel Name" ORDER BY all_cust DESC

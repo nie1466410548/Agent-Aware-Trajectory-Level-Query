@@ -1,0 +1,1 @@
+SELECT "Invoice Status", COUNT(*) AS cnt FROM ch___input_invoices GROUP BY "Invoice Status" ORDER BY cnt DESC

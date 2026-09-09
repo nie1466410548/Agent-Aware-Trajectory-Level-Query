@@ -1,0 +1,1 @@
+SELECT DISTINCT division_id FROM qualtrics__survey ORDER BY division_id

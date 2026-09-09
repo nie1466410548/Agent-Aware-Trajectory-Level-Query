@@ -1,0 +1,96 @@
+{
+  "task_id": "dacomp-042",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "SQL 关联患者年龄、依从性障碍、症状改善等字段并做多维汇总。Python 拟合逻辑回归属于合理数值补充；但 P1/P2 重算分母并合并，P4/P5 按年龄×障碍汇总不依从/改善比例和满意度，这些可以在 SQL 完成。这里仅审查计算位置，不评判临床建议是否正确。",
+  "route": "按年龄分组关联障碍、依从性和症状改善 → SQL 交叉汇总 → Python 逻辑回归、比例/满意度摘要 → 绘制年龄组差异。",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 101,
+          "text": "    total = sub.groupby('barrier')['n'].transform('sum')"
+        },
+        {
+          "line": 110,
+          "text": "total_b = df_full.groupby(['age_group', 'barrier'])['n'].sum().reset_index().rename(columns={'n': 'total_n'})"
+        },
+        {
+          "line": 111,
+          "text": "merged = pd.merge(minimal, total_b, on=['age_group', 'barrier'])"
+        }
+      ]
+    },
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 61,
+          "text": "def logit_fit(X, y):"
+        },
+        {
+          "line": 103,
+          "text": "def neg_loglik(beta, X, y):"
+        }
+      ]
+    },
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 30,
+          "text": "nc_summary = df.groupby(['age_group', 'barrier']).apply("
+        },
+        {
+          "line": 33,
+          "text": "        'non_compliant': (g['adherence'] == 'Non-compliant').sum(),"
+        },
+        {
+          "line": 40,
+          "text": "overall_nc = df.groupby('age_group')['adherence'].apply(lambda g: (g=='Non-compliant').mean()*100)"
+        },
+        {
+          "line": 68,
+          "text": "mi_summary = df.groupby(['age_group', 'barrier']).apply("
+        },
+        {
+          "line": 71,
+          "text": "        'minimal': (g['improvement'] == 'Minimal').sum(),"
+        },
+        {
+          "line": 78,
+          "text": "print(\"\\nOverall minimal improvement rate by age group:\")"
+        },
+        {
+          "line": 79,
+          "text": "print(df.groupby('age_group')['improvement'].apply(lambda g: (g=='Minimal').mean()*100))"
+        },
+        {
+          "line": 81,
+          "text": "print(df.groupby('age_group')['improvement'].apply(lambda g: (g=='Significant').mean()*100))"
+        },
+        {
+          "line": 85,
+          "text": "sat = df.groupby(['age_group', 'barrier'])['satisfaction'].mean().unstack()"
+        },
+        {
+          "line": 89,
+          "text": "print(df.groupby('age_group')['satisfaction'].mean())"
+        },
+        {
+          "line": 93,
+          "text": "resp = df.groupby(['age_group', 'barrier']).apply("
+        },
+        {
+          "line": 121,
+          "text": "sig = df.groupby(['age_group', 'barrier']).apply("
+        },
+        {
+          "line": 134,
+          "text": "sat = df.groupby(['age_group', 'barrier'])['satisfaction'].mean().unstack()"
+        }
+      ]
+    }
+  ]
+}

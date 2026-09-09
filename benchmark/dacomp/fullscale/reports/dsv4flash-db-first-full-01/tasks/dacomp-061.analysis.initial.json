@@ -1,0 +1,629 @@
+{
+  "fingerprint": "92e9e733b14e54a90637c285da3853821b0821ae207cb258e99fcf9be767f768",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S25",
+      "covered": [
+        "S25",
+        "S28"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S25",
+      "later_reuses": 1,
+      "denominator": 51,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S26",
+      "covered": [
+        "S26",
+        "S29"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S26",
+      "later_reuses": 1,
+      "denominator": 51,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT project_name AS __g0, COUNT(*) AS __a0, SUM(avg_close_time_days) AS __a1_sum, COUNT(avg_close_time_days) AS __a1_n, MIN(avg_close_time_days) AS __a2, MAX(avg_close_time_days) AS __a3, SUM(count_closed_issues) AS __a4, SUM(count_open_issues) AS __a5, SUM(avg_age_currently_open_days) AS __a6_sum, COUNT(avg_age_currently_open_days) AS __a6_n, SUM(median_close_time_days) AS __a7_sum, COUNT(median_close_time_days) AS __a7_n FROM \"jira__project_enhanced\"  GROUP BY project_name",
+      "covered": [
+        "S4",
+        "S7",
+        "S23",
+        "S25",
+        "S28",
+        "S35"
+      ],
+      "rewrites": {
+        "S4": "SELECT SUM(__a0) AS cnt, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_close, MIN(__a2) AS min_close, MAX(__a3) AS max_close FROM temp.reuse_candidate",
+        "S7": "SELECT __g0 AS \"project_name\", SUM(__a0) AS cnt, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_close FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+        "S23": "SELECT __g0 AS \"project_name\", SUM(__a0) AS num_instances, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_close_time, MIN(__a2) AS min_close, MAX(__a3) AS max_close, SUM(__a4) AS total_closed, SUM(__a5) AS total_open FROM temp.reuse_candidate GROUP BY __g0",
+        "S25": "SELECT __g0 AS \"project_name\", (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_close_time, MIN(__a2) AS min_close_time, MAX(__a3) AS max_close_time, SUM(__a4) AS total_closed_issues, SUM(__a5) AS total_open_issues, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_age_open, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_median_close FROM temp.reuse_candidate GROUP BY __g0",
+        "S28": "SELECT __g0 AS \"project_name\", (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_close_time, MIN(__a2) AS min_close_time, MAX(__a3) AS max_close_time, SUM(__a4) AS total_closed_issues, SUM(__a5) AS total_open_issues, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_age_open, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_median_close FROM temp.reuse_candidate GROUP BY __g0",
+        "S35": "SELECT __g0 AS \"project_name\", (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_close, MIN(__a2) AS min_close FROM temp.reuse_candidate GROUP BY __g0"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S4",
+      "later_reuses": 5,
+      "denominator": 51,
+      "coverage_includes_trigger": true,
+      "build_ms": 0.5695419386029243,
+      "intermediate_rows": 70,
+      "intermediate_columns": [
+        "__g0",
+        "__a0",
+        "__a1_sum",
+        "__a1_n",
+        "__a2",
+        "__a3",
+        "__a4",
+        "__a5",
+        "__a6_sum",
+        "__a6_n",
+        "__a7_sum",
+        "__a7_n"
+      ],
+      "checks": [
+        {
+          "sql_id": "S4",
+          "rewritten_sql": "SELECT SUM(__a0) AS cnt, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_close, MIN(__a2) AS min_close, MAX(__a3) AS max_close FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.8130436763167381
+        },
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT __g0 AS \"project_name\", SUM(__a0) AS cnt, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_close FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.0011522099375725
+        },
+        {
+          "sql_id": "S23",
+          "rewritten_sql": "SELECT __g0 AS \"project_name\", SUM(__a0) AS num_instances, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_close_time, MIN(__a2) AS min_close, MAX(__a3) AS max_close, SUM(__a4) AS total_closed, SUM(__a5) AS total_open FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.431795932352543
+        },
+        {
+          "sql_id": "S25",
+          "rewritten_sql": "SELECT __g0 AS \"project_name\", (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_close_time, MIN(__a2) AS min_close_time, MAX(__a3) AS max_close_time, SUM(__a4) AS total_closed_issues, SUM(__a5) AS total_open_issues, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_age_open, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_median_close FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.4212030693888664
+        },
+        {
+          "sql_id": "S28",
+          "rewritten_sql": "SELECT __g0 AS \"project_name\", (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_close_time, MIN(__a2) AS min_close_time, MAX(__a3) AS max_close_time, SUM(__a4) AS total_closed_issues, SUM(__a5) AS total_open_issues, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_age_open, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_median_close FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.3622605949640274
+        },
+        {
+          "sql_id": "S35",
+          "rewritten_sql": "SELECT __g0 AS \"project_name\", (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_close, MIN(__a2) AS min_close FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.4764908701181412
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"jira__project_enhanced\" WHERE avg_close_time_days < 15",
+      "covered": [
+        "S5",
+        "S11",
+        "S30"
+      ],
+      "rewrites": {
+        "S5": "SELECT * FROM temp.reuse_candidate AS jira__project_enhanced WHERE avg_close_time_days < 15 ORDER BY avg_close_time_days ASC",
+        "S11": "SELECT project_name, AVG(avg_close_time_days) AS avg_close, COUNT(*) AS instances FROM temp.reuse_candidate AS jira__project_enhanced WHERE avg_close_time_days < 15 GROUP BY project_name",
+        "S30": "SELECT project_id, project_name, project_key, project_lead_user_name, avg_close_time_days, median_close_time_days, count_closed_issues, count_open_issues, avg_age_currently_open_days, avg_assigned_close_time_days FROM temp.reuse_candidate AS jira__project_enhanced WHERE avg_close_time_days < 15 ORDER BY avg_close_time_days"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S5",
+      "later_reuses": 2,
+      "denominator": 51,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT project_name AS __g0, COUNT(*) AS __a0, SUM(at_churn_risk) AS __a1, SUM(inactive_recently) AS __a2, SUM(consistency_percentage) AS __a3_sum, COUNT(consistency_percentage) AS __a3_n, SUM(resolution_rate_percentage) AS __a4_sum, COUNT(resolution_rate_percentage) AS __a4_n, SUM(overall_performance_score) AS __a5_sum, COUNT(overall_performance_score) AS __a5_n, SUM(avg_sprint_completion_rate) AS __a6_sum, COUNT(avg_sprint_completion_rate) AS __a6_n, SUM(days_since_first_issue) AS __a7_sum, COUNT(days_since_first_issue) AS __a7_n, SUM(estimate_accuracy_percentage) AS __a8_sum, COUNT(estimate_accuracy_percentage) AS __a8_n FROM \"jira__team_performance_dashboard\"  GROUP BY project_name",
+      "covered": [
+        "S8",
+        "S26",
+        "S29",
+        "S36"
+      ],
+      "rewrites": {
+        "S8": "SELECT __g0 AS \"project_name\", SUM(__a0) AS members, SUM(__a1) AS churn_risk, SUM(__a2) AS inactive, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_consistency, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_res_rate, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_perf FROM temp.reuse_candidate GROUP BY __g0",
+        "S26": "SELECT __g0 AS \"project_name\", SUM(__a0) AS team_size, SUM(__a1) AS churn_risk_count, SUM(__a2) AS inactive_count, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_consistency, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_resolution_rate, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_performance, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_sprint_completion, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_tenure_days, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_estimate_accuracy FROM temp.reuse_candidate GROUP BY __g0",
+        "S29": "SELECT __g0 AS \"project_name\", SUM(__a0) AS team_size, SUM(__a1) AS churn_risk_count, SUM(__a2) AS inactive_count, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_consistency, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_resolution_rate, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_performance, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_sprint_completion, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_tenure_days, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_estimate_accuracy FROM temp.reuse_candidate GROUP BY __g0",
+        "S36": "SELECT __g0 AS \"project_name\", SUM(__a0) AS team_size, SUM(__a1) AS churn_risk, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_consistency, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_sprint_completion, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_tenure, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_estimate_accuracy, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_performance FROM temp.reuse_candidate GROUP BY __g0"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S8",
+      "later_reuses": 3,
+      "denominator": 51,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT project_name AS __g0, issue_type AS __g1, health_status AS __g2, current_status AS __g3, lifecycle_outlier_status AS __g4, lifecycle_pattern AS __g5, intervention_urgency AS __g6, regression_ratio AS __g7, CASE WHEN project_name IN ('Data Analytics Delta', 'Mobile App Delta') THEN 'Fast Projects' ELSE 'Other Projects' END AS __g8, lifecycle_quality_score AS __g9, COUNT(*) AS __a0, MIN(lifecycle_quality_score) AS __a1, MAX(lifecycle_quality_score) AS __a2, SUM(lifecycle_quality_score) AS __a3_sum, COUNT(lifecycle_quality_score) AS __a3_n, MIN(regression_ratio) AS __a4, MAX(regression_ratio) AS __a5, SUM(regression_ratio) AS __a6_sum, COUNT(regression_ratio) AS __a6_n, MIN(lifecycle_deviation_ratio) AS __a7, MAX(lifecycle_deviation_ratio) AS __a8, SUM(lifecycle_deviation_ratio) AS __a9_sum, COUNT(lifecycle_deviation_ratio) AS __a9_n, MIN(completion_probability) AS __a10, MAX(completion_probability) AS __a11, SUM(completion_probability) AS __a12_sum, COUNT(completion_probability) AS __a12_n, MIN(total_risk_score) AS __a13, MAX(total_risk_score) AS __a14, SUM(total_risk_score) AS __a15_sum, COUNT(total_risk_score) AS __a15_n, MIN(intelligence_score) AS __a16, MAX(intelligence_score) AS __a17, SUM(intelligence_score) AS __a18_sum, COUNT(intelligence_score) AS __a18_n, SUM(CASE WHEN lifecycle_outlier_status = 'Unusually Fast' THEN 1 ELSE 0 END) AS __a19, SUM(CASE WHEN lifecycle_outlier_status = 'Statistical Outlier' THEN 1 ELSE 0 END) AS __a20, SUM(CASE WHEN lifecycle_outlier_status = 'Above Normal Range' THEN 1 ELSE 0 END) AS __a21, SUM(CASE WHEN current_status = 'Blocked' THEN 1 ELSE 0 END) AS __a22, SUM(CASE WHEN issue_type = 'Bug' THEN 1 ELSE 0 END) AS __a23, SUM(age_risk_score) AS __a24_sum, COUNT(age_risk_score) AS __a24_n, SUM(process_risk_score) AS __a25_sum, COUNT(process_risk_score) AS __a25_n, SUM(complexity_risk_score) AS __a26_sum, COUNT(complexity_risk_score) AS __a26_n, SUM(engagement_risk_score) AS __a27_sum, COUNT(engagement_risk_score) AS __a27_n, SUM(assignment_risk_score) AS __a28_sum, COUNT(assignment_risk_score) AS __a28_n, SUM(deviation_risk_score) AS __a29_sum, COUNT(deviation_risk_score) AS __a29_n, SUM(total_opportunity_score) AS __a30_sum, COUNT(total_opportunity_score) AS __a30_n FROM \"jira__issue_intelligence_analytics\"  GROUP BY project_name, issue_type, health_status, current_status, lifecycle_outlier_status, lifecycle_pattern, intervention_urgency, regression_ratio, CASE WHEN project_name IN ('Data Analytics Delta', 'Mobile App Delta') THEN 'Fast Projects' ELSE 'Other Projects' END, lifecycle_quality_score",
+      "covered": [
+        "S9",
+        "S10",
+        "S12",
+        "S13",
+        "S14",
+        "S15",
+        "S16",
+        "S21",
+        "S33",
+        "S34",
+        "S38",
+        "S43",
+        "S44",
+        "S45"
+      ],
+      "rewrites": {
+        "S9": "SELECT __g0 AS \"project_name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+        "S10": "SELECT __g1 AS \"issue_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+        "S12": "SELECT __g2 AS \"health_status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2",
+        "S13": "SELECT __g3 AS \"current_status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3",
+        "S14": "SELECT __g4 AS \"lifecycle_outlier_status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g4",
+        "S15": "SELECT __g5 AS \"lifecycle_pattern\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g5",
+        "S16": "SELECT __g6 AS \"intervention_urgency\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g6",
+        "S21": "SELECT MIN(__a1) AS min_lqs, MAX(__a2) AS max_lqs, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_lqs, MIN(__a4) AS min_rr, MAX(__a5) AS max_rr, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_rr, MIN(__a7) AS min_ldr, MAX(__a8) AS max_ldr, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_ldr, MIN(__a10) AS min_cp, MAX(__a11) AS max_cp, (1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)) AS avg_cp, MIN(__a13) AS min_trs, MAX(__a14) AS max_trs, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_trs, MIN(__a16) AS min_is, MAX(__a17) AS max_is, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_is FROM temp.reuse_candidate",
+        "S33": "SELECT (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_regression, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_lqs, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_deviation, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_risk, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_intel, (1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)) AS avg_cp FROM temp.reuse_candidate",
+        "S34": "SELECT __g0 AS \"project_name\", (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_regression, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_lqs, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_deviation, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_risk, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_intel, (1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)) AS avg_cp, SUM(__a19) * 1.0 / SUM(__a0) AS unusually_fast_rate, SUM(__a20) * 1.0 / SUM(__a0) AS stat_outlier_rate, SUM(__a21) * 1.0 / SUM(__a0) AS above_normal_rate, SUM(__a22) * 1.0 / SUM(__a0) AS blocked_rate, SUM(__a23) * 1.0 / SUM(__a0) AS bug_rate FROM temp.reuse_candidate GROUP BY __g0",
+        "S38": "SELECT __g7 AS \"regression_ratio\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g7 ORDER BY __g7",
+        "S43": "SELECT __g8 AS project_group, (1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)) AS avg_age_risk, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_process_risk, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS avg_complexity_risk, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS avg_engagement_risk, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_assignment_risk, (1.0 * SUM(__a29_sum) / NULLIF(SUM(__a29_n), 0)) AS avg_deviation_risk, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_total_risk, (1.0 * SUM(__a30_sum) / NULLIF(SUM(__a30_n), 0)) AS avg_opportunity FROM temp.reuse_candidate GROUP BY __g8",
+        "S44": "SELECT __g9 AS \"lifecycle_quality_score\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g9 ORDER BY __g9",
+        "S45": "SELECT __g8 AS project_group, __g9 AS \"lifecycle_quality_score\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g8, __g9 ORDER BY project_group, __g9"
+      },
+      "status": "rejected_result_mismatch",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C6",
+      "offline": true,
+      "earliest_build_before": "S9",
+      "later_reuses": 13,
+      "denominator": 51,
+      "coverage_includes_trigger": true,
+      "build_ms": 79125.15972554684,
+      "intermediate_rows": 293205,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__g5",
+        "__g6",
+        "__g7",
+        "__g8",
+        "__g9",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3_sum",
+        "__a3_n",
+        "__a4",
+        "__a5",
+        "__a6_sum",
+        "__a6_n",
+        "__a7",
+        "__a8",
+        "__a9_sum",
+        "__a9_n",
+        "__a10",
+        "__a11",
+        "__a12_sum",
+        "__a12_n",
+        "__a13",
+        "__a14",
+        "__a15_sum",
+        "__a15_n",
+        "__a16",
+        "__a17",
+        "__a18_sum",
+        "__a18_n",
+        "__a19",
+        "__a20",
+        "__a21",
+        "__a22",
+        "__a23",
+        "__a24_sum",
+        "__a24_n",
+        "__a25_sum",
+        "__a25_n",
+        "__a26_sum",
+        "__a26_n",
+        "__a27_sum",
+        "__a27_n",
+        "__a28_sum",
+        "__a28_n",
+        "__a29_sum",
+        "__a29_n",
+        "__a30_sum",
+        "__a30_n"
+      ],
+      "checks": [
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT __g0 AS \"project_name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 139.01632837951183
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT __g1 AS \"issue_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 139.43493831902742
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT __g2 AS \"health_status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 129.58622258156538
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT __g3 AS \"current_status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 143.35444197058678
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT __g4 AS \"lifecycle_outlier_status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g4",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 144.61853727698326
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "SELECT __g5 AS \"lifecycle_pattern\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g5",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 135.89191623032093
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "SELECT __g6 AS \"intervention_urgency\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g6",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 129.82901092618704
+        },
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "SELECT MIN(__a1) AS min_lqs, MAX(__a2) AS max_lqs, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_lqs, MIN(__a4) AS min_rr, MAX(__a5) AS max_rr, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_rr, MIN(__a7) AS min_ldr, MAX(__a8) AS max_ldr, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_ldr, MIN(__a10) AS min_cp, MAX(__a11) AS max_cp, (1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)) AS avg_cp, MIN(__a13) AS min_trs, MAX(__a14) AS max_trs, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_trs, MIN(__a16) AS min_is, MAX(__a17) AS max_is, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_is FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 304.6272611245513
+        },
+        {
+          "sql_id": "S33",
+          "rewritten_sql": "SELECT (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_regression, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_lqs, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_deviation, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_risk, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_intel, (1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)) AS avg_cp FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 152.92372088879347
+        },
+        {
+          "sql_id": "S34",
+          "rewritten_sql": "SELECT __g0 AS \"project_name\", (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_regression, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_lqs, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_deviation, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_risk, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_intel, (1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)) AS avg_cp, SUM(__a19) * 1.0 / SUM(__a0) AS unusually_fast_rate, SUM(__a20) * 1.0 / SUM(__a0) AS stat_outlier_rate, SUM(__a21) * 1.0 / SUM(__a0) AS above_normal_rate, SUM(__a22) * 1.0 / SUM(__a0) AS blocked_rate, SUM(__a23) * 1.0 / SUM(__a0) AS bug_rate FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 496.479251421988
+        },
+        {
+          "sql_id": "S38",
+          "rewritten_sql": "SELECT __g7 AS \"regression_ratio\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g7 ORDER BY __g7",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 185.2117208763957
+        },
+        {
+          "sql_id": "S43",
+          "rewritten_sql": "SELECT __g8 AS project_group, (1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)) AS avg_age_risk, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_process_risk, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS avg_complexity_risk, (1.0 * SUM(__a27_sum) / NULLIF(SUM(__a27_n), 0)) AS avg_engagement_risk, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_assignment_risk, (1.0 * SUM(__a29_sum) / NULLIF(SUM(__a29_n), 0)) AS avg_deviation_risk, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_total_risk, (1.0 * SUM(__a30_sum) / NULLIF(SUM(__a30_n), 0)) AS avg_opportunity FROM temp.reuse_candidate GROUP BY __g8",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 447.75084499269724
+        },
+        {
+          "sql_id": "S44",
+          "rewritten_sql": "SELECT __g9 AS \"lifecycle_quality_score\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g9 ORDER BY __g9",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 205.2016770467162
+        },
+        {
+          "sql_id": "S45",
+          "rewritten_sql": "SELECT __g8 AS project_group, __g9 AS \"lifecycle_quality_score\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g8, __g9 ORDER BY project_group, __g9",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 263.73037602752447
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"jira__team_performance_dashboard\" WHERE project_name = 'Data Analytics Delta'",
+      "covered": [
+        "S17",
+        "S48"
+      ],
+      "rewrites": {
+        "S17": "SELECT user_display_name, current_engagement_tier, current_pattern_type, current_lifecycle_stage, avg_daily_activity_score, avg_weekly_activity_score, consistency_percentage, total_assigned_issues, resolved_issues, resolution_rate_percentage, avg_resolution_days, bug_issues, estimate_accuracy_percentage, unique_collaborators_on_issues, sprint_count, avg_sprint_completion_rate, days_since_first_issue, at_churn_risk, inactive_recently, poor_estimation, overall_performance_score, performance_tier FROM temp.reuse_candidate AS jira__team_performance_dashboard WHERE project_name = 'Data Analytics Delta' ORDER BY at_churn_risk DESC, overall_performance_score DESC",
+        "S48": "SELECT user_display_name, total_assigned_issues, resolved_issues, at_churn_risk, consistency_percentage, avg_resolution_days, bug_issues, overall_performance_score, estimate_accuracy_percentage FROM temp.reuse_candidate AS jira__team_performance_dashboard WHERE project_name = 'Data Analytics Delta' ORDER BY at_churn_risk DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C7",
+      "offline": true,
+      "earliest_build_before": "S17",
+      "later_reuses": 1,
+      "denominator": 51,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"jira__team_performance_dashboard\" WHERE project_name = 'Mobile App Delta'",
+      "covered": [
+        "S18",
+        "S49"
+      ],
+      "rewrites": {
+        "S18": "SELECT user_display_name, current_engagement_tier, current_pattern_type, current_lifecycle_stage, consistency_percentage, total_assigned_issues, resolved_issues, resolution_rate_percentage, bug_issues, sprint_count, avg_sprint_completion_rate, days_since_first_issue, at_churn_risk, inactive_recently, poor_estimation, overall_performance_score, performance_tier FROM temp.reuse_candidate AS jira__team_performance_dashboard WHERE project_name = 'Mobile App Delta' ORDER BY at_churn_risk DESC, overall_performance_score DESC",
+        "S49": "SELECT user_display_name, total_assigned_issues, resolved_issues, at_churn_risk, consistency_percentage, avg_resolution_days, bug_issues, overall_performance_score, estimate_accuracy_percentage FROM temp.reuse_candidate AS jira__team_performance_dashboard WHERE project_name = 'Mobile App Delta' ORDER BY at_churn_risk DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C8",
+      "offline": true,
+      "earliest_build_before": "S18",
+      "later_reuses": 1,
+      "denominator": 51,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"jira__issue_intelligence_analytics\" WHERE project_name IN ('Data Analytics Delta', 'Mobile App Delta')",
+      "covered": [
+        "S22",
+        "S39",
+        "S41",
+        "S46"
+      ],
+      "rewrites": {
+        "S22": "SELECT project_name, COUNT(*) AS total_issues, SUM(CASE WHEN issue_type = 'Bug' THEN 1 ELSE 0 END) AS bugs, AVG(regression_ratio) AS avg_regression, AVG(lifecycle_quality_score) AS avg_lqs, AVG(total_risk_score) AS avg_risk, AVG(intelligence_score) AS avg_intel, SUM(CASE WHEN lifecycle_outlier_status = 'Unusually Fast' THEN 1 ELSE 0 END) AS unusually_fast, SUM(CASE WHEN lifecycle_outlier_status = 'Statistical Outlier' THEN 1 ELSE 0 END) AS stat_outliers, SUM(CASE WHEN lifecycle_outlier_status = 'Above Normal Range' THEN 1 ELSE 0 END) AS above_normal, AVG(completion_probability) AS avg_cp FROM temp.reuse_candidate AS jira__issue_intelligence_analytics WHERE project_name IN ('Data Analytics Delta', 'Mobile App Delta') GROUP BY project_name",
+        "S39": "SELECT CASE WHEN regression_ratio = 0.0 THEN 'No Regression' WHEN regression_ratio = 0.1 THEN 'Some Regression' ELSE 'High Regression' END AS regression_level, COUNT(*) AS cnt FROM temp.reuse_candidate AS jira__issue_intelligence_analytics WHERE project_name IN ('Data Analytics Delta', 'Mobile App Delta') GROUP BY regression_ratio ORDER BY regression_ratio",
+        "S41": "SELECT regression_ratio, COUNT(*) AS cnt FROM temp.reuse_candidate AS jira__issue_intelligence_analytics WHERE project_name IN ('Data Analytics Delta', 'Mobile App Delta') GROUP BY regression_ratio ORDER BY regression_ratio",
+        "S46": "SELECT project_name, AVG(age_risk_score) AS avg_age_risk, AVG(process_risk_score) AS avg_process_risk, AVG(engagement_risk_score) AS avg_engagement_risk, AVG(assignment_risk_score) AS avg_assignment_risk, AVG(deviation_risk_score) AS avg_deviation_risk, AVG(complexity_risk_score) AS avg_complexity_risk, AVG(total_risk_score) AS avg_total_risk, AVG(total_opportunity_score) AS avg_opportunity, AVG(intelligence_score) AS avg_intel, AVG(collaboration_opportunity_score) AS avg_collab, AVG(efficiency_opportunity_score) AS avg_efficiency, AVG(process_opportunity_score) AS avg_process_opp FROM temp.reuse_candidate AS jira__issue_intelligence_analytics WHERE project_name IN ('Data Analytics Delta', 'Mobile App Delta') GROUP BY project_name"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C9",
+      "offline": true,
+      "earliest_build_before": "S22",
+      "later_reuses": 3,
+      "denominator": 51,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT project_name AS __g0, regression_ratio AS __g1, COUNT(*) AS __a0, SUM(CASE WHEN issue_type = 'Bug' THEN 1 ELSE 0 END) AS __a1, SUM(regression_ratio) AS __a2_sum, COUNT(regression_ratio) AS __a2_n, SUM(lifecycle_quality_score) AS __a3_sum, COUNT(lifecycle_quality_score) AS __a3_n, SUM(total_risk_score) AS __a4_sum, COUNT(total_risk_score) AS __a4_n, SUM(intelligence_score) AS __a5_sum, COUNT(intelligence_score) AS __a5_n, SUM(CASE WHEN lifecycle_outlier_status = 'Unusually Fast' THEN 1 ELSE 0 END) AS __a6, SUM(CASE WHEN lifecycle_outlier_status = 'Statistical Outlier' THEN 1 ELSE 0 END) AS __a7, SUM(CASE WHEN lifecycle_outlier_status = 'Above Normal Range' THEN 1 ELSE 0 END) AS __a8, SUM(completion_probability) AS __a9_sum, COUNT(completion_probability) AS __a9_n, SUM(age_risk_score) AS __a10_sum, COUNT(age_risk_score) AS __a10_n, SUM(process_risk_score) AS __a11_sum, COUNT(process_risk_score) AS __a11_n, SUM(engagement_risk_score) AS __a12_sum, COUNT(engagement_risk_score) AS __a12_n, SUM(assignment_risk_score) AS __a13_sum, COUNT(assignment_risk_score) AS __a13_n, SUM(deviation_risk_score) AS __a14_sum, COUNT(deviation_risk_score) AS __a14_n, SUM(complexity_risk_score) AS __a15_sum, COUNT(complexity_risk_score) AS __a15_n, SUM(total_opportunity_score) AS __a16_sum, COUNT(total_opportunity_score) AS __a16_n, SUM(collaboration_opportunity_score) AS __a17_sum, COUNT(collaboration_opportunity_score) AS __a17_n, SUM(efficiency_opportunity_score) AS __a18_sum, COUNT(efficiency_opportunity_score) AS __a18_n, SUM(process_opportunity_score) AS __a19_sum, COUNT(process_opportunity_score) AS __a19_n FROM \"jira__issue_intelligence_analytics\" WHERE project_name IN ('Data Analytics Delta', 'Mobile App Delta') GROUP BY project_name, regression_ratio",
+      "covered": [
+        "S22",
+        "S39",
+        "S41",
+        "S46"
+      ],
+      "rewrites": {
+        "S22": "SELECT __g0 AS \"project_name\", SUM(__a0) AS total_issues, SUM(__a1) AS bugs, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_regression, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_lqs, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_risk, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_intel, SUM(__a6) AS unusually_fast, SUM(__a7) AS stat_outliers, SUM(__a8) AS above_normal, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_cp FROM temp.reuse_candidate GROUP BY __g0",
+        "S39": "SELECT CASE WHEN __g1 = 0.0 THEN 'No Regression' WHEN __g1 = 0.1 THEN 'Some Regression' ELSE 'High Regression' END AS regression_level, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1",
+        "S41": "SELECT __g1 AS \"regression_ratio\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1",
+        "S46": "SELECT __g0 AS \"project_name\", (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_age_risk, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_process_risk, (1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)) AS avg_engagement_risk, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_assignment_risk, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_deviation_risk, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_complexity_risk, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_total_risk, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_opportunity, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_intel, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_collab, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_efficiency, (1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)) AS avg_process_opp FROM temp.reuse_candidate GROUP BY __g0"
+      },
+      "status": "rejected_result_mismatch",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C10",
+      "offline": true,
+      "earliest_build_before": "S22",
+      "later_reuses": 3,
+      "denominator": 51,
+      "coverage_includes_trigger": true,
+      "build_ms": 4199.786123819649,
+      "intermediate_rows": 4,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__a0",
+        "__a1",
+        "__a2_sum",
+        "__a2_n",
+        "__a3_sum",
+        "__a3_n",
+        "__a4_sum",
+        "__a4_n",
+        "__a5_sum",
+        "__a5_n",
+        "__a6",
+        "__a7",
+        "__a8",
+        "__a9_sum",
+        "__a9_n",
+        "__a10_sum",
+        "__a10_n",
+        "__a11_sum",
+        "__a11_n",
+        "__a12_sum",
+        "__a12_n",
+        "__a13_sum",
+        "__a13_n",
+        "__a14_sum",
+        "__a14_n",
+        "__a15_sum",
+        "__a15_n",
+        "__a16_sum",
+        "__a16_n",
+        "__a17_sum",
+        "__a17_n",
+        "__a18_sum",
+        "__a18_n",
+        "__a19_sum",
+        "__a19_n"
+      ],
+      "checks": [
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "SELECT __g0 AS \"project_name\", SUM(__a0) AS total_issues, SUM(__a1) AS bugs, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_regression, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_lqs, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_risk, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_intel, SUM(__a6) AS unusually_fast, SUM(__a7) AS stat_outliers, SUM(__a8) AS above_normal, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_cp FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.580917440354824
+        },
+        {
+          "sql_id": "S39",
+          "rewritten_sql": "SELECT CASE WHEN __g1 = 0.0 THEN 'No Regression' WHEN __g1 = 0.1 THEN 'Some Regression' ELSE 'High Regression' END AS regression_level, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.0049408301711082
+        },
+        {
+          "sql_id": "S41",
+          "rewritten_sql": "SELECT __g1 AS \"regression_ratio\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6565162912011147
+        },
+        {
+          "sql_id": "S46",
+          "rewritten_sql": "SELECT __g0 AS \"project_name\", (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_age_risk, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_process_risk, (1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)) AS avg_engagement_risk, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_assignment_risk, (1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)) AS avg_deviation_risk, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_complexity_risk, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_total_risk, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_opportunity, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_intel, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_collab, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_efficiency, (1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)) AS avg_process_opp FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.8243351951241493
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"jira__issue_intelligence_analytics\" WHERE NOT project_name IN ('Data Analytics Delta', 'Mobile App Delta')",
+      "covered": [
+        "S40",
+        "S42",
+        "S47"
+      ],
+      "rewrites": {
+        "S40": "SELECT CASE WHEN regression_ratio = 0.0 THEN 'No Regression' WHEN regression_ratio = 0.1 THEN 'Some Regression' ELSE 'High Regression' END AS regression_level, COUNT(*) AS cnt FROM temp.reuse_candidate AS jira__issue_intelligence_analytics WHERE NOT project_name IN ('Data Analytics Delta', 'Mobile App Delta') GROUP BY regression_ratio ORDER BY regression_ratio",
+        "S42": "SELECT regression_ratio, COUNT(*) AS cnt FROM temp.reuse_candidate AS jira__issue_intelligence_analytics WHERE NOT project_name IN ('Data Analytics Delta', 'Mobile App Delta') GROUP BY regression_ratio ORDER BY regression_ratio",
+        "S47": "SELECT AVG(age_risk_score) AS avg_age_risk, AVG(process_risk_score) AS avg_process_risk, AVG(engagement_risk_score) AS avg_engagement_risk, AVG(assignment_risk_score) AS avg_assignment_risk, AVG(deviation_risk_score) AS avg_deviation_risk, AVG(complexity_risk_score) AS avg_complexity_risk, AVG(total_risk_score) AS avg_total_risk, AVG(total_opportunity_score) AS avg_opportunity, AVG(collaboration_opportunity_score) AS avg_collab, AVG(efficiency_opportunity_score) AS avg_efficiency, AVG(process_opportunity_score) AS avg_process_opp FROM temp.reuse_candidate AS jira__issue_intelligence_analytics WHERE NOT project_name IN ('Data Analytics Delta', 'Mobile App Delta')"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C11",
+      "offline": true,
+      "earliest_build_before": "S40",
+      "later_reuses": 2,
+      "denominator": 51,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT regression_ratio AS __g0, COUNT(*) AS __a0, SUM(age_risk_score) AS __a1_sum, COUNT(age_risk_score) AS __a1_n, SUM(process_risk_score) AS __a2_sum, COUNT(process_risk_score) AS __a2_n, SUM(engagement_risk_score) AS __a3_sum, COUNT(engagement_risk_score) AS __a3_n, SUM(assignment_risk_score) AS __a4_sum, COUNT(assignment_risk_score) AS __a4_n, SUM(deviation_risk_score) AS __a5_sum, COUNT(deviation_risk_score) AS __a5_n, SUM(complexity_risk_score) AS __a6_sum, COUNT(complexity_risk_score) AS __a6_n, SUM(total_risk_score) AS __a7_sum, COUNT(total_risk_score) AS __a7_n, SUM(total_opportunity_score) AS __a8_sum, COUNT(total_opportunity_score) AS __a8_n, SUM(collaboration_opportunity_score) AS __a9_sum, COUNT(collaboration_opportunity_score) AS __a9_n, SUM(efficiency_opportunity_score) AS __a10_sum, COUNT(efficiency_opportunity_score) AS __a10_n, SUM(process_opportunity_score) AS __a11_sum, COUNT(process_opportunity_score) AS __a11_n FROM \"jira__issue_intelligence_analytics\" WHERE NOT project_name IN ('Data Analytics Delta', 'Mobile App Delta') GROUP BY regression_ratio",
+      "covered": [
+        "S40",
+        "S42",
+        "S47"
+      ],
+      "rewrites": {
+        "S40": "SELECT CASE WHEN __g0 = 0.0 THEN 'No Regression' WHEN __g0 = 0.1 THEN 'Some Regression' ELSE 'High Regression' END AS regression_level, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+        "S42": "SELECT __g0 AS \"regression_ratio\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+        "S47": "SELECT (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_age_risk, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_process_risk, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_engagement_risk, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_assignment_risk, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_deviation_risk, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_complexity_risk, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_total_risk, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_opportunity, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_collab, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_efficiency, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_process_opp FROM temp.reuse_candidate"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C12",
+      "offline": true,
+      "earliest_build_before": "S40",
+      "later_reuses": 2,
+      "denominator": 51,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

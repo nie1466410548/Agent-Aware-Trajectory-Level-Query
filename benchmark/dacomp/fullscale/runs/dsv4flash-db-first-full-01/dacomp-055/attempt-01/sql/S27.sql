@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS distinct_emails, COUNT(DISTINCT email) AS unique_emails FROM customer360__customer

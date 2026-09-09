@@ -1,0 +1,1 @@
+SELECT "Product Name", "Market Name", COUNT(*) AS n, GROUP_CONCAT(strftime('%Y-%m', "Collection Date"), ', ') AS months FROM agricultural_product_price_tren GROUP BY "Product Name", "Market Name" HAVING n > 1 ORDER BY n DESC, "Product Name"

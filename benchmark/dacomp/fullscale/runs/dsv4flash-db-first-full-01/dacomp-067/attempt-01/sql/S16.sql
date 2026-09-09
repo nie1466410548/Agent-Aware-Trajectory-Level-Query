@@ -1,0 +1,1 @@
+SELECT DISTINCT departments FROM greenhouse__job_enhanced WHERE departments IS NOT NULL LIMIT 20

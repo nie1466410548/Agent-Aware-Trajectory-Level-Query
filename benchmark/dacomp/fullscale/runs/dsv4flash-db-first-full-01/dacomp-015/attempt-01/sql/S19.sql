@@ -1,0 +1,1 @@
+SELECT "Watch Count", COUNT(*) AS cnt FROM data GROUP BY "Watch Count" ORDER BY "Watch Count" DESC LIMIT 20

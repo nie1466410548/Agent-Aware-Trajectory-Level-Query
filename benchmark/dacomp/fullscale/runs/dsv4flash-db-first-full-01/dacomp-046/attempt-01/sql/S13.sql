@@ -1,0 +1,1 @@
+SELECT DISTINCT "Price Sensitivity" FROM user_tags_table

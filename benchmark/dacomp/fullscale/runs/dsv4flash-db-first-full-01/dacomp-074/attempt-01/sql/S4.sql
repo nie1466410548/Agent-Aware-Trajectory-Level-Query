@@ -1,0 +1,1 @@
+SELECT cash_flow_risk_level, COUNT(*) AS n FROM netsuite2_financial_dashboard GROUP BY cash_flow_risk_level ORDER BY n DESC

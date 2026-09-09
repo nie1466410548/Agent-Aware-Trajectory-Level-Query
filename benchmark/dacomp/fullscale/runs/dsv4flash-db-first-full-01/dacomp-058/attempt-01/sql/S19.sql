@@ -1,0 +1,1 @@
+SELECT geo_target, COUNT(*) AS n, ROUND(SUM(cost),0) AS cost, ROUND(AVG(roas),3) AS avg_roas FROM google_ads__geo_report GROUP BY geo_target ORDER BY n DESC

@@ -1,0 +1,1 @@
+SELECT MIN(revenue_per_active_device) AS min_rpad, MAX(revenue_per_active_device) AS max_rpad, AVG(revenue_per_active_device) AS avg_rpad FROM google_play__time_series_trends WHERE package_name = 'com.dev.photoeditor'

@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT question_id) FROM qualtrics__response

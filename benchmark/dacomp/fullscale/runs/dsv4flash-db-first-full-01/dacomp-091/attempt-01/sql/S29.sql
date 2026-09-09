@@ -1,0 +1,1 @@
+SELECT vendor_id, annual_spend_growth_pct, overall_performance_score, spend_volatility, total_lifetime_spend, payment_completion_rate, business_value_score, avg_monthly_spend, spend_current_year, spend_prev_year, vendor_display_name FROM quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7

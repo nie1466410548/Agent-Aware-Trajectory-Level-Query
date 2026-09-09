@@ -1,0 +1,76 @@
+{
+  "task_id": "dacomp-082",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 在字面量渠道汇总上计算归一化权重、投资份额和预期完成量，执行多组常规 ROI 情景算术；协议亦要求这些计算优先在 SQL 完成。字面量与具体 SQL 的因果关系不自动推断；图形渲染单独保留。",
+  "route": "SQL 汇总渠道、项目类型和用户群 → Python 构建渠道评分、权重与回报情景 → 预算分配图表。",
+  "evidence": [
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 64,
+          "text": "raw_alloc = channels['alloc_score'] / channels['alloc_score'].sum()"
+        },
+        {
+          "line": 71,
+          "text": "    alloc = alloc / alloc.sum()  # renormalize"
+        },
+        {
+          "line": 78,
+          "text": "roi_alloc = channels['ROI'] / channels['ROI'].sum()"
+        },
+        {
+          "line": 85,
+          "text": "    roi_alloc_constrained = roi_alloc_constrained / roi_alloc_constrained.sum()"
+        },
+        {
+          "line": 88,
+          "text": "total_completed_current = channels['completed_responses'].sum()"
+        },
+        {
+          "line": 90,
+          "text": "total_forecast = channels['forecast_completed'].sum()"
+        }
+      ]
+    },
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 73,
+          "text": "        'total_forecast': forecast.sum(),"
+        },
+        {
+          "line": 74,
+          "text": "        'uplift': (forecast.sum() - channels['completed_responses'].sum()) / channels['completed_responses'].sum() * 100"
+        },
+        {
+          "line": 86,
+          "text": "avg_alloc = np.mean([r['alloc'] for r in results.values()], axis=0)"
+        },
+        {
+          "line": 87,
+          "text": "avg_alloc = avg_alloc / avg_alloc.sum()"
+        },
+        {
+          "line": 89,
+          "text": "avg_uplift = (avg_forecast.sum() - channels['completed_responses'].sum()) / channels['completed_responses'].sum() * 100"
+        }
+      ]
+    },
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 32,
+          "text": "current_total = channels['completed_responses'].sum()"
+        },
+        {
+          "line": 33,
+          "text": "forecast_total = channels['forecast'].sum()"
+        }
+      ]
+    }
+  ]
+}

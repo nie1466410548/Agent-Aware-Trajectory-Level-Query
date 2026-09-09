@@ -1,0 +1,1 @@
+SELECT b."Drug ID", COUNT(i."Inventory ID") AS inv_cnt, COUNT(p."Price ID") AS price_cnt FROM basic_drug_information b LEFT JOIN inventory_management i ON b."Drug ID" = i."Drug ID" LEFT JOIN pricing_system p ON b."Drug ID" = p."Drug ID" GROUP BY b."Drug ID" HAVING inv_cnt > 1 OR price_cnt > 1 LIMIT 10

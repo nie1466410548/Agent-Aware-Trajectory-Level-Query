@@ -1,0 +1,1 @@
+SELECT COUNT(*) as cons_count, COUNT(DISTINCT "Preserve Cultural Relic Reference") as distinct_relics, COUNT(DISTINCT "Gallery Reference") as distinct_galleries FROM artifact_conservation_and_maint

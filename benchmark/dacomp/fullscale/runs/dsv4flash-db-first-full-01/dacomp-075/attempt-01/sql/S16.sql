@@ -1,0 +1,1 @@
+SELECT risk_level, COUNT(*) AS n FROM netsuite2_vendor_risk_analysis GROUP BY risk_level ORDER BY n DESC

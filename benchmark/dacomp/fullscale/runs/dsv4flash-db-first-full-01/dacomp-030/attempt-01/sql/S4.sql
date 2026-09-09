@@ -1,0 +1,1 @@
+SELECT * FROM "point_of_sale_(pos)_information" LIMIT 20

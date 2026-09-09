@@ -1,0 +1,1 @@
+SELECT "Origin / Tier (Domestic/Imported/JV)" AS origin, COUNT(*) AS cnt FROM basic_drug_information GROUP BY 1

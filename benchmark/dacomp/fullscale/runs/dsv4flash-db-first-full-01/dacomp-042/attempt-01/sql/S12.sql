@@ -1,0 +1,1 @@
+SELECT * FROM treatmentoutcomes LIMIT 5

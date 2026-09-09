@@ -1,0 +1,1 @@
+SELECT survey_id, survey_name, project_category, project_type, brand_base_url, count_questions, count_survey_responses FROM qualtrics__survey WHERE survey_name LIKE '%Product%' OR survey_name LIKE '%User%' OR survey_name LIKE '%App%' OR survey_name LIKE '%Experience%' LIMIT 30

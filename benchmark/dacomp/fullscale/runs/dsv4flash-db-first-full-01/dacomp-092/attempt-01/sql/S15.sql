@@ -1,0 +1,1 @@
+SELECT DISTINCT payment_behavior FROM quickbooks__customer_analytics

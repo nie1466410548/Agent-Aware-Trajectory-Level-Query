@@ -1,0 +1,1 @@
+SELECT DISTINCT country FROM customer360__address ORDER BY country LIMIT 20

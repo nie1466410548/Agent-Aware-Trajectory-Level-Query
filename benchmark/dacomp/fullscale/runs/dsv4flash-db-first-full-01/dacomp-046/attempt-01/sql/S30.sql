@@ -1,0 +1,1 @@
+SELECT DISTINCT "New/Returning User Tag" FROM user_tags_table

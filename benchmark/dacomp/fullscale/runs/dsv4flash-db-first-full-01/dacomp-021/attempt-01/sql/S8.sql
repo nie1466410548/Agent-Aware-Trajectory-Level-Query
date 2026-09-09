@@ -1,0 +1,1 @@
+SELECT min(length("Time")) AS min_len, max(length("Time")) AS max_len, "Time" FROM sheet1 WHERE length("Time") != 8 LIMIT 20

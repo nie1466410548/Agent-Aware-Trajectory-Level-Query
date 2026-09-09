@@ -1,0 +1,1 @@
+PRAGMA table_info(service_ticket_table)

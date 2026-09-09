@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n FROM salesforce__sales_performance_dashboard

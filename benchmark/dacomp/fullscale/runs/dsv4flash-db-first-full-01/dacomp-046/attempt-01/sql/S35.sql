@@ -1,0 +1,1 @@
+SELECT "Education Level", COUNT(*) cnt FROM user_basic_information_table_1 GROUP BY "Education Level" ORDER BY cnt DESC

@@ -1,0 +1,469 @@
+{
+  "fingerprint": "4cbbacbe9d7b3e1665bd8b822b6e612d615420e59acdca71bd538ed26bab353b",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Age group\" AS __g0, \"Occupation\" AS __g1, \"Education Level\" AS __g2, \"Gender\" AS __g3, \"Income level\" AS __g4, COUNT(*) AS __a0, SUM(\"Login Count\") AS __a1_sum, COUNT(\"Login Count\") AS __a1_n, SUM(\"Device count\") AS __a2_sum, COUNT(\"Device count\") AS __a2_n, SUM(CASE WHEN \"Marketing SMS subscription status\" = 'Subscribed' THEN 1 ELSE 0 END) AS __a3 FROM \"user_basic_information_table_1\"  GROUP BY \"Age group\", \"Occupation\", \"Education Level\", \"Gender\", \"Income level\"",
+      "covered": [
+        "S4",
+        "S7",
+        "S32",
+        "S34",
+        "S35",
+        "S59",
+        "S60",
+        "S61"
+      ],
+      "rewrites": {
+        "S4": "SELECT SUM(__a0) AS total_users FROM temp.reuse_candidate",
+        "S7": "SELECT __g0 AS \"Age group\", SUM(__a0) AS user_count FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+        "S32": "SELECT __g0 AS \"Age group\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 1) AS avg_login, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_devices, ROUND(100.0 * SUM(__a3) / SUM(__a0), 1) AS sms_sub_pct FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+        "S34": "SELECT __g1 AS \"Occupation\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+        "S35": "SELECT __g2 AS \"Education Level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2 ORDER BY cnt DESC",
+        "S59": "SELECT __g0 AS \"Age group\", __g3 AS \"Gender\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g3",
+        "S60": "SELECT __g0 AS \"Age group\", __g4 AS \"Income level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g4",
+        "S61": "SELECT __g0 AS \"Age group\", __g2 AS \"Education Level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g2"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S4",
+      "later_reuses": 7,
+      "denominator": 65,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866102.865644,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Age group\" AS __g0, \"Occupation\" AS __g1, \"Education Level\" AS __g2, \"Gender\" AS __g3, \"Income level\" AS __g4, COUNT(*) AS __a0, SUM(\"Login Count\") AS __a1_sum, COUNT(\"Login Count\") AS __a1_n, SUM(\"Device count\") AS __a2_sum, COUNT(\"Device count\") AS __a2_n, SUM(CASE WHEN \"Marketing SMS subscription status\" = 'Subscribed' THEN 1 ELSE 0 END) AS __a3 FROM \"user_basic_information_table_1\"  GROUP BY \"Age group\", \"Occupation\", \"Education Level\", \"Gender\", \"Income level\"",
+          "phase": "offline_validation",
+          "start_time": 1788866102.8659205,
+          "status": "execute_returned",
+          "end_time": 1788866102.866977
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866102.8669822,
+          "status": "execute_returned",
+          "end_time": 1788866102.8669987
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788866102.8670042,
+          "status": "execute_returned",
+          "end_time": 1788866102.8670182
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS total_users FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866102.8670382,
+          "status": "execute_returned",
+          "end_time": 1788866102.867069
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"Age group\", SUM(__a0) AS user_count FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788866102.8675203,
+          "status": "execute_returned",
+          "end_time": 1788866102.867604
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS \"Age group\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 1) AS avg_login, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_devices, ROUND(100.0 * SUM(__a3) / SUM(__a0), 1) AS sms_sub_pct FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788866102.8681464,
+          "status": "execute_returned",
+          "end_time": 1788866102.8683095
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g1 AS \"Occupation\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866102.8696432,
+          "status": "execute_returned",
+          "end_time": 1788866102.8697758
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g2 AS \"Education Level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866102.870339,
+          "status": "execute_returned",
+          "end_time": 1788866102.8704708
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g0 AS \"Age group\", __g3 AS \"Gender\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g3",
+          "phase": "offline_validation",
+          "start_time": 1788866102.8709595,
+          "status": "execute_returned",
+          "end_time": 1788866102.8710952
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g0 AS \"Age group\", __g4 AS \"Income level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g4",
+          "phase": "offline_validation",
+          "start_time": 1788866102.8717108,
+          "status": "execute_returned",
+          "end_time": 1788866102.8718598
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g0 AS \"Age group\", __g2 AS \"Education Level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g2",
+          "phase": "offline_validation",
+          "start_time": 1788866102.8725843,
+          "status": "execute_returned",
+          "end_time": 1788866102.8727303
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Age group\" AS __g0, \"Occupation\" AS __g1, \"Education Level\" AS __g2, \"Gender\" AS __g3, \"Income level\" AS __g4, COUNT(*) AS __a0, SUM(\"Login Count\") AS __a1_sum, COUNT(\"Login Count\") AS __a1_n, SUM(\"Device count\") AS __a2_sum, COUNT(\"Device count\") AS __a2_n, SUM(CASE WHEN \"Marketing SMS subscription status\" = 'Subscribed' THEN 1 ELSE 0 END) AS __a3 FROM \"user_basic_information_table_1\"  GROUP BY \"Age group\", \"Occupation\", \"Education Level\", \"Gender\", \"Income level\"",
+          "time": 1788866102.8662298,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788866102.8669956,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788866102.8670154,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total_users FROM temp.reuse_candidate",
+          "time": 1788866102.867049,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Age group\", SUM(__a0) AS user_count FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "time": 1788866102.8675456,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Age group\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 1) AS avg_login, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_devices, ROUND(100.0 * SUM(__a3) / SUM(__a0), 1) AS sms_sub_pct FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "time": 1788866102.8682027,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"Occupation\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "time": 1788866102.8696718,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"Education Level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2 ORDER BY cnt DESC",
+          "time": 1788866102.8703659,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Age group\", __g3 AS \"Gender\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g3",
+          "time": 1788866102.8709886,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Age group\", __g4 AS \"Income level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g4",
+          "time": 1788866102.871742,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Age group\", __g2 AS \"Education Level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g2",
+          "time": 1788866102.8726149,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 1.0609757155179977,
+      "intermediate_rows": 313,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__a0",
+        "__a1_sum",
+        "__a1_n",
+        "__a2_sum",
+        "__a2_n",
+        "__a3"
+      ],
+      "validation_ended_at": 1788866102.8735113,
+      "checks": [
+        {
+          "sql_id": "S4",
+          "rewritten_sql": "SELECT SUM(__a0) AS total_users FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.47879666090011597
+        },
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT __g0 AS \"Age group\", SUM(__a0) AS user_count FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6239581853151321
+        },
+        {
+          "sql_id": "S32",
+          "rewritten_sql": "SELECT __g0 AS \"Age group\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 1) AS avg_login, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_devices, ROUND(100.0 * SUM(__a3) / SUM(__a0), 1) AS sms_sub_pct FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.4939438551664352
+        },
+        {
+          "sql_id": "S34",
+          "rewritten_sql": "SELECT __g1 AS \"Occupation\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6914166733622551
+        },
+        {
+          "sql_id": "S35",
+          "rewritten_sql": "SELECT __g2 AS \"Education Level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.619896687567234
+        },
+        {
+          "sql_id": "S59",
+          "rewritten_sql": "SELECT __g0 AS \"Age group\", __g3 AS \"Gender\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.7487544789910316
+        },
+        {
+          "sql_id": "S60",
+          "rewritten_sql": "SELECT __g0 AS \"Age group\", __g4 AS \"Income level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g4",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.864650122821331
+        },
+        {
+          "sql_id": "S61",
+          "rewritten_sql": "SELECT __g0 AS \"Age group\", __g2 AS \"Education Level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.8504558354616165
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Participation Progress\" AS __g0, \"Usage Status\" AS __g1, \"Is Event Blocked\" AS __g2, \"Event Name\" AS __g3, COUNT(*) AS __a0, SUM(\"Event Feedback Rating\") AS __a1_sum, COUNT(\"Event Feedback Rating\") AS __a1_n, SUM(\"Number of Shares\") AS __a2_sum, COUNT(\"Number of Shares\") AS __a2_n, SUM(\"Event Conversion Rate\") AS __a3_sum, COUNT(\"Event Conversion Rate\") AS __a3_n, SUM(CASE WHEN \"Usage Status\" = 'Used' THEN 1 ELSE 0 END) AS __a4 FROM \"marketing_campaign_interaction\"  GROUP BY \"Participation Progress\", \"Usage Status\", \"Is Event Blocked\", \"Event Name\"",
+      "covered": [
+        "S6",
+        "S25",
+        "S26",
+        "S28",
+        "S43"
+      ],
+      "rewrites": {
+        "S6": "SELECT SUM(__a0) AS total_campaigns FROM temp.reuse_candidate",
+        "S25": "SELECT __g0 AS \"Participation Progress\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+        "S26": "SELECT __g1 AS \"Usage Status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1",
+        "S28": "SELECT __g2 AS \"Is Event Blocked\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2",
+        "S43": "SELECT __g3 AS \"Event Name\", SUM(__a0) AS interactions, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_rating, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_shares, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_conv, ROUND(100.0 * SUM(__a4) / SUM(__a0), 1) AS used_pct FROM temp.reuse_candidate GROUP BY __g3 ORDER BY interactions DESC"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S6",
+      "later_reuses": 4,
+      "denominator": 65,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866102.8735502,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Participation Progress\" AS __g0, \"Usage Status\" AS __g1, \"Is Event Blocked\" AS __g2, \"Event Name\" AS __g3, COUNT(*) AS __a0, SUM(\"Event Feedback Rating\") AS __a1_sum, COUNT(\"Event Feedback Rating\") AS __a1_n, SUM(\"Number of Shares\") AS __a2_sum, COUNT(\"Number of Shares\") AS __a2_n, SUM(\"Event Conversion Rate\") AS __a3_sum, COUNT(\"Event Conversion Rate\") AS __a3_n, SUM(CASE WHEN \"Usage Status\" = 'Used' THEN 1 ELSE 0 END) AS __a4 FROM \"marketing_campaign_interaction\"  GROUP BY \"Participation Progress\", \"Usage Status\", \"Is Event Blocked\", \"Event Name\"",
+          "phase": "offline_validation",
+          "start_time": 1788866102.8737319,
+          "status": "execute_returned",
+          "end_time": 1788866102.8745246
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866102.874528,
+          "status": "execute_returned",
+          "end_time": 1788866102.8745425
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788866102.8745468,
+          "status": "execute_returned",
+          "end_time": 1788866102.8745575
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS total_campaigns FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866102.8745759,
+          "status": "execute_returned",
+          "end_time": 1788866102.8746045
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"Participation Progress\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788866102.8749814,
+          "status": "execute_returned",
+          "end_time": 1788866102.875056
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS \"Usage Status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1",
+          "phase": "offline_validation",
+          "start_time": 1788866102.8765483,
+          "status": "execute_returned",
+          "end_time": 1788866102.8766356
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g2 AS \"Is Event Blocked\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2",
+          "phase": "offline_validation",
+          "start_time": 1788866102.8771205,
+          "status": "execute_returned",
+          "end_time": 1788866102.8772295
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g3 AS \"Event Name\", SUM(__a0) AS interactions, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_rating, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_shares, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_conv, ROUND(100.0 * SUM(__a4) / SUM(__a0), 1) AS used_pct FROM temp.reuse_candidate GROUP BY __g3 ORDER BY interactions DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866102.877679,
+          "status": "execute_returned",
+          "end_time": 1788866102.878011
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Participation Progress\" AS __g0, \"Usage Status\" AS __g1, \"Is Event Blocked\" AS __g2, \"Event Name\" AS __g3, COUNT(*) AS __a0, SUM(\"Event Feedback Rating\") AS __a1_sum, COUNT(\"Event Feedback Rating\") AS __a1_n, SUM(\"Number of Shares\") AS __a2_sum, COUNT(\"Number of Shares\") AS __a2_n, SUM(\"Event Conversion Rate\") AS __a3_sum, COUNT(\"Event Conversion Rate\") AS __a3_n, SUM(CASE WHEN \"Usage Status\" = 'Used' THEN 1 ELSE 0 END) AS __a4 FROM \"marketing_campaign_interaction\"  GROUP BY \"Participation Progress\", \"Usage Status\", \"Is Event Blocked\", \"Event Name\"",
+          "time": 1788866102.873926,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788866102.8745396,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788866102.874555,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total_campaigns FROM temp.reuse_candidate",
+          "time": 1788866102.8745859,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Participation Progress\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788866102.8750036,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"Usage Status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1",
+          "time": 1788866102.8765724,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"Is Event Blocked\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2",
+          "time": 1788866102.8771434,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS \"Event Name\", SUM(__a0) AS interactions, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_rating, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_shares, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_conv, ROUND(100.0 * SUM(__a4) / SUM(__a0), 1) AS used_pct FROM temp.reuse_candidate GROUP BY __g3 ORDER BY interactions DESC",
+          "time": 1788866102.8777475,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.7961355149745941,
+      "intermediate_rows": 305,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__a0",
+        "__a1_sum",
+        "__a1_n",
+        "__a2_sum",
+        "__a2_n",
+        "__a3_sum",
+        "__a3_n",
+        "__a4"
+      ],
+      "validation_ended_at": 1788866102.8797693,
+      "checks": [
+        {
+          "sql_id": "S6",
+          "rewritten_sql": "SELECT SUM(__a0) AS total_campaigns FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.4035690799355507
+        },
+        {
+          "sql_id": "S25",
+          "rewritten_sql": "SELECT __g0 AS \"Participation Progress\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.5651294961571693
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "SELECT __g1 AS \"Usage Status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5703158676624298
+        },
+        {
+          "sql_id": "S28",
+          "rewritten_sql": "SELECT __g2 AS \"Is Event Blocked\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5565546452999115
+        },
+        {
+          "sql_id": "S43",
+          "rewritten_sql": "SELECT __g3 AS \"Event Name\", SUM(__a0) AS interactions, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_rating, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_shares, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_conv, ROUND(100.0 * SUM(__a4) / SUM(__a0), 1) AS used_pct FROM temp.reuse_candidate GROUP BY __g3 ORDER BY interactions DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.025351859629154
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

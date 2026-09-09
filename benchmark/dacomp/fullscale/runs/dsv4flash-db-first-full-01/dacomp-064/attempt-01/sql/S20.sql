@@ -1,0 +1,1 @@
+SELECT stakeholder_id, user_display_name FROM jira__stakeholder_engagement_insights LIMIT 5

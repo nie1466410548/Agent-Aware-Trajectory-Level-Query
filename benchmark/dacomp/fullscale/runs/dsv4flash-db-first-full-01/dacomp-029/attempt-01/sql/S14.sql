@@ -1,0 +1,1 @@
+SELECT DISTINCT strftime('%Y-%m', "Posting Date") AS pd FROM autohome

@@ -1,0 +1,1 @@
+SELECT DISTINCT Floor FROM data WHERE Floor LIKE '%th floor%' OR Floor LIKE '%st floor%' OR Floor LIKE '%nd floor%' OR Floor LIKE '%rd floor%' OR Floor LIKE 'Floor %'

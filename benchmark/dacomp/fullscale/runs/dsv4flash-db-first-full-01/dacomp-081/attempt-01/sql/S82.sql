@@ -1,0 +1,1 @@
+SELECT survey_id, survey_name, COUNT(*) FROM qualtrics__survey WHERE survey_id = 'SUR10001882036' GROUP BY survey_id, survey_name

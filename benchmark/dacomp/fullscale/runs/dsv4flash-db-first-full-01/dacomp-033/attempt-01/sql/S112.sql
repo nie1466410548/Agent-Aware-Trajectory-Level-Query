@@ -1,0 +1,1 @@
+SELECT "Event Participation Prize Level", COUNT(*) as cnt FROM campaign_participation_table GROUP BY "Event Participation Prize Level"

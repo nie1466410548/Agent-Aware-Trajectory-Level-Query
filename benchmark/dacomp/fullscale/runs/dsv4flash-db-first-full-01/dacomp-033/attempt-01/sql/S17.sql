@@ -1,0 +1,1 @@
+SELECT DISTINCT "Privilege Level" FROM membership_table

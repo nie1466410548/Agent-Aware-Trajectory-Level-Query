@@ -1,0 +1,983 @@
+{
+  "fingerprint": "f79b6d474bc64112b20a98671518a3b0dec083a41ea137a66e41a1ae4222551d",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"health_education\" WHERE \"Population Covered\" = 'Student'",
+      "covered": [
+        "S12",
+        "S13",
+        "S14",
+        "S15",
+        "S16",
+        "S18",
+        "S19",
+        "S20",
+        "S21",
+        "S22",
+        "S23",
+        "S26",
+        "S28",
+        "S29",
+        "S30",
+        "S31",
+        "S32"
+      ],
+      "rewrites": {
+        "S12": "SELECT * FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student'",
+        "S13": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS behav_sig, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS track_sig, SUM(CASE WHEN \"Effectiveness Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS eff_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY format, location",
+        "S14": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS behav_sig, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS track_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format ORDER BY n DESC",
+        "S15": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY both_sig DESC, n DESC",
+        "S16": "SELECT \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS behav_sig, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS track_sig, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY location ORDER BY n DESC",
+        "S18": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS behav_sig, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS behav_sig_pct, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS track_sig, ROUND(100.0 * SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS track_sig_pct, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS both_sig_pct FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY both_sig_pct DESC, n DESC",
+        "S19": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Campaign Content (Prevention/Treatment/Policy)\" AS content, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location, content ORDER BY format, location",
+        "S20": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, ROUND(AVG(\"Campaign Frequency (times/month)\"), 1) AS avg_freq, ROUND(AVG(\"Distribution Quantity\"), 0) AS avg_qty, ROUND(AVG(CAST(REPLACE(\"Knowledge Assessment\", '%', '') AS REAL)), 1) AS avg_knowledge FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY format, location",
+        "S21": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Campaign Content (Prevention/Treatment/Policy)\" AS content, \"Behavioral Change Assessment\" AS behav, \"Effectiveness Tracking\" AS track, \"Effectiveness Assessment\" AS eff, \"Awareness Rate Survey\" AS awareness, \"Knowledge Assessment\" AS knowledge, \"Campaign Frequency (times/month)\" AS freq, \"Distribution Quantity\" AS qty FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student'",
+        "S22": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS behav_sig, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS track_sig, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig, SUM(CASE WHEN \"Effectiveness Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS eff_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY format, location",
+        "S23": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Campaign Content (Prevention/Treatment/Policy)\" AS content, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location, content HAVING both_sig > 0 ORDER BY both_sig DESC",
+        "S26": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Campaign Content (Prevention/Treatment/Policy)\" AS content, \"Behavioral Change Assessment\" AS behav, \"Effectiveness Tracking\" AS track, \"Effectiveness Assessment\" AS eff, \"Campaign Frequency (times/month)\" AS freq, \"Distribution Quantity\" AS qty, \"Awareness Rate Survey\" AS awareness, \"Knowledge Assessment\" AS knowledge, \"New Media Metrics (Views/Shares)\" AS new_media FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student'",
+        "S28": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Campaign Content (Prevention/Treatment/Policy)\" AS content, \"Behavioral Change Assessment\" AS behav, \"Effectiveness Tracking\" AS track, \"Effectiveness Assessment\" AS eff, \"Campaign Frequency (times/month)\" AS freq, \"Distribution Quantity\" AS qty, \"Awareness Rate Survey\" AS awareness, \"Knowledge Assessment\" AS knowledge FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student'",
+        "S29": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS behav_sig_pct, ROUND(100.0 * SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS track_sig_pct, ROUND(100.0 * SUM(CASE WHEN \"Effectiveness Assessment\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS eff_sig_pct, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS both_sig_pct FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY format, location",
+        "S30": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, COUNT(*) AS n, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS both_sig_pct, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig_n FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format ORDER BY both_sig_pct DESC",
+        "S31": "SELECT \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS both_sig_pct, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig_n FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY location ORDER BY both_sig_pct DESC",
+        "S32": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Behavioral Change Assessment\" AS behav, \"Effectiveness Tracking\" AS track, \"Effectiveness Assessment\" AS eff, \"Campaign Frequency (times/month)\" AS freq, \"Distribution Quantity\" AS qty FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student'"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S12",
+      "later_reuses": 16,
+      "denominator": 30,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865794.4354224,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"health_education\" WHERE \"Population Covered\" = 'Student'",
+          "phase": "offline_validation",
+          "start_time": 1788865794.435681,
+          "status": "execute_returned",
+          "end_time": 1788865794.4362576
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4362626,
+          "status": "execute_returned",
+          "end_time": 1788865794.4362824
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865794.436288,
+          "status": "execute_returned",
+          "end_time": 1788865794.4363034
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT * FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student'",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4363348,
+          "status": "execute_returned",
+          "end_time": 1788865794.4363694
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS behav_sig, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS track_sig, SUM(CASE WHEN \"Effectiveness Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS eff_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY format, location",
+          "phase": "offline_validation",
+          "start_time": 1788865794.438545,
+          "status": "execute_returned",
+          "end_time": 1788865794.4386623
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS behav_sig, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS track_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865794.440337,
+          "status": "execute_returned",
+          "end_time": 1788865794.4404333
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY both_sig DESC, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4414947,
+          "status": "execute_returned",
+          "end_time": 1788865794.44161
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS behav_sig, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS track_sig, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY location ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4426265,
+          "status": "execute_returned",
+          "end_time": 1788865794.4427395
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS behav_sig, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS behav_sig_pct, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS track_sig, ROUND(100.0 * SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS track_sig_pct, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS both_sig_pct FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY both_sig_pct DESC, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4440646,
+          "status": "execute_returned",
+          "end_time": 1788865794.4442573
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Campaign Content (Prevention/Treatment/Policy)\" AS content, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location, content ORDER BY format, location",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4478593,
+          "status": "execute_returned",
+          "end_time": 1788865794.448005
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, ROUND(AVG(\"Campaign Frequency (times/month)\"), 1) AS avg_freq, ROUND(AVG(\"Distribution Quantity\"), 0) AS avg_qty, ROUND(AVG(CAST(REPLACE(\"Knowledge Assessment\", '%', '') AS REAL)), 1) AS avg_knowledge FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY format, location",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4491932,
+          "status": "execute_returned",
+          "end_time": 1788865794.4493093
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Campaign Content (Prevention/Treatment/Policy)\" AS content, \"Behavioral Change Assessment\" AS behav, \"Effectiveness Tracking\" AS track, \"Effectiveness Assessment\" AS eff, \"Awareness Rate Survey\" AS awareness, \"Knowledge Assessment\" AS knowledge, \"Campaign Frequency (times/month)\" AS freq, \"Distribution Quantity\" AS qty FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student'",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4506016,
+          "status": "execute_returned",
+          "end_time": 1788865794.450652
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS behav_sig, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS track_sig, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig, SUM(CASE WHEN \"Effectiveness Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS eff_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY format, location",
+          "phase": "offline_validation",
+          "start_time": 1788865794.452602,
+          "status": "execute_returned",
+          "end_time": 1788865794.4527256
+        },
+        {
+          "sequence": 14,
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Campaign Content (Prevention/Treatment/Policy)\" AS content, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location, content HAVING both_sig > 0 ORDER BY both_sig DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4546154,
+          "status": "execute_returned",
+          "end_time": 1788865794.454771
+        },
+        {
+          "sequence": 15,
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Campaign Content (Prevention/Treatment/Policy)\" AS content, \"Behavioral Change Assessment\" AS behav, \"Effectiveness Tracking\" AS track, \"Effectiveness Assessment\" AS eff, \"Campaign Frequency (times/month)\" AS freq, \"Distribution Quantity\" AS qty, \"Awareness Rate Survey\" AS awareness, \"Knowledge Assessment\" AS knowledge, \"New Media Metrics (Views/Shares)\" AS new_media FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student'",
+          "phase": "offline_validation",
+          "start_time": 1788865794.455876,
+          "status": "execute_returned",
+          "end_time": 1788865794.4559262
+        },
+        {
+          "sequence": 16,
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Campaign Content (Prevention/Treatment/Policy)\" AS content, \"Behavioral Change Assessment\" AS behav, \"Effectiveness Tracking\" AS track, \"Effectiveness Assessment\" AS eff, \"Campaign Frequency (times/month)\" AS freq, \"Distribution Quantity\" AS qty, \"Awareness Rate Survey\" AS awareness, \"Knowledge Assessment\" AS knowledge FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student'",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4579587,
+          "status": "execute_returned",
+          "end_time": 1788865794.4580073
+        },
+        {
+          "sequence": 17,
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS behav_sig_pct, ROUND(100.0 * SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS track_sig_pct, ROUND(100.0 * SUM(CASE WHEN \"Effectiveness Assessment\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS eff_sig_pct, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS both_sig_pct FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY format, location",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4599698,
+          "status": "execute_returned",
+          "end_time": 1788865794.4601147
+        },
+        {
+          "sequence": 18,
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, COUNT(*) AS n, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS both_sig_pct, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig_n FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format ORDER BY both_sig_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4628205,
+          "status": "execute_returned",
+          "end_time": 1788865794.4629383
+        },
+        {
+          "sequence": 19,
+          "sql": "SELECT \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS both_sig_pct, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig_n FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY location ORDER BY both_sig_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865794.464357,
+          "status": "execute_returned",
+          "end_time": 1788865794.4644763
+        },
+        {
+          "sequence": 20,
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Behavioral Change Assessment\" AS behav, \"Effectiveness Tracking\" AS track, \"Effectiveness Assessment\" AS eff, \"Campaign Frequency (times/month)\" AS freq, \"Distribution Quantity\" AS qty FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student'",
+          "phase": "offline_validation",
+          "start_time": 1788865794.465855,
+          "status": "execute_returned",
+          "end_time": 1788865794.4658997
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"health_education\" WHERE \"Population Covered\" = 'Student'",
+          "time": 1788865794.4360504,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865794.436279,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865794.4363003,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT * FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student'",
+          "time": 1788865794.4363632,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS behav_sig, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS track_sig, SUM(CASE WHEN \"Effectiveness Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS eff_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY format, location",
+          "time": 1788865794.4386046,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS behav_sig, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS track_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format ORDER BY n DESC",
+          "time": 1788865794.4403818,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY both_sig DESC, n DESC",
+          "time": 1788865794.4415457,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS behav_sig, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS track_sig, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY location ORDER BY n DESC",
+          "time": 1788865794.4426804,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS behav_sig, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS behav_sig_pct, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS track_sig, ROUND(100.0 * SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS track_sig_pct, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS both_sig_pct FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY both_sig_pct DESC, n DESC",
+          "time": 1788865794.4441714,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Campaign Content (Prevention/Treatment/Policy)\" AS content, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location, content ORDER BY format, location",
+          "time": 1788865794.4479148,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, ROUND(AVG(\"Campaign Frequency (times/month)\"), 1) AS avg_freq, ROUND(AVG(\"Distribution Quantity\"), 0) AS avg_qty, ROUND(AVG(CAST(REPLACE(\"Knowledge Assessment\", '%', '') AS REAL)), 1) AS avg_knowledge FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY format, location",
+          "time": 1788865794.4492567,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Campaign Content (Prevention/Treatment/Policy)\" AS content, \"Behavioral Change Assessment\" AS behav, \"Effectiveness Tracking\" AS track, \"Effectiveness Assessment\" AS eff, \"Awareness Rate Survey\" AS awareness, \"Knowledge Assessment\" AS knowledge, \"Campaign Frequency (times/month)\" AS freq, \"Distribution Quantity\" AS qty FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student'",
+          "time": 1788865794.4506454,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS behav_sig, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS track_sig, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig, SUM(CASE WHEN \"Effectiveness Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS eff_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY format, location",
+          "time": 1788865794.4526696,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Campaign Content (Prevention/Treatment/Policy)\" AS content, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location, content HAVING both_sig > 0 ORDER BY both_sig DESC",
+          "time": 1788865794.4546812,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Campaign Content (Prevention/Treatment/Policy)\" AS content, \"Behavioral Change Assessment\" AS behav, \"Effectiveness Tracking\" AS track, \"Effectiveness Assessment\" AS eff, \"Campaign Frequency (times/month)\" AS freq, \"Distribution Quantity\" AS qty, \"Awareness Rate Survey\" AS awareness, \"Knowledge Assessment\" AS knowledge, \"New Media Metrics (Views/Shares)\" AS new_media FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student'",
+          "time": 1788865794.4559195,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Campaign Content (Prevention/Treatment/Policy)\" AS content, \"Behavioral Change Assessment\" AS behav, \"Effectiveness Tracking\" AS track, \"Effectiveness Assessment\" AS eff, \"Campaign Frequency (times/month)\" AS freq, \"Distribution Quantity\" AS qty, \"Awareness Rate Survey\" AS awareness, \"Knowledge Assessment\" AS knowledge FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student'",
+          "time": 1788865794.4580004,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS behav_sig_pct, ROUND(100.0 * SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS track_sig_pct, ROUND(100.0 * SUM(CASE WHEN \"Effectiveness Assessment\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS eff_sig_pct, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS both_sig_pct FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY format, location",
+          "time": 1788865794.4600554,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, COUNT(*) AS n, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS both_sig_pct, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig_n FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format ORDER BY both_sig_pct DESC",
+          "time": 1788865794.4628866,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS both_sig_pct, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig_n FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY location ORDER BY both_sig_pct DESC",
+          "time": 1788865794.4644234,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Behavioral Change Assessment\" AS behav, \"Effectiveness Tracking\" AS track, \"Effectiveness Assessment\" AS eff, \"Campaign Frequency (times/month)\" AS freq, \"Distribution Quantity\" AS qty FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student'",
+          "time": 1788865794.4658937,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.5808211863040924,
+      "intermediate_rows": 75,
+      "intermediate_columns": [
+        "Region ID",
+        "Education ID",
+        "Campaign Format (Poster/Video/Lecture)",
+        "Campaign Content (Prevention/Treatment/Policy)",
+        "Distribution Quantity",
+        "Population Covered",
+        "Awareness Rate Survey",
+        "Key Locations (School/Hospital/Community)",
+        "Campaign Frequency (times/month)",
+        "Effectiveness Assessment",
+        "New Media Metrics (Views/Shares)",
+        "Health Education Material ID",
+        "Knowledge Assessment",
+        "Behavioral Change Assessment",
+        "Educational Resource Library",
+        "Educational Expenditure",
+        "Effectiveness Tracking",
+        "Cultural Appropriateness Assessment",
+        "Policy Implementation Status",
+        "Data Anonymization"
+      ],
+      "validation_ended_at": 1788865794.4677415,
+      "checks": [
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT * FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.206929959356785
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS behav_sig, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS track_sig, SUM(CASE WHEN \"Effectiveness Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS eff_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY format, location",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7897365614771843
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS behav_sig, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS track_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.1551128700375557
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY both_sig DESC, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.127331517636776
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "SELECT \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS behav_sig, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS track_sig, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY location ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.4371322467923164
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS behav_sig, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS behav_sig_pct, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS track_sig, ROUND(100.0 * SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS track_sig_pct, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS both_sig_pct FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY both_sig_pct DESC, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.791581839323044
+        },
+        {
+          "sql_id": "S19",
+          "rewritten_sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Campaign Content (Prevention/Treatment/Policy)\" AS content, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location, content ORDER BY format, location",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.3248659670352936
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, ROUND(AVG(\"Campaign Frequency (times/month)\"), 1) AS avg_freq, ROUND(AVG(\"Distribution Quantity\"), 0) AS avg_qty, ROUND(AVG(CAST(REPLACE(\"Knowledge Assessment\", '%', '') AS REAL)), 1) AS avg_knowledge FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY format, location",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.4058547094464302
+        },
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Campaign Content (Prevention/Treatment/Policy)\" AS content, \"Behavioral Change Assessment\" AS behav, \"Effectiveness Tracking\" AS track, \"Effectiveness Assessment\" AS eff, \"Awareness Rate Survey\" AS awareness, \"Knowledge Assessment\" AS knowledge, \"Campaign Frequency (times/month)\" AS freq, \"Distribution Quantity\" AS qty FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.9980641081929207
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS behav_sig, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS track_sig, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig, SUM(CASE WHEN \"Effectiveness Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS eff_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY format, location",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.011306583881378
+        },
+        {
+          "sql_id": "S23",
+          "rewritten_sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Campaign Content (Prevention/Treatment/Policy)\" AS content, COUNT(*) AS n, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location, content HAVING both_sig > 0 ORDER BY both_sig DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.2586256489157677
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Campaign Content (Prevention/Treatment/Policy)\" AS content, \"Behavioral Change Assessment\" AS behav, \"Effectiveness Tracking\" AS track, \"Effectiveness Assessment\" AS eff, \"Campaign Frequency (times/month)\" AS freq, \"Distribution Quantity\" AS qty, \"Awareness Rate Survey\" AS awareness, \"Knowledge Assessment\" AS knowledge, \"New Media Metrics (Views/Shares)\" AS new_media FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.080271951854229
+        },
+        {
+          "sql_id": "S28",
+          "rewritten_sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Campaign Content (Prevention/Treatment/Policy)\" AS content, \"Behavioral Change Assessment\" AS behav, \"Effectiveness Tracking\" AS track, \"Effectiveness Assessment\" AS eff, \"Campaign Frequency (times/month)\" AS freq, \"Distribution Quantity\" AS qty, \"Awareness Rate Survey\" AS awareness, \"Knowledge Assessment\" AS knowledge FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.0091813057661057
+        },
+        {
+          "sql_id": "S29",
+          "rewritten_sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS behav_sig_pct, ROUND(100.0 * SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS track_sig_pct, ROUND(100.0 * SUM(CASE WHEN \"Effectiveness Assessment\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS eff_sig_pct, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS both_sig_pct FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format, location ORDER BY format, location",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.8486205264925957
+        },
+        {
+          "sql_id": "S30",
+          "rewritten_sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, COUNT(*) AS n, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS both_sig_pct, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig_n FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY format ORDER BY both_sig_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.5340326353907585
+        },
+        {
+          "sql_id": "S31",
+          "rewritten_sql": "SELECT \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS both_sig_pct, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS both_sig_n FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' GROUP BY location ORDER BY both_sig_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.496276818215847
+        },
+        {
+          "sql_id": "S32",
+          "rewritten_sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Behavioral Change Assessment\" AS behav, \"Effectiveness Tracking\" AS track, \"Effectiveness Assessment\" AS eff, \"Campaign Frequency (times/month)\" AS freq, \"Distribution Quantity\" AS qty FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.7339596524834633
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS __g0, \"Key Locations (School/Hospital/Community)\" AS __g1, \"Campaign Content (Prevention/Treatment/Policy)\" AS __g2, COUNT(*) AS __a0, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN \"Effectiveness Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS __a4, SUM(\"Campaign Frequency (times/month)\") AS __a5_sum, COUNT(\"Campaign Frequency (times/month)\") AS __a5_n, SUM(\"Distribution Quantity\") AS __a6_sum, COUNT(\"Distribution Quantity\") AS __a6_n, SUM(CAST(REPLACE(\"Knowledge Assessment\", '%', '') AS REAL)) AS __a7_sum, COUNT(CAST(REPLACE(\"Knowledge Assessment\", '%', '') AS REAL)) AS __a7_n FROM \"health_education\" WHERE \"Population Covered\" = 'Student' GROUP BY \"Campaign Format (Poster/Video/Lecture)\", \"Key Locations (School/Hospital/Community)\", \"Campaign Content (Prevention/Treatment/Policy)\"",
+      "covered": [
+        "S13",
+        "S14",
+        "S15",
+        "S16",
+        "S18",
+        "S19",
+        "S20",
+        "S22",
+        "S29",
+        "S30",
+        "S31"
+      ],
+      "rewrites": {
+        "S13": "SELECT __g0 AS format, __g1 AS location, SUM(__a0) AS n, SUM(__a1) AS behav_sig, SUM(__a2) AS track_sig, SUM(__a3) AS eff_sig FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY format, location",
+        "S14": "SELECT __g0 AS format, SUM(__a0) AS n, SUM(__a1) AS behav_sig, SUM(__a2) AS track_sig FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+        "S15": "SELECT __g0 AS format, __g1 AS location, SUM(__a0) AS n, SUM(__a4) AS both_sig FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY both_sig DESC, n DESC",
+        "S16": "SELECT __g1 AS location, SUM(__a0) AS n, SUM(__a1) AS behav_sig, SUM(__a2) AS track_sig, SUM(__a4) AS both_sig FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+        "S18": "SELECT __g0 AS format, __g1 AS location, SUM(__a0) AS n, SUM(__a1) AS behav_sig, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS behav_sig_pct, SUM(__a2) AS track_sig, ROUND(100.0 * SUM(__a2) / SUM(__a0), 1) AS track_sig_pct, SUM(__a4) AS both_sig, ROUND(100.0 * SUM(__a4) / SUM(__a0), 1) AS both_sig_pct FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY both_sig_pct DESC, n DESC",
+        "S19": "SELECT __g0 AS format, __g1 AS location, __g2 AS content, SUM(__a0) AS n, SUM(__a4) AS both_sig FROM temp.reuse_candidate GROUP BY __g0, __g1, __g2 ORDER BY format, location",
+        "S20": "SELECT __g0 AS format, __g1 AS location, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 1) AS avg_freq, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 0) AS avg_qty, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 1) AS avg_knowledge FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY format, location",
+        "S22": "SELECT __g0 AS format, __g1 AS location, SUM(__a0) AS n, SUM(__a1) AS behav_sig, SUM(__a2) AS track_sig, SUM(__a4) AS both_sig, SUM(__a3) AS eff_sig FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY format, location",
+        "S29": "SELECT __g0 AS format, __g1 AS location, SUM(__a0) AS n, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS behav_sig_pct, ROUND(100.0 * SUM(__a2) / SUM(__a0), 1) AS track_sig_pct, ROUND(100.0 * SUM(__a3) / SUM(__a0), 1) AS eff_sig_pct, ROUND(100.0 * SUM(__a4) / SUM(__a0), 1) AS both_sig_pct FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY format, location",
+        "S30": "SELECT __g0 AS format, SUM(__a0) AS n, ROUND(100.0 * SUM(__a4) / SUM(__a0), 1) AS both_sig_pct, SUM(__a4) AS both_sig_n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY both_sig_pct DESC",
+        "S31": "SELECT __g1 AS location, SUM(__a0) AS n, ROUND(100.0 * SUM(__a4) / SUM(__a0), 1) AS both_sig_pct, SUM(__a4) AS both_sig_n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY both_sig_pct DESC"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S13",
+      "later_reuses": 10,
+      "denominator": 30,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865794.46777,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Campaign Format (Poster/Video/Lecture)\" AS __g0, \"Key Locations (School/Hospital/Community)\" AS __g1, \"Campaign Content (Prevention/Treatment/Policy)\" AS __g2, COUNT(*) AS __a0, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN \"Effectiveness Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS __a4, SUM(\"Campaign Frequency (times/month)\") AS __a5_sum, COUNT(\"Campaign Frequency (times/month)\") AS __a5_n, SUM(\"Distribution Quantity\") AS __a6_sum, COUNT(\"Distribution Quantity\") AS __a6_n, SUM(CAST(REPLACE(\"Knowledge Assessment\", '%', '') AS REAL)) AS __a7_sum, COUNT(CAST(REPLACE(\"Knowledge Assessment\", '%', '') AS REAL)) AS __a7_n FROM \"health_education\" WHERE \"Population Covered\" = 'Student' GROUP BY \"Campaign Format (Poster/Video/Lecture)\", \"Key Locations (School/Hospital/Community)\", \"Campaign Content (Prevention/Treatment/Policy)\"",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4679754,
+          "status": "execute_returned",
+          "end_time": 1788865794.468538
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4685426,
+          "status": "execute_returned",
+          "end_time": 1788865794.468557
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4685602,
+          "status": "execute_returned",
+          "end_time": 1788865794.4685721
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS format, __g1 AS location, SUM(__a0) AS n, SUM(__a1) AS behav_sig, SUM(__a2) AS track_sig, SUM(__a3) AS eff_sig FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY format, location",
+          "phase": "offline_validation",
+          "start_time": 1788865794.468592,
+          "status": "execute_returned",
+          "end_time": 1788865794.4686282
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS format, SUM(__a0) AS n, SUM(__a1) AS behav_sig, SUM(__a2) AS track_sig FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4702544,
+          "status": "execute_returned",
+          "end_time": 1788865794.4703074
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS format, __g1 AS location, SUM(__a0) AS n, SUM(__a4) AS both_sig FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY both_sig DESC, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865794.471362,
+          "status": "execute_returned",
+          "end_time": 1788865794.4714246
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g1 AS location, SUM(__a0) AS n, SUM(__a1) AS behav_sig, SUM(__a2) AS track_sig, SUM(__a4) AS both_sig FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4724393,
+          "status": "execute_returned",
+          "end_time": 1788865794.4724991
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g0 AS format, __g1 AS location, SUM(__a0) AS n, SUM(__a1) AS behav_sig, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS behav_sig_pct, SUM(__a2) AS track_sig, ROUND(100.0 * SUM(__a2) / SUM(__a0), 1) AS track_sig_pct, SUM(__a4) AS both_sig, ROUND(100.0 * SUM(__a4) / SUM(__a0), 1) AS both_sig_pct FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY both_sig_pct DESC, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4738035,
+          "status": "execute_returned",
+          "end_time": 1788865794.4739084
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g0 AS format, __g1 AS location, __g2 AS content, SUM(__a0) AS n, SUM(__a4) AS both_sig FROM temp.reuse_candidate GROUP BY __g0, __g1, __g2 ORDER BY format, location",
+          "phase": "offline_validation",
+          "start_time": 1788865794.476851,
+          "status": "execute_returned",
+          "end_time": 1788865794.476934
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g0 AS format, __g1 AS location, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 1) AS avg_freq, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 0) AS avg_qty, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 1) AS avg_knowledge FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY format, location",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4781098,
+          "status": "execute_returned",
+          "end_time": 1788865794.4782016
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g0 AS format, __g1 AS location, SUM(__a0) AS n, SUM(__a1) AS behav_sig, SUM(__a2) AS track_sig, SUM(__a4) AS both_sig, SUM(__a3) AS eff_sig FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY format, location",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4795008,
+          "status": "execute_returned",
+          "end_time": 1788865794.479567
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT __g0 AS format, __g1 AS location, SUM(__a0) AS n, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS behav_sig_pct, ROUND(100.0 * SUM(__a2) / SUM(__a0), 1) AS track_sig_pct, ROUND(100.0 * SUM(__a3) / SUM(__a0), 1) AS eff_sig_pct, ROUND(100.0 * SUM(__a4) / SUM(__a0), 1) AS both_sig_pct FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY format, location",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4812849,
+          "status": "execute_returned",
+          "end_time": 1788865794.4813712
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT __g0 AS format, SUM(__a0) AS n, ROUND(100.0 * SUM(__a4) / SUM(__a0), 1) AS both_sig_pct, SUM(__a4) AS both_sig_n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY both_sig_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4840531,
+          "status": "execute_returned",
+          "end_time": 1788865794.4841244
+        },
+        {
+          "sequence": 14,
+          "sql": "SELECT __g1 AS location, SUM(__a0) AS n, ROUND(100.0 * SUM(__a4) / SUM(__a0), 1) AS both_sig_pct, SUM(__a4) AS both_sig_n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY both_sig_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4855187,
+          "status": "execute_returned",
+          "end_time": 1788865794.4855917
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Campaign Format (Poster/Video/Lecture)\" AS __g0, \"Key Locations (School/Hospital/Community)\" AS __g1, \"Campaign Content (Prevention/Treatment/Policy)\" AS __g2, COUNT(*) AS __a0, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN \"Effectiveness Assessment\" = 'Significant' THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) AS __a4, SUM(\"Campaign Frequency (times/month)\") AS __a5_sum, COUNT(\"Campaign Frequency (times/month)\") AS __a5_n, SUM(\"Distribution Quantity\") AS __a6_sum, COUNT(\"Distribution Quantity\") AS __a6_n, SUM(CAST(REPLACE(\"Knowledge Assessment\", '%', '') AS REAL)) AS __a7_sum, COUNT(CAST(REPLACE(\"Knowledge Assessment\", '%', '') AS REAL)) AS __a7_n FROM \"health_education\" WHERE \"Population Covered\" = 'Student' GROUP BY \"Campaign Format (Poster/Video/Lecture)\", \"Key Locations (School/Hospital/Community)\", \"Campaign Content (Prevention/Treatment/Policy)\"",
+          "time": 1788865794.4682748,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865794.468554,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865794.4685695,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS format, __g1 AS location, SUM(__a0) AS n, SUM(__a1) AS behav_sig, SUM(__a2) AS track_sig, SUM(__a3) AS eff_sig FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY format, location",
+          "time": 1788865794.4686124,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS format, SUM(__a0) AS n, SUM(__a1) AS behav_sig, SUM(__a2) AS track_sig FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "time": 1788865794.4702861,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS format, __g1 AS location, SUM(__a0) AS n, SUM(__a4) AS both_sig FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY both_sig DESC, n DESC",
+          "time": 1788865794.4713974,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS location, SUM(__a0) AS n, SUM(__a1) AS behav_sig, SUM(__a2) AS track_sig, SUM(__a4) AS both_sig FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "time": 1788865794.4724743,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS format, __g1 AS location, SUM(__a0) AS n, SUM(__a1) AS behav_sig, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS behav_sig_pct, SUM(__a2) AS track_sig, ROUND(100.0 * SUM(__a2) / SUM(__a0), 1) AS track_sig_pct, SUM(__a4) AS both_sig, ROUND(100.0 * SUM(__a4) / SUM(__a0), 1) AS both_sig_pct FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY both_sig_pct DESC, n DESC",
+          "time": 1788865794.4738662,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS format, __g1 AS location, __g2 AS content, SUM(__a0) AS n, SUM(__a4) AS both_sig FROM temp.reuse_candidate GROUP BY __g0, __g1, __g2 ORDER BY format, location",
+          "time": 1788865794.476892,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS format, __g1 AS location, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 1) AS avg_freq, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 0) AS avg_qty, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 1) AS avg_knowledge FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY format, location",
+          "time": 1788865794.4781766,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS format, __g1 AS location, SUM(__a0) AS n, SUM(__a1) AS behav_sig, SUM(__a2) AS track_sig, SUM(__a4) AS both_sig, SUM(__a3) AS eff_sig FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY format, location",
+          "time": 1788865794.4795454,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS format, __g1 AS location, SUM(__a0) AS n, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS behav_sig_pct, ROUND(100.0 * SUM(__a2) / SUM(__a0), 1) AS track_sig_pct, ROUND(100.0 * SUM(__a3) / SUM(__a0), 1) AS eff_sig_pct, ROUND(100.0 * SUM(__a4) / SUM(__a0), 1) AS both_sig_pct FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY format, location",
+          "time": 1788865794.4813468,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS format, SUM(__a0) AS n, ROUND(100.0 * SUM(__a4) / SUM(__a0), 1) AS both_sig_pct, SUM(__a4) AS both_sig_n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY both_sig_pct DESC",
+          "time": 1788865794.4841003,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS location, SUM(__a0) AS n, ROUND(100.0 * SUM(__a4) / SUM(__a0), 1) AS both_sig_pct, SUM(__a4) AS both_sig_n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY both_sig_pct DESC",
+          "time": 1788865794.4855666,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.5665663629770279,
+      "intermediate_rows": 25,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4",
+        "__a5_sum",
+        "__a5_n",
+        "__a6_sum",
+        "__a6_n",
+        "__a7_sum",
+        "__a7_n"
+      ],
+      "validation_ended_at": 1788865794.487051,
+      "checks": [
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT __g0 AS format, __g1 AS location, SUM(__a0) AS n, SUM(__a1) AS behav_sig, SUM(__a2) AS track_sig, SUM(__a3) AS eff_sig FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY format, location",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.6603991389274597
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT __g0 AS format, SUM(__a0) AS n, SUM(__a1) AS behav_sig, SUM(__a2) AS track_sig FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.1056186631321907
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "SELECT __g0 AS format, __g1 AS location, SUM(__a0) AS n, SUM(__a4) AS both_sig FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY both_sig DESC, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.0753441601991653
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "SELECT __g1 AS location, SUM(__a0) AS n, SUM(__a1) AS behav_sig, SUM(__a2) AS track_sig, SUM(__a4) AS both_sig FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.362035982310772
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT __g0 AS format, __g1 AS location, SUM(__a0) AS n, SUM(__a1) AS behav_sig, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS behav_sig_pct, SUM(__a2) AS track_sig, ROUND(100.0 * SUM(__a2) / SUM(__a0), 1) AS track_sig_pct, SUM(__a4) AS both_sig, ROUND(100.0 * SUM(__a4) / SUM(__a0), 1) AS both_sig_pct FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY both_sig_pct DESC, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.0453382059931755
+        },
+        {
+          "sql_id": "S19",
+          "rewritten_sql": "SELECT __g0 AS format, __g1 AS location, __g2 AS content, SUM(__a0) AS n, SUM(__a4) AS both_sig FROM temp.reuse_candidate GROUP BY __g0, __g1, __g2 ORDER BY format, location",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.2569287791848183
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "SELECT __g0 AS format, __g1 AS location, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 1) AS avg_freq, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 0) AS avg_qty, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 1) AS avg_knowledge FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY format, location",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.3886457309126854
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "SELECT __g0 AS format, __g1 AS location, SUM(__a0) AS n, SUM(__a1) AS behav_sig, SUM(__a2) AS track_sig, SUM(__a4) AS both_sig, SUM(__a3) AS eff_sig FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY format, location",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7821043729782104
+        },
+        {
+          "sql_id": "S29",
+          "rewritten_sql": "SELECT __g0 AS format, __g1 AS location, SUM(__a0) AS n, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS behav_sig_pct, ROUND(100.0 * SUM(__a2) / SUM(__a0), 1) AS track_sig_pct, ROUND(100.0 * SUM(__a3) / SUM(__a0), 1) AS eff_sig_pct, ROUND(100.0 * SUM(__a4) / SUM(__a0), 1) AS both_sig_pct FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY format, location",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.7660010382533073
+        },
+        {
+          "sql_id": "S30",
+          "rewritten_sql": "SELECT __g0 AS format, SUM(__a0) AS n, ROUND(100.0 * SUM(__a4) / SUM(__a0), 1) AS both_sig_pct, SUM(__a4) AS both_sig_n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY both_sig_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.4632195234298706
+        },
+        {
+          "sql_id": "S31",
+          "rewritten_sql": "SELECT __g1 AS location, SUM(__a0) AS n, ROUND(100.0 * SUM(__a4) / SUM(__a0), 1) AS both_sig_pct, SUM(__a4) AS both_sig_n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY both_sig_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.4364058151841164
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"health_education\" WHERE \"Population Covered\" = 'Student' AND \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant'",
+      "covered": [
+        "S17",
+        "S25"
+      ],
+      "rewrites": {
+        "S17": "SELECT * FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' AND \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant'",
+        "S25": "SELECT CASE WHEN INSTR(\"New Media Metrics (Views/Shares)\", '/') > 0 THEN CAST(SUBSTRING(\"New Media Metrics (Views/Shares)\", 1, INSTR(\"New Media Metrics (Views/Shares)\", '/') - 1) AS INTEGER) END AS views, \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Behavioral Change Assessment\" AS behav, \"Effectiveness Tracking\" AS track FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" = 'Student' AND \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant'"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S17",
+      "later_reuses": 1,
+      "denominator": 30,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"health_education\" WHERE \"Population Covered\" <> 'Student'",
+      "covered": [
+        "S24",
+        "S27"
+      ],
+      "rewrites": {
+        "S24": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS both_pct FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" <> 'Student' GROUP BY format, location ORDER BY both_pct DESC",
+        "S27": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Population Covered\" AS pop, \"Behavioral Change Assessment\" AS behav, \"Effectiveness Tracking\" AS track FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" <> 'Student'"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S24",
+      "later_reuses": 1,
+      "denominator": 30,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865794.487065,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"health_education\" WHERE \"Population Covered\" <> 'Student'",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4872558,
+          "status": "execute_returned",
+          "end_time": 1788865794.487853
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4878564,
+          "status": "execute_returned",
+          "end_time": 1788865794.4878714
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4878747,
+          "status": "execute_returned",
+          "end_time": 1788865794.4878874
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS both_pct FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" <> 'Student' GROUP BY format, location ORDER BY both_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4879165,
+          "status": "execute_returned",
+          "end_time": 1788865794.4881883
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Population Covered\" AS pop, \"Behavioral Change Assessment\" AS behav, \"Effectiveness Tracking\" AS track FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" <> 'Student'",
+          "phase": "offline_validation",
+          "start_time": 1788865794.4894166,
+          "status": "execute_returned",
+          "end_time": 1788865794.4894505
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"health_education\" WHERE \"Population Covered\" <> 'Student'",
+          "time": 1788865794.4874983,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865794.4878678,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865794.4878845,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS both_pct FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" <> 'Student' GROUP BY format, location ORDER BY both_pct DESC",
+          "time": 1788865794.487951,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Population Covered\" AS pop, \"Behavioral Change Assessment\" AS behav, \"Effectiveness Tracking\" AS track FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" <> 'Student'",
+          "time": 1788865794.489445,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.5999607965350151,
+      "intermediate_rows": 325,
+      "intermediate_columns": [
+        "Region ID",
+        "Education ID",
+        "Campaign Format (Poster/Video/Lecture)",
+        "Campaign Content (Prevention/Treatment/Policy)",
+        "Distribution Quantity",
+        "Population Covered",
+        "Awareness Rate Survey",
+        "Key Locations (School/Hospital/Community)",
+        "Campaign Frequency (times/month)",
+        "Effectiveness Assessment",
+        "New Media Metrics (Views/Shares)",
+        "Health Education Material ID",
+        "Knowledge Assessment",
+        "Behavioral Change Assessment",
+        "Educational Resource Library",
+        "Educational Expenditure",
+        "Effectiveness Tracking",
+        "Cultural Appropriateness Assessment",
+        "Policy Implementation Status",
+        "Data Anonymization"
+      ],
+      "validation_ended_at": 1788865794.4944677,
+      "checks": [
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, COUNT(*) AS n, ROUND(100.0 * SUM(CASE WHEN \"Behavioral Change Assessment\" = 'Significant' AND \"Effectiveness Tracking\" = 'Significant' THEN 1 ELSE 0 END) / COUNT(*), 1) AS both_pct FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" <> 'Student' GROUP BY format, location ORDER BY both_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.4975890517234802
+        },
+        {
+          "sql_id": "S27",
+          "rewritten_sql": "SELECT \"Campaign Format (Poster/Video/Lecture)\" AS format, \"Key Locations (School/Hospital/Community)\" AS location, \"Population Covered\" AS pop, \"Behavioral Change Assessment\" AS behav, \"Effectiveness Tracking\" AS track FROM temp.reuse_candidate AS health_education WHERE \"Population Covered\" <> 'Student'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 4.980094730854034
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

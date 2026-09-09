@@ -1,0 +1,1 @@
+SELECT DISTINCT "Anomaly Type" FROM abnormal_logins_table

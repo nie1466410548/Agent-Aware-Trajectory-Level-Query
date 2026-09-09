@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT sku_id) AS skus_1, COUNT(DISTINCT sku_id) AS skus_2 FROM attachment_1, attachment_2

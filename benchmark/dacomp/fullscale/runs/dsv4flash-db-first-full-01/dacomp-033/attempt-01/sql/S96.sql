@@ -1,0 +1,1 @@
+SELECT "Upgrade Requirements Met", COUNT(*) as cnt FROM membership_table GROUP BY "Upgrade Requirements Met"

@@ -1,0 +1,2 @@
+SELECT comprehensive_customer_value, user_value_score, predicted_clv_tier, predicted_ltv_tier, rfm_composite_score, customer_value_tier, is_valuable_user, lifecycle_stage, feature_adoption_rate
+FROM pendo__customer_lifecycle_insights LIMIT 20

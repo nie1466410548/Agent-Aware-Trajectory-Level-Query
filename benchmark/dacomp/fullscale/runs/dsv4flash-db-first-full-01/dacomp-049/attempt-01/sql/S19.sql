@@ -1,0 +1,1 @@
+SELECT "Salary Range" FROM sheet1 WHERE "Salary Range" IS NOT NULL AND "Salary Range" != ''

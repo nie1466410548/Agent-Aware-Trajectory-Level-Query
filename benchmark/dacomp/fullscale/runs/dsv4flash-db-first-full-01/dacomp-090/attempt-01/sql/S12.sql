@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS high_risk_count FROM quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000

@@ -1,0 +1,1 @@
+SELECT DISTINCT brand_id FROM qualtrics__survey LIMIT 50

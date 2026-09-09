@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_rows FROM customer360__customer_value_analysis

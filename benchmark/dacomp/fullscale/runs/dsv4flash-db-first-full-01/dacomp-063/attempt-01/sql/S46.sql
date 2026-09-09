@@ -1,0 +1,4 @@
+SELECT project_id, project_key, project_name, overall_health_score, total_risk_score, complexity_risk_score, health_risk_score, schedule_risk_score, resource_risk_score, scope_risk_score, value_delivery_percentage, team_stability_percentage, resolution_velocity_change_percent, net_issue_growth_30d, high_delay_cost_issues, success_probability, trajectory_status, risk_category, primary_risk_driver, recommended_intervention
+FROM jira__project_risk_assessment
+WHERE overall_health_score > 75 AND risk_category IN ('Critical Risk', 'High Risk') AND complexity_risk_score > 30
+ORDER BY overall_health_score DESC

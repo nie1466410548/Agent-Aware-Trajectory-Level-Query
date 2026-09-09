@@ -1,0 +1,1 @@
+SELECT "Customer ID", LEFT("Customer ID",1) as prefix, LENGTH("Customer ID") as len FROM transaction_history_table GROUP BY prefix, len LIMIT 20

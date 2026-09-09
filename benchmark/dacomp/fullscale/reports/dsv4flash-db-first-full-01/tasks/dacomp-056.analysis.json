@@ -1,0 +1,457 @@
+{
+  "fingerprint": "450b1634568d3c70c0a6967c7b0afc3b03b80cc0eb0ebd9b7c721af2536f8c07",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT *, ROW_NUMBER() OVER (PARTITION BY marketo_lead_id ORDER BY rfm_avg_score DESC, rfm_score DESC) AS rn FROM customer360__customer_value_analysis WHERE NOT marketo_lead_id IS NULL",
+      "covered": [
+        "S34",
+        "S35"
+      ],
+      "rewrites": {
+        "S34": "/* Deduplicate: keep one row per lead, picking the one with highest rfm_avg_score */ WITH dedup AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM dedup WHERE rn = 1",
+        "S35": "WITH dedup AS (SELECT * FROM temp.reuse_candidate), groups AS (SELECT *, CASE WHEN customer_tier IN ('Gold', 'Platinum') AND portfolio_contribution_pct > 0.05 THEN 'HVE' ELSE 'SMB' END AS customer_group FROM dedup WHERE rn = 1) SELECT customer_group, COUNT(*) AS n, AVG(recency_score) AS avg_recency, AVG(frequency_score) AS avg_frequency, AVG(monetary_score) AS avg_monetary, AVG(rfm_avg_score) AS avg_rfm, AVG(estimated_customer_ltv) AS avg_ltv, AVG(customer_health_score) AS avg_health, AVG(churn_probability) AS avg_churn, AVG(account_age_days) AS avg_age, AVG(days_since_last_activity) AS avg_days_inactive, AVG(portfolio_contribution_pct) AS avg_portfolio, AVG(investment_priority_score) AS avg_priority, AVG(expected_annual_revenue) AS avg_annual_rev FROM groups GROUP BY customer_group"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S34",
+      "later_reuses": 1,
+      "denominator": 32,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866867.6737318,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT *, ROW_NUMBER() OVER (PARTITION BY marketo_lead_id ORDER BY rfm_avg_score DESC, rfm_score DESC) AS rn FROM customer360__customer_value_analysis WHERE NOT marketo_lead_id IS NULL",
+          "phase": "offline_validation",
+          "start_time": 1788866867.6739514,
+          "status": "execute_returned",
+          "end_time": 1788866867.7058814
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866867.7058897,
+          "status": "execute_returned",
+          "end_time": 1788866867.7060068
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788866867.7060132,
+          "status": "execute_returned",
+          "end_time": 1788866867.7060354
+        },
+        {
+          "sequence": 4,
+          "sql": "/* Deduplicate: keep one row per lead, picking the one with highest rfm_avg_score */ WITH dedup AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM dedup WHERE rn = 1",
+          "phase": "offline_validation",
+          "start_time": 1788866867.7060864,
+          "status": "execute_returned",
+          "end_time": 1788866867.7062347
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH dedup AS (SELECT * FROM temp.reuse_candidate), groups AS (SELECT *, CASE WHEN customer_tier IN ('Gold', 'Platinum') AND portfolio_contribution_pct > 0.05 THEN 'HVE' ELSE 'SMB' END AS customer_group FROM dedup WHERE rn = 1) SELECT customer_group, COUNT(*) AS n, AVG(recency_score) AS avg_recency, AVG(frequency_score) AS avg_frequency, AVG(monetary_score) AS avg_monetary, AVG(rfm_avg_score) AS avg_rfm, AVG(estimated_customer_ltv) AS avg_ltv, AVG(customer_health_score) AS avg_health, AVG(churn_probability) AS avg_churn, AVG(account_age_days) AS avg_age, AVG(days_since_last_activity) AS avg_days_inactive, AVG(portfolio_contribution_pct) AS avg_portfolio, AVG(investment_priority_score) AS avg_priority, AVG(expected_annual_revenue) AS avg_annual_rev FROM groups GROUP BY customer_group",
+          "phase": "offline_validation",
+          "start_time": 1788866867.9234517,
+          "status": "execute_returned",
+          "end_time": 1788866867.9275331
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT *, ROW_NUMBER() OVER (PARTITION BY marketo_lead_id ORDER BY rfm_avg_score DESC, rfm_score DESC) AS rn FROM customer360__customer_value_analysis WHERE NOT marketo_lead_id IS NULL",
+          "time": 1788866867.6742787,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788866867.7059128,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788866867.706032,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Deduplicate: keep one row per lead, picking the one with highest rfm_avg_score */ WITH dedup AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM dedup WHERE rn = 1",
+          "time": 1788866867.7062192,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH dedup AS (SELECT * FROM temp.reuse_candidate), groups AS (SELECT *, CASE WHEN customer_tier IN ('Gold', 'Platinum') AND portfolio_contribution_pct > 0.05 THEN 'HVE' ELSE 'SMB' END AS customer_group FROM dedup WHERE rn = 1) SELECT customer_group, COUNT(*) AS n, AVG(recency_score) AS avg_recency, AVG(frequency_score) AS avg_frequency, AVG(monetary_score) AS avg_monetary, AVG(rfm_avg_score) AS avg_rfm, AVG(estimated_customer_ltv) AS avg_ltv, AVG(customer_health_score) AS avg_health, AVG(churn_probability) AS avg_churn, AVG(account_age_days) AS avg_age, AVG(days_since_last_activity) AS avg_days_inactive, AVG(portfolio_contribution_pct) AS avg_portfolio, AVG(investment_priority_score) AS avg_priority, AVG(expected_annual_revenue) AS avg_annual_rev FROM groups GROUP BY customer_group",
+          "time": 1788866867.9237463,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 31.93439356982708,
+      "intermediate_rows": 4837,
+      "intermediate_columns": [
+        "marketo_lead_id",
+        "stripe_customer_id",
+        "zendesk_user_id",
+        "primary_email",
+        "primary_organization",
+        "customer_segment",
+        "customer_tier",
+        "rfm_segment",
+        "rfm_score",
+        "rfm_avg_score",
+        "recency_score",
+        "frequency_score",
+        "monetary_score",
+        "estimated_customer_ltv",
+        "adjusted_ltv",
+        "expected_annual_revenue",
+        "revenue_tier",
+        "strategic_classification",
+        "value_stability",
+        "upsell_potential",
+        "churn_probability",
+        "potential_revenue_loss",
+        "revenue_risk_percentage",
+        "portfolio_contribution_pct",
+        "concentration_risk",
+        "investment_priority_score",
+        "acquisition_roi_assessment",
+        "recommended_engagement_model",
+        "investment_recommendation",
+        "success_target",
+        "development_opportunity",
+        "customer_health_score",
+        "lifecycle_stage",
+        "risk_category",
+        "account_age_days",
+        "days_since_last_activity",
+        "analysis_timestamp",
+        "rn"
+      ],
+      "validation_ended_at": 1788866867.9394917,
+      "checks": [
+        {
+          "sql_id": "S34",
+          "rewritten_sql": "/* Deduplicate: keep one row per lead, picking the one with highest rfm_avg_score */ WITH dedup AS (SELECT * FROM temp.reuse_candidate) SELECT * FROM dedup WHERE rn = 1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 217.35700592398643
+        },
+        {
+          "sql_id": "S35",
+          "rewritten_sql": "WITH dedup AS (SELECT * FROM temp.reuse_candidate), groups AS (SELECT *, CASE WHEN customer_tier IN ('Gold', 'Platinum') AND portfolio_contribution_pct > 0.05 THEN 'HVE' ELSE 'SMB' END AS customer_group FROM dedup WHERE rn = 1) SELECT customer_group, COUNT(*) AS n, AVG(recency_score) AS avg_recency, AVG(frequency_score) AS avg_frequency, AVG(monetary_score) AS avg_monetary, AVG(rfm_avg_score) AS avg_rfm, AVG(estimated_customer_ltv) AS avg_ltv, AVG(customer_health_score) AS avg_health, AVG(churn_probability) AS avg_churn, AVG(account_age_days) AS avg_age, AVG(days_since_last_activity) AS avg_days_inactive, AVG(portfolio_contribution_pct) AS avg_portfolio, AVG(investment_priority_score) AS avg_priority, AVG(expected_annual_revenue) AS avg_annual_rev FROM groups GROUP BY customer_group",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 15.537451952695847
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT customer_tier AS __g0, customer_segment AS __g1, rfm_segment AS __g2, COUNT(*) AS __a0 FROM \"customer360__customer_value_analysis\"  GROUP BY customer_tier, customer_segment, rfm_segment",
+      "covered": [
+        "S4",
+        "S23"
+      ],
+      "rewrites": {
+        "S4": "SELECT __g0 AS \"customer_tier\", __g1 AS \"customer_segment\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY n DESC",
+        "S23": "SELECT __g2 AS \"rfm_segment\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY n DESC"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S4",
+      "later_reuses": 1,
+      "denominator": 32,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866867.9395256,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT customer_tier AS __g0, customer_segment AS __g1, rfm_segment AS __g2, COUNT(*) AS __a0 FROM \"customer360__customer_value_analysis\"  GROUP BY customer_tier, customer_segment, rfm_segment",
+          "phase": "offline_validation",
+          "start_time": 1788866867.9397697,
+          "status": "execute_returned",
+          "end_time": 1788866867.9440033
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866867.9440084,
+          "status": "execute_returned",
+          "end_time": 1788866867.9440265
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788866867.944031,
+          "status": "execute_returned",
+          "end_time": 1788866867.944042
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"customer_tier\", __g1 AS \"customer_segment\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866867.9440532,
+          "status": "execute_returned",
+          "end_time": 1788866867.9441028
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g2 AS \"rfm_segment\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866867.944837,
+          "status": "execute_returned",
+          "end_time": 1788866867.944892
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT customer_tier AS __g0, customer_segment AS __g1, rfm_segment AS __g2, COUNT(*) AS __a0 FROM \"customer360__customer_value_analysis\"  GROUP BY customer_tier, customer_segment, rfm_segment",
+          "time": 1788866867.940015,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788866867.9440236,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788866867.9440393,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"customer_tier\", __g1 AS \"customer_segment\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY n DESC",
+          "time": 1788866867.9440727,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"rfm_segment\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY n DESC",
+          "time": 1788866867.944865,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 4.237459972500801,
+      "intermediate_rows": 48,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__a0"
+      ],
+      "validation_ended_at": 1788866867.9455442,
+      "checks": [
+        {
+          "sql_id": "S4",
+          "rewritten_sql": "SELECT __g0 AS \"customer_tier\", __g1 AS \"customer_segment\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7810909301042557
+        },
+        {
+          "sql_id": "S23",
+          "rewritten_sql": "SELECT __g2 AS \"rfm_segment\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5926582962274551
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"customer360__customer_value_analysis\" WHERE NOT marketo_lead_id IS NULL",
+      "covered": [
+        "S10",
+        "S17",
+        "S18"
+      ],
+      "rewrites": {
+        "S10": "SELECT customer_tier, COUNT(DISTINCT marketo_lead_id) AS n, AVG(portfolio_contribution_pct) AS avg_portfolio_contrib, AVG(estimated_customer_ltv) AS avg_ltv, AVG(customer_health_score) AS avg_health, AVG(churn_probability) AS avg_churn, AVG(recency_score) AS avg_recency, AVG(frequency_score) AS avg_frequency, AVG(monetary_score) AS avg_monetary FROM temp.reuse_candidate AS customer360__customer_value_analysis WHERE NOT marketo_lead_id IS NULL GROUP BY customer_tier ORDER BY CASE customer_tier WHEN 'Platinum' THEN 1 WHEN 'Gold' THEN 2 WHEN 'Silver' THEN 3 WHEN 'Bronze' THEN 4 WHEN 'Basic' THEN 5 END",
+        "S17": "SELECT MIN(portfolio_contribution_pct) AS min_pct, MAX(portfolio_contribution_pct) AS max_pct, AVG(portfolio_contribution_pct) AS avg_pct FROM temp.reuse_candidate AS customer360__customer_value_analysis WHERE NOT marketo_lead_id IS NULL",
+        "S18": "SELECT customer_tier, COUNT(DISTINCT marketo_lead_id) AS n, MIN(portfolio_contribution_pct) AS min_pct, MAX(portfolio_contribution_pct) AS max_pct, AVG(portfolio_contribution_pct) AS avg_pct FROM temp.reuse_candidate AS customer360__customer_value_analysis WHERE NOT marketo_lead_id IS NULL GROUP BY customer_tier"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S10",
+      "later_reuses": 2,
+      "denominator": 32,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866867.6473944,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"customer360__customer_value_analysis\" WHERE NOT marketo_lead_id IS NULL",
+          "phase": "offline_validation",
+          "start_time": 1788866867.647656,
+          "status": "execute_returned",
+          "end_time": 1788866867.6583078
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866867.6583145,
+          "status": "execute_returned",
+          "end_time": 1788866867.658449
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788866867.6584568,
+          "status": "execute_returned",
+          "end_time": 1788866867.658478
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT customer_tier, COUNT(DISTINCT marketo_lead_id) AS n, AVG(portfolio_contribution_pct) AS avg_portfolio_contrib, AVG(estimated_customer_ltv) AS avg_ltv, AVG(customer_health_score) AS avg_health, AVG(churn_probability) AS avg_churn, AVG(recency_score) AS avg_recency, AVG(frequency_score) AS avg_frequency, AVG(monetary_score) AS avg_monetary FROM temp.reuse_candidate AS customer360__customer_value_analysis WHERE NOT marketo_lead_id IS NULL GROUP BY customer_tier ORDER BY CASE customer_tier WHEN 'Platinum' THEN 1 WHEN 'Gold' THEN 2 WHEN 'Silver' THEN 3 WHEN 'Bronze' THEN 4 WHEN 'Basic' THEN 5 END",
+          "phase": "offline_validation",
+          "start_time": 1788866867.6585267,
+          "status": "execute_returned",
+          "end_time": 1788866867.664296
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT MIN(portfolio_contribution_pct) AS min_pct, MAX(portfolio_contribution_pct) AS max_pct, AVG(portfolio_contribution_pct) AS avg_pct FROM temp.reuse_candidate AS customer360__customer_value_analysis WHERE NOT marketo_lead_id IS NULL",
+          "phase": "offline_validation",
+          "start_time": 1788866867.6660013,
+          "status": "execute_returned",
+          "end_time": 1788866867.667333
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT customer_tier, COUNT(DISTINCT marketo_lead_id) AS n, MIN(portfolio_contribution_pct) AS min_pct, MAX(portfolio_contribution_pct) AS max_pct, AVG(portfolio_contribution_pct) AS avg_pct FROM temp.reuse_candidate AS customer360__customer_value_analysis WHERE NOT marketo_lead_id IS NULL GROUP BY customer_tier",
+          "phase": "offline_validation",
+          "start_time": 1788866867.6680095,
+          "status": "execute_returned",
+          "end_time": 1788866867.6711264
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"customer360__customer_value_analysis\" WHERE NOT marketo_lead_id IS NULL",
+          "time": 1788866867.6480231,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788866867.6583405,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788866867.658475,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT customer_tier, COUNT(DISTINCT marketo_lead_id) AS n, AVG(portfolio_contribution_pct) AS avg_portfolio_contrib, AVG(estimated_customer_ltv) AS avg_ltv, AVG(customer_health_score) AS avg_health, AVG(churn_probability) AS avg_churn, AVG(recency_score) AS avg_recency, AVG(frequency_score) AS avg_frequency, AVG(monetary_score) AS avg_monetary FROM temp.reuse_candidate AS customer360__customer_value_analysis WHERE NOT marketo_lead_id IS NULL GROUP BY customer_tier ORDER BY CASE customer_tier WHEN 'Platinum' THEN 1 WHEN 'Gold' THEN 2 WHEN 'Silver' THEN 3 WHEN 'Bronze' THEN 4 WHEN 'Basic' THEN 5 END",
+          "time": 1788866867.6585822,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(portfolio_contribution_pct) AS min_pct, MAX(portfolio_contribution_pct) AS max_pct, AVG(portfolio_contribution_pct) AS avg_pct FROM temp.reuse_candidate AS customer360__customer_value_analysis WHERE NOT marketo_lead_id IS NULL",
+          "time": 1788866867.6660354,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT customer_tier, COUNT(DISTINCT marketo_lead_id) AS n, MIN(portfolio_contribution_pct) AS min_pct, MAX(portfolio_contribution_pct) AS max_pct, AVG(portfolio_contribution_pct) AS avg_pct FROM temp.reuse_candidate AS customer360__customer_value_analysis WHERE NOT marketo_lead_id IS NULL GROUP BY customer_tier",
+          "time": 1788866867.6680532,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 10.657028295099735,
+      "intermediate_rows": 4837,
+      "intermediate_columns": [
+        "marketo_lead_id",
+        "stripe_customer_id",
+        "zendesk_user_id",
+        "primary_email",
+        "primary_organization",
+        "customer_segment",
+        "customer_tier",
+        "rfm_segment",
+        "rfm_score",
+        "rfm_avg_score",
+        "recency_score",
+        "frequency_score",
+        "monetary_score",
+        "estimated_customer_ltv",
+        "adjusted_ltv",
+        "expected_annual_revenue",
+        "revenue_tier",
+        "strategic_classification",
+        "value_stability",
+        "upsell_potential",
+        "churn_probability",
+        "potential_revenue_loss",
+        "revenue_risk_percentage",
+        "portfolio_contribution_pct",
+        "concentration_risk",
+        "investment_priority_score",
+        "acquisition_roi_assessment",
+        "recommended_engagement_model",
+        "investment_recommendation",
+        "success_target",
+        "development_opportunity",
+        "customer_health_score",
+        "lifecycle_stage",
+        "risk_category",
+        "account_age_days",
+        "days_since_last_activity",
+        "analysis_timestamp"
+      ],
+      "validation_ended_at": 1788866867.6737132,
+      "checks": [
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT customer_tier, COUNT(DISTINCT marketo_lead_id) AS n, AVG(portfolio_contribution_pct) AS avg_portfolio_contrib, AVG(estimated_customer_ltv) AS avg_ltv, AVG(customer_health_score) AS avg_health, AVG(churn_probability) AS avg_churn, AVG(recency_score) AS avg_recency, AVG(frequency_score) AS avg_frequency, AVG(monetary_score) AS avg_monetary FROM temp.reuse_candidate AS customer360__customer_value_analysis WHERE NOT marketo_lead_id IS NULL GROUP BY customer_tier ORDER BY CASE customer_tier WHEN 'Platinum' THEN 1 WHEN 'Gold' THEN 2 WHEN 'Silver' THEN 3 WHEN 'Bronze' THEN 4 WHEN 'Basic' THEN 5 END",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 7.471609860658646
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "SELECT MIN(portfolio_contribution_pct) AS min_pct, MAX(portfolio_contribution_pct) AS max_pct, AVG(portfolio_contribution_pct) AS avg_pct FROM temp.reuse_candidate AS customer360__customer_value_analysis WHERE NOT marketo_lead_id IS NULL",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.0053889602422714
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT customer_tier, COUNT(DISTINCT marketo_lead_id) AS n, MIN(portfolio_contribution_pct) AS min_pct, MAX(portfolio_contribution_pct) AS max_pct, AVG(portfolio_contribution_pct) AS avg_pct FROM temp.reuse_candidate AS customer360__customer_value_analysis WHERE NOT marketo_lead_id IS NULL GROUP BY customer_tier",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 5.0622280687093735
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "task_id": "dacomp-090",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "SQL 完成客户筛选、风险分数与趋势的主要计算。Python 仍求和欠款和预计损失、计算最近月份差分均值并构造常规回收率情景；这些 SQL 可支持的算术、窗口和聚合应优先留在数据库，检验及绘图单独评价。",
+  "route": "SQL 识别高风险付款客户、利润及回收趋势 → Python 汇总损失和回收情景 → 现金流风险图表与建议。",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 22,
+          "text": "print(\"High-Risk:\", (df_all['risk_group']=='High-Risk').sum())"
+        },
+        {
+          "line": 23,
+          "text": "print(\"Normal:\", (df_all['risk_group']=='Normal').sum())"
+        }
+      ]
+    },
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 40,
+          "text": "total_outstanding = df_risk['outstanding_balance'].sum()"
+        },
+        {
+          "line": 44,
+          "text": "df_risk['expected_loss_risk'] = df_risk['outstanding_balance'] * (df_risk['risk_score'] / 100.0)"
+        },
+        {
+          "line": 45,
+          "text": "total_expected_loss = df_risk['expected_loss_risk'].sum()"
+        },
+        {
+          "line": 53,
+          "text": "scenario1_recovery = total_outstanding * (current_collection_rate / 100)"
+        },
+        {
+          "line": 68,
+          "text": "monthly_decline = last3['collection_rate_percentage'].diff().mean()"
+        },
+        {
+          "line": 72,
+          "text": "projected_rate = max(0, current_collection_rate + monthly_decline * 6)"
+        },
+        {
+          "line": 83,
+          "text": "scenario4_loss = total_expected_loss * (1 + abs(monthly_decline/current_collection_rate) * 3)"
+        },
+        {
+          "line": 89,
+          "text": "total_cf_6m = df_cf['forecasted_net_cash_flow'].sum()"
+        }
+      ]
+    }
+  ]
+}

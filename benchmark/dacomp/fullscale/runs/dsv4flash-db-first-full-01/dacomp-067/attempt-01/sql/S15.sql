@@ -1,0 +1,1 @@
+SELECT * FROM greenhouse__job_enhanced ORDER BY count_total_applications DESC LIMIT 20

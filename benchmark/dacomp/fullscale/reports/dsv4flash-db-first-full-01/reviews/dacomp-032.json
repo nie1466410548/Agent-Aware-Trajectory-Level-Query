@@ -1,0 +1,64 @@
+{
+  "task_id": "dacomp-032",
+  "status": "partial_violation",
+  "reviewer": "experiment analyst",
+  "route": "识别联系优先级为 1 的客户 → 多表关联投诉与工单并核查关系 → 比较响应/解决时间和满意度 → Python 分布检验与紧急程度细分图表。",
+  "conclusion": "SQL handles customer-segment selection and ticket/complaint joins. Python runs Mann-Whitney, Spearman and Kruskal tests, which justify statistical inputs, but also computes group/urgency count and mean summaries for reports and plots. These SQL-capable groupings are deviations; median and statistical procedures are distinguished from those summaries.",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 27,
+          "text": "print(tk.groupby('grp').agg(n=('res_h','size'), avg_res_h=('res_h','mean'), med_res_h=('res_h','median'),"
+        },
+        {
+          "line": 30,
+          "text": "print(cp.groupby('grp').agg(n=('speed_h','size'), avg_speed_h=('speed_h','mean'), med_speed_h=('speed_h','median'),"
+        },
+        {
+          "line": 36,
+          "text": "    u,p = stats.mannwhitneyu(p1[col], oth[col], alternative='two-sided')"
+        },
+        {
+          "line": 41,
+          "text": "    u,p = stats.mannwhitneyu(p1c[col], othc[col], alternative='two-sided')"
+        }
+      ]
+    },
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 60,
+          "text": "urg_agg = p1.groupby('urgency',observed=False).agg(cnt=('res_h','size'), avg_res=('res_h','mean'), avg_sat=('sat','mean'))"
+        }
+      ]
+    },
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 28,
+          "text": "r,p = stats.spearmanr(overlap['ticket_sat'], overlap['comp_sat'])"
+        },
+        {
+          "line": 33,
+          "text": "ct = overlap.groupby('ctype').agg(n=('Work Order ID','size'), "
+        },
+        {
+          "line": 84,
+          "text": "urg_sat = p1.groupby('urgency', observed=False).agg(n=('sat','size'), avg_sat=('sat','mean'), med_sat=('sat','median'))"
+        },
+        {
+          "line": 91,
+          "text": "    h,p_val = stats.kruskal(*groups)"
+        },
+        {
+          "line": 96,
+          "text": "print(tk.groupby(['grp','urgency'], observed=False).agg(n=('res_h','size'), avg=('res_h','mean')).round(1))"
+        }
+      ]
+    }
+  ]
+}

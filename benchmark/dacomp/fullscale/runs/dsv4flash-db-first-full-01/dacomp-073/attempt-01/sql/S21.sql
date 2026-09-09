@@ -1,0 +1,1 @@
+SELECT strftime('%Y-%m', created_at) as ym, COUNT(*) as cnt FROM lever__posting_enhanced GROUP BY ym ORDER BY ym

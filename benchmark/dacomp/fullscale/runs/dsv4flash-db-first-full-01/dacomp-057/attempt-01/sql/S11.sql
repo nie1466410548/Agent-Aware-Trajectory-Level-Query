@@ -1,0 +1,1 @@
+SELECT DISTINCT account_maturity_stage FROM google_ads__customer_acquisition_analysis

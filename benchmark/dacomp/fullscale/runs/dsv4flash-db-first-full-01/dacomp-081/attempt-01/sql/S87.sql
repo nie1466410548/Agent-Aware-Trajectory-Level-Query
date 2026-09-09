@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n FROM (SELECT survey_id FROM qualtrics__survey GROUP BY survey_id HAVING COUNT(*) > 1)

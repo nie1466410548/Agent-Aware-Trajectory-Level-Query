@@ -1,0 +1,1 @@
+SELECT Gender, COUNT(*) AS n FROM health_checkup_indicators GROUP BY Gender

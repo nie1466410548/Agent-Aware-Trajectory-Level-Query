@@ -1,0 +1,1 @@
+SELECT "Pass Rate", COUNT(*) AS cnt FROM sheet1 GROUP BY "Pass Rate" ORDER BY cnt DESC LIMIT 20

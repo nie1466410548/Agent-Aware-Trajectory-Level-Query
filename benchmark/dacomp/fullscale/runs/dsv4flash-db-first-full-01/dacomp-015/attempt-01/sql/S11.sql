@@ -1,0 +1,1 @@
+SELECT Decoration, COUNT(*) AS cnt FROM data GROUP BY Decoration ORDER BY cnt DESC

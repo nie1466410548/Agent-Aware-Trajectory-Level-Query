@@ -1,0 +1,1 @@
+SELECT * FROM sales_data_table LIMIT 20

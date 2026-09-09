@@ -1,0 +1,1 @@
+SELECT question_type, COUNT(*) AS n, MIN(value) AS min_v, MAX(value) AS max_v, AVG(value) AS avg_v FROM qualtrics__response GROUP BY question_type ORDER BY n DESC

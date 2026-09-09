@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_rows, COUNT(DISTINCT EmpID) AS unique_emp, SUM(CASE WHEN Attrition='Yes' THEN 1 ELSE 0 END) AS total_attrition FROM sheet1;

@@ -1,0 +1,97 @@
+{
+  "task_id": "dacomp-060",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 多次连接广告组与活动数据，并对关键词、搜索词、匹配类型和渠道执行分组求和、计数、比例及 Top-K。常规均值和阈值比例也在 Python 重算；这些均可在 SQL 内执行。分位数及图表单独评价。",
+  "route": "SQL 提取高 CTR 低 CVR 广告组及相关明细 → Python 连接、意图匹配计算和关键词分组 → 流量质量诊断。",
+  "evidence": [
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 30,
+          "text": "kw_agg = kw.groupby(['is_problematic', 'keyword_match_type']).agg("
+        },
+        {
+          "line": 40,
+          "text": "    total_imp = subset['kw_impressions'].sum()"
+        },
+        {
+          "line": 41,
+          "text": "    total_clk = subset['kw_clicks'].sum()"
+        },
+        {
+          "line": 42,
+          "text": "    total_conv = subset['kw_conversions'].sum()"
+        },
+        {
+          "line": 53,
+          "text": "print(kwp.groupby('kw_status').agg(impressions=('kw_impressions','sum'), clicks=('kw_clicks','sum')).reset_index())"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 28,
+          "text": "st_match = st.groupby(['is_problematic', 'search_term_match_type']).agg("
+        },
+        {
+          "line": 42,
+          "text": "st_kw = st.groupby(['is_problematic', 'keyword_match_type']).agg("
+        },
+        {
+          "line": 57,
+          "text": "st_top = st_prob.groupby('search_term').agg("
+        }
+      ]
+    },
+    {
+      "source": "python/P12.py",
+      "lines": [
+        {
+          "line": 24,
+          "text": "prob_rate_by_account = ag.groupby('account_name')['is_problematic'].mean() * 100"
+        },
+        {
+          "line": 34,
+          "text": "ag_with_chan = ag.merge(cam[['campaign_id', 'advertising_channel_type', 'advertising_channel_subtype']], on='campaign_id', how='left')"
+        },
+        {
+          "line": 36,
+          "text": "chan_type = ag_with_chan.groupby(['advertising_channel_type', 'is_problematic']).size().unstack(fill_value=0)"
+        },
+        {
+          "line": 68,
+          "text": "print(kw18_low.groupby('keyword_text').agg(imps=('kw_impressions','sum'), clks=('kw_clicks','sum'), conv=('kw_conversions','sum')).sort_values('imps', ascending=False).head(20).to_string())"
+        }
+      ]
+    },
+    {
+      "source": "python/P13.py",
+      "lines": [
+        {
+          "line": 14,
+          "text": "ag = ag.merge(cam[['campaign_id', 'campaign_cvr']], on='campaign_id', how='left')"
+        },
+        {
+          "line": 25,
+          "text": "total_spend_prob = prob['spend'].sum()"
+        },
+        {
+          "line": 26,
+          "text": "total_spend_all = ag['spend'].sum()"
+        },
+        {
+          "line": 57,
+          "text": "zero_conv_prob = (prob['conversions'] == 0).sum()"
+        },
+        {
+          "line": 58,
+          "text": "zero_conv_nonprob = (nonprob['conversions'] == 0).sum()"
+        }
+      ]
+    }
+  ]
+}

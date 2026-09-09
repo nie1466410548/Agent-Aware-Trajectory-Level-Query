@@ -1,0 +1,1 @@
+SELECT "Have you ever had suicidal thoughts?" AS suicidal, COUNT(*) AS n FROM sheet1 GROUP BY suicidal

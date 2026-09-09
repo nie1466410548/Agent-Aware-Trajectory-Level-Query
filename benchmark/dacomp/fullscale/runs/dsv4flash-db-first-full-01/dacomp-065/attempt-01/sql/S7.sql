@@ -1,0 +1,1 @@
+SELECT university_tier, COUNT(*) AS n FROM greenhouse__application_enhanced GROUP BY university_tier ORDER BY n DESC

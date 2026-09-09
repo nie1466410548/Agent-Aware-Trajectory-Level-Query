@@ -1,0 +1,63 @@
+{
+  "task_id": "dacomp-021",
+  "status": "partial_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "SQL prepares hourly/daily ride aggregates. Python runs correlations and a t-test and renders plots, which are appropriate supplements. P2/P3 additionally roll daily rows into weekday/monthly means and sums and calculate cancellation ratios; those SQL-capable preparation steps are deviations even though inputs are already aggregated.",
+  "route": "按小时、日期和星期分析预订量 → 比较取消率与每公里费用 → Python 检验高低峰关联并汇总月份 → 绘制时段热图和趋势。",
+  "evidence": [
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 7,
+          "text": "daily['cancel_pct'] = 100*daily['cancellations']/daily['bookings']"
+        },
+        {
+          "line": 15,
+          "text": "for col in ['cancel_pct','nodriver_pct','incomplete_pct','cost_per_km']:"
+        },
+        {
+          "line": 16,
+          "text": "    r, p = stats.pearsonr(daily['bookings'], daily[col])"
+        },
+        {
+          "line": 24,
+          "text": "    'Metric': ['bookings','cancel_pct','nodriver_pct','incomplete_pct','cost_per_km'],"
+        },
+        {
+          "line": 25,
+          "text": "    'High-volume days': [hi['bookings'].mean(), hi['cancel_pct'].mean(), hi['nodriver_pct'].mean(), hi['incomplete_pct'].mean(), hi['cost_per_km'].mean()],"
+        },
+        {
+          "line": 26,
+          "text": "    'Low-volume days': [lo['bookings'].mean(), lo['cancel_pct'].mean(), lo['nodriver_pct'].mean(), lo['incomplete_pct'].mean(), lo['cost_per_km'].mean()],"
+        },
+        {
+          "line": 32,
+          "text": "wd = daily.groupby('weekday').agg(bookings=('bookings','mean'), cancel_pct=('cancel_pct','mean'),"
+        },
+        {
+          "line": 39,
+          "text": "t, p = stats.ttest_ind(w.dropna(), nw.dropna())"
+        },
+        {
+          "line": 44,
+          "text": "print(\"\\nMean daily cancel_pct by weekday:\")"
+        },
+        {
+          "line": 45,
+          "text": "print(daily.groupby('weekday')['cancel_pct'].mean().round(2).to_string())"
+        }
+      ]
+    },
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 18,
+          "text": "monthly = daily.groupby('month').agg("
+        }
+      ]
+    }
+  ]
+}

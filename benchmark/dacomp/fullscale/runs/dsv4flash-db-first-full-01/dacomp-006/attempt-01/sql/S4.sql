@@ -1,0 +1,1 @@
+SELECT DISTINCT "Destination" FROM sheet1 WHERE "Destination" LIKE 'South China%' ORDER BY "Destination"

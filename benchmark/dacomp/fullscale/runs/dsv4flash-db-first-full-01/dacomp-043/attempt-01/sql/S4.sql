@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_cases FROM clinical_manifestations;

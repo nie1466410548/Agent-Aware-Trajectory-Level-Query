@@ -1,0 +1,1 @@
+SELECT DISTINCT "New Car Price (incl. tax)" AS np FROM autohome

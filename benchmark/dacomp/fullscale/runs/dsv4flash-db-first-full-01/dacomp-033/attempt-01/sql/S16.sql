@@ -1,0 +1,1 @@
+SELECT DISTINCT "Member Status" FROM membership_table

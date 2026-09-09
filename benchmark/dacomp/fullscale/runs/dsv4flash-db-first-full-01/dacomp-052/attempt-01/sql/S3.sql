@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_rows, COUNT(DISTINCT team_id) AS distinct_teams FROM asana__team_efficiency_metrics

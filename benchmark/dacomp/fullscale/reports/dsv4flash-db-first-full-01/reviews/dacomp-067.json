@@ -1,0 +1,68 @@
+{
+  "task_id": "dacomp-067",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 按推荐和申请状态重算评分均值及高分率，计算对齐人数，并在字面量分配与成本假设上执行常规情景求和。数据库内优先协议也涵盖常规情景算术，因此记录这些偏离；字面量不据此自动认定来自某条 SQL。绘图单独保留。",
+  "route": "SQL 汇总招聘渠道、成本、流程和多样性 → Python 评分聚合及成本分配情景 → 招聘策略与图表。",
+  "evidence": [
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 77,
+          "text": "print(f\"Aligned (same dept): {aligned_subset['aligned'].sum()}\")"
+        },
+        {
+          "line": 78,
+          "text": "print(f\"Not aligned: {(aligned_subset['aligned']==0).sum()}\")"
+        },
+        {
+          "line": 120,
+          "text": "print(sc_out_df.groupby('rec_norm')['rating'].mean().round(3))"
+        },
+        {
+          "line": 123,
+          "text": "print(sc_out_df.groupby('app_status')['rating'].mean().round(3))"
+        },
+        {
+          "line": 128,
+          "text": "print(sc_out_df.groupby('app_status')['high_rating'].mean().round(3))"
+        }
+      ]
+    },
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 101,
+          "text": "current_total = sum(v * cost_benchmarks[k] + fixed_costs[k] for k, v in current_allocation.items())"
+        },
+        {
+          "line": 102,
+          "text": "optimized_total = sum(v * cost_benchmarks[k] + fixed_costs[k] for k, v in optimized_allocation.items())"
+        },
+        {
+          "line": 103,
+          "text": "current_hires_total = sum(current_allocation.values())"
+        },
+        {
+          "line": 104,
+          "text": "optimized_hires_total = sum(optimized_allocation.values())"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 19,
+          "text": "print(f\"Average scorecard rating: {sc_avg_df['avg_scorecard_rating'].mean():.2f}\")"
+        },
+        {
+          "line": 97,
+          "text": "weighted_avg = (rec_scores_df['rec_score'] * rec_scores_df['cnt']).sum() / rec_scores_df['cnt'].sum()"
+        }
+      ]
+    }
+  ]
+}

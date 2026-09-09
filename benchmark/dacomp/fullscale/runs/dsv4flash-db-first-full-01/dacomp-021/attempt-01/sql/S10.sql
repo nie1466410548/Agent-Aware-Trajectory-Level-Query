@@ -1,0 +1,1 @@
+SELECT "Time", length("Time") AS tlen FROM sheet1 GROUP BY "Time" ORDER BY tlen, "Time" LIMIT 20

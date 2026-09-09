@@ -1,0 +1,1 @@
+SELECT * FROM agricultural_product_price_tren

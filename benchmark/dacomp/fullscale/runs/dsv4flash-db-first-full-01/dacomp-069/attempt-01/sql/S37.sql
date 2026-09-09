@@ -1,0 +1,1 @@
+SELECT date_day, daily_revenue, quality_score, crash_rate_per_1k, anr_rate_per_1k, daily_churn_rate, new_subscriptions, active_subscriptions, revenue_per_active_device FROM google_play__time_series_trends WHERE package_name='com.dev.photoeditor' ORDER BY date_day

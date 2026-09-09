@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS missing_price FROM basic_drug_information b LEFT JOIN pricing_system p ON b."Drug ID" = p."Drug ID" WHERE p."Drug ID" IS NULL

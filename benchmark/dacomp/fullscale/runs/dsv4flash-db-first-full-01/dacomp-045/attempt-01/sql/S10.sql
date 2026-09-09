@@ -1,0 +1,1 @@
+SELECT "Search Keyword", COUNT(*) AS cnt FROM search_behavior_records_table GROUP BY "Search Keyword" ORDER BY cnt DESC LIMIT 40

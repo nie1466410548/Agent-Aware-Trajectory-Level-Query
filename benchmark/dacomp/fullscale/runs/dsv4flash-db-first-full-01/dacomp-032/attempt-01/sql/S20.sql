@@ -1,0 +1,1 @@
+PRAGMA table_info(customer_contact_table)

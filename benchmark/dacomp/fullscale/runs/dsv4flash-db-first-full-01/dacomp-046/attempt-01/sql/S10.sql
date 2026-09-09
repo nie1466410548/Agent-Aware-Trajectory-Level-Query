@@ -1,0 +1,1 @@
+SELECT DISTINCT "Income level" FROM user_basic_information_table_1

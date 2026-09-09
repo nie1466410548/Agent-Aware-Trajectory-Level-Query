@@ -1,0 +1,1 @@
+SELECT DISTINCT '"' || "Fuel Type" || '"' AS f FROM autohome ORDER BY f

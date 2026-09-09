@@ -1,0 +1,1 @@
+SELECT COUNT(*) as aq_count, COUNT(DISTINCT "Environmental monitoring reference") as distinct_refs FROM air_quality_readings

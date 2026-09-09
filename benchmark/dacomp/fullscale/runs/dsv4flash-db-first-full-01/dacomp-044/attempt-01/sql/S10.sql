@@ -1,0 +1,1 @@
+SELECT DISTINCT "Effectiveness Tracking" FROM health_education

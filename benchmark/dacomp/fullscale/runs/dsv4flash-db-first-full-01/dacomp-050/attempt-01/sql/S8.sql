@@ -1,0 +1,1 @@
+SELECT Gender, COUNT(*) AS n FROM sheet1 WHERE "Working professional or student" = 'Student' GROUP BY Gender

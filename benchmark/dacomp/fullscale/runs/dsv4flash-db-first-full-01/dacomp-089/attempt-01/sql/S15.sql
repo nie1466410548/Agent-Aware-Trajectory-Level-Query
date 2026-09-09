@@ -1,0 +1,1 @@
+SELECT title, COUNT(*) AS cnt FROM salesforce__contact_enhanced WHERE title LIKE '%Director%' OR title LIKE '%Manager%' OR title LIKE '%Head%' GROUP BY title ORDER BY cnt DESC LIMIT 50

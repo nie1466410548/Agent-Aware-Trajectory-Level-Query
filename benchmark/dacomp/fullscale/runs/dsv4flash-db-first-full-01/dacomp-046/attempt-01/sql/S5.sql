@@ -1,0 +1,1 @@
+SELECT DISTINCT "Is At-Risk User" FROM user_tags_table

@@ -1,0 +1,1 @@
+SELECT MIN(survey_response_recorded_at) AS min_ts, MAX(survey_response_recorded_at) AS max_ts, MIN(survey_response_started_at) AS min_start, MAX(survey_response_started_at) AS max_start FROM qualtrics__response

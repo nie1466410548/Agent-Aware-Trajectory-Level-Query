@@ -1,0 +1,1 @@
+SELECT COUNT(*) as rating_count, COUNT(DISTINCT "Cultural Relic Reference Number") as distinct_relics FROM artifact_rating

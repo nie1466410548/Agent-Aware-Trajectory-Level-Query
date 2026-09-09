@@ -1,0 +1,1 @@
+SELECT * FROM surface_and_physical_readings LIMIT 1

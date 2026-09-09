@@ -1,0 +1,1 @@
+SELECT * FROM disaster_events WHERE "Disaster Severity Level" = 'Level 5'

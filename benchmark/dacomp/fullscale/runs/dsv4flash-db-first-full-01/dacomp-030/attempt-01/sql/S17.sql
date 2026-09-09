@@ -1,0 +1,1 @@
+SELECT "Data Status", COUNT(*) n FROM sales_data_table GROUP BY "Data Status"

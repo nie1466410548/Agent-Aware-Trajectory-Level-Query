@@ -1,0 +1,286 @@
+{
+  "fingerprint": "7c6cb185f942db6040902b7cfa1d010f6de1b66c85b14848a971432e402360ca",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"disaster_events\" WHERE \"Disaster Severity Level\" = 'Level 5'",
+      "covered": [
+        "S3",
+        "S37"
+      ],
+      "rewrites": {
+        "S3": "SELECT * FROM temp.reuse_candidate AS disaster_events WHERE \"Disaster Severity Level\" = 'Level 5'",
+        "S37": "SELECT \"Disaster Type\", COUNT(*) AS cnt FROM temp.reuse_candidate AS disaster_events WHERE \"Disaster Severity Level\" = 'Level 5' GROUP BY \"Disaster Type\" ORDER BY cnt DESC"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 1,
+      "denominator": 59,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788864273.511151,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"disaster_events\" WHERE \"Disaster Severity Level\" = 'Level 5'",
+          "phase": "offline_validation",
+          "start_time": 1788864273.511338,
+          "status": "execute_returned",
+          "end_time": 1788864273.5118492
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788864273.5118558,
+          "status": "execute_returned",
+          "end_time": 1788864273.511874
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788864273.5118787,
+          "status": "execute_returned",
+          "end_time": 1788864273.5118895
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT * FROM temp.reuse_candidate AS disaster_events WHERE \"Disaster Severity Level\" = 'Level 5'",
+          "phase": "offline_validation",
+          "start_time": 1788864273.5119054,
+          "status": "execute_returned",
+          "end_time": 1788864273.5119233
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT \"Disaster Type\", COUNT(*) AS cnt FROM temp.reuse_candidate AS disaster_events WHERE \"Disaster Severity Level\" = 'Level 5' GROUP BY \"Disaster Type\" ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788864273.5170913,
+          "status": "execute_returned",
+          "end_time": 1788864273.5172012
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"disaster_events\" WHERE \"Disaster Severity Level\" = 'Level 5'",
+          "time": 1788864273.5115216,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788864273.5118697,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788864273.5118868,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT * FROM temp.reuse_candidate AS disaster_events WHERE \"Disaster Severity Level\" = 'Level 5'",
+          "time": 1788864273.5119195,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Disaster Type\", COUNT(*) AS cnt FROM temp.reuse_candidate AS disaster_events WHERE \"Disaster Severity Level\" = 'Level 5' GROUP BY \"Disaster Type\" ORDER BY cnt DESC",
+          "time": 1788864273.5171232,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.5144365131855011,
+      "intermediate_rows": 202,
+      "intermediate_columns": [
+        "Disaster Event ID",
+        "Timestamp",
+        "Disaster Type",
+        "Disaster Severity Level",
+        "Affected Region",
+        "Region Tag",
+        "Latitude Coordinate",
+        "Longitude Coordinate",
+        "Impact Indicator"
+      ],
+      "validation_ended_at": 1788864273.5178995,
+      "checks": [
+        {
+          "sql_id": "S3",
+          "rewritten_sql": "SELECT * FROM temp.reuse_candidate AS disaster_events WHERE \"Disaster Severity Level\" = 'Level 5'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 5.182010121643543
+        },
+        {
+          "sql_id": "S37",
+          "rewritten_sql": "SELECT \"Disaster Type\", COUNT(*) AS cnt FROM temp.reuse_candidate AS disaster_events WHERE \"Disaster Severity Level\" = 'Level 5' GROUP BY \"Disaster Type\" ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7459130138158798
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Disaster Severity Level\" AS __g0, CASE WHEN \"Disaster Severity Level\" = 'Level 5' THEN 'Level 5' ELSE 'Non-Level 5' END AS __g1, COUNT(*) AS __a0, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.affected')) AS __a1_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.affected')) AS __a1_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.displaced')) AS __a2_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.displaced')) AS __a2_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.injured')) AS __a3_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.injured')) AS __a3_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.casualties')) AS __a4_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.casualties')) AS __a4_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.damage_percent')) AS __a5_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.damage_percent')) AS __a5_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.power_outage_percent')) AS __a6_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.power_outage_percent')) AS __a6_n FROM \"disaster_events\"  GROUP BY \"Disaster Severity Level\", CASE WHEN \"Disaster Severity Level\" = 'Level 5' THEN 'Level 5' ELSE 'Non-Level 5' END",
+      "covered": [
+        "S4",
+        "S13",
+        "S33"
+      ],
+      "rewrites": {
+        "S4": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+        "S13": "SELECT __g0 AS \"Disaster Severity Level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+        "S33": "SELECT __g1 AS severity, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 0) AS avg_affected, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 0) AS avg_displaced, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 0) AS avg_injured, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 0) AS avg_casualties, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 1) AS avg_damage_pct, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 1) AS avg_power_outage FROM temp.reuse_candidate GROUP BY __g1"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S4",
+      "later_reuses": 2,
+      "denominator": 59,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788864273.5015714,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Disaster Severity Level\" AS __g0, CASE WHEN \"Disaster Severity Level\" = 'Level 5' THEN 'Level 5' ELSE 'Non-Level 5' END AS __g1, COUNT(*) AS __a0, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.affected')) AS __a1_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.affected')) AS __a1_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.displaced')) AS __a2_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.displaced')) AS __a2_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.injured')) AS __a3_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.injured')) AS __a3_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.casualties')) AS __a4_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.casualties')) AS __a4_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.damage_percent')) AS __a5_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.damage_percent')) AS __a5_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.power_outage_percent')) AS __a6_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.power_outage_percent')) AS __a6_n FROM \"disaster_events\"  GROUP BY \"Disaster Severity Level\", CASE WHEN \"Disaster Severity Level\" = 'Level 5' THEN 'Level 5' ELSE 'Non-Level 5' END",
+          "phase": "offline_validation",
+          "start_time": 1788864273.5018508,
+          "status": "execute_returned",
+          "end_time": 1788864273.5069742
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788864273.5069802,
+          "status": "execute_returned",
+          "end_time": 1788864273.507
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788864273.5070057,
+          "status": "execute_returned",
+          "end_time": 1788864273.507021
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788864273.5070443,
+          "status": "execute_returned",
+          "end_time": 1788864273.5070586
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"Disaster Severity Level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788864273.5074947,
+          "status": "execute_returned",
+          "end_time": 1788864273.5075355
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS severity, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 0) AS avg_affected, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 0) AS avg_displaced, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 0) AS avg_injured, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 0) AS avg_casualties, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 1) AS avg_damage_pct, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 1) AS avg_power_outage FROM temp.reuse_candidate GROUP BY __g1",
+          "phase": "offline_validation",
+          "start_time": 1788864273.508041,
+          "status": "execute_returned",
+          "end_time": 1788864273.508143
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Disaster Severity Level\" AS __g0, CASE WHEN \"Disaster Severity Level\" = 'Level 5' THEN 'Level 5' ELSE 'Non-Level 5' END AS __g1, COUNT(*) AS __a0, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.affected')) AS __a1_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.affected')) AS __a1_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.displaced')) AS __a2_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.displaced')) AS __a2_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.injured')) AS __a3_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.injured')) AS __a3_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.casualties')) AS __a4_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.casualties')) AS __a4_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.damage_percent')) AS __a5_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.damage_percent')) AS __a5_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.power_outage_percent')) AS __a6_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.power_outage_percent')) AS __a6_n FROM \"disaster_events\"  GROUP BY \"Disaster Severity Level\", CASE WHEN \"Disaster Severity Level\" = 'Level 5' THEN 'Level 5' ELSE 'Non-Level 5' END",
+          "time": 1788864273.502232,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788864273.506997,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788864273.507018,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "time": 1788864273.5070555,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Disaster Severity Level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "time": 1788864273.5075228,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS severity, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 0) AS avg_affected, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 0) AS avg_displaced, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 0) AS avg_injured, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 0) AS avg_casualties, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 1) AS avg_damage_pct, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 1) AS avg_power_outage FROM temp.reuse_candidate GROUP BY __g1",
+          "time": 1788864273.5081239,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 5.128434859216213,
+      "intermediate_rows": 5,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__a0",
+        "__a1_sum",
+        "__a1_n",
+        "__a2_sum",
+        "__a2_n",
+        "__a3_sum",
+        "__a3_n",
+        "__a4_sum",
+        "__a4_n",
+        "__a5_sum",
+        "__a5_n",
+        "__a6_sum",
+        "__a6_n"
+      ],
+      "validation_ended_at": 1788864273.5111217,
+      "checks": [
+        {
+          "sql_id": "S4",
+          "rewritten_sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.44676195830106735
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT __g0 AS \"Disaster Severity Level\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5441950634121895
+        },
+        {
+          "sql_id": "S33",
+          "rewritten_sql": "SELECT __g1 AS severity, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 0) AS avg_affected, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 0) AS avg_displaced, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 0) AS avg_injured, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 0) AS avg_casualties, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 1) AS avg_damage_pct, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 1) AS avg_power_outage FROM temp.reuse_candidate GROUP BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.9906556010246277
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

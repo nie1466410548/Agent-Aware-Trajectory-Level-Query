@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_rows, COUNT(DISTINCT EmpID) AS distinct_emp FROM sheet1

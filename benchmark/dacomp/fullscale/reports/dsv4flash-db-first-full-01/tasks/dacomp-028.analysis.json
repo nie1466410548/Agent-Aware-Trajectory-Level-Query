@@ -1,0 +1,523 @@
+{
+  "fingerprint": "7394d5dcce73418b3dc13348829336aefb9c7e8e605e27d098d1c9b9c1b9a8ed",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S15",
+      "covered": [
+        "S15",
+        "S16",
+        "S17",
+        "S18"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S15",
+      "later_reuses": 3,
+      "denominator": 28,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788864399.6949682,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 22,
+      "validation_ended_at": 1788864399.6978393,
+      "checks": [
+        {
+          "sql_id": "S16",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        },
+        {
+          "sql_id": "S17",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        },
+        {
+          "sql_id": "S18",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S19",
+      "covered": [
+        "S19",
+        "S20",
+        "S21",
+        "S23",
+        "S24",
+        "S27",
+        "S28",
+        "S29",
+        "S30"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S19",
+      "later_reuses": 8,
+      "denominator": 28,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788864399.568229,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 701,
+      "validation_ended_at": 1788864399.6945574,
+      "checks": [
+        {
+          "sql_id": "S20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S21",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S23",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S24",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S27",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S28",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S29",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S30",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Product Category\" AS __g0, \"Market Name\" AS __g1, \"Price Type\" AS __g2, \"Unit\" AS __g3, STRFTIME('%Y-%m', \"Collection Date\") AS __g4, \"Notes\" AS __g5, \"Data Source\" AS __g6, MIN(\"Collection Date\") AS __a0, MAX(\"Collection Date\") AS __a1, COUNT(*) AS __a2, SUM(\"Average Price\") AS __a3_sum, COUNT(\"Average Price\") AS __a3_n, SUM(\"On-shelf Quantity (tons)\") AS __a4_sum, COUNT(\"On-shelf Quantity (tons)\") AS __a4_n, SUM(\"Trading Volume (tons)\") AS __a5_sum, COUNT(\"Trading Volume (tons)\") AS __a5_n FROM \"agricultural_product_price_tren\"  GROUP BY \"Product Category\", \"Market Name\", \"Price Type\", \"Unit\", STRFTIME('%Y-%m', \"Collection Date\"), \"Notes\", \"Data Source\"",
+      "covered": [
+        "S4",
+        "S5",
+        "S6",
+        "S7",
+        "S8",
+        "S9",
+        "S14",
+        "S15",
+        "S16",
+        "S17",
+        "S18",
+        "S25",
+        "S26"
+      ],
+      "rewrites": {
+        "S4": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS n FROM temp.reuse_candidate",
+        "S5": "SELECT __g0 AS \"Product Category\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+        "S6": "SELECT __g1 AS \"Market Name\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+        "S7": "SELECT __g2 AS \"Price Type\", __g3 AS \"Unit\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g2, __g3",
+        "S8": "SELECT __g0 AS \"Product Category\", __g2 AS \"Price Type\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY __g0, __g2",
+        "S9": "SELECT __g4 AS month, __g1 AS \"Market Name\", __g0 AS \"Product Category\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g4, __g1, __g0 ORDER BY month, __g1",
+        "S14": "SELECT __g4 AS month, SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY month",
+        "S15": "SELECT __g4 AS month, __g2 AS \"Price Type\", __g0 AS \"Product Category\", SUM(__a2) AS n, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 3) AS avg_price FROM temp.reuse_candidate GROUP BY __g4, __g2, __g0 ORDER BY month, __g0, __g2",
+        "S16": "SELECT __g4 AS month, __g2 AS \"Price Type\", __g0 AS \"Product Category\", SUM(__a2) AS n, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 3) AS avg_price FROM temp.reuse_candidate GROUP BY __g4, __g2, __g0 ORDER BY month, __g0, __g2",
+        "S17": "SELECT __g4 AS month, __g2 AS \"Price Type\", __g0 AS \"Product Category\", SUM(__a2) AS n, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 3) AS avg_price FROM temp.reuse_candidate GROUP BY __g4, __g2, __g0 ORDER BY month, __g0, __g2",
+        "S18": "SELECT __g4 AS month, __g2 AS \"Price Type\", __g0 AS \"Product Category\", SUM(__a2) AS n, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 3) AS avg_price FROM temp.reuse_candidate GROUP BY __g4, __g2, __g0 ORDER BY month, __g0, __g2",
+        "S25": "SELECT __g5 AS \"Notes\", SUM(__a2) AS n, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_price, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_shelf, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_vol FROM temp.reuse_candidate GROUP BY __g5 ORDER BY n DESC",
+        "S26": "SELECT __g6 AS \"Data Source\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g6"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S4",
+      "later_reuses": 12,
+      "denominator": 28,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788864399.5547662,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Product Category\" AS __g0, \"Market Name\" AS __g1, \"Price Type\" AS __g2, \"Unit\" AS __g3, STRFTIME('%Y-%m', \"Collection Date\") AS __g4, \"Notes\" AS __g5, \"Data Source\" AS __g6, MIN(\"Collection Date\") AS __a0, MAX(\"Collection Date\") AS __a1, COUNT(*) AS __a2, SUM(\"Average Price\") AS __a3_sum, COUNT(\"Average Price\") AS __a3_n, SUM(\"On-shelf Quantity (tons)\") AS __a4_sum, COUNT(\"On-shelf Quantity (tons)\") AS __a4_n, SUM(\"Trading Volume (tons)\") AS __a5_sum, COUNT(\"Trading Volume (tons)\") AS __a5_n FROM \"agricultural_product_price_tren\"  GROUP BY \"Product Category\", \"Market Name\", \"Price Type\", \"Unit\", STRFTIME('%Y-%m', \"Collection Date\"), \"Notes\", \"Data Source\"",
+          "phase": "offline_validation",
+          "start_time": 1788864399.555043,
+          "status": "execute_returned",
+          "end_time": 1788864399.5569572
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788864399.556963,
+          "status": "execute_returned",
+          "end_time": 1788864399.556983
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788864399.5569887,
+          "status": "execute_returned",
+          "end_time": 1788864399.5570047
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS n FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788864399.55703,
+          "status": "execute_returned",
+          "end_time": 1788864399.5570586
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"Product Category\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788864399.5576925,
+          "status": "execute_returned",
+          "end_time": 1788864399.55775
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS \"Market Name\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788864399.5582688,
+          "status": "execute_returned",
+          "end_time": 1788864399.558323
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g2 AS \"Price Type\", __g3 AS \"Unit\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g2, __g3",
+          "phase": "offline_validation",
+          "start_time": 1788864399.5588174,
+          "status": "execute_returned",
+          "end_time": 1788864399.5588725
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g0 AS \"Product Category\", __g2 AS \"Price Type\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY __g0, __g2",
+          "phase": "offline_validation",
+          "start_time": 1788864399.559402,
+          "status": "execute_returned",
+          "end_time": 1788864399.559464
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g4 AS month, __g1 AS \"Market Name\", __g0 AS \"Product Category\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g4, __g1, __g0 ORDER BY month, __g1",
+          "phase": "offline_validation",
+          "start_time": 1788864399.560042,
+          "status": "execute_returned",
+          "end_time": 1788864399.5601413
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g4 AS month, SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY month",
+          "phase": "offline_validation",
+          "start_time": 1788864399.5610409,
+          "status": "execute_returned",
+          "end_time": 1788864399.5610924
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g4 AS month, __g2 AS \"Price Type\", __g0 AS \"Product Category\", SUM(__a2) AS n, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 3) AS avg_price FROM temp.reuse_candidate GROUP BY __g4, __g2, __g0 ORDER BY month, __g0, __g2",
+          "phase": "offline_validation",
+          "start_time": 1788864399.5616834,
+          "status": "execute_returned",
+          "end_time": 1788864399.5618172
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT __g4 AS month, __g2 AS \"Price Type\", __g0 AS \"Product Category\", SUM(__a2) AS n, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 3) AS avg_price FROM temp.reuse_candidate GROUP BY __g4, __g2, __g0 ORDER BY month, __g0, __g2",
+          "phase": "offline_validation",
+          "start_time": 1788864399.5634778,
+          "status": "execute_returned",
+          "end_time": 1788864399.5635624
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT __g4 AS month, __g2 AS \"Price Type\", __g0 AS \"Product Category\", SUM(__a2) AS n, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 3) AS avg_price FROM temp.reuse_candidate GROUP BY __g4, __g2, __g0 ORDER BY month, __g0, __g2",
+          "phase": "offline_validation",
+          "start_time": 1788864399.564521,
+          "status": "execute_returned",
+          "end_time": 1788864399.564603
+        },
+        {
+          "sequence": 14,
+          "sql": "SELECT __g4 AS month, __g2 AS \"Price Type\", __g0 AS \"Product Category\", SUM(__a2) AS n, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 3) AS avg_price FROM temp.reuse_candidate GROUP BY __g4, __g2, __g0 ORDER BY month, __g0, __g2",
+          "phase": "offline_validation",
+          "start_time": 1788864399.5655408,
+          "status": "execute_returned",
+          "end_time": 1788864399.5656216
+        },
+        {
+          "sequence": 15,
+          "sql": "SELECT __g5 AS \"Notes\", SUM(__a2) AS n, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_price, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_shelf, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_vol FROM temp.reuse_candidate GROUP BY __g5 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788864399.5665529,
+          "status": "execute_returned",
+          "end_time": 1788864399.5666828
+        },
+        {
+          "sequence": 16,
+          "sql": "SELECT __g6 AS \"Data Source\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g6",
+          "phase": "offline_validation",
+          "start_time": 1788864399.5676165,
+          "status": "execute_returned",
+          "end_time": 1788864399.567669
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Product Category\" AS __g0, \"Market Name\" AS __g1, \"Price Type\" AS __g2, \"Unit\" AS __g3, STRFTIME('%Y-%m', \"Collection Date\") AS __g4, \"Notes\" AS __g5, \"Data Source\" AS __g6, MIN(\"Collection Date\") AS __a0, MAX(\"Collection Date\") AS __a1, COUNT(*) AS __a2, SUM(\"Average Price\") AS __a3_sum, COUNT(\"Average Price\") AS __a3_n, SUM(\"On-shelf Quantity (tons)\") AS __a4_sum, COUNT(\"On-shelf Quantity (tons)\") AS __a4_n, SUM(\"Trading Volume (tons)\") AS __a5_sum, COUNT(\"Trading Volume (tons)\") AS __a5_n FROM \"agricultural_product_price_tren\"  GROUP BY \"Product Category\", \"Market Name\", \"Price Type\", \"Unit\", STRFTIME('%Y-%m', \"Collection Date\"), \"Notes\", \"Data Source\"",
+          "time": 1788864399.5553262,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788864399.5569794,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788864399.557002,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS n FROM temp.reuse_candidate",
+          "time": 1788864399.5570443,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Product Category\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "time": 1788864399.5577219,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"Market Name\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "time": 1788864399.5582948,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"Price Type\", __g3 AS \"Unit\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g2, __g3",
+          "time": 1788864399.558843,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Product Category\", __g2 AS \"Price Type\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY __g0, __g2",
+          "time": 1788864399.559436,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS month, __g1 AS \"Market Name\", __g0 AS \"Product Category\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g4, __g1, __g0 ORDER BY month, __g1",
+          "time": 1788864399.5600758,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS month, SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY month",
+          "time": 1788864399.5610685,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS month, __g2 AS \"Price Type\", __g0 AS \"Product Category\", SUM(__a2) AS n, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 3) AS avg_price FROM temp.reuse_candidate GROUP BY __g4, __g2, __g0 ORDER BY month, __g0, __g2",
+          "time": 1788864399.5617375,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS month, __g2 AS \"Price Type\", __g0 AS \"Product Category\", SUM(__a2) AS n, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 3) AS avg_price FROM temp.reuse_candidate GROUP BY __g4, __g2, __g0 ORDER BY month, __g0, __g2",
+          "time": 1788864399.563485,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS month, __g2 AS \"Price Type\", __g0 AS \"Product Category\", SUM(__a2) AS n, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 3) AS avg_price FROM temp.reuse_candidate GROUP BY __g4, __g2, __g0 ORDER BY month, __g0, __g2",
+          "time": 1788864399.5645273,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS month, __g2 AS \"Price Type\", __g0 AS \"Product Category\", SUM(__a2) AS n, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 3) AS avg_price FROM temp.reuse_candidate GROUP BY __g4, __g2, __g0 ORDER BY month, __g0, __g2",
+          "time": 1788864399.5655468,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g5 AS \"Notes\", SUM(__a2) AS n, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_price, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_shelf, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_vol FROM temp.reuse_candidate GROUP BY __g5 ORDER BY n DESC",
+          "time": 1788864399.5666192,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g6 AS \"Data Source\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g6",
+          "time": 1788864399.567645,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 1.9189026206731796,
+      "intermediate_rows": 64,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__g5",
+        "__g6",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3_sum",
+        "__a3_n",
+        "__a4_sum",
+        "__a4_n",
+        "__a5_sum",
+        "__a5_n"
+      ],
+      "validation_ended_at": 1788864399.568212,
+      "checks": [
+        {
+          "sql_id": "S4",
+          "rewritten_sql": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS n FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6597274914383888
+        },
+        {
+          "sql_id": "S5",
+          "rewritten_sql": "SELECT __g0 AS \"Product Category\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5740392953157425
+        },
+        {
+          "sql_id": "S6",
+          "rewritten_sql": "SELECT __g1 AS \"Market Name\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5458937957882881
+        },
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT __g2 AS \"Price Type\", __g3 AS \"Unit\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g2, __g3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5806116387248039
+        },
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT __g0 AS \"Product Category\", __g2 AS \"Price Type\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY __g0, __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6391517817974091
+        },
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT __g4 AS month, __g1 AS \"Market Name\", __g0 AS \"Product Category\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g4, __g1, __g0 ORDER BY month, __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.9961742907762527
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT __g4 AS month, SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6331084296107292
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "SELECT __g4 AS month, __g2 AS \"Price Type\", __g0 AS \"Product Category\", SUM(__a2) AS n, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 3) AS avg_price FROM temp.reuse_candidate GROUP BY __g4, __g2, __g0 ORDER BY month, __g0, __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7915526404976845
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "SELECT __g4 AS month, __g2 AS \"Price Type\", __g0 AS \"Product Category\", SUM(__a2) AS n, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 3) AS avg_price FROM temp.reuse_candidate GROUP BY __g4, __g2, __g0 ORDER BY month, __g0, __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.0408936068415642
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "SELECT __g4 AS month, __g2 AS \"Price Type\", __g0 AS \"Product Category\", SUM(__a2) AS n, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 3) AS avg_price FROM temp.reuse_candidate GROUP BY __g4, __g2, __g0 ORDER BY month, __g0, __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.0179374366998672
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT __g4 AS month, __g2 AS \"Price Type\", __g0 AS \"Product Category\", SUM(__a2) AS n, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 3) AS avg_price FROM temp.reuse_candidate GROUP BY __g4, __g2, __g0 ORDER BY month, __g0, __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.0097064077854156
+        },
+        {
+          "sql_id": "S25",
+          "rewritten_sql": "SELECT __g5 AS \"Notes\", SUM(__a2) AS n, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_price, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_shelf, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_vol FROM temp.reuse_candidate GROUP BY __g5 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.0615801438689232
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "SELECT __g6 AS \"Data Source\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g6",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5079321563243866
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

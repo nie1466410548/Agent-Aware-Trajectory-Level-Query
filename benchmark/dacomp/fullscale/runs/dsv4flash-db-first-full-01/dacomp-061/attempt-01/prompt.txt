@@ -1,0 +1,120 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+A peculiar phenomenon has been observed recently: some projects have a very short `avg_close_time_days` (less than 15 days), but their `team_stability_percentage` is low (this metric needs to be redefined, as the current data shows it as 100%). Are these projects, characterized by rapid delivery but high turnover, truly healthy?
+
+Please conduct an in-depth analysis of the quality indicators (including indirect metrics like bug rate, rework frequency, and code quality) and long-term sustainability of such projects to explore the true relationship between speed and stability and its impact on long-term project success.
+
+DATABASE SCHEMA:
+CREATE TABLE "jira__issue_intelligence_analytics" (
+"issue_id" TEXT,
+  "issue_key" TEXT,
+  "issue_type" TEXT,
+  "current_status" TEXT,
+  "current_priority" TEXT,
+  "project_name" TEXT,
+  "assignee_name" TEXT,
+  "total_lifecycle_days" REAL,
+  "resolved_at" TIMESTAMP,
+  "is_active_sprint" INTEGER,
+  "lifecycle_pattern" TEXT,
+  "lifecycle_quality_score" REAL,
+  "high_complexity_risk" INTEGER,
+  "regression_ratio" REAL,
+  "lifecycle_deviation_ratio" REAL,
+  "lifecycle_outlier_status" TEXT,
+  "age_risk_score" INTEGER,
+  "process_risk_score" INTEGER,
+  "complexity_risk_score" INTEGER,
+  "engagement_risk_score" INTEGER,
+  "assignment_risk_score" INTEGER,
+  "deviation_risk_score" INTEGER,
+  "collaboration_opportunity_score" INTEGER,
+  "efficiency_opportunity_score" INTEGER,
+  "process_opportunity_score" INTEGER,
+  "total_risk_score" INTEGER,
+  "total_opportunity_score" INTEGER,
+  "completion_probability" REAL,
+  "predicted_completion_timeframe" TEXT,
+  "recommended_action" TEXT,
+  "intelligence_score" INTEGER,
+  "health_status" TEXT,
+  "strategic_importance" TEXT,
+  "intervention_urgency" TEXT
+)
+CREATE TABLE "jira__project_enhanced" (
+"project_description" TEXT,
+  "project_id" TEXT,
+  "project_key" TEXT,
+  "project_lead_user_id" TEXT,
+  "project_name" TEXT,
+  "project_category_id" TEXT,
+  "permission_scheme_id" TEXT,
+  "project_lead_user_name" TEXT,
+  "project_lead_email" TEXT,
+  "epics" TEXT,
+  "components" TEXT,
+  "count_closed_issues" REAL,
+  "count_open_issues" REAL,
+  "count_open_assigned_issues" REAL,
+  "avg_close_time_days" REAL,
+  "avg_assigned_close_time_days" REAL,
+  "avg_age_currently_open_days" REAL,
+  "avg_age_currently_open_assigned_days" REAL,
+  "median_close_time_days" REAL,
+  "median_age_currently_open_days" REAL,
+  "median_assigned_close_time_days" REAL,
+  "median_age_currently_open_assigned_days" REAL,
+  "avg_close_time_seconds" REAL,
+  "avg_assigned_close_time_seconds" REAL,
+  "avg_age_currently_open_seconds" REAL,
+  "avg_age_currently_open_assigned_seconds" REAL,
+  "median_close_time_seconds" REAL,
+  "median_age_currently_open_seconds" REAL,
+  "median_assigned_close_time_seconds" REAL,
+  "median_age_currently_open_assigned_seconds" REAL
+)
+CREATE TABLE "jira__team_performance_dashboard" (
+"user_id" TEXT,
+  "user_display_name" TEXT,
+  "email" TEXT,
+  "project_id" TEXT,
+  "project_name" TEXT,
+  "current_engagement_tier" TEXT,
+  "current_pattern_type" TEXT,
+  "current_lifecycle_stage" TEXT,
+  "avg_daily_activity_score" REAL,
+  "avg_weekly_activity_score" REAL,
+  "consistency_percentage" REAL,
+  "total_assigned_issues" INTEGER,
+  "resolved_issues" INTEGER,
+  "resolution_rate_percentage" REAL,
+  "avg_resolution_days" REAL,
+  "high_priority_issues" INTEGER,
+  "bug_issues" INTEGER,
+  "epic_issues" INTEGER,
+  "estimate_accuracy_percentage" REAL,
+  "linked_issues" INTEGER,
+  "unique_collaborators_on_issues" INTEGER,
+  "projects_contributed_to" INTEGER,
+  "issue_types_worked_on" INTEGER,
+  "sprint_count" INTEGER,
+  "avg_sprint_completion_rate" REAL,
+  "total_story_points_delivered" REAL,
+  "days_since_first_issue" REAL,
+  "leadership_indicator" INTEGER,
+  "at_churn_risk" INTEGER,
+  "inactive_recently" INTEGER,
+  "poor_estimation" INTEGER,
+  "overall_performance_score" INTEGER,
+  "performance_tier" TEXT
+)

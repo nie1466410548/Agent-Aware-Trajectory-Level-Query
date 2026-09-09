@@ -1,0 +1,1 @@
+SELECT email_domain, COUNT(DISTINCT recipient_email) AS n_users, COUNT(*) AS n_rows FROM qualtrics__response GROUP BY email_domain ORDER BY n_users DESC LIMIT 20

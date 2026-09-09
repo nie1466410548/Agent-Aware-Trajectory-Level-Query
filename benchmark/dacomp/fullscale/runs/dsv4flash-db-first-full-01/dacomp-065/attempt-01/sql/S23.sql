@@ -1,0 +1,1 @@
+SELECT candidate_race, COUNT(*) AS n FROM greenhouse__application_enhanced GROUP BY candidate_race

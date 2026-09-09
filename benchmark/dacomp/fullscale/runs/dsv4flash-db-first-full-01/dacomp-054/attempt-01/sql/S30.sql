@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT primary_email) AS distinct_emails_funnel FROM customer360__conversion_funnel_analysis

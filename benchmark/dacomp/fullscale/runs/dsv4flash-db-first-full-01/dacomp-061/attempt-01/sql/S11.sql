@@ -1,0 +1,1 @@
+SELECT project_name, AVG(avg_close_time_days) as avg_close, COUNT(*) as instances FROM jira__project_enhanced WHERE avg_close_time_days < 15 GROUP BY project_name

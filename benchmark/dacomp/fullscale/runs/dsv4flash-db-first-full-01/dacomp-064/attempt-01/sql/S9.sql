@@ -1,0 +1,1 @@
+SELECT engagement_impact_score, COUNT(*) AS n FROM jira__stakeholder_engagement_insights GROUP BY engagement_impact_score ORDER BY engagement_impact_score

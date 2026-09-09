@@ -1,0 +1,1 @@
+SELECT validation, COUNT(*) AS cnt FROM attachment_3 WHERE promotion_type IS NOT NULL GROUP BY validation

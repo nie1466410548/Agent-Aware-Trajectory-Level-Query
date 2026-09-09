@@ -1,0 +1,1 @@
+SELECT MIN(overall_performance_score), AVG(overall_performance_score), MAX(overall_performance_score) FROM jira__team_performance_dashboard

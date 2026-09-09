@@ -1,0 +1,1 @@
+SELECT "Membership Level", COUNT(*) AS user_count FROM user_basic_information_table GROUP BY "Membership Level" ORDER BY user_count DESC

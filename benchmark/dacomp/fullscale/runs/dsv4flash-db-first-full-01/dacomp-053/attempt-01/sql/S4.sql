@@ -1,0 +1,1 @@
+SELECT DISTINCT health_grade FROM asana__project_analytics ORDER BY health_grade

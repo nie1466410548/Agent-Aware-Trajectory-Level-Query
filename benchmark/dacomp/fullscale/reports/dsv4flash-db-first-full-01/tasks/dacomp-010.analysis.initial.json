@@ -1,0 +1,106 @@
+{
+  "fingerprint": "74a1e107172fc84c76fcecb2d47c537a487341ac0dad4dd3dc1856c74382b9d5",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S32",
+      "covered": [
+        "S32",
+        "S33"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S32",
+      "later_reuses": 1,
+      "denominator": 31,
+      "coverage_includes_trigger": true,
+      "intermediate_rows": 51,
+      "checks": [
+        {
+          "sql_id": "S33",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Sales Channel\" AS __g0, STRFTIME('%Y', \"Transaction Date\") AS __g1, \"Transaction Status\" AS __g2, MIN(\"Transaction Date\") AS __a0, MAX(\"Transaction Date\") AS __a1, COUNT(*) AS __a2, SUM(\"Sales Quantity (units)\") AS __a3 FROM \"core_transaction_information\"  GROUP BY \"Sales Channel\", STRFTIME('%Y', \"Transaction Date\"), \"Transaction Status\"",
+      "covered": [
+        "S6",
+        "S9",
+        "S10",
+        "S18"
+      ],
+      "rewrites": {
+        "S6": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS n FROM temp.reuse_candidate",
+        "S9": "SELECT __g0 AS \"Sales Channel\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+        "S10": "SELECT __g1 AS yr, SUM(__a2) AS n, SUM(__a3) AS total_qty FROM temp.reuse_candidate GROUP BY __g1",
+        "S18": "SELECT __g2 AS \"Transaction Status\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g2"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S6",
+      "later_reuses": 3,
+      "denominator": 31,
+      "coverage_includes_trigger": true,
+      "build_ms": 1.017136499285698,
+      "intermediate_rows": 9,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3"
+      ],
+      "checks": [
+        {
+          "sql_id": "S6",
+          "rewritten_sql": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS n FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6025219336152077
+        },
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT __g0 AS \"Sales Channel\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5288571119308472
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT __g1 AS yr, SUM(__a2) AS n, SUM(__a3) AS total_qty FROM temp.reuse_candidate GROUP BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6341561675071716
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT __g2 AS \"Transaction Status\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.4781773313879967
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

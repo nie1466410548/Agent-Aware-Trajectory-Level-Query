@@ -1,0 +1,1 @@
+SELECT "Year" FROM sheet1 WHERE "Region Name" = 'Beijing Municipality' ORDER BY "Year"

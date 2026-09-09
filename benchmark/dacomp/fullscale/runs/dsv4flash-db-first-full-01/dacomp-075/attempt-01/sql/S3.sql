@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_rows, COUNT(DISTINCT vendor_id) AS total_vendors FROM netsuite2_vendor_risk_analysis

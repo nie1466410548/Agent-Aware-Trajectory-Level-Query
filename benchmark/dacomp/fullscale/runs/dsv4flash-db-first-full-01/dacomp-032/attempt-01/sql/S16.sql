@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS priority1_customers_with_tickets FROM (SELECT DISTINCT ct."Customer ID" FROM service_ticket_table t JOIN contracts_table c ON t."Contract ID" = c."Contract ID" JOIN customer_contact_table cc ON cc."Customer ID" = c."Customer ID" WHERE cc."Contact priority" = 1)

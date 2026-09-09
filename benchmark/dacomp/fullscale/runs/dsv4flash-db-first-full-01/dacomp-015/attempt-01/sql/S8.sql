@@ -1,0 +1,1 @@
+SELECT DISTINCT Orientation FROM data ORDER BY Orientation

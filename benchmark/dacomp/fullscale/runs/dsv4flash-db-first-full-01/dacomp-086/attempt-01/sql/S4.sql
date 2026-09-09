@@ -1,0 +1,1 @@
+SELECT * FROM salesforce__customer_360_view LIMIT 5

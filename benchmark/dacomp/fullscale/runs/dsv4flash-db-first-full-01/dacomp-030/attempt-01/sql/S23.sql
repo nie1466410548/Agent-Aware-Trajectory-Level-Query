@@ -1,0 +1,1 @@
+PRAGMA table_info(sales_data_table)

@@ -1,0 +1,20 @@
+SELECT 
+  SUM(CASE WHEN CAST(Age AS INTEGER) >= 6 THEN "Population Aged 3 and Over - Male" ELSE 0 END) AS male_pop,
+  SUM(CASE WHEN CAST(Age AS INTEGER) >= 6 THEN "Population Aged 3 and Over - Female" ELSE 0 END) AS female_pop,
+  SUM(CASE WHEN CAST(Age AS INTEGER) >= 6 THEN "Never Attended School - Male" ELSE 0 END) AS male_never,
+  SUM(CASE WHEN CAST(Age AS INTEGER) >= 6 THEN "Never Attended School - Female" ELSE 0 END) AS female_never,
+  SUM(CASE WHEN CAST(Age AS INTEGER) >= 6 THEN " Primary School - Male" ELSE 0 END) AS male_prim,
+  SUM(CASE WHEN CAST(Age AS INTEGER) >= 6 THEN "Primary School - Female" ELSE 0 END) AS female_prim,
+  SUM(CASE WHEN CAST(Age AS INTEGER) >= 6 THEN "Junior High School - Male" ELSE 0 END) AS male_junior,
+  SUM(CASE WHEN CAST(Age AS INTEGER) >= 6 THEN "Junior High School - Female" ELSE 0 END) AS female_junior,
+  SUM(CASE WHEN CAST(Age AS INTEGER) >= 6 THEN "Senior High School - Male" ELSE 0 END) AS male_senior,
+  SUM(CASE WHEN CAST(Age AS INTEGER) >= 6 THEN "Senior High School - Female" ELSE 0 END) AS female_senior,
+  SUM(CASE WHEN CAST(Age AS INTEGER) >= 6 THEN "Junior College - Male" ELSE 0 END) AS male_jcollege,
+  SUM(CASE WHEN CAST(Age AS INTEGER) >= 6 THEN "Junior College - Female" ELSE 0 END) AS female_jcollege,
+  SUM(CASE WHEN CAST(Age AS INTEGER) >= 6 THEN "Undergraduate - Male" ELSE 0 END) AS male_undergrad,
+  SUM(CASE WHEN CAST(Age AS INTEGER) >= 6 THEN " Undergraduate - Female" ELSE 0 END) AS female_undergrad,
+  SUM(CASE WHEN CAST(Age AS INTEGER) >= 6 THEN "Master's Degree - Male" ELSE 0 END) AS male_masters,
+  SUM(CASE WHEN CAST(Age AS INTEGER) >= 6 THEN "Master's Degree - Female" ELSE 0 END) AS female_masters,
+  SUM(CASE WHEN CAST(Age AS INTEGER) >= 6 THEN "Doctoral Degree - Male" ELSE 0 END) AS male_doctoral,
+  SUM(CASE WHEN CAST(Age AS INTEGER) >= 6 THEN "Doctoral Degree - Female" ELSE 0 END) AS female_doctoral
+FROM "2020_cn_pop_3_up_age_sex_edu"

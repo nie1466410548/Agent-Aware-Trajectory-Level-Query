@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS cnt, MIN("Invoice Date") AS min_dt, MAX("Invoice Date") AS max_dt FROM ch___sales_invoices

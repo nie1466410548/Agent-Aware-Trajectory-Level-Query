@@ -1,0 +1,1 @@
+SELECT DISTINCT "Activity Tag" FROM user_tags_table

@@ -1,0 +1,1 @@
+SELECT "Category Code", "Category Name", COUNT(DISTINCT "Item Code") AS n_items FROM product_information GROUP BY "Category Code", "Category Name" ORDER BY n_items DESC

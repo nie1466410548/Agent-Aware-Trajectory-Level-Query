@@ -1,0 +1,1 @@
+SELECT "Sales Month", MIN("Sales Date") AS min_date, MAX("Sales Date") AS max_date, COUNT(DISTINCT "Sales Date") AS n_days FROM sheet1 GROUP BY "Sales Month" ORDER BY "Sales Month"

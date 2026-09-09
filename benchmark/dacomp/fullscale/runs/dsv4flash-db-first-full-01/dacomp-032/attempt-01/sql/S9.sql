@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS sales_fu_rows, COUNT(DISTINCT "Work Order ID") AS distinct_wo, COUNT(DISTINCT "Customer ID") AS distinct_cust FROM sales_follow_up_table

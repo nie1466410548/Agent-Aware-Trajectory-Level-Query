@@ -1,0 +1,1 @@
+SELECT campaign_name, COUNT(*) AS cnt FROM google_ads__ad_group_report GROUP BY campaign_name ORDER BY cnt DESC LIMIT 200

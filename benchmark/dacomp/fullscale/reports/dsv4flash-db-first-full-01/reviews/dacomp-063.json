@@ -1,0 +1,76 @@
+{
+  "task_id": "dacomp-063",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 连接团队与利益相关者表，按风险级别和原型计数，构造风险评分并比较分组均值。这些 SQL 可支持的关系运算和算术迁出数据库；t 检验和绘图独立保留。",
+  "route": "SQL 探查项目健康、团队和参与风险 → Python 连接与风险重评分、分组比较 → 虚假繁荣诊断与检验。",
+  "evidence": [
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 23,
+          "text": "team_stakeholder = team.merge(stakeholders, left_on='user_id', right_on='stakeholder_id', "
+        },
+        {
+          "line": 71,
+          "text": "archetype_counts = stakeholders.groupby(['engagement_risk_status', 'stakeholder_archetype']).size().unstack()"
+        },
+        {
+          "line": 72,
+          "text": "archetype_pct = archetype_counts.div(archetype_counts.sum(axis=1), axis=0)"
+        },
+        {
+          "line": 79,
+          "text": "influence_counts = stakeholders.groupby(['engagement_risk_status', 'influence_level']).size().unstack()"
+        },
+        {
+          "line": 80,
+          "text": "influence_pct = influence_counts.div(influence_counts.sum(axis=1), axis=0)"
+        },
+        {
+          "line": 113,
+          "text": "projects['risk_exposure'] = 100 * (1 - (projects[risk_cols].mean(axis=1) - min_risk) / (max_risk - min_risk))"
+        }
+      ]
+    },
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 96,
+          "text": "team_stakeholder = team.merge(stakeholders, left_on='user_id', right_on='stakeholder_id', "
+        },
+        {
+          "line": 107,
+          "text": "    stat, pval = stats.ttest_ind(hr_team[col].dropna(), mr_team[col].dropna(), equal_var=False)"
+        }
+      ]
+    },
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 68,
+          "text": "hr_assign = team[team['user_id'].isin(hr_ids)]['assignment_risk_score'].mean()"
+        },
+        {
+          "line": 69,
+          "text": "mr_assign = team[team['user_id'].isin(mr_ids)]['assignment_risk_score'].mean()"
+        },
+        {
+          "line": 140,
+          "text": "projects['risk_exposure'] = 100 * (1 - (projects[risk_cols].mean(axis=1) - min_risk) / (max_risk - min_risk))"
+        },
+        {
+          "line": 162,
+          "text": "print(f\"\\nFalse prosperity: mean reported health={fp2['overall_health_score'].mean():.1f}, mean true health={fp2['true_health_score'].mean():.1f}, mean gap={fp2['health_gap'].mean():.1f}\")"
+        },
+        {
+          "line": 163,
+          "text": "print(f\"Other: mean reported health={projects.loc[~projects['is_false_prosperity'],'overall_health_score'].mean():.1f}, mean true health={projects.loc[~projects['is_false_prosperity'],'true_health_score'].mean():.1f}, mean gap={projects.loc[~projects['is_false_prosperity'],'health_gap'].mean():.1f}\")"
+        }
+      ]
+    }
+  ]
+}

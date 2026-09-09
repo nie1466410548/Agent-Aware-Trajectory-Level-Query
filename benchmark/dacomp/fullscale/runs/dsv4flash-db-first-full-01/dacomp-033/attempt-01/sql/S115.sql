@@ -1,0 +1,1 @@
+SELECT SUBSTR("Contact",1,1) as prefix, LENGTH("Contact") as len, COUNT(*) as cnt FROM customer_contact_table GROUP BY prefix, len

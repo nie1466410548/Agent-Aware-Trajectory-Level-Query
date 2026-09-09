@@ -1,0 +1,1 @@
+SELECT "Tag Name", COUNT(*) as cnt FROM customer_tag_table GROUP BY "Tag Name" ORDER BY cnt DESC LIMIT 20

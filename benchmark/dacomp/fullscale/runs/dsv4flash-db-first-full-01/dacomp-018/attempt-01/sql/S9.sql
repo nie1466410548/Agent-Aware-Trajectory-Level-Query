@@ -1,0 +1,1 @@
+SELECT * FROM product_browsing WHERE "Product Category" = 'Fashion' LIMIT 5

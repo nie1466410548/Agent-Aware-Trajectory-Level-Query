@@ -1,0 +1,1 @@
+PRAGMA table_info(google_ads__campaign_report)

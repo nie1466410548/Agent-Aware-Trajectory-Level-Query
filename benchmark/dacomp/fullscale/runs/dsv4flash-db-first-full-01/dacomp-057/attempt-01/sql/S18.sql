@@ -1,0 +1,1 @@
+SELECT MIN(date_day) AS min_date, MAX(date_day) AS max_date, COUNT(DISTINCT campaign_id) AS n_campaigns FROM google_ads__campaign_report

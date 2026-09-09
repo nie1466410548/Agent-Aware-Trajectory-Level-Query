@@ -1,0 +1,1 @@
+SELECT "Parents' education level" AS parent_edu, COUNT(*) AS n, ROUND(AVG("Exam score"),2) AS avg_exam, ROUND(MIN("Exam score"),2) AS min_exam, ROUND(MAX("Exam score"),2) AS max_exam FROM sheet1 GROUP BY "Parents' education level" ORDER BY avg_exam DESC

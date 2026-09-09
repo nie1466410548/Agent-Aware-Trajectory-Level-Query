@@ -1,0 +1,1 @@
+SELECT DISTINCT relationship_stability FROM netsuite2_vendor_risk_analysis

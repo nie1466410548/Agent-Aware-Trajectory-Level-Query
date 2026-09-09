@@ -1,0 +1,1 @@
+SELECT Age, "Population Aged 6 and Over - Total" FROM "2000_cn_twn_pop_6_up_age_sex_ed" LIMIT 3

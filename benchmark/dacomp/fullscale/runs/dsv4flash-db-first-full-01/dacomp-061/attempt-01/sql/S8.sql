@@ -1,0 +1,1 @@
+SELECT project_name, COUNT(*) as members, SUM(at_churn_risk) as churn_risk, SUM(inactive_recently) as inactive, AVG(consistency_percentage) as avg_consistency, AVG(resolution_rate_percentage) as avg_res_rate, AVG(overall_performance_score) as avg_perf FROM jira__team_performance_dashboard GROUP BY project_name

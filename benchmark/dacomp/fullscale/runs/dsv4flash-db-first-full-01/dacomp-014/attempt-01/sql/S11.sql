@@ -1,0 +1,23 @@
+SELECT 
+  MIN("Views") as min_views, 
+  AVG("Views") as avg_views, 
+  MAX("Views") as max_views,
+  MIN("Likes") as min_likes,
+  AVG("Likes") as avg_likes,
+  MAX("Likes") as max_likes,
+  MIN("Coins") as min_coins,
+  AVG("Coins") as avg_coins,
+  MAX("Coins") as max_coins,
+  MIN("Favorites") as min_fav,
+  AVG("Favorites") as avg_fav,
+  MAX("Favorites") as max_fav,
+  MIN("Shares") as min_shares,
+  AVG("Shares") as avg_shares,
+  MAX("Shares") as max_shares,
+  MIN("Comments") as min_comments,
+  AVG("Comments") as avg_comments,
+  MAX("Comments") as max_comments,
+  MIN("Danmaku Count") as min_danmaku,
+  AVG("Danmaku Count") as avg_danmaku,
+  MAX("Danmaku Count") as max_danmaku
+FROM sheet1

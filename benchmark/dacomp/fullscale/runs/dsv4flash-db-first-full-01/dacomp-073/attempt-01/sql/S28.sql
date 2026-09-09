@@ -1,0 +1,1 @@
+SELECT requisition_code, status, headcount_total, headcount_hired, headcount_infinite, team, hiring_manager_user_id FROM lever__requisition_enhanced LIMIT 15

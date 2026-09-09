@@ -1,0 +1,1 @@
+SELECT package_name, COUNT(*) AS n, MIN(date_day) AS min_d, MAX(date_day) AS max_d FROM google_play__time_series_trends GROUP BY package_name

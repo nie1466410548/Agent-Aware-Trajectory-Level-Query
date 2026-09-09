@@ -1,0 +1,1 @@
+SELECT * FROM salesforce__opportunity_enhanced LIMIT 3

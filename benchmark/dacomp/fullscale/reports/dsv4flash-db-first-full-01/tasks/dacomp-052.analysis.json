@@ -1,0 +1,815 @@
+{
+  "fingerprint": "1fd7164b5c20e5378da5d9bd58f09c4bc0d6993a2913cc6f47af2194791e5239",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT *, CASE WHEN collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70 THEN 'target' ELSE 'other' END AS grp FROM asana__team_efficiency_metrics",
+      "covered": [
+        "S9",
+        "S10",
+        "S11",
+        "S12",
+        "S13",
+        "S14",
+        "S15",
+        "S16",
+        "S25",
+        "S26"
+      ],
+      "rewrites": {
+        "S9": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, COUNT(*) AS n, ROUND(AVG(total_projects), 2) AS avg_total_projects, ROUND(AVG(enterprise_projects), 2) AS avg_ent_proj, ROUND(AVG(large_projects), 2) AS avg_large_proj, ROUND(AVG(medium_projects), 2) AS avg_med_proj, ROUND(AVG(small_projects), 2) AS avg_small_proj, ROUND(AVG(unique_team_members), 2) AS avg_members, ROUND(AVG(avg_tasks_per_member), 2) AS avg_tasks_per_member, ROUND(AVG(high_workload_members), 2) AS avg_high_wl_members, ROUND(AVG(avg_tasks_per_assignee_across_projects), 2) AS avg_tasks_per_assignee, ROUND(AVG(total_team_tasks), 2) AS avg_total_tasks, ROUND(AVG(avg_estimated_completion_days), 2) AS avg_est_days, ROUND(AVG(avg_project_velocity), 2) AS avg_velocity FROM grp GROUP BY grp",
+        "S10": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, ROUND(AVG(avg_project_health), 2) AS avg_health, ROUND(AVG(avg_project_performance), 2) AS avg_performance, ROUND(AVG(avg_completion_rate), 2) AS avg_completion, ROUND(AVG(avg_quality_rate), 2) AS avg_quality, ROUND(AVG(avg_risk_percentage), 2) AS avg_risk, ROUND(AVG(on_schedule_rate_pct), 2) AS avg_on_schedule, ROUND(AVG(overdue_projects), 2) AS avg_overdue_projects, ROUND(AVG(overdue_team_tasks), 2) AS avg_overdue_tasks, ROUND(AVG(active_projects), 2) AS avg_active_projects FROM grp GROUP BY grp",
+        "S11": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, team_size_category, COUNT(*) AS n FROM grp GROUP BY grp, team_size_category ORDER BY grp, n DESC",
+        "S12": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, workload_balance_status, COUNT(*) AS n FROM grp GROUP BY grp, workload_balance_status ORDER BY grp, n DESC",
+        "S13": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, team_maturity_level, COUNT(*) AS n FROM grp GROUP BY grp, team_maturity_level ORDER BY grp, n DESC",
+        "S14": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, efficiency_grade, COUNT(*) AS n FROM grp GROUP BY grp, efficiency_grade ORDER BY grp, n DESC",
+        "S15": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, ROUND(AVG(top_performers), 2) AS avg_top, ROUND(AVG(high_performers), 2) AS avg_high, ROUND(AVG(solid_performers), 2) AS avg_solid, ROUND(AVG(developing_performers), 2) AS avg_dev, ROUND(AVG(underperformers), 2) AS avg_under, ROUND(AVG(high_risk_members), 2) AS avg_high_risk, ROUND(AVG(avg_member_performance), 2) AS avg_member_perf, ROUND(AVG(avg_member_completion_rate), 2) AS avg_member_cr, ROUND(AVG(avg_member_quality_rate), 2) AS avg_member_qr, ROUND(SUM(high_workload_members) * 100.0 / SUM(unique_team_members), 2) AS pct_high_wl, ROUND(SUM(high_risk_members) * 100.0 / SUM(unique_team_members), 2) AS pct_high_risk FROM grp GROUP BY grp",
+        "S16": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, ROUND(AVG(project_management_score), 2) AS avg_pm, ROUND(AVG(quality_management_score), 2) AS avg_qm, ROUND(AVG(collaboration_efficiency_score), 2) AS avg_ce, ROUND(AVG(resource_optimization_score), 2) AS avg_ro, ROUND(AVG(overall_team_efficiency_score), 2) AS avg_eff FROM grp GROUP BY grp",
+        "S25": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, ROUND(AVG(efficiency_rank), 1) AS avg_eff_rank, ROUND(AVG(performance_rank), 1) AS avg_perf_rank, ROUND(AVG(schedule_reliability_rank), 1) AS avg_sched_rank, ROUND(AVG(quality_rank), 1) AS avg_quality_rank, ROUND(AVG(project_management_score), 1) AS avg_pm, ROUND(AVG(quality_management_score), 1) AS avg_qm FROM grp GROUP BY grp",
+        "S26": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, ROUND(AVG(overdue_team_tasks * 100.0 / total_team_tasks), 1) AS pct_overdue_tasks, ROUND(AVG(active_team_tasks * 100.0 / total_team_tasks), 1) AS pct_active_tasks, ROUND(AVG(completed_team_tasks * 100.0 / total_team_tasks), 1) AS pct_completed_tasks, ROUND(AVG(overdue_projects * 100.0 / total_projects), 1) AS pct_overdue_projects FROM grp GROUP BY grp"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S9",
+      "later_reuses": 9,
+      "denominator": 25,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866471.5212703,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT *, CASE WHEN collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70 THEN 'target' ELSE 'other' END AS grp FROM asana__team_efficiency_metrics",
+          "phase": "offline_validation",
+          "start_time": 1788866471.521533,
+          "status": "execute_returned",
+          "end_time": 1788866471.5220957
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866471.5221002,
+          "status": "execute_returned",
+          "end_time": 1788866471.5221193
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788866471.5221248,
+          "status": "execute_returned",
+          "end_time": 1788866471.5221465
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, COUNT(*) AS n, ROUND(AVG(total_projects), 2) AS avg_total_projects, ROUND(AVG(enterprise_projects), 2) AS avg_ent_proj, ROUND(AVG(large_projects), 2) AS avg_large_proj, ROUND(AVG(medium_projects), 2) AS avg_med_proj, ROUND(AVG(small_projects), 2) AS avg_small_proj, ROUND(AVG(unique_team_members), 2) AS avg_members, ROUND(AVG(avg_tasks_per_member), 2) AS avg_tasks_per_member, ROUND(AVG(high_workload_members), 2) AS avg_high_wl_members, ROUND(AVG(avg_tasks_per_assignee_across_projects), 2) AS avg_tasks_per_assignee, ROUND(AVG(total_team_tasks), 2) AS avg_total_tasks, ROUND(AVG(avg_estimated_completion_days), 2) AS avg_est_days, ROUND(AVG(avg_project_velocity), 2) AS avg_velocity FROM grp GROUP BY grp",
+          "phase": "offline_validation",
+          "start_time": 1788866471.522221,
+          "status": "execute_returned",
+          "end_time": 1788866471.5224342
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, ROUND(AVG(avg_project_health), 2) AS avg_health, ROUND(AVG(avg_project_performance), 2) AS avg_performance, ROUND(AVG(avg_completion_rate), 2) AS avg_completion, ROUND(AVG(avg_quality_rate), 2) AS avg_quality, ROUND(AVG(avg_risk_percentage), 2) AS avg_risk, ROUND(AVG(on_schedule_rate_pct), 2) AS avg_on_schedule, ROUND(AVG(overdue_projects), 2) AS avg_overdue_projects, ROUND(AVG(overdue_team_tasks), 2) AS avg_overdue_tasks, ROUND(AVG(active_projects), 2) AS avg_active_projects FROM grp GROUP BY grp",
+          "phase": "offline_validation",
+          "start_time": 1788866471.5252635,
+          "status": "execute_returned",
+          "end_time": 1788866471.525473
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, team_size_category, COUNT(*) AS n FROM grp GROUP BY grp, team_size_category ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866471.5276248,
+          "status": "execute_returned",
+          "end_time": 1788866471.527783
+        },
+        {
+          "sequence": 7,
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, workload_balance_status, COUNT(*) AS n FROM grp GROUP BY grp, workload_balance_status ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866471.5288742,
+          "status": "execute_returned",
+          "end_time": 1788866471.529033
+        },
+        {
+          "sequence": 8,
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, team_maturity_level, COUNT(*) AS n FROM grp GROUP BY grp, team_maturity_level ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866471.5301197,
+          "status": "execute_returned",
+          "end_time": 1788866471.530279
+        },
+        {
+          "sequence": 9,
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, efficiency_grade, COUNT(*) AS n FROM grp GROUP BY grp, efficiency_grade ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866471.531508,
+          "status": "execute_returned",
+          "end_time": 1788866471.5316608
+        },
+        {
+          "sequence": 10,
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, ROUND(AVG(top_performers), 2) AS avg_top, ROUND(AVG(high_performers), 2) AS avg_high, ROUND(AVG(solid_performers), 2) AS avg_solid, ROUND(AVG(developing_performers), 2) AS avg_dev, ROUND(AVG(underperformers), 2) AS avg_under, ROUND(AVG(high_risk_members), 2) AS avg_high_risk, ROUND(AVG(avg_member_performance), 2) AS avg_member_perf, ROUND(AVG(avg_member_completion_rate), 2) AS avg_member_cr, ROUND(AVG(avg_member_quality_rate), 2) AS avg_member_qr, ROUND(SUM(high_workload_members) * 100.0 / SUM(unique_team_members), 2) AS pct_high_wl, ROUND(SUM(high_risk_members) * 100.0 / SUM(unique_team_members), 2) AS pct_high_risk FROM grp GROUP BY grp",
+          "phase": "offline_validation",
+          "start_time": 1788866471.532752,
+          "status": "execute_returned",
+          "end_time": 1788866471.5329704
+        },
+        {
+          "sequence": 11,
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, ROUND(AVG(project_management_score), 2) AS avg_pm, ROUND(AVG(quality_management_score), 2) AS avg_qm, ROUND(AVG(collaboration_efficiency_score), 2) AS avg_ce, ROUND(AVG(resource_optimization_score), 2) AS avg_ro, ROUND(AVG(overall_team_efficiency_score), 2) AS avg_eff FROM grp GROUP BY grp",
+          "phase": "offline_validation",
+          "start_time": 1788866471.5356581,
+          "status": "execute_returned",
+          "end_time": 1788866471.5358167
+        },
+        {
+          "sequence": 12,
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, ROUND(AVG(efficiency_rank), 1) AS avg_eff_rank, ROUND(AVG(performance_rank), 1) AS avg_perf_rank, ROUND(AVG(schedule_reliability_rank), 1) AS avg_sched_rank, ROUND(AVG(quality_rank), 1) AS avg_quality_rank, ROUND(AVG(project_management_score), 1) AS avg_pm, ROUND(AVG(quality_management_score), 1) AS avg_qm FROM grp GROUP BY grp",
+          "phase": "offline_validation",
+          "start_time": 1788866471.5374203,
+          "status": "execute_returned",
+          "end_time": 1788866471.537586
+        },
+        {
+          "sequence": 13,
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, ROUND(AVG(overdue_team_tasks * 100.0 / total_team_tasks), 1) AS pct_overdue_tasks, ROUND(AVG(active_team_tasks * 100.0 / total_team_tasks), 1) AS pct_active_tasks, ROUND(AVG(completed_team_tasks * 100.0 / total_team_tasks), 1) AS pct_completed_tasks, ROUND(AVG(overdue_projects * 100.0 / total_projects), 1) AS pct_overdue_projects FROM grp GROUP BY grp",
+          "phase": "offline_validation",
+          "start_time": 1788866471.5393007,
+          "status": "execute_returned",
+          "end_time": 1788866471.5394633
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT *, CASE WHEN collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70 THEN 'target' ELSE 'other' END AS grp FROM asana__team_efficiency_metrics",
+          "time": 1788866471.5218744,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788866471.522116,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788866471.5221436,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, COUNT(*) AS n, ROUND(AVG(total_projects), 2) AS avg_total_projects, ROUND(AVG(enterprise_projects), 2) AS avg_ent_proj, ROUND(AVG(large_projects), 2) AS avg_large_proj, ROUND(AVG(medium_projects), 2) AS avg_med_proj, ROUND(AVG(small_projects), 2) AS avg_small_proj, ROUND(AVG(unique_team_members), 2) AS avg_members, ROUND(AVG(avg_tasks_per_member), 2) AS avg_tasks_per_member, ROUND(AVG(high_workload_members), 2) AS avg_high_wl_members, ROUND(AVG(avg_tasks_per_assignee_across_projects), 2) AS avg_tasks_per_assignee, ROUND(AVG(total_team_tasks), 2) AS avg_total_tasks, ROUND(AVG(avg_estimated_completion_days), 2) AS avg_est_days, ROUND(AVG(avg_project_velocity), 2) AS avg_velocity FROM grp GROUP BY grp",
+          "time": 1788866471.5223763,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, ROUND(AVG(avg_project_health), 2) AS avg_health, ROUND(AVG(avg_project_performance), 2) AS avg_performance, ROUND(AVG(avg_completion_rate), 2) AS avg_completion, ROUND(AVG(avg_quality_rate), 2) AS avg_quality, ROUND(AVG(avg_risk_percentage), 2) AS avg_risk, ROUND(AVG(on_schedule_rate_pct), 2) AS avg_on_schedule, ROUND(AVG(overdue_projects), 2) AS avg_overdue_projects, ROUND(AVG(overdue_team_tasks), 2) AS avg_overdue_tasks, ROUND(AVG(active_projects), 2) AS avg_active_projects FROM grp GROUP BY grp",
+          "time": 1788866471.5254228,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, team_size_category, COUNT(*) AS n FROM grp GROUP BY grp, team_size_category ORDER BY grp, n DESC",
+          "time": 1788866471.5277407,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, workload_balance_status, COUNT(*) AS n FROM grp GROUP BY grp, workload_balance_status ORDER BY grp, n DESC",
+          "time": 1788866471.5289905,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, team_maturity_level, COUNT(*) AS n FROM grp GROUP BY grp, team_maturity_level ORDER BY grp, n DESC",
+          "time": 1788866471.5302386,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, efficiency_grade, COUNT(*) AS n FROM grp GROUP BY grp, efficiency_grade ORDER BY grp, n DESC",
+          "time": 1788866471.5316184,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, ROUND(AVG(top_performers), 2) AS avg_top, ROUND(AVG(high_performers), 2) AS avg_high, ROUND(AVG(solid_performers), 2) AS avg_solid, ROUND(AVG(developing_performers), 2) AS avg_dev, ROUND(AVG(underperformers), 2) AS avg_under, ROUND(AVG(high_risk_members), 2) AS avg_high_risk, ROUND(AVG(avg_member_performance), 2) AS avg_member_perf, ROUND(AVG(avg_member_completion_rate), 2) AS avg_member_cr, ROUND(AVG(avg_member_quality_rate), 2) AS avg_member_qr, ROUND(SUM(high_workload_members) * 100.0 / SUM(unique_team_members), 2) AS pct_high_wl, ROUND(SUM(high_risk_members) * 100.0 / SUM(unique_team_members), 2) AS pct_high_risk FROM grp GROUP BY grp",
+          "time": 1788866471.5329127,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, ROUND(AVG(project_management_score), 2) AS avg_pm, ROUND(AVG(quality_management_score), 2) AS avg_qm, ROUND(AVG(collaboration_efficiency_score), 2) AS avg_ce, ROUND(AVG(resource_optimization_score), 2) AS avg_ro, ROUND(AVG(overall_team_efficiency_score), 2) AS avg_eff FROM grp GROUP BY grp",
+          "time": 1788866471.535783,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, ROUND(AVG(efficiency_rank), 1) AS avg_eff_rank, ROUND(AVG(performance_rank), 1) AS avg_perf_rank, ROUND(AVG(schedule_reliability_rank), 1) AS avg_sched_rank, ROUND(AVG(quality_rank), 1) AS avg_quality_rank, ROUND(AVG(project_management_score), 1) AS avg_pm, ROUND(AVG(quality_management_score), 1) AS avg_qm FROM grp GROUP BY grp",
+          "time": 1788866471.53755,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, ROUND(AVG(overdue_team_tasks * 100.0 / total_team_tasks), 1) AS pct_overdue_tasks, ROUND(AVG(active_team_tasks * 100.0 / total_team_tasks), 1) AS pct_active_tasks, ROUND(AVG(completed_team_tasks * 100.0 / total_team_tasks), 1) AS pct_completed_tasks, ROUND(AVG(overdue_projects * 100.0 / total_projects), 1) AS pct_overdue_projects FROM grp GROUP BY grp",
+          "time": 1788866471.539426,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.5665114149451256,
+      "intermediate_rows": 50,
+      "intermediate_columns": [
+        "team_id",
+        "team_name",
+        "total_projects",
+        "active_projects",
+        "completed_projects",
+        "overdue_projects",
+        "avg_project_health",
+        "avg_project_performance",
+        "avg_completion_rate",
+        "avg_quality_rate",
+        "avg_risk_percentage",
+        "enterprise_projects",
+        "large_projects",
+        "medium_projects",
+        "small_projects",
+        "total_team_tasks",
+        "completed_team_tasks",
+        "active_team_tasks",
+        "overdue_team_tasks",
+        "total_project_assignments",
+        "avg_tasks_per_assignee_across_projects",
+        "avg_project_velocity",
+        "avg_estimated_completion_days",
+        "on_schedule_rate_pct",
+        "quality_completion_rate_pct",
+        "unique_team_members",
+        "avg_member_performance",
+        "avg_member_completion_rate",
+        "avg_member_quality_rate",
+        "top_performers",
+        "high_performers",
+        "solid_performers",
+        "developing_performers",
+        "underperformers",
+        "high_workload_members",
+        "high_risk_members",
+        "avg_tasks_per_member",
+        "project_management_score",
+        "quality_management_score",
+        "collaboration_efficiency_score",
+        "resource_optimization_score",
+        "overall_team_efficiency_score",
+        "efficiency_grade",
+        "team_size_category",
+        "workload_balance_status",
+        "team_maturity_level",
+        "improvement_recommendations",
+        "team_strengths",
+        "is_valid_record",
+        "efficiency_rank",
+        "performance_rank",
+        "schedule_reliability_rank",
+        "quality_rank",
+        "grp"
+      ],
+      "validation_ended_at": 1788866471.5414054,
+      "checks": [
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, COUNT(*) AS n, ROUND(AVG(total_projects), 2) AS avg_total_projects, ROUND(AVG(enterprise_projects), 2) AS avg_ent_proj, ROUND(AVG(large_projects), 2) AS avg_large_proj, ROUND(AVG(medium_projects), 2) AS avg_med_proj, ROUND(AVG(small_projects), 2) AS avg_small_proj, ROUND(AVG(unique_team_members), 2) AS avg_members, ROUND(AVG(avg_tasks_per_member), 2) AS avg_tasks_per_member, ROUND(AVG(high_workload_members), 2) AS avg_high_wl_members, ROUND(AVG(avg_tasks_per_assignee_across_projects), 2) AS avg_tasks_per_assignee, ROUND(AVG(total_team_tasks), 2) AS avg_total_tasks, ROUND(AVG(avg_estimated_completion_days), 2) AS avg_est_days, ROUND(AVG(avg_project_velocity), 2) AS avg_velocity FROM grp GROUP BY grp",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 3.039480186998844
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, ROUND(AVG(avg_project_health), 2) AS avg_health, ROUND(AVG(avg_project_performance), 2) AS avg_performance, ROUND(AVG(avg_completion_rate), 2) AS avg_completion, ROUND(AVG(avg_quality_rate), 2) AS avg_quality, ROUND(AVG(avg_risk_percentage), 2) AS avg_risk, ROUND(AVG(on_schedule_rate_pct), 2) AS avg_on_schedule, ROUND(AVG(overdue_projects), 2) AS avg_overdue_projects, ROUND(AVG(overdue_team_tasks), 2) AS avg_overdue_tasks, ROUND(AVG(active_projects), 2) AS avg_active_projects FROM grp GROUP BY grp",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.3589124903082848
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, team_size_category, COUNT(*) AS n FROM grp GROUP BY grp, team_size_category ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.2468686327338219
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, workload_balance_status, COUNT(*) AS n FROM grp GROUP BY grp, workload_balance_status ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.2413151562213898
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, team_maturity_level, COUNT(*) AS n FROM grp GROUP BY grp, team_maturity_level ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.38753280043602
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, efficiency_grade, COUNT(*) AS n FROM grp GROUP BY grp, efficiency_grade ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.2419074773788452
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, ROUND(AVG(top_performers), 2) AS avg_top, ROUND(AVG(high_performers), 2) AS avg_high, ROUND(AVG(solid_performers), 2) AS avg_solid, ROUND(AVG(developing_performers), 2) AS avg_dev, ROUND(AVG(underperformers), 2) AS avg_under, ROUND(AVG(high_risk_members), 2) AS avg_high_risk, ROUND(AVG(avg_member_performance), 2) AS avg_member_perf, ROUND(AVG(avg_member_completion_rate), 2) AS avg_member_cr, ROUND(AVG(avg_member_quality_rate), 2) AS avg_member_qr, ROUND(SUM(high_workload_members) * 100.0 / SUM(unique_team_members), 2) AS pct_high_wl, ROUND(SUM(high_risk_members) * 100.0 / SUM(unique_team_members), 2) AS pct_high_risk FROM grp GROUP BY grp",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.897043712437153
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, ROUND(AVG(project_management_score), 2) AS avg_pm, ROUND(AVG(quality_management_score), 2) AS avg_qm, ROUND(AVG(collaboration_efficiency_score), 2) AS avg_ce, ROUND(AVG(resource_optimization_score), 2) AS avg_ro, ROUND(AVG(overall_team_efficiency_score), 2) AS avg_eff FROM grp GROUP BY grp",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.7598168924450874
+        },
+        {
+          "sql_id": "S25",
+          "rewritten_sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, ROUND(AVG(efficiency_rank), 1) AS avg_eff_rank, ROUND(AVG(performance_rank), 1) AS avg_perf_rank, ROUND(AVG(schedule_reliability_rank), 1) AS avg_sched_rank, ROUND(AVG(quality_rank), 1) AS avg_quality_rank, ROUND(AVG(project_management_score), 1) AS avg_pm, ROUND(AVG(quality_management_score), 1) AS avg_qm FROM grp GROUP BY grp",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.8787141889333725
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, ROUND(AVG(overdue_team_tasks * 100.0 / total_team_tasks), 1) AS pct_overdue_tasks, ROUND(AVG(active_team_tasks * 100.0 / total_team_tasks), 1) AS pct_active_tasks, ROUND(AVG(completed_team_tasks * 100.0 / total_team_tasks), 1) AS pct_completed_tasks, ROUND(AVG(overdue_projects * 100.0 / total_projects), 1) AS pct_overdue_projects FROM grp GROUP BY grp",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.01342161744833
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM asana__team_efficiency_metrics WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70",
+      "covered": [
+        "S19",
+        "S21",
+        "S22",
+        "S23"
+      ],
+      "rewrites": {
+        "S19": "WITH target AS (SELECT * FROM temp.reuse_candidate) SELECT SUM(CASE WHEN (enterprise_projects + large_projects) * 100.0 / total_projects >= 50 THEN 1 ELSE 0 END) AS teams_ge50pct_large, SUM(CASE WHEN avg_estimated_completion_days >= 75 THEN 1 ELSE 0 END) AS teams_ge75_days, SUM(CASE WHEN high_workload_members * 100.0 / unique_team_members >= 50 THEN 1 ELSE 0 END) AS teams_ge50pct_high_wl, SUM(CASE WHEN avg_risk_percentage >= 30 THEN 1 ELSE 0 END) AS teams_ge30_risk, SUM(CASE WHEN on_schedule_rate_pct < 50 THEN 1 ELSE 0 END) AS teams_low_schedule, COUNT(*) AS n FROM target",
+        "S21": "WITH target AS (SELECT * FROM temp.reuse_candidate) SELECT improvement_recommendations, COUNT(*) AS n FROM target GROUP BY improvement_recommendations ORDER BY n DESC",
+        "S22": "WITH target AS (SELECT * FROM temp.reuse_candidate) SELECT team_strengths, COUNT(*) AS n FROM target GROUP BY team_strengths ORDER BY n DESC",
+        "S23": "WITH target AS (SELECT * FROM temp.reuse_candidate) SELECT ROUND(AVG(efficiency_rank), 1) AS avg_eff_rank, ROUND(AVG(performance_rank), 1) AS avg_perf_rank, ROUND(AVG(schedule_reliability_rank), 1) AS avg_sched_rank, ROUND(AVG(quality_rank), 1) AS avg_quality_rank, ROUND(AVG(project_management_score), 1) AS avg_pm_score, ROUND(AVG(quality_management_score), 1) AS avg_qm_score, ROUND(AVG(avg_member_quality_rate), 1) AS avg_member_quality FROM target"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S19",
+      "later_reuses": 3,
+      "denominator": 25,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866471.5504103,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM asana__team_efficiency_metrics WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70",
+          "phase": "offline_validation",
+          "start_time": 1788866471.5505788,
+          "status": "execute_returned",
+          "end_time": 1788866471.5509217
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866471.550925,
+          "status": "execute_returned",
+          "end_time": 1788866471.5509386
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788866471.550942,
+          "status": "execute_returned",
+          "end_time": 1788866471.5509567
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH target AS (SELECT * FROM temp.reuse_candidate) SELECT SUM(CASE WHEN (enterprise_projects + large_projects) * 100.0 / total_projects >= 50 THEN 1 ELSE 0 END) AS teams_ge50pct_large, SUM(CASE WHEN avg_estimated_completion_days >= 75 THEN 1 ELSE 0 END) AS teams_ge75_days, SUM(CASE WHEN high_workload_members * 100.0 / unique_team_members >= 50 THEN 1 ELSE 0 END) AS teams_ge50pct_high_wl, SUM(CASE WHEN avg_risk_percentage >= 30 THEN 1 ELSE 0 END) AS teams_ge30_risk, SUM(CASE WHEN on_schedule_rate_pct < 50 THEN 1 ELSE 0 END) AS teams_low_schedule, COUNT(*) AS n FROM target",
+          "phase": "offline_validation",
+          "start_time": 1788866471.5510182,
+          "status": "execute_returned",
+          "end_time": 1788866471.5511434
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH target AS (SELECT * FROM temp.reuse_candidate) SELECT improvement_recommendations, COUNT(*) AS n FROM target GROUP BY improvement_recommendations ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866471.5532472,
+          "status": "execute_returned",
+          "end_time": 1788866471.5533686
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH target AS (SELECT * FROM temp.reuse_candidate) SELECT team_strengths, COUNT(*) AS n FROM target GROUP BY team_strengths ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866471.5542424,
+          "status": "execute_returned",
+          "end_time": 1788866471.5543578
+        },
+        {
+          "sequence": 7,
+          "sql": "WITH target AS (SELECT * FROM temp.reuse_candidate) SELECT ROUND(AVG(efficiency_rank), 1) AS avg_eff_rank, ROUND(AVG(performance_rank), 1) AS avg_perf_rank, ROUND(AVG(schedule_reliability_rank), 1) AS avg_sched_rank, ROUND(AVG(quality_rank), 1) AS avg_quality_rank, ROUND(AVG(project_management_score), 1) AS avg_pm_score, ROUND(AVG(quality_management_score), 1) AS avg_qm_score, ROUND(AVG(avg_member_quality_rate), 1) AS avg_member_quality FROM target",
+          "phase": "offline_validation",
+          "start_time": 1788866471.5553703,
+          "status": "execute_returned",
+          "end_time": 1788866471.5555089
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM asana__team_efficiency_metrics WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70",
+          "time": 1788866471.5507643,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788866471.5509357,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788866471.5509548,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH target AS (SELECT * FROM temp.reuse_candidate) SELECT SUM(CASE WHEN (enterprise_projects + large_projects) * 100.0 / total_projects >= 50 THEN 1 ELSE 0 END) AS teams_ge50pct_large, SUM(CASE WHEN avg_estimated_completion_days >= 75 THEN 1 ELSE 0 END) AS teams_ge75_days, SUM(CASE WHEN high_workload_members * 100.0 / unique_team_members >= 50 THEN 1 ELSE 0 END) AS teams_ge50pct_high_wl, SUM(CASE WHEN avg_risk_percentage >= 30 THEN 1 ELSE 0 END) AS teams_ge30_risk, SUM(CASE WHEN on_schedule_rate_pct < 50 THEN 1 ELSE 0 END) AS teams_low_schedule, COUNT(*) AS n FROM target",
+          "time": 1788866471.5511215,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH target AS (SELECT * FROM temp.reuse_candidate) SELECT improvement_recommendations, COUNT(*) AS n FROM target GROUP BY improvement_recommendations ORDER BY n DESC",
+          "time": 1788866471.5533433,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH target AS (SELECT * FROM temp.reuse_candidate) SELECT team_strengths, COUNT(*) AS n FROM target GROUP BY team_strengths ORDER BY n DESC",
+          "time": 1788866471.5543365,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH target AS (SELECT * FROM temp.reuse_candidate) SELECT ROUND(AVG(efficiency_rank), 1) AS avg_eff_rank, ROUND(AVG(performance_rank), 1) AS avg_perf_rank, ROUND(AVG(schedule_reliability_rank), 1) AS avg_sched_rank, ROUND(AVG(quality_rank), 1) AS avg_quality_rank, ROUND(AVG(project_management_score), 1) AS avg_pm_score, ROUND(AVG(quality_management_score), 1) AS avg_qm_score, ROUND(AVG(avg_member_quality_rate), 1) AS avg_member_quality FROM target",
+          "time": 1788866471.5554862,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.34528132528066635,
+      "intermediate_rows": 37,
+      "intermediate_columns": [
+        "team_id",
+        "team_name",
+        "total_projects",
+        "active_projects",
+        "completed_projects",
+        "overdue_projects",
+        "avg_project_health",
+        "avg_project_performance",
+        "avg_completion_rate",
+        "avg_quality_rate",
+        "avg_risk_percentage",
+        "enterprise_projects",
+        "large_projects",
+        "medium_projects",
+        "small_projects",
+        "total_team_tasks",
+        "completed_team_tasks",
+        "active_team_tasks",
+        "overdue_team_tasks",
+        "total_project_assignments",
+        "avg_tasks_per_assignee_across_projects",
+        "avg_project_velocity",
+        "avg_estimated_completion_days",
+        "on_schedule_rate_pct",
+        "quality_completion_rate_pct",
+        "unique_team_members",
+        "avg_member_performance",
+        "avg_member_completion_rate",
+        "avg_member_quality_rate",
+        "top_performers",
+        "high_performers",
+        "solid_performers",
+        "developing_performers",
+        "underperformers",
+        "high_workload_members",
+        "high_risk_members",
+        "avg_tasks_per_member",
+        "project_management_score",
+        "quality_management_score",
+        "collaboration_efficiency_score",
+        "resource_optimization_score",
+        "overall_team_efficiency_score",
+        "efficiency_grade",
+        "team_size_category",
+        "workload_balance_status",
+        "team_maturity_level",
+        "improvement_recommendations",
+        "team_strengths",
+        "is_valid_record",
+        "efficiency_rank",
+        "performance_rank",
+        "schedule_reliability_rank",
+        "quality_rank"
+      ],
+      "validation_ended_at": 1788866471.5571842,
+      "checks": [
+        {
+          "sql_id": "S19",
+          "rewritten_sql": "WITH target AS (SELECT * FROM temp.reuse_candidate) SELECT SUM(CASE WHEN (enterprise_projects + large_projects) * 100.0 / total_projects >= 50 THEN 1 ELSE 0 END) AS teams_ge50pct_large, SUM(CASE WHEN avg_estimated_completion_days >= 75 THEN 1 ELSE 0 END) AS teams_ge75_days, SUM(CASE WHEN high_workload_members * 100.0 / unique_team_members >= 50 THEN 1 ELSE 0 END) AS teams_ge50pct_high_wl, SUM(CASE WHEN avg_risk_percentage >= 30 THEN 1 ELSE 0 END) AS teams_ge30_risk, SUM(CASE WHEN on_schedule_rate_pct < 50 THEN 1 ELSE 0 END) AS teams_low_schedule, COUNT(*) AS n FROM target",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.22703255712986
+        },
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "WITH target AS (SELECT * FROM temp.reuse_candidate) SELECT improvement_recommendations, COUNT(*) AS n FROM target GROUP BY improvement_recommendations ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.992991030216217
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "WITH target AS (SELECT * FROM temp.reuse_candidate) SELECT team_strengths, COUNT(*) AS n FROM target GROUP BY team_strengths ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.1261440813541412
+        },
+        {
+          "sql_id": "S23",
+          "rewritten_sql": "WITH target AS (SELECT * FROM temp.reuse_candidate) SELECT ROUND(AVG(efficiency_rank), 1) AS avg_eff_rank, ROUND(AVG(performance_rank), 1) AS avg_perf_rank, ROUND(AVG(schedule_reliability_rank), 1) AS avg_sched_rank, ROUND(AVG(quality_rank), 1) AS avg_quality_rank, ROUND(AVG(project_management_score), 1) AS avg_pm_score, ROUND(AVG(quality_management_score), 1) AS avg_qm_score, ROUND(AVG(avg_member_quality_rate), 1) AS avg_member_quality FROM target",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.7597861588001251
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT collaboration_efficiency_score AS __g0, resource_optimization_score AS __g1, MIN(avg_completion_rate) AS __a0, MAX(avg_completion_rate) AS __a1, SUM(avg_completion_rate) AS __a2_sum, COUNT(avg_completion_rate) AS __a2_n, MIN(collaboration_efficiency_score) AS __a3, MAX(collaboration_efficiency_score) AS __a4, MIN(resource_optimization_score) AS __a5, MAX(resource_optimization_score) AS __a6, COUNT(*) AS __a7 FROM \"asana__team_efficiency_metrics\"  GROUP BY collaboration_efficiency_score, resource_optimization_score",
+      "covered": [
+        "S4",
+        "S6",
+        "S7"
+      ],
+      "rewrites": {
+        "S4": "SELECT MIN(__a0) AS min_cr, MAX(__a1) AS max_cr, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_cr, MIN(__a3) AS min_ce, MAX(__a4) AS max_ce, MIN(__a5) AS min_ro, MAX(__a6) AS max_ro FROM temp.reuse_candidate",
+        "S6": "SELECT __g0 AS \"collaboration_efficiency_score\", SUM(__a7) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+        "S7": "SELECT __g1 AS \"resource_optimization_score\", SUM(__a7) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY __g1"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S4",
+      "later_reuses": 2,
+      "denominator": 25,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"asana__team_efficiency_metrics\" WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70",
+      "covered": [
+        "S5",
+        "S17",
+        "S18",
+        "S20"
+      ],
+      "rewrites": {
+        "S5": "SELECT team_id, team_name, collaboration_efficiency_score, resource_optimization_score, overall_team_efficiency_score, efficiency_grade, avg_completion_rate FROM temp.reuse_candidate AS asana__team_efficiency_metrics WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70 ORDER BY avg_completion_rate DESC",
+        "S17": "SELECT team_name, team_size_category, workload_balance_status, team_maturity_level, efficiency_grade, total_projects, enterprise_projects, large_projects, medium_projects, small_projects, avg_completion_rate, avg_project_health, avg_project_performance, avg_quality_rate, unique_team_members, avg_tasks_per_member, high_workload_members, high_risk_members, avg_estimated_completion_days, on_schedule_rate_pct, avg_risk_percentage, overdue_projects, overdue_team_tasks, total_team_tasks, completed_team_tasks, overall_team_efficiency_score, improvement_recommendations, team_strengths FROM temp.reuse_candidate AS asana__team_efficiency_metrics WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70 ORDER BY avg_completion_rate DESC",
+        "S18": "SELECT ROUND(AVG((enterprise_projects + large_projects) * 100.0 / total_projects), 1) AS avg_pct_large_ent, MIN((enterprise_projects + large_projects) * 100.0 / total_projects) AS min_pct_large_ent, MAX((enterprise_projects + large_projects) * 100.0 / total_projects) AS max_pct_large_ent, ROUND(AVG(avg_estimated_completion_days), 1) AS avg_est_days_target, MIN(avg_estimated_completion_days) AS min_days, MAX(avg_estimated_completion_days) AS max_days, ROUND(AVG(overdue_team_tasks * 100.0 / total_team_tasks), 1) AS avg_pct_overdue_tasks, ROUND(AVG(active_team_tasks * 100.0 / total_team_tasks), 1) AS avg_pct_active_tasks, ROUND(AVG(completed_team_tasks * 100.0 / total_team_tasks), 1) AS avg_pct_completed_tasks, ROUND(AVG(high_workload_members * 100.0 / unique_team_members), 1) AS avg_pct_high_wl FROM temp.reuse_candidate AS asana__team_efficiency_metrics WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70",
+        "S20": "SELECT team_name, team_size_category, workload_balance_status, team_maturity_level, total_projects, enterprise_projects, large_projects, medium_projects, small_projects, avg_completion_rate, avg_project_health, avg_project_performance, avg_quality_rate, unique_team_members, avg_tasks_per_member, high_workload_members, high_risk_members, avg_estimated_completion_days, on_schedule_rate_pct, avg_risk_percentage, overdue_projects, overdue_team_tasks, total_team_tasks, completed_team_tasks, active_team_tasks, avg_project_velocity, avg_member_completion_rate, avg_tasks_per_assignee_across_projects, total_project_assignments, top_performers, high_performers, solid_performers, developing_performers, underperformers FROM temp.reuse_candidate AS asana__team_efficiency_metrics WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S5",
+      "later_reuses": 3,
+      "denominator": 25,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866471.5414186,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"asana__team_efficiency_metrics\" WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70",
+          "phase": "offline_validation",
+          "start_time": 1788866471.5415983,
+          "status": "execute_returned",
+          "end_time": 1788866471.5419445
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866471.5419483,
+          "status": "execute_returned",
+          "end_time": 1788866471.5419621
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788866471.5419657,
+          "status": "execute_returned",
+          "end_time": 1788866471.5419815
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT team_id, team_name, collaboration_efficiency_score, resource_optimization_score, overall_team_efficiency_score, efficiency_grade, avg_completion_rate FROM temp.reuse_candidate AS asana__team_efficiency_metrics WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70 ORDER BY avg_completion_rate DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866471.5420442,
+          "status": "execute_returned",
+          "end_time": 1788866471.5420914
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT team_name, team_size_category, workload_balance_status, team_maturity_level, efficiency_grade, total_projects, enterprise_projects, large_projects, medium_projects, small_projects, avg_completion_rate, avg_project_health, avg_project_performance, avg_quality_rate, unique_team_members, avg_tasks_per_member, high_workload_members, high_risk_members, avg_estimated_completion_days, on_schedule_rate_pct, avg_risk_percentage, overdue_projects, overdue_team_tasks, total_team_tasks, completed_team_tasks, overall_team_efficiency_score, improvement_recommendations, team_strengths FROM temp.reuse_candidate AS asana__team_efficiency_metrics WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70 ORDER BY avg_completion_rate DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866471.542985,
+          "status": "execute_returned",
+          "end_time": 1788866471.543106
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT ROUND(AVG((enterprise_projects + large_projects) * 100.0 / total_projects), 1) AS avg_pct_large_ent, MIN((enterprise_projects + large_projects) * 100.0 / total_projects) AS min_pct_large_ent, MAX((enterprise_projects + large_projects) * 100.0 / total_projects) AS max_pct_large_ent, ROUND(AVG(avg_estimated_completion_days), 1) AS avg_est_days_target, MIN(avg_estimated_completion_days) AS min_days, MAX(avg_estimated_completion_days) AS max_days, ROUND(AVG(overdue_team_tasks * 100.0 / total_team_tasks), 1) AS avg_pct_overdue_tasks, ROUND(AVG(active_team_tasks * 100.0 / total_team_tasks), 1) AS avg_pct_active_tasks, ROUND(AVG(completed_team_tasks * 100.0 / total_team_tasks), 1) AS avg_pct_completed_tasks, ROUND(AVG(high_workload_members * 100.0 / unique_team_members), 1) AS avg_pct_high_wl FROM temp.reuse_candidate AS asana__team_efficiency_metrics WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70",
+          "phase": "offline_validation",
+          "start_time": 1788866471.5448575,
+          "status": "execute_returned",
+          "end_time": 1788866471.544982
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT team_name, team_size_category, workload_balance_status, team_maturity_level, total_projects, enterprise_projects, large_projects, medium_projects, small_projects, avg_completion_rate, avg_project_health, avg_project_performance, avg_quality_rate, unique_team_members, avg_tasks_per_member, high_workload_members, high_risk_members, avg_estimated_completion_days, on_schedule_rate_pct, avg_risk_percentage, overdue_projects, overdue_team_tasks, total_team_tasks, completed_team_tasks, active_team_tasks, avg_project_velocity, avg_member_completion_rate, avg_tasks_per_assignee_across_projects, total_project_assignments, top_performers, high_performers, solid_performers, developing_performers, underperformers FROM temp.reuse_candidate AS asana__team_efficiency_metrics WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70",
+          "phase": "offline_validation",
+          "start_time": 1788866471.547462,
+          "status": "execute_returned",
+          "end_time": 1788866471.5475461
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"asana__team_efficiency_metrics\" WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70",
+          "time": 1788866471.5417876,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788866471.5419595,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788866471.541979,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT team_id, team_name, collaboration_efficiency_score, resource_optimization_score, overall_team_efficiency_score, efficiency_grade, avg_completion_rate FROM temp.reuse_candidate AS asana__team_efficiency_metrics WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70 ORDER BY avg_completion_rate DESC",
+          "time": 1788866471.5420675,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT team_name, team_size_category, workload_balance_status, team_maturity_level, efficiency_grade, total_projects, enterprise_projects, large_projects, medium_projects, small_projects, avg_completion_rate, avg_project_health, avg_project_performance, avg_quality_rate, unique_team_members, avg_tasks_per_member, high_workload_members, high_risk_members, avg_estimated_completion_days, on_schedule_rate_pct, avg_risk_percentage, overdue_projects, overdue_team_tasks, total_team_tasks, completed_team_tasks, overall_team_efficiency_score, improvement_recommendations, team_strengths FROM temp.reuse_candidate AS asana__team_efficiency_metrics WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70 ORDER BY avg_completion_rate DESC",
+          "time": 1788866471.5430477,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT ROUND(AVG((enterprise_projects + large_projects) * 100.0 / total_projects), 1) AS avg_pct_large_ent, MIN((enterprise_projects + large_projects) * 100.0 / total_projects) AS min_pct_large_ent, MAX((enterprise_projects + large_projects) * 100.0 / total_projects) AS max_pct_large_ent, ROUND(AVG(avg_estimated_completion_days), 1) AS avg_est_days_target, MIN(avg_estimated_completion_days) AS min_days, MAX(avg_estimated_completion_days) AS max_days, ROUND(AVG(overdue_team_tasks * 100.0 / total_team_tasks), 1) AS avg_pct_overdue_tasks, ROUND(AVG(active_team_tasks * 100.0 / total_team_tasks), 1) AS avg_pct_active_tasks, ROUND(AVG(completed_team_tasks * 100.0 / total_team_tasks), 1) AS avg_pct_completed_tasks, ROUND(AVG(high_workload_members * 100.0 / unique_team_members), 1) AS avg_pct_high_wl FROM temp.reuse_candidate AS asana__team_efficiency_metrics WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70",
+          "time": 1788866471.5449383,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT team_name, team_size_category, workload_balance_status, team_maturity_level, total_projects, enterprise_projects, large_projects, medium_projects, small_projects, avg_completion_rate, avg_project_health, avg_project_performance, avg_quality_rate, unique_team_members, avg_tasks_per_member, high_workload_members, high_risk_members, avg_estimated_completion_days, on_schedule_rate_pct, avg_risk_percentage, overdue_projects, overdue_team_tasks, total_team_tasks, completed_team_tasks, active_team_tasks, avg_project_velocity, avg_member_completion_rate, avg_tasks_per_assignee_across_projects, total_project_assignments, top_performers, high_performers, solid_performers, developing_performers, underperformers FROM temp.reuse_candidate AS asana__team_efficiency_metrics WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70",
+          "time": 1788866471.5475366,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.3493586555123329,
+      "intermediate_rows": 37,
+      "intermediate_columns": [
+        "team_id",
+        "team_name",
+        "total_projects",
+        "active_projects",
+        "completed_projects",
+        "overdue_projects",
+        "avg_project_health",
+        "avg_project_performance",
+        "avg_completion_rate",
+        "avg_quality_rate",
+        "avg_risk_percentage",
+        "enterprise_projects",
+        "large_projects",
+        "medium_projects",
+        "small_projects",
+        "total_team_tasks",
+        "completed_team_tasks",
+        "active_team_tasks",
+        "overdue_team_tasks",
+        "total_project_assignments",
+        "avg_tasks_per_assignee_across_projects",
+        "avg_project_velocity",
+        "avg_estimated_completion_days",
+        "on_schedule_rate_pct",
+        "quality_completion_rate_pct",
+        "unique_team_members",
+        "avg_member_performance",
+        "avg_member_completion_rate",
+        "avg_member_quality_rate",
+        "top_performers",
+        "high_performers",
+        "solid_performers",
+        "developing_performers",
+        "underperformers",
+        "high_workload_members",
+        "high_risk_members",
+        "avg_tasks_per_member",
+        "project_management_score",
+        "quality_management_score",
+        "collaboration_efficiency_score",
+        "resource_optimization_score",
+        "overall_team_efficiency_score",
+        "efficiency_grade",
+        "team_size_category",
+        "workload_balance_status",
+        "team_maturity_level",
+        "improvement_recommendations",
+        "team_strengths",
+        "is_valid_record",
+        "efficiency_rank",
+        "performance_rank",
+        "schedule_reliability_rank",
+        "quality_rank"
+      ],
+      "validation_ended_at": 1788866471.550379,
+      "checks": [
+        {
+          "sql_id": "S5",
+          "rewritten_sql": "SELECT team_id, team_name, collaboration_efficiency_score, resource_optimization_score, overall_team_efficiency_score, efficiency_grade, avg_completion_rate FROM temp.reuse_candidate AS asana__team_efficiency_metrics WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70 ORDER BY avg_completion_rate DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.9385589510202408
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "SELECT team_name, team_size_category, workload_balance_status, team_maturity_level, efficiency_grade, total_projects, enterprise_projects, large_projects, medium_projects, small_projects, avg_completion_rate, avg_project_health, avg_project_performance, avg_quality_rate, unique_team_members, avg_tasks_per_member, high_workload_members, high_risk_members, avg_estimated_completion_days, on_schedule_rate_pct, avg_risk_percentage, overdue_projects, overdue_team_tasks, total_team_tasks, completed_team_tasks, overall_team_efficiency_score, improvement_recommendations, team_strengths FROM temp.reuse_candidate AS asana__team_efficiency_metrics WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70 ORDER BY avg_completion_rate DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.8706442788243294
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT ROUND(AVG((enterprise_projects + large_projects) * 100.0 / total_projects), 1) AS avg_pct_large_ent, MIN((enterprise_projects + large_projects) * 100.0 / total_projects) AS min_pct_large_ent, MAX((enterprise_projects + large_projects) * 100.0 / total_projects) AS max_pct_large_ent, ROUND(AVG(avg_estimated_completion_days), 1) AS avg_est_days_target, MIN(avg_estimated_completion_days) AS min_days, MAX(avg_estimated_completion_days) AS max_days, ROUND(AVG(overdue_team_tasks * 100.0 / total_team_tasks), 1) AS avg_pct_overdue_tasks, ROUND(AVG(active_team_tasks * 100.0 / total_team_tasks), 1) AS avg_pct_active_tasks, ROUND(AVG(completed_team_tasks * 100.0 / total_team_tasks), 1) AS avg_pct_completed_tasks, ROUND(AVG(high_workload_members * 100.0 / unique_team_members), 1) AS avg_pct_high_wl FROM temp.reuse_candidate AS asana__team_efficiency_metrics WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.6027001440525055
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "SELECT team_name, team_size_category, workload_balance_status, team_maturity_level, total_projects, enterprise_projects, large_projects, medium_projects, small_projects, avg_completion_rate, avg_project_health, avg_project_performance, avg_quality_rate, unique_team_members, avg_tasks_per_member, high_workload_members, high_risk_members, avg_estimated_completion_days, on_schedule_rate_pct, avg_risk_percentage, overdue_projects, overdue_team_tasks, total_team_tasks, completed_team_tasks, active_team_tasks, avg_project_velocity, avg_member_completion_rate, avg_tasks_per_assignee_across_projects, total_project_assignments, top_performers, high_performers, solid_performers, developing_performers, underperformers FROM temp.reuse_candidate AS asana__team_efficiency_metrics WHERE collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8 AND avg_completion_rate < 70",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.843705005943775
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

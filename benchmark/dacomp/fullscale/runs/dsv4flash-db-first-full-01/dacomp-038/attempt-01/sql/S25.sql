@@ -1,0 +1,1 @@
+SELECT * FROM sheet1 ORDER BY "Promotion Date", "Promotion Tertiary Category", Strategy

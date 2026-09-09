@@ -1,0 +1,459 @@
+{
+  "fingerprint": "1f2c0cf4ce4bf092bb19c078aa5f4361e64f9c3041b8937a0b3e375b40d05057",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S20",
+      "covered": [
+        "S20",
+        "S21",
+        "S22",
+        "S27"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S20",
+      "later_reuses": 3,
+      "denominator": 34,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865261.4818878,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 9972,
+      "validation_ended_at": 1788865262.1825514,
+      "checks": [
+        {
+          "sql_id": "S21",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S22",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S27",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S34",
+      "covered": [
+        "S34",
+        "S35"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S34",
+      "later_reuses": 1,
+      "denominator": 34,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Medical history\" AS __g0, \"Health status\" AS __g1, \"Smoking status\" AS __g2, \"Drinking Status\" AS __g3, COUNT(*) AS __a0, SUM(CASE WHEN \"Medical history\" IS NULL THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN \"Health status\" IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN id IS NULL THEN 1 ELSE 0 END) AS __a3 FROM \"health_status\"  GROUP BY \"Medical history\", \"Health status\", \"Smoking status\", \"Drinking Status\"",
+      "covered": [
+        "S6",
+        "S7",
+        "S8",
+        "S25",
+        "S26",
+        "S32"
+      ],
+      "rewrites": {
+        "S6": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+        "S7": "SELECT __g0 AS \"Medical history\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+        "S8": "SELECT __g1 AS \"Health status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+        "S25": "SELECT __g0 AS \"Medical history\", __g2 AS \"Smoking status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY __g0, __g2",
+        "S26": "SELECT __g0 AS \"Medical history\", __g3 AS \"Drinking Status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY __g0, __g3",
+        "S32": "SELECT SUM(__a1) AS mhx_null, SUM(__a2) AS hs_null, SUM(__a3) AS id_null FROM temp.reuse_candidate"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S6",
+      "later_reuses": 5,
+      "denominator": 34,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865261.4649322,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Medical history\" AS __g0, \"Health status\" AS __g1, \"Smoking status\" AS __g2, \"Drinking Status\" AS __g3, COUNT(*) AS __a0, SUM(CASE WHEN \"Medical history\" IS NULL THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN \"Health status\" IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN id IS NULL THEN 1 ELSE 0 END) AS __a3 FROM \"health_status\"  GROUP BY \"Medical history\", \"Health status\", \"Smoking status\", \"Drinking Status\"",
+          "phase": "offline_validation",
+          "start_time": 1788865261.465221,
+          "status": "execute_returned",
+          "end_time": 1788865261.4773881
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865261.4773946,
+          "status": "execute_returned",
+          "end_time": 1788865261.477419
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865261.477425,
+          "status": "execute_returned",
+          "end_time": 1788865261.4774473
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865261.4774654,
+          "status": "execute_returned",
+          "end_time": 1788865261.4774883
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"Medical history\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865261.4779835,
+          "status": "execute_returned",
+          "end_time": 1788865261.4780583
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS \"Health status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865261.4786048,
+          "status": "execute_returned",
+          "end_time": 1788865261.47868
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g0 AS \"Medical history\", __g2 AS \"Smoking status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY __g0, __g2",
+          "phase": "offline_validation",
+          "start_time": 1788865261.4791822,
+          "status": "execute_returned",
+          "end_time": 1788865261.4792619
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g0 AS \"Medical history\", __g3 AS \"Drinking Status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY __g0, __g3",
+          "phase": "offline_validation",
+          "start_time": 1788865261.4798782,
+          "status": "execute_returned",
+          "end_time": 1788865261.47996
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT SUM(__a1) AS mhx_null, SUM(__a2) AS hs_null, SUM(__a3) AS id_null FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865261.4805892,
+          "status": "execute_returned",
+          "end_time": 1788865261.4806361
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Medical history\" AS __g0, \"Health status\" AS __g1, \"Smoking status\" AS __g2, \"Drinking Status\" AS __g3, COUNT(*) AS __a0, SUM(CASE WHEN \"Medical history\" IS NULL THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN \"Health status\" IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN id IS NULL THEN 1 ELSE 0 END) AS __a3 FROM \"health_status\"  GROUP BY \"Medical history\", \"Health status\", \"Smoking status\", \"Drinking Status\"",
+          "time": 1788865261.4654784,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865261.4774153,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865261.4774442,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "time": 1788865261.4774773,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Medical history\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "time": 1788865261.4780116,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"Health status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "time": 1788865261.4786315,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Medical history\", __g2 AS \"Smoking status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY __g0, __g2",
+          "time": 1788865261.4792092,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Medical history\", __g3 AS \"Drinking Status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY __g0, __g3",
+          "time": 1788865261.4799063,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a1) AS mhx_null, SUM(__a2) AS hs_null, SUM(__a3) AS id_null FROM temp.reuse_candidate",
+          "time": 1788865261.4806108,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 12.17292807996273,
+      "intermediate_rows": 144,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3"
+      ],
+      "validation_ended_at": 1788865261.4818585,
+      "checks": [
+        {
+          "sql_id": "S6",
+          "rewritten_sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5147019401192665
+        },
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT __g0 AS \"Medical history\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6187139078974724
+        },
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT __g1 AS \"Health status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5750777199864388
+        },
+        {
+          "sql_id": "S25",
+          "rewritten_sql": "SELECT __g0 AS \"Medical history\", __g2 AS \"Smoking status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY __g0, __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6915433332324028
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "SELECT __g0 AS \"Medical history\", __g3 AS \"Drinking Status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY __g0, __g3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7095355540513992
+        },
+        {
+          "sql_id": "S32",
+          "rewritten_sql": "SELECT SUM(__a1) AS mhx_null, SUM(__a2) AS hs_null, SUM(__a3) AS id_null FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.1829398572444916
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT gender AS __g0, COUNT(*) AS __a0, SUM(CASE WHEN age IS NULL THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN \"Weight (kg)\" IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN \"Blood Pressure (Systolic)\" IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN \"Blood Glucose (mmol/L)\" IS NULL THEN 1 ELSE 0 END) AS __a4 FROM \"health_checkup_indicators\"  GROUP BY gender",
+      "covered": [
+        "S5",
+        "S11",
+        "S30",
+        "S31"
+      ],
+      "rewrites": {
+        "S5": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+        "S11": "SELECT __g0 AS \"Gender\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+        "S30": "SELECT SUM(__a0) AS total FROM temp.reuse_candidate",
+        "S31": "SELECT SUM(__a1) AS age_null, SUM(__a2) AS weight_null, SUM(__a3) AS sbp_null, SUM(__a4) AS glu_null FROM temp.reuse_candidate"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S5",
+      "later_reuses": 3,
+      "denominator": 34,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865262.1861696,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT gender AS __g0, COUNT(*) AS __a0, SUM(CASE WHEN age IS NULL THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN \"Weight (kg)\" IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN \"Blood Pressure (Systolic)\" IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN \"Blood Glucose (mmol/L)\" IS NULL THEN 1 ELSE 0 END) AS __a4 FROM \"health_checkup_indicators\"  GROUP BY gender",
+          "phase": "offline_validation",
+          "start_time": 1788865262.186443,
+          "status": "execute_returned",
+          "end_time": 1788865262.1925397
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865262.192546,
+          "status": "execute_returned",
+          "end_time": 1788865262.1925654
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865262.1925707,
+          "status": "execute_returned",
+          "end_time": 1788865262.192583
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865262.1925979,
+          "status": "execute_returned",
+          "end_time": 1788865262.1926112
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"Gender\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788865262.193177,
+          "status": "execute_returned",
+          "end_time": 1788865262.1932094
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT SUM(__a0) AS total FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865262.1937308,
+          "status": "execute_returned",
+          "end_time": 1788865262.1937535
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT SUM(__a1) AS age_null, SUM(__a2) AS weight_null, SUM(__a3) AS sbp_null, SUM(__a4) AS glu_null FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865262.1941094,
+          "status": "execute_returned",
+          "end_time": 1788865262.194137
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT gender AS __g0, COUNT(*) AS __a0, SUM(CASE WHEN age IS NULL THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN \"Weight (kg)\" IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN \"Blood Pressure (Systolic)\" IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN \"Blood Glucose (mmol/L)\" IS NULL THEN 1 ELSE 0 END) AS __a4 FROM \"health_checkup_indicators\"  GROUP BY gender",
+          "time": 1788865262.1866686,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865262.192562,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865262.19258,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "time": 1788865262.1926086,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Gender\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788865262.1932006,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total FROM temp.reuse_candidate",
+          "time": 1788865262.193749,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a1) AS age_null, SUM(__a2) AS weight_null, SUM(__a3) AS sbp_null, SUM(__a4) AS glu_null FROM temp.reuse_candidate",
+          "time": 1788865262.1941311,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 6.1022937297821045,
+      "intermediate_rows": 2,
+      "intermediate_columns": [
+        "__g0",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4"
+      ],
+      "validation_ended_at": 1788865262.1954436,
+      "checks": [
+        {
+          "sql_id": "S5",
+          "rewritten_sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5764234811067581
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT __g0 AS \"Gender\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5517490208148956
+        },
+        {
+          "sql_id": "S30",
+          "rewritten_sql": "SELECT SUM(__a0) AS total FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.37673115730285645
+        },
+        {
+          "sql_id": "S31",
+          "rewritten_sql": "SELECT SUM(__a1) AS age_null, SUM(__a2) AS weight_null, SUM(__a3) AS sbp_null, SUM(__a4) AS glu_null FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.2376261875033379
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

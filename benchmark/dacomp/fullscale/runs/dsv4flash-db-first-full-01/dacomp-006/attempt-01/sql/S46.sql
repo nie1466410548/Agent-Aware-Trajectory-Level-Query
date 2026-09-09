@@ -1,0 +1,1 @@
+SELECT strftime('%Y-%m', "Date") AS month, SUM("Freight Cost") AS freight, SUM("Warehousing Cost") AS warehousing, SUM("Other Operating Costs") AS other FROM sheet1 WHERE "Destination" LIKE 'South China%%' GROUP BY month ORDER BY month

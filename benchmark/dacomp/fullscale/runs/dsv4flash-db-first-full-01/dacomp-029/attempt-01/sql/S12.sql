@@ -1,0 +1,1 @@
+SELECT DISTINCT Mileage FROM autohome LIMIT 30

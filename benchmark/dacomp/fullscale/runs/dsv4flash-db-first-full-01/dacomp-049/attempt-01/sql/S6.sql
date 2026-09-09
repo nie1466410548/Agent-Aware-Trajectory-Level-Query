@@ -1,0 +1,1 @@
+SELECT DISTINCT "Industry" FROM sheet1 WHERE "Industry" LIKE '%保险%' OR "Industry" LIKE '%Insurance%' OR "Industry" LIKE '%insurance%'

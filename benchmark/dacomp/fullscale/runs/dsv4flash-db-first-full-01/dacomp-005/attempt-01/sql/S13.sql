@@ -1,0 +1,14 @@
+WITH lm AS (
+  SELECT *, CASE WHEN "Profit Margin" < 0.5 * (SELECT AVG("Profit Margin") FROM sheet1) THEN 1 ELSE 0 END AS is_low
+  FROM sheet1
+)
+SELECT 
+  "Age Range",
+  SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) AS low_margin_count,
+  SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END) AS normal_count,
+  ROUND(100.0 * SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) + SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END), 0), 2) AS low_margin_pct,
+  ROUND(AVG(CASE WHEN is_low = 1 THEN "Customer Age" END), 1) AS lm_avg_age,
+  ROUND(AVG(CASE WHEN is_low = 0 THEN "Customer Age" END), 1) AS normal_avg_age
+FROM lm
+GROUP BY "Age Range"
+ORDER BY "Age Range"

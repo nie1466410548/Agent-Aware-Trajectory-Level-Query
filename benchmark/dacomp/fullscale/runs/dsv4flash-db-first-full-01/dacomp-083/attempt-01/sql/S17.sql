@@ -1,0 +1,1 @@
+SELECT DISTINCT employee_maturity_segment FROM workday__employee_overview

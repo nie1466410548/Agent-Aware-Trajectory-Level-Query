@@ -1,0 +1,1 @@
+SELECT hiring_manager_id, hiring_manager_name, total_requisitions_owned, candidate_hire_rate, avg_total_days_to_hire, avg_candidate_experience_score, feedback_completion_rate_managed FROM lever__hiring_manager_scorecard LIMIT 10

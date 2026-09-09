@@ -1,0 +1,1 @@
+SELECT STRFTIME('%w', '2024-1-1') as test1, STRFTIME('%w', '2024-03-23') as test2, STRFTIME('%w', '2024-3-23') as test3

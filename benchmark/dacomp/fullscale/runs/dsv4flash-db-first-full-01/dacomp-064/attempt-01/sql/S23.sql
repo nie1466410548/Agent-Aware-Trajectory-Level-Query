@@ -1,0 +1,1 @@
+SELECT MIN(created_at) min_c, MAX(created_at) max_c, MIN(resolved_at) min_r, MAX(resolved_at) max_r FROM jira__issue_enhanced

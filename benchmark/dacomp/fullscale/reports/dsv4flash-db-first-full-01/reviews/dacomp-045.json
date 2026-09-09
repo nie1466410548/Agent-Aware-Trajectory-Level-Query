@@ -1,0 +1,51 @@
+{
+  "task_id": "dacomp-045",
+  "status": "reviewed_SQL_dominant_with_statistical_and_chart_exceptions",
+  "reviewer": "experiment analyst",
+  "conclusion": "主要连接、分类汇总和时段计数在 SQL 中完成。Python 使用字面量汇总计数进行卡方检验与绘图；占比及加权平均小时仍可由 SQL 完成，不能认定为完全遵守数据库内计算协议。字面量与 SQL 输出的因果关系不作自动断言。",
+  "route": "SQL 比较高价值与普通会员的搜索、收藏偏好及时段 → Python 卡方检验、占比转换与图表。",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 11,
+          "text": "chi2, p, dof, _ = stats.chi2_contingency(cont)"
+        },
+        {
+          "line": 14,
+          "text": "print(\"HV shares:\", [f\"{c}:{fav_hv.get(c,0)/sum(fav_hv.values()):.3f}\" for c in cats])"
+        },
+        {
+          "line": 22,
+          "text": "chi2b, pb, dofb, _ = stats.chi2_contingency(cont2)"
+        },
+        {
+          "line": 47,
+          "text": "chi2s, ps, dofs, _ = stats.chi2_contingency(cont3)"
+        }
+      ]
+    },
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 15,
+          "text": "hv_pct = [fav_hv.get(c,0)/sum(fav_hv.values())*100 for c in cats]"
+        },
+        {
+          "line": 134,
+          "text": "hv_vals = [hv_hours.get(h,0)/sum(hv_hours.values())*100 for h in hours]"
+        },
+        {
+          "line": 154,
+          "text": "hv_avg_hour = sum(h*hv_hours.get(h,0) for h in hours)/sum(hv_hours.values())"
+        },
+        {
+          "line": 155,
+          "text": "reg_avg_hour = sum(h*reg_hours.get(h,0) for h in hours)/sum(reg_hours.values())"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+I want to understand the effectiveness of our cross-functional collaboration. Please analyze whether stakeholders with a high number of `direct_network_connections` actually lead to better project outcomes, paying special attention to the performance of the projects they are involved in regarding `complexity_risk_score` and `success_probability`.
+
+DATABASE SCHEMA:
+CREATE TABLE "jira__project_risk_assessment" (
+"project_id" TEXT,
+  "project_key" TEXT,
+  "project_name" TEXT,
+  "overall_health_score" REAL,
+  "primary_risk_factor" TEXT,
+  "trajectory_status" TEXT,
+  "estimated_project_value_points" REAL,
+  "delivered_value_points" REAL,
+  "total_hours_invested" REAL,
+  "high_delay_cost_issues" REAL,
+  "value_delivery_percentage" REAL,
+  "net_issue_growth_30d" INTEGER,
+  "resolution_velocity_change_percent" REAL,
+  "team_stability_percentage" REAL,
+  "unique_issue_types" INTEGER,
+  "unique_components" INTEGER,
+  "total_external_links" INTEGER,
+  "sprint_adoption_rate" REAL,
+  "health_risk_score" INTEGER,
+  "schedule_risk_score" INTEGER,
+  "resource_risk_score" INTEGER,
+  "complexity_risk_score" INTEGER,
+  "scope_risk_score" INTEGER,
+  "total_risk_score" INTEGER,
+  "success_probability" REAL,
+  "timeline_prediction" TEXT,
+  "budget_impact_prediction" TEXT,
+  "risk_category" TEXT,
+  "primary_risk_driver" TEXT,
+  "recommended_intervention" TEXT,
+  "strategic_priority_recommendation" TEXT
+)
+CREATE TABLE "jira__stakeholder_engagement_insights" (
+"stakeholder_id" TEXT,
+  "user_display_name" TEXT,
+  "issues_reported" INTEGER,
+  "issues_assigned" INTEGER,
+  "total_comments_authored" INTEGER,
+  "total_projects_involved" INTEGER,
+  "direct_network_connections" INTEGER,
+  "response_pattern_type" TEXT,
+  "avg_outbound_influence_strength" REAL,
+  "total_outbound_influence" REAL,
+  "total_inbound_influence" REAL,
+  "cross_functional_projects" INTEGER,
+  "engagement_breadth_score" INTEGER,
+  "engagement_depth_score" REAL,
+  "engagement_quality_score" INTEGER,
+  "engagement_impact_score" INTEGER,
+  "total_engagement_score" REAL,
+  "stakeholder_archetype" TEXT,
+  "influence_level" TEXT,
+  "engagement_risk_status" TEXT,
+  "strategic_value_score" INTEGER,
+  "recommended_engagement_strategy" TEXT,
+  "development_opportunity" TEXT
+)

@@ -1,0 +1,1 @@
+SELECT DISTINCT hiring_managers, recruiters FROM greenhouse__job_enhanced ORDER BY hiring_managers, recruiters

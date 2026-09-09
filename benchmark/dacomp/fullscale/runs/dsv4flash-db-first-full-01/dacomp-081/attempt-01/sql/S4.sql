@@ -1,0 +1,1 @@
+SELECT survey_id, survey_name, survey_status, project_category, project_type, brand_base_url, count_questions, count_survey_responses, count_completed_survey_responses FROM qualtrics__survey

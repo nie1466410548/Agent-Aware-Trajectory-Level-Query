@@ -1,0 +1,1 @@
+SELECT archive_reason, COUNT(*) as cnt FROM lever__opportunity_enhanced GROUP BY archive_reason ORDER BY cnt DESC

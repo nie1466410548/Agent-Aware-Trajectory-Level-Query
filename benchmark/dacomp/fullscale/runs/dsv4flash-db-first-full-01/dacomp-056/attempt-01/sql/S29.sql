@@ -1,0 +1,1 @@
+SELECT DISTINCT recommended_engagement_model FROM customer360__customer_value_analysis ORDER BY 1

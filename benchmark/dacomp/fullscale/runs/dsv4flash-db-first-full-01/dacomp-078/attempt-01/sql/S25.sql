@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT feature_id) AS features, COUNT(DISTINCT product_area_name) AS areas FROM pendo__feature

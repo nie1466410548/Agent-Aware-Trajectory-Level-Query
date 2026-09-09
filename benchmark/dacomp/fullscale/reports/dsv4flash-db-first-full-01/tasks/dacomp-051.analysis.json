@@ -1,0 +1,469 @@
+{
+  "fingerprint": "e841eb785622a487d8394b1c9441e7d37b0ba59a96b9680a0d0399461cd27c5e",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S36",
+      "covered": [
+        "S36",
+        "S41",
+        "S49",
+        "S50",
+        "S51",
+        "S52"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S36",
+      "later_reuses": 5,
+      "denominator": 51,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866509.6621387,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 2298,
+      "validation_ended_at": 1788866510.07101,
+      "checks": [
+        {
+          "sql_id": "S41",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S49",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S50",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S51",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S52",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"asana__task_lifecycle_analysis\" WHERE is_valid_record = 1",
+      "covered": [
+        "S4",
+        "S16",
+        "S17",
+        "S29",
+        "S48",
+        "S53"
+      ],
+      "rewrites": {
+        "S4": "SELECT COUNT(*) AS total_tasks, COUNT(DISTINCT team_id) AS teams, COUNT(DISTINCT assignee_user_id) AS users FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1",
+        "S16": "SELECT team_id, COUNT(*) AS total_tasks, SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) AS completed_tasks, ROUND(100.0 * SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) / COUNT(*), 2) AS completion_rate, ROUND(AVG(project_health_score), 2) AS avg_project_health, ROUND(AVG(complexity_score), 2) AS avg_complexity, ROUND(AVG(urgency_score), 2) AS avg_urgency, ROUND(AVG(hours_assigned_to_completion), 1) AS avg_hours_atc, COUNT(DISTINCT assignee_user_id) AS n_users FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1 GROUP BY team_id ORDER BY completion_rate ASC",
+        "S17": "SELECT ROUND(100.0 * SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) / COUNT(*), 2) AS overall_completion_rate, ROUND(AVG(project_health_score), 2) AS overall_avg_health, ROUND(AVG(complexity_score), 2) AS overall_avg_complexity, ROUND(AVG(urgency_score), 2) AS overall_avg_urgency FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1",
+        "S29": "SELECT STRFTIME('%Y-%m', created_at) AS month, COUNT(*) AS tasks_created, SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) AS completed, ROUND(100.0 * SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) / COUNT(*), 1) AS completion_rate, ROUND(AVG(complexity_score), 2) AS avg_complexity, ROUND(AVG(project_health_score), 2) AS avg_health FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1 GROUP BY month ORDER BY month",
+        "S48": "SELECT COUNT(*) AS total, SUM(CASE WHEN NOT parent_task_id IS NULL AND parent_task_id <> task_id THEN 1 ELSE 0 END) AS has_parent, SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) AS completed FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1",
+        "S53": "SELECT team_id, COUNT(*) AS total_tasks, SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) AS completed_tasks, ROUND(100.0 * SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) / COUNT(*), 2) AS completion_rate, ROUND(AVG(project_health_score), 2) AS avg_project_health, ROUND(AVG(hours_assigned_to_completion), 1) AS avg_hours_atc FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1 GROUP BY team_id HAVING total_tasks >= 50 ORDER BY completion_rate ASC LIMIT 10"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S4",
+      "later_reuses": 5,
+      "denominator": 51,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866510.0735703,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"asana__task_lifecycle_analysis\" WHERE is_valid_record = 1",
+          "phase": "offline_validation",
+          "start_time": 1788866510.0738704,
+          "status": "execute_returned",
+          "end_time": 1788866510.0814757
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866510.0814831,
+          "status": "execute_returned",
+          "end_time": 1788866510.0815449
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788866510.0815516,
+          "status": "execute_returned",
+          "end_time": 1788866510.0815744
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT COUNT(*) AS total_tasks, COUNT(DISTINCT team_id) AS teams, COUNT(DISTINCT assignee_user_id) AS users FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1",
+          "phase": "offline_validation",
+          "start_time": 1788866510.0816314,
+          "status": "execute_returned",
+          "end_time": 1788866510.0839624
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT team_id, COUNT(*) AS total_tasks, SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) AS completed_tasks, ROUND(100.0 * SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) / COUNT(*), 2) AS completion_rate, ROUND(AVG(project_health_score), 2) AS avg_project_health, ROUND(AVG(complexity_score), 2) AS avg_complexity, ROUND(AVG(urgency_score), 2) AS avg_urgency, ROUND(AVG(hours_assigned_to_completion), 1) AS avg_hours_atc, COUNT(DISTINCT assignee_user_id) AS n_users FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1 GROUP BY team_id ORDER BY completion_rate ASC",
+          "phase": "offline_validation",
+          "start_time": 1788866510.0848424,
+          "status": "execute_returned",
+          "end_time": 1788866510.0884829
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT ROUND(100.0 * SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) / COUNT(*), 2) AS overall_completion_rate, ROUND(AVG(project_health_score), 2) AS overall_avg_health, ROUND(AVG(complexity_score), 2) AS overall_avg_complexity, ROUND(AVG(urgency_score), 2) AS overall_avg_urgency FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1",
+          "phase": "offline_validation",
+          "start_time": 1788866510.0909402,
+          "status": "execute_returned",
+          "end_time": 1788866510.0920017
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT STRFTIME('%Y-%m', created_at) AS month, COUNT(*) AS tasks_created, SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) AS completed, ROUND(100.0 * SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) / COUNT(*), 1) AS completion_rate, ROUND(AVG(complexity_score), 2) AS avg_complexity, ROUND(AVG(project_health_score), 2) AS avg_health FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1 GROUP BY month ORDER BY month",
+          "phase": "offline_validation",
+          "start_time": 1788866510.093337,
+          "status": "execute_returned",
+          "end_time": 1788866510.0963984
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN NOT parent_task_id IS NULL AND parent_task_id <> task_id THEN 1 ELSE 0 END) AS has_parent, SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) AS completed FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1",
+          "phase": "offline_validation",
+          "start_time": 1788866510.0988178,
+          "status": "execute_returned",
+          "end_time": 1788866510.0996702
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT team_id, COUNT(*) AS total_tasks, SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) AS completed_tasks, ROUND(100.0 * SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) / COUNT(*), 2) AS completion_rate, ROUND(AVG(project_health_score), 2) AS avg_project_health, ROUND(AVG(hours_assigned_to_completion), 1) AS avg_hours_atc FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1 GROUP BY team_id HAVING total_tasks >= 50 ORDER BY completion_rate ASC LIMIT 10",
+          "phase": "offline_validation",
+          "start_time": 1788866510.1006932,
+          "status": "execute_returned",
+          "end_time": 1788866510.1028721
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"asana__task_lifecycle_analysis\" WHERE is_valid_record = 1",
+          "time": 1788866510.0742588,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788866510.0815082,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788866510.081571,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) AS total_tasks, COUNT(DISTINCT team_id) AS teams, COUNT(DISTINCT assignee_user_id) AS users FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1",
+          "time": 1788866510.0816536,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT team_id, COUNT(*) AS total_tasks, SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) AS completed_tasks, ROUND(100.0 * SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) / COUNT(*), 2) AS completion_rate, ROUND(AVG(project_health_score), 2) AS avg_project_health, ROUND(AVG(complexity_score), 2) AS avg_complexity, ROUND(AVG(urgency_score), 2) AS avg_urgency, ROUND(AVG(hours_assigned_to_completion), 1) AS avg_hours_atc, COUNT(DISTINCT assignee_user_id) AS n_users FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1 GROUP BY team_id ORDER BY completion_rate ASC",
+          "time": 1788866510.0849304,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT ROUND(100.0 * SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) / COUNT(*), 2) AS overall_completion_rate, ROUND(AVG(project_health_score), 2) AS overall_avg_health, ROUND(AVG(complexity_score), 2) AS overall_avg_complexity, ROUND(AVG(urgency_score), 2) AS overall_avg_urgency FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1",
+          "time": 1788866510.0909998,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT STRFTIME('%Y-%m', created_at) AS month, COUNT(*) AS tasks_created, SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) AS completed, ROUND(100.0 * SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) / COUNT(*), 1) AS completion_rate, ROUND(AVG(complexity_score), 2) AS avg_complexity, ROUND(AVG(project_health_score), 2) AS avg_health FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1 GROUP BY month ORDER BY month",
+          "time": 1788866510.0934136,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN NOT parent_task_id IS NULL AND parent_task_id <> task_id THEN 1 ELSE 0 END) AS has_parent, SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) AS completed FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1",
+          "time": 1788866510.0988662,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT team_id, COUNT(*) AS total_tasks, SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) AS completed_tasks, ROUND(100.0 * SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) / COUNT(*), 2) AS completion_rate, ROUND(AVG(project_health_score), 2) AS avg_project_health, ROUND(AVG(hours_assigned_to_completion), 1) AS avg_hours_atc FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1 GROUP BY team_id HAVING total_tasks >= 50 ORDER BY completion_rate ASC LIMIT 10",
+          "time": 1788866510.1007743,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 7.6111359521746635,
+      "intermediate_rows": 3995,
+      "intermediate_columns": [
+        "task_id",
+        "task_name",
+        "created_at",
+        "completed_at",
+        "due_date",
+        "is_completed",
+        "assignee_user_id",
+        "parent_task_id",
+        "task_status_category",
+        "performance_grade",
+        "health_score",
+        "response_time_days",
+        "delay_days",
+        "complexity_score",
+        "urgency_score",
+        "activity_score",
+        "creation_timestamp",
+        "first_assignment_timestamp",
+        "last_assignment_timestamp",
+        "last_modification_timestamp",
+        "completion_timestamp",
+        "hours_to_assignment",
+        "hours_assigned_to_completion",
+        "total_lifecycle_hours",
+        "total_story_events",
+        "unique_action_types",
+        "days_with_activity",
+        "avg_daily_activity_rate",
+        "lifecycle_efficiency_category",
+        "activity_level",
+        "lifecycle_health_score",
+        "current_lifecycle_stage",
+        "anomaly_patterns",
+        "success_patterns",
+        "improvement_opportunities",
+        "complexity_execution_match",
+        "project_name",
+        "team_id",
+        "project_health_score",
+        "assignee_name",
+        "assignee_performance_grade",
+        "relative_performance_vs_project",
+        "is_valid_record"
+      ],
+      "validation_ended_at": 1788866510.1049705,
+      "checks": [
+        {
+          "sql_id": "S4",
+          "rewritten_sql": "SELECT COUNT(*) AS total_tasks, COUNT(DISTINCT team_id) AS teams, COUNT(DISTINCT assignee_user_id) AS users FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 3.199915401637554
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "SELECT team_id, COUNT(*) AS total_tasks, SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) AS completed_tasks, ROUND(100.0 * SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) / COUNT(*), 2) AS completion_rate, ROUND(AVG(project_health_score), 2) AS avg_project_health, ROUND(AVG(complexity_score), 2) AS avg_complexity, ROUND(AVG(urgency_score), 2) AS avg_urgency, ROUND(AVG(hours_assigned_to_completion), 1) AS avg_hours_atc, COUNT(DISTINCT assignee_user_id) AS n_users FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1 GROUP BY team_id ORDER BY completion_rate ASC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 6.095021963119507
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "SELECT ROUND(100.0 * SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) / COUNT(*), 2) AS overall_completion_rate, ROUND(AVG(project_health_score), 2) AS overall_avg_health, ROUND(AVG(complexity_score), 2) AS overall_avg_complexity, ROUND(AVG(urgency_score), 2) AS overall_avg_urgency FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.3939451202750206
+        },
+        {
+          "sql_id": "S29",
+          "rewritten_sql": "SELECT STRFTIME('%Y-%m', created_at) AS month, COUNT(*) AS tasks_created, SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) AS completed, ROUND(100.0 * SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) / COUNT(*), 1) AS completion_rate, ROUND(AVG(complexity_score), 2) AS avg_complexity, ROUND(AVG(project_health_score), 2) AS avg_health FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1 GROUP BY month ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 5.4770419374108315
+        },
+        {
+          "sql_id": "S48",
+          "rewritten_sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN NOT parent_task_id IS NULL AND parent_task_id <> task_id THEN 1 ELSE 0 END) AS has_parent, SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) AS completed FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.8743546679615974
+        },
+        {
+          "sql_id": "S53",
+          "rewritten_sql": "SELECT team_id, COUNT(*) AS total_tasks, SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) AS completed_tasks, ROUND(100.0 * SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) / COUNT(*), 2) AS completion_rate, ROUND(AVG(project_health_score), 2) AS avg_project_health, ROUND(AVG(hours_assigned_to_completion), 1) AS avg_hours_atc FROM temp.reuse_candidate AS asana__task_lifecycle_analysis WHERE is_valid_record = 1 GROUP BY team_id HAVING total_tasks >= 50 ORDER BY completion_rate ASC LIMIT 10",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.9480291306972504
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT STRFTIME('%Y-%m', created_at) AS __g0, SUM(project_health_score) AS __a0_sum, COUNT(project_health_score) AS __a0_n, SUM(complexity_score) AS __a1_sum, COUNT(complexity_score) AS __a1_n, SUM(urgency_score) AS __a2_sum, COUNT(urgency_score) AS __a2_n, COUNT(*) AS __a3, SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) AS __a4, SUM(CASE WHEN NOT parent_task_id IS NULL AND parent_task_id <> task_id THEN 1 ELSE 0 END) AS __a5 FROM \"asana__task_lifecycle_analysis\" WHERE is_valid_record = 1 GROUP BY STRFTIME('%Y-%m', created_at)",
+      "covered": [
+        "S17",
+        "S29",
+        "S48"
+      ],
+      "rewrites": {
+        "S17": "SELECT ROUND(100.0 * SUM(__a4) / SUM(__a3), 2) AS overall_completion_rate, ROUND((1.0 * SUM(__a0_sum) / NULLIF(SUM(__a0_n), 0)), 2) AS overall_avg_health, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS overall_avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS overall_avg_urgency FROM temp.reuse_candidate",
+        "S29": "SELECT __g0 AS month, SUM(__a3) AS tasks_created, SUM(__a4) AS completed, ROUND(100.0 * SUM(__a4) / SUM(__a3), 1) AS completion_rate, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a0_sum) / NULLIF(SUM(__a0_n), 0)), 2) AS avg_health FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+        "S48": "SELECT SUM(__a3) AS total, SUM(__a5) AS has_parent, SUM(__a4) AS completed FROM temp.reuse_candidate"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S17",
+      "later_reuses": 2,
+      "denominator": 51,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866510.1050138,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT STRFTIME('%Y-%m', created_at) AS __g0, SUM(project_health_score) AS __a0_sum, COUNT(project_health_score) AS __a0_n, SUM(complexity_score) AS __a1_sum, COUNT(complexity_score) AS __a1_n, SUM(urgency_score) AS __a2_sum, COUNT(urgency_score) AS __a2_n, COUNT(*) AS __a3, SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) AS __a4, SUM(CASE WHEN NOT parent_task_id IS NULL AND parent_task_id <> task_id THEN 1 ELSE 0 END) AS __a5 FROM \"asana__task_lifecycle_analysis\" WHERE is_valid_record = 1 GROUP BY STRFTIME('%Y-%m', created_at)",
+          "phase": "offline_validation",
+          "start_time": 1788866510.1052265,
+          "status": "execute_returned",
+          "end_time": 1788866510.1103976
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866510.1104023,
+          "status": "execute_returned",
+          "end_time": 1788866510.1104198
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788866510.1104238,
+          "status": "execute_returned",
+          "end_time": 1788866510.1104364
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT ROUND(100.0 * SUM(__a4) / SUM(__a3), 2) AS overall_completion_rate, ROUND((1.0 * SUM(__a0_sum) / NULLIF(SUM(__a0_n), 0)), 2) AS overall_avg_health, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS overall_avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS overall_avg_urgency FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866510.1104527,
+          "status": "execute_returned",
+          "end_time": 1788866510.110493
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS month, SUM(__a3) AS tasks_created, SUM(__a4) AS completed, ROUND(100.0 * SUM(__a4) / SUM(__a3), 1) AS completion_rate, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a0_sum) / NULLIF(SUM(__a0_n), 0)), 2) AS avg_health FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+          "phase": "offline_validation",
+          "start_time": 1788866510.1117375,
+          "status": "execute_returned",
+          "end_time": 1788866510.1118057
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT SUM(__a3) AS total, SUM(__a5) AS has_parent, SUM(__a4) AS completed FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866510.113597,
+          "status": "execute_returned",
+          "end_time": 1788866510.1136284
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT STRFTIME('%Y-%m', created_at) AS __g0, SUM(project_health_score) AS __a0_sum, COUNT(project_health_score) AS __a0_n, SUM(complexity_score) AS __a1_sum, COUNT(complexity_score) AS __a1_n, SUM(urgency_score) AS __a2_sum, COUNT(urgency_score) AS __a2_n, COUNT(*) AS __a3, SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) AS __a4, SUM(CASE WHEN NOT parent_task_id IS NULL AND parent_task_id <> task_id THEN 1 ELSE 0 END) AS __a5 FROM \"asana__task_lifecycle_analysis\" WHERE is_valid_record = 1 GROUP BY STRFTIME('%Y-%m', created_at)",
+          "time": 1788866510.1054173,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788866510.1104167,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788866510.1104333,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT ROUND(100.0 * SUM(__a4) / SUM(__a3), 2) AS overall_completion_rate, ROUND((1.0 * SUM(__a0_sum) / NULLIF(SUM(__a0_n), 0)), 2) AS overall_avg_health, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS overall_avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS overall_avg_urgency FROM temp.reuse_candidate",
+          "time": 1788866510.1104848,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS month, SUM(__a3) AS tasks_created, SUM(__a4) AS completed, ROUND(100.0 * SUM(__a4) / SUM(__a3), 1) AS completion_rate, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a0_sum) / NULLIF(SUM(__a0_n), 0)), 2) AS avg_health FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+          "time": 1788866510.111791,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a3) AS total, SUM(__a5) AS has_parent, SUM(__a4) AS completed FROM temp.reuse_candidate",
+          "time": 1788866510.1136215,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 5.175255239009857,
+      "intermediate_rows": 7,
+      "intermediate_columns": [
+        "__g0",
+        "__a0_sum",
+        "__a0_n",
+        "__a1_sum",
+        "__a1_n",
+        "__a2_sum",
+        "__a2_n",
+        "__a3",
+        "__a4",
+        "__a5"
+      ],
+      "validation_ended_at": 1788866510.1146908,
+      "checks": [
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "SELECT ROUND(100.0 * SUM(__a4) / SUM(__a3), 2) AS overall_completion_rate, ROUND((1.0 * SUM(__a0_sum) / NULLIF(SUM(__a0_n), 0)), 2) AS overall_avg_health, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS overall_avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS overall_avg_urgency FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.2821340933442116
+        },
+        {
+          "sql_id": "S29",
+          "rewritten_sql": "SELECT __g0 AS month, SUM(__a3) AS tasks_created, SUM(__a4) AS completed, ROUND(100.0 * SUM(__a4) / SUM(__a3), 1) AS completion_rate, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a0_sum) / NULLIF(SUM(__a0_n), 0)), 2) AS avg_health FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.8570227548480034
+        },
+        {
+          "sql_id": "S48",
+          "rewritten_sql": "SELECT SUM(__a3) AS total, SUM(__a5) AS has_parent, SUM(__a4) AS completed FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.000688411295414
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

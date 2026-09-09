@@ -1,0 +1,1 @@
+SELECT DISTINCT "Campaign Format (Poster/Video/Lecture)" FROM health_education

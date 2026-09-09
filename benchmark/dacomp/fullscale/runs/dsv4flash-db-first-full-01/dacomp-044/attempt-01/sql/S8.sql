@@ -1,0 +1,1 @@
+SELECT DISTINCT "Effectiveness Assessment" FROM health_education

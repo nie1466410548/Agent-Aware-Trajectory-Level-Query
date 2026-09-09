@@ -1,0 +1,1 @@
+SELECT "Region Name", COUNT(DISTINCT "Year") AS ny, MIN("Year") AS miny, MAX("Year") AS maxy FROM sheet1 GROUP BY "Region Name" ORDER BY "Region Name"

@@ -1,0 +1,1 @@
+SELECT Department, Gender, COUNT(*) AS total, SUM(CASE WHEN Attrition='Yes' THEN 1 ELSE 0 END) AS att, ROUND(100.0*SUM(CASE WHEN Attrition='Yes' THEN 1 ELSE 0 END)/COUNT(*),2) AS att_rate, ROUND(100.0*COUNT(*)/SUM(COUNT(*)) OVER (PARTITION BY Department),1) AS gender_pct FROM sheet1 GROUP BY Department, Gender ORDER BY Department, Gender;

@@ -1,0 +1,47 @@
+{
+  "task_id": "dacomp-023",
+  "status": "partial_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "SQL prepares category-year and region aggregates and growth windows. P3 sums category totals, joins endpoint years and manager labels in pandas for chart preparation; P4 performs ANOVA/Kruskal tests with valid statistical inputs but also grouped count/mean summaries. These relational preparation steps are SQL-capable, whereas rendering and statistical tests are justified exceptions.",
+  "route": "按品类×年份计算销售与增长 → 关联区域经理并比较区域表现 → 绘制品类/区域趋势 → 对订单销售额作区域差异检验。",
+  "evidence": [
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 81,
+          "text": "cat_profit = cat_df.groupby('Category')[['total_sales','total_profit']].sum().reset_index()"
+        },
+        {
+          "line": 139,
+          "text": "reg_growth = reg_2015.merge(reg_2018, on='Region')"
+        },
+        {
+          "line": 141,
+          "text": "reg_growth = reg_growth.merge(reg_tot_df[['Region','Regional Manager']], on='Region')"
+        }
+      ]
+    },
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 45,
+          "text": "groups = [g['order_sales'].values for _, g in odf.groupby('Region')]"
+        },
+        {
+          "line": 46,
+          "text": "F, p = stats.f_oneway(*groups)"
+        },
+        {
+          "line": 50,
+          "text": "H, p_kw = stats.kruskal(*groups)"
+        },
+        {
+          "line": 54,
+          "text": "desc = odf.groupby('Region').agg(mean_order_sales=('order_sales','mean'), std=('order_sales','std'), n=('order_sales','count'))"
+        }
+      ]
+    }
+  ]
+}

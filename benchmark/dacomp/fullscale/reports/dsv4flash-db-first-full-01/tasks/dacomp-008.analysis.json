@@ -1,0 +1,694 @@
+{
+  "fingerprint": "8fafa19229e0224b13fe85a335def0e4f95d8f2c9bff01984f22bd81989d1b0c",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Project Type\" AS __g0, \"Risk Level\" AS __g1, \"Project Status\" AS __g2, \"Priority\" AS __g3, COUNT(*) AS __a0, SUM(\"Budget Amount\" - \"Actual Cost\") AS __a1_sum, COUNT(\"Budget Amount\" - \"Actual Cost\") AS __a1_n, SUM(\"Budget Amount\") AS __a2_sum, COUNT(\"Budget Amount\") AS __a2_n, SUM(\"Actual Cost\") AS __a3_sum, COUNT(\"Actual Cost\") AS __a3_n, MIN(\"Budget Amount\" - \"Actual Cost\") AS __a4, MAX(\"Budget Amount\" - \"Actual Cost\") AS __a5, SUM(\"Team Size\") AS __a6_sum, COUNT(\"Team Size\") AS __a6_n, SUM(\"Customer Satisfaction\") AS __a7_sum, COUNT(\"Customer Satisfaction\") AS __a7_n, SUM((\"Budget Amount\" - \"Actual Cost\") * (\"Budget Amount\" - \"Actual Cost\")) AS __a8_sum, COUNT((\"Budget Amount\" - \"Actual Cost\") * (\"Budget Amount\" - \"Actual Cost\")) AS __a8_n, COUNT(CASE WHEN \"Project Status\" = 'Completed' THEN 1 END) AS __a9, COUNT(CASE WHEN \"Project Status\" = 'In Progress' THEN 1 END) AS __a10, COUNT(CASE WHEN \"Project Status\" = 'Delayed' THEN 1 END) AS __a11, SUM(CASE WHEN \"Project Status\" = 'Completed' THEN \"Budget Amount\" - \"Actual Cost\" END) AS __a12_sum, COUNT(CASE WHEN \"Project Status\" = 'Completed' THEN \"Budget Amount\" - \"Actual Cost\" END) AS __a12_n, SUM(CASE WHEN \"Project Status\" = 'In Progress' THEN \"Budget Amount\" - \"Actual Cost\" END) AS __a13_sum, COUNT(CASE WHEN \"Project Status\" = 'In Progress' THEN \"Budget Amount\" - \"Actual Cost\" END) AS __a13_n, SUM(CASE WHEN \"Project Status\" = 'Delayed' THEN \"Budget Amount\" - \"Actual Cost\" END) AS __a14_sum, COUNT(CASE WHEN \"Project Status\" = 'Delayed' THEN \"Budget Amount\" - \"Actual Cost\" END) AS __a14_n, SUM((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\") AS __a15_sum, COUNT((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\") AS __a15_n FROM \"sheet1\"  GROUP BY \"Project Type\", \"Risk Level\", \"Project Status\", \"Priority\"",
+      "covered": [
+        "S4",
+        "S9",
+        "S10",
+        "S11",
+        "S12",
+        "S13",
+        "S14",
+        "S15",
+        "S17",
+        "S18",
+        "S24"
+      ],
+      "rewrites": {
+        "S4": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+        "S9": "SELECT __g0 AS \"Project Type\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_cost_deviation, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_budget, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_actual_cost, ROUND(MIN(__a4), 2) AS min_deviation, ROUND(MAX(__a5), 2) AS max_deviation, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 1) AS avg_team_size, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_customer_satisfaction FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_cost_deviation DESC",
+        "S10": "SELECT __g1 AS \"Risk Level\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_cost_deviation, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_budget, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_actual_cost, ROUND(MIN(__a4), 2) AS min_deviation, ROUND(MAX(__a5), 2) AS max_deviation FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_cost_deviation DESC",
+        "S11": "SELECT __g2 AS \"Project Status\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_cost_deviation, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_budget, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_actual_cost FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_cost_deviation DESC",
+        "S12": "SELECT __g0 AS \"Project Type\", __g1 AS \"Risk Level\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_cost_deviation, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 1) AS avg_team_size, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_satisfaction FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+        "S13": "SELECT __g0 AS \"Project Type\", __g3 AS \"Priority\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_cost_deviation FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY __g0, __g3",
+        "S14": "SELECT __g0 AS \"Project Type\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS mean_dev, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) - (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) * (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS variance_dev, ROUND(SQRT(MAX(0, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) - (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) * (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)))), 2) AS stddev_dev FROM temp.reuse_candidate GROUP BY __g0",
+        "S15": "SELECT __g1 AS \"Risk Level\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS mean_dev, ROUND(SQRT(MAX(0, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) - (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) * (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)))), 2) AS stddev_dev, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_budget, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_actual FROM temp.reuse_candidate GROUP BY __g1",
+        "S17": "SELECT __g0 AS \"Project Type\", ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 2) AS completed_avg_dev, SUM(__a9) AS completed_n, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 2) AS inprogress_avg_dev, SUM(__a10) AS inprogress_n, ROUND((1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)), 2) AS delayed_avg_dev, SUM(__a11) AS delayed_n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+        "S18": "SELECT __g0 AS \"Project Type\", __g2 AS \"Project Status\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_dev, ROUND((1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)), 2) AS avg_dev_pct FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY __g0, __g2",
+        "S24": "SELECT __g2 AS \"Project Status\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_dev, ROUND((1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)), 2) AS avg_dev_pct, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_sat FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_dev DESC"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S4",
+      "later_reuses": 10,
+      "denominator": 25,
+      "coverage_includes_trigger": true,
+      "build_ms": 1.3129375874996185,
+      "intermediate_rows": 49,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__a0",
+        "__a1_sum",
+        "__a1_n",
+        "__a2_sum",
+        "__a2_n",
+        "__a3_sum",
+        "__a3_n",
+        "__a4",
+        "__a5",
+        "__a6_sum",
+        "__a6_n",
+        "__a7_sum",
+        "__a7_n",
+        "__a8_sum",
+        "__a8_n",
+        "__a9",
+        "__a10",
+        "__a11",
+        "__a12_sum",
+        "__a12_n",
+        "__a13_sum",
+        "__a13_n",
+        "__a14_sum",
+        "__a14_n",
+        "__a15_sum",
+        "__a15_n"
+      ],
+      "checks": [
+        {
+          "sql_id": "S4",
+          "rewritten_sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.3928588703274727
+        },
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT __g0 AS \"Project Type\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_cost_deviation, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_budget, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_actual_cost, ROUND(MIN(__a4), 2) AS min_deviation, ROUND(MAX(__a5), 2) AS max_deviation, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 1) AS avg_team_size, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_customer_satisfaction FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_cost_deviation DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7649251967668533
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT __g1 AS \"Risk Level\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_cost_deviation, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_budget, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_actual_cost, ROUND(MIN(__a4), 2) AS min_deviation, ROUND(MAX(__a5), 2) AS max_deviation FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_cost_deviation DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.4519281685352325
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT __g2 AS \"Project Status\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_cost_deviation, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_budget, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_actual_cost FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_cost_deviation DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.2605786323547363
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT __g0 AS \"Project Type\", __g1 AS \"Risk Level\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_cost_deviation, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 1) AS avg_team_size, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_satisfaction FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.1951355263590813
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT __g0 AS \"Project Type\", __g3 AS \"Priority\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_cost_deviation FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY __g0, __g3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.8792504668235779
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT __g0 AS \"Project Type\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS mean_dev, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) - (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) * (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS variance_dev, ROUND(SQRT(MAX(0, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) - (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) * (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)))), 2) AS stddev_dev FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.0781299099326134
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "SELECT __g1 AS \"Risk Level\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS mean_dev, ROUND(SQRT(MAX(0, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) - (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) * (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)))), 2) AS stddev_dev, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_budget, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_actual FROM temp.reuse_candidate GROUP BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.7941566184163094
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "SELECT __g0 AS \"Project Type\", ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 2) AS completed_avg_dev, SUM(__a9) AS completed_n, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 2) AS inprogress_avg_dev, SUM(__a10) AS inprogress_n, ROUND((1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)), 2) AS delayed_avg_dev, SUM(__a11) AS delayed_n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.135300077497959
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT __g0 AS \"Project Type\", __g2 AS \"Project Status\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_dev, ROUND((1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)), 2) AS avg_dev_pct FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY __g0, __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.229061745107174
+        },
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "SELECT __g2 AS \"Project Status\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_dev, ROUND((1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)), 2) AS avg_dev_pct, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_sat FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_dev DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.238231547176838
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup.",
+      "phase": "offline_validation",
+      "validation_started_at": 1788870496.9928842,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Project Type\" AS __g0, \"Risk Level\" AS __g1, \"Project Status\" AS __g2, \"Priority\" AS __g3, COUNT(*) AS __a0, SUM(\"Budget Amount\" - \"Actual Cost\") AS __a1_sum, COUNT(\"Budget Amount\" - \"Actual Cost\") AS __a1_n, SUM(\"Budget Amount\") AS __a2_sum, COUNT(\"Budget Amount\") AS __a2_n, SUM(\"Actual Cost\") AS __a3_sum, COUNT(\"Actual Cost\") AS __a3_n, MIN(\"Budget Amount\" - \"Actual Cost\") AS __a4, MAX(\"Budget Amount\" - \"Actual Cost\") AS __a5, SUM(\"Team Size\") AS __a6_sum, COUNT(\"Team Size\") AS __a6_n, SUM(\"Customer Satisfaction\") AS __a7_sum, COUNT(\"Customer Satisfaction\") AS __a7_n, SUM((\"Budget Amount\" - \"Actual Cost\") * (\"Budget Amount\" - \"Actual Cost\")) AS __a8_sum, COUNT((\"Budget Amount\" - \"Actual Cost\") * (\"Budget Amount\" - \"Actual Cost\")) AS __a8_n, COUNT(CASE WHEN \"Project Status\" = 'Completed' THEN 1 END) AS __a9, COUNT(CASE WHEN \"Project Status\" = 'In Progress' THEN 1 END) AS __a10, COUNT(CASE WHEN \"Project Status\" = 'Delayed' THEN 1 END) AS __a11, SUM(CASE WHEN \"Project Status\" = 'Completed' THEN \"Budget Amount\" - \"Actual Cost\" END) AS __a12_sum, COUNT(CASE WHEN \"Project Status\" = 'Completed' THEN \"Budget Amount\" - \"Actual Cost\" END) AS __a12_n, SUM(CASE WHEN \"Project Status\" = 'In Progress' THEN \"Budget Amount\" - \"Actual Cost\" END) AS __a13_sum, COUNT(CASE WHEN \"Project Status\" = 'In Progress' THEN \"Budget Amount\" - \"Actual Cost\" END) AS __a13_n, SUM(CASE WHEN \"Project Status\" = 'Delayed' THEN \"Budget Amount\" - \"Actual Cost\" END) AS __a14_sum, COUNT(CASE WHEN \"Project Status\" = 'Delayed' THEN \"Budget Amount\" - \"Actual Cost\" END) AS __a14_n, SUM((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\") AS __a15_sum, COUNT((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\") AS __a15_n FROM \"sheet1\"  GROUP BY \"Project Type\", \"Risk Level\", \"Project Status\", \"Priority\"",
+          "phase": "offline_validation",
+          "start_time": 1788870496.9930992,
+          "status": "execute_returned",
+          "end_time": 1788870496.9944086
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870496.9944127,
+          "status": "execute_returned",
+          "end_time": 1788870496.994428
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788870496.9944322,
+          "status": "execute_returned",
+          "end_time": 1788870496.994447
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870496.9944842,
+          "status": "execute_returned",
+          "end_time": 1788870496.9945004
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"Project Type\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_cost_deviation, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_budget, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_actual_cost, ROUND(MIN(__a4), 2) AS min_deviation, ROUND(MAX(__a5), 2) AS max_deviation, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 1) AS avg_team_size, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_customer_satisfaction FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_cost_deviation DESC",
+          "phase": "offline_validation",
+          "start_time": 1788870496.99488,
+          "status": "execute_returned",
+          "end_time": 1788870496.9950535
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS \"Risk Level\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_cost_deviation, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_budget, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_actual_cost, ROUND(MIN(__a4), 2) AS min_deviation, ROUND(MAX(__a5), 2) AS max_deviation FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_cost_deviation DESC",
+          "phase": "offline_validation",
+          "start_time": 1788870496.996648,
+          "status": "execute_returned",
+          "end_time": 1788870496.9967923
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g2 AS \"Project Status\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_cost_deviation, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_budget, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_actual_cost FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_cost_deviation DESC",
+          "phase": "offline_validation",
+          "start_time": 1788870496.9981027,
+          "status": "execute_returned",
+          "end_time": 1788870496.9982383
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g0 AS \"Project Type\", __g1 AS \"Risk Level\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_cost_deviation, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 1) AS avg_team_size, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_satisfaction FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "phase": "offline_validation",
+          "start_time": 1788870496.9993658,
+          "status": "execute_returned",
+          "end_time": 1788870496.9994752
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g0 AS \"Project Type\", __g3 AS \"Priority\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_cost_deviation FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY __g0, __g3",
+          "phase": "offline_validation",
+          "start_time": 1788870497.0005634,
+          "status": "execute_returned",
+          "end_time": 1788870497.0006483
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g0 AS \"Project Type\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS mean_dev, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) - (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) * (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS variance_dev, ROUND(SQRT(MAX(0, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) - (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) * (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)))), 2) AS stddev_dev FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788870497.0014453,
+          "status": "execute_returned",
+          "end_time": 1788870497.0015724
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g1 AS \"Risk Level\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS mean_dev, ROUND(SQRT(MAX(0, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) - (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) * (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)))), 2) AS stddev_dev, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_budget, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_actual FROM temp.reuse_candidate GROUP BY __g1",
+          "phase": "offline_validation",
+          "start_time": 1788870497.003526,
+          "status": "execute_returned",
+          "end_time": 1788870497.0036528
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT __g0 AS \"Project Type\", ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 2) AS completed_avg_dev, SUM(__a9) AS completed_n, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 2) AS inprogress_avg_dev, SUM(__a10) AS inprogress_n, ROUND((1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)), 2) AS delayed_avg_dev, SUM(__a11) AS delayed_n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788870497.0053222,
+          "status": "execute_returned",
+          "end_time": 1788870497.0054376
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT __g0 AS \"Project Type\", __g2 AS \"Project Status\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_dev, ROUND((1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)), 2) AS avg_dev_pct FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY __g0, __g2",
+          "phase": "offline_validation",
+          "start_time": 1788870497.0074604,
+          "status": "execute_returned",
+          "end_time": 1788870497.0075614
+        },
+        {
+          "sequence": 14,
+          "sql": "SELECT __g2 AS \"Project Status\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_dev, ROUND((1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)), 2) AS avg_dev_pct, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_sat FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_dev DESC",
+          "phase": "offline_validation",
+          "start_time": 1788870497.0086918,
+          "status": "execute_returned",
+          "end_time": 1788870497.00882
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Project Type\" AS __g0, \"Risk Level\" AS __g1, \"Project Status\" AS __g2, \"Priority\" AS __g3, COUNT(*) AS __a0, SUM(\"Budget Amount\" - \"Actual Cost\") AS __a1_sum, COUNT(\"Budget Amount\" - \"Actual Cost\") AS __a1_n, SUM(\"Budget Amount\") AS __a2_sum, COUNT(\"Budget Amount\") AS __a2_n, SUM(\"Actual Cost\") AS __a3_sum, COUNT(\"Actual Cost\") AS __a3_n, MIN(\"Budget Amount\" - \"Actual Cost\") AS __a4, MAX(\"Budget Amount\" - \"Actual Cost\") AS __a5, SUM(\"Team Size\") AS __a6_sum, COUNT(\"Team Size\") AS __a6_n, SUM(\"Customer Satisfaction\") AS __a7_sum, COUNT(\"Customer Satisfaction\") AS __a7_n, SUM((\"Budget Amount\" - \"Actual Cost\") * (\"Budget Amount\" - \"Actual Cost\")) AS __a8_sum, COUNT((\"Budget Amount\" - \"Actual Cost\") * (\"Budget Amount\" - \"Actual Cost\")) AS __a8_n, COUNT(CASE WHEN \"Project Status\" = 'Completed' THEN 1 END) AS __a9, COUNT(CASE WHEN \"Project Status\" = 'In Progress' THEN 1 END) AS __a10, COUNT(CASE WHEN \"Project Status\" = 'Delayed' THEN 1 END) AS __a11, SUM(CASE WHEN \"Project Status\" = 'Completed' THEN \"Budget Amount\" - \"Actual Cost\" END) AS __a12_sum, COUNT(CASE WHEN \"Project Status\" = 'Completed' THEN \"Budget Amount\" - \"Actual Cost\" END) AS __a12_n, SUM(CASE WHEN \"Project Status\" = 'In Progress' THEN \"Budget Amount\" - \"Actual Cost\" END) AS __a13_sum, COUNT(CASE WHEN \"Project Status\" = 'In Progress' THEN \"Budget Amount\" - \"Actual Cost\" END) AS __a13_n, SUM(CASE WHEN \"Project Status\" = 'Delayed' THEN \"Budget Amount\" - \"Actual Cost\" END) AS __a14_sum, COUNT(CASE WHEN \"Project Status\" = 'Delayed' THEN \"Budget Amount\" - \"Actual Cost\" END) AS __a14_n, SUM((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\") AS __a15_sum, COUNT((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\") AS __a15_n FROM \"sheet1\"  GROUP BY \"Project Type\", \"Risk Level\", \"Project Status\", \"Priority\"",
+          "time": 1788870496.9934402,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788870496.994425,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788870496.9944446,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "time": 1788870496.9944944,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Project Type\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_cost_deviation, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_budget, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_actual_cost, ROUND(MIN(__a4), 2) AS min_deviation, ROUND(MAX(__a5), 2) AS max_deviation, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 1) AS avg_team_size, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_customer_satisfaction FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_cost_deviation DESC",
+          "time": 1788870496.994972,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"Risk Level\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_cost_deviation, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_budget, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_actual_cost, ROUND(MIN(__a4), 2) AS min_deviation, ROUND(MAX(__a5), 2) AS max_deviation FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_cost_deviation DESC",
+          "time": 1788870496.9967294,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"Project Status\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_cost_deviation, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_budget, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_actual_cost FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_cost_deviation DESC",
+          "time": 1788870496.998179,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Project Type\", __g1 AS \"Risk Level\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_cost_deviation, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 1) AS avg_team_size, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_satisfaction FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "time": 1788870496.9994366,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Project Type\", __g3 AS \"Priority\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_cost_deviation FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY __g0, __g3",
+          "time": 1788870497.000616,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Project Type\", SUM(__a0) AS count, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS mean_dev, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) - (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) * (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS variance_dev, ROUND(SQRT(MAX(0, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) - (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) * (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)))), 2) AS stddev_dev FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788870497.001535,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"Risk Level\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS mean_dev, ROUND(SQRT(MAX(0, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) - (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) * (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)))), 2) AS stddev_dev, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_budget, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_actual FROM temp.reuse_candidate GROUP BY __g1",
+          "time": 1788870497.003612,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Project Type\", ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 2) AS completed_avg_dev, SUM(__a9) AS completed_n, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 2) AS inprogress_avg_dev, SUM(__a10) AS inprogress_n, ROUND((1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)), 2) AS delayed_avg_dev, SUM(__a11) AS delayed_n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "time": 1788870497.005395,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Project Type\", __g2 AS \"Project Status\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_dev, ROUND((1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)), 2) AS avg_dev_pct FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY __g0, __g2",
+          "time": 1788870497.007523,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"Project Status\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_dev, ROUND((1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)), 2) AS avg_dev_pct, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_sat FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_dev DESC",
+          "time": 1788870497.0087607,
+          "phase": "offline_validation"
+        }
+      ],
+      "validation_ended_at": 1788870497.0100324,
+      "initial_validation_status": "verified",
+      "verification_source_version": "d4227169a78914a6585241e2bcc71ebb061353208158133235881b149879b00a",
+      "additional_replay_reason": "Same preselected candidate, repeated only to enrich phase-separated offline SQL evidence; no model invocation or candidate reselection."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"sheet1\" WHERE \"Project Status\" = 'Completed'",
+      "covered": [
+        "S22",
+        "S23",
+        "S25",
+        "S26"
+      ],
+      "rewrites": {
+        "S22": "SELECT \"Risk Level\", \"Project Status\", COUNT(*) AS n, ROUND(AVG(\"Budget Amount\" - \"Actual Cost\"), 2) AS avg_dev FROM temp.reuse_candidate AS sheet1 WHERE \"Project Status\" = 'Completed' GROUP BY \"Risk Level\" ORDER BY avg_dev DESC",
+        "S23": "SELECT \"Project Type\", \"Risk Level\", COUNT(*) AS n, ROUND(AVG(\"Budget Amount\" - \"Actual Cost\"), 2) AS avg_dev, ROUND(AVG((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\"), 2) AS avg_dev_pct FROM temp.reuse_candidate AS sheet1 WHERE \"Project Status\" = 'Completed' GROUP BY \"Project Type\", \"Risk Level\" ORDER BY \"Project Type\", \"Risk Level\"",
+        "S25": "SELECT \"Priority\", COUNT(*) AS n, ROUND(AVG(\"Budget Amount\" - \"Actual Cost\"), 2) AS avg_dev, ROUND(AVG((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\"), 2) AS avg_dev_pct FROM temp.reuse_candidate AS sheet1 WHERE \"Project Status\" = 'Completed' GROUP BY \"Priority\" ORDER BY avg_dev DESC",
+        "S26": "SELECT \"Project Type\", \"Priority\", COUNT(*) AS n, ROUND(AVG(\"Budget Amount\" - \"Actual Cost\"), 2) AS avg_dev, ROUND(AVG((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\"), 2) AS avg_dev_pct FROM temp.reuse_candidate AS sheet1 WHERE \"Project Status\" = 'Completed' GROUP BY \"Project Type\", \"Priority\" ORDER BY \"Project Type\", \"Priority\""
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S22",
+      "later_reuses": 3,
+      "denominator": 25,
+      "coverage_includes_trigger": true,
+      "build_ms": 0.30845869332551956,
+      "intermediate_rows": 129,
+      "intermediate_columns": [
+        "Project ID",
+        "Project Name",
+        "Project Manager",
+        "Project Type",
+        "Project Status",
+        "Priority",
+        "Planned Start Date",
+        "Planned End Date",
+        "Actual Start Date",
+        "Actual End Date",
+        "Budget Amount",
+        "Actual Cost",
+        "Completion Percentage",
+        "Team Size",
+        "Risk Level",
+        "Customer Satisfaction"
+      ],
+      "checks": [
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "SELECT \"Risk Level\", \"Project Status\", COUNT(*) AS n, ROUND(AVG(\"Budget Amount\" - \"Actual Cost\"), 2) AS avg_dev FROM temp.reuse_candidate AS sheet1 WHERE \"Project Status\" = 'Completed' GROUP BY \"Risk Level\" ORDER BY avg_dev DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.84689911454916
+        },
+        {
+          "sql_id": "S23",
+          "rewritten_sql": "SELECT \"Project Type\", \"Risk Level\", COUNT(*) AS n, ROUND(AVG(\"Budget Amount\" - \"Actual Cost\"), 2) AS avg_dev, ROUND(AVG((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\"), 2) AS avg_dev_pct FROM temp.reuse_candidate AS sheet1 WHERE \"Project Status\" = 'Completed' GROUP BY \"Project Type\", \"Risk Level\" ORDER BY \"Project Type\", \"Risk Level\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.4198897406458855
+        },
+        {
+          "sql_id": "S25",
+          "rewritten_sql": "SELECT \"Priority\", COUNT(*) AS n, ROUND(AVG(\"Budget Amount\" - \"Actual Cost\"), 2) AS avg_dev, ROUND(AVG((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\"), 2) AS avg_dev_pct FROM temp.reuse_candidate AS sheet1 WHERE \"Project Status\" = 'Completed' GROUP BY \"Priority\" ORDER BY avg_dev DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.1561065912246704
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "SELECT \"Project Type\", \"Priority\", COUNT(*) AS n, ROUND(AVG(\"Budget Amount\" - \"Actual Cost\"), 2) AS avg_dev, ROUND(AVG((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\"), 2) AS avg_dev_pct FROM temp.reuse_candidate AS sheet1 WHERE \"Project Status\" = 'Completed' GROUP BY \"Project Type\", \"Priority\" ORDER BY \"Project Type\", \"Priority\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.3032034039497375
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup.",
+      "phase": "offline_validation",
+      "validation_started_at": 1788870497.0100567,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"sheet1\" WHERE \"Project Status\" = 'Completed'",
+          "phase": "offline_validation",
+          "start_time": 1788870497.0102696,
+          "status": "execute_returned",
+          "end_time": 1788870497.0105755
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870497.0105786,
+          "status": "execute_returned",
+          "end_time": 1788870497.0105927
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788870497.0105963,
+          "status": "execute_returned",
+          "end_time": 1788870497.0106084
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT \"Risk Level\", \"Project Status\", COUNT(*) AS n, ROUND(AVG(\"Budget Amount\" - \"Actual Cost\"), 2) AS avg_dev FROM temp.reuse_candidate AS sheet1 WHERE \"Project Status\" = 'Completed' GROUP BY \"Risk Level\" ORDER BY avg_dev DESC",
+          "phase": "offline_validation",
+          "start_time": 1788870497.0106316,
+          "status": "execute_returned",
+          "end_time": 1788870497.0107126
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT \"Project Type\", \"Risk Level\", COUNT(*) AS n, ROUND(AVG(\"Budget Amount\" - \"Actual Cost\"), 2) AS avg_dev, ROUND(AVG((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\"), 2) AS avg_dev_pct FROM temp.reuse_candidate AS sheet1 WHERE \"Project Status\" = 'Completed' GROUP BY \"Project Type\", \"Risk Level\" ORDER BY \"Project Type\", \"Risk Level\"",
+          "phase": "offline_validation",
+          "start_time": 1788870497.0114815,
+          "status": "execute_returned",
+          "end_time": 1788870497.0116
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT \"Priority\", COUNT(*) AS n, ROUND(AVG(\"Budget Amount\" - \"Actual Cost\"), 2) AS avg_dev, ROUND(AVG((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\"), 2) AS avg_dev_pct FROM temp.reuse_candidate AS sheet1 WHERE \"Project Status\" = 'Completed' GROUP BY \"Priority\" ORDER BY avg_dev DESC",
+          "phase": "offline_validation",
+          "start_time": 1788870497.0129044,
+          "status": "execute_returned",
+          "end_time": 1788870497.0130289
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT \"Project Type\", \"Priority\", COUNT(*) AS n, ROUND(AVG(\"Budget Amount\" - \"Actual Cost\"), 2) AS avg_dev, ROUND(AVG((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\"), 2) AS avg_dev_pct FROM temp.reuse_candidate AS sheet1 WHERE \"Project Status\" = 'Completed' GROUP BY \"Project Type\", \"Priority\" ORDER BY \"Project Type\", \"Priority\"",
+          "phase": "offline_validation",
+          "start_time": 1788870497.014063,
+          "status": "execute_returned",
+          "end_time": 1788870497.0141933
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"sheet1\" WHERE \"Project Status\" = 'Completed'",
+          "time": 1788870497.0103996,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788870497.0105898,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788870497.010606,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Risk Level\", \"Project Status\", COUNT(*) AS n, ROUND(AVG(\"Budget Amount\" - \"Actual Cost\"), 2) AS avg_dev FROM temp.reuse_candidate AS sheet1 WHERE \"Project Status\" = 'Completed' GROUP BY \"Risk Level\" ORDER BY avg_dev DESC",
+          "time": 1788870497.0106564,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Project Type\", \"Risk Level\", COUNT(*) AS n, ROUND(AVG(\"Budget Amount\" - \"Actual Cost\"), 2) AS avg_dev, ROUND(AVG((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\"), 2) AS avg_dev_pct FROM temp.reuse_candidate AS sheet1 WHERE \"Project Status\" = 'Completed' GROUP BY \"Project Type\", \"Risk Level\" ORDER BY \"Project Type\", \"Risk Level\"",
+          "time": 1788870497.011528,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Priority\", COUNT(*) AS n, ROUND(AVG(\"Budget Amount\" - \"Actual Cost\"), 2) AS avg_dev, ROUND(AVG((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\"), 2) AS avg_dev_pct FROM temp.reuse_candidate AS sheet1 WHERE \"Project Status\" = 'Completed' GROUP BY \"Priority\" ORDER BY avg_dev DESC",
+          "time": 1788870497.0129523,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Project Type\", \"Priority\", COUNT(*) AS n, ROUND(AVG(\"Budget Amount\" - \"Actual Cost\"), 2) AS avg_dev, ROUND(AVG((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\"), 2) AS avg_dev_pct FROM temp.reuse_candidate AS sheet1 WHERE \"Project Status\" = 'Completed' GROUP BY \"Project Type\", \"Priority\" ORDER BY \"Project Type\", \"Priority\"",
+          "time": 1788870497.0141118,
+          "phase": "offline_validation"
+        }
+      ],
+      "validation_ended_at": 1788870497.0154176,
+      "initial_validation_status": "verified",
+      "verification_source_version": "d4227169a78914a6585241e2bcc71ebb061353208158133235881b149879b00a",
+      "additional_replay_reason": "Same preselected candidate, repeated only to enrich phase-separated offline SQL evidence; no model invocation or candidate reselection."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Project Type\" AS __g0, \"Risk Level\" AS __g1, \"Priority\" AS __g2, COUNT(*) AS __a0, SUM(\"Budget Amount\" - \"Actual Cost\") AS __a1_sum, COUNT(\"Budget Amount\" - \"Actual Cost\") AS __a1_n, SUM((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\") AS __a2_sum, COUNT((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\") AS __a2_n FROM \"sheet1\" WHERE \"Project Status\" = 'Completed' GROUP BY \"Project Type\", \"Risk Level\", \"Priority\"",
+      "covered": [
+        "S23",
+        "S25",
+        "S26"
+      ],
+      "rewrites": {
+        "S23": "SELECT __g0 AS \"Project Type\", __g1 AS \"Risk Level\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_dev, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_dev_pct FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+        "S25": "SELECT __g2 AS \"Priority\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_dev, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_dev_pct FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_dev DESC",
+        "S26": "SELECT __g0 AS \"Project Type\", __g2 AS \"Priority\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_dev, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_dev_pct FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY __g0, __g2"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S23",
+      "later_reuses": 2,
+      "denominator": 25,
+      "coverage_includes_trigger": true,
+      "build_ms": 0.3540283069014549,
+      "intermediate_rows": 16,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__a0",
+        "__a1_sum",
+        "__a1_n",
+        "__a2_sum",
+        "__a2_n"
+      ],
+      "checks": [
+        {
+          "sql_id": "S23",
+          "rewritten_sql": "SELECT __g0 AS \"Project Type\", __g1 AS \"Risk Level\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_dev, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_dev_pct FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.178656704723835
+        },
+        {
+          "sql_id": "S25",
+          "rewritten_sql": "SELECT __g2 AS \"Priority\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_dev, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_dev_pct FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_dev DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.1071134358644485
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "SELECT __g0 AS \"Project Type\", __g2 AS \"Priority\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_dev, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_dev_pct FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY __g0, __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.3593100011348724
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup.",
+      "phase": "offline_validation",
+      "validation_started_at": 1788870497.0154362,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Project Type\" AS __g0, \"Risk Level\" AS __g1, \"Priority\" AS __g2, COUNT(*) AS __a0, SUM(\"Budget Amount\" - \"Actual Cost\") AS __a1_sum, COUNT(\"Budget Amount\" - \"Actual Cost\") AS __a1_n, SUM((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\") AS __a2_sum, COUNT((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\") AS __a2_n FROM \"sheet1\" WHERE \"Project Status\" = 'Completed' GROUP BY \"Project Type\", \"Risk Level\", \"Priority\"",
+          "phase": "offline_validation",
+          "start_time": 1788870497.015611,
+          "status": "execute_returned",
+          "end_time": 1788870497.0159624
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870497.0159655,
+          "status": "execute_returned",
+          "end_time": 1788870497.015979
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788870497.0159826,
+          "status": "execute_returned",
+          "end_time": 1788870497.0159929
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"Project Type\", __g1 AS \"Risk Level\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_dev, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_dev_pct FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "phase": "offline_validation",
+          "start_time": 1788870497.016007,
+          "status": "execute_returned",
+          "end_time": 1788870497.0160506
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g2 AS \"Priority\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_dev, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_dev_pct FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_dev DESC",
+          "phase": "offline_validation",
+          "start_time": 1788870497.0171883,
+          "status": "execute_returned",
+          "end_time": 1788870497.0172632
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS \"Project Type\", __g2 AS \"Priority\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_dev, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_dev_pct FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY __g0, __g2",
+          "phase": "offline_validation",
+          "start_time": 1788870497.018298,
+          "status": "execute_returned",
+          "end_time": 1788870497.0183668
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Project Type\" AS __g0, \"Risk Level\" AS __g1, \"Priority\" AS __g2, COUNT(*) AS __a0, SUM(\"Budget Amount\" - \"Actual Cost\") AS __a1_sum, COUNT(\"Budget Amount\" - \"Actual Cost\") AS __a1_n, SUM((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\") AS __a2_sum, COUNT((\"Budget Amount\" - \"Actual Cost\") * 100.0 / \"Budget Amount\") AS __a2_n FROM \"sheet1\" WHERE \"Project Status\" = 'Completed' GROUP BY \"Project Type\", \"Risk Level\", \"Priority\"",
+          "time": 1788870497.0157485,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788870497.0159764,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788870497.0159905,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Project Type\", __g1 AS \"Risk Level\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_dev, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_dev_pct FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "time": 1788870497.016036,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"Priority\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_dev, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_dev_pct FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_dev DESC",
+          "time": 1788870497.0172367,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Project Type\", __g2 AS \"Priority\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_dev, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_dev_pct FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY __g0, __g2",
+          "time": 1788870497.0183473,
+          "phase": "offline_validation"
+        }
+      ],
+      "validation_ended_at": 1788870497.0197043,
+      "initial_validation_status": "verified",
+      "verification_source_version": "d4227169a78914a6585241e2bcc71ebb061353208158133235881b149879b00a",
+      "additional_replay_reason": "Same preselected candidate, repeated only to enrich phase-separated offline SQL evidence; no model invocation or candidate reselection."
+    }
+  ],
+  "final_verification_source_version": "d4227169a78914a6585241e2bcc71ebb061353208158133235881b149879b00a"
+}

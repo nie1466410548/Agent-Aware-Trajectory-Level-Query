@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT employee_id) as distinct_emp, COUNT(DISTINCT worker_id) as distinct_worker, COUNT(*) as total_rows FROM workday__employee_overview

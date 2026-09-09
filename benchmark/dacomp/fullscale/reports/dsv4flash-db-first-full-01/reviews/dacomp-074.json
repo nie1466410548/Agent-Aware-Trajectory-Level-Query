@@ -1,0 +1,85 @@
+{
+  "task_id": "dacomp-074",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 连接风险首日、财务指标与费用，按子公司计算滞后值和环比，按风险前窗口计算均值、阈值频率和预警敏感度/特异度。这里的常规窗口与条件聚合可由 SQLite 完成，属于明确的执行位置偏离。",
+  "route": "SQL 提取高风险子公司及历史指标 → Python 连接、构建风险前窗口和环比阈值 → 现金流预警比较。",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 20,
+          "text": "d = d.merge(fh, on='subsidiary_id', how='left')"
+        },
+        {
+          "line": 23,
+          "text": "first_high_idx = d[d['cash_flow_risk_level']=='High'].groupby('subsidiary_id')['period_idx'].min().rename('first_high_idx')"
+        },
+        {
+          "line": 24,
+          "text": "d = d.merge(first_high_idx, on='subsidiary_id', how='left')"
+        }
+      ]
+    },
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 10,
+          "text": "rev_fluct = d.groupby('is_prehigh').agg("
+        },
+        {
+          "line": 30,
+          "text": "dso_gt45 = d.groupby('is_prehigh')['dso_gt45'].agg(['count','sum','mean']).reset_index()"
+        },
+        {
+          "line": 36,
+          "text": "overdue_rise3 = d.groupby('is_prehigh')['overdue_rise3'].agg(['count','sum','mean']).reset_index()"
+        },
+        {
+          "line": 43,
+          "text": "diverg = d.groupby('is_prehigh')['divergence'].agg(['mean','std','count']).reset_index()"
+        }
+      ]
+    },
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 18,
+          "text": "merged = d.merge(exp_acc, on=['subsidiary_id','dashboard_date'], how='inner')"
+        },
+        {
+          "line": 26,
+          "text": "    pivot[col+'_chg'] = pivot.groupby('subsidiary_id')[col].pct_change()"
+        },
+        {
+          "line": 47,
+          "text": "d2['prev_dso'] = d2.groupby('subsidiary_id')['weighted_average_days_outstanding'].shift(1)"
+        },
+        {
+          "line": 66,
+          "text": "    sens = (pre2['score']>=thresh).mean()"
+        },
+        {
+          "line": 67,
+          "text": "    spec = 1-(healthy2['score']>=thresh).mean()"
+        }
+      ]
+    },
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 53,
+          "text": "cf = cf.merge(d[['subsidiary_id','dashboard_date','is_prehigh','months_to_high','period_idx','first_high_idx']], "
+        },
+        {
+          "line": 70,
+          "text": "cfm = cf[(cf['months_to_high']>=0)&(cf['months_to_high']<=7)].groupby('months_to_high').agg("
+        }
+      ]
+    }
+  ]
+}

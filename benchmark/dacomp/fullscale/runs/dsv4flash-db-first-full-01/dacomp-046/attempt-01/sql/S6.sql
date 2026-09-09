@@ -1,0 +1,1 @@
+SELECT COUNT(*) as total_campaigns FROM marketing_campaign_interaction

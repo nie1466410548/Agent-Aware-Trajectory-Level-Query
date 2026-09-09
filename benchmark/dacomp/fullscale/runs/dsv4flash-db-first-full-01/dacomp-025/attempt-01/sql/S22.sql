@@ -1,0 +1,1 @@
+SELECT "Date" FROM purchase_price WHERE "Date" >= '2023-06-01' AND "Date" < '2023-08-01' GROUP BY "Date" ORDER BY "Date"

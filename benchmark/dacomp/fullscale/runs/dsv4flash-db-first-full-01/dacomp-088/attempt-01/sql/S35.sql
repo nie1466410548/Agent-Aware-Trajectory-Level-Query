@@ -1,0 +1,6 @@
+-- Industry customer share per state
+SELECT billing_state AS state, industry,
+       COUNT(DISTINCT account_id) AS n_cust_industry
+FROM salesforce__account_daily_history
+WHERE type = 'Customer' AND billing_state IS NOT NULL
+GROUP BY billing_state, industry

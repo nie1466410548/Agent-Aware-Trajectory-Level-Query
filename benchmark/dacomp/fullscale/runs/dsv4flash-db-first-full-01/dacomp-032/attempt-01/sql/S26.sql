@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n, AVG("Ticket resolution duration") AS avg_res_h, MIN("Ticket resolution duration") AS min_h, MAX("Ticket resolution duration") AS max_h, AVG("Ticket customer satisfaction score") AS avg_sat, SUM(CASE WHEN "Ticket priority" = 1 THEN 1 ELSE 0 END) AS p1_tickets FROM service_ticket_table

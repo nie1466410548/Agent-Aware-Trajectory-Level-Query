@@ -1,0 +1,1 @@
+SELECT DISTINCT seasonal_preference FROM netsuite2_customer_analytics ORDER BY seasonal_preference

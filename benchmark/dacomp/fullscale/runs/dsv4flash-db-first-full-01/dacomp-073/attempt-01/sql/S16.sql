@@ -1,0 +1,1 @@
+SELECT DISTINCT hiring_manager_user_id FROM lever__requisition_enhanced LIMIT 20

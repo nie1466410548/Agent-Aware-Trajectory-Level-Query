@@ -1,0 +1,1 @@
+SELECT DISTINCT "Shipping Method" FROM order_information

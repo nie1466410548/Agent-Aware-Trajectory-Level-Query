@@ -1,0 +1,85 @@
+{
+  "task_id": "dacomp-041",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 多次合并展厅环境、文物、展柜及风险明细，并计算条件计数、分组均值和风险指标，属于可在数据库内完成的工作。绘图及额外统计应单独评价。",
+  "route": "SQL 筛选高客流展厅并提取环境与文物信息 → 宽表计数查询超时 → Python 合并、阈值计数和风险比较 → 绘图。",
+  "evidence": [
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 37,
+          "text": "            stats.append({'Parameter': col, 'Mean': df[col].mean(), 'Std': df[col].std(), "
+        },
+        {
+          "line": 45,
+          "text": "comparison = high_stats.merge(low_stats, on='Parameter', suffixes=('_High', '_Low'))"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 10,
+          "text": "merged = high.merge(high_art, on='hall_id', how='left')"
+        },
+        {
+          "line": 11,
+          "text": "merged = merged.merge(high_case, on='hall_id', how='left')"
+        },
+        {
+          "line": 38,
+          "text": "co2_high = (high['Carbon dioxide concentration (ppm)'] > 800).sum()"
+        },
+        {
+          "line": 41,
+          "text": "uv_high = (high['UV Irradiance (μW/cm²)'] > 75).sum()"
+        }
+      ]
+    },
+    {
+      "source": "python/P21.py",
+      "lines": [
+        {
+          "line": 36,
+          "text": "merged2 = merged.merge(risk_by_hall, left_on='hall_id', right_on='Related Gallery References', how='left')"
+        },
+        {
+          "line": 38,
+          "text": "print(merged2.groupby('Risk Assessment Level')['Condition Assessment Rating'].agg(['mean','count']).to_string())"
+        },
+        {
+          "line": 55,
+          "text": "    means = merged2.groupby('Risk Assessment Level')[col].mean()"
+        }
+      ]
+    },
+    {
+      "source": "python/P23.py",
+      "lines": [
+        {
+          "line": 25,
+          "text": "merged = merged.merge(high_art, on='hall_id', how='left', suffixes=('_env', '_art'))"
+        },
+        {
+          "line": 26,
+          "text": "merged = merged.merge(high_case, on='hall_id', how='left')"
+        },
+        {
+          "line": 27,
+          "text": "merged = merged.merge(df_risk, left_on='hall_id', right_on='Related Gallery References', how='left')"
+        },
+        {
+          "line": 31,
+          "text": "print(\"Urgent count:\", (merged['Treatment Priority'] == 'Urgent').sum())"
+        },
+        {
+          "line": 44,
+          "text": "print(merged.groupby('Risk Assessment Level')['Condition Assessment Rating'].mean())"
+        }
+      ]
+    }
+  ]
+}

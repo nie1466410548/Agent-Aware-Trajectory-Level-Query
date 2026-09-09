@@ -1,0 +1,1 @@
+SELECT DISTINCT "Floor Plan" FROM data ORDER BY "Floor Plan"

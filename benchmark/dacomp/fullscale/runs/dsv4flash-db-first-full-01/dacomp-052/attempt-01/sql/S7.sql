@@ -1,0 +1,1 @@
+SELECT resource_optimization_score, COUNT(*) AS n FROM asana__team_efficiency_metrics GROUP BY resource_optimization_score ORDER BY resource_optimization_score

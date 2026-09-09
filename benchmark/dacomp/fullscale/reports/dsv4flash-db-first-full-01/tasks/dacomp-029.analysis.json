@@ -1,0 +1,535 @@
+{
+  "fingerprint": "071c78c2f43486abe553e1e05421fe9e1be28e309a1633a985245e5ea2f04b53",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S41",
+      "covered": [
+        "S41",
+        "S42",
+        "S43",
+        "S44",
+        "S48",
+        "S49",
+        "S50"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S41",
+      "later_reuses": 6,
+      "denominator": 49,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788864650.746112,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 675,
+      "validation_ended_at": 1788864650.8399599,
+      "checks": [
+        {
+          "sql_id": "S42",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S43",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S44",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S48",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S49",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S50",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"New Car Price (incl. tax)\" AS __g0, title AS __g1, COUNT(*) AS __a0, MIN(price) AS __a1, MAX(price) AS __a2, SUM(price) AS __a3_sum, COUNT(price) AS __a3_n FROM \"autohome\"  GROUP BY \"New Car Price (incl. tax)\", title",
+      "covered": [
+        "S4",
+        "S5",
+        "S6",
+        "S7"
+      ],
+      "rewrites": {
+        "S4": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+        "S5": "SELECT MIN(__a1) AS min_price, MAX(__a2) AS max_price, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_price FROM temp.reuse_candidate",
+        "S6": "SELECT __g0 AS np, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 20",
+        "S7": "SELECT __g1 AS \"Title\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC LIMIT 20"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S4",
+      "later_reuses": 3,
+      "denominator": 49,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"autohome\" WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT price IS NULL",
+      "covered": [
+        "S20",
+        "S21",
+        "S24",
+        "S30",
+        "S31"
+      ],
+      "rewrites": {
+        "S20": "SELECT \"Fuel Type\", ROUND(AVG(Price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) * 100, 2) AS avg_retention_pct, ROUND(AVG(JULIANDAY(\"Posting Date\") - JULIANDAY(\"Registration Date\")) / 365.25, 2) AS avg_age, ROUND(AVG(Price), 2) AS avg_price_wan, COUNT(*) AS cnt FROM temp.reuse_candidate AS autohome WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT Price IS NULL GROUP BY \"Fuel Type\" ORDER BY avg_retention_pct DESC",
+        "S21": "SELECT \"Vehicle Class\", ROUND(AVG(Price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) * 100, 2) AS avg_retention_pct, ROUND(AVG(JULIANDAY(\"Posting Date\") - JULIANDAY(\"Registration Date\")) / 365.25, 2) AS avg_age, ROUND(AVG(Price), 2) AS avg_price_wan, COUNT(*) AS cnt FROM temp.reuse_candidate AS autohome WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT Price IS NULL GROUP BY \"Vehicle Class\" ORDER BY avg_retention_pct DESC",
+        "S24": "SELECT \"Vehicle Class\", COUNT(*) AS cnt, COUNT(\"Registration Date\") AS cnt_reg, COUNT(\"Posting Date\") AS cnt_post, ROUND(AVG(JULIANDAY(\"Posting Date\") - JULIANDAY(\"Registration Date\")) / 365.25, 2) AS avg_age FROM temp.reuse_candidate AS autohome WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT Price IS NULL GROUP BY \"Vehicle Class\" ORDER BY avg_age DESC",
+        "S30": "SELECT Title, COUNT(*) AS cnt, ROUND(AVG(Price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) * 100, 2) AS avg_retention_pct, ROUND(AVG((JULIANDAY(TRIM(\"Posting Date\")) - JULIANDAY(\"Registration Date\")) / 365.25), 2) AS avg_age, ROUND(AVG(Price), 2) AS avg_price_wan, ROUND(AVG(CASE WHEN Mileage LIKE '%ten thousand km%' THEN CAST(REPLACE(Mileage, ' ten thousand km', '') AS REAL) * 10000 WHEN Mileage LIKE '%km%' THEN CAST(REPLACE(REPLACE(Mileage, ',', ''), ' km', '') AS REAL) END), 0) AS avg_mileage_km FROM temp.reuse_candidate AS autohome WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT Price IS NULL GROUP BY Title HAVING COUNT(*) >= 3 ORDER BY avg_retention_pct DESC LIMIT 25",
+        "S31": "SELECT Title, COUNT(*) AS cnt, ROUND(AVG(Price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) * 100, 2) AS avg_retention_pct, ROUND(AVG((JULIANDAY(TRIM(\"Posting Date\")) - JULIANDAY(\"Registration Date\")) / 365.25), 2) AS avg_age FROM temp.reuse_candidate AS autohome WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT Price IS NULL GROUP BY Title HAVING COUNT(*) >= 3 ORDER BY avg_retention_pct ASC LIMIT 25"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S20",
+      "later_reuses": 4,
+      "denominator": 49,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788864650.858182,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"autohome\" WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT price IS NULL",
+          "phase": "offline_validation",
+          "start_time": 1788864650.8583674,
+          "status": "execute_returned",
+          "end_time": 1788864650.8594642
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788864650.8594677,
+          "status": "execute_returned",
+          "end_time": 1788864650.859489
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788864650.8594928,
+          "status": "execute_returned",
+          "end_time": 1788864650.8595061
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT \"Fuel Type\", ROUND(AVG(Price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) * 100, 2) AS avg_retention_pct, ROUND(AVG(JULIANDAY(\"Posting Date\") - JULIANDAY(\"Registration Date\")) / 365.25, 2) AS avg_age, ROUND(AVG(Price), 2) AS avg_price_wan, COUNT(*) AS cnt FROM temp.reuse_candidate AS autohome WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT Price IS NULL GROUP BY \"Fuel Type\" ORDER BY avg_retention_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788864650.8595376,
+          "status": "execute_returned",
+          "end_time": 1788864650.8606036
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT \"Vehicle Class\", ROUND(AVG(Price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) * 100, 2) AS avg_retention_pct, ROUND(AVG(JULIANDAY(\"Posting Date\") - JULIANDAY(\"Registration Date\")) / 365.25, 2) AS avg_age, ROUND(AVG(Price), 2) AS avg_price_wan, COUNT(*) AS cnt FROM temp.reuse_candidate AS autohome WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT Price IS NULL GROUP BY \"Vehicle Class\" ORDER BY avg_retention_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788864650.8624885,
+          "status": "execute_returned",
+          "end_time": 1788864650.863613
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT \"Vehicle Class\", COUNT(*) AS cnt, COUNT(\"Registration Date\") AS cnt_reg, COUNT(\"Posting Date\") AS cnt_post, ROUND(AVG(JULIANDAY(\"Posting Date\") - JULIANDAY(\"Registration Date\")) / 365.25, 2) AS avg_age FROM temp.reuse_candidate AS autohome WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT Price IS NULL GROUP BY \"Vehicle Class\" ORDER BY avg_age DESC",
+          "phase": "offline_validation",
+          "start_time": 1788864650.8656635,
+          "status": "execute_returned",
+          "end_time": 1788864650.8661323
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT Title, COUNT(*) AS cnt, ROUND(AVG(Price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) * 100, 2) AS avg_retention_pct, ROUND(AVG((JULIANDAY(TRIM(\"Posting Date\")) - JULIANDAY(\"Registration Date\")) / 365.25), 2) AS avg_age, ROUND(AVG(Price), 2) AS avg_price_wan, ROUND(AVG(CASE WHEN Mileage LIKE '%ten thousand km%' THEN CAST(REPLACE(Mileage, ' ten thousand km', '') AS REAL) * 10000 WHEN Mileage LIKE '%km%' THEN CAST(REPLACE(REPLACE(Mileage, ',', ''), ' km', '') AS REAL) END), 0) AS avg_mileage_km FROM temp.reuse_candidate AS autohome WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT Price IS NULL GROUP BY Title HAVING COUNT(*) >= 3 ORDER BY avg_retention_pct DESC LIMIT 25",
+          "phase": "offline_validation",
+          "start_time": 1788864650.8672504,
+          "status": "execute_returned",
+          "end_time": 1788864650.8694386
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT Title, COUNT(*) AS cnt, ROUND(AVG(Price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) * 100, 2) AS avg_retention_pct, ROUND(AVG((JULIANDAY(TRIM(\"Posting Date\")) - JULIANDAY(\"Registration Date\")) / 365.25), 2) AS avg_age FROM temp.reuse_candidate AS autohome WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT Price IS NULL GROUP BY Title HAVING COUNT(*) >= 3 ORDER BY avg_retention_pct ASC LIMIT 25",
+          "phase": "offline_validation",
+          "start_time": 1788864650.872612,
+          "status": "execute_returned",
+          "end_time": 1788864650.8743668
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"autohome\" WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT price IS NULL",
+          "time": 1788864650.858515,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788864650.859481,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788864650.8595035,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Fuel Type\", ROUND(AVG(Price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) * 100, 2) AS avg_retention_pct, ROUND(AVG(JULIANDAY(\"Posting Date\") - JULIANDAY(\"Registration Date\")) / 365.25, 2) AS avg_age, ROUND(AVG(Price), 2) AS avg_price_wan, COUNT(*) AS cnt FROM temp.reuse_candidate AS autohome WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT Price IS NULL GROUP BY \"Fuel Type\" ORDER BY avg_retention_pct DESC",
+          "time": 1788864650.859605,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Vehicle Class\", ROUND(AVG(Price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) * 100, 2) AS avg_retention_pct, ROUND(AVG(JULIANDAY(\"Posting Date\") - JULIANDAY(\"Registration Date\")) / 365.25, 2) AS avg_age, ROUND(AVG(Price), 2) AS avg_price_wan, COUNT(*) AS cnt FROM temp.reuse_candidate AS autohome WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT Price IS NULL GROUP BY \"Vehicle Class\" ORDER BY avg_retention_pct DESC",
+          "time": 1788864650.8625724,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Vehicle Class\", COUNT(*) AS cnt, COUNT(\"Registration Date\") AS cnt_reg, COUNT(\"Posting Date\") AS cnt_post, ROUND(AVG(JULIANDAY(\"Posting Date\") - JULIANDAY(\"Registration Date\")) / 365.25, 2) AS avg_age FROM temp.reuse_candidate AS autohome WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT Price IS NULL GROUP BY \"Vehicle Class\" ORDER BY avg_age DESC",
+          "time": 1788864650.86572,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT Title, COUNT(*) AS cnt, ROUND(AVG(Price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) * 100, 2) AS avg_retention_pct, ROUND(AVG((JULIANDAY(TRIM(\"Posting Date\")) - JULIANDAY(\"Registration Date\")) / 365.25), 2) AS avg_age, ROUND(AVG(Price), 2) AS avg_price_wan, ROUND(AVG(CASE WHEN Mileage LIKE '%ten thousand km%' THEN CAST(REPLACE(Mileage, ' ten thousand km', '') AS REAL) * 10000 WHEN Mileage LIKE '%km%' THEN CAST(REPLACE(REPLACE(Mileage, ',', ''), ' km', '') AS REAL) END), 0) AS avg_mileage_km FROM temp.reuse_candidate AS autohome WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT Price IS NULL GROUP BY Title HAVING COUNT(*) >= 3 ORDER BY avg_retention_pct DESC LIMIT 25",
+          "time": 1788864650.8673625,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT Title, COUNT(*) AS cnt, ROUND(AVG(Price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) * 100, 2) AS avg_retention_pct, ROUND(AVG((JULIANDAY(TRIM(\"Posting Date\")) - JULIANDAY(\"Registration Date\")) / 365.25), 2) AS avg_age FROM temp.reuse_candidate AS autohome WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT Price IS NULL GROUP BY Title HAVING COUNT(*) >= 3 ORDER BY avg_retention_pct ASC LIMIT 25",
+          "time": 1788864650.8727071,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 1.0994430631399155,
+      "intermediate_rows": 675,
+      "intermediate_columns": [
+        "Title",
+        "Price",
+        "New Car Price (incl. tax)",
+        "Tags",
+        "Mileage",
+        "Registration Date",
+        "Transmission",
+        "Displacement",
+        "Vehicle Location",
+        "Registration Restrictions",
+        "Gearbox",
+        "Fuel Type",
+        "WLTC Electric Range (km)",
+        "Posting Date",
+        "Inspection Expiry",
+        "Insurance Expiry",
+        "Number of Previous Owners",
+        "Location",
+        "Engine",
+        "Vehicle Class",
+        "Color",
+        "Drivetrain",
+        "Battery Capacity",
+        "Standard Fast Charge Time",
+        "Standard Slow Charge Time"
+      ],
+      "validation_ended_at": 1788864650.8764958,
+      "checks": [
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "SELECT \"Fuel Type\", ROUND(AVG(Price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) * 100, 2) AS avg_retention_pct, ROUND(AVG(JULIANDAY(\"Posting Date\") - JULIANDAY(\"Registration Date\")) / 365.25, 2) AS avg_age, ROUND(AVG(Price), 2) AS avg_price_wan, COUNT(*) AS cnt FROM temp.reuse_candidate AS autohome WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT Price IS NULL GROUP BY \"Fuel Type\" ORDER BY avg_retention_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.9485151171684265
+        },
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "SELECT \"Vehicle Class\", ROUND(AVG(Price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) * 100, 2) AS avg_retention_pct, ROUND(AVG(JULIANDAY(\"Posting Date\") - JULIANDAY(\"Registration Date\")) / 365.25, 2) AS avg_age, ROUND(AVG(Price), 2) AS avg_price_wan, COUNT(*) AS cnt FROM temp.reuse_candidate AS autohome WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT Price IS NULL GROUP BY \"Vehicle Class\" ORDER BY avg_retention_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.172215074300766
+        },
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "SELECT \"Vehicle Class\", COUNT(*) AS cnt, COUNT(\"Registration Date\") AS cnt_reg, COUNT(\"Posting Date\") AS cnt_post, ROUND(AVG(JULIANDAY(\"Posting Date\") - JULIANDAY(\"Registration Date\")) / 365.25, 2) AS avg_age FROM temp.reuse_candidate AS autohome WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT Price IS NULL GROUP BY \"Vehicle Class\" ORDER BY avg_age DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.5844302251935005
+        },
+        {
+          "sql_id": "S30",
+          "rewritten_sql": "SELECT Title, COUNT(*) AS cnt, ROUND(AVG(Price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) * 100, 2) AS avg_retention_pct, ROUND(AVG((JULIANDAY(TRIM(\"Posting Date\")) - JULIANDAY(\"Registration Date\")) / 365.25), 2) AS avg_age, ROUND(AVG(Price), 2) AS avg_price_wan, ROUND(AVG(CASE WHEN Mileage LIKE '%ten thousand km%' THEN CAST(REPLACE(Mileage, ' ten thousand km', '') AS REAL) * 10000 WHEN Mileage LIKE '%km%' THEN CAST(REPLACE(REPLACE(Mileage, ',', ''), ' km', '') AS REAL) END), 0) AS avg_mileage_km FROM temp.reuse_candidate AS autohome WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT Price IS NULL GROUP BY Title HAVING COUNT(*) >= 3 ORDER BY avg_retention_pct DESC LIMIT 25",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 5.359295755624771
+        },
+        {
+          "sql_id": "S31",
+          "rewritten_sql": "SELECT Title, COUNT(*) AS cnt, ROUND(AVG(Price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) * 100, 2) AS avg_retention_pct, ROUND(AVG((JULIANDAY(TRIM(\"Posting Date\")) - JULIANDAY(\"Registration Date\")) / 365.25), 2) AS avg_age FROM temp.reuse_candidate AS autohome WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT Price IS NULL GROUP BY Title HAVING COUNT(*) >= 3 ORDER BY avg_retention_pct ASC LIMIT 25",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.7975991144776344
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Fuel Type\" AS __g0, \"Vehicle Class\" AS __g1, title AS __g2, COUNT(*) AS __a0, SUM(price) AS __a1_sum, COUNT(price) AS __a1_n, SUM(price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) AS __a2_sum, COUNT(price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) AS __a2_n, SUM(JULIANDAY(\"Posting Date\") - JULIANDAY(\"Registration Date\")) AS __a3_sum, COUNT(JULIANDAY(\"Posting Date\") - JULIANDAY(\"Registration Date\")) AS __a3_n, COUNT(\"Registration Date\") AS __a4, COUNT(\"Posting Date\") AS __a5, SUM((JULIANDAY(TRIM(\"Posting Date\")) - JULIANDAY(\"Registration Date\")) / 365.25) AS __a6_sum, COUNT((JULIANDAY(TRIM(\"Posting Date\")) - JULIANDAY(\"Registration Date\")) / 365.25) AS __a6_n, SUM(CASE WHEN mileage LIKE '%ten thousand km%' THEN CAST(REPLACE(mileage, ' ten thousand km', '') AS REAL) * 10000 WHEN mileage LIKE '%km%' THEN CAST(REPLACE(REPLACE(mileage, ',', ''), ' km', '') AS REAL) END) AS __a7_sum, COUNT(CASE WHEN mileage LIKE '%ten thousand km%' THEN CAST(REPLACE(mileage, ' ten thousand km', '') AS REAL) * 10000 WHEN mileage LIKE '%km%' THEN CAST(REPLACE(REPLACE(mileage, ',', ''), ' km', '') AS REAL) END) AS __a7_n FROM \"autohome\" WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT price IS NULL GROUP BY \"Fuel Type\", \"Vehicle Class\", title",
+      "covered": [
+        "S20",
+        "S21",
+        "S24",
+        "S30",
+        "S31"
+      ],
+      "rewrites": {
+        "S20": "SELECT __g0 AS \"Fuel Type\", ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) * 100, 2) AS avg_retention_pct, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) / 365.25, 2) AS avg_age, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_price_wan, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_retention_pct DESC",
+        "S21": "SELECT __g1 AS \"Vehicle Class\", ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) * 100, 2) AS avg_retention_pct, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) / 365.25, 2) AS avg_age, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_price_wan, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_retention_pct DESC",
+        "S24": "SELECT __g1 AS \"Vehicle Class\", SUM(__a0) AS cnt, SUM(__a4) AS cnt_reg, SUM(__a5) AS cnt_post, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) / 365.25, 2) AS avg_age FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_age DESC",
+        "S30": "SELECT __g2 AS \"Title\", SUM(__a0) AS cnt, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) * 100, 2) AS avg_retention_pct, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_age, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_price_wan, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 0) AS avg_mileage_km FROM temp.reuse_candidate GROUP BY __g2 HAVING SUM(__a0) >= 3 ORDER BY avg_retention_pct DESC LIMIT 25",
+        "S31": "SELECT __g2 AS \"Title\", SUM(__a0) AS cnt, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) * 100, 2) AS avg_retention_pct, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_age FROM temp.reuse_candidate GROUP BY __g2 HAVING SUM(__a0) >= 3 ORDER BY avg_retention_pct ASC LIMIT 25"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S20",
+      "later_reuses": 4,
+      "denominator": 49,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788864650.8402815,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Fuel Type\" AS __g0, \"Vehicle Class\" AS __g1, title AS __g2, COUNT(*) AS __a0, SUM(price) AS __a1_sum, COUNT(price) AS __a1_n, SUM(price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) AS __a2_sum, COUNT(price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) AS __a2_n, SUM(JULIANDAY(\"Posting Date\") - JULIANDAY(\"Registration Date\")) AS __a3_sum, COUNT(JULIANDAY(\"Posting Date\") - JULIANDAY(\"Registration Date\")) AS __a3_n, COUNT(\"Registration Date\") AS __a4, COUNT(\"Posting Date\") AS __a5, SUM((JULIANDAY(TRIM(\"Posting Date\")) - JULIANDAY(\"Registration Date\")) / 365.25) AS __a6_sum, COUNT((JULIANDAY(TRIM(\"Posting Date\")) - JULIANDAY(\"Registration Date\")) / 365.25) AS __a6_n, SUM(CASE WHEN mileage LIKE '%ten thousand km%' THEN CAST(REPLACE(mileage, ' ten thousand km', '') AS REAL) * 10000 WHEN mileage LIKE '%km%' THEN CAST(REPLACE(REPLACE(mileage, ',', ''), ' km', '') AS REAL) END) AS __a7_sum, COUNT(CASE WHEN mileage LIKE '%ten thousand km%' THEN CAST(REPLACE(mileage, ' ten thousand km', '') AS REAL) * 10000 WHEN mileage LIKE '%km%' THEN CAST(REPLACE(REPLACE(mileage, ',', ''), ' km', '') AS REAL) END) AS __a7_n FROM \"autohome\" WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT price IS NULL GROUP BY \"Fuel Type\", \"Vehicle Class\", title",
+          "phase": "offline_validation",
+          "start_time": 1788864650.8405643,
+          "status": "execute_returned",
+          "end_time": 1788864650.8449123
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788864650.8449175,
+          "status": "execute_returned",
+          "end_time": 1788864650.844938
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788864650.8449438,
+          "status": "execute_returned",
+          "end_time": 1788864650.8449583
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"Fuel Type\", ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) * 100, 2) AS avg_retention_pct, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) / 365.25, 2) AS avg_age, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_price_wan, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_retention_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788864650.8449824,
+          "status": "execute_returned",
+          "end_time": 1788864650.8454115
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g1 AS \"Vehicle Class\", ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) * 100, 2) AS avg_retention_pct, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) / 365.25, 2) AS avg_age, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_price_wan, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_retention_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788864650.8473737,
+          "status": "execute_returned",
+          "end_time": 1788864650.8478482
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS \"Vehicle Class\", SUM(__a0) AS cnt, SUM(__a4) AS cnt_reg, SUM(__a5) AS cnt_post, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) / 365.25, 2) AS avg_age FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_age DESC",
+          "phase": "offline_validation",
+          "start_time": 1788864650.849914,
+          "status": "execute_returned",
+          "end_time": 1788864650.8503044
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g2 AS \"Title\", SUM(__a0) AS cnt, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) * 100, 2) AS avg_retention_pct, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_age, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_price_wan, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 0) AS avg_mileage_km FROM temp.reuse_candidate GROUP BY __g2 HAVING SUM(__a0) >= 3 ORDER BY avg_retention_pct DESC LIMIT 25",
+          "phase": "offline_validation",
+          "start_time": 1788864650.85143,
+          "status": "execute_returned",
+          "end_time": 1788864650.8522778
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g2 AS \"Title\", SUM(__a0) AS cnt, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) * 100, 2) AS avg_retention_pct, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_age FROM temp.reuse_candidate GROUP BY __g2 HAVING SUM(__a0) >= 3 ORDER BY avg_retention_pct ASC LIMIT 25",
+          "phase": "offline_validation",
+          "start_time": 1788864650.8553815,
+          "status": "execute_returned",
+          "end_time": 1788864650.8560002
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Fuel Type\" AS __g0, \"Vehicle Class\" AS __g1, title AS __g2, COUNT(*) AS __a0, SUM(price) AS __a1_sum, COUNT(price) AS __a1_n, SUM(price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) AS __a2_sum, COUNT(price * 10000 / CAST(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(\"New Car Price (incl. tax)\", ',', ''), ' yuan', ''), ' (variant)', ''), ' (no space)', ''), ' (with space)', ''), ' yuan ', '') AS REAL)) AS __a2_n, SUM(JULIANDAY(\"Posting Date\") - JULIANDAY(\"Registration Date\")) AS __a3_sum, COUNT(JULIANDAY(\"Posting Date\") - JULIANDAY(\"Registration Date\")) AS __a3_n, COUNT(\"Registration Date\") AS __a4, COUNT(\"Posting Date\") AS __a5, SUM((JULIANDAY(TRIM(\"Posting Date\")) - JULIANDAY(\"Registration Date\")) / 365.25) AS __a6_sum, COUNT((JULIANDAY(TRIM(\"Posting Date\")) - JULIANDAY(\"Registration Date\")) / 365.25) AS __a6_n, SUM(CASE WHEN mileage LIKE '%ten thousand km%' THEN CAST(REPLACE(mileage, ' ten thousand km', '') AS REAL) * 10000 WHEN mileage LIKE '%km%' THEN CAST(REPLACE(REPLACE(mileage, ',', ''), ' km', '') AS REAL) END) AS __a7_sum, COUNT(CASE WHEN mileage LIKE '%ten thousand km%' THEN CAST(REPLACE(mileage, ' ten thousand km', '') AS REAL) * 10000 WHEN mileage LIKE '%km%' THEN CAST(REPLACE(REPLACE(mileage, ',', ''), ' km', '') AS REAL) END) AS __a7_n FROM \"autohome\" WHERE NOT \"New Car Price (incl. tax)\" IS NULL AND NOT price IS NULL GROUP BY \"Fuel Type\", \"Vehicle Class\", title",
+          "time": 1788864650.8409534,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788864650.8449337,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788864650.8449557,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Fuel Type\", ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) * 100, 2) AS avg_retention_pct, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) / 365.25, 2) AS avg_age, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_price_wan, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_retention_pct DESC",
+          "time": 1788864650.845033,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"Vehicle Class\", ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) * 100, 2) AS avg_retention_pct, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) / 365.25, 2) AS avg_age, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_price_wan, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_retention_pct DESC",
+          "time": 1788864650.8474424,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"Vehicle Class\", SUM(__a0) AS cnt, SUM(__a4) AS cnt_reg, SUM(__a5) AS cnt_post, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) / 365.25, 2) AS avg_age FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_age DESC",
+          "time": 1788864650.8499663,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"Title\", SUM(__a0) AS cnt, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) * 100, 2) AS avg_retention_pct, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_age, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_price_wan, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 0) AS avg_mileage_km FROM temp.reuse_candidate GROUP BY __g2 HAVING SUM(__a0) >= 3 ORDER BY avg_retention_pct DESC LIMIT 25",
+          "time": 1788864650.8515084,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"Title\", SUM(__a0) AS cnt, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) * 100, 2) AS avg_retention_pct, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_age FROM temp.reuse_candidate GROUP BY __g2 HAVING SUM(__a0) >= 3 ORDER BY avg_retention_pct ASC LIMIT 25",
+          "time": 1788864650.8554492,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 4.353388212621212,
+      "intermediate_rows": 647,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__a0",
+        "__a1_sum",
+        "__a1_n",
+        "__a2_sum",
+        "__a2_n",
+        "__a3_sum",
+        "__a3_n",
+        "__a4",
+        "__a5",
+        "__a6_sum",
+        "__a6_n",
+        "__a7_sum",
+        "__a7_n"
+      ],
+      "validation_ended_at": 1788864650.8581457,
+      "checks": [
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "SELECT __g0 AS \"Fuel Type\", ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) * 100, 2) AS avg_retention_pct, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) / 365.25, 2) AS avg_age, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_price_wan, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_retention_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.3882007226347923
+        },
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "SELECT __g1 AS \"Vehicle Class\", ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) * 100, 2) AS avg_retention_pct, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) / 365.25, 2) AS avg_age, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_price_wan, SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_retention_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.537528984248638
+        },
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "SELECT __g1 AS \"Vehicle Class\", SUM(__a0) AS cnt, SUM(__a4) AS cnt_reg, SUM(__a5) AS cnt_post, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) / 365.25, 2) AS avg_age FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_age DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.513705588877201
+        },
+        {
+          "sql_id": "S30",
+          "rewritten_sql": "SELECT __g2 AS \"Title\", SUM(__a0) AS cnt, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) * 100, 2) AS avg_retention_pct, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_age, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_price_wan, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 0) AS avg_mileage_km FROM temp.reuse_candidate GROUP BY __g2 HAVING SUM(__a0) >= 3 ORDER BY avg_retention_pct DESC LIMIT 25",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.947613760828972
+        },
+        {
+          "sql_id": "S31",
+          "rewritten_sql": "SELECT __g2 AS \"Title\", SUM(__a0) AS cnt, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) * 100, 2) AS avg_retention_pct, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_age FROM temp.reuse_candidate GROUP BY __g2 HAVING SUM(__a0) >= 3 ORDER BY avg_retention_pct ASC LIMIT 25",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.6737796142697334
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"autohome\" WHERE \"Vehicle Class\" = 'Microcar'",
+      "covered": [
+        "S27",
+        "S29"
+      ],
+      "rewrites": {
+        "S27": "SELECT \"Registration Date\", \"Posting Date\", \"Inspection Expiry\", Title, Price, \"New Car Price (incl. tax)\" FROM temp.reuse_candidate AS autohome WHERE \"Vehicle Class\" = 'Microcar' LIMIT 5",
+        "S29": "SELECT \"Posting Date\", TYPEOF(\"Posting Date\"), LENGTH(\"Posting Date\") FROM temp.reuse_candidate AS autohome WHERE \"Vehicle Class\" = 'Microcar' LIMIT 5"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S27",
+      "later_reuses": 1,
+      "denominator": 49,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

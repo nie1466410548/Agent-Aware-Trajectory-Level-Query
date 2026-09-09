@@ -1,0 +1,1186 @@
+{
+  "fingerprint": "0aeac7618a7397df185530502fb2700128e869501a7c422b136ac2406c56fdd7",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S33",
+      "covered": [
+        "S33",
+        "S80",
+        "S81"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S33",
+      "later_reuses": 2,
+      "denominator": 92,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S35",
+      "covered": [
+        "S35",
+        "S88",
+        "S89"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S35",
+      "later_reuses": 2,
+      "denominator": 92,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S84",
+      "covered": [
+        "S84",
+        "S86",
+        "S90",
+        "S92",
+        "S94",
+        "S96"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S84",
+      "later_reuses": 5,
+      "denominator": 92,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788868835.2545774,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 300,
+      "validation_ended_at": 1788868835.330637,
+      "checks": [
+        {
+          "sql_id": "S86",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S90",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S92",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S94",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S96",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S85",
+      "covered": [
+        "S85",
+        "S91",
+        "S93",
+        "S95",
+        "S97"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S85",
+      "later_reuses": 4,
+      "denominator": 92,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT categories_department, SUBSTRING(created_at, 1, 7) AS ym, COUNT(*) AS cnt FROM lever__posting_enhanced WHERE NOT SUBSTRING(created_at, 1, 7) IS NULL GROUP BY categories_department, SUBSTRING(created_at, 1, 7)",
+      "covered": [
+        "S36",
+        "S37"
+      ],
+      "rewrites": {
+        "S36": "WITH monthly AS (SELECT * FROM temp.reuse_candidate) SELECT categories_department, ym, cnt, LAG(cnt) OVER (PARTITION BY categories_department ORDER BY ym) AS prev_cnt, CASE WHEN LAG(cnt) OVER (PARTITION BY categories_department ORDER BY ym) > 0 THEN 1.0 * (cnt - LAG(cnt) OVER (PARTITION BY categories_department ORDER BY ym)) / LAG(cnt) OVER (PARTITION BY categories_department ORDER BY ym) ELSE NULL END AS mom_growth FROM monthly ORDER BY categories_department, ym",
+        "S37": "WITH monthly AS (SELECT * FROM temp.reuse_candidate), mom_growth AS (SELECT categories_department, ym, cnt, LAG(cnt) OVER (PARTITION BY categories_department ORDER BY ym) AS prev_cnt, CASE WHEN LAG(cnt) OVER (PARTITION BY categories_department ORDER BY ym) > 0 THEN 1.0 * (cnt - LAG(cnt) OVER (PARTITION BY categories_department ORDER BY ym)) / LAG(cnt) OVER (PARTITION BY categories_department ORDER BY ym) ELSE NULL END AS mom_growth FROM monthly) SELECT categories_department, AVG(mom_growth) AS avg_mom_growth, SUM(CASE WHEN ym = '2025-07' THEN cnt ELSE 0 END) AS latest_month_cnt FROM mom_growth WHERE ym IN ('2025-06', '2025-07') AND NOT mom_growth IS NULL GROUP BY categories_department ORDER BY categories_department"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S36",
+      "later_reuses": 1,
+      "denominator": 92,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT user_id, categories_department, cnt FROM (SELECT owner_user_id AS user_id, categories_department, COUNT(*) AS cnt FROM lever__posting_enhanced WHERE NOT owner_user_id IS NULL GROUP BY owner_user_id, categories_department UNION ALL SELECT creator_user_id AS user_id, categories_department, COUNT(*) AS cnt FROM lever__posting_enhanced WHERE NOT creator_user_id IS NULL GROUP BY creator_user_id, categories_department)",
+      "covered": [
+        "S67",
+        "S68",
+        "S71",
+        "S82",
+        "S83"
+      ],
+      "rewrites": {
+        "S67": "/* Map requisition hiring managers to departments via posting user IDs */ WITH user_dept AS (SELECT * FROM temp.reuse_candidate), ranked AS (SELECT user_id, categories_department, SUM(cnt) AS total_cnt, ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY SUM(cnt) DESC) AS rn FROM user_dept GROUP BY user_id, categories_department) SELECT categories_department, COUNT(DISTINCT user_id) AS mapped_hms FROM ranked WHERE rn = 1 GROUP BY categories_department ORDER BY categories_department",
+        "S68": "/* Map each requisition's hiring manager to a department */ WITH user_dept AS (SELECT * FROM temp.reuse_candidate), ranked AS (SELECT user_id, categories_department, SUM(cnt) AS total_cnt, ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY SUM(cnt) DESC) AS rn FROM user_dept GROUP BY user_id, categories_department), hm_dept AS (SELECT user_id, categories_department FROM ranked WHERE rn = 1) SELECT COALESCE(hd.categories_department, 'Unmapped') AS department, COUNT(*) AS open_requisitions FROM lever__requisition_enhanced AS r LEFT JOIN hm_dept AS hd ON r.hiring_manager_user_id = hd.user_id WHERE r.status = 'open' GROUP BY COALESCE(hd.categories_department, 'Unmapped') ORDER BY department",
+        "S71": "/* Map each requisition to a department and count open + on-hold */ WITH user_dept AS (SELECT * FROM temp.reuse_candidate), ranked AS (SELECT user_id, categories_department, SUM(cnt) AS total_cnt, ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY SUM(cnt) DESC) AS rn FROM user_dept GROUP BY user_id, categories_department), hm_dept AS (SELECT user_id, categories_department FROM ranked WHERE rn = 1) SELECT COALESCE(hd.categories_department, 'Unmapped') AS department, COUNT(*) AS pending_roles, SUM(CASE WHEN r.status = 'open' THEN 1 ELSE 0 END) AS open_cnt, SUM(CASE WHEN r.status = 'on-hold' THEN 1 ELSE 0 END) AS onhold_cnt FROM lever__requisition_enhanced AS r LEFT JOIN hm_dept AS hd ON r.hiring_manager_user_id = hd.user_id WHERE r.status IN ('open', 'on-hold') GROUP BY COALESCE(hd.categories_department, 'Unmapped') ORDER BY department",
+        "S82": "/* Map open requisitions to departments via hiring manager user ID -> posting owner/creator -> dept */ WITH user_dept AS (SELECT * FROM temp.reuse_candidate), ranked AS (SELECT user_id, categories_department, SUM(cnt) AS total_cnt, ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY SUM(cnt) DESC) AS rn FROM user_dept GROUP BY user_id, categories_department), hm_dept AS (SELECT user_id, categories_department FROM ranked WHERE rn = 1) SELECT COALESCE(hd.categories_department, 'Unmapped') AS department, COUNT(*) AS open_reqs, SUM(r.count_postings) AS total_posting_attached, SUM(r.count_offers) AS total_offers FROM lever__requisition_enhanced AS r LEFT JOIN hm_dept AS hd ON r.hiring_manager_user_id = hd.user_id WHERE r.status = 'open' GROUP BY COALESCE(hd.categories_department, 'Unmapped') ORDER BY department",
+        "S83": "/* Map all requisitions to departments and compute metrics */ WITH user_dept AS (SELECT * FROM temp.reuse_candidate), ranked AS (SELECT user_id, categories_department, SUM(cnt) AS total_cnt, ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY SUM(cnt) DESC) AS rn FROM user_dept GROUP BY user_id, categories_department), hm_dept AS (SELECT user_id, categories_department FROM ranked WHERE rn = 1) SELECT COALESCE(hd.categories_department, 'Unmapped') AS department, COUNT(*) AS req_cnt, SUM(CASE WHEN r.status = 'open' THEN 1 ELSE 0 END) AS open_cnt, SUM(CASE WHEN r.status = 'on-hold' THEN 1 ELSE 0 END) AS onhold_cnt, SUM(CASE WHEN r.status IN ('open', 'on-hold') THEN r.count_postings ELSE 0 END) AS total_pending_postings FROM lever__requisition_enhanced AS r LEFT JOIN hm_dept AS hd ON r.hiring_manager_user_id = hd.user_id GROUP BY COALESCE(hd.categories_department, 'Unmapped') ORDER BY department"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C6",
+      "offline": true,
+      "earliest_build_before": "S67",
+      "later_reuses": 4,
+      "denominator": 92,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT state AS __g0, categories_team AS __g1, categories_department AS __g2, categories_level AS __g3, categories_location AS __g4, STRFTIME('%Y-%m', created_at) AS __g5, SUBSTRING(created_at, 1, 7) AS __g6, requisition_code AS __g7, has_requisition AS __g8, MIN(created_at) AS __a0, MAX(created_at) AS __a1, COUNT(*) AS __a2, MIN(updated_at) AS __a3, MAX(updated_at) AS __a4, SUM(count_requisitions) AS __a5, SUM(count_opportunities) AS __a6, SUM(count_open_opportunities) AS __a7, SUM(count_interviews) AS __a8 FROM \"lever__posting_enhanced\"  GROUP BY state, categories_team, categories_department, categories_level, categories_location, STRFTIME('%Y-%m', created_at), SUBSTRING(created_at, 1, 7), requisition_code, has_requisition",
+      "covered": [
+        "S3",
+        "S7",
+        "S8",
+        "S10",
+        "S12",
+        "S13",
+        "S14",
+        "S17",
+        "S18",
+        "S20",
+        "S21",
+        "S24",
+        "S25",
+        "S29",
+        "S30",
+        "S33",
+        "S35",
+        "S75",
+        "S80",
+        "S81",
+        "S88",
+        "S89"
+      ],
+      "rewrites": {
+        "S3": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS total_rows FROM temp.reuse_candidate",
+        "S7": "SELECT MIN(__a3) AS min_upd, MAX(__a4) AS max_upd FROM temp.reuse_candidate",
+        "S8": "SELECT __g0 AS \"state\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+        "S10": "SELECT __g1 AS \"categories_team\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+        "S12": "SELECT __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2 ORDER BY cnt DESC",
+        "S13": "SELECT __g3 AS \"categories_level\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g3 ORDER BY cnt DESC",
+        "S14": "SELECT __g4 AS \"categories_location\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g4 ORDER BY cnt DESC",
+        "S17": "SELECT __g0 AS \"state\", __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY __g2, __g0",
+        "S18": "SELECT __g0 AS \"state\", __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY __g2, __g0",
+        "S20": "SELECT __g5 AS ym, __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g5, __g2 ORDER BY ym, __g2",
+        "S21": "SELECT __g5 AS ym, SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g5 ORDER BY ym",
+        "S24": "SELECT __g6 AS ym, __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g6, __g2 ORDER BY ym, __g2",
+        "S25": "SELECT __g6 AS ym, SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g6 ORDER BY ym",
+        "S29": "SELECT __g7 AS \"requisition_code\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g7 ORDER BY cnt DESC LIMIT 15",
+        "S30": "SELECT __g8 AS \"has_requisition\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g8",
+        "S33": "SELECT __g6 AS ym, __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g6 ORDER BY __g2, ym",
+        "S35": "SELECT __g2 AS \"categories_department\", __g0 AS \"state\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY __g2, __g0",
+        "S75": "SELECT __g2 AS \"categories_department\", SUM(__a5) AS total_requisitions, SUM(__a6) AS total_opportunities, SUM(__a7) AS total_open_opportunities, SUM(__a8) AS total_interviews FROM temp.reuse_candidate GROUP BY __g2",
+        "S80": "SELECT __g6 AS ym, __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g6 ORDER BY __g2, ym",
+        "S81": "SELECT __g6 AS ym, __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g6 ORDER BY __g2, ym",
+        "S88": "SELECT __g2 AS \"categories_department\", __g0 AS \"state\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY __g2, __g0",
+        "S89": "SELECT __g2 AS \"categories_department\", __g0 AS \"state\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY __g2, __g0"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C7",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 21,
+      "denominator": 92,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788868835.2229636,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT state AS __g0, categories_team AS __g1, categories_department AS __g2, categories_level AS __g3, categories_location AS __g4, STRFTIME('%Y-%m', created_at) AS __g5, SUBSTRING(created_at, 1, 7) AS __g6, requisition_code AS __g7, has_requisition AS __g8, MIN(created_at) AS __a0, MAX(created_at) AS __a1, COUNT(*) AS __a2, MIN(updated_at) AS __a3, MAX(updated_at) AS __a4, SUM(count_requisitions) AS __a5, SUM(count_opportunities) AS __a6, SUM(count_open_opportunities) AS __a7, SUM(count_interviews) AS __a8 FROM \"lever__posting_enhanced\"  GROUP BY state, categories_team, categories_department, categories_level, categories_location, STRFTIME('%Y-%m', created_at), SUBSTRING(created_at, 1, 7), requisition_code, has_requisition",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2232442,
+          "status": "execute_returned",
+          "end_time": 1788868835.2248626
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2248678,
+          "status": "execute_returned",
+          "end_time": 1788868835.2248886
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788868835.224894,
+          "status": "execute_returned",
+          "end_time": 1788868835.2249095
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS total_rows FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2249365,
+          "status": "execute_returned",
+          "end_time": 1788868835.2250028
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT MIN(__a3) AS min_upd, MAX(__a4) AS max_upd FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2256556,
+          "status": "execute_returned",
+          "end_time": 1788868835.2257333
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS \"state\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2262208,
+          "status": "execute_returned",
+          "end_time": 1788868835.226309
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g1 AS \"categories_team\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2270107,
+          "status": "execute_returned",
+          "end_time": 1788868835.2272074
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2287948,
+          "status": "execute_returned",
+          "end_time": 1788868835.228935
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g3 AS \"categories_level\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g3 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2295017,
+          "status": "execute_returned",
+          "end_time": 1788868835.2296417
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g4 AS \"categories_location\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g4 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868835.230151,
+          "status": "execute_returned",
+          "end_time": 1788868835.2303622
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g0 AS \"state\", __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY __g2, __g0",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2318952,
+          "status": "execute_returned",
+          "end_time": 1788868835.2321024
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT __g0 AS \"state\", __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY __g2, __g0",
+          "phase": "offline_validation",
+          "start_time": 1788868835.232803,
+          "status": "execute_returned",
+          "end_time": 1788868835.2329495
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT __g5 AS ym, __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g5, __g2 ORDER BY ym, __g2",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2336543,
+          "status": "execute_returned",
+          "end_time": 1788868835.2338274
+        },
+        {
+          "sequence": 14,
+          "sql": "SELECT __g5 AS ym, SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g5 ORDER BY ym",
+          "phase": "offline_validation",
+          "start_time": 1788868835.234537,
+          "status": "execute_returned",
+          "end_time": 1788868835.2346473
+        },
+        {
+          "sequence": 15,
+          "sql": "SELECT __g6 AS ym, __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g6, __g2 ORDER BY ym, __g2",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2351975,
+          "status": "execute_returned",
+          "end_time": 1788868835.235371
+        },
+        {
+          "sequence": 16,
+          "sql": "SELECT __g6 AS ym, SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g6 ORDER BY ym",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2361438,
+          "status": "execute_returned",
+          "end_time": 1788868835.236261
+        },
+        {
+          "sequence": 17,
+          "sql": "SELECT __g7 AS \"requisition_code\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g7 ORDER BY cnt DESC LIMIT 15",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2368476,
+          "status": "execute_returned",
+          "end_time": 1788868835.2370872
+        },
+        {
+          "sequence": 18,
+          "sql": "SELECT __g8 AS \"has_requisition\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g8",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2376642,
+          "status": "execute_returned",
+          "end_time": 1788868835.2377648
+        },
+        {
+          "sequence": 19,
+          "sql": "SELECT __g6 AS ym, __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g6 ORDER BY __g2, ym",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2382152,
+          "status": "execute_returned",
+          "end_time": 1788868835.2383878
+        },
+        {
+          "sequence": 20,
+          "sql": "SELECT __g2 AS \"categories_department\", __g0 AS \"state\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY __g2, __g0",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2393959,
+          "status": "execute_returned",
+          "end_time": 1788868835.2395446
+        },
+        {
+          "sequence": 21,
+          "sql": "SELECT __g2 AS \"categories_department\", SUM(__a5) AS total_requisitions, SUM(__a6) AS total_opportunities, SUM(__a7) AS total_open_opportunities, SUM(__a8) AS total_interviews FROM temp.reuse_candidate GROUP BY __g2",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2402582,
+          "status": "execute_returned",
+          "end_time": 1788868835.240414
+        },
+        {
+          "sequence": 22,
+          "sql": "SELECT __g6 AS ym, __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g6 ORDER BY __g2, ym",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2412567,
+          "status": "execute_returned",
+          "end_time": 1788868835.241396
+        },
+        {
+          "sequence": 23,
+          "sql": "SELECT __g6 AS ym, __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g6 ORDER BY __g2, ym",
+          "phase": "offline_validation",
+          "start_time": 1788868835.242239,
+          "status": "execute_returned",
+          "end_time": 1788868835.2423775
+        },
+        {
+          "sequence": 24,
+          "sql": "SELECT __g2 AS \"categories_department\", __g0 AS \"state\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY __g2, __g0",
+          "phase": "offline_validation",
+          "start_time": 1788868835.243207,
+          "status": "execute_returned",
+          "end_time": 1788868835.2433193
+        },
+        {
+          "sequence": 25,
+          "sql": "SELECT __g2 AS \"categories_department\", __g0 AS \"state\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY __g2, __g0",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2440252,
+          "status": "execute_returned",
+          "end_time": 1788868835.2441418
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT state AS __g0, categories_team AS __g1, categories_department AS __g2, categories_level AS __g3, categories_location AS __g4, STRFTIME('%Y-%m', created_at) AS __g5, SUBSTRING(created_at, 1, 7) AS __g6, requisition_code AS __g7, has_requisition AS __g8, MIN(created_at) AS __a0, MAX(created_at) AS __a1, COUNT(*) AS __a2, MIN(updated_at) AS __a3, MAX(updated_at) AS __a4, SUM(count_requisitions) AS __a5, SUM(count_opportunities) AS __a6, SUM(count_open_opportunities) AS __a7, SUM(count_interviews) AS __a8 FROM \"lever__posting_enhanced\"  GROUP BY state, categories_team, categories_department, categories_level, categories_location, STRFTIME('%Y-%m', created_at), SUBSTRING(created_at, 1, 7), requisition_code, has_requisition",
+          "time": 1788868835.2235713,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788868835.2248845,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788868835.2249064,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS total_rows FROM temp.reuse_candidate",
+          "time": 1788868835.2249515,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a3) AS min_upd, MAX(__a4) AS max_upd FROM temp.reuse_candidate",
+          "time": 1788868835.2256818,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"state\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788868835.2262466,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"categories_team\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "time": 1788868835.2270405,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2 ORDER BY cnt DESC",
+          "time": 1788868835.2288265,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS \"categories_level\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g3 ORDER BY cnt DESC",
+          "time": 1788868835.229533,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS \"categories_location\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g4 ORDER BY cnt DESC",
+          "time": 1788868835.230189,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"state\", __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY __g2, __g0",
+          "time": 1788868835.2319336,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"state\", __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY __g2, __g0",
+          "time": 1788868835.232841,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g5 AS ym, __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g5, __g2 ORDER BY ym, __g2",
+          "time": 1788868835.233692,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g5 AS ym, SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g5 ORDER BY ym",
+          "time": 1788868835.2345674,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g6 AS ym, __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g6, __g2 ORDER BY ym, __g2",
+          "time": 1788868835.2352345,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g6 AS ym, SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g6 ORDER BY ym",
+          "time": 1788868835.2361803,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g7 AS \"requisition_code\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g7 ORDER BY cnt DESC LIMIT 15",
+          "time": 1788868835.2368822,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g8 AS \"has_requisition\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g8",
+          "time": 1788868835.2376935,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g6 AS ym, __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g6 ORDER BY __g2, ym",
+          "time": 1788868835.2382543,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"categories_department\", __g0 AS \"state\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY __g2, __g0",
+          "time": 1788868835.2394352,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"categories_department\", SUM(__a5) AS total_requisitions, SUM(__a6) AS total_opportunities, SUM(__a7) AS total_open_opportunities, SUM(__a8) AS total_interviews FROM temp.reuse_candidate GROUP BY __g2",
+          "time": 1788868835.2402992,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g6 AS ym, __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g6 ORDER BY __g2, ym",
+          "time": 1788868835.2412627,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g6 AS ym, __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g6 ORDER BY __g2, ym",
+          "time": 1788868835.242245,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"categories_department\", __g0 AS \"state\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY __g2, __g0",
+          "time": 1788868835.243213,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"categories_department\", __g0 AS \"state\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY __g2, __g0",
+          "time": 1788868835.244033,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 1.622428186237812,
+      "intermediate_rows": 300,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__g5",
+        "__g6",
+        "__g7",
+        "__g8",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4",
+        "__a5",
+        "__a6",
+        "__a7",
+        "__a8"
+      ],
+      "validation_ended_at": 1788868835.2449698,
+      "checks": [
+        {
+          "sql_id": "S3",
+          "rewritten_sql": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS total_rows FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.715513713657856
+        },
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT MIN(__a3) AS min_upd, MAX(__a4) AS max_upd FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5629910156130791
+        },
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT __g0 AS \"state\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.7873456925153732
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT __g1 AS \"categories_team\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7793970182538033
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7060226052999496
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT __g3 AS \"categories_level\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g3 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6469599902629852
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT __g4 AS \"categories_location\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g4 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7349263653159142
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "SELECT __g0 AS \"state\", __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY __g2, __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.9057791903614998
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT __g0 AS \"state\", __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY __g2, __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.8487841114401817
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "SELECT __g5 AS ym, __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g5, __g2 ORDER BY ym, __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.8803857490420341
+        },
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "SELECT __g5 AS ym, SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g5 ORDER BY ym",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6580818444490433
+        },
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "SELECT __g6 AS ym, __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g6, __g2 ORDER BY ym, __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.9443797171115875
+        },
+        {
+          "sql_id": "S25",
+          "rewritten_sql": "SELECT __g6 AS ym, SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g6 ORDER BY ym",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7017273455858231
+        },
+        {
+          "sql_id": "S29",
+          "rewritten_sql": "SELECT __g7 AS \"requisition_code\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g7 ORDER BY cnt DESC LIMIT 15",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.8148225024342537
+        },
+        {
+          "sql_id": "S30",
+          "rewritten_sql": "SELECT __g8 AS \"has_requisition\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g8",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5490612238645554
+        },
+        {
+          "sql_id": "S33",
+          "rewritten_sql": "SELECT __g6 AS ym, __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g6 ORDER BY __g2, ym",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.1782757937908173
+        },
+        {
+          "sql_id": "S35",
+          "rewritten_sql": "SELECT __g2 AS \"categories_department\", __g0 AS \"state\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY __g2, __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.8605783805251122
+        },
+        {
+          "sql_id": "S75",
+          "rewritten_sql": "SELECT __g2 AS \"categories_department\", SUM(__a5) AS total_requisitions, SUM(__a6) AS total_opportunities, SUM(__a7) AS total_open_opportunities, SUM(__a8) AS total_interviews FROM temp.reuse_candidate GROUP BY __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.9962897747755051
+        },
+        {
+          "sql_id": "S80",
+          "rewritten_sql": "SELECT __g6 AS ym, __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g6 ORDER BY __g2, ym",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.980006530880928
+        },
+        {
+          "sql_id": "S81",
+          "rewritten_sql": "SELECT __g6 AS ym, __g2 AS \"categories_department\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g6 ORDER BY __g2, ym",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.9659351781010628
+        },
+        {
+          "sql_id": "S88",
+          "rewritten_sql": "SELECT __g2 AS \"categories_department\", __g0 AS \"state\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY __g2, __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.815240666270256
+        },
+        {
+          "sql_id": "S89",
+          "rewritten_sql": "SELECT __g2 AS \"categories_department\", __g0 AS \"state\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY __g2, __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.8203750476241112
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT status AS __g0, team AS __g1, SUBSTRING(created_at, 1, 7) AS __g2, has_posting AS __g3, MIN(created_at) AS __a0, MAX(created_at) AS __a1, COUNT(*) AS __a2, SUM(headcount_total) AS __a3, SUM(headcount_hired) AS __a4, SUM(CASE WHEN headcount_infinite = 1 THEN 1 ELSE 0 END) AS __a5, SUM(count_postings) AS __a6, SUM(count_offers) AS __a7 FROM \"lever__requisition_enhanced\"  GROUP BY status, team, SUBSTRING(created_at, 1, 7), has_posting",
+      "covered": [
+        "S4",
+        "S9",
+        "S11",
+        "S26",
+        "S27",
+        "S31",
+        "S39",
+        "S64",
+        "S73",
+        "S78"
+      ],
+      "rewrites": {
+        "S4": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS total_rows FROM temp.reuse_candidate",
+        "S9": "SELECT __g0 AS \"status\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+        "S11": "SELECT __g1 AS \"team\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+        "S26": "SELECT __g2 AS ym, SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2 ORDER BY ym",
+        "S27": "SELECT __g2 AS ym, __g1 AS \"team\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g1 ORDER BY ym, __g1",
+        "S31": "SELECT __g3 AS \"has_posting\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g3",
+        "S39": "SELECT __g0 AS \"status\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+        "S64": "SELECT __g0 AS \"status\", SUM(__a3) AS total_headcount, SUM(__a4) AS total_hired, SUM(__a5) AS infinite_cnt, SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+        "S73": "SELECT __g0 AS \"status\", SUM(__a6) AS total_postings, SUM(__a7) AS total_offers FROM temp.reuse_candidate GROUP BY __g0",
+        "S78": "SELECT SUM(__a3) AS sum_total, SUM(__a4) AS sum_hired, SUM(__a5) AS inf_cnt FROM temp.reuse_candidate"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C8",
+      "offline": true,
+      "earliest_build_before": "S4",
+      "later_reuses": 9,
+      "denominator": 92,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788868835.24502,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT status AS __g0, team AS __g1, SUBSTRING(created_at, 1, 7) AS __g2, has_posting AS __g3, MIN(created_at) AS __a0, MAX(created_at) AS __a1, COUNT(*) AS __a2, SUM(headcount_total) AS __a3, SUM(headcount_hired) AS __a4, SUM(CASE WHEN headcount_infinite = 1 THEN 1 ELSE 0 END) AS __a5, SUM(count_postings) AS __a6, SUM(count_offers) AS __a7 FROM \"lever__requisition_enhanced\"  GROUP BY status, team, SUBSTRING(created_at, 1, 7), has_posting",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2452195,
+          "status": "execute_returned",
+          "end_time": 1788868835.2459097
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2459135,
+          "status": "execute_returned",
+          "end_time": 1788868835.2459283
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788868835.245932,
+          "status": "execute_returned",
+          "end_time": 1788868835.245944
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS total_rows FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2459621,
+          "status": "execute_returned",
+          "end_time": 1788868835.246007
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"status\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2465756,
+          "status": "execute_returned",
+          "end_time": 1788868835.2466416
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS \"team\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2471268,
+          "status": "execute_returned",
+          "end_time": 1788868835.247265
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g2 AS ym, SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2 ORDER BY ym",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2485912,
+          "status": "execute_returned",
+          "end_time": 1788868835.2486706
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g2 AS ym, __g1 AS \"team\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g1 ORDER BY ym, __g1",
+          "phase": "offline_validation",
+          "start_time": 1788868835.249276,
+          "status": "execute_returned",
+          "end_time": 1788868835.2493854
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g3 AS \"has_posting\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g3",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2508495,
+          "status": "execute_returned",
+          "end_time": 1788868835.2509284
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g0 AS \"status\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2514377,
+          "status": "execute_returned",
+          "end_time": 1788868835.2515087
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g0 AS \"status\", SUM(__a3) AS total_headcount, SUM(__a4) AS total_hired, SUM(__a5) AS infinite_cnt, SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2520428,
+          "status": "execute_returned",
+          "end_time": 1788868835.2521355
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT __g0 AS \"status\", SUM(__a6) AS total_postings, SUM(__a7) AS total_offers FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788868835.253057,
+          "status": "execute_returned",
+          "end_time": 1788868835.2531395
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT SUM(__a3) AS sum_total, SUM(__a4) AS sum_hired, SUM(__a5) AS inf_cnt FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788868835.2537282,
+          "status": "execute_returned",
+          "end_time": 1788868835.2537885
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT status AS __g0, team AS __g1, SUBSTRING(created_at, 1, 7) AS __g2, has_posting AS __g3, MIN(created_at) AS __a0, MAX(created_at) AS __a1, COUNT(*) AS __a2, SUM(headcount_total) AS __a3, SUM(headcount_hired) AS __a4, SUM(CASE WHEN headcount_infinite = 1 THEN 1 ELSE 0 END) AS __a5, SUM(count_postings) AS __a6, SUM(count_offers) AS __a7 FROM \"lever__requisition_enhanced\"  GROUP BY status, team, SUBSTRING(created_at, 1, 7), has_posting",
+          "time": 1788868835.2454133,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788868835.2459252,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788868835.2459412,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS total_rows FROM temp.reuse_candidate",
+          "time": 1788868835.245975,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"status\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788868835.2465997,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"team\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "time": 1788868835.2471526,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS ym, SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2 ORDER BY ym",
+          "time": 1788868835.248617,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS ym, __g1 AS \"team\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g1 ORDER BY ym, __g1",
+          "time": 1788868835.2493076,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS \"has_posting\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g3",
+          "time": 1788868835.2508814,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"status\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "time": 1788868835.2514668,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"status\", SUM(__a3) AS total_headcount, SUM(__a4) AS total_hired, SUM(__a5) AS infinite_cnt, SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788868835.252079,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"status\", SUM(__a6) AS total_postings, SUM(__a7) AS total_offers FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788868835.2530873,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a3) AS sum_total, SUM(__a4) AS sum_hired, SUM(__a5) AS inf_cnt FROM temp.reuse_candidate",
+          "time": 1788868835.2537556,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.6937803700566292,
+      "intermediate_rows": 200,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4",
+        "__a5",
+        "__a6",
+        "__a7"
+      ],
+      "validation_ended_at": 1788868835.2545397,
+      "checks": [
+        {
+          "sql_id": "S4",
+          "rewritten_sql": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS total_rows FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6114216521382332
+        },
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT __g0 AS \"status\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5493331700563431
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT __g1 AS \"team\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.4621373265981674
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "SELECT __g2 AS ym, SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2 ORDER BY ym",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.683157704770565
+        },
+        {
+          "sql_id": "S27",
+          "rewritten_sql": "SELECT __g2 AS ym, __g1 AS \"team\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g2, __g1 ORDER BY ym, __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.5709847211837769
+        },
+        {
+          "sql_id": "S31",
+          "rewritten_sql": "SELECT __g3 AS \"has_posting\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5864137783646584
+        },
+        {
+          "sql_id": "S39",
+          "rewritten_sql": "SELECT __g0 AS \"status\", SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6033405661582947
+        },
+        {
+          "sql_id": "S64",
+          "rewritten_sql": "SELECT __g0 AS \"status\", SUM(__a3) AS total_headcount, SUM(__a4) AS total_hired, SUM(__a5) AS infinite_cnt, SUM(__a2) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.012265682220459
+        },
+        {
+          "sql_id": "S73",
+          "rewritten_sql": "SELECT __g0 AS \"status\", SUM(__a6) AS total_postings, SUM(__a7) AS total_offers FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6696069613099098
+        },
+        {
+          "sql_id": "S78",
+          "rewritten_sql": "SELECT SUM(__a3) AS sum_total, SUM(__a4) AS sum_hired, SUM(__a5) AS inf_cnt FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.7453961297869682
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"lever__posting_enhanced\" WHERE state IN ('published', 'pending')",
+      "covered": [
+        "S34",
+        "S38",
+        "S69",
+        "S72"
+      ],
+      "rewrites": {
+        "S34": "SELECT SUBSTRING(created_at, 1, 7) AS ym, categories_department, COUNT(*) AS cnt FROM temp.reuse_candidate AS lever__posting_enhanced WHERE state IN ('published', 'pending') GROUP BY categories_department, SUBSTRING(created_at, 1, 7) ORDER BY categories_department, ym",
+        "S38": "SELECT categories_department, COUNT(*) AS active_postings FROM temp.reuse_candidate AS lever__posting_enhanced WHERE state IN ('published', 'pending') GROUP BY categories_department ORDER BY categories_department",
+        "S69": "SELECT categories_department, COUNT(DISTINCT posting_hiring_manager_name) AS active_hms, COUNT(*) AS active_postings FROM temp.reuse_candidate AS lever__posting_enhanced WHERE state IN ('published', 'pending') GROUP BY categories_department ORDER BY categories_department",
+        "S72": "SELECT categories_department, COUNT(*) AS total_postings, COUNT(DISTINCT posting_hiring_manager_name) AS distinct_hms, ROUND(1.0 * COUNT(*) / COUNT(DISTINCT posting_hiring_manager_name), 2) AS postings_per_hm FROM temp.reuse_candidate AS lever__posting_enhanced WHERE state IN ('published', 'pending') GROUP BY categories_department ORDER BY categories_department"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C9",
+      "offline": true,
+      "earliest_build_before": "S34",
+      "later_reuses": 3,
+      "denominator": 92,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT categories_department AS __g0, SUBSTRING(created_at, 1, 7) AS __g1, COUNT(*) AS __a0 FROM \"lever__posting_enhanced\" WHERE state IN ('published', 'pending') GROUP BY categories_department, SUBSTRING(created_at, 1, 7)",
+      "covered": [
+        "S34",
+        "S38"
+      ],
+      "rewrites": {
+        "S34": "SELECT __g1 AS ym, __g0 AS \"categories_department\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, ym",
+        "S38": "SELECT __g0 AS \"categories_department\", SUM(__a0) AS active_postings FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C10",
+      "offline": true,
+      "earliest_build_before": "S34",
+      "later_reuses": 1,
+      "denominator": 92,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"lever__requisition_enhanced\" WHERE status = 'open'",
+      "covered": [
+        "S65",
+        "S74",
+        "S76",
+        "S79"
+      ],
+      "rewrites": {
+        "S65": "SELECT status, headcount_total, headcount_hired, headcount_infinite FROM temp.reuse_candidate AS lever__requisition_enhanced WHERE status = 'open' LIMIT 20",
+        "S74": "SELECT status, count_postings, count_offers, headcount_total, headcount_hired, headcount_infinite FROM temp.reuse_candidate AS lever__requisition_enhanced WHERE status = 'open' LIMIT 15",
+        "S76": "SELECT headcount_total, headcount_hired, headcount_infinite, COUNT(*) AS cnt FROM temp.reuse_candidate AS lever__requisition_enhanced WHERE status = 'open' GROUP BY headcount_total, headcount_hired, headcount_infinite ORDER BY cnt DESC",
+        "S79": "SELECT SUM(headcount_total) AS sum_total, SUM(headcount_hired) AS sum_hired, SUM(CASE WHEN headcount_infinite = 1 THEN 1 ELSE 0 END) AS inf_cnt FROM temp.reuse_candidate AS lever__requisition_enhanced WHERE status = 'open'"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C11",
+      "offline": true,
+      "earliest_build_before": "S65",
+      "later_reuses": 3,
+      "denominator": 92,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT headcount_total AS __g0, headcount_hired AS __g1, headcount_infinite AS __g2, COUNT(*) AS __a0, SUM(headcount_total) AS __a1, SUM(headcount_hired) AS __a2, SUM(CASE WHEN headcount_infinite = 1 THEN 1 ELSE 0 END) AS __a3 FROM \"lever__requisition_enhanced\" WHERE status = 'open' GROUP BY headcount_total, headcount_hired, headcount_infinite",
+      "covered": [
+        "S76",
+        "S79"
+      ],
+      "rewrites": {
+        "S76": "SELECT __g0 AS \"headcount_total\", __g1 AS \"headcount_hired\", __g2 AS \"headcount_infinite\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1, __g2 ORDER BY cnt DESC",
+        "S79": "SELECT SUM(__a1) AS sum_total, SUM(__a2) AS sum_hired, SUM(__a3) AS inf_cnt FROM temp.reuse_candidate"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C12",
+      "offline": true,
+      "earliest_build_before": "S76",
+      "later_reuses": 1,
+      "denominator": 92,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

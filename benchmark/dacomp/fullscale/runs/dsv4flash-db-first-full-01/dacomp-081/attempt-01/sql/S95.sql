@@ -1,0 +1,1 @@
+SELECT distribution_channel, COUNT(*) AS n FROM qualtrics__response GROUP BY distribution_channel ORDER BY n DESC

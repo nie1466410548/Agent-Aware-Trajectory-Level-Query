@@ -1,0 +1,1 @@
+SELECT DISTINCT "Account Credit Rating" FROM customer_account_table

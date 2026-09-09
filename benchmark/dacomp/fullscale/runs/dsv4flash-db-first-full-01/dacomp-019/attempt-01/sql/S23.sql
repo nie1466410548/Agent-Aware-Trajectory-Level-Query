@@ -1,0 +1,1 @@
+SELECT "Transportation mode (land/cold chain)" AS transport, COUNT(*) AS cnt FROM basic_drug_information GROUP BY 1

@@ -1,0 +1,59 @@
+{
+  "task_id": "dacomp-009",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "P4/P6 join archived employee results, construct percentile ranks and weighted-score scenarios, and aggregate profiles in pandas. These relational operations are reasonably supported by SQLite. Statistical tests and figure rendering are separate justified Python uses; SQL data retrieval remained logged.",
+  "evidence": [
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 14,
+          "text": "df = df.merge(df_sal, on=['Employee ID','Employee'], how='left')"
+        },
+        {
+          "line": 16,
+          "text": "df['units_per_eff_hour'] = df['total_units'] / df['total_eff_hours']"
+        },
+        {
+          "line": 25,
+          "text": "    print(f\"{col}: mean={top10[col].mean():.2f}, min={top10[col].min():.2f}, max={top10[col].max():.2f}\")"
+        },
+        {
+          "line": 32,
+          "text": "print(df.groupby('units_q', observed=True)['avg_pass_rate'].agg(['mean','count']).round(2))"
+        },
+        {
+          "line": 40,
+          "text": "df = df.merge(dfd[['Employee ID','discipline_days']], on='Employee ID', how='left')"
+        },
+        {
+          "line": 52,
+          "text": "    df['pct_'+col] = df[col].rank(pct=True)"
+        }
+      ]
+    },
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 14,
+          "text": "df = df.merge(dfd[['Employee ID','avg_eff_hours']], on='Employee ID', how='left')"
+        },
+        {
+          "line": 25,
+          "text": "    return pd.Series(score, index=df.index).rank(ascending=False).astype(int)"
+        },
+        {
+          "line": 48,
+          "text": "print(df.groupby(['Team','Gender'])['composite_score'].agg(['mean','count']).round(3))"
+        },
+        {
+          "line": 51,
+          "text": "print(df.groupby(['Education Level','Gender'])['composite_score'].agg(['mean','count']).round(3))"
+        }
+      ]
+    }
+  ],
+  "route": "汇总员工产出、工时和合格率并生成初始排名 → 合并薪资与纪律记录 → 比较前十名和其余员工的特征 → 改权重检查排名敏感性 → 绘制群体差异。"
+}

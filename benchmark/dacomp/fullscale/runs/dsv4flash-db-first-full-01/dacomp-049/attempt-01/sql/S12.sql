@@ -1,0 +1,1 @@
+SELECT "Job Title" FROM sheet1 WHERE "Job Title" LIKE '%After-sales%' OR "Job Title" LIKE '%售后%' OR "Job Title" LIKE '%Establishment%' OR "Job Title" LIKE '%经理%'

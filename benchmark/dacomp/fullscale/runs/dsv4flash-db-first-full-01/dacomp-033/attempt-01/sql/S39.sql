@@ -1,0 +1,1 @@
+SELECT cc."Customer ID", cc."Account ID" FROM customer_account_table cc LIMIT 5

@@ -1,0 +1,93 @@
+{
+  "task_id": "dacomp-086",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 按健康及收入层级计算数量、均值、总收入与贡献份额，并进行健康阈值计数及管道风险求和。这些常规聚合和条件算术可在 SQL 内完成；分位数及图形渲染单独评价。",
+  "route": "SQL 提取客户健康与商业字段 → Python 评分、收入情景及分层聚合 → 风险矩阵和客户成功建议。",
+  "evidence": [
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 68,
+          "text": "print(f\"Total predicted 6-month contribution: ${df['predicted_6mo_revenue'].sum():,.0f}\")"
+        },
+        {
+          "line": 75,
+          "text": "print(df.groupby('health_category')['predicted_6mo_revenue'].agg(['count','mean','median','sum']).round(0))"
+        },
+        {
+          "line": 79,
+          "text": "tier_summary = df.groupby('revenue_tier', observed=False).agg("
+        },
+        {
+          "line": 118,
+          "text": "    print(f\"  Avg Days Since Activity: {sub['days_since_last_activity'].mean():.1f}\")"
+        },
+        {
+          "line": 120,
+          "text": "    print(f\"  Avg Contact Email Ratio: {(sub['contacts_with_email']/sub['total_contacts']).mean():.3f}\")"
+        }
+      ]
+    },
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 54,
+          "text": "tier_sum = df.groupby('revenue_tier', observed=False)['predicted_6mo_revenue'].sum()"
+        },
+        {
+          "line": 55,
+          "text": "total = df['predicted_6mo_revenue'].sum()"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 3,
+          "text": "print(\"Count health_score < 50:\", (df['health_score'] < 50).sum())"
+        },
+        {
+          "line": 4,
+          "text": "print(\"Count health_score == 50:\", (df['health_score'] == 50).sum())"
+        },
+        {
+          "line": 6,
+          "text": "print(\"Count health_score >= 80:\", (df['health_score'] >= 80).sum())"
+        },
+        {
+          "line": 7,
+          "text": "print(\"Count health_score in [50,80):\", ((df['health_score'] >= 50) & (df['health_score'] < 80)).sum())"
+        }
+      ]
+    },
+    {
+      "source": "python/P10.py",
+      "lines": [
+        {
+          "line": 13,
+          "text": "print(f\"  Renewal base total: ${df['renewal_base'].sum()/1e9:.1f}B ({df['renewal_base'].sum()/df['predicted_6mo_revenue'].sum()*100:.1f}%)\")"
+        },
+        {
+          "line": 14,
+          "text": "print(f\"  Pipeline upside total: ${df['pipeline_upside'].sum()/1e9:.1f}B ({df['pipeline_upside'].sum()/df['predicted_6mo_revenue'].sum()*100:.1f}%)\")"
+        },
+        {
+          "line": 22,
+          "text": "print(f\"  Pipeline at risk: ${risk['current_pipeline_amount'].sum()/1e9:.2f}B\")"
+        },
+        {
+          "line": 23,
+          "text": "print(f\"  Historical won amount at risk: ${risk['total_won_amount'].sum()/1e9:.2f}B\")"
+        },
+        {
+          "line": 24,
+          "text": "print(f\"  Predicted 6-mo contribution: ${risk['predicted_6mo_revenue'].sum()/1e9:.2f}B\")"
+        }
+      ]
+    }
+  ]
+}

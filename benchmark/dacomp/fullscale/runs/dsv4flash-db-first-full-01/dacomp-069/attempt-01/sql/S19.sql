@@ -1,0 +1,1 @@
+SELECT date_day, country_short, sku_id, net_amount, transactions, charge_amount, charge_transactions, new_subscriptions, cancelled_subscriptions, total_active_subscriptions FROM google_play__finance_report WHERE package_name='com.dev.photoeditor' AND sku_id LIKE '%basic%' ORDER BY date_day, country_short LIMIT 30

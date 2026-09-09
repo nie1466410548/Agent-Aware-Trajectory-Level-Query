@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT date_day) AS n_dates FROM google_ads__ad_group_report

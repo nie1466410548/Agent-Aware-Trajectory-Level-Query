@@ -1,0 +1,119 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+The existing customer value scoring model primarily relies on two dimensions, usage duration and frequency, but its accuracy in identifying high-value customers is only 68%. We need to rebuild a multi-dimensional value assessment system. The new model is expected to increase the identification accuracy for high-value customers to over 85% and be able to predict the value trend of customers over the next 3-6 months.
+
+DATABASE SCHEMA:
+CREATE TABLE "pendo__account" (
+"account_id" TEXT,
+  "last_updated_at" TEXT,
+  "account_id_hash" REAL,
+  "first_visit_at" TEXT,
+  "last_visit_at" TEXT,
+  "latest_account_index" INTEGER,
+  "count_associated_visitors" INTEGER,
+  "min_nps_rating" INTEGER,
+  "max_nps_rating" INTEGER,
+  "avg_nps_rating" REAL,
+  "count_active_visitors" REAL,
+  "count_page_viewing_visitors" REAL,
+  "count_feature_clicking_visitors" REAL,
+  "count_active_days" INTEGER,
+  "count_active_months" INTEGER,
+  "sum_minutes" REAL,
+  "sum_events" REAL,
+  "count_event_records" REAL,
+  "average_daily_minutes" REAL,
+  "average_daily_events" REAL,
+  "first_event_on" TIMESTAMP,
+  "last_event_on" TIMESTAMP
+)
+CREATE TABLE "pendo__feature" (
+"feature_id" TEXT,
+  "app_id" TEXT,
+  "created_at" TEXT,
+  "created_by_user_id" TEXT,
+  "is_dirty" INTEGER,
+  "group_id" INTEGER,
+  "is_core_event" INTEGER,
+  "last_updated_at" TEXT,
+  "last_updated_by_user_id" TEXT,
+  "feature_name" TEXT,
+  "page_id" TEXT,
+  "root_version_id" INTEGER,
+  "stable_version_id" INTEGER,
+  "valid_through" TEXT,
+  "product_area_name" TEXT,
+  "page_name" TEXT,
+  "page_created_at" TEXT,
+  "page_valid_through" TEXT,
+  "app_display_name" TEXT,
+  "app_platform" TEXT,
+  "created_by_user_full_name" TEXT,
+  "created_by_user_username" TEXT,
+  "last_updated_by_user_full_name" TEXT,
+  "last_updated_by_user_username" TEXT,
+  "count_visitors" INTEGER,
+  "count_accounts" INTEGER,
+  "sum_clicks" REAL,
+  "count_click_events" INTEGER,
+  "first_click_at" TEXT,
+  "last_click_at" TEXT,
+  "avg_visitor_minutes" REAL,
+  "avg_visitor_events" REAL
+)
+CREATE TABLE "pendo__visitor" (
+"visitor_id" TEXT,
+  "account_id" TEXT,
+  "first_visit_at" TEXT,
+  "visitor_id_hash" REAL,
+  "last_browser_name" TEXT,
+  "last_browser_version" REAL,
+  "last_operating_system" TEXT,
+  "last_server_name" TEXT,
+  "last_updated_at" TEXT,
+  "last_user_agent" TEXT,
+  "last_visit" TEXT,
+  "n_id" INTEGER,
+  "latest_visitor_index" INTEGER,
+  "count_associated_accounts" INTEGER,
+  "latest_nps_rating" INTEGER,
+  "count_active_days" INTEGER,
+  "count_active_months" INTEGER,
+  "sum_minutes" REAL,
+  "sum_events" REAL,
+  "count_event_records" REAL,
+  "average_daily_minutes" REAL,
+  "average_daily_events" REAL,
+  "first_event_on" TIMESTAMP,
+  "last_event_on" TIMESTAMP
+)
+CREATE TABLE "pendo__visitor_daily_metrics" (
+"date_day" TIMESTAMP,
+  "visitor_id" TEXT,
+  "sum_minutes" REAL,
+  "sum_events" REAL,
+  "count_event_records" INTEGER,
+  "count_pages_viewed" INTEGER,
+  "count_features_clicked" INTEGER
+)
+CREATE TABLE "pendo__visitor_feature" (
+"visitor_id" TEXT,
+  "feature_id" TEXT,
+  "first_click_at" TEXT,
+  "last_click_at" TEXT,
+  "sum_clicks" REAL,
+  "sum_minutes" REAL,
+  "avg_daily_minutes" REAL,
+  "count_active_days" INTEGER,
+  "count_click_events" INTEGER
+)

@@ -1,0 +1,1 @@
+SELECT * FROM google_ads__ad_group_report LIMIT 5

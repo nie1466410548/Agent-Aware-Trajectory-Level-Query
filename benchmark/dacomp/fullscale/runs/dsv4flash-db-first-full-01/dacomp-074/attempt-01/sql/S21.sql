@@ -1,0 +1,1 @@
+SELECT account_type_name, account_name, COUNT(*) AS n FROM netsuite2_income_statement GROUP BY account_type_name, account_name ORDER BY account_type_name, n DESC

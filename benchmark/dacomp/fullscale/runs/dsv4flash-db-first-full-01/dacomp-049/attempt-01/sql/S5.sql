@@ -1,0 +1,1 @@
+SELECT * FROM sheet1 WHERE "Job Title" LIKE '%PICC%' OR "Company Name" LIKE '%PICC%' OR "Job Title" LIKE '%保险%'

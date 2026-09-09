@@ -1,0 +1,1 @@
+SELECT CAST(value AS INTEGER) AS v_int, COUNT(*) AS n, AVG(value) AS avg_val FROM qualtrics__response GROUP BY CAST(value AS INTEGER) ORDER BY v_int

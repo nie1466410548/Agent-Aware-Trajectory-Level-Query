@@ -1,0 +1,1 @@
+SELECT DISTINCT "Vehicle Type" FROM sheet1 ORDER BY "Vehicle Type"

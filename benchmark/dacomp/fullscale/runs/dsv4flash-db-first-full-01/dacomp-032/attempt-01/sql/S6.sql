@@ -1,0 +1,1 @@
+SELECT * FROM customer_contact_table LIMIT 5

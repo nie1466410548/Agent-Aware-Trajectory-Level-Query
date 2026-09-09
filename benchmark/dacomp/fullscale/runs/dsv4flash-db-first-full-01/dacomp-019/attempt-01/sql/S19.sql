@@ -1,0 +1,1 @@
+SELECT i."Drug ID", COUNT(*) AS cnt FROM inventory_management i JOIN basic_drug_information b ON i."Drug ID" = b."Drug ID" GROUP BY i."Drug ID" HAVING COUNT(*) > 1

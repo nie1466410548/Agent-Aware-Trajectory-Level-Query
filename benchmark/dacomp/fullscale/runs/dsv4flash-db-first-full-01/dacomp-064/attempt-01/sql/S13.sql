@@ -1,0 +1,1 @@
+SELECT engagement_risk_status, COUNT(*) AS n FROM jira__stakeholder_engagement_insights GROUP BY engagement_risk_status ORDER BY n DESC

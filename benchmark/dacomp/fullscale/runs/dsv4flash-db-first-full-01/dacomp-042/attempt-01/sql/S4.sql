@@ -1,0 +1,1 @@
+SELECT * FROM encounters LIMIT 5

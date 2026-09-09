@@ -1,0 +1,89 @@
+{
+  "task_id": "dacomp-064",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 按月份、问题类型、响应模式和连接分组计算数量、均值及风险比例，还执行阈值计数。这些可在 SQL 完成。Mann–Whitney、Spearman 检验和绘图是独立的统计补充。",
+  "route": "SQL 识别高影响跨职能利益相关者并连接问题记录 → Python 月趋势及响应模式分组比较 → 影响失衡与协作建议。",
+  "evidence": [
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 25,
+          "text": "    stat, p = stats.mannwhitneyu(t, o, alternative='two-sided')"
+        },
+        {
+          "line": 30,
+          "text": "rp = prof_all.groupby(['response_pattern_type','is_target']).size().unstack(fill_value=0)"
+        },
+        {
+          "line": 45,
+          "text": "risk_pivot = prof.groupby('breadth_q', observed=True).apply("
+        },
+        {
+          "line": 48,
+          "text": "        'avg_depth': g['engagement_depth_score'].mean(),"
+        },
+        {
+          "line": 50,
+          "text": "        'at_risk_share': (g['engagement_risk_status'].isin(['At Risk','Disengaged'])).mean(),"
+        }
+      ]
+    },
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 33,
+          "text": "target_monthly = target_close.groupby('month').agg("
+        },
+        {
+          "line": 39,
+          "text": "other_monthly = other_close.groupby('month').agg("
+        },
+        {
+          "line": 77,
+          "text": "type_trend = target_close.groupby(['month','issue_type']).agg("
+        }
+      ]
+    },
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 71,
+          "text": "conn_analysis = prof.groupby('conn_group', observed=True).agg("
+        },
+        {
+          "line": 82,
+          "text": "rp_analysis = prof.groupby('response_pattern_type').agg("
+        }
+      ]
+    },
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 39,
+          "text": "inf_analysis = prof.groupby('influence_type').agg("
+        },
+        {
+          "line": 63,
+          "text": "cat_monthly = cat_close.groupby(['project_category_id','month']).agg("
+        },
+        {
+          "line": 69,
+          "text": "print(cat_close.groupby('project_category_id').agg("
+        },
+        {
+          "line": 139,
+          "text": "print(f\"At-risk share: {(prof['engagement_risk_status'].isin(['At Risk','Disengaged'])).mean()*100:.1f}%\")"
+        },
+        {
+          "line": 140,
+          "text": "print(f\"Extreme outbound influence (>2x ratio): {(prof['influence_ratio']>2).sum()} stakeholders\")"
+        }
+      ]
+    }
+  ]
+}

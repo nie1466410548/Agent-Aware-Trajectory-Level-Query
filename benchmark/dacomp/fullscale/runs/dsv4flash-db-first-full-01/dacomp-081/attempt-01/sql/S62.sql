@@ -1,0 +1,1 @@
+SELECT survey_name, COUNT(*) AS n FROM qualtrics__survey GROUP BY survey_name ORDER BY survey_name LIMIT 200

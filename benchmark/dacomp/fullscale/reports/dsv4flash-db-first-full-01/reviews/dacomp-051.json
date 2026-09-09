@@ -1,0 +1,56 @@
+{
+  "task_id": "dacomp-051",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "虽然 SQL 已完成大量连接与分层汇总，Python 仍按成功模式、完成状态及活动水平计算计数、均值和完成率，属于可推入数据库的计算。t 检验、效应量与回归本身是合理统计补充。",
+  "route": "SQL 识别慢完成用户和低效团队 → Python 检验、回归及再次分组比较 → 交付效率建议。",
+  "evidence": [
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 56,
+          "text": "print(comp.groupby('cohort')['delay_days'].agg(['mean', 'median', 'count']))"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 81,
+          "text": "sp = df.groupby('success_patterns').agg(n=('task_id','count'), comp_rate=('is_completed','mean'))"
+        },
+        {
+          "line": 88,
+          "text": "print(df.groupby('is_completed')['project_health_score'].agg(['mean','median','count']))"
+        },
+        {
+          "line": 91,
+          "text": "al = df.groupby('activity_level').agg(n=('task_id','count'), comp_rate=('is_completed','mean'))"
+        }
+      ]
+    },
+    {
+      "source": "python/P9.py",
+      "lines": [
+        {
+          "line": 45,
+          "text": "al = slow.groupby('activity_level').agg(n=('task_id','count'), comp_rate=('is_completed','mean'))"
+        },
+        {
+          "line": 54,
+          "text": "collab_means = df.groupby(df['success_patterns']=='high_collaboration')['hours_assigned_to_completion'].mean()"
+        },
+        {
+          "line": 71,
+          "text": "print(f\"Slow cohort avg: {df[df['cohort']=='SLOW']['hours_assigned_to_completion'].mean():.1f} hours\")"
+        },
+        {
+          "line": 72,
+          "text": "print(f\"Fast cohort avg: {df[df['cohort']=='FAST']['hours_assigned_to_completion'].mean():.1f} hours\")"
+        }
+      ]
+    }
+  ]
+}

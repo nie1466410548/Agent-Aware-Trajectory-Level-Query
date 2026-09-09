@@ -1,0 +1,1 @@
+SELECT DISTINCT "Age group" FROM user_basic_information_table_1 ORDER BY "Age group"

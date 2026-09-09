@@ -1,0 +1,1 @@
+SELECT * FROM user_information_table LIMIT 20

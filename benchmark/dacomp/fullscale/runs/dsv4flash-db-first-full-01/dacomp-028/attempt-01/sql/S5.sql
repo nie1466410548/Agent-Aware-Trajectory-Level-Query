@@ -1,0 +1,1 @@
+SELECT "Product Category", COUNT(*) AS n FROM agricultural_product_price_tren GROUP BY "Product Category" ORDER BY n DESC

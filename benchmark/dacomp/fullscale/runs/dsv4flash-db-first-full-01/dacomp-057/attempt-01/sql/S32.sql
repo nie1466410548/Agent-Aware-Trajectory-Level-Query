@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total, COUNT(DISTINCT account_id || '|' || date_day || '|' || advertising_channel_type || '|' || advertising_channel_subtype) AS uniq_keys FROM google_ads__customer_acquisition_analysis

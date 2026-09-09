@@ -1,0 +1,1 @@
+SELECT "Disciplinary Issue", COUNT(*) AS cnt FROM sheet1 GROUP BY "Disciplinary Issue"

@@ -1,0 +1,1 @@
+SELECT COUNT(*) FROM customer360__conversion_funnel_analysis

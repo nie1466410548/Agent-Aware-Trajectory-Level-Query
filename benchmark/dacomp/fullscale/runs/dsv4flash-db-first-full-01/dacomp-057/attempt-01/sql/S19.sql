@@ -1,0 +1,1 @@
+SELECT DISTINCT status FROM google_ads__campaign_report

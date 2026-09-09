@@ -1,0 +1,1 @@
+SELECT package_name, COUNT(*) AS n_markets, SUM(CASE WHEN store_conversion_rate > 15 AND avg_daily_revenue < 5 THEN 1 ELSE 0 END) AS seg_high_conv_low_rev, SUM(CASE WHEN avg_daily_revenue > 7 AND store_conversion_rate < 10 THEN 1 ELSE 0 END) AS seg_high_rev_low_conv FROM google_play__geo_market_analysis GROUP BY package_name ORDER BY package_name

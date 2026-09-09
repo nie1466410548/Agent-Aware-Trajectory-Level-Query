@@ -1,0 +1,1 @@
+SELECT response_text, MIN(value) AS min_v, MAX(value) AS max_v, AVG(value) AS avg_v FROM qualtrics__response GROUP BY response_text ORDER BY avg_v DESC

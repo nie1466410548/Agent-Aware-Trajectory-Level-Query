@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n, COUNT(DISTINCT sku_id) AS skus FROM attachment_4

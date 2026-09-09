@@ -1,0 +1,1 @@
+SELECT DISTINCT strftime('%Y-%m', "Sales Date") as ym FROM sales_records ORDER BY ym

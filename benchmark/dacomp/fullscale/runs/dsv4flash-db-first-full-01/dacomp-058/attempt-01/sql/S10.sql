@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_months, COUNT(CASE WHEN cost > 1000 THEN 1 END) AS high_cost_months FROM google_ads__campaign_report

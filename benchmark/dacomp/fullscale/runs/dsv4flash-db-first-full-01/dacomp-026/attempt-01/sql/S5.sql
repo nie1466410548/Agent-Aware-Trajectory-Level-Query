@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n FROM human_resources;

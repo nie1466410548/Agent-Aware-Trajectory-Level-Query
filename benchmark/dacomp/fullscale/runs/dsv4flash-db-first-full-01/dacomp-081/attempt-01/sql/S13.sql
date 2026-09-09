@@ -1,0 +1,1 @@
+SELECT DISTINCT project_type FROM qualtrics__survey

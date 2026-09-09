@@ -1,0 +1,1 @@
+SELECT "Total Time Away" FROM sheet1 WHERE "Total Time Away" NOT LIKE '%min%s' LIMIT 10

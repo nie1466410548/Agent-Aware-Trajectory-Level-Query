@@ -1,0 +1,1 @@
+SELECT DISTINCT project_maturity_phase FROM asana__project_analytics

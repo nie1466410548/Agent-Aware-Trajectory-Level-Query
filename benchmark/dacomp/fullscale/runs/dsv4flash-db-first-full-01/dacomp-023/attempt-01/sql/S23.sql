@@ -1,0 +1,1 @@
+SELECT Category, CAST(strftime('%Y', "Order Date") AS INTEGER) AS yr, SUM(Sales) AS total_sales, SUM(Quantity) AS total_qty, SUM(profit) AS total_profit FROM "order" GROUP BY Category, yr ORDER BY Category, yr

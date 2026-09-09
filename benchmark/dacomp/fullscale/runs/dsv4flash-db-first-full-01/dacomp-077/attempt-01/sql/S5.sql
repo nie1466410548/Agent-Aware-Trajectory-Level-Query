@@ -1,0 +1,1 @@
+SELECT MIN(date_day) AS min_day, MAX(date_day) AS max_day, COUNT(DISTINCT date_day) AS n_days, COUNT(DISTINCT feature_id) AS n_features FROM pendo__feature_daily_metrics

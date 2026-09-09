@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_perf FROM workday__organization_performance

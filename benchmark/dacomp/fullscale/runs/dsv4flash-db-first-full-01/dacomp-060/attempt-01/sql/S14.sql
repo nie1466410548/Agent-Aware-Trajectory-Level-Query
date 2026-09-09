@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT campaign_id) AS n_campaigns_ag FROM google_ads__ad_group_report

@@ -1,0 +1,1 @@
+SELECT DISTINCT influence_level FROM jira__stakeholder_engagement_insights

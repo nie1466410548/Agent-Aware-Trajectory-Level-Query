@@ -1,0 +1,1 @@
+SELECT "Diet quality", COUNT(*) as n FROM sheet1 GROUP BY "Diet quality"

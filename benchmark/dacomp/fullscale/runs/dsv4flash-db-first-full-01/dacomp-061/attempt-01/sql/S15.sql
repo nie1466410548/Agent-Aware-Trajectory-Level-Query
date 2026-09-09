@@ -1,0 +1,1 @@
+SELECT lifecycle_pattern, COUNT(*) as cnt FROM jira__issue_intelligence_analytics GROUP BY lifecycle_pattern

@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS tickets_with_contract FROM service_ticket_table WHERE "Contract ID" IS NOT NULL AND "Contract ID" != ''

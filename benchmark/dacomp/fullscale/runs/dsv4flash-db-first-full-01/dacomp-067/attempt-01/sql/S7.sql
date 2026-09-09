@@ -1,0 +1,1 @@
+SELECT DISTINCT job_parent_departments FROM greenhouse__application_enhanced WHERE job_parent_departments IS NOT NULL

@@ -1,0 +1,1 @@
+SELECT "Light & Radiation Record ID", "Environmental monitoring reference", "\" Illuminance (Lux)\"" FROM light_and_radiation_readings LIMIT 1

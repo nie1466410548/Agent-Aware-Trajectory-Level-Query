@@ -1,0 +1,1 @@
+SELECT owner_id, account_id, account_name, annual_revenue, billing_state, billing_city, industry_normalized, account_size_segment, total_contacts, number_of_employees, total_opportunities, won_opportunities, win_rate_percentage FROM salesforce__customer_360_view

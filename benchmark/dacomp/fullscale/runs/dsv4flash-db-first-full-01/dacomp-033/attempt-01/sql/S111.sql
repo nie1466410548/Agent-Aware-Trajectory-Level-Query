@@ -1,0 +1,2 @@
+WITH hv AS (SELECT DISTINCT "Customer ID" FROM transaction_history_table WHERE "Transaction Payment Status"='Paid' GROUP BY "Customer ID" HAVING SUM("Transaction Amount")>5000)
+SELECT cp."Event Participation Prize Level", COUNT(*) as cnt FROM hv JOIN campaign_participation_table cp ON hv."Customer ID"=cp."Event Participant Contact ID" GROUP BY cp."Event Participation Prize Level" ORDER BY cnt DESC

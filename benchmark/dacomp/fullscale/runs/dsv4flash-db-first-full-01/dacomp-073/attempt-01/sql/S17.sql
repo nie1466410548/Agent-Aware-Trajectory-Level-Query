@@ -1,0 +1,1 @@
+SELECT state, categories_department, COUNT(*) as cnt FROM lever__posting_enhanced GROUP BY state, categories_department ORDER BY categories_department, state

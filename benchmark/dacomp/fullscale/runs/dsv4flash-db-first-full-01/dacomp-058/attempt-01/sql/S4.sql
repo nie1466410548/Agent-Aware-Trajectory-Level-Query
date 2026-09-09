@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n FROM campaigns c LEFT JOIN google_ads__campaign_report r ON c.campaign_id = r.campaign_id WHERE r.campaign_id IS NULL

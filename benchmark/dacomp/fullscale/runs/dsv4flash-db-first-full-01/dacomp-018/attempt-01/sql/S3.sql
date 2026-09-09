@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_orders, COUNT(DISTINCT "Customer ID") AS customers, COUNT(DISTINCT "Product Category") AS categories FROM order_information

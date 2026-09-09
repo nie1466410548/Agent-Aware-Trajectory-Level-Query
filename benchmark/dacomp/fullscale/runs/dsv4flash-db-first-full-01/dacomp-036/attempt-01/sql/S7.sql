@@ -1,0 +1,1 @@
+SELECT DISTINCT "Anomaly Type", "Risk Level", "Confirmation Status" FROM abnormal_logins_table LIMIT 30

@@ -1,0 +1,1 @@
+SELECT MIN(start_date) AS min_start, MAX(start_date) AS max_start, COUNT(*) AS total, COUNT(CASE WHEN start_date IS NULL THEN 1 END) AS null_start FROM campaigns

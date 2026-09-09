@@ -1,0 +1,1 @@
+SELECT DISTINCT "Handling Status" FROM system_logs_table

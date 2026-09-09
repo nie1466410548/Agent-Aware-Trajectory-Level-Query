@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n FROM greenhouse__interview_enhanced

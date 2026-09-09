@@ -1,0 +1,1 @@
+SELECT DISTINCT "Level 1 Category Name", "Level 1 Category ID" FROM attachment_4 ORDER BY "Level 1 Category Name"

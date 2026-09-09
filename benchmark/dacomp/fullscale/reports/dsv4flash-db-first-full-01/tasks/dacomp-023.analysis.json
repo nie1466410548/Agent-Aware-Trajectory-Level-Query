@@ -1,0 +1,557 @@
+{
+  "fingerprint": "f232b0ca13237f06025230a6f80fed293a9d8f2e00d4127c6ab1c819c558b06c",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S9",
+      "covered": [
+        "S9",
+        "S18",
+        "S24"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S9",
+      "later_reuses": 2,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S10",
+      "covered": [
+        "S10",
+        "S19",
+        "S25"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S10",
+      "later_reuses": 2,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S12",
+      "covered": [
+        "S12",
+        "S20",
+        "S26"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S12",
+      "later_reuses": 2,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S15",
+      "covered": [
+        "S15",
+        "S21",
+        "S27"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S15",
+      "later_reuses": 2,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788863963.0565958,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 6,
+      "validation_ended_at": 1788863963.0608277,
+      "checks": [
+        {
+          "sql_id": "S21",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        },
+        {
+          "sql_id": "S27",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S16",
+      "covered": [
+        "S16",
+        "S22",
+        "S28"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S16",
+      "later_reuses": 2,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S17",
+      "covered": [
+        "S17",
+        "S23"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C6",
+      "offline": true,
+      "earliest_build_before": "S17",
+      "later_reuses": 1,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT Category, CAST(STRFTIME('%Y', \"Order Date\") AS INTEGER) AS yr, SUM(Sales) AS sales FROM \"order\" GROUP BY Category, yr",
+      "covered": [
+        "S9",
+        "S18",
+        "S24",
+        "S29",
+        "S30"
+      ],
+      "rewrites": {
+        "S9": "WITH yearly AS (SELECT * FROM temp.reuse_candidate) SELECT Category, yr, sales, ROUND(100.0 * (sales - LAG(sales) OVER (PARTITION BY Category ORDER BY yr)) / LAG(sales) OVER (PARTITION BY Category ORDER BY yr), 2) AS yoy_growth_pct FROM yearly ORDER BY Category, yr",
+        "S18": "WITH yearly AS (SELECT * FROM temp.reuse_candidate) SELECT Category, yr, sales, ROUND(100.0 * (sales - LAG(sales) OVER (PARTITION BY Category ORDER BY yr)) / LAG(sales) OVER (PARTITION BY Category ORDER BY yr), 2) AS yoy_growth_pct FROM yearly ORDER BY Category, yr",
+        "S24": "WITH yearly AS (SELECT * FROM temp.reuse_candidate) SELECT Category, yr, sales, ROUND(100.0 * (sales - LAG(sales) OVER (PARTITION BY Category ORDER BY yr)) / LAG(sales) OVER (PARTITION BY Category ORDER BY yr), 2) AS yoy_growth_pct FROM yearly ORDER BY Category, yr",
+        "S29": "WITH yearly AS (SELECT * FROM temp.reuse_candidate), growth AS (SELECT Category, yr, sales, ROUND(100.0 * (sales - LAG(sales) OVER (PARTITION BY Category ORDER BY yr)) / LAG(sales) OVER (PARTITION BY Category ORDER BY yr), 2) AS yoy_growth_pct FROM yearly), ranked AS (SELECT Category, yr, yoy_growth_pct, RANK() OVER (PARTITION BY yr ORDER BY yoy_growth_pct DESC) AS rnk FROM growth WHERE yr > 2015) SELECT yr, Category, yoy_growth_pct, rnk FROM ranked ORDER BY yr, rnk",
+        "S30": "WITH yearly AS (SELECT * FROM temp.reuse_candidate), base AS (SELECT Category, sales AS s2015 FROM yearly WHERE yr = 2015), final AS (SELECT Category, sales AS s2018 FROM yearly WHERE yr = 2018) SELECT b.Category, ROUND(b.s2015, 2) AS sales_2015, ROUND(f.s2018, 2) AS sales_2018, ROUND(100.0 * (f.s2018 - b.s2015) / b.s2015, 2) AS total_growth_pct, ROUND(100.0 * (POWER(f.s2018 / b.s2015, 1.0 / 3.0) - 1), 2) AS cagr_pct FROM base AS b JOIN final AS f USING (Category) ORDER BY cagr_pct DESC"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C7",
+      "offline": true,
+      "earliest_build_before": "S9",
+      "later_reuses": 4,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788863963.0161822,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT Category, CAST(STRFTIME('%Y', \"Order Date\") AS INTEGER) AS yr, SUM(Sales) AS sales FROM \"order\" GROUP BY Category, yr",
+          "phase": "offline_validation",
+          "start_time": 1788863963.016484,
+          "status": "execute_returned",
+          "end_time": 1788863963.0274189
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788863963.0274274,
+          "status": "execute_returned",
+          "end_time": 1788863963.0274532
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788863963.02746,
+          "status": "execute_returned",
+          "end_time": 1788863963.0274718
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH yearly AS (SELECT * FROM temp.reuse_candidate) SELECT Category, yr, sales, ROUND(100.0 * (sales - LAG(sales) OVER (PARTITION BY Category ORDER BY yr)) / LAG(sales) OVER (PARTITION BY Category ORDER BY yr), 2) AS yoy_growth_pct FROM yearly ORDER BY Category, yr",
+          "phase": "offline_validation",
+          "start_time": 1788863963.0274837,
+          "status": "execute_returned",
+          "end_time": 1788863963.0275667
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH yearly AS (SELECT * FROM temp.reuse_candidate) SELECT Category, yr, sales, ROUND(100.0 * (sales - LAG(sales) OVER (PARTITION BY Category ORDER BY yr)) / LAG(sales) OVER (PARTITION BY Category ORDER BY yr), 2) AS yoy_growth_pct FROM yearly ORDER BY Category, yr",
+          "phase": "offline_validation",
+          "start_time": 1788863963.0294526,
+          "status": "execute_returned",
+          "end_time": 1788863963.029489
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH yearly AS (SELECT * FROM temp.reuse_candidate) SELECT Category, yr, sales, ROUND(100.0 * (sales - LAG(sales) OVER (PARTITION BY Category ORDER BY yr)) / LAG(sales) OVER (PARTITION BY Category ORDER BY yr), 2) AS yoy_growth_pct FROM yearly ORDER BY Category, yr",
+          "phase": "offline_validation",
+          "start_time": 1788863963.0310552,
+          "status": "execute_returned",
+          "end_time": 1788863963.0310857
+        },
+        {
+          "sequence": 7,
+          "sql": "WITH yearly AS (SELECT * FROM temp.reuse_candidate), growth AS (SELECT Category, yr, sales, ROUND(100.0 * (sales - LAG(sales) OVER (PARTITION BY Category ORDER BY yr)) / LAG(sales) OVER (PARTITION BY Category ORDER BY yr), 2) AS yoy_growth_pct FROM yearly), ranked AS (SELECT Category, yr, yoy_growth_pct, RANK() OVER (PARTITION BY yr ORDER BY yoy_growth_pct DESC) AS rnk FROM growth WHERE yr > 2015) SELECT yr, Category, yoy_growth_pct, rnk FROM ranked ORDER BY yr, rnk",
+          "phase": "offline_validation",
+          "start_time": 1788863963.0326934,
+          "status": "execute_returned",
+          "end_time": 1788863963.0329194
+        },
+        {
+          "sequence": 8,
+          "sql": "WITH yearly AS (SELECT * FROM temp.reuse_candidate), base AS (SELECT Category, sales AS s2015 FROM yearly WHERE yr = 2015), final AS (SELECT Category, sales AS s2018 FROM yearly WHERE yr = 2018) SELECT b.Category, ROUND(b.s2015, 2) AS sales_2015, ROUND(f.s2018, 2) AS sales_2018, ROUND(100.0 * (f.s2018 - b.s2015) / b.s2015, 2) AS total_growth_pct, ROUND(100.0 * (POWER(f.s2018 / b.s2015, 1.0 / 3.0) - 1), 2) AS cagr_pct FROM base AS b JOIN final AS f USING (Category) ORDER BY cagr_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788863963.0353055,
+          "status": "execute_returned",
+          "end_time": 1788863963.0354648
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT Category, CAST(STRFTIME('%Y', \"Order Date\") AS INTEGER) AS yr, SUM(Sales) AS sales FROM \"order\" GROUP BY Category, yr",
+          "time": 1788863963.0167131,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788863963.0274496,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788863963.0274692,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH yearly AS (SELECT * FROM temp.reuse_candidate) SELECT Category, yr, sales, ROUND(100.0 * (sales - LAG(sales) OVER (PARTITION BY Category ORDER BY yr)) / LAG(sales) OVER (PARTITION BY Category ORDER BY yr), 2) AS yoy_growth_pct FROM yearly ORDER BY Category, yr",
+          "time": 1788863963.0275447,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH yearly AS (SELECT * FROM temp.reuse_candidate) SELECT Category, yr, sales, ROUND(100.0 * (sales - LAG(sales) OVER (PARTITION BY Category ORDER BY yr)) / LAG(sales) OVER (PARTITION BY Category ORDER BY yr), 2) AS yoy_growth_pct FROM yearly ORDER BY Category, yr",
+          "time": 1788863963.0294628,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH yearly AS (SELECT * FROM temp.reuse_candidate) SELECT Category, yr, sales, ROUND(100.0 * (sales - LAG(sales) OVER (PARTITION BY Category ORDER BY yr)) / LAG(sales) OVER (PARTITION BY Category ORDER BY yr), 2) AS yoy_growth_pct FROM yearly ORDER BY Category, yr",
+          "time": 1788863963.0310636,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH yearly AS (SELECT * FROM temp.reuse_candidate), growth AS (SELECT Category, yr, sales, ROUND(100.0 * (sales - LAG(sales) OVER (PARTITION BY Category ORDER BY yr)) / LAG(sales) OVER (PARTITION BY Category ORDER BY yr), 2) AS yoy_growth_pct FROM yearly), ranked AS (SELECT Category, yr, yoy_growth_pct, RANK() OVER (PARTITION BY yr ORDER BY yoy_growth_pct DESC) AS rnk FROM growth WHERE yr > 2015) SELECT yr, Category, yoy_growth_pct, rnk FROM ranked ORDER BY yr, rnk",
+          "time": 1788863963.032855,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH yearly AS (SELECT * FROM temp.reuse_candidate), base AS (SELECT Category, sales AS s2015 FROM yearly WHERE yr = 2015), final AS (SELECT Category, sales AS s2018 FROM yearly WHERE yr = 2018) SELECT b.Category, ROUND(b.s2015, 2) AS sales_2015, ROUND(f.s2018, 2) AS sales_2018, ROUND(100.0 * (f.s2018 - b.s2015) / b.s2015, 2) AS total_growth_pct, ROUND(100.0 * (POWER(f.s2018 / b.s2015, 1.0 / 3.0) - 1), 2) AS cagr_pct FROM base AS b JOIN final AS f USING (Category) ORDER BY cagr_pct DESC",
+          "time": 1788863963.035433,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 10.940883308649063,
+      "intermediate_rows": 12,
+      "intermediate_columns": [
+        "Category",
+        "yr",
+        "sales"
+      ],
+      "validation_ended_at": 1788863963.0382981,
+      "checks": [
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "WITH yearly AS (SELECT * FROM temp.reuse_candidate) SELECT Category, yr, sales, ROUND(100.0 * (sales - LAG(sales) OVER (PARTITION BY Category ORDER BY yr)) / LAG(sales) OVER (PARTITION BY Category ORDER BY yr), 2) AS yoy_growth_pct FROM yearly ORDER BY Category, yr",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.9648084416985512
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "WITH yearly AS (SELECT * FROM temp.reuse_candidate) SELECT Category, yr, sales, ROUND(100.0 * (sales - LAG(sales) OVER (PARTITION BY Category ORDER BY yr)) / LAG(sales) OVER (PARTITION BY Category ORDER BY yr), 2) AS yoy_growth_pct FROM yearly ORDER BY Category, yr",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.5993807464838028
+        },
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "WITH yearly AS (SELECT * FROM temp.reuse_candidate) SELECT Category, yr, sales, ROUND(100.0 * (sales - LAG(sales) OVER (PARTITION BY Category ORDER BY yr)) / LAG(sales) OVER (PARTITION BY Category ORDER BY yr), 2) AS yoy_growth_pct FROM yearly ORDER BY Category, yr",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.6353698447346687
+        },
+        {
+          "sql_id": "S29",
+          "rewritten_sql": "WITH yearly AS (SELECT * FROM temp.reuse_candidate), growth AS (SELECT Category, yr, sales, ROUND(100.0 * (sales - LAG(sales) OVER (PARTITION BY Category ORDER BY yr)) / LAG(sales) OVER (PARTITION BY Category ORDER BY yr), 2) AS yoy_growth_pct FROM yearly), ranked AS (SELECT Category, yr, yoy_growth_pct, RANK() OVER (PARTITION BY yr ORDER BY yoy_growth_pct DESC) AS rnk FROM growth WHERE yr > 2015) SELECT yr, Category, yoy_growth_pct, rnk FROM ranked ORDER BY yr, rnk",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.607337199151516
+        },
+        {
+          "sql_id": "S30",
+          "rewritten_sql": "WITH yearly AS (SELECT * FROM temp.reuse_candidate), base AS (SELECT Category, sales AS s2015 FROM yearly WHERE yr = 2015), final AS (SELECT Category, sales AS s2018 FROM yearly WHERE yr = 2018) SELECT b.Category, ROUND(b.s2015, 2) AS sales_2015, ROUND(f.s2018, 2) AS sales_2018, ROUND(100.0 * (f.s2018 - b.s2015) / b.s2015, 2) AS total_growth_pct, ROUND(100.0 * (POWER(f.s2018 / b.s2015, 1.0 / 3.0) - 1), 2) AS cagr_pct FROM base AS b JOIN final AS f USING (Category) ORDER BY cagr_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.597145736217499
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT DISTINCT o.\"Order ID\", o.Region, sp.\"Regional Manager\", CASE WHEN r.\"Return\" = 'Yes' THEN 1 ELSE 0 END AS is_returned FROM \"order\" AS o LEFT JOIN salesperson AS sp ON o.Region = sp.Region LEFT JOIN \"return\" AS r ON o.\"Order ID\" = r.\"Order ID\"",
+      "covered": [
+        "S15",
+        "S21",
+        "S27"
+      ],
+      "rewrites": {
+        "S15": "WITH order_returns AS (SELECT * FROM temp.reuse_candidate) SELECT Region, \"Regional Manager\", COUNT(DISTINCT \"Order ID\") AS total_orders, SUM(is_returned) AS returned_orders, ROUND(100.0 * SUM(is_returned) / COUNT(DISTINCT \"Order ID\"), 2) AS return_rate_pct FROM order_returns GROUP BY Region, \"Regional Manager\" ORDER BY return_rate_pct DESC",
+        "S21": "WITH order_returns AS (SELECT * FROM temp.reuse_candidate) SELECT Region, \"Regional Manager\", COUNT(DISTINCT \"Order ID\") AS total_orders, SUM(is_returned) AS returned_orders, ROUND(100.0 * SUM(is_returned) / COUNT(DISTINCT \"Order ID\"), 2) AS return_rate_pct FROM order_returns GROUP BY Region, \"Regional Manager\" ORDER BY return_rate_pct DESC",
+        "S27": "WITH order_returns AS (SELECT * FROM temp.reuse_candidate) SELECT Region, \"Regional Manager\", COUNT(DISTINCT \"Order ID\") AS total_orders, SUM(is_returned) AS returned_orders, ROUND(100.0 * SUM(is_returned) / COUNT(DISTINCT \"Order ID\"), 2) AS return_rate_pct FROM order_returns GROUP BY Region, \"Regional Manager\" ORDER BY return_rate_pct DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C8",
+      "offline": true,
+      "earliest_build_before": "S15",
+      "later_reuses": 2,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT category AS __g0, CAST(STRFTIME('%Y', \"Order Date\") AS INTEGER) AS __g1, MIN(\"Order Date\") AS __a0, MAX(\"Order Date\") AS __a1, COUNT(*) AS __a2, SUM(sales) AS __a3, SUM(quantity) AS __a4, SUM(profit) AS __a5 FROM \"order\"  GROUP BY category, CAST(STRFTIME('%Y', \"Order Date\") AS INTEGER)",
+      "covered": [
+        "S4",
+        "S17",
+        "S23",
+        "S34",
+        "S35"
+      ],
+      "rewrites": {
+        "S4": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS n FROM temp.reuse_candidate",
+        "S17": "SELECT __g0 AS \"Category\", __g1 AS yr, SUM(__a3) AS total_sales, SUM(__a4) AS total_qty, SUM(__a5) AS total_profit FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, yr",
+        "S23": "SELECT __g0 AS \"Category\", __g1 AS yr, SUM(__a3) AS total_sales, SUM(__a4) AS total_qty, SUM(__a5) AS total_profit FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, yr",
+        "S34": "SELECT __g1 AS yr, SUM(__a3) AS total_sales, SUM(__a5) AS total_profit, ROUND(100.0 * SUM(__a5) / SUM(__a3), 2) AS margin_pct FROM temp.reuse_candidate GROUP BY __g1 ORDER BY yr",
+        "S35": "SELECT __g0 AS \"Category\", __g1 AS yr, SUM(__a3) AS sales FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, yr"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C9",
+      "offline": true,
+      "earliest_build_before": "S4",
+      "later_reuses": 4,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788863963.0383236,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT category AS __g0, CAST(STRFTIME('%Y', \"Order Date\") AS INTEGER) AS __g1, MIN(\"Order Date\") AS __a0, MAX(\"Order Date\") AS __a1, COUNT(*) AS __a2, SUM(sales) AS __a3, SUM(quantity) AS __a4, SUM(profit) AS __a5 FROM \"order\"  GROUP BY category, CAST(STRFTIME('%Y', \"Order Date\") AS INTEGER)",
+          "phase": "offline_validation",
+          "start_time": 1788863963.0385487,
+          "status": "execute_returned",
+          "end_time": 1788863963.0516427
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788863963.0516489,
+          "status": "execute_returned",
+          "end_time": 1788863963.051668
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788863963.0516732,
+          "status": "execute_returned",
+          "end_time": 1788863963.0516856
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS n FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788863963.0517018,
+          "status": "execute_returned",
+          "end_time": 1788863963.0517237
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"Category\", __g1 AS yr, SUM(__a3) AS total_sales, SUM(__a4) AS total_qty, SUM(__a5) AS total_profit FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, yr",
+          "phase": "offline_validation",
+          "start_time": 1788863963.0523605,
+          "status": "execute_returned",
+          "end_time": 1788863963.0524065
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS \"Category\", __g1 AS yr, SUM(__a3) AS total_sales, SUM(__a4) AS total_qty, SUM(__a5) AS total_profit FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, yr",
+          "phase": "offline_validation",
+          "start_time": 1788863963.0533693,
+          "status": "execute_returned",
+          "end_time": 1788863963.0533888
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g1 AS yr, SUM(__a3) AS total_sales, SUM(__a5) AS total_profit, ROUND(100.0 * SUM(__a5) / SUM(__a3), 2) AS margin_pct FROM temp.reuse_candidate GROUP BY __g1 ORDER BY yr",
+          "phase": "offline_validation",
+          "start_time": 1788863963.0544996,
+          "status": "execute_returned",
+          "end_time": 1788863963.0545492
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g0 AS \"Category\", __g1 AS yr, SUM(__a3) AS sales FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, yr",
+          "phase": "offline_validation",
+          "start_time": 1788863963.0555074,
+          "status": "execute_returned",
+          "end_time": 1788863963.0555482
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT category AS __g0, CAST(STRFTIME('%Y', \"Order Date\") AS INTEGER) AS __g1, MIN(\"Order Date\") AS __a0, MAX(\"Order Date\") AS __a1, COUNT(*) AS __a2, SUM(sales) AS __a3, SUM(quantity) AS __a4, SUM(profit) AS __a5 FROM \"order\"  GROUP BY category, CAST(STRFTIME('%Y', \"Order Date\") AS INTEGER)",
+          "time": 1788863963.0387087,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788863963.0516646,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788863963.0516832,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS n FROM temp.reuse_candidate",
+          "time": 1788863963.0517173,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Category\", __g1 AS yr, SUM(__a3) AS total_sales, SUM(__a4) AS total_qty, SUM(__a5) AS total_profit FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, yr",
+          "time": 1788863963.052393,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Category\", __g1 AS yr, SUM(__a3) AS total_sales, SUM(__a4) AS total_qty, SUM(__a5) AS total_profit FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, yr",
+          "time": 1788863963.0533755,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS yr, SUM(__a3) AS total_sales, SUM(__a5) AS total_profit, ROUND(100.0 * SUM(__a5) / SUM(__a3), 2) AS margin_pct FROM temp.reuse_candidate GROUP BY __g1 ORDER BY yr",
+          "time": 1788863963.0545356,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Category\", __g1 AS yr, SUM(__a3) AS sales FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, yr",
+          "time": 1788863963.0555363,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 13.099433854222298,
+      "intermediate_rows": 12,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4",
+        "__a5"
+      ],
+      "validation_ended_at": 1788863963.0565724,
+      "checks": [
+        {
+          "sql_id": "S4",
+          "rewritten_sql": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS n FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6490955129265785
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "SELECT __g0 AS \"Category\", __g1 AS yr, SUM(__a3) AS total_sales, SUM(__a4) AS total_qty, SUM(__a5) AS total_profit FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, yr",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.0061021894216537
+        },
+        {
+          "sql_id": "S23",
+          "rewritten_sql": "SELECT __g0 AS \"Category\", __g1 AS yr, SUM(__a3) AS total_sales, SUM(__a4) AS total_qty, SUM(__a5) AS total_profit FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, yr",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.1280570179224014
+        },
+        {
+          "sql_id": "S34",
+          "rewritten_sql": "SELECT __g1 AS yr, SUM(__a3) AS total_sales, SUM(__a5) AS total_profit, ROUND(100.0 * SUM(__a5) / SUM(__a3), 2) AS margin_pct FROM temp.reuse_candidate GROUP BY __g1 ORDER BY yr",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.0054493322968483
+        },
+        {
+          "sql_id": "S35",
+          "rewritten_sql": "SELECT __g0 AS \"Category\", __g1 AS yr, SUM(__a3) AS sales FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, yr",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7800580933690071
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

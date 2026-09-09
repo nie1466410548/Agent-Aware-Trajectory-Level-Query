@@ -1,0 +1,1 @@
+SELECT DISTINCT value_tier FROM netsuite2_customer_analytics ORDER BY value_tier

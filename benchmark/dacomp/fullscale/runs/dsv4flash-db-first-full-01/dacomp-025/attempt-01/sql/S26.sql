@@ -1,0 +1,1 @@
+SELECT "Sales Date", AVG("Unit price (yuan/kg)") as avg_price, SUM("Sales volume (kg)") as vol, COUNT(*) as cnt FROM sales_records WHERE "Item Code" = 102900005115823 AND "Sales Date" >= '2022-06-01' AND "Sales Date" < '2022-09-01' GROUP BY "Sales Date" ORDER BY "Sales Date"

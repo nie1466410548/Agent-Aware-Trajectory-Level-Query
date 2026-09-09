@@ -1,0 +1,1 @@
+SELECT e."Disease Risk", COUNT(*) n FROM environment_and_health e GROUP BY e."Disease Risk"

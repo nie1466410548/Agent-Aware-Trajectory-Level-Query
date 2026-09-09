@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT primary_email) AS distinct_emails_value FROM customer360__customer_value_analysis

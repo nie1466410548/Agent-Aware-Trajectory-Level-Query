@@ -1,0 +1,1 @@
+SELECT language, COUNT(*) AS n FROM qualtrics__contact GROUP BY language ORDER BY n DESC

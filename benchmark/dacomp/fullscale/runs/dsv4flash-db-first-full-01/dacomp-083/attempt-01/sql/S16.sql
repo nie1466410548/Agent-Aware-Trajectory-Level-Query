@@ -1,0 +1,1 @@
+SELECT DISTINCT employee_risk_level FROM workday__employee_overview

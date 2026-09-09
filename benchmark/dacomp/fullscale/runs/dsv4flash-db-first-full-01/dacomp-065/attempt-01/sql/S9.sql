@@ -1,0 +1,1 @@
+SELECT candidate_company, COUNT(*) AS n FROM greenhouse__application_enhanced GROUP BY candidate_company ORDER BY n DESC

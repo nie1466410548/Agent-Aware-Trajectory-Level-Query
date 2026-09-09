@@ -1,0 +1,1 @@
+SELECT accounting_period_id, accounting_period_name, accounting_period_ending, account_type_name, COUNT(*) AS n, COUNT(DISTINCT account_name) AS n_acc FROM netsuite2_income_statement GROUP BY accounting_period_id, accounting_period_name, account_type_name ORDER BY accounting_period_ending LIMIT 30

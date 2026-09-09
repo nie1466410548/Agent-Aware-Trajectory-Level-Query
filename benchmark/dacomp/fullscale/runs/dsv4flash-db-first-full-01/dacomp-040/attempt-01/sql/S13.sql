@@ -1,0 +1,1 @@
+SELECT DISTINCT Age FROM "2010_cn_pop_6_up_age_sex_edu" WHERE Age LIKE '%otal%' OR Age = 'Total'

@@ -1,0 +1,1 @@
+SELECT collaboration_efficiency_score, COUNT(*) AS n FROM asana__team_efficiency_metrics GROUP BY collaboration_efficiency_score ORDER BY collaboration_efficiency_score

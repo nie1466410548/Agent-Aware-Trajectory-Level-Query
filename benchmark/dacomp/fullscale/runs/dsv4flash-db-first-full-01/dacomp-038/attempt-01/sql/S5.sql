@@ -1,0 +1,1 @@
+SELECT DISTINCT Strategy FROM sheet1 ORDER BY Strategy

@@ -1,0 +1,1 @@
+SELECT worker_id, COUNT(DISTINCT employee_id) as num_emp_ids FROM workday__employee_overview GROUP BY worker_id HAVING COUNT(DISTINCT employee_id) > 1 LIMIT 5

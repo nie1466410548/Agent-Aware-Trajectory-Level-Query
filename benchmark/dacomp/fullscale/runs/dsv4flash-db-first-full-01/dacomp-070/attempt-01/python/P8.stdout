@@ -1,0 +1,113 @@
+============================================================
+ANALYSIS 3: MULTI-DIMENSIONAL USER VALUE DECAY MODEL
+============================================================
+Daily data shape: (1568, 25)
+
+--- Market Maturity Classification ---
+Install trend distribution:
+install_trend
+increasing    611
+decreasing    526
+stable        431
+Name: count, dtype: int64
+
+Revenue trend distribution:
+revenue_trend
+increasing    663
+decreasing    527
+stable        378
+Name: count, dtype: int64
+
+Risk growth profile:
+risk_growth_profile
+moderate                 1311
+high_risk_high_growth     249
+low_risk_low_growth         8
+Name: count, dtype: int64
+
+Maturity group distribution:
+maturity_group
+growing      728
+declining    645
+stable       195
+Name: count, dtype: int64
+
+
+--- User Value Decay Model: Revenue per Active Device ---
+Descriptive statistics by maturity group:
+               revenue_per_active_device                  ... daily_install_uninstall_ratio            
+                                   count    mean     std  ...                           50%   75%   max
+maturity_group                                            ...                                          
+declining                          645.0  0.0064  0.0048  ...                          4.43  5.55  8.34
+growing                            728.0  0.0071  0.0049  ...                          4.40  5.50  8.33
+stable                             195.0  0.0064  0.0047  ...                          4.43  5.64  8.27
+
+[3 rows x 48 columns]
+
+
+Revenue per active device by package (monthly avg):
+                           revenue_per_active_device  ...  active_devices
+package_name                                          ...                
+com.app.musicplayer                           0.0021  ...     220251.0695
+com.demo.socialmedia                          0.0032  ...     254309.1153
+com.dev.photoeditor                           0.0074  ...     254893.4088
+com.example.gameapp                           0.0145  ...      83067.3144
+com.sample.productivity                       0.0087  ...     387323.6626
+com.studio.videostreaming                     0.0049  ...     385455.8426
+com.test.fitness                              0.0082  ...     258098.7213
+com.trial.education                           0.0043  ...     382752.2709
+
+[8 rows x 4 columns]
+
+
+Multi-dimensional regression by maturity group:
+
+GROWING (n=728):
+  R² = 0.2148
+  rpad = 0.015722 + -0.000495*quality + -0.000290*crash + 0.000786*churn + -0.0000000208*active + -0.000400*anr
+  Correlations:
+    quality_score: -0.0529
+    crash_rate_per_1k: 0.0520
+    daily_churn_rate: -0.0000
+    active_devices: -0.4564
+    anr_rate_per_1k: -0.0557
+
+STABLE (n=195):
+  R² = 0.0958
+  rpad = 0.008835 + 0.000183*quality + 0.000270*crash + 0.000442*churn + -0.0000000145*active + 0.000232*anr
+  Correlations:
+    quality_score: -0.0426
+    crash_rate_per_1k: 0.0256
+    daily_churn_rate: nan
+    active_devices: -0.3044
+    anr_rate_per_1k: 0.0732
+
+DECLINING (n=645):
+  R² = 0.1560
+  rpad = 0.010882 + 0.000075*quality + 0.000142*crash + 0.000544*churn + -0.0000000177*active + -0.000047*anr
+  Correlations:
+    quality_score: 0.0112
+    crash_rate_per_1k: 0.0243
+    daily_churn_rate: -0.0000
+    active_devices: -0.3932
+    anr_rate_per_1k: -0.0412
+Saved fig3_user_value_decay_model.png
+
+
+--- Optimization Strategy Predictions ---
+Based on the multi-dimensional model, optimal strategies per market maturity:
+
+GROWING market:
+  - Quality score has negative effect (β=-0.000495) - maintain baseline
+  - Reduce crash rate (β=-0.000290): -1 crash → +0.000290 rpad
+  - Model R² = 0.2148
+
+STABLE market:
+  - Improve quality score (β=0.000183): +1 quality → +0.000183 rpad
+  - Crash rate has minimal impact (β=0.000270)
+  - Model R² = 0.0958
+
+DECLINING market:
+  - Improve quality score (β=0.000075): +1 quality → +0.000075 rpad
+  - Crash rate has minimal impact (β=0.000142)
+  - Model R² = 0.1560

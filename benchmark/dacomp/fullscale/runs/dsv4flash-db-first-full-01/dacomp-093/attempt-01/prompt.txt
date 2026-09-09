@@ -1,0 +1,103 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+Using behavioral data from klaviyo__campaigns and klaviyo__persons, design an analysis on the combined effects of email send timing and subject. Evaluate how different send time windows (weekday/weekend, morning/afternoon, before/after holidays) and subject copy (SUBJECT keyword grouping such as discount, new, storytelling) interact to influence open rate, click rate, and subsequent active retention (active_retention_rate_week/month). Break down results by is_archived (archived vs non-archived) and variation_id (single send vs variant send), control for audience size (total_count_unique_people), and apply de-noising (for example, exclude anomalous spikes in count_received_email). Conclude with actionable recommendations and potential risks for different brand communication strategies.
+
+DATABASE SCHEMA:
+CREATE TABLE "klaviyo__campaigns" (
+"campaign_id" TEXT,
+  "CAMPAIGN_TYPE" TEXT,
+  "created_at" TEXT,
+  "EMAIL_TEMPLATE_ID" TEXT,
+  "from_email" TEXT,
+  "FROM_NAME" TEXT,
+  "campaign_name" TEXT,
+  "scheduled_to_send_at" TIMESTAMP,
+  "SENT_AT" TIMESTAMP,
+  "STATUS" TEXT,
+  "STATUS_ID" INTEGER,
+  "SUBJECT" TEXT,
+  "updated_at" TIMESTAMP,
+  "is_archived" TEXT,
+  "scheduled_at" TEXT,
+  "source_relation" TEXT,
+  "variation_id" TEXT,
+  "total_count_unique_people" INTEGER,
+  "count_received_email" REAL,
+  "count_opened_email" REAL,
+  "count_clicked_email" REAL,
+  "count_placed_order" REAL,
+  "count_ordered_product" REAL,
+  "count_refunded_order" REAL,
+  "gmv_gross" REAL,
+  "gmv_net" REAL,
+  "email_open_rate" REAL,
+  "email_click_to_open_rate" REAL,
+  "campaign_variation_key" TEXT,
+  "active_days" INTEGER,
+  "total_placed_orders" REAL,
+  "total_amount_positive" REAL,
+  "total_amount_negative" REAL,
+  "product_view_to_order_rate_campaign" REAL,
+  "gmv_net_campaign" REAL
+)
+CREATE TABLE "klaviyo__persons" (
+"person_id" TEXT,
+  "ADDRESS_1" TEXT,
+  "ADDRESS_2" TEXT,
+  "CITY" TEXT,
+  "COUNTRY" TEXT,
+  "ZIP" INTEGER,
+  "created_at" TIMESTAMP,
+  "email" TEXT,
+  "full_name" TEXT,
+  "LATITUDE" REAL,
+  "LONGITUDE" REAL,
+  "ORGANIZATION" TEXT,
+  "phone_number" TEXT,
+  "REGION" TEXT,
+  "timezone" TEXT,
+  "TITLE" TEXT,
+  "updated_at" TIMESTAMP,
+  "LAST_EVENT_DATE" TIMESTAMP,
+  "source_relation" TEXT,
+  "first_event_on" TIMESTAMP,
+  "last_event_on" TIMESTAMP,
+  "sum_revenue_refunded_order" REAL,
+  "sum_revenue_placed_order" REAL,
+  "sum_revenue_ordered_product" REAL,
+  "sum_revenue_cancelled_order" REAL,
+  "count_active_on_site" REAL,
+  "count_viewed_product" REAL,
+  "count_ordered_product" REAL,
+  "count_placed_order" REAL,
+  "count_received_email" REAL,
+  "count_opened_email" REAL,
+  "count_clicked_email" REAL,
+  "email_open_rate" REAL,
+  "first_event_on_1" TIMESTAMP,
+  "last_event_on_2" TIMESTAMP,
+  "active_days" INTEGER,
+  "active_weeks" INTEGER,
+  "active_months" INTEGER,
+  "missing_day_count" INTEGER,
+  "days_span" INTEGER,
+  "weeks_span" INTEGER,
+  "months_span" INTEGER,
+  "active_retention_rate_day" REAL,
+  "active_retention_rate_week" REAL,
+  "active_retention_rate_month" REAL,
+  "has_7day_retention" INTEGER,
+  "has_30day_retention" INTEGER,
+  "paid_retained_month_count" INTEGER,
+  "paid_retention_rate_month" REAL
+)

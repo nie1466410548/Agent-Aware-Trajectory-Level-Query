@@ -1,0 +1,1 @@
+SELECT campaign_type, COUNT(*) AS cnt FROM (SELECT substr(campaign_name, 1, instr(campaign_name,' -')-1) AS campaign_type FROM google_ads__ad_group_report) GROUP BY campaign_type ORDER BY cnt DESC

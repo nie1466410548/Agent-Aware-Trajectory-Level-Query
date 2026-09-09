@@ -1,0 +1,1 @@
+SELECT Region, "Total Population" FROM "2010_region_hh_pop_sex_ratio"

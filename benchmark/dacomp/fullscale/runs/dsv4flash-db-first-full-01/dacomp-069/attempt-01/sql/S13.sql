@@ -1,0 +1,1 @@
+SELECT country_short, country_long, region, COUNT(DISTINCT date_day) AS days, SUM(net_amount) AS total_net, SUM(transactions) AS total_tx, SUM(net_amount)/SUM(transactions) AS net_per_tx FROM google_play__finance_report WHERE package_name='com.dev.photoeditor' GROUP BY country_short ORDER BY net_per_tx DESC

@@ -1,0 +1,195 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+The company is conducting a special initiative on office system security governance. Based on historical data (e.g., abnormal login data), please help analyze which departments have relatively weak security awareness and need prioritized strengthening of security awareness guidance.
+
+DATABASE SCHEMA:
+CREATE TABLE "abnormal_logins_table" (
+"Anomaly ID" TEXT,
+  "Login Record ID" TEXT,
+  "Anomaly Type" TEXT,
+  "Anomaly Features" TEXT,
+  "Risk Level" TEXT,
+  "Detection Time" TIMESTAMP,
+  "Confirmation Status" TEXT,
+  "Anomaly Score" INTEGER,
+  "Associated Anomaly ID" TEXT,
+  "Device Anomaly Indicators" REAL,
+  "Network Anomaly Indicators" REAL,
+  "Behavior Anomaly Indicators" REAL
+)
+CREATE TABLE "authentication_methods_table" (
+"Authentication Method ID" TEXT,
+  "Authentication Method Name" TEXT,
+  "Authentication Method Code" TEXT,
+  "Authentication Priority" INTEGER,
+  "Enabled" TEXT,
+  "Creation Time" TIMESTAMP,
+  "Update Time" TIMESTAMP,
+  "Supported Device Types" TEXT,
+  "security level" INTEGER,
+  "Maximum Attempts" INTEGER,
+  "Lockout Duration" INTEGER,
+  "Applicable User Types" TEXT,
+  "Document Number" TEXT,
+  "Authentication Protocol" TEXT,
+  "Encryption Method" TEXT,
+  "Certificate Validity Period" TIMESTAMP
+)
+CREATE TABLE "ip_address_information_table" (
+"IP Record ID" TEXT,
+  "Login record ID" TEXT,
+  "IP Address" TEXT,
+  "Location" TEXT,
+  "Province" TEXT,
+  "City" TEXT,
+  "ISP ID" TEXT,
+  "AS Number" TEXT,
+  "AS Name" TEXT,
+  "Longitude" REAL,
+  "Latitude" REAL,
+  "Geolocation Accuracy" TEXT
+)
+CREATE TABLE "login_records_table" (
+"Login Record ID" TEXT,
+  "User ID" TEXT,
+  "Account ID" TEXT,
+  "Login Time" TIMESTAMP,
+  "Login Method" TEXT,
+  "Authentication Status" TEXT,
+  "Login Duration" INTEGER,
+  "Logout Time" TIMESTAMP,
+  "Session ID" TEXT,
+  "Token ID" TEXT,
+  "Token Expiration Time" TIMESTAMP,
+  "Authentication Level" TEXT,
+  "Two-Factor Authentication Status" TEXT,
+  "Two-Factor Authentication Method" TEXT,
+  "Login Batch Number" TEXT,
+  "Business System ID" TEXT,
+  "Document Number" TEXT
+)
+CREATE TABLE "menu_access_table" (
+"Visit ID" TEXT,
+  "Login Record ID" TEXT,
+  "Menu ID" TEXT,
+  "Menu Name" TEXT,
+  "Visit Time" TIMESTAMP,
+  "Time Spent" INTEGER,
+  "Visit Count" INTEGER,
+  "Exit Method" TEXT,
+  "Parent Menu ID" TEXT,
+  "Menu Level" INTEGER,
+  "Menu Type" TEXT,
+  "Interaction Mode" TEXT,
+  "Document Number" TEXT
+)
+CREATE TABLE "network_connections_table" (
+"Connection ID" TEXT,
+  "Login Record ID" TEXT,
+  "Connection Type" TEXT,
+  "Bandwidth" TEXT,
+  "Connection Status" TEXT,
+  "Connection Duration" TEXT,
+  "Packet Loss Rate" TEXT,
+  "DNS Server" TEXT,
+  "Gateway Address" TEXT,
+  "MAC Address" TEXT,
+  "Proxy Status" TEXT,
+  "VPN Status" TEXT,
+  "Firewall Status" TEXT
+)
+CREATE TABLE "security_events_table" (
+"Event ID" TEXT,
+  "Login Record ID" TEXT,
+  "Type" TEXT,
+  "Severity" TEXT,
+  "Time" TIMESTAMP,
+  "Impact Scope" TEXT,
+  "Risk Score" INTEGER,
+  "Trigger Rule ID" TEXT,
+  "Associated Account ID" TEXT,
+  "Associated Device ID" TEXT,
+  "Associated IP Address" TEXT,
+  "Operator" TEXT,
+  "Emergency Response Plan ID" TEXT
+)
+CREATE TABLE "system_logs_table" (
+"Log ID" TEXT,
+  "Login Record ID" TEXT,
+  "Log Type" TEXT,
+  "Log Level" TEXT,
+  "Event Time" TIMESTAMP,
+  "Server ID" TEXT,
+  "Process ID" INTEGER,
+  "Thread ID" INTEGER,
+  "Handling Status" TEXT,
+  "Processing Time" TIMESTAMP,
+  "Processed By" TEXT,
+  "Document Number" TEXT
+)
+CREATE TABLE "user_account_table" (
+"Account ID" TEXT,
+  "User ID" TEXT,
+  "Registration Time" TIMESTAMP,
+  "Account Type" TEXT,
+  "Login Name" TEXT,
+  "Password Salt" TEXT,
+  "Password Update Time" TIMESTAMP,
+  "Password Status" TEXT,
+  "Account Creation Time" TIMESTAMP,
+  "Account Expiration Time" TIMESTAMP,
+  "Account Lock Status" TEXT,
+  "Last Login Time" TIMESTAMP,
+  "Login Count" INTEGER,
+  "Password Attempt Count" INTEGER,
+  "Document Number" TEXT
+)
+CREATE TABLE "user_information_table" (
+"User ID" TEXT,
+  "Name" TEXT,
+  "Date of Birth" TIMESTAMP,
+  "Mobile Number" INTEGER,
+  "Email" TEXT,
+  "ID Type" TEXT,
+  "Language Preference" TEXT,
+  "Registration Time" TIMESTAMP,
+  "Last Updated Time" TIMESTAMP,
+  "User Status" TEXT,
+  "Department" TEXT,
+  "Position" TEXT,
+  "Hire Date" TIMESTAMP,
+  "Employee ID" TEXT
+)
+CREATE TABLE "user_operations_table" (
+"Operation ID" TEXT,
+  "Login Record ID" TEXT,
+  "User ID" TEXT,
+  "Operation Time" TIMESTAMP,
+  "Operation Name" TEXT,
+  "Operation Duration" TEXT,
+  "Preceding Operation ID" TEXT,
+  "Subsequent Operation ID" TEXT,
+  "Operation IP Address" TEXT,
+  "Business Data ID" TEXT
+)
+CREATE TABLE "user_permissions_table" (
+"Permission ID" TEXT,
+  "User ID" TEXT,
+  "Role ID" TEXT,
+  "Permission Type" TEXT,
+  "Permission Status" TEXT,
+  "Effective Time" TIMESTAMP,
+  "Expiration Time" TIMESTAMP,
+  "Authorizer" TEXT,
+  "Authorization Time" TIMESTAMP
+)

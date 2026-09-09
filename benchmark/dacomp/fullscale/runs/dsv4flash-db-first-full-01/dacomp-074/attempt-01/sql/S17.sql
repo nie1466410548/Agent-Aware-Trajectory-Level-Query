@@ -1,0 +1,1 @@
+SELECT * FROM netsuite2_income_statement WHERE subsidiary_id='NET03901813602' AND account_type_name='Revenue' ORDER BY accounting_period_ending LIMIT 10

@@ -1,0 +1,1 @@
+SELECT "Tag Name", COUNT(*) as all_cust FROM customer_tag_table GROUP BY "Tag Name" ORDER BY all_cust DESC

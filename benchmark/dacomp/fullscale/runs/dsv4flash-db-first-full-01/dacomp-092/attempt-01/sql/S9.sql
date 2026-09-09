@@ -1,0 +1,1 @@
+SELECT COUNT(*) as cnt FROM quickbooks__financial_dashboard

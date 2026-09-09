@@ -1,0 +1,1 @@
+SELECT performance_category, COUNT(*) n, AVG(organization_health_score) avg_health, MIN(organization_health_score) min_h, MAX(organization_health_score) max_h FROM workday__organization_overview GROUP BY performance_category ORDER BY n DESC

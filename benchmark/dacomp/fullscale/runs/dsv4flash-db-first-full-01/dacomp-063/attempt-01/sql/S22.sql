@@ -1,0 +1,4 @@
+SELECT project_id, overall_health_score, complexity_risk_score, total_risk_score, risk_category, recommended_intervention, trajectory_status, value_delivery_percentage, team_stability_percentage, resolution_velocity_change_percent, net_issue_growth_30d, high_delay_cost_issues
+FROM jira__project_risk_assessment
+WHERE overall_health_score > 75
+ORDER BY overall_health_score DESC

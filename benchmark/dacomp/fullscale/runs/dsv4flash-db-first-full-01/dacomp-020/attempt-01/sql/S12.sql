@@ -1,0 +1,1 @@
+SELECT "Parents' education level", COUNT(*) as n FROM sheet1 GROUP BY "Parents' education level"

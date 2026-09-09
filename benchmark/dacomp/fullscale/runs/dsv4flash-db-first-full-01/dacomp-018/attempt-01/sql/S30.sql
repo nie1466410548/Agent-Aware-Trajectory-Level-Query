@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS rows_cnt, COUNT(DISTINCT "Customer ID") AS customers FROM product_browsing WHERE "Product Category" = 'Fashion'

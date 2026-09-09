@@ -1,0 +1,1 @@
+SELECT DISTINCT "Product" FROM order_information WHERE "Product Category" = 'Home & Furniture'

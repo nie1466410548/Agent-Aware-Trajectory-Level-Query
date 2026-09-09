@@ -1,0 +1,1 @@
+SELECT DISTINCT "Region Name" FROM economic_indicator_data ORDER BY "Region Name"

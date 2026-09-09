@@ -1,0 +1,56 @@
+{
+  "task_id": "dacomp-037",
+  "status": "reviewed_with_statistical_exceptions_and_SQL_capable_summaries",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 的中位数/分位数、Kruskal、Mann-Whitney 和卡方检验用于病史组间分布比较，属于合理统计补充。P6 额外计算病史×性别均值/计数，P9 先用 pandas 汇总病史组均值再标准化；均值与计数可以先在 SQL 准备。这些部分单独标注，不把统计检验中的组划分一概当作违规。",
+  "route": "关联病史与体检指标 → SQL 汇总各病史类别 → Python 分布检验和两两比较 → 分性别补充分析并绘图。",
+  "evidence": [
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 26,
+          "text": "med = df.groupby('medhx')[indicators].median().round(2)"
+        },
+        {
+          "line": 27,
+          "text": "q1 = df.groupby('medhx')[indicators].quantile(0.25).round(2)"
+        },
+        {
+          "line": 28,
+          "text": "q3 = df.groupby('medhx')[indicators].quantile(0.75).round(2)"
+        },
+        {
+          "line": 38,
+          "text": "    H, p = stats.kruskal(*samples)"
+        },
+        {
+          "line": 45,
+          "text": "    u, p = stats.mannwhitneyu(df.loc[df['has_medhx'], ind], df.loc[~df['has_medhx'], ind], alternative='two-sided')"
+        }
+      ]
+    },
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 75,
+          "text": "print(df2.groupby(['medhx','Gender'])['weight'].agg(['mean','std','count']).round(2))"
+        }
+      ]
+    },
+    {
+      "source": "python/P9.py",
+      "lines": [
+        {
+          "line": 54,
+          "text": "means = dff.groupby('medhx')[inds].mean()"
+        },
+        {
+          "line": 55,
+          "text": "z = (means - means.mean()) / means.std()"
+        }
+      ]
+    }
+  ]
+}

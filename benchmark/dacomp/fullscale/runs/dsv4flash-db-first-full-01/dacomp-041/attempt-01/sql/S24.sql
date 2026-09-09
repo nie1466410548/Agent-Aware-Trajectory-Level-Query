@@ -1,0 +1,1 @@
+SELECT * FROM light_and_radiation_readings LIMIT 1

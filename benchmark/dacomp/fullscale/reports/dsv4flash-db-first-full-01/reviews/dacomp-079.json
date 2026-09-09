@@ -1,0 +1,63 @@
+{
+  "task_id": "dacomp-079",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 对功能、产品区域和用户执行求和、最大值、去重数量及分箱均值，计算主导功能占比和留存画像。这些可在 SQL 内完成；Mann–Whitney 与 t 检验是独立统计补充。",
+  "route": "SQL 识别单功能用户并连接功能行为 → Python 再聚合功能集中度与留存指标、检验 → 使用模式建议。",
+  "evidence": [
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 47,
+          "text": "ret = df.groupby('segment')[['count_active_days','count_active_months']].mean().loc[order]"
+        },
+        {
+          "line": 70,
+          "text": "top_feats = feat.groupby('feature_name').agg("
+        },
+        {
+          "line": 83,
+          "text": "pa = feat.groupby('product_area_name').agg(n_users=('visitor_id','nunique')).reset_index().sort_values('n_users', ascending=False)"
+        },
+        {
+          "line": 93,
+          "text": "user_tot = feat.groupby('visitor_id')['sum_clicks'].sum().rename('total_clicks')"
+        },
+        {
+          "line": 94,
+          "text": "user_max = feat.groupby('visitor_id')['sum_clicks'].max().rename('max_clicks')"
+        },
+        {
+          "line": 97,
+          "text": "con['n_features'] = feat.groupby('visitor_id')['feature_id'].nunique()"
+        },
+        {
+          "line": 99,
+          "text": "con.groupby('n_features')['dominant_share'].mean().plot(kind='bar', color='#d62728', ax=ax)"
+        }
+      ]
+    },
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 12,
+          "text": "pivot = df.groupby(['day_bin','segment'], observed=True)['average_daily_minutes'].agg(['mean','count'])"
+        },
+        {
+          "line": 37,
+          "text": "print(heavy.groupby('seg')[['count_active_months','count_active_days','tenure_days']].mean().round(2).to_string())"
+        },
+        {
+          "line": 42,
+          "text": "print(heavy.groupby('seg')['coverage'].mean().round(3).to_string())"
+        },
+        {
+          "line": 47,
+          "text": "print(df.groupby('segment')['events_per_day'].mean().round(2).to_string())"
+        }
+      ]
+    }
+  ]
+}

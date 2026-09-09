@@ -1,0 +1,1 @@
+SELECT MIN(snapshot_date), MAX(snapshot_date), MIN(last_activity_date), MAX(last_activity_date) FROM salesforce__account_daily_history

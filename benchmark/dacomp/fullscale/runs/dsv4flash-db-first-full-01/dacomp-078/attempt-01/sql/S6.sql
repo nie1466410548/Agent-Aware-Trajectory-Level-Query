@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS cnt FROM pendo__visitor_feature

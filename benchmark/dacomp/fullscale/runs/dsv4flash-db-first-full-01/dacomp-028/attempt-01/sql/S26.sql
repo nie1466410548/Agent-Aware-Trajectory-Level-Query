@@ -1,0 +1,1 @@
+SELECT "Data Source", COUNT(*) AS n FROM agricultural_product_price_tren GROUP BY "Data Source"

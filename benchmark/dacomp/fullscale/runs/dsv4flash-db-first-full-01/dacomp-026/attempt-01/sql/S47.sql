@@ -1,0 +1,1 @@
+SELECT "fundingstate", COUNT(*) AS cnt FROM financials1 fin JOIN disaster_events de ON de."Disaster Event ID"=fin."Disaster Reference ID" WHERE de."Disaster Severity Level"='Level 5' GROUP BY "fundingstate"

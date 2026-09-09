@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_rows FROM google_ads__campaign_report

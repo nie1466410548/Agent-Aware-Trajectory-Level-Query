@@ -1,0 +1,1 @@
+SELECT * FROM "2010_cn_rural_6_up_age_sex_edu"

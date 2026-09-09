@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT marketo_lead_id) AS distinct_leads_funnel FROM customer360__conversion_funnel_analysis

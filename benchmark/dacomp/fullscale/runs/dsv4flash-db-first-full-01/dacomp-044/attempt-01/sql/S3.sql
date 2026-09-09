@@ -1,0 +1,1 @@
+SELECT * FROM health_education LIMIT 20

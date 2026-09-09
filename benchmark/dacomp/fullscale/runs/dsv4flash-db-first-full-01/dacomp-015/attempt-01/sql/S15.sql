@@ -1,0 +1,1 @@
+SELECT Floor, COUNT(*) AS cnt FROM data GROUP BY Floor ORDER BY Floor

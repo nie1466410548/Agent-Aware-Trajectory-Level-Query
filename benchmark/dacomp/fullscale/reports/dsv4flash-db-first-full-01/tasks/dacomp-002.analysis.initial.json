@@ -1,0 +1,311 @@
+{
+  "fingerprint": "648282386ac7023a4905a1d26c051003b3ed47495ed0165e1fc39c14a2871f44",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S7",
+      "covered": [
+        "S7",
+        "S9"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S7",
+      "later_reuses": 1,
+      "denominator": 26,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S8",
+      "covered": [
+        "S8",
+        "S10"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S8",
+      "later_reuses": 1,
+      "denominator": 26,
+      "coverage_includes_trigger": true,
+      "intermediate_rows": 59,
+      "checks": [
+        {
+          "sql_id": "S10",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S18",
+      "covered": [
+        "S18",
+        "S19",
+        "S26"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S18",
+      "later_reuses": 2,
+      "denominator": 26,
+      "coverage_includes_trigger": true,
+      "intermediate_rows": 117,
+      "checks": [
+        {
+          "sql_id": "S19",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        },
+        {
+          "sql_id": "S26",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Major Category Code\" AS __g0, \"Major Category Name\" AS __g1, \"Sales Month\" AS __g2, \"Is Promotional\" AS __g3, \"Sales Date\" AS __g4, COUNT(*) AS __a0, MIN(\"Sales Date\") AS __a1, MAX(\"Sales Date\") AS __a2, MIN(\"Sales Month\") AS __a3, MAX(\"Sales Month\") AS __a4, SUM(\"Sales Amount\") AS __a5, SUM(\"Sales Quantity\") AS __a6 FROM \"sheet1\"  GROUP BY \"Major Category Code\", \"Major Category Name\", \"Sales Month\", \"Is Promotional\", \"Sales Date\"",
+      "covered": [
+        "S3",
+        "S4",
+        "S5",
+        "S6",
+        "S8",
+        "S10",
+        "S11",
+        "S12",
+        "S16",
+        "S18",
+        "S19",
+        "S23",
+        "S25",
+        "S26"
+      ],
+      "rewrites": {
+        "S3": "SELECT SUM(__a0) AS n_rows, MIN(__a1) AS min_date, MAX(__a2) AS max_date, MIN(__a3) AS min_month, MAX(__a4) AS max_month FROM temp.reuse_candidate",
+        "S4": "SELECT __g0 AS \"Major Category Code\", __g1 AS \"Major Category Name\", SUM(__a0) AS n, SUM(__a5) AS total_amount, SUM(__a6) AS total_qty FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY total_amount DESC",
+        "S5": "SELECT __g1 AS \"Major Category Name\", ROUND(SUM(__a5), 2) AS total_amount FROM temp.reuse_candidate GROUP BY __g1 ORDER BY total_amount DESC",
+        "S6": "SELECT __g2 AS \"Sales Month\", SUM(__a0) AS n_rows, ROUND(SUM(__a5), 2) AS total_amount, ROUND(SUM(__a6), 0) AS total_qty FROM temp.reuse_candidate GROUP BY __g2 ORDER BY __g2",
+        "S8": "SELECT __g1 AS \"Major Category Name\", __g2 AS \"Sales Month\", ROUND(SUM(__a5), 2) AS monthly_amount, SUM(__a6) AS monthly_qty, SUM(__a0) AS trans_count FROM temp.reuse_candidate GROUP BY __g1, __g2 ORDER BY __g1, __g2",
+        "S10": "SELECT __g1 AS \"Major Category Name\", __g2 AS \"Sales Month\", ROUND(SUM(__a5), 2) AS monthly_amount, SUM(__a6) AS monthly_qty, SUM(__a0) AS trans_count FROM temp.reuse_candidate GROUP BY __g1, __g2 ORDER BY __g1, __g2",
+        "S11": "SELECT __g3 AS \"Is Promotional\", SUM(__a0) AS n, ROUND(SUM(__a5), 2) AS total_amount FROM temp.reuse_candidate GROUP BY __g3",
+        "S12": "SELECT __g2 AS \"Sales Month\", __g3 AS \"Is Promotional\", SUM(__a0) AS n, ROUND(SUM(__a5), 2) AS total_amount FROM temp.reuse_candidate GROUP BY __g2, __g3 ORDER BY __g2, __g3",
+        "S16": "SELECT __g1 AS \"Major Category Name\", __g3 AS \"Is Promotional\", ROUND(SUM(__a5), 2) AS total_amount, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1, __g3",
+        "S18": "SELECT __g4 AS \"Sales Date\", ROUND(SUM(__a5), 2) AS total, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY __g4",
+        "S19": "SELECT __g4 AS \"Sales Date\", ROUND(SUM(__a5), 2) AS total, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY __g4",
+        "S23": "SELECT __g4 AS \"Sales Date\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 HAVING CAST(SUBSTRING(CAST(__g4 AS TEXT), 7, 2) AS INTEGER) > 31 ORDER BY __g4",
+        "S25": "SELECT MIN(__a1) AS min_d, MAX(__a2) AS max_d FROM temp.reuse_candidate",
+        "S26": "SELECT __g4 AS \"Sales Date\", ROUND(SUM(__a5), 2) AS total, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY __g4"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 13,
+      "denominator": 26,
+      "coverage_includes_trigger": true,
+      "build_ms": 66.48493744432926,
+      "intermediate_rows": 3482,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4",
+        "__a5",
+        "__a6"
+      ],
+      "checks": [
+        {
+          "sql_id": "S3",
+          "rewritten_sql": "SELECT SUM(__a0) AS n_rows, MIN(__a1) AS min_date, MAX(__a2) AS max_date, MIN(__a3) AS min_month, MAX(__a4) AS max_month FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.6086166724562645
+        },
+        {
+          "sql_id": "S4",
+          "rewritten_sql": "SELECT __g0 AS \"Major Category Code\", __g1 AS \"Major Category Name\", SUM(__a0) AS n, SUM(__a5) AS total_amount, SUM(__a6) AS total_qty FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY total_amount DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.5938358157873154
+        },
+        {
+          "sql_id": "S5",
+          "rewritten_sql": "SELECT __g1 AS \"Major Category Name\", ROUND(SUM(__a5), 2) AS total_amount FROM temp.reuse_candidate GROUP BY __g1 ORDER BY total_amount DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7939088866114616
+        },
+        {
+          "sql_id": "S6",
+          "rewritten_sql": "SELECT __g2 AS \"Sales Month\", SUM(__a0) AS n_rows, ROUND(SUM(__a5), 2) AS total_amount, ROUND(SUM(__a6), 0) AS total_qty FROM temp.reuse_candidate GROUP BY __g2 ORDER BY __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.3458991199731827
+        },
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT __g1 AS \"Major Category Name\", __g2 AS \"Sales Month\", ROUND(SUM(__a5), 2) AS monthly_amount, SUM(__a6) AS monthly_qty, SUM(__a0) AS trans_count FROM temp.reuse_candidate GROUP BY __g1, __g2 ORDER BY __g1, __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.799329347908497
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT __g1 AS \"Major Category Name\", __g2 AS \"Sales Month\", ROUND(SUM(__a5), 2) AS monthly_amount, SUM(__a6) AS monthly_qty, SUM(__a0) AS trans_count FROM temp.reuse_candidate GROUP BY __g1, __g2 ORDER BY __g1, __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.7590468525886536
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT __g3 AS \"Is Promotional\", SUM(__a0) AS n, ROUND(SUM(__a5), 2) AS total_amount FROM temp.reuse_candidate GROUP BY __g3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.9029267132282257
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT __g2 AS \"Sales Month\", __g3 AS \"Is Promotional\", SUM(__a0) AS n, ROUND(SUM(__a5), 2) AS total_amount FROM temp.reuse_candidate GROUP BY __g2, __g3 ORDER BY __g2, __g3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.5762543082237244
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "SELECT __g1 AS \"Major Category Name\", __g3 AS \"Is Promotional\", ROUND(SUM(__a5), 2) AS total_amount, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1, __g3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 3.2075978815555573
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT __g4 AS \"Sales Date\", ROUND(SUM(__a5), 2) AS total, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY __g4",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.612413838505745
+        },
+        {
+          "sql_id": "S19",
+          "rewritten_sql": "SELECT __g4 AS \"Sales Date\", ROUND(SUM(__a5), 2) AS total, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY __g4",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.30278167873621
+        },
+        {
+          "sql_id": "S23",
+          "rewritten_sql": "SELECT __g4 AS \"Sales Date\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 HAVING CAST(SUBSTRING(CAST(__g4 AS TEXT), 7, 2) AS INTEGER) > 31 ORDER BY __g4",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.3376250863075256
+        },
+        {
+          "sql_id": "S25",
+          "rewritten_sql": "SELECT MIN(__a1) AS min_d, MAX(__a2) AS max_d FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.8252356201410294
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "SELECT __g4 AS \"Sales Date\", ROUND(SUM(__a5), 2) AS total, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY __g4",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.2648870944976807
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"sheet1\" WHERE \"Sales Quantity\" > 0",
+      "covered": [
+        "S13",
+        "S27"
+      ],
+      "rewrites": {
+        "S13": "SELECT \"Major Category Name\", \"Intermediate Category Name\", ROUND(SUM(\"Sales Amount\"), 2) AS total_amount, ROUND(AVG(\"Sales Amount\" * 1.0 / \"Sales Quantity\"), 2) AS avg_unit_price FROM temp.reuse_candidate AS sheet1 WHERE \"Sales Quantity\" > 0 GROUP BY \"Major Category Name\", \"Intermediate Category Name\" ORDER BY \"Major Category Name\", total_amount DESC",
+        "S27": "SELECT \"Major Category Name\", \"Sales Month\", ROUND(SUM(\"Sales Amount\"), 2) AS total_amount, SUM(\"Sales Quantity\") AS total_qty, ROUND(SUM(\"Sales Amount\") * 1.0 / NULLIF(SUM(\"Sales Quantity\"), 0), 2) AS avg_unit_price FROM temp.reuse_candidate AS sheet1 WHERE \"Sales Quantity\" > 0 GROUP BY \"Major Category Name\", \"Sales Month\" ORDER BY \"Major Category Name\", \"Sales Month\""
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S13",
+      "later_reuses": 1,
+      "denominator": 26,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Major Category Name\" AS __g0, \"Intermediate Category Name\" AS __g1, \"Sales Month\" AS __g2, SUM(\"Sales Amount\") AS __a0, SUM(\"Sales Amount\" * 1.0 / \"Sales Quantity\") AS __a1_sum, COUNT(\"Sales Amount\" * 1.0 / \"Sales Quantity\") AS __a1_n, SUM(\"Sales Quantity\") AS __a2 FROM \"sheet1\" WHERE \"Sales Quantity\" > 0 GROUP BY \"Major Category Name\", \"Intermediate Category Name\", \"Sales Month\"",
+      "covered": [
+        "S13",
+        "S27"
+      ],
+      "rewrites": {
+        "S13": "SELECT __g0 AS \"Major Category Name\", __g1 AS \"Intermediate Category Name\", ROUND(SUM(__a0), 2) AS total_amount, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_unit_price FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, total_amount DESC",
+        "S27": "SELECT __g0 AS \"Major Category Name\", __g2 AS \"Sales Month\", ROUND(SUM(__a0), 2) AS total_amount, SUM(__a2) AS total_qty, ROUND(SUM(__a0) * 1.0 / NULLIF(SUM(__a2), 0), 2) AS avg_unit_price FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY __g0, __g2"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C6",
+      "offline": true,
+      "earliest_build_before": "S13",
+      "later_reuses": 1,
+      "denominator": 26,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+SELECT COUNT(*) as cnt FROM jira__team_performance_dashboard

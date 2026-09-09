@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n, MIN(forecast_month) AS min_m, MAX(forecast_month) AS max_m FROM quickbooks__cashflow_forecast

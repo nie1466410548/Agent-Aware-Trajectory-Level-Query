@@ -1,0 +1,1 @@
+SELECT DISTINCT Decoration FROM data ORDER BY Decoration

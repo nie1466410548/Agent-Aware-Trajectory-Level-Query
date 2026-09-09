@@ -1,0 +1,1 @@
+SELECT "Credit Rating", COUNT(*) AS cnt, SUM(CASE WHEN "Defaulted"='Yes' THEN 1 ELSE 0 END) AS defaults FROM ch___company_info GROUP BY "Credit Rating"

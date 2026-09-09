@@ -1,0 +1,1 @@
+SELECT job_stage, COUNT(*) AS n FROM greenhouse__interview_enhanced GROUP BY job_stage ORDER BY n DESC

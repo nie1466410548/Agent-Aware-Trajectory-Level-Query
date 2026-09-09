@@ -1,0 +1,1 @@
+SELECT MIN(avg_completion_rate) AS min_cr, MAX(avg_completion_rate) AS max_cr, AVG(avg_completion_rate) AS avg_cr, MIN(collaboration_efficiency_score) AS min_ce, MAX(collaboration_efficiency_score) AS max_ce, MIN(resource_optimization_score) AS min_ro, MAX(resource_optimization_score) AS max_ro FROM asana__team_efficiency_metrics

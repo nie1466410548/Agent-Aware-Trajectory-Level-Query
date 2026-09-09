@@ -1,0 +1,261 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+As Coca-Cola’s sales lead, which Outlet Types should I increase or reduce the contract signing volume for? Please provide recommendations after conducting a comprehensive analysis of key data such as Target Achievement Rate, customer complaint issues, and Sales, along with other key metrics.
+
+DATABASE SCHEMA:
+CREATE TABLE "activity_information_table" (
+"Activity ID" TEXT,
+  "Campaign Type" TEXT,
+  "Start Date" TEXT,
+  "End Date" TEXT,
+  "Applicable Channels" TEXT,
+  "Applicable Customer Level" TEXT,
+  "Discount Rate" REAL,
+  "Eligibility Criteria" TEXT,
+  "Campaign Budget" INTEGER,
+  "Actual Spend" INTEGER,
+  "Performance Evaluation" TEXT,
+  "Campaign Owner" TEXT,
+  "Promotional Materials" TEXT,
+  "Number of Participating Customers" INTEGER
+)
+CREATE TABLE "agreement_workflow_table" (
+"Process Record Code" TEXT,
+  "Agreement ID" TEXT,
+  "Current Status" TEXT,
+  "Operator" TEXT,
+  "Operation Date" TEXT,
+  "Operation Steps" TEXT,
+  "Required Materials" TEXT,
+  "Review Comments" TEXT,
+  "Approval Level" TEXT,
+  "Timeout Threshold" INTEGER,
+  "System Log Code" TEXT,
+  "Operation IP Address" TEXT
+)
+CREATE TABLE "allowance_issuance_table" (
+"Activity ID" TEXT,
+  "Agreement ID" TEXT,
+  "Customer ID" TEXT,
+  "Allowance Amount" INTEGER,
+  "Status" TEXT,
+  "Acknowledgement Record" TEXT,
+  "Rebate Pool Amount" INTEGER,
+  "Payout Ratio" REAL,
+  "Actual Payment Amount" INTEGER,
+  "Allowance Issuance Batch" TEXT,
+  " Exception Handling Result" TEXT,
+  "Confirmation Date" TEXT,
+  "Issuance Date" TEXT
+)
+CREATE TABLE "allowance_rule_table" (
+"Activity ID" TEXT,
+  "Allowance Type (Product/Amount)" TEXT,
+  "Issuance Method" TEXT,
+  "Payout Ratio" REAL,
+  "Acknowledgement Method" TEXT,
+  "Validity Period (days)" INTEGER,
+  " Terms of Use" TEXT,
+  "Applicable Channels" TEXT,
+  "Seasonal Adjustment Factor" REAL,
+  "Minimum Order Amount" INTEGER,
+  "Partial Use Flag" TEXT
+)
+CREATE TABLE "appeal_record_table" (
+"Appeal ID" TEXT,
+  "Assessment ID" TEXT,
+  "Outlet ID" TEXT,
+  "Appeal Date" TEXT,
+  "Appeal Reason" TEXT,
+  "Evidence Materials" TEXT,
+  "Handling Status" TEXT,
+  "Processed By" TEXT,
+  "Processing Date" TEXT,
+  "Processing Result" TEXT,
+  "Appeal Count" TEXT,
+  "Original Assessment Result" TEXT,
+  "Adjusted Result" TEXT,
+  "Appeal Type" TEXT,
+  "Associated Photo ID" TEXT,
+  "Processing Duration (days)" TEXT
+)
+CREATE TABLE "assessment_result_table" (
+"Outlet ID" TEXT,
+  "Assessment ID" TEXT,
+  "Assessment date" TEXT,
+  "Score" INTEGER,
+  "Assessment pass rate" REAL,
+  "Rectification status" TEXT,
+  "Re-inspection result" TEXT,
+  "Photo upload count" REAL,
+  "Qualified photo count" REAL,
+  "Inspector" TEXT,
+  "Appeal status" TEXT,
+  "Appeal result" TEXT,
+  "Historical pass trend (%)" REAL,
+  "Year-over-year change rate" REAL
+)
+CREATE TABLE "assessment_standard_table" (
+"Assessment ID" TEXT,
+  "Outlet ID" TEXT,
+  "Assessment Item" TEXT,
+  "Passing Criteria" REAL,
+  "Scoring Rules" TEXT,
+  "Inspection Frequency" TEXT,
+  "Weight" REAL,
+  "Point Deduction Criteria" TEXT,
+  "Appeal Process" TEXT,
+  "Mandatory SKU Standards" TEXT,
+  "Shelf Requirements" TEXT,
+  "Freezer Requirements" TEXT,
+  "Secondary Display Standards" TEXT,
+  "Photo Upload Requirements" TEXT
+)
+CREATE TABLE "contract_information_table" (
+"Agreement ID" TEXT,
+  "Customer ID" TEXT,
+  "Outlet ID" TEXT,
+  "Signing Type (GSB/Spark)" TEXT,
+  "Signing Amount (CNY)" INTEGER,
+  "Signing Date" TEXT,
+  "Signing Approval Status" TEXT,
+  "Signing Approver" TEXT,
+  "Signing Channel" TEXT,
+  "Same-store Ratio" REAL,
+  "Renewal Flag" TEXT,
+  "Attachment Count" INTEGER
+)
+CREATE TABLE "coupon_information_table" (
+"Coupon ID" TEXT,
+  "Customer ID" TEXT,
+  "Agreement ID" TEXT,
+  "Type (Cash Coupon/Product Coupon)" TEXT,
+  "Face Value" INTEGER,
+  "Valid From" TEXT,
+  "Valid Until" TEXT,
+  "Status (Unused/Used)" TEXT,
+  "Associated Order Number" TEXT,
+  "Issuance Batch" TEXT,
+  "Acquisition Method" TEXT,
+  "Usage Restrictions" TEXT,
+  "Channel Restrictions" TEXT
+)
+CREATE TABLE "customer_information_table" (
+"Customer ID" TEXT,
+  "Customer Level" TEXT,
+  "Region" TEXT,
+  "Customer Type" TEXT,
+  "Contract Status" TEXT,
+  "Contract Start Date" TEXT,
+  "Contract End Date" TEXT,
+  "Cola GO Installation Status" TEXT,
+  "Self-Upload Capability" TEXT,
+  "Sales History" INTEGER,
+  "Contact Information" INTEGER
+)
+CREATE TABLE "customer_management_table" (
+"Management ID" TEXT,
+  "Customer ID" TEXT,
+  " Person in Charge" TEXT,
+  "Visit Frequency" TEXT,
+  "Training Count" INTEGER,
+  " Warning Record" TEXT,
+  " Exclusion Flag" TEXT,
+  "Renewal Likelihood" TEXT,
+  " Special Case Flag" TEXT,
+  " Special Handling Measures" TEXT,
+  "Rectification Start Date" TEXT,
+  "Rectification End Date" TEXT,
+  "System Entry Date" TEXT,
+  "Data Source" TEXT,
+  "Update Count" INTEGER,
+  "Sync Status" TEXT
+)
+CREATE TABLE "device_information_table" (
+"Equipment record code" TEXT,
+  "Outlet ID" TEXT,
+  "Device Type" TEXT,
+  "Brand and model" TEXT,
+  "Installation date" TEXT,
+  "Commissioning date" TEXT,
+  "Maintenance records" TEXT,
+  "Number of failures" INTEGER,
+  "Last maintenance date" TEXT,
+  "Service interval" TEXT,
+  "Maintenance supervisor" TEXT,
+  "Warranty period" TEXT,
+  "Replacement records" TEXT,
+  "Operating status" TEXT,
+  "Temperature setting" TEXT
+)
+CREATE TABLE "expense_allocation_table" (
+"Expense ID" TEXT,
+  "Outlet ID" TEXT,
+  "Annual Budget" INTEGER,
+  "Monthly Allocation" INTEGER,
+  "Amount Used" INTEGER,
+  "Remaining Amount" INTEGER,
+  "Number of Adjustment Records" REAL,
+  "Channel Allocation Ratio" REAL,
+  "Expense Approval Status" TEXT,
+  "Overspending Alert Threshold" REAL,
+  "Expense Type" TEXT,
+  "Allocation Date" TEXT,
+  "Allocation Owner" TEXT
+)
+CREATE TABLE "photo_information_table" (
+"Photo ID" TEXT,
+  "Outlet ID" TEXT,
+  "Upload Date" TEXT,
+  "Uploader" TEXT,
+  "Photo Type" TEXT,
+  "Display Location" TEXT,
+  "Associated Assessment ID" TEXT,
+  "File Format" TEXT,
+  "File Size" TEXT,
+  "Review Status" TEXT,
+  "Compliance Score" TEXT,
+  "Rectification Suggestions" TEXT,
+  "Issue Description" TEXT,
+  "Reviewer" TEXT,
+  "Review Date" TEXT
+)
+CREATE TABLE "point_of_sale_(pos)_information" (
+"Outlet ID" TEXT,
+  "Customer ID" TEXT,
+  "Outlet Name" TEXT,
+  "Outlet Type" TEXT,
+  "Coverage Target" INTEGER,
+  "Actual Sales (cases)" INTEGER,
+  "Sales Target" INTEGER,
+  "VPO Value" REAL,
+  "PC Value" INTEGER,
+  "Cooler Configuration" TEXT,
+  "Number of Required SKUs" INTEGER,
+  "Photo Upload Frequency" TEXT,
+  "Qualification Rate" TEXT
+)
+CREATE TABLE "sales_data_table" (
+"Data Record ID" TEXT,
+  "Customer ID" TEXT,
+  "Sales Volume (Units)" INTEGER,
+  "Sales (Value)" INTEGER,
+  " YoY Growth Rate" REAL,
+  "MoM Growth Rate" REAL,
+  " Target Achievement Rate" REAL,
+  "Seasonality Flag" TEXT,
+  "Promotional Impact" TEXT,
+  "Data Status" TEXT,
+  "Entered by" TEXT,
+  " Date Recorded" TEXT
+)

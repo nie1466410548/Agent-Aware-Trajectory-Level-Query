@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS c FROM qualtrics__response WHERE embedded_data LIKE '%photo%' OR embedded_data LIKE '%dev%' OR response_text LIKE '%photo%' OR question_option_text LIKE '%photo%'

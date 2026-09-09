@@ -1,0 +1,482 @@
+{
+  "fingerprint": "832d27c25cd6d021fb745638edcea0162f3af8ae23db4e360e8f53c83bf66af5",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT COUNT(*) AS __a0, MIN(create_dt) AS __a1, MAX(create_dt) AS __a2 FROM \"attachment_1\" ",
+      "covered": [
+        "S11",
+        "S19"
+      ],
+      "rewrites": {
+        "S11": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+        "S19": "SELECT MIN(__a1) AS mn, MAX(__a2) AS mx FROM temp.reuse_candidate"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S11",
+      "later_reuses": 1,
+      "denominator": 32,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT promotion_type AS __g0, state AS __g1, COUNT(*) AS __a0, MIN(create_dt) AS __a1, MAX(create_dt) AS __a2 FROM \"attachment_3\"  GROUP BY promotion_type, state",
+      "covered": [
+        "S9",
+        "S10",
+        "S13",
+        "S20"
+      ],
+      "rewrites": {
+        "S9": "SELECT __g0 AS \"promotion_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+        "S10": "SELECT __g1 AS \"state\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+        "S13": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+        "S20": "SELECT MIN(__a1) AS mn, MAX(__a2) AS mx FROM temp.reuse_candidate"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S9",
+      "later_reuses": 3,
+      "denominator": 32,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865055.3835857,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT promotion_type AS __g0, state AS __g1, COUNT(*) AS __a0, MIN(create_dt) AS __a1, MAX(create_dt) AS __a2 FROM \"attachment_3\"  GROUP BY promotion_type, state",
+          "phase": "offline_validation",
+          "start_time": 1788865055.3838212,
+          "status": "execute_returned",
+          "end_time": 1788865055.9898677
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865055.9898784,
+          "status": "execute_returned",
+          "end_time": 1788865055.9899156
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865055.9899216,
+          "status": "execute_returned",
+          "end_time": 1788865055.9899364
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"promotion_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865055.9899511,
+          "status": "execute_returned",
+          "end_time": 1788865055.9899852
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g1 AS \"state\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865055.9907682,
+          "status": "execute_returned",
+          "end_time": 1788865055.990811
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865055.9913452,
+          "status": "execute_returned",
+          "end_time": 1788865055.991372
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT MIN(__a1) AS mn, MAX(__a2) AS mx FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865055.9917543,
+          "status": "execute_returned",
+          "end_time": 1788865055.9917848
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT promotion_type AS __g0, state AS __g1, COUNT(*) AS __a0, MIN(create_dt) AS __a1, MAX(create_dt) AS __a2 FROM \"attachment_3\"  GROUP BY promotion_type, state",
+          "time": 1788865055.3840573,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865055.9899106,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865055.989933,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"promotion_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "time": 1788865055.989974,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"state\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "time": 1788865055.9907978,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "time": 1788865055.9913657,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a1) AS mn, MAX(__a2) AS mx FROM temp.reuse_candidate",
+          "time": 1788865055.991778,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 606.0526566579938,
+      "intermediate_rows": 6,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__a0",
+        "__a1",
+        "__a2"
+      ],
+      "validation_ended_at": 1788865055.9924004,
+      "checks": [
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT __g0 AS \"promotion_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.8127996698021889
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT __g1 AS \"state\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5751335993409157
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.4068249836564064
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "SELECT MIN(__a1) AS mn, MAX(__a2) AS mx FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.48319343477487564
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"attachment_3\" WHERE promotion_type = 4",
+      "covered": [
+        "S18",
+        "S23"
+      ],
+      "rewrites": {
+        "S18": "SELECT * FROM temp.reuse_candidate AS attachment_3 WHERE promotion_type = 4 LIMIT 5",
+        "S23": "SELECT COUNT(DISTINCT sku_id) AS n_skus FROM temp.reuse_candidate AS attachment_3 WHERE promotion_type = 4"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S18",
+      "later_reuses": 1,
+      "denominator": 32,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"attachment_3\" WHERE NOT promotion_type IS NULL",
+      "covered": [
+        "S21",
+        "S22"
+      ],
+      "rewrites": {
+        "S21": "SELECT validation, COUNT(*) AS cnt FROM temp.reuse_candidate AS attachment_3 WHERE NOT promotion_type IS NULL GROUP BY validation",
+        "S22": "SELECT promotion_type, state, COUNT(*) AS cnt, SUM(sale_count) AS tot_sales FROM temp.reuse_candidate AS attachment_3 WHERE NOT promotion_type IS NULL GROUP BY promotion_type, state"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S21",
+      "later_reuses": 1,
+      "denominator": 32,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865056.0861335,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"attachment_3\" WHERE NOT promotion_type IS NULL",
+          "phase": "offline_validation",
+          "start_time": 1788865056.0863547,
+          "status": "execute_returned",
+          "end_time": 1788865056.181776
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865056.1817853,
+          "status": "execute_returned",
+          "end_time": 1788865056.1822653
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865056.1822739,
+          "status": "execute_returned",
+          "end_time": 1788865056.1823022
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT validation, COUNT(*) AS cnt FROM temp.reuse_candidate AS attachment_3 WHERE NOT promotion_type IS NULL GROUP BY validation",
+          "phase": "offline_validation",
+          "start_time": 1788865056.1823435,
+          "status": "execute_returned",
+          "end_time": 1788865056.1866326
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT promotion_type, state, COUNT(*) AS cnt, SUM(sale_count) AS tot_sales FROM temp.reuse_candidate AS attachment_3 WHERE NOT promotion_type IS NULL GROUP BY promotion_type, state",
+          "phase": "offline_validation",
+          "start_time": 1788865056.1874003,
+          "status": "execute_returned",
+          "end_time": 1788865056.1925297
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"attachment_3\" WHERE NOT promotion_type IS NULL",
+          "time": 1788865056.0865383,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865056.1818175,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865056.1822984,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT validation, COUNT(*) AS cnt FROM temp.reuse_candidate AS attachment_3 WHERE NOT promotion_type IS NULL GROUP BY validation",
+          "time": 1788865056.182368,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT promotion_type, state, COUNT(*) AS cnt, SUM(sale_count) AS tot_sales FROM temp.reuse_candidate AS attachment_3 WHERE NOT promotion_type IS NULL GROUP BY promotion_type, state",
+          "time": 1788865056.1874366,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 95.4270651564002,
+      "intermediate_rows": 11420,
+      "intermediate_columns": [
+        "id",
+        "promotion_info_id",
+        "promotion_no",
+        "sku_id",
+        "sku_name",
+        "promotion_price",
+        "pdj_price",
+        "begin_time",
+        "end_time",
+        "limit_count",
+        "sale_count",
+        "state",
+        "sys_version",
+        "create_time",
+        "update_time",
+        "create_pin",
+        "update_pin",
+        "validation",
+        "timestamp",
+        "begin_state",
+        "end_state",
+        "cost_price",
+        "allowance",
+        "business_version",
+        "promotion_type",
+        "time_id",
+        "create_dt"
+      ],
+      "validation_ended_at": 1788865056.1953566,
+      "checks": [
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "SELECT validation, COUNT(*) AS cnt FROM temp.reuse_candidate AS attachment_3 WHERE NOT promotion_type IS NULL GROUP BY validation",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 5.054062232375145
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "SELECT promotion_type, state, COUNT(*) AS cnt, SUM(sale_count) AS tot_sales FROM temp.reuse_candidate AS attachment_3 WHERE NOT promotion_type IS NULL GROUP BY promotion_type, state",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 7.306146435439587
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT validation AS __g0, promotion_type AS __g1, state AS __g2, COUNT(*) AS __a0, SUM(sale_count) AS __a1 FROM \"attachment_3\" WHERE NOT promotion_type IS NULL GROUP BY validation, promotion_type, state",
+      "covered": [
+        "S21",
+        "S22"
+      ],
+      "rewrites": {
+        "S21": "SELECT __g0 AS \"validation\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+        "S22": "SELECT __g1 AS \"promotion_type\", __g2 AS \"state\", SUM(__a0) AS cnt, SUM(__a1) AS tot_sales FROM temp.reuse_candidate GROUP BY __g1, __g2"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S21",
+      "later_reuses": 1,
+      "denominator": 32,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865055.9924247,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT validation AS __g0, promotion_type AS __g1, state AS __g2, COUNT(*) AS __a0, SUM(sale_count) AS __a1 FROM \"attachment_3\" WHERE NOT promotion_type IS NULL GROUP BY validation, promotion_type, state",
+          "phase": "offline_validation",
+          "start_time": 1788865055.9926376,
+          "status": "execute_returned",
+          "end_time": 1788865056.0830615
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865056.0830715,
+          "status": "execute_returned",
+          "end_time": 1788865056.0831025
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865056.0831082,
+          "status": "execute_returned",
+          "end_time": 1788865056.083121
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"validation\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788865056.083135,
+          "status": "execute_returned",
+          "end_time": 1788865056.0831592
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g1 AS \"promotion_type\", __g2 AS \"state\", SUM(__a0) AS cnt, SUM(__a1) AS tot_sales FROM temp.reuse_candidate GROUP BY __g1, __g2",
+          "phase": "offline_validation",
+          "start_time": 1788865056.0851977,
+          "status": "execute_returned",
+          "end_time": 1788865056.0852437
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT validation AS __g0, promotion_type AS __g1, state AS __g2, COUNT(*) AS __a0, SUM(sale_count) AS __a1 FROM \"attachment_3\" WHERE NOT promotion_type IS NULL GROUP BY validation, promotion_type, state",
+          "time": 1788865055.9928105,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865056.0830984,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865056.0831177,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"validation\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788865056.0831513,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"promotion_type\", __g2 AS \"state\", SUM(__a0) AS cnt, SUM(__a1) AS tot_sales FROM temp.reuse_candidate GROUP BY __g1, __g2",
+          "time": 1788865056.0852318,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 90.42939823120832,
+      "intermediate_rows": 5,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__a0",
+        "__a1"
+      ],
+      "validation_ended_at": 1788865056.0861099,
+      "checks": [
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "SELECT __g0 AS \"validation\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.0591383799910545
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "SELECT __g1 AS \"promotion_type\", __g2 AS \"state\", SUM(__a0) AS cnt, SUM(__a1) AS tot_sales FROM temp.reuse_candidate GROUP BY __g1, __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.8062161505222321
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

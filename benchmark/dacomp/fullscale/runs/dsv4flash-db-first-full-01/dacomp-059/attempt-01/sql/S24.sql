@@ -1,0 +1,1 @@
+SELECT DISTINCT keyword_text FROM google_ads__keyword_report ORDER BY keyword_text LIMIT 50

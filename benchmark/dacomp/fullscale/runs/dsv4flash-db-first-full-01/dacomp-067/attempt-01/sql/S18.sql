@@ -1,0 +1,1 @@
+SELECT MIN(applied_at) as min_a, MAX(applied_at) as max_a, MIN(candidate_created_at) as min_c, MAX(candidate_created_at) as max_c, COUNT(*) as total_rows FROM greenhouse__application_enhanced

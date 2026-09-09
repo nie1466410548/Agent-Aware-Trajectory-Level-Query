@@ -1,0 +1,1 @@
+SELECT user_language, COUNT(DISTINCT survey_response_id) AS n_survey_resp, COUNT(*) AS n_rows FROM qualtrics__response GROUP BY user_language ORDER BY n_survey_resp DESC

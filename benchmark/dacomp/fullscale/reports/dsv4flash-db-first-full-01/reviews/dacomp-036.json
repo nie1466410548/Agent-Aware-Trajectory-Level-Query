@@ -1,0 +1,58 @@
+{
+  "task_id": "dacomp-036",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "SQL 已完成登录/认证组合的异常指标关联与汇总，P1 随后在 Python 中做 min-max 归一化、加权薄弱度、排名和失败率。这些可由 SQLite 聚合、窗口和算术完成；P2 图形渲染另行允许。",
+  "route": "SQL 比较登录×认证组合的失败、异常与安全事件 → Python 加权评分和排名 → 绘制组合弱点图。",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 45,
+          "text": "    mn, mx = df[m].min(), df[m].max()"
+        },
+        {
+          "line": 47,
+          "text": "        df[col] = (df[m] - mn) / (mx - mn)"
+        },
+        {
+          "line": 49,
+          "text": "        df[col] = 0"
+        },
+        {
+          "line": 67,
+          "text": "df['weakness_score'] = sum(df[c] * w for c, w in weights.items())"
+        },
+        {
+          "line": 68,
+          "text": "df['rank'] = df['weakness_score'].rank(ascending=False)"
+        },
+        {
+          "line": 70,
+          "text": "df_sorted = df.sort_values('weakness_score', ascending=False)"
+        },
+        {
+          "line": 72,
+          "text": "print(df_sorted[['login_method','tfa_method','logins','failures','anomalies','events','high_events','risk_sum','weakness_score','rank']].to_string())"
+        },
+        {
+          "line": 75,
+          "text": "df['failure_rate'] = round(df['failures'] / df['logins'] * 100, 1)"
+        },
+        {
+          "line": 77,
+          "text": "print(df[['login_method','tfa_method','logins','failures','failure_rate']].to_string())"
+        },
+        {
+          "line": 85,
+          "text": "pivot_weak = df.pivot_table(index='login_method', columns='tfa_method', values='weakness_score', aggfunc='mean')"
+        },
+        {
+          "line": 168,
+          "text": "    ax.set_title(f\"{row['login_method']} + {row['tfa_method']}\\n(Weakness: {row['weakness_score']:.3f})\", "
+        }
+      ]
+    }
+  ]
+}

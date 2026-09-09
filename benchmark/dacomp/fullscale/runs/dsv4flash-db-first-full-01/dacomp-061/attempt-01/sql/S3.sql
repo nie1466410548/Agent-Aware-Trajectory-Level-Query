@@ -1,0 +1,1 @@
+SELECT * FROM jira__project_enhanced ORDER BY avg_close_time_days ASC LIMIT 20

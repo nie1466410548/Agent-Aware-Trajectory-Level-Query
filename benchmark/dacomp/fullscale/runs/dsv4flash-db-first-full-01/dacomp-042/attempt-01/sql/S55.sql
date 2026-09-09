@@ -1,0 +1,1 @@
+SELECT DISTINCT "Medication Adherence" FROM treatmentbasics

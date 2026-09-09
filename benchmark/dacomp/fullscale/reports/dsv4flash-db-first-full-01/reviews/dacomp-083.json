@@ -1,0 +1,43 @@
+{
+  "task_id": "dacomp-083",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "SQL 完成主要去重窗口、核心员工筛选与交叉汇总。Python 仍用 describe 重算均值/极值，并在已聚合结果上计算优先级和分箱；这些统计与常规评分可在 SQL 提供，记录为有限范围的执行位置偏离。绘图及标准差单独评价。",
+  "route": "SQL 去重员工、识别核心及流失风险并交叉汇总 → Python 描述统计、优先级分箱与图表 → 分层管理建议。",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 35,
+          "text": "stats = core_df[numerical].describe().T"
+        },
+        {
+          "line": 37,
+          "text": "print(stats[['mean', 'std', 'min', 'max']].round(2))"
+        },
+        {
+          "line": 59,
+          "text": "axes[0, 0].axvline(core_df['age'].mean(), color='red', linestyle='--', label=f\"Mean: {core_df['age'].mean():.1f}\")"
+        },
+        {
+          "line": 67,
+          "text": "axes[0, 1].axvline(core_df['tenure_years'].mean(), color='red', linestyle='--', label=f\"Mean: {core_df['tenure_years'].mean():.2f}\")"
+        }
+      ]
+    },
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 34,
+          "text": "tier_df['priority_score'] = tier_df['at_risk_pct'] * np.sqrt(tier_df['n_core'])"
+        },
+        {
+          "line": 35,
+          "text": "tier_df['priority_label'] = pd.cut(tier_df['priority_score'], bins=[0, 100, 200, 400, 1000],"
+        }
+      ]
+    }
+  ]
+}

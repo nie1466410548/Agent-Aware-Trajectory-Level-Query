@@ -1,0 +1,1 @@
+SELECT s.survey_name, s.project_category, s.project_type FROM qualtrics__survey s WHERE s.survey_id = 'SUR10000974099' LIMIT 1

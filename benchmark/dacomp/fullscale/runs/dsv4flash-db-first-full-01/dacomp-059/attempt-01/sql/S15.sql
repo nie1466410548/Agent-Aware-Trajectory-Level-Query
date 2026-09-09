@@ -1,0 +1,1 @@
+SELECT keyword_text, keyword_match_type, COUNT(*) AS cnt, SUM(clicks) AS total_clicks, SUM(conversions) AS total_conv, SUM(impressions) AS total_imp FROM google_ads__keyword_report GROUP BY keyword_text, keyword_match_type ORDER BY cnt DESC LIMIT 100

@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_rows, COUNT(DISTINCT survey_id) AS distinct_ids FROM qualtrics__survey

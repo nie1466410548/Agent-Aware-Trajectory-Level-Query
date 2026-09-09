@@ -1,0 +1,1 @@
+SELECT DISTINCT acquisition_efficiency_tier FROM google_ads__customer_acquisition_analysis

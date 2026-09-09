@@ -1,0 +1,1 @@
+SELECT h.ID FROM health_status h LEFT JOIN health_checkup_indicators i ON h.ID = i.ID WHERE i.ID IS NULL LIMIT 5

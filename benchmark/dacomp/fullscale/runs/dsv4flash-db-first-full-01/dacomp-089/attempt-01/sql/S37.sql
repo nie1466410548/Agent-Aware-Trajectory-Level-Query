@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS chief_cnt FROM salesforce__contact_enhanced WHERE title LIKE '%Chief%'

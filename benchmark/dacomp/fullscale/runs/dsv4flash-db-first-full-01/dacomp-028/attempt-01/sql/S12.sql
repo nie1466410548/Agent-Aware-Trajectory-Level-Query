@@ -1,0 +1,1 @@
+SELECT "Product Code", COUNT(*) AS n, COUNT(DISTINCT "Product Name") AS names, COUNT(DISTINCT "Market Name") AS markets FROM agricultural_product_price_tren GROUP BY "Product Code" HAVING n > 2 ORDER BY n DESC

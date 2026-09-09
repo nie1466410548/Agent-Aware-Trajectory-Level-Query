@@ -1,0 +1,1 @@
+SELECT r.survey_id, s.survey_name, s.project_category, s.project_type, COUNT(*) AS n_resp, AVG(r.value) AS avg_v, MIN(r.value) AS min_v, MAX(r.value) AS max_v FROM qualtrics__response r JOIN qualtrics__survey s ON r.survey_id = s.survey_id GROUP BY r.survey_id HAVING n_resp >= 20 ORDER BY avg_v DESC LIMIT 30

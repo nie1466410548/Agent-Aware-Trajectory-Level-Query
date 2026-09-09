@@ -1,0 +1,463 @@
+{
+  "fingerprint": "929cc41383b9e1ecd8ee5019573a1f285ff41013e865c52011fe5acc07f7ebe9",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S27",
+      "covered": [
+        "S27",
+        "S29",
+        "S32"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S27",
+      "later_reuses": 2,
+      "denominator": 32,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869616.307514,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 118,
+      "validation_ended_at": 1788869616.3134904,
+      "checks": [
+        {
+          "sql_id": "S29",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S32",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S31",
+      "covered": [
+        "S31",
+        "S34",
+        "S36"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S31",
+      "later_reuses": 2,
+      "denominator": 32,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869616.313543,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 118,
+      "validation_ended_at": 1788869616.318761,
+      "checks": [
+        {
+          "sql_id": "S34",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S36",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT *, ROW_NUMBER() OVER (PARTITION BY organization_size_category ORDER BY organization_health_score DESC) AS rn, COUNT(*) OVER (PARTITION BY organization_size_category) AS n FROM workday__organization_overview",
+      "covered": [
+        "S24",
+        "S26"
+      ],
+      "rewrites": {
+        "S24": "WITH ranked AS (SELECT * FROM temp.reuse_candidate) SELECT organization_size_category, CASE WHEN rn <= CEIL(n * 0.1) THEN 'Top10%' ELSE 'Rest' END AS grp, COUNT(*) AS n, ROUND(AVG(organization_health_score), 1) AS avg_health, ROUND(AVG(management_ratio), 3) AS avg_mr, ROUND(AVG(avg_employee_performance_score), 3) AS avg_perf, ROUND(AVG(position_fill_rate), 3) AS avg_fill, ROUND(AVG(annual_turnover_rate), 3) AS avg_turnover, ROUND(AVG(avg_career_development_score), 3) AS avg_dev, ROUND(AVG(avg_retention_stability_score), 3) AS avg_ret, ROUND(AVG(avg_current_tenure_years), 2) AS avg_tenure, ROUND(AVG(organization_age_years), 2) AS avg_age FROM ranked GROUP BY organization_size_category, grp ORDER BY organization_size_category, grp",
+        "S26": "WITH ranked AS (SELECT * FROM temp.reuse_candidate) SELECT organization_size_category, organization_id, organization_name, current_active_employees, organization_health_score, performance_category, management_ratio, avg_employee_performance_score, position_fill_rate, annual_turnover_rate, organization_type, staffing_model, organization_maturity_level, unique_organization_roles, total_promotions_in_organization FROM ranked WHERE rn <= CEIL(n * 0.1) ORDER BY organization_size_category, rn"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S24",
+      "later_reuses": 1,
+      "denominator": 32,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT data_quality_flag AS __g0, performance_category AS __g1, organization_size_category AS __g2, CASE WHEN current_active_employees < 30 THEN 'Small (<30)' WHEN current_active_employees BETWEEN 30 AND 120 THEN 'Medium (30-120)' WHEN current_active_employees BETWEEN 121 AND 300 THEN 'Large (120-300)' ELSE 'Extra Large (>300)' END AS __g3, CASE WHEN management_ratio < 0.15 THEN 'A: <0.15' WHEN management_ratio < 0.18 THEN 'B: 0.15-0.18' WHEN management_ratio < 0.21 THEN 'C: 0.18-0.21' WHEN management_ratio < 0.25 THEN 'D: 0.21-0.25' ELSE 'E: >=0.25' END AS __g4, COUNT(*) AS __a0, SUM(organization_health_score) AS __a1_sum, COUNT(organization_health_score) AS __a1_n, MIN(organization_health_score) AS __a2, MAX(organization_health_score) AS __a3, SUM(management_ratio) AS __a4_sum, COUNT(management_ratio) AS __a4_n, MIN(management_ratio) AS __a5, MAX(management_ratio) AS __a6, SUM(avg_employee_performance_score) AS __a7_sum, COUNT(avg_employee_performance_score) AS __a7_n, SUM(position_fill_rate) AS __a8_sum, COUNT(position_fill_rate) AS __a8_n, SUM(annual_turnover_rate) AS __a9_sum, COUNT(annual_turnover_rate) AS __a9_n, SUM(current_active_employees) AS __a10_sum, COUNT(current_active_employees) AS __a10_n, SUM(CASE WHEN avg_career_development_score > 0 THEN 1 ELSE 0 END) AS __a11, SUM(CASE WHEN avg_retention_stability_score > 0 THEN 1 ELSE 0 END) AS __a12, SUM(CASE WHEN avg_current_tenure_years > 0 THEN 1 ELSE 0 END) AS __a13, SUM(CASE WHEN high_value_stable_employees > 0 THEN 1 ELSE 0 END) AS __a14, SUM(CASE WHEN management_role_employees > 0 THEN 1 ELSE 0 END) AS __a15, SUM(CASE WHEN high_risk_employee_percentage > 0 THEN 1 ELSE 0 END) AS __a16, SUM(CASE WHEN total_promotions_in_organization > 0 THEN 1 ELSE 0 END) AS __a17, SUM(CASE WHEN avg_employee_age > 0 THEN 1 ELSE 0 END) AS __a18 FROM \"workday__organization_overview\"  GROUP BY data_quality_flag, performance_category, organization_size_category, CASE WHEN current_active_employees < 30 THEN 'Small (<30)' WHEN current_active_employees BETWEEN 30 AND 120 THEN 'Medium (30-120)' WHEN current_active_employees BETWEEN 121 AND 300 THEN 'Large (120-300)' ELSE 'Extra Large (>300)' END, CASE WHEN management_ratio < 0.15 THEN 'A: <0.15' WHEN management_ratio < 0.18 THEN 'B: 0.15-0.18' WHEN management_ratio < 0.21 THEN 'C: 0.18-0.21' WHEN management_ratio < 0.25 THEN 'D: 0.21-0.25' ELSE 'E: >=0.25' END",
+      "covered": [
+        "S3",
+        "S7",
+        "S8",
+        "S9",
+        "S13",
+        "S14",
+        "S20",
+        "S21",
+        "S22",
+        "S25"
+      ],
+      "rewrites": {
+        "S3": "SELECT SUM(__a0) AS n_overview FROM temp.reuse_candidate",
+        "S7": "SELECT __g0 AS \"data_quality_flag\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+        "S8": "SELECT __g1 AS \"performance_category\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_health, MIN(__a2) AS min_h, MAX(__a3) AS max_h FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+        "S9": "SELECT __g2 AS \"organization_size_category\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2",
+        "S13": "SELECT __g3 AS my_tier, __g2 AS existing_tier, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3, __g2 ORDER BY my_tier",
+        "S14": "SELECT __g2 AS \"organization_size_category\", SUM(__a0) AS n_orgs, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_health, MIN(__a2) AS min_health, MAX(__a3) AS max_health, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_mgmt_ratio, MIN(__a5) AS min_mgmt_ratio, MAX(__a6) AS max_mgmt_ratio, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_perf_score, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_fill_rate, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_turnover, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_emp_count FROM temp.reuse_candidate GROUP BY __g2 ORDER BY CASE __g2 WHEN 'Small (0-30)' THEN 1 WHEN 'Medium (30-120)' THEN 2 WHEN 'Large (120-300)' THEN 3 WHEN 'Extra Large (300+)' THEN 4 END",
+        "S20": "SELECT __g2 AS \"organization_size_category\", MIN(__a5) AS mn, MAX(__a6) AS mx, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 3) AS avg_mr FROM temp.reuse_candidate GROUP BY __g2",
+        "S21": "SELECT __g4 AS mr_bin, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_health, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 3) AS avg_perf, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 3) AS avg_fill, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 3) AS avg_turnover FROM temp.reuse_candidate GROUP BY __g4 ORDER BY mr_bin",
+        "S22": "SELECT __g2 AS \"organization_size_category\", __g4 AS mr_bin, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_health, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 3) AS avg_perf, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 3) AS avg_fill, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 3) AS avg_turnover FROM temp.reuse_candidate GROUP BY __g2, __g4 ORDER BY __g2, mr_bin",
+        "S25": "SELECT SUM(__a11) AS n_dev, SUM(__a12) AS n_ret, SUM(__a13) AS n_tenure, SUM(__a14) AS n_hvs, SUM(__a15) AS n_mgmt, SUM(__a16) AS n_hrp, SUM(__a17) AS n_prom, SUM(__a18) AS n_age FROM temp.reuse_candidate"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 9,
+      "denominator": 32,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869616.2943432,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT data_quality_flag AS __g0, performance_category AS __g1, organization_size_category AS __g2, CASE WHEN current_active_employees < 30 THEN 'Small (<30)' WHEN current_active_employees BETWEEN 30 AND 120 THEN 'Medium (30-120)' WHEN current_active_employees BETWEEN 121 AND 300 THEN 'Large (120-300)' ELSE 'Extra Large (>300)' END AS __g3, CASE WHEN management_ratio < 0.15 THEN 'A: <0.15' WHEN management_ratio < 0.18 THEN 'B: 0.15-0.18' WHEN management_ratio < 0.21 THEN 'C: 0.18-0.21' WHEN management_ratio < 0.25 THEN 'D: 0.21-0.25' ELSE 'E: >=0.25' END AS __g4, COUNT(*) AS __a0, SUM(organization_health_score) AS __a1_sum, COUNT(organization_health_score) AS __a1_n, MIN(organization_health_score) AS __a2, MAX(organization_health_score) AS __a3, SUM(management_ratio) AS __a4_sum, COUNT(management_ratio) AS __a4_n, MIN(management_ratio) AS __a5, MAX(management_ratio) AS __a6, SUM(avg_employee_performance_score) AS __a7_sum, COUNT(avg_employee_performance_score) AS __a7_n, SUM(position_fill_rate) AS __a8_sum, COUNT(position_fill_rate) AS __a8_n, SUM(annual_turnover_rate) AS __a9_sum, COUNT(annual_turnover_rate) AS __a9_n, SUM(current_active_employees) AS __a10_sum, COUNT(current_active_employees) AS __a10_n, SUM(CASE WHEN avg_career_development_score > 0 THEN 1 ELSE 0 END) AS __a11, SUM(CASE WHEN avg_retention_stability_score > 0 THEN 1 ELSE 0 END) AS __a12, SUM(CASE WHEN avg_current_tenure_years > 0 THEN 1 ELSE 0 END) AS __a13, SUM(CASE WHEN high_value_stable_employees > 0 THEN 1 ELSE 0 END) AS __a14, SUM(CASE WHEN management_role_employees > 0 THEN 1 ELSE 0 END) AS __a15, SUM(CASE WHEN high_risk_employee_percentage > 0 THEN 1 ELSE 0 END) AS __a16, SUM(CASE WHEN total_promotions_in_organization > 0 THEN 1 ELSE 0 END) AS __a17, SUM(CASE WHEN avg_employee_age > 0 THEN 1 ELSE 0 END) AS __a18 FROM \"workday__organization_overview\"  GROUP BY data_quality_flag, performance_category, organization_size_category, CASE WHEN current_active_employees < 30 THEN 'Small (<30)' WHEN current_active_employees BETWEEN 30 AND 120 THEN 'Medium (30-120)' WHEN current_active_employees BETWEEN 121 AND 300 THEN 'Large (120-300)' ELSE 'Extra Large (>300)' END, CASE WHEN management_ratio < 0.15 THEN 'A: <0.15' WHEN management_ratio < 0.18 THEN 'B: 0.15-0.18' WHEN management_ratio < 0.21 THEN 'C: 0.18-0.21' WHEN management_ratio < 0.25 THEN 'D: 0.21-0.25' ELSE 'E: >=0.25' END",
+          "phase": "offline_validation",
+          "start_time": 1788869616.2946181,
+          "status": "execute_returned",
+          "end_time": 1788869616.2955878
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869616.2955928,
+          "status": "execute_returned",
+          "end_time": 1788869616.2956102
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788869616.2956152,
+          "status": "execute_returned",
+          "end_time": 1788869616.2956324
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS n_overview FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869616.2956707,
+          "status": "execute_returned",
+          "end_time": 1788869616.2956874
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"data_quality_flag\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788869616.296129,
+          "status": "execute_returned",
+          "end_time": 1788869616.2961838
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS \"performance_category\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_health, MIN(__a2) AS min_h, MAX(__a3) AS max_h FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869616.2966495,
+          "status": "execute_returned",
+          "end_time": 1788869616.2967496
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g2 AS \"organization_size_category\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2",
+          "phase": "offline_validation",
+          "start_time": 1788869616.297524,
+          "status": "execute_returned",
+          "end_time": 1788869616.2975714
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g3 AS my_tier, __g2 AS existing_tier, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3, __g2 ORDER BY my_tier",
+          "phase": "offline_validation",
+          "start_time": 1788869616.2980587,
+          "status": "execute_returned",
+          "end_time": 1788869616.298126
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g2 AS \"organization_size_category\", SUM(__a0) AS n_orgs, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_health, MIN(__a2) AS min_health, MAX(__a3) AS max_health, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_mgmt_ratio, MIN(__a5) AS min_mgmt_ratio, MAX(__a6) AS max_mgmt_ratio, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_perf_score, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_fill_rate, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_turnover, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_emp_count FROM temp.reuse_candidate GROUP BY __g2 ORDER BY CASE __g2 WHEN 'Small (0-30)' THEN 1 WHEN 'Medium (30-120)' THEN 2 WHEN 'Large (120-300)' THEN 3 WHEN 'Extra Large (300+)' THEN 4 END",
+          "phase": "offline_validation",
+          "start_time": 1788869616.299052,
+          "status": "execute_returned",
+          "end_time": 1788869616.2992597
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g2 AS \"organization_size_category\", MIN(__a5) AS mn, MAX(__a6) AS mx, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 3) AS avg_mr FROM temp.reuse_candidate GROUP BY __g2",
+          "phase": "offline_validation",
+          "start_time": 1788869616.301002,
+          "status": "execute_returned",
+          "end_time": 1788869616.3010786
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g4 AS mr_bin, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_health, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 3) AS avg_perf, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 3) AS avg_fill, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 3) AS avg_turnover FROM temp.reuse_candidate GROUP BY __g4 ORDER BY mr_bin",
+          "phase": "offline_validation",
+          "start_time": 1788869616.301826,
+          "status": "execute_returned",
+          "end_time": 1788869616.3019454
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT __g2 AS \"organization_size_category\", __g4 AS mr_bin, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_health, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 3) AS avg_perf, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 3) AS avg_fill, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 3) AS avg_turnover FROM temp.reuse_candidate GROUP BY __g2, __g4 ORDER BY __g2, mr_bin",
+          "phase": "offline_validation",
+          "start_time": 1788869616.3034003,
+          "status": "execute_returned",
+          "end_time": 1788869616.3035269
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT SUM(__a11) AS n_dev, SUM(__a12) AS n_ret, SUM(__a13) AS n_tenure, SUM(__a14) AS n_hvs, SUM(__a15) AS n_mgmt, SUM(__a16) AS n_hrp, SUM(__a17) AS n_prom, SUM(__a18) AS n_age FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869616.3051448,
+          "status": "execute_returned",
+          "end_time": 1788869616.3052158
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT data_quality_flag AS __g0, performance_category AS __g1, organization_size_category AS __g2, CASE WHEN current_active_employees < 30 THEN 'Small (<30)' WHEN current_active_employees BETWEEN 30 AND 120 THEN 'Medium (30-120)' WHEN current_active_employees BETWEEN 121 AND 300 THEN 'Large (120-300)' ELSE 'Extra Large (>300)' END AS __g3, CASE WHEN management_ratio < 0.15 THEN 'A: <0.15' WHEN management_ratio < 0.18 THEN 'B: 0.15-0.18' WHEN management_ratio < 0.21 THEN 'C: 0.18-0.21' WHEN management_ratio < 0.25 THEN 'D: 0.21-0.25' ELSE 'E: >=0.25' END AS __g4, COUNT(*) AS __a0, SUM(organization_health_score) AS __a1_sum, COUNT(organization_health_score) AS __a1_n, MIN(organization_health_score) AS __a2, MAX(organization_health_score) AS __a3, SUM(management_ratio) AS __a4_sum, COUNT(management_ratio) AS __a4_n, MIN(management_ratio) AS __a5, MAX(management_ratio) AS __a6, SUM(avg_employee_performance_score) AS __a7_sum, COUNT(avg_employee_performance_score) AS __a7_n, SUM(position_fill_rate) AS __a8_sum, COUNT(position_fill_rate) AS __a8_n, SUM(annual_turnover_rate) AS __a9_sum, COUNT(annual_turnover_rate) AS __a9_n, SUM(current_active_employees) AS __a10_sum, COUNT(current_active_employees) AS __a10_n, SUM(CASE WHEN avg_career_development_score > 0 THEN 1 ELSE 0 END) AS __a11, SUM(CASE WHEN avg_retention_stability_score > 0 THEN 1 ELSE 0 END) AS __a12, SUM(CASE WHEN avg_current_tenure_years > 0 THEN 1 ELSE 0 END) AS __a13, SUM(CASE WHEN high_value_stable_employees > 0 THEN 1 ELSE 0 END) AS __a14, SUM(CASE WHEN management_role_employees > 0 THEN 1 ELSE 0 END) AS __a15, SUM(CASE WHEN high_risk_employee_percentage > 0 THEN 1 ELSE 0 END) AS __a16, SUM(CASE WHEN total_promotions_in_organization > 0 THEN 1 ELSE 0 END) AS __a17, SUM(CASE WHEN avg_employee_age > 0 THEN 1 ELSE 0 END) AS __a18 FROM \"workday__organization_overview\"  GROUP BY data_quality_flag, performance_category, organization_size_category, CASE WHEN current_active_employees < 30 THEN 'Small (<30)' WHEN current_active_employees BETWEEN 30 AND 120 THEN 'Medium (30-120)' WHEN current_active_employees BETWEEN 121 AND 300 THEN 'Large (120-300)' ELSE 'Extra Large (>300)' END, CASE WHEN management_ratio < 0.15 THEN 'A: <0.15' WHEN management_ratio < 0.18 THEN 'B: 0.15-0.18' WHEN management_ratio < 0.21 THEN 'C: 0.18-0.21' WHEN management_ratio < 0.25 THEN 'D: 0.21-0.25' ELSE 'E: >=0.25' END",
+          "time": 1788869616.295091,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788869616.295607,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788869616.2956295,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n_overview FROM temp.reuse_candidate",
+          "time": 1788869616.2956817,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"data_quality_flag\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788869616.2961574,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"performance_category\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_health, MIN(__a2) AS min_h, MAX(__a3) AS max_h FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "time": 1788869616.296705,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"organization_size_category\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2",
+          "time": 1788869616.297552,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS my_tier, __g2 AS existing_tier, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3, __g2 ORDER BY my_tier",
+          "time": 1788869616.298094,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"organization_size_category\", SUM(__a0) AS n_orgs, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_health, MIN(__a2) AS min_health, MAX(__a3) AS max_health, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_mgmt_ratio, MIN(__a5) AS min_mgmt_ratio, MAX(__a6) AS max_mgmt_ratio, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_perf_score, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_fill_rate, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_turnover, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_emp_count FROM temp.reuse_candidate GROUP BY __g2 ORDER BY CASE __g2 WHEN 'Small (0-30)' THEN 1 WHEN 'Medium (30-120)' THEN 2 WHEN 'Large (120-300)' THEN 3 WHEN 'Extra Large (300+)' THEN 4 END",
+          "time": 1788869616.2991567,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"organization_size_category\", MIN(__a5) AS mn, MAX(__a6) AS mx, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 3) AS avg_mr FROM temp.reuse_candidate GROUP BY __g2",
+          "time": 1788869616.3010511,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS mr_bin, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_health, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 3) AS avg_perf, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 3) AS avg_fill, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 3) AS avg_turnover FROM temp.reuse_candidate GROUP BY __g4 ORDER BY mr_bin",
+          "time": 1788869616.301907,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"organization_size_category\", __g4 AS mr_bin, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_health, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 3) AS avg_perf, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 3) AS avg_fill, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 3) AS avg_turnover FROM temp.reuse_candidate GROUP BY __g2, __g4 ORDER BY __g2, mr_bin",
+          "time": 1788869616.3034832,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a11) AS n_dev, SUM(__a12) AS n_ret, SUM(__a13) AS n_tenure, SUM(__a14) AS n_hvs, SUM(__a15) AS n_mgmt, SUM(__a16) AS n_hrp, SUM(__a17) AS n_prom, SUM(__a18) AS n_age FROM temp.reuse_candidate",
+          "time": 1788869616.3051922,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.9749690070748329,
+      "intermediate_rows": 45,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__a0",
+        "__a1_sum",
+        "__a1_n",
+        "__a2",
+        "__a3",
+        "__a4_sum",
+        "__a4_n",
+        "__a5",
+        "__a6",
+        "__a7_sum",
+        "__a7_n",
+        "__a8_sum",
+        "__a8_n",
+        "__a9_sum",
+        "__a9_n",
+        "__a10_sum",
+        "__a10_n",
+        "__a11",
+        "__a12",
+        "__a13",
+        "__a14",
+        "__a15",
+        "__a16",
+        "__a17",
+        "__a18"
+      ],
+      "validation_ended_at": 1788869616.3074954,
+      "checks": [
+        {
+          "sql_id": "S3",
+          "rewritten_sql": "SELECT SUM(__a0) AS n_overview FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.455416738986969
+        },
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT __g0 AS \"data_quality_flag\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5180099979043007
+        },
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT __g1 AS \"performance_category\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_health, MIN(__a2) AS min_h, MAX(__a3) AS max_h FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.8712615817785263
+        },
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT __g2 AS \"organization_size_category\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5308520048856735
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT __g3 AS my_tier, __g2 AS existing_tier, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3, __g2 ORDER BY my_tier",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.9920699521899223
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT __g2 AS \"organization_size_category\", SUM(__a0) AS n_orgs, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_health, MIN(__a2) AS min_health, MAX(__a3) AS max_health, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_mgmt_ratio, MIN(__a5) AS min_mgmt_ratio, MAX(__a6) AS max_mgmt_ratio, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_perf_score, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_fill_rate, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_turnover, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_emp_count FROM temp.reuse_candidate GROUP BY __g2 ORDER BY CASE __g2 WHEN 'Small (0-30)' THEN 1 WHEN 'Medium (30-120)' THEN 2 WHEN 'Large (120-300)' THEN 3 WHEN 'Extra Large (300+)' THEN 4 END",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.9471412524580956
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "SELECT __g2 AS \"organization_size_category\", MIN(__a5) AS mn, MAX(__a6) AS mx, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 3) AS avg_mr FROM temp.reuse_candidate GROUP BY __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.8150003850460052
+        },
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "SELECT __g4 AS mr_bin, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_health, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 3) AS avg_perf, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 3) AS avg_fill, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 3) AS avg_turnover FROM temp.reuse_candidate GROUP BY __g4 ORDER BY mr_bin",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.5716329216957092
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "SELECT __g2 AS \"organization_size_category\", __g4 AS mr_bin, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_health, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 3) AS avg_perf, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 3) AS avg_fill, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 3) AS avg_turnover FROM temp.reuse_candidate GROUP BY __g2, __g4 ORDER BY __g2, mr_bin",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7422661185264587
+        },
+        {
+          "sql_id": "S25",
+          "rewritten_sql": "SELECT SUM(__a11) AS n_dev, SUM(__a12) AS n_ret, SUM(__a13) AS n_tenure, SUM(__a14) AS n_hvs, SUM(__a15) AS n_mgmt, SUM(__a16) AS n_hrp, SUM(__a17) AS n_prom, SUM(__a18) AS n_age FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.245403826236725
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT COUNT(*) AS __a0, SUM(CASE WHEN NOT span_of_control IS NULL THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN NOT talent_density_ratio IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN NOT high_value_retention_rate IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN NOT talent_flight_risk_rate IS NULL THEN 1 ELSE 0 END) AS __a4, SUM(CASE WHEN NOT high_achiever_percentage IS NULL THEN 1 ELSE 0 END) AS __a5, SUM(CASE WHEN NOT avg_employee_satisfaction_proxy IS NULL THEN 1 ELSE 0 END) AS __a6 FROM \"workday__organization_performance\" ",
+      "covered": [
+        "S4",
+        "S16"
+      ],
+      "rewrites": {
+        "S4": "SELECT SUM(__a0) AS n_perf FROM temp.reuse_candidate",
+        "S16": "SELECT SUM(__a0) AS total, SUM(__a1) AS n_span, SUM(__a2) AS n_tdr, SUM(__a3) AS n_hvrr, SUM(__a4) AS n_tfrr, SUM(__a5) AS n_hap, SUM(__a6) AS n_sat FROM temp.reuse_candidate"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S4",
+      "later_reuses": 1,
+      "denominator": 32,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

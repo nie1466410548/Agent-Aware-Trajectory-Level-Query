@@ -1,0 +1,445 @@
+{
+  "fingerprint": "0e0d0035ff86899a8d0b5d530016c88e12089cc79234b15049aa1901f48806c0",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT COUNT(*) AS __a0, COUNT(\"Salary Range\") AS __a1, COUNT(\"Benefits\") AS __a2, COUNT(\"Education Requirement\") AS __a3, COUNT(\"Work Experience Requirement\") AS __a4, COUNT(\"Age Requirement\") AS __a5 FROM \"sheet1\" ",
+      "covered": [
+        "S3",
+        "S17"
+      ],
+      "rewrites": {
+        "S3": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+        "S17": "SELECT SUM(__a0) AS total, SUM(__a1) AS sal_nonnull, SUM(__a2) AS ben_nonnull, SUM(__a3) AS edu_nonnull, SUM(__a4) AS exp_nonnull, SUM(__a5) AS age_nonnull FROM temp.reuse_candidate"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 1,
+      "denominator": 16,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866275.0400095,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT COUNT(*) AS __a0, COUNT(\"Salary Range\") AS __a1, COUNT(\"Benefits\") AS __a2, COUNT(\"Education Requirement\") AS __a3, COUNT(\"Work Experience Requirement\") AS __a4, COUNT(\"Age Requirement\") AS __a5 FROM \"sheet1\" ",
+          "phase": "offline_validation",
+          "start_time": 1788866275.040193,
+          "status": "execute_returned",
+          "end_time": 1788866275.0444396
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866275.0444438,
+          "status": "execute_returned",
+          "end_time": 1788866275.04446
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788866275.044464,
+          "status": "execute_returned",
+          "end_time": 1788866275.0444748
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866275.0444868,
+          "status": "execute_returned",
+          "end_time": 1788866275.044499
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT SUM(__a0) AS total, SUM(__a1) AS sal_nonnull, SUM(__a2) AS ben_nonnull, SUM(__a3) AS edu_nonnull, SUM(__a4) AS exp_nonnull, SUM(__a5) AS age_nonnull FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866275.044893,
+          "status": "execute_returned",
+          "end_time": 1788866275.0449247
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT COUNT(*) AS __a0, COUNT(\"Salary Range\") AS __a1, COUNT(\"Benefits\") AS __a2, COUNT(\"Education Requirement\") AS __a3, COUNT(\"Work Experience Requirement\") AS __a4, COUNT(\"Age Requirement\") AS __a5 FROM \"sheet1\" ",
+          "time": 1788866275.0403147,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788866275.0444572,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788866275.0444727,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "time": 1788866275.0444965,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total, SUM(__a1) AS sal_nonnull, SUM(__a2) AS ben_nonnull, SUM(__a3) AS edu_nonnull, SUM(__a4) AS exp_nonnull, SUM(__a5) AS age_nonnull FROM temp.reuse_candidate",
+          "time": 1788866275.0449188,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 4.250068217515945,
+      "intermediate_rows": 1,
+      "intermediate_columns": [
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4",
+        "__a5"
+      ],
+      "validation_ended_at": 1788866275.0457802,
+      "checks": [
+        {
+          "sql_id": "S3",
+          "rewritten_sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.4039350897073746
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "SELECT SUM(__a0) AS total, SUM(__a1) AS sal_nonnull, SUM(__a2) AS ben_nonnull, SUM(__a3) AS edu_nonnull, SUM(__a4) AS exp_nonnull, SUM(__a5) AS age_nonnull FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.8012140169739723
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"sheet1\" WHERE \"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%'",
+      "covered": [
+        "S7",
+        "S8",
+        "S9",
+        "S11"
+      ],
+      "rewrites": {
+        "S7": "SELECT COUNT(*) AS insurance_rows FROM temp.reuse_candidate AS sheet1 WHERE \"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%'",
+        "S8": "SELECT \"Job Title\", \"Company Name\", \"Company Type\", \"Industry\", \"Salary Range\", \"Benefits\", \"Education Requirement\", \"Work Experience Requirement\", \"Age Requirement\" FROM temp.reuse_candidate AS sheet1 WHERE \"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%' LIMIT 40",
+        "S9": "SELECT \"Job Title\", \"Company Name\", \"Company Type\", \"Industry\", \"Salary Range\", \"Benefits\", \"Education Requirement\", \"Work Experience Requirement\", \"Age Requirement\", \"Gender Requirement\", \"Employment Type\", \"Work Location\", \"Job Description\" FROM temp.reuse_candidate AS sheet1 WHERE \"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%' ORDER BY \"Job Title\"",
+        "S11": "SELECT \"Job Title\", \"Company Name\", \"Company Type\", \"Industry\", \"Salary Range\", \"Benefits\", \"Education Requirement\", \"Work Experience Requirement\", \"Age Requirement\", \"Gender Requirement\", \"Employment Type\", \"Work Location\", \"Job Description\" FROM temp.reuse_candidate AS sheet1 WHERE \"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%' ORDER BY \"Job Title\" LIMIT 30 OFFSET 15"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S7",
+      "later_reuses": 3,
+      "denominator": 16,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866275.0193822,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"sheet1\" WHERE \"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%'",
+          "phase": "offline_validation",
+          "start_time": 1788866275.0196476,
+          "status": "execute_returned",
+          "end_time": 1788866275.026039
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866275.026045,
+          "status": "execute_returned",
+          "end_time": 1788866275.02607
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788866275.0260754,
+          "status": "execute_returned",
+          "end_time": 1788866275.026098
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT COUNT(*) AS insurance_rows FROM temp.reuse_candidate AS sheet1 WHERE \"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%'",
+          "phase": "offline_validation",
+          "start_time": 1788866275.0261261,
+          "status": "execute_returned",
+          "end_time": 1788866275.0262027
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT \"Job Title\", \"Company Name\", \"Company Type\", \"Industry\", \"Salary Range\", \"Benefits\", \"Education Requirement\", \"Work Experience Requirement\", \"Age Requirement\" FROM temp.reuse_candidate AS sheet1 WHERE \"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%' LIMIT 40",
+          "phase": "offline_validation",
+          "start_time": 1788866275.0267475,
+          "status": "execute_returned",
+          "end_time": 1788866275.0267942
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT \"Job Title\", \"Company Name\", \"Company Type\", \"Industry\", \"Salary Range\", \"Benefits\", \"Education Requirement\", \"Work Experience Requirement\", \"Age Requirement\", \"Gender Requirement\", \"Employment Type\", \"Work Location\", \"Job Description\" FROM temp.reuse_candidate AS sheet1 WHERE \"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%' ORDER BY \"Job Title\"",
+          "phase": "offline_validation",
+          "start_time": 1788866275.0286703,
+          "status": "execute_returned",
+          "end_time": 1788866275.028823
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT \"Job Title\", \"Company Name\", \"Company Type\", \"Industry\", \"Salary Range\", \"Benefits\", \"Education Requirement\", \"Work Experience Requirement\", \"Age Requirement\", \"Gender Requirement\", \"Employment Type\", \"Work Location\", \"Job Description\" FROM temp.reuse_candidate AS sheet1 WHERE \"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%' ORDER BY \"Job Title\" LIMIT 30 OFFSET 15",
+          "phase": "offline_validation",
+          "start_time": 1788866275.0304542,
+          "status": "execute_returned",
+          "end_time": 1788866275.0306911
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"sheet1\" WHERE \"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%'",
+          "time": 1788866275.019891,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788866275.0260653,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788866275.026095,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) AS insurance_rows FROM temp.reuse_candidate AS sheet1 WHERE \"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%'",
+          "time": 1788866275.0261457,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Job Title\", \"Company Name\", \"Company Type\", \"Industry\", \"Salary Range\", \"Benefits\", \"Education Requirement\", \"Work Experience Requirement\", \"Age Requirement\" FROM temp.reuse_candidate AS sheet1 WHERE \"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%' LIMIT 40",
+          "time": 1788866275.0267868,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Job Title\", \"Company Name\", \"Company Type\", \"Industry\", \"Salary Range\", \"Benefits\", \"Education Requirement\", \"Work Experience Requirement\", \"Age Requirement\", \"Gender Requirement\", \"Employment Type\", \"Work Location\", \"Job Description\" FROM temp.reuse_candidate AS sheet1 WHERE \"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%' ORDER BY \"Job Title\"",
+          "time": 1788866275.0287244,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Job Title\", \"Company Name\", \"Company Type\", \"Industry\", \"Salary Range\", \"Benefits\", \"Education Requirement\", \"Work Experience Requirement\", \"Age Requirement\", \"Gender Requirement\", \"Employment Type\", \"Work Location\", \"Job Description\" FROM temp.reuse_candidate AS sheet1 WHERE \"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%' ORDER BY \"Job Title\" LIMIT 30 OFFSET 15",
+          "time": 1788866275.0305104,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 6.396687589585781,
+      "intermediate_rows": 27,
+      "intermediate_columns": [
+        "Job Title",
+        "Number of Openings",
+        "Company Name",
+        "Employment Type",
+        "Work Experience Requirement",
+        "Foreign Language Requirement",
+        "Age Requirement",
+        "Gender Requirement",
+        "Education Requirement",
+        "Work Location",
+        "Working Hours",
+        "Salary Range",
+        "Benefits",
+        "Contact Person",
+        "Contact Information",
+        "Company Address",
+        "Company Type",
+        "Industry",
+        "Job Description"
+      ],
+      "validation_ended_at": 1788866275.0319073,
+      "checks": [
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT COUNT(*) AS insurance_rows FROM temp.reuse_candidate AS sheet1 WHERE \"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.61769038438797
+        },
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT \"Job Title\", \"Company Name\", \"Company Type\", \"Industry\", \"Salary Range\", \"Benefits\", \"Education Requirement\", \"Work Experience Requirement\", \"Age Requirement\" FROM temp.reuse_candidate AS sheet1 WHERE \"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%' LIMIT 40",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.9205259159207344
+        },
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT \"Job Title\", \"Company Name\", \"Company Type\", \"Industry\", \"Salary Range\", \"Benefits\", \"Education Requirement\", \"Work Experience Requirement\", \"Age Requirement\", \"Gender Requirement\", \"Employment Type\", \"Work Location\", \"Job Description\" FROM temp.reuse_candidate AS sheet1 WHERE \"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%' ORDER BY \"Job Title\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.781160943210125
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT \"Job Title\", \"Company Name\", \"Company Type\", \"Industry\", \"Salary Range\", \"Benefits\", \"Education Requirement\", \"Work Experience Requirement\", \"Age Requirement\", \"Gender Requirement\", \"Employment Type\", \"Work Location\", \"Job Description\" FROM temp.reuse_candidate AS sheet1 WHERE \"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%' ORDER BY \"Job Title\" LIMIT 30 OFFSET 15",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.3279002159833908
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"sheet1\" WHERE (\"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%') AND (\"Company Name\" LIKE '%保险%' OR \"Company Name\" LIKE '%Insurance%' OR \"Company Name\" LIKE '%Life%')",
+      "covered": [
+        "S16",
+        "S18"
+      ],
+      "rewrites": {
+        "S16": "SELECT COUNT(*) AS peer_count FROM temp.reuse_candidate AS sheet1 WHERE (\"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%') AND (\"Company Name\" LIKE '%保险%' OR \"Company Name\" LIKE '%Insurance%' OR \"Company Name\" LIKE '%Life%')",
+        "S18": "SELECT \"Job Title\", \"Company Name\", \"Company Type\", \"Industry\", \"Salary Range\", \"Benefits\", \"Education Requirement\", \"Work Experience Requirement\", \"Age Requirement\", \"Gender Requirement\", \"Employment Type\", \"Work Location\", \"Job Description\" FROM temp.reuse_candidate AS sheet1 WHERE (\"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%') AND (\"Company Name\" LIKE '%保险%' OR \"Company Name\" LIKE '%Insurance%' OR \"Company Name\" LIKE '%Life%') ORDER BY \"Job Title\""
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S16",
+      "later_reuses": 1,
+      "denominator": 16,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866275.031928,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"sheet1\" WHERE (\"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%') AND (\"Company Name\" LIKE '%保险%' OR \"Company Name\" LIKE '%Insurance%' OR \"Company Name\" LIKE '%Life%')",
+          "phase": "offline_validation",
+          "start_time": 1788866275.0321188,
+          "status": "execute_returned",
+          "end_time": 1788866275.0377545
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866275.0377595,
+          "status": "execute_returned",
+          "end_time": 1788866275.0377796
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788866275.0377843,
+          "status": "execute_returned",
+          "end_time": 1788866275.0377972
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT COUNT(*) AS peer_count FROM temp.reuse_candidate AS sheet1 WHERE (\"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%') AND (\"Company Name\" LIKE '%保险%' OR \"Company Name\" LIKE '%Insurance%' OR \"Company Name\" LIKE '%Life%')",
+          "phase": "offline_validation",
+          "start_time": 1788866275.0378234,
+          "status": "execute_returned",
+          "end_time": 1788866275.0378606
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT \"Job Title\", \"Company Name\", \"Company Type\", \"Industry\", \"Salary Range\", \"Benefits\", \"Education Requirement\", \"Work Experience Requirement\", \"Age Requirement\", \"Gender Requirement\", \"Employment Type\", \"Work Location\", \"Job Description\" FROM temp.reuse_candidate AS sheet1 WHERE (\"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%') AND (\"Company Name\" LIKE '%保险%' OR \"Company Name\" LIKE '%Insurance%' OR \"Company Name\" LIKE '%Life%') ORDER BY \"Job Title\"",
+          "phase": "offline_validation",
+          "start_time": 1788866275.0385985,
+          "status": "execute_returned",
+          "end_time": 1788866275.0386913
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"sheet1\" WHERE (\"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%') AND (\"Company Name\" LIKE '%保险%' OR \"Company Name\" LIKE '%Insurance%' OR \"Company Name\" LIKE '%Life%')",
+          "time": 1788866275.0322802,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788866275.0377758,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788866275.0377946,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) AS peer_count FROM temp.reuse_candidate AS sheet1 WHERE (\"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%') AND (\"Company Name\" LIKE '%保险%' OR \"Company Name\" LIKE '%Insurance%' OR \"Company Name\" LIKE '%Life%')",
+          "time": 1788866275.0378458,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Job Title\", \"Company Name\", \"Company Type\", \"Industry\", \"Salary Range\", \"Benefits\", \"Education Requirement\", \"Work Experience Requirement\", \"Age Requirement\", \"Gender Requirement\", \"Employment Type\", \"Work Location\", \"Job Description\" FROM temp.reuse_candidate AS sheet1 WHERE (\"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%') AND (\"Company Name\" LIKE '%保险%' OR \"Company Name\" LIKE '%Insurance%' OR \"Company Name\" LIKE '%Life%') ORDER BY \"Job Title\"",
+          "time": 1788866275.0386503,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 5.64152467995882,
+      "intermediate_rows": 16,
+      "intermediate_columns": [
+        "Job Title",
+        "Number of Openings",
+        "Company Name",
+        "Employment Type",
+        "Work Experience Requirement",
+        "Foreign Language Requirement",
+        "Age Requirement",
+        "Gender Requirement",
+        "Education Requirement",
+        "Work Location",
+        "Working Hours",
+        "Salary Range",
+        "Benefits",
+        "Contact Person",
+        "Contact Information",
+        "Company Address",
+        "Company Type",
+        "Industry",
+        "Job Description"
+      ],
+      "validation_ended_at": 1788866275.0399864,
+      "checks": [
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "SELECT COUNT(*) AS peer_count FROM temp.reuse_candidate AS sheet1 WHERE (\"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%') AND (\"Company Name\" LIKE '%保险%' OR \"Company Name\" LIKE '%Insurance%' OR \"Company Name\" LIKE '%Life%')",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.7723597809672356
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT \"Job Title\", \"Company Name\", \"Company Type\", \"Industry\", \"Salary Range\", \"Benefits\", \"Education Requirement\", \"Work Experience Requirement\", \"Age Requirement\", \"Gender Requirement\", \"Employment Type\", \"Work Location\", \"Job Description\" FROM temp.reuse_candidate AS sheet1 WHERE (\"Industry\" LIKE '%保险%' OR \"Industry\" LIKE '%Insurance%') AND (\"Company Name\" LIKE '%保险%' OR \"Company Name\" LIKE '%Insurance%' OR \"Company Name\" LIKE '%Life%') ORDER BY \"Job Title\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.2798644602298737
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

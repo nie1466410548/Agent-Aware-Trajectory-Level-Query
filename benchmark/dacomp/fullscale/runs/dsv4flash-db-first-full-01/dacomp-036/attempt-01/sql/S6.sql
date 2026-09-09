@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total, SUM(CASE WHEN substr("Login Time",1,4)='2024' THEN 1 ELSE 0 END) AS cnt_2024 FROM login_records_table

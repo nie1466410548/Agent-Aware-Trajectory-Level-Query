@@ -1,0 +1,689 @@
+{
+  "fingerprint": "6c66ec7627f78bb8d1ccdf30bd70a42f016bdcc0751ac22aef9477e499153ac9",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT strategic_importance_level AS __g0, risk_level AS __g1, SUM(CASE WHEN spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') THEN 1 ELSE 0 END) AS __a0, SUM(CASE WHEN spend_concentration_ratio > 0.15 THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN strategic_importance_level IN ('Mission Critical', 'High Strategic Value') THEN 1 ELSE 0 END) AS __a2, COUNT(*) AS __a3 FROM \"netsuite2_vendor_risk_analysis\"  GROUP BY strategic_importance_level, risk_level",
+      "covered": [
+        "S14",
+        "S15",
+        "S16"
+      ],
+      "rewrites": {
+        "S14": "SELECT SUM(__a0) AS focus_group_count, SUM(__a1) AS conc_gt15, SUM(__a2) AS strat_high FROM temp.reuse_candidate",
+        "S15": "SELECT __g0 AS \"strategic_importance_level\", SUM(__a3) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+        "S16": "SELECT __g1 AS \"risk_level\", SUM(__a3) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S14",
+      "later_reuses": 2,
+      "denominator": 27,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788868623.5149262,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT strategic_importance_level AS __g0, risk_level AS __g1, SUM(CASE WHEN spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') THEN 1 ELSE 0 END) AS __a0, SUM(CASE WHEN spend_concentration_ratio > 0.15 THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN strategic_importance_level IN ('Mission Critical', 'High Strategic Value') THEN 1 ELSE 0 END) AS __a2, COUNT(*) AS __a3 FROM \"netsuite2_vendor_risk_analysis\"  GROUP BY strategic_importance_level, risk_level",
+          "phase": "offline_validation",
+          "start_time": 1788868623.5150921,
+          "status": "execute_returned",
+          "end_time": 1788868623.5153837
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788868623.5153866,
+          "status": "execute_returned",
+          "end_time": 1788868623.5154002
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788868623.5154035,
+          "status": "execute_returned",
+          "end_time": 1788868623.5154128
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS focus_group_count, SUM(__a1) AS conc_gt15, SUM(__a2) AS strat_high FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788868623.5154238,
+          "status": "execute_returned",
+          "end_time": 1788868623.5154393
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"strategic_importance_level\", SUM(__a3) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868623.5166192,
+          "status": "execute_returned",
+          "end_time": 1788868623.5166593
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS \"risk_level\", SUM(__a3) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868623.5171592,
+          "status": "execute_returned",
+          "end_time": 1788868623.5172021
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT strategic_importance_level AS __g0, risk_level AS __g1, SUM(CASE WHEN spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') THEN 1 ELSE 0 END) AS __a0, SUM(CASE WHEN spend_concentration_ratio > 0.15 THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN strategic_importance_level IN ('Mission Critical', 'High Strategic Value') THEN 1 ELSE 0 END) AS __a2, COUNT(*) AS __a3 FROM \"netsuite2_vendor_risk_analysis\"  GROUP BY strategic_importance_level, risk_level",
+          "time": 1788868623.5152566,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788868623.5153978,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788868623.5154104,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS focus_group_count, SUM(__a1) AS conc_gt15, SUM(__a2) AS strat_high FROM temp.reuse_candidate",
+          "time": 1788868623.5154355,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"strategic_importance_level\", SUM(__a3) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "time": 1788868623.5166464,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"risk_level\", SUM(__a3) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "time": 1788868623.517191,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.2941451966762543,
+      "intermediate_rows": 6,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3"
+      ],
+      "validation_ended_at": 1788868623.5177214,
+      "checks": [
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT SUM(__a0) AS focus_group_count, SUM(__a1) AS conc_gt15, SUM(__a2) AS strat_high FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.1930949985980988
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "SELECT __g0 AS \"strategic_importance_level\", SUM(__a3) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5382383242249489
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "SELECT __g1 AS \"risk_level\", SUM(__a3) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5187978968024254
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"netsuite2_vendor_risk_analysis\" WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value')",
+      "covered": [
+        "S18",
+        "S20",
+        "S21",
+        "S22",
+        "S24",
+        "S25",
+        "S27",
+        "S28",
+        "S29"
+      ],
+      "rewrites": {
+        "S18": "SELECT vendor_id, vendor_name, vendor_category_name, geographic_region, total_vendor_spend, total_payables, total_expenses, avg_payment_delay, overdue_payment_percentage, overdue_invoices, total_payable_invoices, dependency_level, spend_concentration_ratio, relationship_stability, activity_status, vendor_risk_score, risk_level, business_impact_level, supplier_tier, management_priority, days_since_last_transaction, contract_type, contract_expiry_date, quality_score, compliance_rating, financial_health_score, market_volatility_index, alternative_suppliers_count, switching_cost_estimate, strategic_importance_level, innovation_capability_score, environmental_rating, cybersecurity_score, seasonal_demand_factor, price_volatility_coefficient, vendor_relationship_days, active_months, total_transactions, avg_payable_amount, max_transaction_amount FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') ORDER BY vendor_risk_score DESC",
+        "S20": "SELECT vendor_id, vendor_name, vendor_category_name, total_vendor_spend, spend_concentration_ratio, strategic_importance_level, dependency_level, activity_status, days_since_last_transaction, contract_expiry_date, risk_level, vendor_risk_score FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') ORDER BY total_vendor_spend ASC LIMIT 15",
+        "S21": "SELECT activity_status, COUNT(*) AS n FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') GROUP BY activity_status ORDER BY n DESC",
+        "S22": "SELECT SUM(CASE WHEN vendor_name LIKE 'Vendor_%' THEN 1 ELSE 0 END) AS synthetic_named, SUM(CASE WHEN vendor_category_name = 'General Supplier' THEN 1 ELSE 0 END) AS general_supplier_count, SUM(CASE WHEN total_vendor_spend < 1000 THEN 1 ELSE 0 END) AS tiny_spend, SUM(CASE WHEN spend_concentration_ratio = 1.0 THEN 1 ELSE 0 END) AS conc_100pct FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value')",
+        "S24": "SELECT vendor_id, vendor_name, vendor_category_name, geographic_region, total_vendor_spend, spend_concentration_ratio, strategic_importance_level, avg_payment_delay /* Financial Resilience Metrics */, overdue_payment_percentage, overdue_invoices, total_payable_invoices, financial_health_score, quality_score /* Operational Resilience Metrics */, cybersecurity_score, innovation_capability_score, market_volatility_index /* Market Resilience */, alternative_suppliers_count, price_volatility_coefficient, geographic_region /* Strategic Resilience */, contract_expiry_date, environmental_rating, vendor_relationship_days, days_since_last_transaction, dependency_level /* Additional */, relationship_stability, activity_status, risk_level, vendor_risk_score, supplier_tier, management_priority, switching_cost_estimate, total_payables, total_expenses, total_transactions, active_months FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') ORDER BY total_vendor_spend DESC",
+        "S25": "SELECT * FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') ORDER BY total_vendor_spend DESC",
+        "S27": "SELECT vendor_category_name, COUNT(*) AS n, ROUND(SUM(total_vendor_spend), 0) AS total_spend, ROUND(AVG(avg_payment_delay), 1) AS avg_delay_days, ROUND(AVG(overdue_payment_percentage), 1) AS avg_overdue_pct, ROUND(AVG(financial_health_score), 1) AS avg_fin_health, ROUND(AVG(cybersecurity_score), 1) AS avg_cyber, ROUND(AVG(quality_score), 1) AS avg_quality, ROUND(AVG(innovation_capability_score), 1) AS avg_innovation, ROUND(AVG(market_volatility_index), 3) AS avg_mkt_vol, ROUND(AVG(price_volatility_coefficient), 3) AS avg_price_vol FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') GROUP BY vendor_category_name ORDER BY total_spend DESC",
+        "S28": "SELECT contract_type, COUNT(*) AS n FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') GROUP BY contract_type ORDER BY n DESC",
+        "S29": "SELECT dependency_level, COUNT(*) AS n FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') GROUP BY dependency_level ORDER BY n DESC"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S18",
+      "later_reuses": 8,
+      "denominator": 27,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788868623.489319,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"netsuite2_vendor_risk_analysis\" WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value')",
+          "phase": "offline_validation",
+          "start_time": 1788868623.4895945,
+          "status": "execute_returned",
+          "end_time": 1788868623.4902425
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788868623.4902477,
+          "status": "execute_returned",
+          "end_time": 1788868623.490268
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788868623.490274,
+          "status": "execute_returned",
+          "end_time": 1788868623.490296
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT vendor_id, vendor_name, vendor_category_name, geographic_region, total_vendor_spend, total_payables, total_expenses, avg_payment_delay, overdue_payment_percentage, overdue_invoices, total_payable_invoices, dependency_level, spend_concentration_ratio, relationship_stability, activity_status, vendor_risk_score, risk_level, business_impact_level, supplier_tier, management_priority, days_since_last_transaction, contract_type, contract_expiry_date, quality_score, compliance_rating, financial_health_score, market_volatility_index, alternative_suppliers_count, switching_cost_estimate, strategic_importance_level, innovation_capability_score, environmental_rating, cybersecurity_score, seasonal_demand_factor, price_volatility_coefficient, vendor_relationship_days, active_months, total_transactions, avg_payable_amount, max_transaction_amount FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') ORDER BY vendor_risk_score DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868623.4903598,
+          "status": "execute_returned",
+          "end_time": 1788868623.4905655
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT vendor_id, vendor_name, vendor_category_name, total_vendor_spend, spend_concentration_ratio, strategic_importance_level, dependency_level, activity_status, days_since_last_transaction, contract_expiry_date, risk_level, vendor_risk_score FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') ORDER BY total_vendor_spend ASC LIMIT 15",
+          "phase": "offline_validation",
+          "start_time": 1788868623.4942262,
+          "status": "execute_returned",
+          "end_time": 1788868623.4943624
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT activity_status, COUNT(*) AS n FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') GROUP BY activity_status ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868623.4954503,
+          "status": "execute_returned",
+          "end_time": 1788868623.4955347
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT SUM(CASE WHEN vendor_name LIKE 'Vendor_%' THEN 1 ELSE 0 END) AS synthetic_named, SUM(CASE WHEN vendor_category_name = 'General Supplier' THEN 1 ELSE 0 END) AS general_supplier_count, SUM(CASE WHEN total_vendor_spend < 1000 THEN 1 ELSE 0 END) AS tiny_spend, SUM(CASE WHEN spend_concentration_ratio = 1.0 THEN 1 ELSE 0 END) AS conc_100pct FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value')",
+          "phase": "offline_validation",
+          "start_time": 1788868623.4962356,
+          "status": "execute_returned",
+          "end_time": 1788868623.496338
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT vendor_id, vendor_name, vendor_category_name, geographic_region, total_vendor_spend, spend_concentration_ratio, strategic_importance_level, avg_payment_delay /* Financial Resilience Metrics */, overdue_payment_percentage, overdue_invoices, total_payable_invoices, financial_health_score, quality_score /* Operational Resilience Metrics */, cybersecurity_score, innovation_capability_score, market_volatility_index /* Market Resilience */, alternative_suppliers_count, price_volatility_coefficient, geographic_region /* Strategic Resilience */, contract_expiry_date, environmental_rating, vendor_relationship_days, days_since_last_transaction, dependency_level /* Additional */, relationship_stability, activity_status, risk_level, vendor_risk_score, supplier_tier, management_priority, switching_cost_estimate, total_payables, total_expenses, total_transactions, active_months FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') ORDER BY total_vendor_spend DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868623.4977527,
+          "status": "execute_returned",
+          "end_time": 1788868623.4979625
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT * FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') ORDER BY total_vendor_spend DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868623.5011935,
+          "status": "execute_returned",
+          "end_time": 1788868623.5014677
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT vendor_category_name, COUNT(*) AS n, ROUND(SUM(total_vendor_spend), 0) AS total_spend, ROUND(AVG(avg_payment_delay), 1) AS avg_delay_days, ROUND(AVG(overdue_payment_percentage), 1) AS avg_overdue_pct, ROUND(AVG(financial_health_score), 1) AS avg_fin_health, ROUND(AVG(cybersecurity_score), 1) AS avg_cyber, ROUND(AVG(quality_score), 1) AS avg_quality, ROUND(AVG(innovation_capability_score), 1) AS avg_innovation, ROUND(AVG(market_volatility_index), 3) AS avg_mkt_vol, ROUND(AVG(price_volatility_coefficient), 3) AS avg_price_vol FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') GROUP BY vendor_category_name ORDER BY total_spend DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868623.5042562,
+          "status": "execute_returned",
+          "end_time": 1788868623.5044718
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT contract_type, COUNT(*) AS n FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') GROUP BY contract_type ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868623.5065613,
+          "status": "execute_returned",
+          "end_time": 1788868623.5066447
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT dependency_level, COUNT(*) AS n FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') GROUP BY dependency_level ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868623.5073314,
+          "status": "execute_returned",
+          "end_time": 1788868623.5074127
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"netsuite2_vendor_risk_analysis\" WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value')",
+          "time": 1788868623.4899397,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788868623.4902637,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788868623.4902925,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT vendor_id, vendor_name, vendor_category_name, geographic_region, total_vendor_spend, total_payables, total_expenses, avg_payment_delay, overdue_payment_percentage, overdue_invoices, total_payable_invoices, dependency_level, spend_concentration_ratio, relationship_stability, activity_status, vendor_risk_score, risk_level, business_impact_level, supplier_tier, management_priority, days_since_last_transaction, contract_type, contract_expiry_date, quality_score, compliance_rating, financial_health_score, market_volatility_index, alternative_suppliers_count, switching_cost_estimate, strategic_importance_level, innovation_capability_score, environmental_rating, cybersecurity_score, seasonal_demand_factor, price_volatility_coefficient, vendor_relationship_days, active_months, total_transactions, avg_payable_amount, max_transaction_amount FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') ORDER BY vendor_risk_score DESC",
+          "time": 1788868623.4904363,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT vendor_id, vendor_name, vendor_category_name, total_vendor_spend, spend_concentration_ratio, strategic_importance_level, dependency_level, activity_status, days_since_last_transaction, contract_expiry_date, risk_level, vendor_risk_score FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') ORDER BY total_vendor_spend ASC LIMIT 15",
+          "time": 1788868623.494284,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT activity_status, COUNT(*) AS n FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') GROUP BY activity_status ORDER BY n DESC",
+          "time": 1788868623.4954944,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(CASE WHEN vendor_name LIKE 'Vendor_%' THEN 1 ELSE 0 END) AS synthetic_named, SUM(CASE WHEN vendor_category_name = 'General Supplier' THEN 1 ELSE 0 END) AS general_supplier_count, SUM(CASE WHEN total_vendor_spend < 1000 THEN 1 ELSE 0 END) AS tiny_spend, SUM(CASE WHEN spend_concentration_ratio = 1.0 THEN 1 ELSE 0 END) AS conc_100pct FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value')",
+          "time": 1788868623.4962966,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT vendor_id, vendor_name, vendor_category_name, geographic_region, total_vendor_spend, spend_concentration_ratio, strategic_importance_level, avg_payment_delay /* Financial Resilience Metrics */, overdue_payment_percentage, overdue_invoices, total_payable_invoices, financial_health_score, quality_score /* Operational Resilience Metrics */, cybersecurity_score, innovation_capability_score, market_volatility_index /* Market Resilience */, alternative_suppliers_count, price_volatility_coefficient, geographic_region /* Strategic Resilience */, contract_expiry_date, environmental_rating, vendor_relationship_days, days_since_last_transaction, dependency_level /* Additional */, relationship_stability, activity_status, risk_level, vendor_risk_score, supplier_tier, management_priority, switching_cost_estimate, total_payables, total_expenses, total_transactions, active_months FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') ORDER BY total_vendor_spend DESC",
+          "time": 1788868623.4978545,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT * FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') ORDER BY total_vendor_spend DESC",
+          "time": 1788868623.5013134,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT vendor_category_name, COUNT(*) AS n, ROUND(SUM(total_vendor_spend), 0) AS total_spend, ROUND(AVG(avg_payment_delay), 1) AS avg_delay_days, ROUND(AVG(overdue_payment_percentage), 1) AS avg_overdue_pct, ROUND(AVG(financial_health_score), 1) AS avg_fin_health, ROUND(AVG(cybersecurity_score), 1) AS avg_cyber, ROUND(AVG(quality_score), 1) AS avg_quality, ROUND(AVG(innovation_capability_score), 1) AS avg_innovation, ROUND(AVG(market_volatility_index), 3) AS avg_mkt_vol, ROUND(AVG(price_volatility_coefficient), 3) AS avg_price_vol FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') GROUP BY vendor_category_name ORDER BY total_spend DESC",
+          "time": 1788868623.5043504,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT contract_type, COUNT(*) AS n FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') GROUP BY contract_type ORDER BY n DESC",
+          "time": 1788868623.5066051,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT dependency_level, COUNT(*) AS n FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') GROUP BY dependency_level ORDER BY n DESC",
+          "time": 1788868623.5073724,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.6526149809360504,
+      "intermediate_rows": 91,
+      "intermediate_columns": [
+        "vendor_id",
+        "vendor_name",
+        "vendor_email",
+        "vendor_category_name",
+        "subsidiary_id",
+        "total_vendor_spend",
+        "total_payables",
+        "total_expenses",
+        "avg_payable_amount",
+        "max_transaction_amount",
+        "total_transactions",
+        "active_months",
+        "vendor_relationship_days",
+        "avg_payment_delay",
+        "overdue_payment_percentage",
+        "overdue_invoices",
+        "total_payable_invoices",
+        "dependency_level",
+        "spend_concentration_ratio",
+        "relationship_stability",
+        "activity_status",
+        "vendor_risk_score",
+        "risk_level",
+        "business_impact_level",
+        "supplier_tier",
+        "management_priority",
+        "recommended_action",
+        "contract_recommendation",
+        "payment_recommendation",
+        "first_transaction_date",
+        "last_transaction_date",
+        "days_since_last_transaction",
+        "analysis_date",
+        "vendor_risk_analysis_id",
+        "geographic_region",
+        "contract_type",
+        "contract_expiry_date",
+        "quality_score",
+        "compliance_rating",
+        "financial_health_score",
+        "market_volatility_index",
+        "alternative_suppliers_count",
+        "switching_cost_estimate",
+        "strategic_importance_level",
+        "innovation_capability_score",
+        "environmental_rating",
+        "cybersecurity_score",
+        "seasonal_demand_factor",
+        "price_volatility_coefficient"
+      ],
+      "validation_ended_at": 1788868623.5082343,
+      "checks": [
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT vendor_id, vendor_name, vendor_category_name, geographic_region, total_vendor_spend, total_payables, total_expenses, avg_payment_delay, overdue_payment_percentage, overdue_invoices, total_payable_invoices, dependency_level, spend_concentration_ratio, relationship_stability, activity_status, vendor_risk_score, risk_level, business_impact_level, supplier_tier, management_priority, days_since_last_transaction, contract_type, contract_expiry_date, quality_score, compliance_rating, financial_health_score, market_volatility_index, alternative_suppliers_count, switching_cost_estimate, strategic_importance_level, innovation_capability_score, environmental_rating, cybersecurity_score, seasonal_demand_factor, price_volatility_coefficient, vendor_relationship_days, active_months, total_transactions, avg_payable_amount, max_transaction_amount FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') ORDER BY vendor_risk_score DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.8628634065389633
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "SELECT vendor_id, vendor_name, vendor_category_name, total_vendor_spend, spend_concentration_ratio, strategic_importance_level, dependency_level, activity_status, days_since_last_transaction, contract_expiry_date, risk_level, vendor_risk_score FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') ORDER BY total_vendor_spend ASC LIMIT 15",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.2213131412863731
+        },
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "SELECT activity_status, COUNT(*) AS n FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') GROUP BY activity_status ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7824590429663658
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "SELECT SUM(CASE WHEN vendor_name LIKE 'Vendor_%' THEN 1 ELSE 0 END) AS synthetic_named, SUM(CASE WHEN vendor_category_name = 'General Supplier' THEN 1 ELSE 0 END) AS general_supplier_count, SUM(CASE WHEN total_vendor_spend < 1000 THEN 1 ELSE 0 END) AS tiny_spend, SUM(CASE WHEN spend_concentration_ratio = 1.0 THEN 1 ELSE 0 END) AS conc_100pct FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value')",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.5129586681723595
+        },
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "SELECT vendor_id, vendor_name, vendor_category_name, geographic_region, total_vendor_spend, spend_concentration_ratio, strategic_importance_level, avg_payment_delay /* Financial Resilience Metrics */, overdue_payment_percentage, overdue_invoices, total_payable_invoices, financial_health_score, quality_score /* Operational Resilience Metrics */, cybersecurity_score, innovation_capability_score, market_volatility_index /* Market Resilience */, alternative_suppliers_count, price_volatility_coefficient, geographic_region /* Strategic Resilience */, contract_expiry_date, environmental_rating, vendor_relationship_days, days_since_last_transaction, dependency_level /* Additional */, relationship_stability, activity_status, risk_level, vendor_risk_score, supplier_tier, management_priority, switching_cost_estimate, total_payables, total_expenses, total_transactions, active_months FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') ORDER BY total_vendor_spend DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.4395279362797737
+        },
+        {
+          "sql_id": "S25",
+          "rewritten_sql": "SELECT * FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') ORDER BY total_vendor_spend DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.05958092212677
+        },
+        {
+          "sql_id": "S27",
+          "rewritten_sql": "SELECT vendor_category_name, COUNT(*) AS n, ROUND(SUM(total_vendor_spend), 0) AS total_spend, ROUND(AVG(avg_payment_delay), 1) AS avg_delay_days, ROUND(AVG(overdue_payment_percentage), 1) AS avg_overdue_pct, ROUND(AVG(financial_health_score), 1) AS avg_fin_health, ROUND(AVG(cybersecurity_score), 1) AS avg_cyber, ROUND(AVG(quality_score), 1) AS avg_quality, ROUND(AVG(innovation_capability_score), 1) AS avg_innovation, ROUND(AVG(market_volatility_index), 3) AS avg_mkt_vol, ROUND(AVG(price_volatility_coefficient), 3) AS avg_price_vol FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') GROUP BY vendor_category_name ORDER BY total_spend DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.295900136232376
+        },
+        {
+          "sql_id": "S28",
+          "rewritten_sql": "SELECT contract_type, COUNT(*) AS n FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') GROUP BY contract_type ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7678670808672905
+        },
+        {
+          "sql_id": "S29",
+          "rewritten_sql": "SELECT dependency_level, COUNT(*) AS n FROM temp.reuse_candidate AS netsuite2_vendor_risk_analysis WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') GROUP BY dependency_level ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7437132298946381
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT activity_status AS __g0, vendor_category_name AS __g1, contract_type AS __g2, dependency_level AS __g3, COUNT(*) AS __a0, SUM(CASE WHEN vendor_name LIKE 'Vendor_%' THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN vendor_category_name = 'General Supplier' THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN total_vendor_spend < 1000 THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN spend_concentration_ratio = 1.0 THEN 1 ELSE 0 END) AS __a4, SUM(total_vendor_spend) AS __a5, SUM(avg_payment_delay) AS __a6_sum, COUNT(avg_payment_delay) AS __a6_n, SUM(overdue_payment_percentage) AS __a7_sum, COUNT(overdue_payment_percentage) AS __a7_n, SUM(financial_health_score) AS __a8_sum, COUNT(financial_health_score) AS __a8_n, SUM(cybersecurity_score) AS __a9_sum, COUNT(cybersecurity_score) AS __a9_n, SUM(quality_score) AS __a10_sum, COUNT(quality_score) AS __a10_n, SUM(innovation_capability_score) AS __a11_sum, COUNT(innovation_capability_score) AS __a11_n, SUM(market_volatility_index) AS __a12_sum, COUNT(market_volatility_index) AS __a12_n, SUM(price_volatility_coefficient) AS __a13_sum, COUNT(price_volatility_coefficient) AS __a13_n FROM \"netsuite2_vendor_risk_analysis\" WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') GROUP BY activity_status, vendor_category_name, contract_type, dependency_level",
+      "covered": [
+        "S21",
+        "S22",
+        "S27",
+        "S28",
+        "S29"
+      ],
+      "rewrites": {
+        "S21": "SELECT __g0 AS \"activity_status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+        "S22": "SELECT SUM(__a1) AS synthetic_named, SUM(__a2) AS general_supplier_count, SUM(__a3) AS tiny_spend, SUM(__a4) AS conc_100pct FROM temp.reuse_candidate",
+        "S27": "SELECT __g1 AS \"vendor_category_name\", SUM(__a0) AS n, ROUND(SUM(__a5), 0) AS total_spend, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 1) AS avg_delay_days, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 1) AS avg_overdue_pct, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 1) AS avg_fin_health, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 1) AS avg_cyber, ROUND((1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)), 1) AS avg_quality, ROUND((1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)), 1) AS avg_innovation, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 3) AS avg_mkt_vol, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 3) AS avg_price_vol FROM temp.reuse_candidate GROUP BY __g1 ORDER BY total_spend DESC",
+        "S28": "SELECT __g2 AS \"contract_type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY n DESC",
+        "S29": "SELECT __g3 AS \"dependency_level\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S21",
+      "later_reuses": 4,
+      "denominator": 27,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788868623.5082514,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT activity_status AS __g0, vendor_category_name AS __g1, contract_type AS __g2, dependency_level AS __g3, COUNT(*) AS __a0, SUM(CASE WHEN vendor_name LIKE 'Vendor_%' THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN vendor_category_name = 'General Supplier' THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN total_vendor_spend < 1000 THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN spend_concentration_ratio = 1.0 THEN 1 ELSE 0 END) AS __a4, SUM(total_vendor_spend) AS __a5, SUM(avg_payment_delay) AS __a6_sum, COUNT(avg_payment_delay) AS __a6_n, SUM(overdue_payment_percentage) AS __a7_sum, COUNT(overdue_payment_percentage) AS __a7_n, SUM(financial_health_score) AS __a8_sum, COUNT(financial_health_score) AS __a8_n, SUM(cybersecurity_score) AS __a9_sum, COUNT(cybersecurity_score) AS __a9_n, SUM(quality_score) AS __a10_sum, COUNT(quality_score) AS __a10_n, SUM(innovation_capability_score) AS __a11_sum, COUNT(innovation_capability_score) AS __a11_n, SUM(market_volatility_index) AS __a12_sum, COUNT(market_volatility_index) AS __a12_n, SUM(price_volatility_coefficient) AS __a13_sum, COUNT(price_volatility_coefficient) AS __a13_n FROM \"netsuite2_vendor_risk_analysis\" WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') GROUP BY activity_status, vendor_category_name, contract_type, dependency_level",
+          "phase": "offline_validation",
+          "start_time": 1788868623.5084434,
+          "status": "execute_returned",
+          "end_time": 1788868623.5089402
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788868623.508944,
+          "status": "execute_returned",
+          "end_time": 1788868623.508958
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788868623.5089622,
+          "status": "execute_returned",
+          "end_time": 1788868623.5089743
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"activity_status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868623.5090063,
+          "status": "execute_returned",
+          "end_time": 1788868623.5090337
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT SUM(__a1) AS synthetic_named, SUM(__a2) AS general_supplier_count, SUM(__a3) AS tiny_spend, SUM(__a4) AS conc_100pct FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788868623.509711,
+          "status": "execute_returned",
+          "end_time": 1788868623.5097473
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS \"vendor_category_name\", SUM(__a0) AS n, ROUND(SUM(__a5), 0) AS total_spend, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 1) AS avg_delay_days, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 1) AS avg_overdue_pct, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 1) AS avg_fin_health, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 1) AS avg_cyber, ROUND((1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)), 1) AS avg_quality, ROUND((1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)), 1) AS avg_innovation, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 3) AS avg_mkt_vol, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 3) AS avg_price_vol FROM temp.reuse_candidate GROUP BY __g1 ORDER BY total_spend DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868623.5112867,
+          "status": "execute_returned",
+          "end_time": 1788868623.5114827
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g2 AS \"contract_type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868623.5134485,
+          "status": "execute_returned",
+          "end_time": 1788868623.5134966
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g3 AS \"dependency_level\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868623.5141468,
+          "status": "execute_returned",
+          "end_time": 1788868623.5142024
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT activity_status AS __g0, vendor_category_name AS __g1, contract_type AS __g2, dependency_level AS __g3, COUNT(*) AS __a0, SUM(CASE WHEN vendor_name LIKE 'Vendor_%' THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN vendor_category_name = 'General Supplier' THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN total_vendor_spend < 1000 THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN spend_concentration_ratio = 1.0 THEN 1 ELSE 0 END) AS __a4, SUM(total_vendor_spend) AS __a5, SUM(avg_payment_delay) AS __a6_sum, COUNT(avg_payment_delay) AS __a6_n, SUM(overdue_payment_percentage) AS __a7_sum, COUNT(overdue_payment_percentage) AS __a7_n, SUM(financial_health_score) AS __a8_sum, COUNT(financial_health_score) AS __a8_n, SUM(cybersecurity_score) AS __a9_sum, COUNT(cybersecurity_score) AS __a9_n, SUM(quality_score) AS __a10_sum, COUNT(quality_score) AS __a10_n, SUM(innovation_capability_score) AS __a11_sum, COUNT(innovation_capability_score) AS __a11_n, SUM(market_volatility_index) AS __a12_sum, COUNT(market_volatility_index) AS __a12_n, SUM(price_volatility_coefficient) AS __a13_sum, COUNT(price_volatility_coefficient) AS __a13_n FROM \"netsuite2_vendor_risk_analysis\" WHERE spend_concentration_ratio > 0.15 OR strategic_importance_level IN ('Mission Critical', 'High Strategic Value') GROUP BY activity_status, vendor_category_name, contract_type, dependency_level",
+          "time": 1788868623.5086653,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788868623.5089557,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788868623.508972,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"activity_status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "time": 1788868623.5090218,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a1) AS synthetic_named, SUM(__a2) AS general_supplier_count, SUM(__a3) AS tiny_spend, SUM(__a4) AS conc_100pct FROM temp.reuse_candidate",
+          "time": 1788868623.509738,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"vendor_category_name\", SUM(__a0) AS n, ROUND(SUM(__a5), 0) AS total_spend, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 1) AS avg_delay_days, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 1) AS avg_overdue_pct, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 1) AS avg_fin_health, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 1) AS avg_cyber, ROUND((1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)), 1) AS avg_quality, ROUND((1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)), 1) AS avg_innovation, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 3) AS avg_mkt_vol, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 3) AS avg_price_vol FROM temp.reuse_candidate GROUP BY __g1 ORDER BY total_spend DESC",
+          "time": 1788868623.5114052,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"contract_type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY n DESC",
+          "time": 1788868623.5134804,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS \"dependency_level\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+          "time": 1788868623.5141838,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.5004284903407097,
+      "intermediate_rows": 16,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4",
+        "__a5",
+        "__a6_sum",
+        "__a6_n",
+        "__a7_sum",
+        "__a7_n",
+        "__a8_sum",
+        "__a8_n",
+        "__a9_sum",
+        "__a9_n",
+        "__a10_sum",
+        "__a10_n",
+        "__a11_sum",
+        "__a11_n",
+        "__a12_sum",
+        "__a12_n",
+        "__a13_sum",
+        "__a13_n"
+      ],
+      "validation_ended_at": 1788868623.5149143,
+      "checks": [
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "SELECT __g0 AS \"activity_status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.702783465385437
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "SELECT SUM(__a1) AS synthetic_named, SUM(__a2) AS general_supplier_count, SUM(__a3) AS tiny_spend, SUM(__a4) AS conc_100pct FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.573893241584301
+        },
+        {
+          "sql_id": "S27",
+          "rewritten_sql": "SELECT __g1 AS \"vendor_category_name\", SUM(__a0) AS n, ROUND(SUM(__a5), 0) AS total_spend, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 1) AS avg_delay_days, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 1) AS avg_overdue_pct, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 1) AS avg_fin_health, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 1) AS avg_cyber, ROUND((1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)), 1) AS avg_quality, ROUND((1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)), 1) AS avg_innovation, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 3) AS avg_mkt_vol, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 3) AS avg_price_vol FROM temp.reuse_candidate GROUP BY __g1 ORDER BY total_spend DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.1593254059553146
+        },
+        {
+          "sql_id": "S28",
+          "rewritten_sql": "SELECT __g2 AS \"contract_type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6964942440390587
+        },
+        {
+          "sql_id": "S29",
+          "rewritten_sql": "SELECT __g3 AS \"dependency_level\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7085325196385384
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

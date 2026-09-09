@@ -1,0 +1,1 @@
+SELECT ROUND(AVG(CAST(REPLACE("Complaint Handling Speed",'h','') AS INTEGER)),1) AS overall_comp_speed, ROUND(AVG("Complaint Customer Satisfaction"),2) AS overall_comp_sat, COUNT(*) AS n FROM complaints_table

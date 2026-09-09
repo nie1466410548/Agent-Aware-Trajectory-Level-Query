@@ -1,0 +1,1 @@
+SELECT MIN(avg_transaction_value) AS min_atv, MAX(avg_transaction_value) AS max_atv, MIN(average_revenue_per_user) AS min_arpu, MAX(average_revenue_per_user) AS max_arpu FROM google_play__geo_market_analysis WHERE package_name = 'com.dev.photoeditor'

@@ -1,0 +1,68 @@
+{
+  "task_id": "dacomp-089",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 按行业与规模计算联系密度、决策人比例和部门覆盖的均值、阈值通过率及风险计数，属于可在 SQL 内完成的聚合与条件算术。分位数和绘图单独保留。",
+  "route": "SQL 提取高收入账户与联系人覆盖 → Python 差异化基准、风险及通过率聚合 → 联系优化建议。",
+  "evidence": [
+    {
+      "source": "python/P10.py",
+      "lines": [
+        {
+          "line": 82,
+          "text": "dept_by_industry = df.groupby('industry_normalized')[dept_cols].mean().round(3)"
+        }
+      ]
+    },
+    {
+      "source": "python/P11.py",
+      "lines": [
+        {
+          "line": 62,
+          "text": "for ind, subset in df.groupby('industry_normalized'):"
+        },
+        {
+          "line": 63,
+          "text": "    cdr_pass = (subset['contact_density_ratio'] >= 5).mean() * 100"
+        },
+        {
+          "line": 66,
+          "text": "    dmr_pass2 = (subset[subset['actual_contacts'] > 0]['decision_maker_ratio'] >= 15).mean() * 100"
+        },
+        {
+          "line": 67,
+          "text": "    zero_contacts = (subset['actual_contacts'] == 0).mean() * 100"
+        }
+      ]
+    },
+    {
+      "source": "python/P14.py",
+      "lines": [
+        {
+          "line": 23,
+          "text": "cdr_pass = df.groupby('size_segment').apply(lambda x: (x['contact_density_ratio'] >= x['cdr_benchmark']).mean() * 100)"
+        },
+        {
+          "line": 33,
+          "text": "dmr_pass = df[df['actual_contacts'] > 0].groupby('size_segment').apply(lambda x: (x['decision_maker_ratio'] >= 15).mean() * 100)"
+        },
+        {
+          "line": 43,
+          "text": "dept_pass = df.groupby('size_segment').apply(lambda x: (x['dept_coverage'] >= 3).mean() * 100)"
+        },
+        {
+          "line": 106,
+          "text": "    'Establish baseline contacts\\n(0 contacts)': (df['actual_contacts'] == 0).sum(),"
+        },
+        {
+          "line": 108,
+          "text": "    'Add C-level / executive\\ncontacts': (df['chief_count'] == 0).sum(),"
+        },
+        {
+          "line": 109,
+          "text": "    'Expand department\\ncoverage (<3 depts)': (df['dept_coverage'] < 3).sum(),"
+        }
+      ]
+    }
+  ]
+}

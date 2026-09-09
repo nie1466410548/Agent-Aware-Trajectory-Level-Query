@@ -1,0 +1,1 @@
+SELECT android_os_version, COUNT(*) n, SUM(crashes) crashes, SUM(anrs) anrs, SUM(device_installs) installs, SUM(active_devices_last_30_days) actives FROM google_play__os_version_report GROUP BY android_os_version ORDER BY installs DESC

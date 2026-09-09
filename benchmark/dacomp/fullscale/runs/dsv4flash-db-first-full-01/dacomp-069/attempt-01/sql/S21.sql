@@ -1,0 +1,1 @@
+SELECT package_name, sku_id, product_title, COUNT(*) AS n, MIN(net_amount/transactions) AS min_per_tx, MAX(net_amount/transactions) AS max_per_tx FROM google_play__finance_report GROUP BY package_name, sku_id, product_title ORDER BY package_name, min_per_tx

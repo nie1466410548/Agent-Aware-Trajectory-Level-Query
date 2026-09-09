@@ -1,0 +1,1 @@
+SELECT * FROM "2000cnpop6upagesexeduvillage"

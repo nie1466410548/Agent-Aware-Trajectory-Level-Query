@@ -1,0 +1,1 @@
+SELECT created_at FROM lever__posting_enhanced LIMIT 10

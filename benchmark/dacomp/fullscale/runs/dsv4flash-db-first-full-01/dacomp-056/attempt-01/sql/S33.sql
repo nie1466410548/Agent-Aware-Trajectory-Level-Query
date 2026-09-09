@@ -1,0 +1,1 @@
+SELECT DISTINCT upsell_potential FROM customer360__customer_value_analysis ORDER BY 1

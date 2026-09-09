@@ -1,0 +1,55 @@
+{
+  "task_id": "dacomp-047",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 对单品月销量再次按商品汇总，计算七月与总体均值并合并季节性、损耗和利润结果。这些分组、连接及比率计算可在 SQL 内执行。相关分析与图表另行评价。",
+  "route": "SQL 连接蔬菜类别、销量与价格 → Python 再汇总季节性并合并补货指标 → 推荐七月组合。",
+  "evidence": [
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 43,
+          "text": "july_items = item_df[item_df['mo'] == '07'].groupby(['code','name','cat'])['vol'].sum().reset_index()"
+        },
+        {
+          "line": 64,
+          "text": "overall_avg = item_daily_df.groupby(['code','name','cat'])['avg_daily'].mean().reset_index()"
+        },
+        {
+          "line": 68,
+          "text": "july_avg_monthly = item_daily_df[item_daily_df['mo'] == '07'].groupby(['code','name','cat'])['avg_daily'].mean().reset_index()"
+        },
+        {
+          "line": 72,
+          "text": "seasonality = overall_avg.merge(july_avg_monthly, on=['code','name','cat'])"
+        }
+      ]
+    },
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 67,
+          "text": "df = candidates.merge(loss, on='code', how='left').merge(margin, on='code', how='left')"
+        },
+        {
+          "line": 94,
+          "text": "overall = seas.groupby(['code','name'])['avg_daily'].mean().reset_index()"
+        },
+        {
+          "line": 96,
+          "text": "july_s = seas[seas['mo']=='07'].groupby(['code','name'])['avg_daily'].mean().reset_index()"
+        },
+        {
+          "line": 98,
+          "text": "seas_idx = overall.merge(july_s, on=['code','name'])"
+        },
+        {
+          "line": 101,
+          "text": "df = df.merge(seas_idx[['code','seasonality','july_avg']], on='code')"
+        }
+      ]
+    }
+  ]
+}

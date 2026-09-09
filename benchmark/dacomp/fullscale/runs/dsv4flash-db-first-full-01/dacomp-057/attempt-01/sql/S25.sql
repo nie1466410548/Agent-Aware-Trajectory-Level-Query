@@ -1,0 +1,1 @@
+SELECT MIN(date_day) AS min_date, MAX(date_day) AS max_date, COUNT(DISTINCT account_id) AS n_accounts FROM google_ads__customer_acquisition_analysis

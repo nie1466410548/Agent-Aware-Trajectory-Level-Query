@@ -1,0 +1,1 @@
+SELECT "Task Owner", COUNT(*) AS cnt FROM sheet1 GROUP BY "Task Owner" ORDER BY cnt DESC

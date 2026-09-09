@@ -1,0 +1,1 @@
+SELECT DISTINCT decision_maker_level FROM customer360__customer_value_analysis ORDER BY decision_maker_level

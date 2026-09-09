@@ -1,0 +1,1 @@
+SELECT strategic_importance_level, COUNT(*) AS n FROM netsuite2_vendor_risk_analysis GROUP BY strategic_importance_level ORDER BY n DESC

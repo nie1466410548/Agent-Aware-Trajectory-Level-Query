@@ -1,0 +1,1 @@
+SELECT "Promotion Date", Strategy, COUNT(*) AS n_rows FROM sheet1 GROUP BY "Promotion Date", Strategy ORDER BY Strategy, "Promotion Date"

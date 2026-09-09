@@ -1,0 +1,1 @@
+SELECT DISTINCT brand_base_url FROM qualtrics__survey LIMIT 50

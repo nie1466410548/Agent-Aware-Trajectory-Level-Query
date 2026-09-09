@@ -1,0 +1,1 @@
+SELECT * FROM customer360__conversion_funnel_analysis LIMIT 2000

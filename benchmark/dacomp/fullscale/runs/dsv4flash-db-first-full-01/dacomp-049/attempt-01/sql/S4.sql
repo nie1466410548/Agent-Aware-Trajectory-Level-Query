@@ -1,0 +1,1 @@
+SELECT "Job Title", "Company Name", "Industry", "Salary Range" FROM sheet1 LIMIT 20

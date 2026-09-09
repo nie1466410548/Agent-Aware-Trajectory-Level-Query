@@ -1,0 +1,1 @@
+SELECT team, COUNT(*) as cnt FROM lever__requisition_enhanced GROUP BY team ORDER BY cnt DESC

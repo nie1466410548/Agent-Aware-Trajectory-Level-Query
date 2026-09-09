@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT opportunity_id) as distinct_opps FROM lever__opportunity_enhanced

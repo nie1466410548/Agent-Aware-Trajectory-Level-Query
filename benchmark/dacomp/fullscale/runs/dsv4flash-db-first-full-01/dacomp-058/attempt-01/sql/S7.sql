@@ -1,0 +1,1 @@
+SELECT bidding_strategy, COUNT(*) AS n FROM google_ads__campaign_report GROUP BY bidding_strategy ORDER BY n DESC

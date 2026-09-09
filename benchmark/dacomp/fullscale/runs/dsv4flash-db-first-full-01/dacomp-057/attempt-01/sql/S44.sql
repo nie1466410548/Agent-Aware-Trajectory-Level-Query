@@ -1,0 +1,1 @@
+SELECT substr(date_day,1,10) AS d, COUNT(*) AS n FROM google_ads__customer_acquisition_analysis WHERE substr(date_day,1,10) >= '2025-05-01' GROUP BY d ORDER BY d

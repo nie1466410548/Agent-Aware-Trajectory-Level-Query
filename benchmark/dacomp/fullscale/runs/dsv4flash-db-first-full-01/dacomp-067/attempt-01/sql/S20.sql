@@ -1,0 +1,1 @@
+SELECT source_id, COUNT(*) as cnt FROM greenhouse__application_enhanced GROUP BY source_id ORDER BY cnt DESC

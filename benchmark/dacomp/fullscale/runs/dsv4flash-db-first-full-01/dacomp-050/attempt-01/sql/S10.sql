@@ -1,0 +1,1 @@
+SELECT DISTINCT "Dietary habits" FROM sheet1 WHERE "Working professional or student" = 'Student'

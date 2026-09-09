@@ -1,0 +1,1 @@
+SELECT "Total Time Away", COUNT(*) AS cnt FROM sheet1 GROUP BY "Total Time Away" ORDER BY cnt DESC LIMIT 30

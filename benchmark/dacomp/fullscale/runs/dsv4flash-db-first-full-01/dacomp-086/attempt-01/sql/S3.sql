@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS cnt FROM salesforce__customer_360_view

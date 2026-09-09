@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT marketo_lead_id || '-' || stripe_customer_id || '-' || zendesk_user_id) FROM customer360__conversion_funnel_analysis

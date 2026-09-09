@@ -1,0 +1,1 @@
+SELECT question_id, question_text, question_type, COUNT(*) AS n_resp FROM qualtrics__response GROUP BY question_id ORDER BY n_resp DESC LIMIT 30

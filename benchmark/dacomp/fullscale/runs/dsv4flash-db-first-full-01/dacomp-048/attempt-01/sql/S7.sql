@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS vocational_edu FROM sheet1 WHERE "Education Requirement" LIKE '%vocational%' OR "Education Requirement" LIKE '%Vocational%'

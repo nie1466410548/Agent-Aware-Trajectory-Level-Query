@@ -1,0 +1,1 @@
+SELECT DISTINCT strftime('%Y-%m', "Sales Date") as ym FROM sales_records WHERE "Sales Date" >= '2020-06-01' AND "Sales Date" < '2020-09-01' ORDER BY ym

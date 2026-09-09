@@ -1,0 +1,1 @@
+SELECT MIN("Last Inbound Date") AS min_in, MAX("Last Inbound Date") AS max_in, MIN("Last Outbound Date") AS min_out, MAX("Last Outbound Date") AS max_out FROM inventory_management

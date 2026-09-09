@@ -1,0 +1,1 @@
+SELECT "Day of the Week", COUNT(*) AS n FROM sheet1 GROUP BY "Day of the Week" ORDER BY "Promotion Date"

@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT source_id) FROM greenhouse__application_enhanced

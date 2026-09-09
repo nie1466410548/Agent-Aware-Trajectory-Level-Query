@@ -1,0 +1,1 @@
+SELECT stripe_customer_id, COUNT(*) AS cnt FROM customer360__mapping WHERE stripe_customer_id IS NOT NULL GROUP BY stripe_customer_id ORDER BY cnt DESC LIMIT 5

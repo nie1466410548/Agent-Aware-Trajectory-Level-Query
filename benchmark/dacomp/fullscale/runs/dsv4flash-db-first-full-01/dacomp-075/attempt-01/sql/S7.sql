@@ -1,0 +1,1 @@
+SELECT DISTINCT strategic_importance_level FROM netsuite2_vendor_risk_analysis

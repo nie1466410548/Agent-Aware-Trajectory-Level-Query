@@ -1,0 +1,1 @@
+SELECT COUNT(*) FROM security_events_table

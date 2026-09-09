@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT customer360_id) AS distinct_ids FROM customer360__address

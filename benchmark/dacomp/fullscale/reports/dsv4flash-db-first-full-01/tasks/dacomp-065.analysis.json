@@ -1,0 +1,1103 @@
+{
+  "fingerprint": "95aa996faa64f00faf6736a79db4458c4688535a2f6c6ada37dcc71880ac3f9c",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S17",
+      "covered": [
+        "S17",
+        "S44"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S17",
+      "later_reuses": 1,
+      "denominator": 58,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S43",
+      "covered": [
+        "S43",
+        "S45"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S43",
+      "later_reuses": 1,
+      "denominator": 58,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT application_id, candidate_company, CASE WHEN candidate_company IN ('Meta', 'Apple', 'Amazon', 'Netflix', 'Google', 'Alphabet') THEN 'FAANG' WHEN candidate_company IN ('Adobe', 'Airbnb', 'Atlassian', 'ByteDance', 'Canva', 'Coinbase', 'CrowdStrike', 'Databricks', 'Datadog', 'Discord', 'DocuSign', 'Dropbox', 'eBay', 'Epic Games', 'Figma', 'Instacart', 'IBM', 'Intel', 'Klarna', 'LinkedIn', 'Microsoft', 'MongoDB', 'Nvidia', 'Notion', 'Nubank', 'Okta', 'Oracle', 'Palantir', 'PayPal', 'Pinterest', 'Revolut', 'Robinhood', 'Salesforce', 'ServiceNow', 'Shopify', 'Slack', 'Snap', 'Snowflake', 'Spotify', 'Square', 'Stripe', 'Tesla', 'Twilio', 'Twitter', 'Uber', 'Zoom') THEN 'Major_Tech' ELSE 'Traditional' END AS company_cat FROM greenhouse__application_enhanced",
+      "covered": [
+        "S25",
+        "S26",
+        "S27"
+      ],
+      "rewrites": {
+        "S25": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT cat.company_cat, COUNT(DISTINCT cat.application_id) AS n_apps, COUNT(*) AS n_scorecards, AVG(i.technical_score) AS avg_tech, AVG(i.problem_solving_score) AS avg_ps, AVG(i.communication_score) AS avg_comm, AVG(CASE WHEN i.overall_recommendation IN ('strong_yes', 'yes') THEN 1.0 ELSE 0 END) AS pos_rec_rate FROM cat JOIN greenhouse__interview_enhanced AS i ON i.application_id = cat.application_id WHERE NOT i.technical_score IS NULL GROUP BY cat.company_cat ORDER BY avg_tech DESC",
+        "S26": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT cat.company_cat, COUNT(*) AS n_apps FROM cat GROUP BY cat.company_cat",
+        "S27": "WITH cat AS (SELECT * FROM temp.reuse_candidate), app_agg AS (SELECT i.application_id, cat.company_cat, AVG(i.technical_score) AS avg_tech, AVG(i.problem_solving_score) AS avg_ps, AVG(i.communication_score) AS avg_comm, AVG(i.culture_fit_score) AS avg_cf, AVG(i.leadership_score) AS avg_lead, MAX(CASE WHEN i.overall_recommendation IN ('strong_yes', 'yes') THEN 1 ELSE 0 END) AS ever_pos_rec, COUNT(*) AS n_interviews FROM greenhouse__interview_enhanced AS i JOIN cat ON cat.application_id = i.application_id GROUP BY i.application_id) SELECT company_cat, COUNT(*) AS n_apps, AVG(avg_tech) AS avg_tech, AVG(avg_ps) AS avg_ps, AVG(avg_comm) AS avg_comm, AVG(avg_cf) AS avg_cf, AVG(avg_lead) AS avg_lead, AVG(ever_pos_rec) AS pos_rec_rate FROM app_agg GROUP BY company_cat ORDER BY avg_tech DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S25",
+      "later_reuses": 2,
+      "denominator": 58,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT application_id, CASE WHEN candidate_company IN ('Meta', 'Apple', 'Amazon', 'Netflix', 'Google', 'Alphabet') THEN 'FAANG' WHEN candidate_company IN ('Adobe', 'Airbnb', 'Atlassian', 'ByteDance', 'Canva', 'Coinbase', 'CrowdStrike', 'Databricks', 'Datadog', 'Discord', 'DocuSign', 'Dropbox', 'eBay', 'Epic Games', 'Figma', 'Instacart', 'IBM', 'Intel', 'Klarna', 'LinkedIn', 'Microsoft', 'MongoDB', 'Nvidia', 'Notion', 'Nubank', 'Okta', 'Oracle', 'Palantir', 'PayPal', 'Pinterest', 'Revolut', 'Robinhood', 'Salesforce', 'ServiceNow', 'Shopify', 'Slack', 'Snap', 'Snowflake', 'Spotify', 'Square', 'Stripe', 'Tesla', 'Twilio', 'Twitter', 'Uber', 'Zoom') THEN 'Major_Tech' ELSE 'Traditional' END AS company_cat FROM greenhouse__application_enhanced",
+      "covered": [
+        "S30",
+        "S32",
+        "S41",
+        "S43",
+        "S45",
+        "S50",
+        "S57"
+      ],
+      "rewrites": {
+        "S30": "WITH cat AS (SELECT * FROM temp.reuse_candidate), app_agg AS (SELECT i.application_id, cat.company_cat, AVG(i.technical_score) AS avg_tech, AVG(i.problem_solving_score) AS avg_ps, AVG(i.communication_score) AS avg_comm, AVG(i.culture_fit_score) AS avg_cf, AVG(i.leadership_score) AS avg_lead, MAX(CASE WHEN i.overall_recommendation IN ('strong_yes', 'yes') THEN 1.0 ELSE 0.0 END) AS ever_pos_rec, COUNT(*) AS n_interviews FROM greenhouse__interview_enhanced AS i JOIN cat ON cat.application_id = i.application_id GROUP BY i.application_id) SELECT * FROM app_agg ORDER BY company_cat",
+        "S32": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT i.application_id, i.interview_id, i.technical_score, i.problem_solving_score, i.communication_score, i.culture_fit_score, i.leadership_score, i.overall_recommendation, i.job_stage, i.interviewer_gender, i.interviewer_level, i.interviewer_experience_years, i.interviewer_company_tenure, i.interview_time_of_day, i.interview_day_of_week, i.interview_season, i.candidate_gender, i.candidate_race, i.candidate_disability_status, i.candidate_veteran_status, i.interview_duration_minutes, i.interviewer_is_hiring_manager, i.follow_up_questions_count, i.interviewer_satisfaction, cat.company_cat FROM greenhouse__interview_enhanced AS i JOIN cat ON cat.application_id = i.application_id WHERE NOT i.technical_score IS NULL ORDER BY i.application_id, i.interview_id",
+        "S41": "WITH cat AS (SELECT * FROM temp.reuse_candidate), app_agg AS (SELECT i.application_id, cat.company_cat, AVG(i.technical_score) AS avg_tech, AVG(i.problem_solving_score) AS avg_ps, AVG(i.communication_score) AS avg_comm, AVG(i.culture_fit_score) AS avg_cf, AVG(i.leadership_score) AS avg_lead, MAX(CASE WHEN i.overall_recommendation IN ('strong_yes', 'yes') THEN 1.0 ELSE 0.0 END) AS ever_pos_rec, COUNT(*) AS n_interviews FROM greenhouse__interview_enhanced AS i JOIN cat ON cat.application_id = i.application_id GROUP BY i.application_id) SELECT * FROM app_agg",
+        "S43": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT cat.company_cat, COUNT(*) AS n_apps, SUM(a.stage_offer) AS reached_offer, SUM(a.stage_hired) AS hired, AVG(CAST(a.stage_offer AS REAL)) AS offer_rate, AVG(CAST(a.stage_hired AS REAL)) AS hire_rate FROM greenhouse__application_enhanced AS a JOIN cat ON cat.application_id = a.application_id WHERE a.stage_technical_interview = 1 GROUP BY cat.company_cat ORDER BY offer_rate DESC",
+        "S45": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT cat.company_cat, COUNT(*) AS n_apps, SUM(a.stage_offer) AS reached_offer, SUM(a.stage_hired) AS hired, AVG(CAST(a.stage_offer AS REAL)) AS offer_rate, AVG(CAST(a.stage_hired AS REAL)) AS hire_rate FROM greenhouse__application_enhanced AS a JOIN cat ON cat.application_id = a.application_id WHERE a.stage_technical_interview = 1 GROUP BY cat.company_cat ORDER BY offer_rate DESC",
+        "S50": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT COUNT(*) AS n, COUNT(DISTINCT application_id) AS distinct_ids FROM cat",
+        "S57": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT DISTINCT i.application_id, i.interview_id, i.interviewer_user_id, i.technical_score, i.candidate_gender, i.candidate_race, i.interviewer_gender, i.interviewer_level, cat.company_cat FROM greenhouse__interview_enhanced AS i JOIN cat ON cat.application_id = i.application_id WHERE NOT i.technical_score IS NULL"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S30",
+      "later_reuses": 6,
+      "denominator": 58,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867915.26981,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT application_id, CASE WHEN candidate_company IN ('Meta', 'Apple', 'Amazon', 'Netflix', 'Google', 'Alphabet') THEN 'FAANG' WHEN candidate_company IN ('Adobe', 'Airbnb', 'Atlassian', 'ByteDance', 'Canva', 'Coinbase', 'CrowdStrike', 'Databricks', 'Datadog', 'Discord', 'DocuSign', 'Dropbox', 'eBay', 'Epic Games', 'Figma', 'Instacart', 'IBM', 'Intel', 'Klarna', 'LinkedIn', 'Microsoft', 'MongoDB', 'Nvidia', 'Notion', 'Nubank', 'Okta', 'Oracle', 'Palantir', 'PayPal', 'Pinterest', 'Revolut', 'Robinhood', 'Salesforce', 'ServiceNow', 'Shopify', 'Slack', 'Snap', 'Snowflake', 'Spotify', 'Square', 'Stripe', 'Tesla', 'Twilio', 'Twitter', 'Uber', 'Zoom') THEN 'Major_Tech' ELSE 'Traditional' END AS company_cat FROM greenhouse__application_enhanced",
+          "phase": "offline_validation",
+          "start_time": 1788867915.2700093,
+          "status": "execute_returned",
+          "end_time": 1788867915.2839086
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867915.283913,
+          "status": "execute_returned",
+          "end_time": 1788867915.2839365
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788867915.2839403,
+          "status": "execute_returned",
+          "end_time": 1788867915.28395
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH cat AS (SELECT * FROM temp.reuse_candidate), app_agg AS (SELECT i.application_id, cat.company_cat, AVG(i.technical_score) AS avg_tech, AVG(i.problem_solving_score) AS avg_ps, AVG(i.communication_score) AS avg_comm, AVG(i.culture_fit_score) AS avg_cf, AVG(i.leadership_score) AS avg_lead, MAX(CASE WHEN i.overall_recommendation IN ('strong_yes', 'yes') THEN 1.0 ELSE 0.0 END) AS ever_pos_rec, COUNT(*) AS n_interviews FROM greenhouse__interview_enhanced AS i JOIN cat ON cat.application_id = i.application_id GROUP BY i.application_id) SELECT * FROM app_agg ORDER BY company_cat",
+          "phase": "offline_validation",
+          "start_time": 1788867915.283958,
+          "status": "execute_returned",
+          "end_time": 1788867915.3265028
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT i.application_id, i.interview_id, i.technical_score, i.problem_solving_score, i.communication_score, i.culture_fit_score, i.leadership_score, i.overall_recommendation, i.job_stage, i.interviewer_gender, i.interviewer_level, i.interviewer_experience_years, i.interviewer_company_tenure, i.interview_time_of_day, i.interview_day_of_week, i.interview_season, i.candidate_gender, i.candidate_race, i.candidate_disability_status, i.candidate_veteran_status, i.interview_duration_minutes, i.interviewer_is_hiring_manager, i.follow_up_questions_count, i.interviewer_satisfaction, cat.company_cat FROM greenhouse__interview_enhanced AS i JOIN cat ON cat.application_id = i.application_id WHERE NOT i.technical_score IS NULL ORDER BY i.application_id, i.interview_id",
+          "phase": "offline_validation",
+          "start_time": 1788867915.4709573,
+          "status": "execute_returned",
+          "end_time": 1788867915.5199032
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH cat AS (SELECT * FROM temp.reuse_candidate), app_agg AS (SELECT i.application_id, cat.company_cat, AVG(i.technical_score) AS avg_tech, AVG(i.problem_solving_score) AS avg_ps, AVG(i.communication_score) AS avg_comm, AVG(i.culture_fit_score) AS avg_cf, AVG(i.leadership_score) AS avg_lead, MAX(CASE WHEN i.overall_recommendation IN ('strong_yes', 'yes') THEN 1.0 ELSE 0.0 END) AS ever_pos_rec, COUNT(*) AS n_interviews FROM greenhouse__interview_enhanced AS i JOIN cat ON cat.application_id = i.application_id GROUP BY i.application_id) SELECT * FROM app_agg",
+          "phase": "offline_validation",
+          "start_time": 1788867915.9679341,
+          "status": "execute_returned",
+          "end_time": 1788867915.99813
+        },
+        {
+          "sequence": 7,
+          "sql": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT cat.company_cat, COUNT(*) AS n_apps, SUM(a.stage_offer) AS reached_offer, SUM(a.stage_hired) AS hired, AVG(CAST(a.stage_offer AS REAL)) AS offer_rate, AVG(CAST(a.stage_hired AS REAL)) AS hire_rate FROM greenhouse__application_enhanced AS a JOIN cat ON cat.application_id = a.application_id WHERE a.stage_technical_interview = 1 GROUP BY cat.company_cat ORDER BY offer_rate DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867916.2390468,
+          "status": "execute_returned",
+          "end_time": 1788867916.2670128
+        },
+        {
+          "sequence": 8,
+          "sql": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT cat.company_cat, COUNT(*) AS n_apps, SUM(a.stage_offer) AS reached_offer, SUM(a.stage_hired) AS hired, AVG(CAST(a.stage_offer AS REAL)) AS offer_rate, AVG(CAST(a.stage_hired AS REAL)) AS hire_rate FROM greenhouse__application_enhanced AS a JOIN cat ON cat.application_id = a.application_id WHERE a.stage_technical_interview = 1 GROUP BY cat.company_cat ORDER BY offer_rate DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867916.2715406,
+          "status": "execute_returned",
+          "end_time": 1788867916.299033
+        },
+        {
+          "sequence": 9,
+          "sql": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT COUNT(*) AS n, COUNT(DISTINCT application_id) AS distinct_ids FROM cat",
+          "phase": "offline_validation",
+          "start_time": 1788867916.3020663,
+          "status": "execute_returned",
+          "end_time": 1788867916.3077354
+        },
+        {
+          "sequence": 10,
+          "sql": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT DISTINCT i.application_id, i.interview_id, i.interviewer_user_id, i.technical_score, i.candidate_gender, i.candidate_race, i.interviewer_gender, i.interviewer_level, cat.company_cat FROM greenhouse__interview_enhanced AS i JOIN cat ON cat.application_id = i.application_id WHERE NOT i.technical_score IS NULL",
+          "phase": "offline_validation",
+          "start_time": 1788867916.3097394,
+          "status": "execute_returned",
+          "end_time": 1788867916.3213696
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT application_id, CASE WHEN candidate_company IN ('Meta', 'Apple', 'Amazon', 'Netflix', 'Google', 'Alphabet') THEN 'FAANG' WHEN candidate_company IN ('Adobe', 'Airbnb', 'Atlassian', 'ByteDance', 'Canva', 'Coinbase', 'CrowdStrike', 'Databricks', 'Datadog', 'Discord', 'DocuSign', 'Dropbox', 'eBay', 'Epic Games', 'Figma', 'Instacart', 'IBM', 'Intel', 'Klarna', 'LinkedIn', 'Microsoft', 'MongoDB', 'Nvidia', 'Notion', 'Nubank', 'Okta', 'Oracle', 'Palantir', 'PayPal', 'Pinterest', 'Revolut', 'Robinhood', 'Salesforce', 'ServiceNow', 'Shopify', 'Slack', 'Snap', 'Snowflake', 'Spotify', 'Square', 'Stripe', 'Tesla', 'Twilio', 'Twitter', 'Uber', 'Zoom') THEN 'Major_Tech' ELSE 'Traditional' END AS company_cat FROM greenhouse__application_enhanced",
+          "time": 1788867915.270251,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788867915.2839265,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788867915.2839475,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH cat AS (SELECT * FROM temp.reuse_candidate), app_agg AS (SELECT i.application_id, cat.company_cat, AVG(i.technical_score) AS avg_tech, AVG(i.problem_solving_score) AS avg_ps, AVG(i.communication_score) AS avg_comm, AVG(i.culture_fit_score) AS avg_cf, AVG(i.leadership_score) AS avg_lead, MAX(CASE WHEN i.overall_recommendation IN ('strong_yes', 'yes') THEN 1.0 ELSE 0.0 END) AS ever_pos_rec, COUNT(*) AS n_interviews FROM greenhouse__interview_enhanced AS i JOIN cat ON cat.application_id = i.application_id GROUP BY i.application_id) SELECT * FROM app_agg ORDER BY company_cat",
+          "time": 1788867915.2840545,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT i.application_id, i.interview_id, i.technical_score, i.problem_solving_score, i.communication_score, i.culture_fit_score, i.leadership_score, i.overall_recommendation, i.job_stage, i.interviewer_gender, i.interviewer_level, i.interviewer_experience_years, i.interviewer_company_tenure, i.interview_time_of_day, i.interview_day_of_week, i.interview_season, i.candidate_gender, i.candidate_race, i.candidate_disability_status, i.candidate_veteran_status, i.interview_duration_minutes, i.interviewer_is_hiring_manager, i.follow_up_questions_count, i.interviewer_satisfaction, cat.company_cat FROM greenhouse__interview_enhanced AS i JOIN cat ON cat.application_id = i.application_id WHERE NOT i.technical_score IS NULL ORDER BY i.application_id, i.interview_id",
+          "time": 1788867915.4711137,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH cat AS (SELECT * FROM temp.reuse_candidate), app_agg AS (SELECT i.application_id, cat.company_cat, AVG(i.technical_score) AS avg_tech, AVG(i.problem_solving_score) AS avg_ps, AVG(i.communication_score) AS avg_comm, AVG(i.culture_fit_score) AS avg_cf, AVG(i.leadership_score) AS avg_lead, MAX(CASE WHEN i.overall_recommendation IN ('strong_yes', 'yes') THEN 1.0 ELSE 0.0 END) AS ever_pos_rec, COUNT(*) AS n_interviews FROM greenhouse__interview_enhanced AS i JOIN cat ON cat.application_id = i.application_id GROUP BY i.application_id) SELECT * FROM app_agg",
+          "time": 1788867915.9681456,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT cat.company_cat, COUNT(*) AS n_apps, SUM(a.stage_offer) AS reached_offer, SUM(a.stage_hired) AS hired, AVG(CAST(a.stage_offer AS REAL)) AS offer_rate, AVG(CAST(a.stage_hired AS REAL)) AS hire_rate FROM greenhouse__application_enhanced AS a JOIN cat ON cat.application_id = a.application_id WHERE a.stage_technical_interview = 1 GROUP BY cat.company_cat ORDER BY offer_rate DESC",
+          "time": 1788867916.239198,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT cat.company_cat, COUNT(*) AS n_apps, SUM(a.stage_offer) AS reached_offer, SUM(a.stage_hired) AS hired, AVG(CAST(a.stage_offer AS REAL)) AS offer_rate, AVG(CAST(a.stage_hired AS REAL)) AS hire_rate FROM greenhouse__application_enhanced AS a JOIN cat ON cat.application_id = a.application_id WHERE a.stage_technical_interview = 1 GROUP BY cat.company_cat ORDER BY offer_rate DESC",
+          "time": 1788867916.2715528,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT COUNT(*) AS n, COUNT(DISTINCT application_id) AS distinct_ids FROM cat",
+          "time": 1788867916.3021348,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT DISTINCT i.application_id, i.interview_id, i.interviewer_user_id, i.technical_score, i.candidate_gender, i.candidate_race, i.interviewer_gender, i.interviewer_level, cat.company_cat FROM greenhouse__interview_enhanced AS i JOIN cat ON cat.application_id = i.application_id WHERE NOT i.technical_score IS NULL",
+          "time": 1788867916.3098226,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 13.902904465794563,
+      "intermediate_rows": 18186,
+      "intermediate_columns": [
+        "application_id",
+        "company_cat"
+      ],
+      "validation_ended_at": 1788867916.5171542,
+      "checks": [
+        {
+          "sql_id": "S30",
+          "rewritten_sql": "WITH cat AS (SELECT * FROM temp.reuse_candidate), app_agg AS (SELECT i.application_id, cat.company_cat, AVG(i.technical_score) AS avg_tech, AVG(i.problem_solving_score) AS avg_ps, AVG(i.communication_score) AS avg_comm, AVG(i.culture_fit_score) AS avg_cf, AVG(i.leadership_score) AS avg_lead, MAX(CASE WHEN i.overall_recommendation IN ('strong_yes', 'yes') THEN 1.0 ELSE 0.0 END) AS ever_pos_rec, COUNT(*) AS n_interviews FROM greenhouse__interview_enhanced AS i JOIN cat ON cat.application_id = i.application_id GROUP BY i.application_id) SELECT * FROM app_agg ORDER BY company_cat",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 186.99372839182615
+        },
+        {
+          "sql_id": "S32",
+          "rewritten_sql": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT i.application_id, i.interview_id, i.technical_score, i.problem_solving_score, i.communication_score, i.culture_fit_score, i.leadership_score, i.overall_recommendation, i.job_stage, i.interviewer_gender, i.interviewer_level, i.interviewer_experience_years, i.interviewer_company_tenure, i.interview_time_of_day, i.interview_day_of_week, i.interview_season, i.candidate_gender, i.candidate_race, i.candidate_disability_status, i.candidate_veteran_status, i.interview_duration_minutes, i.interviewer_is_hiring_manager, i.follow_up_questions_count, i.interviewer_satisfaction, cat.company_cat FROM greenhouse__interview_enhanced AS i JOIN cat ON cat.application_id = i.application_id WHERE NOT i.technical_score IS NULL ORDER BY i.application_id, i.interview_id",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 496.9683373346925
+        },
+        {
+          "sql_id": "S41",
+          "rewritten_sql": "WITH cat AS (SELECT * FROM temp.reuse_candidate), app_agg AS (SELECT i.application_id, cat.company_cat, AVG(i.technical_score) AS avg_tech, AVG(i.problem_solving_score) AS avg_ps, AVG(i.communication_score) AS avg_comm, AVG(i.culture_fit_score) AS avg_cf, AVG(i.leadership_score) AS avg_lead, MAX(CASE WHEN i.overall_recommendation IN ('strong_yes', 'yes') THEN 1.0 ELSE 0.0 END) AS ever_pos_rec, COUNT(*) AS n_interviews FROM greenhouse__interview_enhanced AS i JOIN cat ON cat.application_id = i.application_id GROUP BY i.application_id) SELECT * FROM app_agg",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 271.1086655035615
+        },
+        {
+          "sql_id": "S43",
+          "rewritten_sql": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT cat.company_cat, COUNT(*) AS n_apps, SUM(a.stage_offer) AS reached_offer, SUM(a.stage_hired) AS hired, AVG(CAST(a.stage_offer AS REAL)) AS offer_rate, AVG(CAST(a.stage_hired AS REAL)) AS hire_rate FROM greenhouse__application_enhanced AS a JOIN cat ON cat.application_id = a.application_id WHERE a.stage_technical_interview = 1 GROUP BY cat.company_cat ORDER BY offer_rate DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 32.491463236510754
+        },
+        {
+          "sql_id": "S45",
+          "rewritten_sql": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT cat.company_cat, COUNT(*) AS n_apps, SUM(a.stage_offer) AS reached_offer, SUM(a.stage_hired) AS hired, AVG(CAST(a.stage_offer AS REAL)) AS offer_rate, AVG(CAST(a.stage_hired AS REAL)) AS hire_rate FROM greenhouse__application_enhanced AS a JOIN cat ON cat.application_id = a.application_id WHERE a.stage_technical_interview = 1 GROUP BY cat.company_cat ORDER BY offer_rate DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 30.522480607032776
+        },
+        {
+          "sql_id": "S50",
+          "rewritten_sql": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT COUNT(*) AS n, COUNT(DISTINCT application_id) AS distinct_ids FROM cat",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 7.669963873922825
+        },
+        {
+          "sql_id": "S57",
+          "rewritten_sql": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT DISTINCT i.application_id, i.interview_id, i.interviewer_user_id, i.technical_score, i.candidate_gender, i.candidate_race, i.interviewer_gender, i.interviewer_level, cat.company_cat FROM greenhouse__interview_enhanced AS i JOIN cat ON cat.application_id = i.application_id WHERE NOT i.technical_score IS NULL",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 207.1309806779027
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT application_id, candidate_company, education_level, years_of_experience, skill_count, university_tier, CASE WHEN candidate_company IN ('Meta', 'Apple', 'Amazon', 'Netflix', 'Google', 'Alphabet') THEN 'FAANG' WHEN candidate_company IN ('Adobe', 'Airbnb', 'Atlassian', 'ByteDance', 'Canva', 'Coinbase', 'CrowdStrike', 'Databricks', 'Datadog', 'Discord', 'DocuSign', 'Dropbox', 'eBay', 'Epic Games', 'Figma', 'Instacart', 'IBM', 'Intel', 'Klarna', 'LinkedIn', 'Microsoft', 'MongoDB', 'Nvidia', 'Notion', 'Nubank', 'Okta', 'Oracle', 'Palantir', 'PayPal', 'Pinterest', 'Revolut', 'Robinhood', 'Salesforce', 'ServiceNow', 'Shopify', 'Slack', 'Snap', 'Snowflake', 'Spotify', 'Square', 'Stripe', 'Tesla', 'Twilio', 'Twitter', 'Uber', 'Zoom') THEN 'Major_Tech' ELSE 'Traditional' END AS company_cat FROM greenhouse__application_enhanced",
+      "covered": [
+        "S31",
+        "S42"
+      ],
+      "rewrites": {
+        "S31": "WITH cat AS (SELECT * FROM temp.reuse_candidate), app_agg AS (SELECT i.application_id, cat.company_cat, cat.education_level, cat.years_of_experience, cat.skill_count, cat.university_tier, AVG(i.technical_score) AS avg_tech, AVG(i.problem_solving_score) AS avg_ps, AVG(i.communication_score) AS avg_comm, AVG(i.culture_fit_score) AS avg_cf, AVG(i.leadership_score) AS avg_lead, MAX(CASE WHEN i.overall_recommendation IN ('strong_yes', 'yes') THEN 1.0 ELSE 0.0 END) AS ever_pos_rec, COUNT(*) AS n_interviews FROM greenhouse__interview_enhanced AS i JOIN cat ON cat.application_id = i.application_id GROUP BY i.application_id) SELECT * FROM app_agg ORDER BY application_id",
+        "S42": "WITH cat AS (SELECT * FROM temp.reuse_candidate), app_agg AS (SELECT i.application_id, cat.company_cat, cat.education_level, cat.years_of_experience, cat.skill_count, cat.university_tier, AVG(i.technical_score) AS avg_tech, AVG(i.problem_solving_score) AS avg_ps, AVG(i.communication_score) AS avg_comm, AVG(i.culture_fit_score) AS avg_cf, AVG(i.leadership_score) AS avg_lead, MAX(CASE WHEN i.overall_recommendation IN ('strong_yes', 'yes') THEN 1.0 ELSE 0.0 END) AS ever_pos_rec, COUNT(*) AS n_interviews FROM greenhouse__interview_enhanced AS i JOIN cat ON cat.application_id = i.application_id GROUP BY i.application_id) SELECT * FROM app_agg"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S31",
+      "later_reuses": 1,
+      "denominator": 58,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT DISTINCT application_id, CASE WHEN candidate_company IN ('Meta', 'Apple', 'Amazon', 'Netflix', 'Google', 'Alphabet') THEN 'FAANG' WHEN candidate_company IN ('Adobe', 'Airbnb', 'Atlassian', 'ByteDance', 'Canva', 'Coinbase', 'CrowdStrike', 'Databricks', 'Datadog', 'Discord', 'DocuSign', 'Dropbox', 'eBay', 'Epic Games', 'Figma', 'Instacart', 'IBM', 'Intel', 'Klarna', 'LinkedIn', 'Microsoft', 'MongoDB', 'Nvidia', 'Notion', 'Nubank', 'Okta', 'Oracle', 'Palantir', 'PayPal', 'Pinterest', 'Revolut', 'Robinhood', 'Salesforce', 'ServiceNow', 'Shopify', 'Slack', 'Snap', 'Snowflake', 'Spotify', 'Square', 'Stripe', 'Tesla', 'Twilio', 'Twitter', 'Uber', 'Zoom') THEN 'Major_Tech' ELSE 'Traditional' END AS company_cat FROM greenhouse__application_enhanced",
+      "covered": [
+        "S51",
+        "S59",
+        "S60"
+      ],
+      "rewrites": {
+        "S51": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT cat.company_cat, COUNT(*) AS n_apps, SUM(a.stage_offer) AS reached_offer, SUM(a.stage_hired) AS hired, AVG(CAST(a.stage_offer AS REAL)) AS offer_rate, AVG(CAST(a.stage_hired AS REAL)) AS hire_rate FROM (SELECT DISTINCT application_id, stage_offer, stage_hired, stage_technical_interview FROM greenhouse__application_enhanced) AS a JOIN cat ON cat.application_id = a.application_id WHERE a.stage_technical_interview = 1 GROUP BY cat.company_cat ORDER BY offer_rate DESC",
+        "S59": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT cat.company_cat, COUNT(*) AS n_apps, SUM(CASE WHEN a.stage_application_review = 1 THEN 1 ELSE 0 END) AS app_review, SUM(CASE WHEN a.stage_phone_screen = 1 THEN 1 ELSE 0 END) AS phone_screen, SUM(CASE WHEN a.stage_technical_interview = 1 THEN 1 ELSE 0 END) AS tech_int, SUM(CASE WHEN a.stage_panel_interview = 1 THEN 1 ELSE 0 END) AS panel, SUM(CASE WHEN a.stage_final_interview = 1 THEN 1 ELSE 0 END) AS final_int, SUM(CASE WHEN a.stage_offer = 1 THEN 1 ELSE 0 END) AS offer, SUM(CASE WHEN a.stage_hired = 1 THEN 1 ELSE 0 END) AS hired FROM (SELECT DISTINCT application_id, stage_application_review, stage_phone_screen, stage_technical_interview, stage_panel_interview, stage_final_interview, stage_offer, stage_hired FROM greenhouse__application_enhanced) AS a JOIN cat ON cat.application_id = a.application_id GROUP BY cat.company_cat ORDER BY hired DESC",
+        "S60": "WITH cat AS (SELECT * FROM temp.reuse_candidate) SELECT cat.company_cat, SUM(CASE WHEN a.stage_application_review = 1 THEN 1 ELSE 0 END) AS app_review, SUM(CASE WHEN a.stage_phone_screen = 1 THEN 1 ELSE 0 END) AS phone_screen, SUM(CASE WHEN a.stage_technical_interview = 1 THEN 1 ELSE 0 END) AS tech_int, SUM(CASE WHEN a.stage_panel_interview = 1 THEN 1 ELSE 0 END) AS panel, SUM(CASE WHEN a.stage_final_interview = 1 THEN 1 ELSE 0 END) AS final_int, SUM(CASE WHEN a.stage_offer = 1 THEN 1 ELSE 0 END) AS offer, SUM(CASE WHEN a.stage_hired = 1 THEN 1 ELSE 0 END) AS hired FROM (SELECT DISTINCT application_id, stage_application_review, stage_phone_screen, stage_technical_interview, stage_panel_interview, stage_final_interview, stage_offer, stage_hired FROM greenhouse__application_enhanced) AS a JOIN cat ON cat.application_id = a.application_id WHERE a.stage_application_review = 1 GROUP BY cat.company_cat ORDER BY hired DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C6",
+      "offline": true,
+      "earliest_build_before": "S51",
+      "later_reuses": 2,
+      "denominator": 58,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT application_id, education_level, years_of_experience, skill_count, university_tier, CASE WHEN candidate_company IN ('Meta', 'Apple', 'Amazon', 'Netflix', 'Google', 'Alphabet') THEN 'FAANG' WHEN candidate_company IN ('Adobe', 'Airbnb', 'Atlassian', 'ByteDance', 'Canva', 'Coinbase', 'CrowdStrike', 'Databricks', 'Datadog', 'Discord', 'DocuSign', 'Dropbox', 'eBay', 'Epic Games', 'Figma', 'Instacart', 'IBM', 'Intel', 'Klarna', 'LinkedIn', 'Microsoft', 'MongoDB', 'Nvidia', 'Notion', 'Nubank', 'Okta', 'Oracle', 'Palantir', 'PayPal', 'Pinterest', 'Revolut', 'Robinhood', 'Salesforce', 'ServiceNow', 'Shopify', 'Slack', 'Snap', 'Snowflake', 'Spotify', 'Square', 'Stripe', 'Tesla', 'Twilio', 'Twitter', 'Uber', 'Zoom') THEN 'Major_Tech' ELSE 'Traditional' END AS company_cat FROM greenhouse__application_enhanced",
+      "covered": [
+        "S56",
+        "S61"
+      ],
+      "rewrites": {
+        "S56": "WITH cat AS (SELECT * FROM temp.reuse_candidate), app_agg AS (SELECT i.application_id, cat.company_cat, cat.education_level, cat.years_of_experience, cat.skill_count, cat.university_tier, AVG(i.technical_score) AS avg_tech, AVG(i.problem_solving_score) AS avg_ps, AVG(i.communication_score) AS avg_comm, AVG(i.culture_fit_score) AS avg_cf, AVG(i.leadership_score) AS avg_lead FROM greenhouse__interview_enhanced AS i JOIN cat ON cat.application_id = i.application_id WHERE NOT i.technical_score IS NULL GROUP BY i.application_id) SELECT * FROM app_agg",
+        "S61": "WITH cat AS (SELECT * FROM temp.reuse_candidate), app_agg AS (SELECT i.application_id, cat.company_cat, AVG(i.technical_score) AS avg_tech, AVG(i.problem_solving_score) AS avg_ps, AVG(i.communication_score) AS avg_comm, AVG(i.culture_fit_score) AS avg_cf, AVG(i.leadership_score) AS avg_lead FROM greenhouse__interview_enhanced AS i JOIN cat ON cat.application_id = i.application_id GROUP BY i.application_id) SELECT * FROM app_agg"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C7",
+      "offline": true,
+      "earliest_build_before": "S56",
+      "later_reuses": 1,
+      "denominator": 58,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT candidate_company AS __g0, education_level AS __g1, university_tier AS __g2, status AS __g3, current_company AS __g4, years_of_experience AS __g5, stage_hired AS __g6, stage_technical_interview AS __g7, candidate_gender AS __g8, candidate_race AS __g9, COUNT(*) AS __a0 FROM \"greenhouse__application_enhanced\"  GROUP BY candidate_company, education_level, university_tier, status, current_company, years_of_experience, stage_hired, stage_technical_interview, candidate_gender, candidate_race",
+      "covered": [
+        "S3",
+        "S5",
+        "S6",
+        "S7",
+        "S8",
+        "S9",
+        "S12",
+        "S14",
+        "S16",
+        "S17",
+        "S22",
+        "S23",
+        "S44"
+      ],
+      "rewrites": {
+        "S3": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+        "S5": "SELECT __g0 AS \"candidate_company\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC LIMIT 30",
+        "S6": "SELECT __g1 AS \"education_level\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+        "S7": "SELECT __g2 AS \"university_tier\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY n DESC",
+        "S8": "SELECT __g3 AS \"status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+        "S9": "SELECT __g0 AS \"candidate_company\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+        "S12": "SELECT __g4 AS \"current_company\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC LIMIT 20",
+        "S14": "SELECT __g5 AS \"years_of_experience\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5 ORDER BY n DESC LIMIT 15",
+        "S16": "SELECT __g6 AS \"stage_hired\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6",
+        "S17": "SELECT __g7 AS \"stage_technical_interview\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g7",
+        "S22": "SELECT __g8 AS \"candidate_gender\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g8",
+        "S23": "SELECT __g9 AS \"candidate_race\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g9",
+        "S44": "SELECT __g7 AS \"stage_technical_interview\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g7"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C8",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 12,
+      "denominator": 58,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867915.0431166,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT candidate_company AS __g0, education_level AS __g1, university_tier AS __g2, status AS __g3, current_company AS __g4, years_of_experience AS __g5, stage_hired AS __g6, stage_technical_interview AS __g7, candidate_gender AS __g8, candidate_race AS __g9, COUNT(*) AS __a0 FROM \"greenhouse__application_enhanced\"  GROUP BY candidate_company, education_level, university_tier, status, current_company, years_of_experience, stage_hired, stage_technical_interview, candidate_gender, candidate_race",
+          "phase": "offline_validation",
+          "start_time": 1788867915.0433943,
+          "status": "execute_returned",
+          "end_time": 1788867915.0937324
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867915.0937395,
+          "status": "execute_returned",
+          "end_time": 1788867915.0937872
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788867915.0937939,
+          "status": "execute_returned",
+          "end_time": 1788867915.0938082
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867915.0938287,
+          "status": "execute_returned",
+          "end_time": 1788867915.094929
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"candidate_company\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC LIMIT 30",
+          "phase": "offline_validation",
+          "start_time": 1788867915.0954263,
+          "status": "execute_returned",
+          "end_time": 1788867915.1001117
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS \"education_level\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867915.1008098,
+          "status": "execute_returned",
+          "end_time": 1788867915.1056957
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g2 AS \"university_tier\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867915.1062424,
+          "status": "execute_returned",
+          "end_time": 1788867915.111399
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g3 AS \"status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867915.1119273,
+          "status": "execute_returned",
+          "end_time": 1788867915.1172917
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g0 AS \"candidate_company\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867915.1178076,
+          "status": "execute_returned",
+          "end_time": 1788867915.1224217
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g4 AS \"current_company\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC LIMIT 20",
+          "phase": "offline_validation",
+          "start_time": 1788867915.123429,
+          "status": "execute_returned",
+          "end_time": 1788867915.128081
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g5 AS \"years_of_experience\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5 ORDER BY n DESC LIMIT 15",
+          "phase": "offline_validation",
+          "start_time": 1788867915.1287196,
+          "status": "execute_returned",
+          "end_time": 1788867915.1336486
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT __g6 AS \"stage_hired\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6",
+          "phase": "offline_validation",
+          "start_time": 1788867915.1342535,
+          "status": "execute_returned",
+          "end_time": 1788867915.1382213
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT __g7 AS \"stage_technical_interview\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g7",
+          "phase": "offline_validation",
+          "start_time": 1788867915.1388447,
+          "status": "execute_returned",
+          "end_time": 1788867915.14239
+        },
+        {
+          "sequence": 14,
+          "sql": "SELECT __g8 AS \"candidate_gender\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g8",
+          "phase": "offline_validation",
+          "start_time": 1788867915.143428,
+          "status": "execute_returned",
+          "end_time": 1788867915.1504831
+        },
+        {
+          "sequence": 15,
+          "sql": "SELECT __g9 AS \"candidate_race\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g9",
+          "phase": "offline_validation",
+          "start_time": 1788867915.1515481,
+          "status": "execute_returned",
+          "end_time": 1788867915.1587353
+        },
+        {
+          "sequence": 16,
+          "sql": "SELECT __g7 AS \"stage_technical_interview\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g7",
+          "phase": "offline_validation",
+          "start_time": 1788867915.1598554,
+          "status": "execute_returned",
+          "end_time": 1788867915.1633847
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT candidate_company AS __g0, education_level AS __g1, university_tier AS __g2, status AS __g3, current_company AS __g4, years_of_experience AS __g5, stage_hired AS __g6, stage_technical_interview AS __g7, candidate_gender AS __g8, candidate_race AS __g9, COUNT(*) AS __a0 FROM \"greenhouse__application_enhanced\"  GROUP BY candidate_company, education_level, university_tier, status, current_company, years_of_experience, stage_hired, stage_technical_interview, candidate_gender, candidate_race",
+          "time": 1788867915.0437553,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788867915.0937626,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788867915.093805,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "time": 1788867915.0938406,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"candidate_company\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC LIMIT 30",
+          "time": 1788867915.0954576,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"education_level\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "time": 1788867915.1008375,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"university_tier\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY n DESC",
+          "time": 1788867915.1062696,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS \"status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+          "time": 1788867915.1119552,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"candidate_company\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "time": 1788867915.1178348,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS \"current_company\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC LIMIT 20",
+          "time": 1788867915.1234605,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g5 AS \"years_of_experience\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5 ORDER BY n DESC LIMIT 15",
+          "time": 1788867915.128751,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g6 AS \"stage_hired\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6",
+          "time": 1788867915.1342816,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g7 AS \"stage_technical_interview\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g7",
+          "time": 1788867915.138873,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g8 AS \"candidate_gender\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g8",
+          "time": 1788867915.1434567,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g9 AS \"candidate_race\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g9",
+          "time": 1788867915.1515772,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g7 AS \"stage_technical_interview\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g7",
+          "time": 1788867915.159861,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 50.34392047673464,
+      "intermediate_rows": 17241,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__g5",
+        "__g6",
+        "__g7",
+        "__g8",
+        "__g9",
+        "__a0"
+      ],
+      "validation_ended_at": 1788867915.164866,
+      "checks": [
+        {
+          "sql_id": "S3",
+          "rewritten_sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.5944046899676323
+        },
+        {
+          "sql_id": "S5",
+          "rewritten_sql": "SELECT __g0 AS \"candidate_company\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC LIMIT 30",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 5.380614660680294
+        },
+        {
+          "sql_id": "S6",
+          "rewritten_sql": "SELECT __g1 AS \"education_level\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 5.429730750620365
+        },
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT __g2 AS \"university_tier\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 5.680520087480545
+        },
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT __g3 AS \"status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 5.878717638552189
+        },
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT __g0 AS \"candidate_company\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 5.618724040687084
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT __g4 AS \"current_company\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 5.281190387904644
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT __g5 AS \"years_of_experience\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5 ORDER BY n DESC LIMIT 15",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 5.531725473701954
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "SELECT __g6 AS \"stage_hired\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 4.588509909808636
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "SELECT __g7 AS \"stage_technical_interview\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g7",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 4.581465385854244
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "SELECT __g8 AS \"candidate_gender\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g8",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 8.11762548983097
+        },
+        {
+          "sql_id": "S23",
+          "rewritten_sql": "SELECT __g9 AS \"candidate_race\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g9",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 8.30466952174902
+        },
+        {
+          "sql_id": "S44",
+          "rewritten_sql": "SELECT __g7 AS \"stage_technical_interview\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g7",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 4.557481966912746
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT overall_recommendation AS __g0, job_stage AS __g1, interviewer_gender AS __g2, interview_id AS __g3, application_id AS __g4, interviewer_user_id AS __g5, scorecard_id AS __g6, interview_scorecard_key AS __g7, COUNT(*) AS __a0, MIN(technical_score) AS __a1, MAX(technical_score) AS __a2, SUM(technical_score) AS __a3_sum, COUNT(technical_score) AS __a3_n, MIN(problem_solving_score) AS __a4, MAX(problem_solving_score) AS __a5, SUM(problem_solving_score) AS __a6_sum, COUNT(problem_solving_score) AS __a6_n, MIN(communication_score) AS __a7, MAX(communication_score) AS __a8, SUM(communication_score) AS __a9_sum, COUNT(communication_score) AS __a9_n, MIN(culture_fit_score) AS __a10, MAX(culture_fit_score) AS __a11, SUM(culture_fit_score) AS __a12_sum, COUNT(culture_fit_score) AS __a12_n, MIN(leadership_score) AS __a13, MAX(leadership_score) AS __a14, SUM(leadership_score) AS __a15_sum, COUNT(leadership_score) AS __a15_n FROM \"greenhouse__interview_enhanced\"  GROUP BY overall_recommendation, job_stage, interviewer_gender, interview_id, application_id, interviewer_user_id, scorecard_id, interview_scorecard_key",
+      "covered": [
+        "S4",
+        "S10",
+        "S11",
+        "S13",
+        "S24",
+        "S28",
+        "S34",
+        "S35",
+        "S36",
+        "S38"
+      ],
+      "rewrites": {
+        "S4": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+        "S10": "SELECT __g0 AS \"overall_recommendation\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+        "S11": "SELECT __g1 AS \"job_stage\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+        "S13": "SELECT MIN(__a1) AS min_t, MAX(__a2) AS max_t, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_t, MIN(__a4) AS min_p, MAX(__a5) AS max_p, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_p, MIN(__a7) AS min_c, MAX(__a8) AS max_c, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_c, MIN(__a10) AS min_cf, MAX(__a11) AS max_cf, (1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)) AS avg_cf, MIN(__a13) AS min_l, MAX(__a14) AS max_l, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_l FROM temp.reuse_candidate",
+        "S24": "SELECT __g2 AS \"interviewer_gender\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2",
+        "S28": "SELECT __g1 AS \"job_stage\", SUM(__a0) AS n, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_tech, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_ps, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_comm, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_lead FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+        "S34": "SELECT __g3 AS \"interview_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC LIMIT 10",
+        "S35": "SELECT __g4 AS \"application_id\", __g3 AS \"interview_id\", __g5 AS \"interviewer_user_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4, __g3, __g5 ORDER BY n DESC LIMIT 10",
+        "S36": "SELECT __g4 AS \"application_id\", __g3 AS \"interview_id\", __g5 AS \"interviewer_user_id\", __g6 AS \"scorecard_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4, __g3, __g5, __g6 ORDER BY n DESC LIMIT 10",
+        "S38": "SELECT __g7 AS \"interview_scorecard_key\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g7 ORDER BY n DESC LIMIT 10"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C9",
+      "offline": true,
+      "earliest_build_before": "S4",
+      "later_reuses": 9,
+      "denominator": 58,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867915.1648977,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT overall_recommendation AS __g0, job_stage AS __g1, interviewer_gender AS __g2, interview_id AS __g3, application_id AS __g4, interviewer_user_id AS __g5, scorecard_id AS __g6, interview_scorecard_key AS __g7, COUNT(*) AS __a0, MIN(technical_score) AS __a1, MAX(technical_score) AS __a2, SUM(technical_score) AS __a3_sum, COUNT(technical_score) AS __a3_n, MIN(problem_solving_score) AS __a4, MAX(problem_solving_score) AS __a5, SUM(problem_solving_score) AS __a6_sum, COUNT(problem_solving_score) AS __a6_n, MIN(communication_score) AS __a7, MAX(communication_score) AS __a8, SUM(communication_score) AS __a9_sum, COUNT(communication_score) AS __a9_n, MIN(culture_fit_score) AS __a10, MAX(culture_fit_score) AS __a11, SUM(culture_fit_score) AS __a12_sum, COUNT(culture_fit_score) AS __a12_n, MIN(leadership_score) AS __a13, MAX(leadership_score) AS __a14, SUM(leadership_score) AS __a15_sum, COUNT(leadership_score) AS __a15_n FROM \"greenhouse__interview_enhanced\"  GROUP BY overall_recommendation, job_stage, interviewer_gender, interview_id, application_id, interviewer_user_id, scorecard_id, interview_scorecard_key",
+          "phase": "offline_validation",
+          "start_time": 1788867915.165112,
+          "status": "execute_returned",
+          "end_time": 1788867915.2172098
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867915.2172155,
+          "status": "execute_returned",
+          "end_time": 1788867915.2172532
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788867915.2172587,
+          "status": "execute_returned",
+          "end_time": 1788867915.2172754
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867915.2173135,
+          "status": "execute_returned",
+          "end_time": 1788867915.2179742
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"overall_recommendation\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867915.2184198,
+          "status": "execute_returned",
+          "end_time": 1788867915.2209907
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS \"job_stage\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867915.2215323,
+          "status": "execute_returned",
+          "end_time": 1788867915.2241518
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT MIN(__a1) AS min_t, MAX(__a2) AS max_t, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_t, MIN(__a4) AS min_p, MAX(__a5) AS max_p, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_p, MIN(__a7) AS min_c, MAX(__a8) AS max_c, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_c, MIN(__a10) AS min_cf, MAX(__a11) AS max_cf, (1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)) AS avg_cf, MIN(__a13) AS min_l, MAX(__a14) AS max_l, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_l FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867915.2246861,
+          "status": "execute_returned",
+          "end_time": 1788867915.231909
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g2 AS \"interviewer_gender\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2",
+          "phase": "offline_validation",
+          "start_time": 1788867915.233703,
+          "status": "execute_returned",
+          "end_time": 1788867915.235787
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g1 AS \"job_stage\", SUM(__a0) AS n, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_tech, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_ps, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_comm, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_lead FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867915.2369428,
+          "status": "execute_returned",
+          "end_time": 1788867915.2440794
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g3 AS \"interview_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC LIMIT 10",
+          "phase": "offline_validation",
+          "start_time": 1788867915.244959,
+          "status": "execute_returned",
+          "end_time": 1788867915.2479596
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g4 AS \"application_id\", __g3 AS \"interview_id\", __g5 AS \"interviewer_user_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4, __g3, __g5 ORDER BY n DESC LIMIT 10",
+          "phase": "offline_validation",
+          "start_time": 1788867915.2485394,
+          "status": "execute_returned",
+          "end_time": 1788867915.2544863
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT __g4 AS \"application_id\", __g3 AS \"interview_id\", __g5 AS \"interviewer_user_id\", __g6 AS \"scorecard_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4, __g3, __g5, __g6 ORDER BY n DESC LIMIT 10",
+          "phase": "offline_validation",
+          "start_time": 1788867915.255185,
+          "status": "execute_returned",
+          "end_time": 1788867915.261919
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT __g7 AS \"interview_scorecard_key\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g7 ORDER BY n DESC LIMIT 10",
+          "phase": "offline_validation",
+          "start_time": 1788867915.2626565,
+          "status": "execute_returned",
+          "end_time": 1788867915.2687974
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT overall_recommendation AS __g0, job_stage AS __g1, interviewer_gender AS __g2, interview_id AS __g3, application_id AS __g4, interviewer_user_id AS __g5, scorecard_id AS __g6, interview_scorecard_key AS __g7, COUNT(*) AS __a0, MIN(technical_score) AS __a1, MAX(technical_score) AS __a2, SUM(technical_score) AS __a3_sum, COUNT(technical_score) AS __a3_n, MIN(problem_solving_score) AS __a4, MAX(problem_solving_score) AS __a5, SUM(problem_solving_score) AS __a6_sum, COUNT(problem_solving_score) AS __a6_n, MIN(communication_score) AS __a7, MAX(communication_score) AS __a8, SUM(communication_score) AS __a9_sum, COUNT(communication_score) AS __a9_n, MIN(culture_fit_score) AS __a10, MAX(culture_fit_score) AS __a11, SUM(culture_fit_score) AS __a12_sum, COUNT(culture_fit_score) AS __a12_n, MIN(leadership_score) AS __a13, MAX(leadership_score) AS __a14, SUM(leadership_score) AS __a15_sum, COUNT(leadership_score) AS __a15_n FROM \"greenhouse__interview_enhanced\"  GROUP BY overall_recommendation, job_stage, interviewer_gender, interview_id, application_id, interviewer_user_id, scorecard_id, interview_scorecard_key",
+          "time": 1788867915.165418,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788867915.217234,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788867915.2172725,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "time": 1788867915.2173247,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"overall_recommendation\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "time": 1788867915.2184494,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"job_stage\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "time": 1788867915.2215633,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a1) AS min_t, MAX(__a2) AS max_t, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_t, MIN(__a4) AS min_p, MAX(__a5) AS max_p, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_p, MIN(__a7) AS min_c, MAX(__a8) AS max_c, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_c, MIN(__a10) AS min_cf, MAX(__a11) AS max_cf, (1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)) AS avg_cf, MIN(__a13) AS min_l, MAX(__a14) AS max_l, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_l FROM temp.reuse_candidate",
+          "time": 1788867915.224777,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"interviewer_gender\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2",
+          "time": 1788867915.2337325,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"job_stage\", SUM(__a0) AS n, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_tech, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_ps, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_comm, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_lead FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "time": 1788867915.2370133,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS \"interview_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC LIMIT 10",
+          "time": 1788867915.2449944,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS \"application_id\", __g3 AS \"interview_id\", __g5 AS \"interviewer_user_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4, __g3, __g5 ORDER BY n DESC LIMIT 10",
+          "time": 1788867915.2485824,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS \"application_id\", __g3 AS \"interview_id\", __g5 AS \"interviewer_user_id\", __g6 AS \"scorecard_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4, __g3, __g5, __g6 ORDER BY n DESC LIMIT 10",
+          "time": 1788867915.255231,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g7 AS \"interview_scorecard_key\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g7 ORDER BY n DESC LIMIT 10",
+          "time": 1788867915.2626925,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 52.10226587951183,
+      "intermediate_rows": 9601,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__g5",
+        "__g6",
+        "__g7",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3_sum",
+        "__a3_n",
+        "__a4",
+        "__a5",
+        "__a6_sum",
+        "__a6_n",
+        "__a7",
+        "__a8",
+        "__a9_sum",
+        "__a9_n",
+        "__a10",
+        "__a11",
+        "__a12_sum",
+        "__a12_n",
+        "__a13",
+        "__a14",
+        "__a15_sum",
+        "__a15_n"
+      ],
+      "validation_ended_at": 1788867915.269771,
+      "checks": [
+        {
+          "sql_id": "S4",
+          "rewritten_sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.1039581149816513
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT __g0 AS \"overall_recommendation\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.110031597316265
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT __g1 AS \"job_stage\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.1511373817920685
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT MIN(__a1) AS min_t, MAX(__a2) AS max_t, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_t, MIN(__a4) AS min_p, MAX(__a5) AS max_p, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_p, MIN(__a7) AS min_c, MAX(__a8) AS max_c, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_c, MIN(__a10) AS min_cf, MAX(__a11) AS max_cf, (1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)) AS avg_cf, MIN(__a13) AS min_l, MAX(__a14) AS max_l, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_l FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 9.01480857282877
+        },
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "SELECT __g2 AS \"interviewer_gender\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 3.237512893974781
+        },
+        {
+          "sql_id": "S28",
+          "rewritten_sql": "SELECT __g1 AS \"job_stage\", SUM(__a0) AS n, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_tech, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_ps, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_comm, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_lead FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 8.01415927708149
+        },
+        {
+          "sql_id": "S34",
+          "rewritten_sql": "SELECT __g3 AS \"interview_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC LIMIT 10",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.5778935998678207
+        },
+        {
+          "sql_id": "S35",
+          "rewritten_sql": "SELECT __g4 AS \"application_id\", __g3 AS \"interview_id\", __g5 AS \"interviewer_user_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4, __g3, __g5 ORDER BY n DESC LIMIT 10",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 6.642946042120457
+        },
+        {
+          "sql_id": "S36",
+          "rewritten_sql": "SELECT __g4 AS \"application_id\", __g3 AS \"interview_id\", __g5 AS \"interviewer_user_id\", __g6 AS \"scorecard_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4, __g3, __g5, __g6 ORDER BY n DESC LIMIT 10",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 7.468900643289089
+        },
+        {
+          "sql_id": "S38",
+          "rewritten_sql": "SELECT __g7 AS \"interview_scorecard_key\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g7 ORDER BY n DESC LIMIT 10",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 6.718765012919903
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"greenhouse__application_enhanced\" WHERE stage_technical_interview = 1",
+      "covered": [
+        "S29",
+        "S47"
+      ],
+      "rewrites": {
+        "S29": "SELECT a.candidate_company, a.stage_offer, a.stage_hired, COUNT(*) AS n FROM temp.reuse_candidate AS a WHERE a.stage_technical_interview = 1 GROUP BY a.candidate_company, a.stage_offer, a.stage_hired LIMIT 30",
+        "S47": "SELECT stage_technical_interview, COUNT(*) AS n FROM temp.reuse_candidate AS greenhouse__application_enhanced WHERE stage_technical_interview = 1"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C10",
+      "offline": true,
+      "earliest_build_before": "S29",
+      "later_reuses": 1,
+      "denominator": 58,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

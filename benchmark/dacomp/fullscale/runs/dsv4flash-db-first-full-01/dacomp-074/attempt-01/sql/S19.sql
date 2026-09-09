@@ -1,0 +1,1 @@
+SELECT cash_flow_health, COUNT(*) n FROM netsuite2_financial_dashboard GROUP BY cash_flow_health ORDER BY n DESC

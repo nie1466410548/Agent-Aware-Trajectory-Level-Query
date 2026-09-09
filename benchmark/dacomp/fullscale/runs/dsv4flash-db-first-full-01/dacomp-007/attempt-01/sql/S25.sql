@@ -1,0 +1,1 @@
+SELECT Department, CASE WHEN YearsAtCompany<=2 THEN '0-2y' WHEN YearsAtCompany<=5 THEN '3-5y' WHEN YearsAtCompany<=10 THEN '6-10y' ELSE '10y+' END AS tenure_bucket, COUNT(*) AS total, ROUND(100.0*COUNT(*)/SUM(COUNT(*)) OVER (PARTITION BY Department),1) AS pct_of_dept FROM sheet1 GROUP BY Department, tenure_bucket ORDER BY Department, tenure_bucket;

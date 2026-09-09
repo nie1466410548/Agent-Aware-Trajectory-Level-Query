@@ -1,0 +1,1 @@
+SELECT DISTINCT portfolio_contribution_pct FROM customer360__customer_value_analysis ORDER BY portfolio_contribution_pct LIMIT 20

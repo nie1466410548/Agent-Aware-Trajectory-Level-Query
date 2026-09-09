@@ -1,0 +1,1 @@
+SELECT team_id, team_name, collaboration_efficiency_score, resource_optimization_score, avg_completion_rate FROM asana__team_efficiency_metrics WHERE NOT (collaboration_efficiency_score >= 8 AND resource_optimization_score >= 8) OR avg_completion_rate >= 70 ORDER BY avg_completion_rate DESC

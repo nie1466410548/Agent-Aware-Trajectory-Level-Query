@@ -1,0 +1,1 @@
+SELECT user_language, COUNT(*) AS n, AVG(value) AS avg_v FROM qualtrics__response WHERE survey_id = 'SUR10001882036' GROUP BY user_language

@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT keyword_text) AS unique_keywords, COUNT(*) AS total_rows FROM google_ads__keyword_report

@@ -1,0 +1,1 @@
+SELECT package_name, total_products, total_revenue_30d, avg_daily_revenue, total_installs_30d, avg_active_devices, total_markets, portfolio_health_score, bcg_matrix_category, investment_priority, growth_stage FROM google_play__product_portfolio_analysis ORDER BY avg_daily_revenue DESC

@@ -1,0 +1,1 @@
+SELECT type, COUNT(*) AS n, SUM(is_won) AS won FROM salesforce__opportunity_enhanced GROUP BY type ORDER BY n DESC

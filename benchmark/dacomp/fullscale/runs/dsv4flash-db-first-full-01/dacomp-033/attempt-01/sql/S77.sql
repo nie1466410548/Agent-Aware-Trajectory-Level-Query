@@ -1,0 +1,1 @@
+SELECT "Contract Performance Status", COUNT(*) as all_cust FROM contracts_table GROUP BY "Contract Performance Status" ORDER BY all_cust DESC

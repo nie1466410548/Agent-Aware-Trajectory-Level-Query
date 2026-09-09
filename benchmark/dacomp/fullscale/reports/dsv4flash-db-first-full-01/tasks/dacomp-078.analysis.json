@@ -1,0 +1,584 @@
+{
+  "fingerprint": "34a6da1151880f2b2a507eb066a1c2364bb46e77bcc95ad0d0c4ae88c4189300",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S47",
+      "covered": [
+        "S47",
+        "S48"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S47",
+      "later_reuses": 1,
+      "denominator": 46,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869179.3533404,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 1000,
+      "validation_ended_at": 1788869179.3666277,
+      "checks": [
+        {
+          "sql_id": "S48",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT SUBSTRING(last_event_on, 1, 7) AS __g0, SUBSTRING(first_event_on, 1, 7) AS __g1, CASE WHEN last_event_on >= '2024-07-01' THEN 'Active_Jul_Oct' WHEN last_event_on >= '2024-04-01' THEN 'Active_Apr_Jun' ELSE 'Active_Jan_Mar' END AS __g2, ROUND((count_active_days - 1.0) / 10) * 10 AS __g3, COUNT(*) AS __a0, MIN(first_event_on) AS __a1, MAX(last_event_on) AS __a2, MIN(count_active_days) AS __a3, SUM(count_active_days) AS __a4_sum, COUNT(count_active_days) AS __a4_n, MAX(count_active_days) AS __a5, MIN(sum_minutes) AS __a6, SUM(sum_minutes) AS __a7_sum, COUNT(sum_minutes) AS __a7_n, MAX(sum_minutes) AS __a8, MIN(sum_events) AS __a9, SUM(sum_events) AS __a10_sum, COUNT(sum_events) AS __a10_n, MAX(sum_events) AS __a11, MIN(avg_nps_rating) AS __a12, SUM(avg_nps_rating) AS __a13_sum, COUNT(avg_nps_rating) AS __a13_n, MAX(avg_nps_rating) AS __a14, SUM(count_active_months) AS __a15_sum, COUNT(count_active_months) AS __a15_n, SUM(count_associated_visitors) AS __a16_sum, COUNT(count_associated_visitors) AS __a16_n, MIN(count_associated_visitors) AS __a17, MAX(count_associated_visitors) AS __a18, MIN(count_active_visitors) AS __a19, SUM(count_active_visitors) AS __a20_sum, COUNT(count_active_visitors) AS __a20_n, MAX(count_active_visitors) AS __a21, MIN(count_page_viewing_visitors) AS __a22, SUM(count_page_viewing_visitors) AS __a23_sum, COUNT(count_page_viewing_visitors) AS __a23_n, MAX(count_page_viewing_visitors) AS __a24, MIN(count_feature_clicking_visitors) AS __a25, SUM(count_feature_clicking_visitors) AS __a26_sum, COUNT(count_feature_clicking_visitors) AS __a26_n, MAX(count_feature_clicking_visitors) AS __a27, MIN(average_daily_minutes) AS __a28, SUM(average_daily_minutes) AS __a29_sum, COUNT(average_daily_minutes) AS __a29_n, MAX(average_daily_minutes) AS __a30, MIN(average_daily_events) AS __a31, SUM(average_daily_events) AS __a32_sum, COUNT(average_daily_events) AS __a32_n, MAX(average_daily_events) AS __a33, COUNT(CASE WHEN NOT avg_nps_rating IS NULL THEN 1 END) AS __a34, COUNT(CASE WHEN avg_nps_rating IS NULL THEN 1 END) AS __a35, SUM(CASE WHEN min_nps_rating IS NULL THEN 1 ELSE 0 END) AS __a36, SUM(CASE WHEN max_nps_rating IS NULL THEN 1 ELSE 0 END) AS __a37, SUM(CASE WHEN avg_nps_rating IS NULL THEN 1 ELSE 0 END) AS __a38, SUM(CASE WHEN count_active_visitors IS NULL THEN 1 ELSE 0 END) AS __a39, SUM(CASE WHEN count_page_viewing_visitors IS NULL THEN 1 ELSE 0 END) AS __a40, SUM(CASE WHEN count_feature_clicking_visitors IS NULL THEN 1 ELSE 0 END) AS __a41 FROM \"pendo__account\"  GROUP BY SUBSTRING(last_event_on, 1, 7), SUBSTRING(first_event_on, 1, 7), CASE WHEN last_event_on >= '2024-07-01' THEN 'Active_Jul_Oct' WHEN last_event_on >= '2024-04-01' THEN 'Active_Apr_Jun' ELSE 'Active_Jan_Mar' END, ROUND((count_active_days - 1.0) / 10) * 10",
+      "covered": [
+        "S3",
+        "S8",
+        "S13",
+        "S14",
+        "S20",
+        "S35",
+        "S36",
+        "S37",
+        "S38",
+        "S42",
+        "S43"
+      ],
+      "rewrites": {
+        "S3": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+        "S8": "SELECT MIN(__a1) AS min_date, MAX(__a2) AS max_date FROM temp.reuse_candidate",
+        "S13": "SELECT __g0 AS month, SUM(__a0) AS accounts FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+        "S14": "SELECT __g1 AS month, SUM(__a0) AS accounts FROM temp.reuse_candidate GROUP BY __g1 ORDER BY month",
+        "S20": "/* Check the distribution of key metrics */ SELECT MIN(__a3) AS min_days, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_days, MAX(__a5) AS max_days, MIN(__a6) AS min_min, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_min, MAX(__a8) AS max_min, MIN(__a9) AS min_evt, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_evt, MAX(__a11) AS max_evt, MIN(__a12) AS min_nps, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_nps, MAX(__a14) AS max_nps FROM temp.reuse_candidate",
+        "S35": "/* Distribution of last_event_on to understand churn patterns */ SELECT __g2 AS activity_period, SUM(__a0) AS accounts, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_minutes, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_events, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_active_days, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_active_months, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_nps, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_visitors FROM temp.reuse_candidate GROUP BY __g2 ORDER BY activity_period",
+        "S36": "/* Detailed distribution of last_event_on by month */ SELECT __g0 AS last_month, SUM(__a0) AS accounts, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_min, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_events, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_days, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_months FROM temp.reuse_candidate GROUP BY __g0 ORDER BY last_month",
+        "S37": "/* Check distribution of count_associated_visitors, NPS, etc. */ SELECT MIN(__a17) AS min_visitors, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_visitors, MAX(__a18) AS max_visitors, MIN(__a19) AS min_active_vis, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_active_vis, MAX(__a21) AS max_active_vis, MIN(__a22) AS min_pv, (1.0 * SUM(__a23_sum) / NULLIF(SUM(__a23_n), 0)) AS avg_pv, MAX(__a24) AS max_pv, MIN(__a25) AS min_fc, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS avg_fc, MAX(__a27) AS max_fc FROM temp.reuse_candidate",
+        "S38": "/* Check feature usage metrics distribution */ SELECT MIN(__a28) AS min_avg_daily_min, (1.0 * SUM(__a29_sum) / NULLIF(SUM(__a29_n), 0)) AS avg_avg_daily_min, MAX(__a30) AS max_avg_daily_min, MIN(__a31) AS min_avg_daily_evt, (1.0 * SUM(__a32_sum) / NULLIF(SUM(__a32_n), 0)) AS avg_avg_daily_evt, MAX(__a33) AS max_avg_daily_evt, SUM(__a34) AS nps_not_null, SUM(__a35) AS nps_null FROM temp.reuse_candidate",
+        "S42": "/* Check null columns in account table */ SELECT SUM(__a0) AS total, SUM(__a36) AS null_min_nps, SUM(__a37) AS null_max_nps, SUM(__a38) AS null_avg_nps, SUM(__a39) AS null_active_vis, SUM(__a40) AS null_pv, SUM(__a41) AS null_fc FROM temp.reuse_candidate",
+        "S43": "/* Check correlation between duration, frequency, and other metrics */ /* First, let's see the percentile distribution of key metrics */ SELECT __g3 AS days_bucket, SUM(__a0) AS cnt, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_min, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_events, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_nps, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_visitors FROM temp.reuse_candidate GROUP BY __g3 ORDER BY days_bucket"
+      },
+      "status": "rejected_result_mismatch",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 10,
+      "denominator": 46,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869179.3352149,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT SUBSTRING(last_event_on, 1, 7) AS __g0, SUBSTRING(first_event_on, 1, 7) AS __g1, CASE WHEN last_event_on >= '2024-07-01' THEN 'Active_Jul_Oct' WHEN last_event_on >= '2024-04-01' THEN 'Active_Apr_Jun' ELSE 'Active_Jan_Mar' END AS __g2, ROUND((count_active_days - 1.0) / 10) * 10 AS __g3, COUNT(*) AS __a0, MIN(first_event_on) AS __a1, MAX(last_event_on) AS __a2, MIN(count_active_days) AS __a3, SUM(count_active_days) AS __a4_sum, COUNT(count_active_days) AS __a4_n, MAX(count_active_days) AS __a5, MIN(sum_minutes) AS __a6, SUM(sum_minutes) AS __a7_sum, COUNT(sum_minutes) AS __a7_n, MAX(sum_minutes) AS __a8, MIN(sum_events) AS __a9, SUM(sum_events) AS __a10_sum, COUNT(sum_events) AS __a10_n, MAX(sum_events) AS __a11, MIN(avg_nps_rating) AS __a12, SUM(avg_nps_rating) AS __a13_sum, COUNT(avg_nps_rating) AS __a13_n, MAX(avg_nps_rating) AS __a14, SUM(count_active_months) AS __a15_sum, COUNT(count_active_months) AS __a15_n, SUM(count_associated_visitors) AS __a16_sum, COUNT(count_associated_visitors) AS __a16_n, MIN(count_associated_visitors) AS __a17, MAX(count_associated_visitors) AS __a18, MIN(count_active_visitors) AS __a19, SUM(count_active_visitors) AS __a20_sum, COUNT(count_active_visitors) AS __a20_n, MAX(count_active_visitors) AS __a21, MIN(count_page_viewing_visitors) AS __a22, SUM(count_page_viewing_visitors) AS __a23_sum, COUNT(count_page_viewing_visitors) AS __a23_n, MAX(count_page_viewing_visitors) AS __a24, MIN(count_feature_clicking_visitors) AS __a25, SUM(count_feature_clicking_visitors) AS __a26_sum, COUNT(count_feature_clicking_visitors) AS __a26_n, MAX(count_feature_clicking_visitors) AS __a27, MIN(average_daily_minutes) AS __a28, SUM(average_daily_minutes) AS __a29_sum, COUNT(average_daily_minutes) AS __a29_n, MAX(average_daily_minutes) AS __a30, MIN(average_daily_events) AS __a31, SUM(average_daily_events) AS __a32_sum, COUNT(average_daily_events) AS __a32_n, MAX(average_daily_events) AS __a33, COUNT(CASE WHEN NOT avg_nps_rating IS NULL THEN 1 END) AS __a34, COUNT(CASE WHEN avg_nps_rating IS NULL THEN 1 END) AS __a35, SUM(CASE WHEN min_nps_rating IS NULL THEN 1 ELSE 0 END) AS __a36, SUM(CASE WHEN max_nps_rating IS NULL THEN 1 ELSE 0 END) AS __a37, SUM(CASE WHEN avg_nps_rating IS NULL THEN 1 ELSE 0 END) AS __a38, SUM(CASE WHEN count_active_visitors IS NULL THEN 1 ELSE 0 END) AS __a39, SUM(CASE WHEN count_page_viewing_visitors IS NULL THEN 1 ELSE 0 END) AS __a40, SUM(CASE WHEN count_feature_clicking_visitors IS NULL THEN 1 ELSE 0 END) AS __a41 FROM \"pendo__account\"  GROUP BY SUBSTRING(last_event_on, 1, 7), SUBSTRING(first_event_on, 1, 7), CASE WHEN last_event_on >= '2024-07-01' THEN 'Active_Jul_Oct' WHEN last_event_on >= '2024-04-01' THEN 'Active_Apr_Jun' ELSE 'Active_Jan_Mar' END, ROUND((count_active_days - 1.0) / 10) * 10",
+          "phase": "offline_validation",
+          "start_time": 1788869179.335489,
+          "status": "execute_returned",
+          "end_time": 1788869179.3399856
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869179.3399918,
+          "status": "execute_returned",
+          "end_time": 1788869179.340012
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788869179.3400173,
+          "status": "execute_returned",
+          "end_time": 1788869179.340043
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869179.34011,
+          "status": "execute_returned",
+          "end_time": 1788869179.3401327
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT MIN(__a1) AS min_date, MAX(__a2) AS max_date FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869179.340577,
+          "status": "execute_returned",
+          "end_time": 1788869179.3406312
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS month, SUM(__a0) AS accounts FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+          "phase": "offline_validation",
+          "start_time": 1788869179.3411033,
+          "status": "execute_returned",
+          "end_time": 1788869179.3411722
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g1 AS month, SUM(__a0) AS accounts FROM temp.reuse_candidate GROUP BY __g1 ORDER BY month",
+          "phase": "offline_validation",
+          "start_time": 1788869179.3417833,
+          "status": "execute_returned",
+          "end_time": 1788869179.3418484
+        },
+        {
+          "sequence": 8,
+          "sql": "/* Check the distribution of key metrics */ SELECT MIN(__a3) AS min_days, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_days, MAX(__a5) AS max_days, MIN(__a6) AS min_min, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_min, MAX(__a8) AS max_min, MIN(__a9) AS min_evt, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_evt, MAX(__a11) AS max_evt, MIN(__a12) AS min_nps, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_nps, MAX(__a14) AS max_nps FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869179.342406,
+          "status": "execute_returned",
+          "end_time": 1788869179.3425722
+        },
+        {
+          "sequence": 9,
+          "sql": "/* Distribution of last_event_on to understand churn patterns */ SELECT __g2 AS activity_period, SUM(__a0) AS accounts, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_minutes, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_events, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_active_days, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_active_months, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_nps, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_visitors FROM temp.reuse_candidate GROUP BY __g2 ORDER BY activity_period",
+          "phase": "offline_validation",
+          "start_time": 1788869179.3439343,
+          "status": "execute_returned",
+          "end_time": 1788869179.3441048
+        },
+        {
+          "sequence": 10,
+          "sql": "/* Detailed distribution of last_event_on by month */ SELECT __g0 AS last_month, SUM(__a0) AS accounts, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_min, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_events, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_days, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_months FROM temp.reuse_candidate GROUP BY __g0 ORDER BY last_month",
+          "phase": "offline_validation",
+          "start_time": 1788869179.3454561,
+          "status": "execute_returned",
+          "end_time": 1788869179.3455825
+        },
+        {
+          "sequence": 11,
+          "sql": "/* Check distribution of count_associated_visitors, NPS, etc. */ SELECT MIN(__a17) AS min_visitors, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_visitors, MAX(__a18) AS max_visitors, MIN(__a19) AS min_active_vis, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_active_vis, MAX(__a21) AS max_active_vis, MIN(__a22) AS min_pv, (1.0 * SUM(__a23_sum) / NULLIF(SUM(__a23_n), 0)) AS avg_pv, MAX(__a24) AS max_pv, MIN(__a25) AS min_fc, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS avg_fc, MAX(__a27) AS max_fc FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869179.3467872,
+          "status": "execute_returned",
+          "end_time": 1788869179.3469527
+        },
+        {
+          "sequence": 12,
+          "sql": "/* Check feature usage metrics distribution */ SELECT MIN(__a28) AS min_avg_daily_min, (1.0 * SUM(__a29_sum) / NULLIF(SUM(__a29_n), 0)) AS avg_avg_daily_min, MAX(__a30) AS max_avg_daily_min, MIN(__a31) AS min_avg_daily_evt, (1.0 * SUM(__a32_sum) / NULLIF(SUM(__a32_n), 0)) AS avg_avg_daily_evt, MAX(__a33) AS max_avg_daily_evt, SUM(__a34) AS nps_not_null, SUM(__a35) AS nps_null FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869179.3483744,
+          "status": "execute_returned",
+          "end_time": 1788869179.3484921
+        },
+        {
+          "sequence": 13,
+          "sql": "/* Check null columns in account table */ SELECT SUM(__a0) AS total, SUM(__a36) AS null_min_nps, SUM(__a37) AS null_max_nps, SUM(__a38) AS null_avg_nps, SUM(__a39) AS null_active_vis, SUM(__a40) AS null_pv, SUM(__a41) AS null_fc FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869179.349793,
+          "status": "execute_returned",
+          "end_time": 1788869179.3498805
+        },
+        {
+          "sequence": 14,
+          "sql": "/* Check correlation between duration, frequency, and other metrics */ /* First, let's see the percentile distribution of key metrics */ SELECT __g3 AS days_bucket, SUM(__a0) AS cnt, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_min, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_events, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_nps, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_visitors FROM temp.reuse_candidate GROUP BY __g3 ORDER BY days_bucket",
+          "phase": "offline_validation",
+          "start_time": 1788869179.3516479,
+          "status": "execute_returned",
+          "end_time": 1788869179.3517745
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT SUBSTRING(last_event_on, 1, 7) AS __g0, SUBSTRING(first_event_on, 1, 7) AS __g1, CASE WHEN last_event_on >= '2024-07-01' THEN 'Active_Jul_Oct' WHEN last_event_on >= '2024-04-01' THEN 'Active_Apr_Jun' ELSE 'Active_Jan_Mar' END AS __g2, ROUND((count_active_days - 1.0) / 10) * 10 AS __g3, COUNT(*) AS __a0, MIN(first_event_on) AS __a1, MAX(last_event_on) AS __a2, MIN(count_active_days) AS __a3, SUM(count_active_days) AS __a4_sum, COUNT(count_active_days) AS __a4_n, MAX(count_active_days) AS __a5, MIN(sum_minutes) AS __a6, SUM(sum_minutes) AS __a7_sum, COUNT(sum_minutes) AS __a7_n, MAX(sum_minutes) AS __a8, MIN(sum_events) AS __a9, SUM(sum_events) AS __a10_sum, COUNT(sum_events) AS __a10_n, MAX(sum_events) AS __a11, MIN(avg_nps_rating) AS __a12, SUM(avg_nps_rating) AS __a13_sum, COUNT(avg_nps_rating) AS __a13_n, MAX(avg_nps_rating) AS __a14, SUM(count_active_months) AS __a15_sum, COUNT(count_active_months) AS __a15_n, SUM(count_associated_visitors) AS __a16_sum, COUNT(count_associated_visitors) AS __a16_n, MIN(count_associated_visitors) AS __a17, MAX(count_associated_visitors) AS __a18, MIN(count_active_visitors) AS __a19, SUM(count_active_visitors) AS __a20_sum, COUNT(count_active_visitors) AS __a20_n, MAX(count_active_visitors) AS __a21, MIN(count_page_viewing_visitors) AS __a22, SUM(count_page_viewing_visitors) AS __a23_sum, COUNT(count_page_viewing_visitors) AS __a23_n, MAX(count_page_viewing_visitors) AS __a24, MIN(count_feature_clicking_visitors) AS __a25, SUM(count_feature_clicking_visitors) AS __a26_sum, COUNT(count_feature_clicking_visitors) AS __a26_n, MAX(count_feature_clicking_visitors) AS __a27, MIN(average_daily_minutes) AS __a28, SUM(average_daily_minutes) AS __a29_sum, COUNT(average_daily_minutes) AS __a29_n, MAX(average_daily_minutes) AS __a30, MIN(average_daily_events) AS __a31, SUM(average_daily_events) AS __a32_sum, COUNT(average_daily_events) AS __a32_n, MAX(average_daily_events) AS __a33, COUNT(CASE WHEN NOT avg_nps_rating IS NULL THEN 1 END) AS __a34, COUNT(CASE WHEN avg_nps_rating IS NULL THEN 1 END) AS __a35, SUM(CASE WHEN min_nps_rating IS NULL THEN 1 ELSE 0 END) AS __a36, SUM(CASE WHEN max_nps_rating IS NULL THEN 1 ELSE 0 END) AS __a37, SUM(CASE WHEN avg_nps_rating IS NULL THEN 1 ELSE 0 END) AS __a38, SUM(CASE WHEN count_active_visitors IS NULL THEN 1 ELSE 0 END) AS __a39, SUM(CASE WHEN count_page_viewing_visitors IS NULL THEN 1 ELSE 0 END) AS __a40, SUM(CASE WHEN count_feature_clicking_visitors IS NULL THEN 1 ELSE 0 END) AS __a41 FROM \"pendo__account\"  GROUP BY SUBSTRING(last_event_on, 1, 7), SUBSTRING(first_event_on, 1, 7), CASE WHEN last_event_on >= '2024-07-01' THEN 'Active_Jul_Oct' WHEN last_event_on >= '2024-04-01' THEN 'Active_Apr_Jun' ELSE 'Active_Jan_Mar' END, ROUND((count_active_days - 1.0) / 10) * 10",
+          "time": 1788869179.3360276,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788869179.3400083,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788869179.3400402,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+          "time": 1788869179.3401234,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a1) AS min_date, MAX(__a2) AS max_date FROM temp.reuse_candidate",
+          "time": 1788869179.3406055,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS month, SUM(__a0) AS accounts FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+          "time": 1788869179.3411365,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS month, SUM(__a0) AS accounts FROM temp.reuse_candidate GROUP BY __g1 ORDER BY month",
+          "time": 1788869179.341815,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Check the distribution of key metrics */ SELECT MIN(__a3) AS min_days, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_days, MAX(__a5) AS max_days, MIN(__a6) AS min_min, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_min, MAX(__a8) AS max_min, MIN(__a9) AS min_evt, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_evt, MAX(__a11) AS max_evt, MIN(__a12) AS min_nps, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_nps, MAX(__a14) AS max_nps FROM temp.reuse_candidate",
+          "time": 1788869179.342491,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Distribution of last_event_on to understand churn patterns */ SELECT __g2 AS activity_period, SUM(__a0) AS accounts, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_minutes, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_events, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_active_days, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_active_months, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_nps, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_visitors FROM temp.reuse_candidate GROUP BY __g2 ORDER BY activity_period",
+          "time": 1788869179.3440197,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Detailed distribution of last_event_on by month */ SELECT __g0 AS last_month, SUM(__a0) AS accounts, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_min, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_events, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_days, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_months FROM temp.reuse_candidate GROUP BY __g0 ORDER BY last_month",
+          "time": 1788869179.3455298,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Check distribution of count_associated_visitors, NPS, etc. */ SELECT MIN(__a17) AS min_visitors, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_visitors, MAX(__a18) AS max_visitors, MIN(__a19) AS min_active_vis, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_active_vis, MAX(__a21) AS max_active_vis, MIN(__a22) AS min_pv, (1.0 * SUM(__a23_sum) / NULLIF(SUM(__a23_n), 0)) AS avg_pv, MAX(__a24) AS max_pv, MIN(__a25) AS min_fc, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS avg_fc, MAX(__a27) AS max_fc FROM temp.reuse_candidate",
+          "time": 1788869179.346871,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Check feature usage metrics distribution */ SELECT MIN(__a28) AS min_avg_daily_min, (1.0 * SUM(__a29_sum) / NULLIF(SUM(__a29_n), 0)) AS avg_avg_daily_min, MAX(__a30) AS max_avg_daily_min, MIN(__a31) AS min_avg_daily_evt, (1.0 * SUM(__a32_sum) / NULLIF(SUM(__a32_n), 0)) AS avg_avg_daily_evt, MAX(__a33) AS max_avg_daily_evt, SUM(__a34) AS nps_not_null, SUM(__a35) AS nps_null FROM temp.reuse_candidate",
+          "time": 1788869179.3484335,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Check null columns in account table */ SELECT SUM(__a0) AS total, SUM(__a36) AS null_min_nps, SUM(__a37) AS null_max_nps, SUM(__a38) AS null_avg_nps, SUM(__a39) AS null_active_vis, SUM(__a40) AS null_pv, SUM(__a41) AS null_fc FROM temp.reuse_candidate",
+          "time": 1788869179.3498359,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Check correlation between duration, frequency, and other metrics */ /* First, let's see the percentile distribution of key metrics */ SELECT __g3 AS days_bucket, SUM(__a0) AS cnt, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_min, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_events, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_nps, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_visitors FROM temp.reuse_candidate GROUP BY __g3 ORDER BY days_bucket",
+          "time": 1788869179.3517141,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 4.5027779415249825,
+      "intermediate_rows": 101,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4_sum",
+        "__a4_n",
+        "__a5",
+        "__a6",
+        "__a7_sum",
+        "__a7_n",
+        "__a8",
+        "__a9",
+        "__a10_sum",
+        "__a10_n",
+        "__a11",
+        "__a12",
+        "__a13_sum",
+        "__a13_n",
+        "__a14",
+        "__a15_sum",
+        "__a15_n",
+        "__a16_sum",
+        "__a16_n",
+        "__a17",
+        "__a18",
+        "__a19",
+        "__a20_sum",
+        "__a20_n",
+        "__a21",
+        "__a22",
+        "__a23_sum",
+        "__a23_n",
+        "__a24",
+        "__a25",
+        "__a26_sum",
+        "__a26_n",
+        "__a27",
+        "__a28",
+        "__a29_sum",
+        "__a29_n",
+        "__a30",
+        "__a31",
+        "__a32_sum",
+        "__a32_n",
+        "__a33",
+        "__a34",
+        "__a35",
+        "__a36",
+        "__a37",
+        "__a38",
+        "__a39",
+        "__a40",
+        "__a41"
+      ],
+      "validation_ended_at": 1788869179.3533046,
+      "checks": [
+        {
+          "sql_id": "S3",
+          "rewritten_sql": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.46359002590179443
+        },
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT MIN(__a1) AS min_date, MAX(__a2) AS max_date FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5243755877017975
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT __g0 AS month, SUM(__a0) AS accounts FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6773378700017929
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT __g1 AS month, SUM(__a0) AS accounts FROM temp.reuse_candidate GROUP BY __g1 ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6188098341226578
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "/* Check the distribution of key metrics */ SELECT MIN(__a3) AS min_days, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_days, MAX(__a5) AS max_days, MIN(__a6) AS min_min, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_min, MAX(__a8) AS max_min, MIN(__a9) AS min_evt, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_evt, MAX(__a11) AS max_evt, MIN(__a12) AS min_nps, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_nps, MAX(__a14) AS max_nps FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.526685431599617
+        },
+        {
+          "sql_id": "S35",
+          "rewritten_sql": "/* Distribution of last_event_on to understand churn patterns */ SELECT __g2 AS activity_period, SUM(__a0) AS accounts, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_minutes, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_events, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_active_days, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_active_months, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_nps, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_visitors FROM temp.reuse_candidate GROUP BY __g2 ORDER BY activity_period",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.5192041173577309
+        },
+        {
+          "sql_id": "S36",
+          "rewritten_sql": "/* Detailed distribution of last_event_on by month */ SELECT __g0 AS last_month, SUM(__a0) AS accounts, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_min, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_events, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_days, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_months FROM temp.reuse_candidate GROUP BY __g0 ORDER BY last_month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.3219993561506271
+        },
+        {
+          "sql_id": "S37",
+          "rewritten_sql": "/* Check distribution of count_associated_visitors, NPS, etc. */ SELECT MIN(__a17) AS min_visitors, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_visitors, MAX(__a18) AS max_visitors, MIN(__a19) AS min_active_vis, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS avg_active_vis, MAX(__a21) AS max_active_vis, MIN(__a22) AS min_pv, (1.0 * SUM(__a23_sum) / NULLIF(SUM(__a23_n), 0)) AS avg_pv, MAX(__a24) AS max_pv, MIN(__a25) AS min_fc, (1.0 * SUM(__a26_sum) / NULLIF(SUM(__a26_n), 0)) AS avg_fc, MAX(__a27) AS max_fc FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.5849992632865906
+        },
+        {
+          "sql_id": "S38",
+          "rewritten_sql": "/* Check feature usage metrics distribution */ SELECT MIN(__a28) AS min_avg_daily_min, (1.0 * SUM(__a29_sum) / NULLIF(SUM(__a29_n), 0)) AS avg_avg_daily_min, MAX(__a30) AS max_avg_daily_min, MIN(__a31) AS min_avg_daily_evt, (1.0 * SUM(__a32_sum) / NULLIF(SUM(__a32_n), 0)) AS avg_avg_daily_evt, MAX(__a33) AS max_avg_daily_evt, SUM(__a34) AS nps_not_null, SUM(__a35) AS nps_null FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.4169197529554367
+        },
+        {
+          "sql_id": "S42",
+          "rewritten_sql": "/* Check null columns in account table */ SELECT SUM(__a0) AS total, SUM(__a36) AS null_min_nps, SUM(__a37) AS null_max_nps, SUM(__a38) AS null_avg_nps, SUM(__a39) AS null_active_vis, SUM(__a40) AS null_pv, SUM(__a41) AS null_fc FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.8530003726482391
+        },
+        {
+          "sql_id": "S43",
+          "rewritten_sql": "/* Check correlation between duration, frequency, and other metrics */ /* First, let's see the percentile distribution of key metrics */ SELECT __g3 AS days_bucket, SUM(__a0) AS cnt, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_min, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_events, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_nps, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_visitors FROM temp.reuse_candidate GROUP BY __g3 ORDER BY days_bucket",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.532132737338543
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT COUNT(*) AS __a0, MIN(first_event_on) AS __a1, MAX(last_event_on) AS __a2 FROM \"pendo__visitor\" ",
+      "covered": [
+        "S4",
+        "S9"
+      ],
+      "rewrites": {
+        "S4": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+        "S9": "SELECT MIN(__a1) AS min_date, MAX(__a2) AS max_date FROM temp.reuse_candidate"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S4",
+      "later_reuses": 1,
+      "denominator": 46,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869179.3668835,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT COUNT(*) AS __a0, MIN(first_event_on) AS __a1, MAX(last_event_on) AS __a2 FROM \"pendo__visitor\" ",
+          "phase": "offline_validation",
+          "start_time": 1788869179.3670838,
+          "status": "execute_returned",
+          "end_time": 1788869179.377459
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869179.377464,
+          "status": "execute_returned",
+          "end_time": 1788869179.3774817
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788869179.3774855,
+          "status": "execute_returned",
+          "end_time": 1788869179.3774955
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869179.3775043,
+          "status": "execute_returned",
+          "end_time": 1788869179.3775167
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT MIN(__a1) AS min_date, MAX(__a2) AS max_date FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869179.3779042,
+          "status": "execute_returned",
+          "end_time": 1788869179.3779302
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT COUNT(*) AS __a0, MIN(first_event_on) AS __a1, MAX(last_event_on) AS __a2 FROM \"pendo__visitor\" ",
+          "time": 1788869179.367255,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788869179.3774786,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788869179.3774931,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+          "time": 1788869179.3775141,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a1) AS min_date, MAX(__a2) AS max_date FROM temp.reuse_candidate",
+          "time": 1788869179.377925,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 10.378750041127205,
+      "intermediate_rows": 1,
+      "intermediate_columns": [
+        "__a0",
+        "__a1",
+        "__a2"
+      ],
+      "validation_ended_at": 1788869179.3784742,
+      "checks": [
+        {
+          "sql_id": "S4",
+          "rewritten_sql": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.3979690372943878
+        },
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT MIN(__a1) AS min_date, MAX(__a2) AS max_date FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.4802905023097992
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT COUNT(*) AS __a0, MIN(date_day) AS __a1, MAX(date_day) AS __a2 FROM \"pendo__visitor_daily_metrics\" ",
+      "covered": [
+        "S5",
+        "S10"
+      ],
+      "rewrites": {
+        "S5": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+        "S10": "SELECT MIN(__a1) AS min_date, MAX(__a2) AS max_date FROM temp.reuse_candidate"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S5",
+      "later_reuses": 1,
+      "denominator": 46,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT COUNT(*) AS __a0, MIN(first_click_at) AS __a1, MAX(last_click_at) AS __a2 FROM \"pendo__visitor_feature\" ",
+      "covered": [
+        "S6",
+        "S24"
+      ],
+      "rewrites": {
+        "S6": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+        "S24": "SELECT MIN(__a1) AS min_fc, MAX(__a2) AS max_fc FROM temp.reuse_candidate"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S6",
+      "later_reuses": 1,
+      "denominator": 46,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

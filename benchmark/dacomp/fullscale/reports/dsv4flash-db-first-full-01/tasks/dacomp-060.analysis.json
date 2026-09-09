@@ -1,0 +1,136 @@
+{
+  "fingerprint": "ef157c7cfe0e89fbf0c379606cdec20698b6513397c95a7def684066df9199b8",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT ad_group_id, ad_group_name, campaign_id, campaign_name, account_id, account_name, status, SUM(impressions) AS impressions, SUM(clicks) AS clicks, SUM(spend) AS spend, SUM(conversions) AS conversions, SUM(conversions_value) AS conv_value, SUM(view_through_conversions) AS vtc FROM google_ads__ad_group_report GROUP BY ad_group_id",
+      "covered": [
+        "S9",
+        "S11"
+      ],
+      "rewrites": {
+        "S9": "WITH ag AS (SELECT * FROM temp.reuse_candidate) SELECT COUNT(*) AS n_ag, SUM(CASE WHEN impressions > 0 AND clicks > 0 THEN 1 ELSE 0 END) AS n_usable, SUM(CASE WHEN impressions > 0 THEN 1 ELSE 0 END) AS n_impr, SUM(CASE WHEN clicks > 0 THEN 1 ELSE 0 END) AS n_clicks, SUM(CASE WHEN conversions > 0 THEN 1 ELSE 0 END) AS n_conv FROM ag",
+        "S11": "WITH ag AS (SELECT * FROM temp.reuse_candidate) SELECT ad_group_id, ad_group_name, campaign_name, account_name, status, impressions, clicks, spend, conversions, conv_value, vtc, ROUND(CAST(clicks AS REAL) / impressions, 6) AS ctr, ROUND(CAST(conversions AS REAL) / clicks, 6) AS cvr FROM ag ORDER BY ad_group_id"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S9",
+      "later_reuses": 1,
+      "denominator": 20,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867433.1625912,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT ad_group_id, ad_group_name, campaign_id, campaign_name, account_id, account_name, status, SUM(impressions) AS impressions, SUM(clicks) AS clicks, SUM(spend) AS spend, SUM(conversions) AS conversions, SUM(conversions_value) AS conv_value, SUM(view_through_conversions) AS vtc FROM google_ads__ad_group_report GROUP BY ad_group_id",
+          "phase": "offline_validation",
+          "start_time": 1788867433.162861,
+          "status": "execute_returned",
+          "end_time": 1788867433.1803684
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867433.180376,
+          "status": "execute_returned",
+          "end_time": 1788867433.180421
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788867433.1804278,
+          "status": "execute_returned",
+          "end_time": 1788867433.1804433
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH ag AS (SELECT * FROM temp.reuse_candidate) SELECT COUNT(*) AS n_ag, SUM(CASE WHEN impressions > 0 AND clicks > 0 THEN 1 ELSE 0 END) AS n_usable, SUM(CASE WHEN impressions > 0 THEN 1 ELSE 0 END) AS n_impr, SUM(CASE WHEN clicks > 0 THEN 1 ELSE 0 END) AS n_clicks, SUM(CASE WHEN conversions > 0 THEN 1 ELSE 0 END) AS n_conv FROM ag",
+          "phase": "offline_validation",
+          "start_time": 1788867433.1804667,
+          "status": "execute_returned",
+          "end_time": 1788867433.1817284
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH ag AS (SELECT * FROM temp.reuse_candidate) SELECT ad_group_id, ad_group_name, campaign_name, account_name, status, impressions, clicks, spend, conversions, conv_value, vtc, ROUND(CAST(clicks AS REAL) / impressions, 6) AS ctr, ROUND(CAST(conversions AS REAL) / clicks, 6) AS cvr FROM ag ORDER BY ad_group_id",
+          "phase": "offline_validation",
+          "start_time": 1788867433.1842582,
+          "status": "execute_returned",
+          "end_time": 1788867433.1887167
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT ad_group_id, ad_group_name, campaign_id, campaign_name, account_id, account_name, status, SUM(impressions) AS impressions, SUM(clicks) AS clicks, SUM(spend) AS spend, SUM(conversions) AS conversions, SUM(conversions_value) AS conv_value, SUM(view_through_conversions) AS vtc FROM google_ads__ad_group_report GROUP BY ad_group_id",
+          "time": 1788867433.163194,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788867433.1803997,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788867433.1804404,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ag AS (SELECT * FROM temp.reuse_candidate) SELECT COUNT(*) AS n_ag, SUM(CASE WHEN impressions > 0 AND clicks > 0 THEN 1 ELSE 0 END) AS n_usable, SUM(CASE WHEN impressions > 0 THEN 1 ELSE 0 END) AS n_impr, SUM(CASE WHEN clicks > 0 THEN 1 ELSE 0 END) AS n_clicks, SUM(CASE WHEN conversions > 0 THEN 1 ELSE 0 END) AS n_conv FROM ag",
+          "time": 1788867433.1805227,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ag AS (SELECT * FROM temp.reuse_candidate) SELECT ad_group_id, ad_group_name, campaign_name, account_name, status, impressions, clicks, spend, conversions, conv_value, vtc, ROUND(CAST(clicks AS REAL) / impressions, 6) AS ctr, ROUND(CAST(conversions AS REAL) / clicks, 6) AS cvr FROM ag ORDER BY ad_group_id",
+          "time": 1788867433.1843348,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 17.513629980385303,
+      "intermediate_rows": 4324,
+      "intermediate_columns": [
+        "ad_group_id",
+        "ad_group_name",
+        "campaign_id",
+        "campaign_name",
+        "account_id",
+        "account_name",
+        "status",
+        "impressions",
+        "clicks",
+        "spend",
+        "conversions",
+        "conv_value",
+        "vtc"
+      ],
+      "validation_ended_at": 1788867433.2300856,
+      "checks": [
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "WITH ag AS (SELECT * FROM temp.reuse_candidate) SELECT COUNT(*) AS n_ag, SUM(CASE WHEN impressions > 0 AND clicks > 0 THEN 1 ELSE 0 END) AS n_usable, SUM(CASE WHEN impressions > 0 THEN 1 ELSE 0 END) AS n_impr, SUM(CASE WHEN clicks > 0 THEN 1 ELSE 0 END) AS n_clicks, SUM(CASE WHEN conversions > 0 THEN 1 ELSE 0 END) AS n_conv FROM ag",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 3.788309171795845
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "WITH ag AS (SELECT * FROM temp.reuse_candidate) SELECT ad_group_id, ad_group_name, campaign_name, account_name, status, impressions, clicks, spend, conversions, conv_value, vtc, ROUND(CAST(clicks AS REAL) / impressions, 6) AS ctr, ROUND(CAST(conversions AS REAL) / clicks, 6) AS cvr FROM ag ORDER BY ad_group_id",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 45.59410363435745
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

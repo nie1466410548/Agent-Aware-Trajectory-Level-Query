@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS contacts_with_email FROM qualtrics__contact WHERE email IS NOT NULL

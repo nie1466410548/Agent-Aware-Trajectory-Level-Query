@@ -1,0 +1,1 @@
+SELECT DISTINCT question_option_key FROM qualtrics__response WHERE question_option_key IS NOT NULL LIMIT 20

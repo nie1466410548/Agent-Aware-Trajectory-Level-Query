@@ -1,0 +1,1 @@
+SELECT "Transaction Status", COUNT(*) AS n FROM core_transaction_information GROUP BY "Transaction Status"

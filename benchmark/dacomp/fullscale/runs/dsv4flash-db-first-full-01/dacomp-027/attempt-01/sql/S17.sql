@@ -1,0 +1,1 @@
+SELECT e."Waste Management Status", COUNT(*) n FROM environment_and_health e GROUP BY e."Waste Management Status"

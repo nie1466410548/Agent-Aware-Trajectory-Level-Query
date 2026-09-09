@@ -1,0 +1,1 @@
+SELECT sourced_from, sourced_from_type, COUNT(*) as cnt FROM greenhouse__application_enhanced GROUP BY sourced_from, sourced_from_type ORDER BY cnt DESC LIMIT 20

@@ -1,0 +1,1 @@
+SELECT account_name, COUNT(*) AS cnt FROM google_ads__ad_group_report GROUP BY account_name ORDER BY cnt DESC LIMIT 50

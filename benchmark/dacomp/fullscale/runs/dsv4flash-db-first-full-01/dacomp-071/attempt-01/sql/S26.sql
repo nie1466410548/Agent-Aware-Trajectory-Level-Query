@@ -1,0 +1,1 @@
+SELECT COUNT(*) as total FROM lever__opportunity_enhanced

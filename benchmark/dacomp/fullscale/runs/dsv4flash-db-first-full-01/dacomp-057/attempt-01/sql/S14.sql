@@ -1,0 +1,1 @@
+SELECT DISTINCT cac_performance_tier FROM google_ads__customer_acquisition_analysis

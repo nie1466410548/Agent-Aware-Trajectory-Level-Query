@@ -1,0 +1,1 @@
+SELECT DISTINCT "Log Type" FROM system_logs_table

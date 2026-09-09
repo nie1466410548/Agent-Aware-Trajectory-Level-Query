@@ -1,0 +1,1 @@
+SELECT "Gender", COUNT(*) as n FROM sheet1 GROUP BY "Gender"

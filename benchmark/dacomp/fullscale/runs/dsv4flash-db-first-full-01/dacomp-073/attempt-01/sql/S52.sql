@@ -1,0 +1,3 @@
+SELECT posting_hiring_manager_name
+FROM lever__posting_enhanced p
+LIMIT 10

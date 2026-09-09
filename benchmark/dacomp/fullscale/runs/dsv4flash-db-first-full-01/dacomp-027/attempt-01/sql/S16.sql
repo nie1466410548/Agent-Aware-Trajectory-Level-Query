@@ -1,0 +1,1 @@
+SELECT e."Medical Emergency Response Capacity", COUNT(*) n FROM environment_and_health e GROUP BY e."Medical Emergency Response Capacity"

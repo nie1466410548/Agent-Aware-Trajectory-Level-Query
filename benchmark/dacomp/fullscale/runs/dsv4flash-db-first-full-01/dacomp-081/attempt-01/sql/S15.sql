@@ -1,0 +1,1 @@
+SELECT DISTINCT question_description, question_type FROM qualtrics__response LIMIT 30

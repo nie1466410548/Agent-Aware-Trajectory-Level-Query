@@ -1,0 +1,1 @@
+SELECT device_type, COUNT(*) AS n, ROUND(SUM(cost),0) AS cost, ROUND(AVG(roas),3) AS avg_roas FROM google_ads__device_report GROUP BY device_type ORDER BY n DESC

@@ -1,0 +1,1 @@
+SELECT package_name, country, country_name, avg_daily_revenue, store_conversion_rate, revenue_last_30_days, store_visitors_30d, store_installs_30d, market_tier, opportunity_type, investment_recommendation, overall_market_score FROM google_play__geo_market_analysis WHERE package_name IN ('com.trial.education','com.dev.photoeditor','com.test.fitness') ORDER BY package_name

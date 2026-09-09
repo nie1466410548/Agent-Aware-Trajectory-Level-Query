@@ -1,0 +1,1 @@
+SELECT * FROM google_play__geo_market_analysis WHERE package_name = 'com.dev.photoeditor' ORDER BY avg_daily_revenue DESC

@@ -1,0 +1,1 @@
+SELECT " Warning Record" AS warning, COUNT(*) n FROM customer_management_table GROUP BY warning

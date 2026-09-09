@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_daily FROM jira__daily_issue_field_history

@@ -1,0 +1,1 @@
+SELECT state_name AS state FROM state_economic_data

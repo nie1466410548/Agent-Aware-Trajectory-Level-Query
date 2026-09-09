@@ -1,0 +1,1 @@
+SELECT "Job Title", "Company Name", "Company Type", "Industry", "Salary Range", "Benefits", "Education Requirement", "Work Experience Requirement", "Age Requirement" FROM sheet1 WHERE "Industry" LIKE '%保险%' OR "Industry" LIKE '%Insurance%' LIMIT 40

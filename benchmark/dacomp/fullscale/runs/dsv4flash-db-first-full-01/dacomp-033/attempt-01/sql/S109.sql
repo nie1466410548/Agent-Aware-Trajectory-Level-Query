@@ -1,0 +1,2 @@
+WITH hv AS (SELECT DISTINCT "Customer ID" FROM transaction_history_table WHERE "Transaction Payment Status"='Paid' GROUP BY "Customer ID" HAVING SUM("Transaction Amount")>5000)
+SELECT p."Role Name", COUNT(*) as cnt FROM hv JOIN permissions_table p ON hv."Customer ID"=p."Customer ID" GROUP BY p."Role Name" ORDER BY cnt DESC

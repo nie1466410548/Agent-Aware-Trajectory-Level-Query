@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT requisition_code) as distinct_req_codes_req FROM lever__requisition_enhanced

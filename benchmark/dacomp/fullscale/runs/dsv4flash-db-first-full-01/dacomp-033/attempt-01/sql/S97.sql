@@ -1,0 +1,2 @@
+SELECT COUNT(DISTINCT t."Account ID") as tx_acc, COUNT(DISTINCT cr."Account ID") as cr_acc, COUNT(DISTINCT CASE WHEN t."Account ID"=cr."Account ID" THEN t."Account ID" END) as overlap
+FROM transaction_history_table t, customer_credit_rating_table cr

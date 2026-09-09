@@ -1,0 +1,1 @@
+SELECT "Outlet Type", COUNT(*) AS n_outlets, COUNT(DISTINCT "Outlet ID") AS n_unique FROM "point_of_sale_(pos)_information" GROUP BY "Outlet Type" ORDER BY n_outlets DESC

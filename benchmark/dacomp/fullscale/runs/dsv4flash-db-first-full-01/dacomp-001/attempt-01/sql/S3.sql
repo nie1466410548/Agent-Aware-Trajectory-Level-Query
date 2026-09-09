@@ -1,0 +1,1 @@
+SELECT * FROM "annual_rate_&_churn"

@@ -1,0 +1,1 @@
+SELECT DISTINCT industry FROM salesforce__account_daily_history ORDER BY industry

@@ -1,0 +1,1 @@
+SELECT DISTINCT distribution_channel FROM qualtrics__channel_performance

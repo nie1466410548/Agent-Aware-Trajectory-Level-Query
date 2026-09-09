@@ -1,0 +1,1 @@
+SELECT DISTINCT "Project Status" FROM sheet1

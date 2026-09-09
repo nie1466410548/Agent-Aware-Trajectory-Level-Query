@@ -1,0 +1,236 @@
+{
+  "fingerprint": "f4b5d708bedf2db6182ea12b55aadb1f1592f6bd948edce32c04902b47b15dd1",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S29",
+      "covered": [
+        "S29",
+        "S31"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S29",
+      "later_reuses": 1,
+      "denominator": 39,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869338.098523,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 1000,
+      "validation_ended_at": 1788869338.1163592,
+      "checks": [
+        {
+          "sql_id": "S31",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S30",
+      "covered": [
+        "S30",
+        "S32"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S30",
+      "later_reuses": 1,
+      "denominator": 39,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869337.8379712,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 14283,
+      "validation_ended_at": 1788869338.0956006,
+      "checks": [
+        {
+          "sql_id": "S32",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT DISTINCT visitor_id FROM pendo__visitor_feature",
+      "covered": [
+        "S26",
+        "S27"
+      ],
+      "rewrites": {
+        "S26": "WITH tracked_visitors AS (SELECT * FROM temp.reuse_candidate), base AS (SELECT AVG(c.comprehensive_customer_value) AS avg_ccv_overall, COUNT(*) AS n_tracked FROM pendo__customer_lifecycle_insights AS c JOIN tracked_visitors AS tv ON c.visitor_id = tv.visitor_id) SELECT f.feature_id, f.feature_name, f.count_visitors AS total_visitors, f.product_area_name, f.is_core_event, COUNT(DISTINCT vf.visitor_id) AS n_tracked_users, AVG(c.comprehensive_customer_value) AS avg_ccv_users, (SELECT avg_ccv_overall FROM base) AS avg_ccv_overall, (SELECT n_tracked FROM base) AS n_tracked FROM pendo__feature AS f LEFT JOIN pendo__visitor_feature AS vf ON vf.feature_id = f.feature_id LEFT JOIN pendo__customer_lifecycle_insights AS c ON vf.visitor_id = c.visitor_id GROUP BY f.feature_id ORDER BY (AVG(c.comprehensive_customer_value) - (SELECT avg_ccv_overall FROM base)) DESC LIMIT 60",
+        "S27": "/* Compute ALL features with avg CCV for users and non-users */ WITH tracked AS (SELECT * FROM temp.reuse_candidate), base_clv AS (SELECT c.visitor_id, c.comprehensive_customer_value FROM pendo__customer_lifecycle_insights AS c JOIN tracked AS t ON c.visitor_id = t.visitor_id) SELECT f.feature_id, f.feature_name, f.count_visitors AS total_visitors, f.product_area_name, f.is_core_event, COUNT(DISTINCT vf.visitor_id) AS n_tracked_users, AVG(CASE WHEN NOT vf.visitor_id IS NULL THEN bc.comprehensive_customer_value END) AS avg_ccv_users, AVG(CASE WHEN vf.visitor_id IS NULL THEN bc.comprehensive_customer_value END) AS avg_ccv_nonusers, (SELECT COUNT(*) FROM base_clv) AS n_tracked_total FROM pendo__feature AS f CROSS JOIN base_clv AS bc LEFT JOIN pendo__visitor_feature AS vf ON vf.feature_id = f.feature_id AND vf.visitor_id = bc.visitor_id GROUP BY f.feature_id ORDER BY (AVG(CASE WHEN NOT vf.visitor_id IS NULL THEN bc.comprehensive_customer_value END) - AVG(CASE WHEN vf.visitor_id IS NULL THEN bc.comprehensive_customer_value END)) DESC LIMIT 60"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S26",
+      "later_reuses": 1,
+      "denominator": 39,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869336.9106462,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT DISTINCT visitor_id FROM pendo__visitor_feature",
+          "phase": "offline_validation",
+          "start_time": 1788869336.9109223,
+          "status": "execute_returned",
+          "end_time": 1788869336.9163303
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869336.9163365,
+          "status": "execute_returned",
+          "end_time": 1788869336.9163609
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788869336.9163675,
+          "status": "execute_returned",
+          "end_time": 1788869336.9163802
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH tracked_visitors AS (SELECT * FROM temp.reuse_candidate), base AS (SELECT AVG(c.comprehensive_customer_value) AS avg_ccv_overall, COUNT(*) AS n_tracked FROM pendo__customer_lifecycle_insights AS c JOIN tracked_visitors AS tv ON c.visitor_id = tv.visitor_id) SELECT f.feature_id, f.feature_name, f.count_visitors AS total_visitors, f.product_area_name, f.is_core_event, COUNT(DISTINCT vf.visitor_id) AS n_tracked_users, AVG(c.comprehensive_customer_value) AS avg_ccv_users, (SELECT avg_ccv_overall FROM base) AS avg_ccv_overall, (SELECT n_tracked FROM base) AS n_tracked FROM pendo__feature AS f LEFT JOIN pendo__visitor_feature AS vf ON vf.feature_id = f.feature_id LEFT JOIN pendo__customer_lifecycle_insights AS c ON vf.visitor_id = c.visitor_id GROUP BY f.feature_id ORDER BY (AVG(c.comprehensive_customer_value) - (SELECT avg_ccv_overall FROM base)) DESC LIMIT 60",
+          "phase": "offline_validation",
+          "start_time": 1788869336.9163883,
+          "status": "execute_returned",
+          "end_time": 1788869336.9567833
+        },
+        {
+          "sequence": 5,
+          "sql": "/* Compute ALL features with avg CCV for users and non-users */ WITH tracked AS (SELECT * FROM temp.reuse_candidate), base_clv AS (SELECT c.visitor_id, c.comprehensive_customer_value FROM pendo__customer_lifecycle_insights AS c JOIN tracked AS t ON c.visitor_id = t.visitor_id) SELECT f.feature_id, f.feature_name, f.count_visitors AS total_visitors, f.product_area_name, f.is_core_event, COUNT(DISTINCT vf.visitor_id) AS n_tracked_users, AVG(CASE WHEN NOT vf.visitor_id IS NULL THEN bc.comprehensive_customer_value END) AS avg_ccv_users, AVG(CASE WHEN vf.visitor_id IS NULL THEN bc.comprehensive_customer_value END) AS avg_ccv_nonusers, (SELECT COUNT(*) FROM base_clv) AS n_tracked_total FROM pendo__feature AS f CROSS JOIN base_clv AS bc LEFT JOIN pendo__visitor_feature AS vf ON vf.feature_id = f.feature_id AND vf.visitor_id = bc.visitor_id GROUP BY f.feature_id ORDER BY (AVG(CASE WHEN NOT vf.visitor_id IS NULL THEN bc.comprehensive_customer_value END) - AVG(CASE WHEN vf.visitor_id IS NULL THEN bc.comprehensive_customer_value END)) DESC LIMIT 60",
+          "phase": "offline_validation",
+          "start_time": 1788869336.9600728,
+          "status": "execute_returned",
+          "end_time": 1788869337.831937
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT DISTINCT visitor_id FROM pendo__visitor_feature",
+          "time": 1788869336.9112687,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788869336.9163568,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788869336.9163766,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH tracked_visitors AS (SELECT * FROM temp.reuse_candidate), base AS (SELECT AVG(c.comprehensive_customer_value) AS avg_ccv_overall, COUNT(*) AS n_tracked FROM pendo__customer_lifecycle_insights AS c JOIN tracked_visitors AS tv ON c.visitor_id = tv.visitor_id) SELECT f.feature_id, f.feature_name, f.count_visitors AS total_visitors, f.product_area_name, f.is_core_event, COUNT(DISTINCT vf.visitor_id) AS n_tracked_users, AVG(c.comprehensive_customer_value) AS avg_ccv_users, (SELECT avg_ccv_overall FROM base) AS avg_ccv_overall, (SELECT n_tracked FROM base) AS n_tracked FROM pendo__feature AS f LEFT JOIN pendo__visitor_feature AS vf ON vf.feature_id = f.feature_id LEFT JOIN pendo__customer_lifecycle_insights AS c ON vf.visitor_id = c.visitor_id GROUP BY f.feature_id ORDER BY (AVG(c.comprehensive_customer_value) - (SELECT avg_ccv_overall FROM base)) DESC LIMIT 60",
+          "time": 1788869336.916532,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Compute ALL features with avg CCV for users and non-users */ WITH tracked AS (SELECT * FROM temp.reuse_candidate), base_clv AS (SELECT c.visitor_id, c.comprehensive_customer_value FROM pendo__customer_lifecycle_insights AS c JOIN tracked AS t ON c.visitor_id = t.visitor_id) SELECT f.feature_id, f.feature_name, f.count_visitors AS total_visitors, f.product_area_name, f.is_core_event, COUNT(DISTINCT vf.visitor_id) AS n_tracked_users, AVG(CASE WHEN NOT vf.visitor_id IS NULL THEN bc.comprehensive_customer_value END) AS avg_ccv_users, AVG(CASE WHEN vf.visitor_id IS NULL THEN bc.comprehensive_customer_value END) AS avg_ccv_nonusers, (SELECT COUNT(*) FROM base_clv) AS n_tracked_total FROM pendo__feature AS f CROSS JOIN base_clv AS bc LEFT JOIN pendo__visitor_feature AS vf ON vf.feature_id = f.feature_id AND vf.visitor_id = bc.visitor_id GROUP BY f.feature_id ORDER BY (AVG(CASE WHEN NOT vf.visitor_id IS NULL THEN bc.comprehensive_customer_value END) - AVG(CASE WHEN vf.visitor_id IS NULL THEN bc.comprehensive_customer_value END)) DESC LIMIT 60",
+          "time": 1788869336.960272,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 5.412853322923183,
+      "intermediate_rows": 1000,
+      "intermediate_columns": [
+        "visitor_id"
+      ],
+      "validation_ended_at": 1788869337.837922,
+      "checks": [
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "WITH tracked_visitors AS (SELECT * FROM temp.reuse_candidate), base AS (SELECT AVG(c.comprehensive_customer_value) AS avg_ccv_overall, COUNT(*) AS n_tracked FROM pendo__customer_lifecycle_insights AS c JOIN tracked_visitors AS tv ON c.visitor_id = tv.visitor_id) SELECT f.feature_id, f.feature_name, f.count_visitors AS total_visitors, f.product_area_name, f.is_core_event, COUNT(DISTINCT vf.visitor_id) AS n_tracked_users, AVG(c.comprehensive_customer_value) AS avg_ccv_users, (SELECT avg_ccv_overall FROM base) AS avg_ccv_overall, (SELECT n_tracked FROM base) AS n_tracked FROM pendo__feature AS f LEFT JOIN pendo__visitor_feature AS vf ON vf.feature_id = f.feature_id LEFT JOIN pendo__customer_lifecycle_insights AS c ON vf.visitor_id = c.visitor_id GROUP BY f.feature_id ORDER BY (AVG(c.comprehensive_customer_value) - (SELECT avg_ccv_overall FROM base)) DESC LIMIT 60",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 43.67918614298105
+        },
+        {
+          "sql_id": "S27",
+          "rewritten_sql": "/* Compute ALL features with avg CCV for users and non-users */ WITH tracked AS (SELECT * FROM temp.reuse_candidate), base_clv AS (SELECT c.visitor_id, c.comprehensive_customer_value FROM pendo__customer_lifecycle_insights AS c JOIN tracked AS t ON c.visitor_id = t.visitor_id) SELECT f.feature_id, f.feature_name, f.count_visitors AS total_visitors, f.product_area_name, f.is_core_event, COUNT(DISTINCT vf.visitor_id) AS n_tracked_users, AVG(CASE WHEN NOT vf.visitor_id IS NULL THEN bc.comprehensive_customer_value END) AS avg_ccv_users, AVG(CASE WHEN vf.visitor_id IS NULL THEN bc.comprehensive_customer_value END) AS avg_ccv_nonusers, (SELECT COUNT(*) FROM base_clv) AS n_tracked_total FROM pendo__feature AS f CROSS JOIN base_clv AS bc LEFT JOIN pendo__visitor_feature AS vf ON vf.feature_id = f.feature_id AND vf.visitor_id = bc.visitor_id GROUP BY f.feature_id ORDER BY (AVG(CASE WHEN NOT vf.visitor_id IS NULL THEN bc.comprehensive_customer_value END) - AVG(CASE WHEN vf.visitor_id IS NULL THEN bc.comprehensive_customer_value END)) DESC LIMIT 60",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 877.396808937192
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT CASE WHEN count_visitors < 200 THEN '<200' WHEN count_visitors < 500 THEN '200-500' WHEN count_visitors < 1000 THEN '500-1000' ELSE '>=1000' END AS __g0, COUNT(*) AS __a0, SUM(CASE WHEN count_visitors < 200 THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN count_visitors BETWEEN 200 AND 1000 THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN count_visitors > 1000 THEN 1 ELSE 0 END) AS __a3, MIN(count_visitors) AS __a4, MAX(count_visitors) AS __a5, SUM(count_visitors) AS __a6_sum, COUNT(count_visitors) AS __a6_n FROM \"pendo__feature\"  GROUP BY CASE WHEN count_visitors < 200 THEN '<200' WHEN count_visitors < 500 THEN '200-500' WHEN count_visitors < 1000 THEN '500-1000' ELSE '>=1000' END",
+      "covered": [
+        "S17",
+        "S36"
+      ],
+      "rewrites": {
+        "S17": "SELECT SUM(__a0) AS n_features, SUM(__a1) AS n_below_200, SUM(__a2) AS n_200_1000, SUM(__a3) AS n_above_1000, MIN(__a4) AS min_v, MAX(__a5) AS max_v, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_v FROM temp.reuse_candidate",
+        "S36": "SELECT __g0 AS usage_band, SUM(__a0) AS n_features FROM temp.reuse_candidate GROUP BY __g0 ORDER BY MIN(__a4)"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S17",
+      "later_reuses": 1,
+      "denominator": 39,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT SUM(CASE WHEN predicted_clv_tier IS NULL THEN 1 ELSE 0 END) AS __a0, SUM(CASE WHEN predicted_ltv_tier IS NULL THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN rfm_composite_score IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN customer_value_tier IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN is_valuable_user IS NULL THEN 1 ELSE 0 END) AS __a4, SUM(CASE WHEN comprehensive_customer_value IS NULL THEN 1 ELSE 0 END) AS __a5, SUM(CASE WHEN user_value_score IS NULL THEN 1 ELSE 0 END) AS __a6, COUNT(*) AS __a7, SUM(comprehensive_customer_value) AS __a8_sum, COUNT(comprehensive_customer_value) AS __a8_n, MIN(comprehensive_customer_value) AS __a9, MAX(comprehensive_customer_value) AS __a10, SUM(user_value_score) AS __a11_sum, COUNT(user_value_score) AS __a11_n, MIN(user_value_score) AS __a12, MAX(user_value_score) AS __a13, SUM(CASE WHEN comprehensive_customer_value >= 500 THEN 1 ELSE 0 END) AS __a14 FROM \"pendo__customer_lifecycle_insights\" ",
+      "covered": [
+        "S9",
+        "S44"
+      ],
+      "rewrites": {
+        "S9": "SELECT SUM(__a0) AS clv_tier_null, SUM(__a1) AS ltv_tier_null, SUM(__a2) AS rfm_null, SUM(__a3) AS cvtier_null, SUM(__a4) AS valuable_null, SUM(__a5) AS ccv_null, SUM(__a6) AS uvs_null FROM temp.reuse_candidate",
+        "S44": "SELECT SUM(__a7) AS n, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_ccv, MIN(__a9) AS min_ccv, MAX(__a10) AS max_ccv, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_uvs, MIN(__a12) AS min_uvs, MAX(__a13) AS max_uvs, SUM(__a14) AS n_high_value FROM temp.reuse_candidate"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S9",
+      "later_reuses": 1,
+      "denominator": 39,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

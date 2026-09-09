@@ -1,0 +1,1 @@
+SELECT MAX("Order Date") AS max_date, MIN("Order Date") AS min_date FROM order_information

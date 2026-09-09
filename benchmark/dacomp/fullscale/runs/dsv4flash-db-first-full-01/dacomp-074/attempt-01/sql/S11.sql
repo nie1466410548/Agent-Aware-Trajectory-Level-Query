@@ -1,0 +1,1 @@
+SELECT subsidiary_id, dashboard_date, cash_flow_risk_level, cash_flow_health, total_risk_score, overall_financial_health_score FROM netsuite2_financial_dashboard WHERE subsidiary_id='NET18925086954' ORDER BY dashboard_date

@@ -1,0 +1,1 @@
+SELECT DISTINCT email_domain FROM qualtrics__contact LIMIT 50

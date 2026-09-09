@@ -1,0 +1,4 @@
+SELECT marketo_lead_id, stripe_customer_id, zendesk_user_id, primary_email, investment_priority_score, acquisition_cost, customer_lifetime_value, product_adoption_rate, support_resolution_efficiency
+FROM customer360__customer_value_analysis
+WHERE marketo_lead_id = 265
+LIMIT 15

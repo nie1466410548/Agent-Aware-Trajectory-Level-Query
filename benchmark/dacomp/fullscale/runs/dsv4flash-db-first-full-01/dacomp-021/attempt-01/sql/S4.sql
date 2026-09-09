@@ -1,0 +1,1 @@
+SELECT "Booking Status", COUNT(*) AS n FROM sheet1 GROUP BY "Booking Status" ORDER BY n DESC

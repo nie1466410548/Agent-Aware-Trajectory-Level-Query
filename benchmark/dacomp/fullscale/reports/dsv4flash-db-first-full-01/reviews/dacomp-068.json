@@ -1,0 +1,51 @@
+{
+  "task_id": "dacomp-068",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 对应用地域数据分组、连接组合与看板数据，并进行常规评分、预算份额和预期 ROI 情景计算。协议明确要求这些数据库可支持的运算优先在 SQL 完成；图表并非全部迁出的理由。",
+  "route": "SQL 筛选转化与收入错配市场 → Python 地域汇总、连接及预算评分情景 → 应用投资分配建议。",
+  "evidence": [
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 27,
+          "text": "geo_agg = geo.groupby('package_name').agg("
+        },
+        {
+          "line": 40,
+          "text": "merged = portfolio.merge(geo_agg, on='package_name', how='left')"
+        },
+        {
+          "line": 45,
+          "text": "seg_counts = geo.groupby('package_name')['segment'].value_counts().unstack(fill_value=0)"
+        },
+        {
+          "line": 47,
+          "text": "merged = merged.merge(seg_counts, on='package_name', how='left')"
+        },
+        {
+          "line": 68,
+          "text": "merged['budget_share'] = merged['composite_score'] / merged['composite_score'].sum()"
+        },
+        {
+          "line": 79,
+          "text": "port_inc_rev = merged['expected_inc_rev'].sum()"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 22,
+          "text": "print(f\"\\nTotal: ${merged['allocated_budget'].sum():,.0f}\")"
+        },
+        {
+          "line": 23,
+          "text": "print(f\"Portfolio expected ROI: {(merged['expected_inc_rev'].sum()-5_000_000)/5_000_000*100:.1f}%\")"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+SELECT vendor_id, annual_spend_growth_pct FROM quickbooks__vendor_performance WHERE annual_spend_growth_pct < 0 AND overall_performance_score >= 7 LIMIT 3

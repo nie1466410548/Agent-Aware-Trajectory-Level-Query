@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_rows, COUNT(DISTINCT subsidiary_id) AS n_subs, COUNT(DISTINCT account_type_name) AS n_types FROM netsuite2_income_statement

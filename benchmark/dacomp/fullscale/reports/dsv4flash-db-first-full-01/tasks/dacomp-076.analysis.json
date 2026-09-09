@@ -1,0 +1,194 @@
+{
+  "fingerprint": "29f3caa76c55539a7898782c823ef4f51e12bd9108d4963b42c7f6a53a4233b6",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT profitability_segment, AVG(retention_probability) AS avg_retention FROM netsuite2_customer_analytics GROUP BY profitability_segment",
+      "covered": [
+        "S19",
+        "S20",
+        "S21",
+        "S22",
+        "S23"
+      ],
+      "rewrites": {
+        "S19": "WITH segment_stats AS (SELECT * FROM temp.reuse_candidate) SELECT COUNT(*) AS total_rows, COUNT(DISTINCT customer_id) AS unique_customers, COUNT(*) FILTER(WHERE ABS(c.retention_probability - s.avg_retention) > 0.15) AS anomaly_rows, COUNT(DISTINCT c.customer_id) FILTER(WHERE ABS(c.retention_probability - s.avg_retention) > 0.15) AS anomaly_customers FROM netsuite2_customer_analytics AS c JOIN segment_stats AS s ON c.profitability_segment = s.profitability_segment",
+        "S20": "WITH segment_stats AS (SELECT * FROM temp.reuse_candidate) SELECT c.*, s.avg_retention, c.retention_probability - s.avg_retention AS deviation, CASE WHEN ABS(c.retention_probability - s.avg_retention) > 0.15 THEN 1 ELSE 0 END AS is_anomaly, CASE WHEN c.retention_probability > s.avg_retention THEN 1 ELSE 0 END AS is_above_avg FROM netsuite2_customer_analytics AS c JOIN segment_stats AS s ON c.profitability_segment = s.profitability_segment",
+        "S21": "WITH segment_stats AS (SELECT * FROM temp.reuse_candidate) SELECT c.profitability_segment, COUNT(*) AS n_rows, SUM(CASE WHEN ABS(c.retention_probability - s.avg_retention) > 0.15 THEN 1 ELSE 0 END) AS anomaly_rows, SUM(CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN 1 ELSE 0 END) AS high_anomaly, SUM(CASE WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN 1 ELSE 0 END) AS low_anomaly, ROUND(AVG(CASE WHEN ABS(c.retention_probability - s.avg_retention) > 0.15 THEN c.transaction_value_volatility END), 3) AS anomaly_volatility, ROUND(AVG(CASE WHEN ABS(c.retention_probability - s.avg_retention) <= 0.15 THEN c.transaction_value_volatility END), 3) AS normal_volatility, ROUND(AVG(CASE WHEN ABS(c.retention_probability - s.avg_retention) > 0.15 THEN c.comprehensive_customer_score END), 1) AS anomaly_score, ROUND(AVG(CASE WHEN ABS(c.retention_probability - s.avg_retention) > 0.15 THEN c.total_revenue END), 1) AS anomaly_revenue FROM netsuite2_customer_analytics AS c JOIN segment_stats AS s ON c.profitability_segment = s.profitability_segment GROUP BY c.profitability_segment ORDER BY anomaly_rows DESC",
+        "S22": "WITH segment_stats AS (SELECT * FROM temp.reuse_candidate) SELECT c.profitability_segment, CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN 'HighRetention' WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN 'LowRetention' ELSE 'Normal' END AS anomaly_dir, COUNT(*) AS n, ROUND(AVG(c.retention_probability), 3) AS avg_ret, ROUND(AVG(c.transaction_value_volatility), 3) AS avg_volatility, ROUND(AVG(c.total_revenue), 1) AS avg_rev, ROUND(AVG(c.comprehensive_customer_score), 1) AS avg_score, ROUND(AVG(c.transaction_count), 1) AS avg_tx, ROUND(AVG(c.avg_transactions_per_month), 2) AS avg_tx_month, ROUND(AVG((c.q1_transactions + c.q2_transactions + c.q3_transactions + c.q4_transactions) * 1.0 / NULLIF(c.transaction_count, 0)), 3) AS avg_q_total_tx_ratio, ROUND(AVG(CASE WHEN c.q4_transactions >= c.q1_transactions AND c.q4_transactions >= c.q2_transactions AND c.q4_transactions >= c.q3_transactions THEN 1 ELSE 0 END), 3) AS q4_dominant_share FROM netsuite2_customer_analytics AS c JOIN segment_stats AS s ON c.profitability_segment = s.profitability_segment GROUP BY c.profitability_segment, anomaly_dir ORDER BY c.profitability_segment, anomaly_dir",
+        "S23": "WITH segment_stats AS (SELECT * FROM temp.reuse_candidate) SELECT c.profitability_segment, ROUND(AVG(CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN c.total_revenue END), 1) AS high_ret_avg_rev, ROUND(AVG(CASE WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN c.total_revenue END), 1) AS low_ret_avg_rev, ROUND(AVG(CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN c.transaction_count END), 2) AS high_ret_avg_tx, ROUND(AVG(CASE WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN c.transaction_count END), 2) AS low_ret_avg_tx, ROUND(AVG(CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN c.comprehensive_customer_score END), 1) AS high_ret_avg_score, ROUND(AVG(CASE WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN c.comprehensive_customer_score END), 1) AS low_ret_avg_score, ROUND(AVG(CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN c.transaction_value_volatility END), 3) AS high_ret_avg_vol, ROUND(AVG(CASE WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN c.transaction_value_volatility END), 3) AS low_ret_avg_vol FROM netsuite2_customer_analytics AS c JOIN segment_stats AS s ON c.profitability_segment = s.profitability_segment GROUP BY c.profitability_segment"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S19",
+      "later_reuses": 4,
+      "denominator": 21,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788868891.7606983,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT profitability_segment, AVG(retention_probability) AS avg_retention FROM netsuite2_customer_analytics GROUP BY profitability_segment",
+          "phase": "offline_validation",
+          "start_time": 1788868891.760999,
+          "status": "execute_returned",
+          "end_time": 1788868891.7614079
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788868891.7614129,
+          "status": "execute_returned",
+          "end_time": 1788868891.7614298
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788868891.7614357,
+          "status": "execute_returned",
+          "end_time": 1788868891.7614474
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH segment_stats AS (SELECT * FROM temp.reuse_candidate) SELECT COUNT(*) AS total_rows, COUNT(DISTINCT customer_id) AS unique_customers, COUNT(*) FILTER(WHERE ABS(c.retention_probability - s.avg_retention) > 0.15) AS anomaly_rows, COUNT(DISTINCT c.customer_id) FILTER(WHERE ABS(c.retention_probability - s.avg_retention) > 0.15) AS anomaly_customers FROM netsuite2_customer_analytics AS c JOIN segment_stats AS s ON c.profitability_segment = s.profitability_segment",
+          "phase": "offline_validation",
+          "start_time": 1788868891.7614577,
+          "status": "execute_returned",
+          "end_time": 1788868891.7616422
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH segment_stats AS (SELECT * FROM temp.reuse_candidate) SELECT c.*, s.avg_retention, c.retention_probability - s.avg_retention AS deviation, CASE WHEN ABS(c.retention_probability - s.avg_retention) > 0.15 THEN 1 ELSE 0 END AS is_anomaly, CASE WHEN c.retention_probability > s.avg_retention THEN 1 ELSE 0 END AS is_above_avg FROM netsuite2_customer_analytics AS c JOIN segment_stats AS s ON c.profitability_segment = s.profitability_segment",
+          "phase": "offline_validation",
+          "start_time": 1788868891.7635314,
+          "status": "execute_returned",
+          "end_time": 1788868891.7637634
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH segment_stats AS (SELECT * FROM temp.reuse_candidate) SELECT c.profitability_segment, COUNT(*) AS n_rows, SUM(CASE WHEN ABS(c.retention_probability - s.avg_retention) > 0.15 THEN 1 ELSE 0 END) AS anomaly_rows, SUM(CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN 1 ELSE 0 END) AS high_anomaly, SUM(CASE WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN 1 ELSE 0 END) AS low_anomaly, ROUND(AVG(CASE WHEN ABS(c.retention_probability - s.avg_retention) > 0.15 THEN c.transaction_value_volatility END), 3) AS anomaly_volatility, ROUND(AVG(CASE WHEN ABS(c.retention_probability - s.avg_retention) <= 0.15 THEN c.transaction_value_volatility END), 3) AS normal_volatility, ROUND(AVG(CASE WHEN ABS(c.retention_probability - s.avg_retention) > 0.15 THEN c.comprehensive_customer_score END), 1) AS anomaly_score, ROUND(AVG(CASE WHEN ABS(c.retention_probability - s.avg_retention) > 0.15 THEN c.total_revenue END), 1) AS anomaly_revenue FROM netsuite2_customer_analytics AS c JOIN segment_stats AS s ON c.profitability_segment = s.profitability_segment GROUP BY c.profitability_segment ORDER BY anomaly_rows DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868891.7715087,
+          "status": "execute_returned",
+          "end_time": 1788868891.7719758
+        },
+        {
+          "sequence": 7,
+          "sql": "WITH segment_stats AS (SELECT * FROM temp.reuse_candidate) SELECT c.profitability_segment, CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN 'HighRetention' WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN 'LowRetention' ELSE 'Normal' END AS anomaly_dir, COUNT(*) AS n, ROUND(AVG(c.retention_probability), 3) AS avg_ret, ROUND(AVG(c.transaction_value_volatility), 3) AS avg_volatility, ROUND(AVG(c.total_revenue), 1) AS avg_rev, ROUND(AVG(c.comprehensive_customer_score), 1) AS avg_score, ROUND(AVG(c.transaction_count), 1) AS avg_tx, ROUND(AVG(c.avg_transactions_per_month), 2) AS avg_tx_month, ROUND(AVG((c.q1_transactions + c.q2_transactions + c.q3_transactions + c.q4_transactions) * 1.0 / NULLIF(c.transaction_count, 0)), 3) AS avg_q_total_tx_ratio, ROUND(AVG(CASE WHEN c.q4_transactions >= c.q1_transactions AND c.q4_transactions >= c.q2_transactions AND c.q4_transactions >= c.q3_transactions THEN 1 ELSE 0 END), 3) AS q4_dominant_share FROM netsuite2_customer_analytics AS c JOIN segment_stats AS s ON c.profitability_segment = s.profitability_segment GROUP BY c.profitability_segment, anomaly_dir ORDER BY c.profitability_segment, anomaly_dir",
+          "phase": "offline_validation",
+          "start_time": 1788868891.7763462,
+          "status": "execute_returned",
+          "end_time": 1788868891.7767887
+        },
+        {
+          "sequence": 8,
+          "sql": "WITH segment_stats AS (SELECT * FROM temp.reuse_candidate) SELECT c.profitability_segment, ROUND(AVG(CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN c.total_revenue END), 1) AS high_ret_avg_rev, ROUND(AVG(CASE WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN c.total_revenue END), 1) AS low_ret_avg_rev, ROUND(AVG(CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN c.transaction_count END), 2) AS high_ret_avg_tx, ROUND(AVG(CASE WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN c.transaction_count END), 2) AS low_ret_avg_tx, ROUND(AVG(CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN c.comprehensive_customer_score END), 1) AS high_ret_avg_score, ROUND(AVG(CASE WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN c.comprehensive_customer_score END), 1) AS low_ret_avg_score, ROUND(AVG(CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN c.transaction_value_volatility END), 3) AS high_ret_avg_vol, ROUND(AVG(CASE WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN c.transaction_value_volatility END), 3) AS low_ret_avg_vol FROM netsuite2_customer_analytics AS c JOIN segment_stats AS s ON c.profitability_segment = s.profitability_segment GROUP BY c.profitability_segment",
+          "phase": "offline_validation",
+          "start_time": 1788868891.7810836,
+          "status": "execute_returned",
+          "end_time": 1788868891.7814684
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT profitability_segment, AVG(retention_probability) AS avg_retention FROM netsuite2_customer_analytics GROUP BY profitability_segment",
+          "time": 1788868891.7612607,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788868891.761427,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788868891.7614439,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH segment_stats AS (SELECT * FROM temp.reuse_candidate) SELECT COUNT(*) AS total_rows, COUNT(DISTINCT customer_id) AS unique_customers, COUNT(*) FILTER(WHERE ABS(c.retention_probability - s.avg_retention) > 0.15) AS anomaly_rows, COUNT(DISTINCT c.customer_id) FILTER(WHERE ABS(c.retention_probability - s.avg_retention) > 0.15) AS anomaly_customers FROM netsuite2_customer_analytics AS c JOIN segment_stats AS s ON c.profitability_segment = s.profitability_segment",
+          "time": 1788868891.7615066,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH segment_stats AS (SELECT * FROM temp.reuse_candidate) SELECT c.*, s.avg_retention, c.retention_probability - s.avg_retention AS deviation, CASE WHEN ABS(c.retention_probability - s.avg_retention) > 0.15 THEN 1 ELSE 0 END AS is_anomaly, CASE WHEN c.retention_probability > s.avg_retention THEN 1 ELSE 0 END AS is_above_avg FROM netsuite2_customer_analytics AS c JOIN segment_stats AS s ON c.profitability_segment = s.profitability_segment",
+          "time": 1788868891.7637188,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH segment_stats AS (SELECT * FROM temp.reuse_candidate) SELECT c.profitability_segment, COUNT(*) AS n_rows, SUM(CASE WHEN ABS(c.retention_probability - s.avg_retention) > 0.15 THEN 1 ELSE 0 END) AS anomaly_rows, SUM(CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN 1 ELSE 0 END) AS high_anomaly, SUM(CASE WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN 1 ELSE 0 END) AS low_anomaly, ROUND(AVG(CASE WHEN ABS(c.retention_probability - s.avg_retention) > 0.15 THEN c.transaction_value_volatility END), 3) AS anomaly_volatility, ROUND(AVG(CASE WHEN ABS(c.retention_probability - s.avg_retention) <= 0.15 THEN c.transaction_value_volatility END), 3) AS normal_volatility, ROUND(AVG(CASE WHEN ABS(c.retention_probability - s.avg_retention) > 0.15 THEN c.comprehensive_customer_score END), 1) AS anomaly_score, ROUND(AVG(CASE WHEN ABS(c.retention_probability - s.avg_retention) > 0.15 THEN c.total_revenue END), 1) AS anomaly_revenue FROM netsuite2_customer_analytics AS c JOIN segment_stats AS s ON c.profitability_segment = s.profitability_segment GROUP BY c.profitability_segment ORDER BY anomaly_rows DESC",
+          "time": 1788868891.7717175,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH segment_stats AS (SELECT * FROM temp.reuse_candidate) SELECT c.profitability_segment, CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN 'HighRetention' WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN 'LowRetention' ELSE 'Normal' END AS anomaly_dir, COUNT(*) AS n, ROUND(AVG(c.retention_probability), 3) AS avg_ret, ROUND(AVG(c.transaction_value_volatility), 3) AS avg_volatility, ROUND(AVG(c.total_revenue), 1) AS avg_rev, ROUND(AVG(c.comprehensive_customer_score), 1) AS avg_score, ROUND(AVG(c.transaction_count), 1) AS avg_tx, ROUND(AVG(c.avg_transactions_per_month), 2) AS avg_tx_month, ROUND(AVG((c.q1_transactions + c.q2_transactions + c.q3_transactions + c.q4_transactions) * 1.0 / NULLIF(c.transaction_count, 0)), 3) AS avg_q_total_tx_ratio, ROUND(AVG(CASE WHEN c.q4_transactions >= c.q1_transactions AND c.q4_transactions >= c.q2_transactions AND c.q4_transactions >= c.q3_transactions THEN 1 ELSE 0 END), 3) AS q4_dominant_share FROM netsuite2_customer_analytics AS c JOIN segment_stats AS s ON c.profitability_segment = s.profitability_segment GROUP BY c.profitability_segment, anomaly_dir ORDER BY c.profitability_segment, anomaly_dir",
+          "time": 1788868891.776574,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH segment_stats AS (SELECT * FROM temp.reuse_candidate) SELECT c.profitability_segment, ROUND(AVG(CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN c.total_revenue END), 1) AS high_ret_avg_rev, ROUND(AVG(CASE WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN c.total_revenue END), 1) AS low_ret_avg_rev, ROUND(AVG(CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN c.transaction_count END), 2) AS high_ret_avg_tx, ROUND(AVG(CASE WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN c.transaction_count END), 2) AS low_ret_avg_tx, ROUND(AVG(CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN c.comprehensive_customer_score END), 1) AS high_ret_avg_score, ROUND(AVG(CASE WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN c.comprehensive_customer_score END), 1) AS low_ret_avg_score, ROUND(AVG(CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN c.transaction_value_volatility END), 3) AS high_ret_avg_vol, ROUND(AVG(CASE WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN c.transaction_value_volatility END), 3) AS low_ret_avg_vol FROM netsuite2_customer_analytics AS c JOIN segment_stats AS s ON c.profitability_segment = s.profitability_segment GROUP BY c.profitability_segment",
+          "time": 1788868891.7813034,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.4131356254220009,
+      "intermediate_rows": 5,
+      "intermediate_columns": [
+        "profitability_segment",
+        "avg_retention"
+      ],
+      "validation_ended_at": 1788868891.7864153,
+      "checks": [
+        {
+          "sql_id": "S19",
+          "rewritten_sql": "WITH segment_stats AS (SELECT * FROM temp.reuse_candidate) SELECT COUNT(*) AS total_rows, COUNT(DISTINCT customer_id) AS unique_customers, COUNT(*) FILTER(WHERE ABS(c.retention_probability - s.avg_retention) > 0.15) AS anomaly_rows, COUNT(DISTINCT c.customer_id) FILTER(WHERE ABS(c.retention_probability - s.avg_retention) > 0.15) AS anomaly_customers FROM netsuite2_customer_analytics AS c JOIN segment_stats AS s ON c.profitability_segment = s.profitability_segment",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.068805508315563
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "WITH segment_stats AS (SELECT * FROM temp.reuse_candidate) SELECT c.*, s.avg_retention, c.retention_probability - s.avg_retention AS deviation, CASE WHEN ABS(c.retention_probability - s.avg_retention) > 0.15 THEN 1 ELSE 0 END AS is_anomaly, CASE WHEN c.retention_probability > s.avg_retention THEN 1 ELSE 0 END AS is_above_avg FROM netsuite2_customer_analytics AS c JOIN segment_stats AS s ON c.profitability_segment = s.profitability_segment",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 7.970619015395641
+        },
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "WITH segment_stats AS (SELECT * FROM temp.reuse_candidate) SELECT c.profitability_segment, COUNT(*) AS n_rows, SUM(CASE WHEN ABS(c.retention_probability - s.avg_retention) > 0.15 THEN 1 ELSE 0 END) AS anomaly_rows, SUM(CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN 1 ELSE 0 END) AS high_anomaly, SUM(CASE WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN 1 ELSE 0 END) AS low_anomaly, ROUND(AVG(CASE WHEN ABS(c.retention_probability - s.avg_retention) > 0.15 THEN c.transaction_value_volatility END), 3) AS anomaly_volatility, ROUND(AVG(CASE WHEN ABS(c.retention_probability - s.avg_retention) <= 0.15 THEN c.transaction_value_volatility END), 3) AS normal_volatility, ROUND(AVG(CASE WHEN ABS(c.retention_probability - s.avg_retention) > 0.15 THEN c.comprehensive_customer_score END), 1) AS anomaly_score, ROUND(AVG(CASE WHEN ABS(c.retention_probability - s.avg_retention) > 0.15 THEN c.total_revenue END), 1) AS anomaly_revenue FROM netsuite2_customer_analytics AS c JOIN segment_stats AS s ON c.profitability_segment = s.profitability_segment GROUP BY c.profitability_segment ORDER BY anomaly_rows DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 4.832519218325615
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "WITH segment_stats AS (SELECT * FROM temp.reuse_candidate) SELECT c.profitability_segment, CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN 'HighRetention' WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN 'LowRetention' ELSE 'Normal' END AS anomaly_dir, COUNT(*) AS n, ROUND(AVG(c.retention_probability), 3) AS avg_ret, ROUND(AVG(c.transaction_value_volatility), 3) AS avg_volatility, ROUND(AVG(c.total_revenue), 1) AS avg_rev, ROUND(AVG(c.comprehensive_customer_score), 1) AS avg_score, ROUND(AVG(c.transaction_count), 1) AS avg_tx, ROUND(AVG(c.avg_transactions_per_month), 2) AS avg_tx_month, ROUND(AVG((c.q1_transactions + c.q2_transactions + c.q3_transactions + c.q4_transactions) * 1.0 / NULLIF(c.transaction_count, 0)), 3) AS avg_q_total_tx_ratio, ROUND(AVG(CASE WHEN c.q4_transactions >= c.q1_transactions AND c.q4_transactions >= c.q2_transactions AND c.q4_transactions >= c.q3_transactions THEN 1 ELSE 0 END), 3) AS q4_dominant_share FROM netsuite2_customer_analytics AS c JOIN segment_stats AS s ON c.profitability_segment = s.profitability_segment GROUP BY c.profitability_segment, anomaly_dir ORDER BY c.profitability_segment, anomaly_dir",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 4.729755222797394
+        },
+        {
+          "sql_id": "S23",
+          "rewritten_sql": "WITH segment_stats AS (SELECT * FROM temp.reuse_candidate) SELECT c.profitability_segment, ROUND(AVG(CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN c.total_revenue END), 1) AS high_ret_avg_rev, ROUND(AVG(CASE WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN c.total_revenue END), 1) AS low_ret_avg_rev, ROUND(AVG(CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN c.transaction_count END), 2) AS high_ret_avg_tx, ROUND(AVG(CASE WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN c.transaction_count END), 2) AS low_ret_avg_tx, ROUND(AVG(CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN c.comprehensive_customer_score END), 1) AS high_ret_avg_score, ROUND(AVG(CASE WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN c.comprehensive_customer_score END), 1) AS low_ret_avg_score, ROUND(AVG(CASE WHEN (c.retention_probability - s.avg_retention) > 0.15 THEN c.transaction_value_volatility END), 3) AS high_ret_avg_vol, ROUND(AVG(CASE WHEN (s.avg_retention - c.retention_probability) > 0.15 THEN c.transaction_value_volatility END), 3) AS low_ret_avg_vol FROM netsuite2_customer_analytics AS c JOIN segment_stats AS s ON c.profitability_segment = s.profitability_segment GROUP BY c.profitability_segment",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 5.1972633227705956
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

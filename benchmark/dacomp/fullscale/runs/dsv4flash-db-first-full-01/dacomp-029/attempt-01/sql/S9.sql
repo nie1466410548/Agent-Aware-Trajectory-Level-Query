@@ -1,0 +1,1 @@
+SELECT DISTINCT "Fuel Type" FROM autohome

@@ -1,0 +1,1 @@
+SELECT "Salary Range", COUNT(*) AS cnt FROM sheet1 WHERE "Education Requirement" = 'Vocational school or above' AND "Salary Range" IS NOT NULL AND "Salary Range" != '' AND "Salary Range" NOT LIKE '%-%' GROUP BY "Salary Range" ORDER BY cnt DESC LIMIT 40

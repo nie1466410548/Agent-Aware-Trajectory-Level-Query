@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT "Order ID") AS n_orders FROM order_information WHERE "Product Category" = 'Home & Furniture'

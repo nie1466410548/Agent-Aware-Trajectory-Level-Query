@@ -1,0 +1,638 @@
+{
+  "fingerprint": "d3b2a40c23edf1e654c7b71744a46167f255b2ab464f192c63b8ead54194ed59",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S64",
+      "covered": [
+        "S64",
+        "S68"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S64",
+      "later_reuses": 1,
+      "denominator": 60,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S65",
+      "covered": [
+        "S65",
+        "S69"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S65",
+      "later_reuses": 1,
+      "denominator": 60,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S66",
+      "covered": [
+        "S66",
+        "S70"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S66",
+      "later_reuses": 1,
+      "denominator": 60,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT DISTINCT v.primary_email, v.investment_priority_score, v.product_adoption_rate, v.support_resolution_efficiency, v.acquisition_cost, v.customer_lifetime_value, v.lifecycle_stage, v.industry_vertical, v.company_size_tier, v.customer_onboarding_score, v.team_size, v.decision_maker_level, c_sales.total_sales_amount FROM (SELECT DISTINCT * FROM customer360__customer_value_analysis) AS v LEFT JOIN (SELECT email, MAX(total_sales_amount) AS total_sales_amount FROM customer360__customer WHERE NOT total_sales_amount IS NULL GROUP BY email) AS c_sales ON v.primary_email = c_sales.email WHERE NOT v.primary_email IS NULL",
+      "covered": [
+        "S47",
+        "S72"
+      ],
+      "rewrites": {
+        "S47": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp) SELECT COUNT(*) AS total, SUM(CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END) AS target_cohort, SUM(CASE WHEN rn_ips_asc >= 0.7 * total_cnt THEN 1 ELSE 0 END) AS top30_ips, SUM(CASE WHEN rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END) AS bottom50_comp, AVG(CASE WHEN rn_ips_asc >= 0.7 * total_cnt THEN investment_priority_score END) AS avg_ips_top30, MIN(CASE WHEN rn_ips_asc >= 0.7 * total_cnt THEN investment_priority_score END) AS min_ips_top30 FROM ranked",
+        "S72": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target FROM ranked) SELECT is_target, COUNT(*) AS n, SUM(acquisition_cost) AS total_acq_cost, SUM(customer_lifetime_value) AS total_clv, SUM(total_sales_amount) AS total_sales, ROUND(100.0 * SUM(acquisition_cost) / (SELECT SUM(acquisition_cost) FROM flagged), 1) AS pct_of_total_acq, ROUND(100.0 * SUM(customer_lifetime_value) / (SELECT SUM(customer_lifetime_value) FROM flagged), 1) AS pct_of_total_clv, ROUND(100.0 * SUM(total_sales_amount) / (SELECT SUM(total_sales_amount) FROM flagged), 1) AS pct_of_total_sales FROM flagged GROUP BY is_target"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S47",
+      "later_reuses": 1,
+      "denominator": 60,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867135.0557508,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT DISTINCT v.primary_email, v.investment_priority_score, v.product_adoption_rate, v.support_resolution_efficiency, v.acquisition_cost, v.customer_lifetime_value, v.lifecycle_stage, v.industry_vertical, v.company_size_tier, v.customer_onboarding_score, v.team_size, v.decision_maker_level, c_sales.total_sales_amount FROM (SELECT DISTINCT * FROM customer360__customer_value_analysis) AS v LEFT JOIN (SELECT email, MAX(total_sales_amount) AS total_sales_amount FROM customer360__customer WHERE NOT total_sales_amount IS NULL GROUP BY email) AS c_sales ON v.primary_email = c_sales.email WHERE NOT v.primary_email IS NULL",
+          "phase": "offline_validation",
+          "start_time": 1788867135.0559335,
+          "status": "execute_returned",
+          "end_time": 1788867135.1939435
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867135.1939552,
+          "status": "execute_returned",
+          "end_time": 1788867135.194011
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788867135.194018,
+          "status": "execute_returned",
+          "end_time": 1788867135.1940413
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp) SELECT COUNT(*) AS total, SUM(CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END) AS target_cohort, SUM(CASE WHEN rn_ips_asc >= 0.7 * total_cnt THEN 1 ELSE 0 END) AS top30_ips, SUM(CASE WHEN rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END) AS bottom50_comp, AVG(CASE WHEN rn_ips_asc >= 0.7 * total_cnt THEN investment_priority_score END) AS avg_ips_top30, MIN(CASE WHEN rn_ips_asc >= 0.7 * total_cnt THEN investment_priority_score END) AS min_ips_top30 FROM ranked",
+          "phase": "offline_validation",
+          "start_time": 1788867135.194067,
+          "status": "execute_returned",
+          "end_time": 1788867135.2228634
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target FROM ranked) SELECT is_target, COUNT(*) AS n, SUM(acquisition_cost) AS total_acq_cost, SUM(customer_lifetime_value) AS total_clv, SUM(total_sales_amount) AS total_sales, ROUND(100.0 * SUM(acquisition_cost) / (SELECT SUM(acquisition_cost) FROM flagged), 1) AS pct_of_total_acq, ROUND(100.0 * SUM(customer_lifetime_value) / (SELECT SUM(customer_lifetime_value) FROM flagged), 1) AS pct_of_total_clv, ROUND(100.0 * SUM(total_sales_amount) / (SELECT SUM(total_sales_amount) FROM flagged), 1) AS pct_of_total_sales FROM flagged GROUP BY is_target",
+          "phase": "offline_validation",
+          "start_time": 1788867135.2296128,
+          "status": "execute_returned",
+          "end_time": 1788867135.264016
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT DISTINCT v.primary_email, v.investment_priority_score, v.product_adoption_rate, v.support_resolution_efficiency, v.acquisition_cost, v.customer_lifetime_value, v.lifecycle_stage, v.industry_vertical, v.company_size_tier, v.customer_onboarding_score, v.team_size, v.decision_maker_level, c_sales.total_sales_amount FROM (SELECT DISTINCT * FROM customer360__customer_value_analysis) AS v LEFT JOIN (SELECT email, MAX(total_sales_amount) AS total_sales_amount FROM customer360__customer WHERE NOT total_sales_amount IS NULL GROUP BY email) AS c_sales ON v.primary_email = c_sales.email WHERE NOT v.primary_email IS NULL",
+          "time": 1788867135.0562842,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788867135.1939886,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788867135.194038,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp) SELECT COUNT(*) AS total, SUM(CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END) AS target_cohort, SUM(CASE WHEN rn_ips_asc >= 0.7 * total_cnt THEN 1 ELSE 0 END) AS top30_ips, SUM(CASE WHEN rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END) AS bottom50_comp, AVG(CASE WHEN rn_ips_asc >= 0.7 * total_cnt THEN investment_priority_score END) AS avg_ips_top30, MIN(CASE WHEN rn_ips_asc >= 0.7 * total_cnt THEN investment_priority_score END) AS min_ips_top30 FROM ranked",
+          "time": 1788867135.1948268,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target FROM ranked) SELECT is_target, COUNT(*) AS n, SUM(acquisition_cost) AS total_acq_cost, SUM(customer_lifetime_value) AS total_clv, SUM(total_sales_amount) AS total_sales, ROUND(100.0 * SUM(acquisition_cost) / (SELECT SUM(acquisition_cost) FROM flagged), 1) AS pct_of_total_acq, ROUND(100.0 * SUM(customer_lifetime_value) / (SELECT SUM(customer_lifetime_value) FROM flagged), 1) AS pct_of_total_clv, ROUND(100.0 * SUM(total_sales_amount) / (SELECT SUM(total_sales_amount) FROM flagged), 1) AS pct_of_total_sales FROM flagged GROUP BY is_target",
+          "time": 1788867135.2315025,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 138.02400045096874,
+      "intermediate_rows": 4847,
+      "intermediate_columns": [
+        "primary_email",
+        "investment_priority_score",
+        "product_adoption_rate",
+        "support_resolution_efficiency",
+        "acquisition_cost",
+        "customer_lifetime_value",
+        "lifecycle_stage",
+        "industry_vertical",
+        "company_size_tier",
+        "customer_onboarding_score",
+        "team_size",
+        "decision_maker_level",
+        "total_sales_amount"
+      ],
+      "validation_ended_at": 1788867135.2713642,
+      "checks": [
+        {
+          "sql_id": "S47",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp) SELECT COUNT(*) AS total, SUM(CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END) AS target_cohort, SUM(CASE WHEN rn_ips_asc >= 0.7 * total_cnt THEN 1 ELSE 0 END) AS top30_ips, SUM(CASE WHEN rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END) AS bottom50_comp, AVG(CASE WHEN rn_ips_asc >= 0.7 * total_cnt THEN investment_priority_score END) AS avg_ips_top30, MIN(CASE WHEN rn_ips_asc >= 0.7 * total_cnt THEN investment_priority_score END) AS min_ips_top30 FROM ranked",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 35.54095234721899
+        },
+        {
+          "sql_id": "S72",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target FROM ranked) SELECT is_target, COUNT(*) AS n, SUM(acquisition_cost) AS total_acq_cost, SUM(customer_lifetime_value) AS total_clv, SUM(total_sales_amount) AS total_sales, ROUND(100.0 * SUM(acquisition_cost) / (SELECT SUM(acquisition_cost) FROM flagged), 1) AS pct_of_total_acq, ROUND(100.0 * SUM(customer_lifetime_value) / (SELECT SUM(customer_lifetime_value) FROM flagged), 1) AS pct_of_total_clv, ROUND(100.0 * SUM(total_sales_amount) / (SELECT SUM(total_sales_amount) FROM flagged), 1) AS pct_of_total_sales FROM flagged GROUP BY is_target",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 41.53567086905241
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT DISTINCT v.primary_email, v.investment_priority_score, v.product_adoption_rate, v.support_resolution_efficiency, v.acquisition_cost, v.customer_lifetime_value, v.lifecycle_stage, v.industry_vertical, v.company_size_tier, v.customer_onboarding_score, v.team_size, v.decision_maker_level, v.digital_engagement_score, v.nps_score, v.customer_health_score, v.churn_probability, c_sales.total_sales_amount FROM (SELECT DISTINCT * FROM customer360__customer_value_analysis) AS v LEFT JOIN (SELECT email, MAX(total_sales_amount) AS total_sales_amount FROM customer360__customer WHERE NOT total_sales_amount IS NULL GROUP BY email) AS c_sales ON v.primary_email = c_sales.email WHERE NOT v.primary_email IS NULL",
+      "covered": [
+        "S49",
+        "S50",
+        "S51",
+        "S52",
+        "S53",
+        "S54",
+        "S55",
+        "S56"
+      ],
+      "rewrites": {
+        "S49": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), cohort AS (SELECT * FROM ranked WHERE rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt) SELECT COUNT(*) AS cohort_size, AVG(investment_priority_score) AS avg_ips, AVG(composite_score) AS avg_composite, AVG(total_sales_amount) AS avg_sales, AVG(product_adoption_rate) AS avg_par, AVG(support_resolution_efficiency) AS avg_sre, AVG(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS avg_roi FROM cohort",
+        "S50": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), cohort AS (SELECT * FROM ranked WHERE rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt) SELECT lifecycle_stage, COUNT(*) AS cnt, AVG(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS avg_roi, MIN(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS min_roi, MAX(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS max_roi, AVG(investment_priority_score) AS avg_ips, AVG(composite_score) AS avg_comp, AVG(product_adoption_rate) AS avg_par, AVG(support_resolution_efficiency) AS avg_sre, AVG(total_sales_amount) AS avg_sales FROM cohort GROUP BY lifecycle_stage ORDER BY cnt DESC",
+        "S51": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), cohort AS (SELECT * FROM ranked WHERE rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt) SELECT industry_vertical, company_size_tier, COUNT(*) AS cnt, AVG(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS avg_roi, AVG(investment_priority_score) AS avg_ips, AVG(composite_score) AS avg_comp, AVG(product_adoption_rate) AS avg_par, AVG(support_resolution_efficiency) AS avg_sre, AVG(total_sales_amount) AS avg_sales FROM cohort WHERE NOT industry_vertical IS NULL AND NOT company_size_tier IS NULL GROUP BY industry_vertical, company_size_tier ORDER BY cnt DESC",
+        "S52": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target FROM ranked) SELECT industry_vertical, COUNT(*) AS total_cnt, SUM(is_target) AS cohort_cnt, ROUND(100.0 * SUM(is_target) / COUNT(*), 1) AS cohort_pct, AVG(CASE WHEN is_target = 1 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS cohort_avg_roi, AVG(CASE WHEN is_target = 0 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS noncohort_avg_roi, AVG(CASE WHEN is_target = 1 THEN investment_priority_score END) AS cohort_avg_ips, AVG(CASE WHEN is_target = 0 THEN investment_priority_score END) AS noncohort_avg_ips FROM flagged WHERE NOT industry_vertical IS NULL GROUP BY industry_vertical ORDER BY cohort_cnt DESC",
+        "S53": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target FROM ranked) SELECT company_size_tier, COUNT(*) AS total_cnt, SUM(is_target) AS cohort_cnt, ROUND(100.0 * SUM(is_target) / COUNT(*), 1) AS cohort_pct, AVG(CASE WHEN is_target = 1 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS cohort_avg_roi, AVG(CASE WHEN is_target = 0 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS noncohort_avg_roi, AVG(CASE WHEN is_target = 1 THEN investment_priority_score END) AS cohort_avg_ips, AVG(CASE WHEN is_target = 0 THEN investment_priority_score END) AS noncohort_avg_ips, AVG(CASE WHEN is_target = 1 THEN customer_onboarding_score END) AS cohort_avg_onb, AVG(CASE WHEN is_target = 0 THEN customer_onboarding_score END) AS noncohort_avg_onb FROM flagged WHERE NOT company_size_tier IS NULL GROUP BY company_size_tier ORDER BY cohort_cnt DESC",
+        "S54": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target FROM ranked) SELECT decision_maker_level, COUNT(*) AS total_cnt, SUM(is_target) AS cohort_cnt, ROUND(100.0 * SUM(is_target) / COUNT(*), 1) AS cohort_pct, AVG(CASE WHEN is_target = 1 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS cohort_avg_roi, AVG(CASE WHEN is_target = 0 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS noncohort_avg_roi, AVG(CASE WHEN is_target = 1 THEN product_adoption_rate END) AS cohort_avg_par, AVG(CASE WHEN is_target = 0 THEN product_adoption_rate END) AS noncohort_avg_par, AVG(CASE WHEN is_target = 1 THEN customer_onboarding_score END) AS cohort_avg_onb, AVG(CASE WHEN is_target = 0 THEN customer_onboarding_score END) AS noncohort_avg_onb FROM flagged WHERE NOT decision_maker_level IS NULL GROUP BY decision_maker_level ORDER BY cohort_cnt DESC",
+        "S55": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target, CASE WHEN team_size <= 2 THEN '1-2' WHEN team_size <= 5 THEN '3-5' WHEN team_size <= 10 THEN '6-10' WHEN team_size <= 20 THEN '11-20' ELSE '20+' END AS team_bucket FROM ranked) SELECT team_bucket, COUNT(*) AS total_cnt, SUM(is_target) AS cohort_cnt, ROUND(100.0 * SUM(is_target) / COUNT(*), 1) AS cohort_pct, AVG(CASE WHEN is_target = 1 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS cohort_avg_roi, AVG(CASE WHEN is_target = 0 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS noncohort_avg_roi, AVG(CASE WHEN is_target = 1 THEN product_adoption_rate END) AS cohort_avg_par, AVG(CASE WHEN is_target = 0 THEN product_adoption_rate END) AS noncohort_avg_par FROM flagged WHERE NOT team_size IS NULL GROUP BY team_bucket ORDER BY MIN(team_size)",
+        "S56": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target FROM ranked) SELECT is_target, COUNT(*) AS cnt, AVG(customer_onboarding_score) AS avg_onboarding, AVG(product_adoption_rate) AS avg_par, AVG(support_resolution_efficiency) AS avg_sre, AVG(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS avg_roi, AVG(team_size) AS avg_team_size, AVG(nps_score) AS avg_nps, AVG(digital_engagement_score) AS avg_digital_eng, AVG(customer_health_score) AS avg_health, AVG(churn_probability) AS avg_churn FROM flagged GROUP BY is_target"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S49",
+      "later_reuses": 7,
+      "denominator": 60,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867134.5613785,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT DISTINCT v.primary_email, v.investment_priority_score, v.product_adoption_rate, v.support_resolution_efficiency, v.acquisition_cost, v.customer_lifetime_value, v.lifecycle_stage, v.industry_vertical, v.company_size_tier, v.customer_onboarding_score, v.team_size, v.decision_maker_level, v.digital_engagement_score, v.nps_score, v.customer_health_score, v.churn_probability, c_sales.total_sales_amount FROM (SELECT DISTINCT * FROM customer360__customer_value_analysis) AS v LEFT JOIN (SELECT email, MAX(total_sales_amount) AS total_sales_amount FROM customer360__customer WHERE NOT total_sales_amount IS NULL GROUP BY email) AS c_sales ON v.primary_email = c_sales.email WHERE NOT v.primary_email IS NULL",
+          "phase": "offline_validation",
+          "start_time": 1788867134.5623097,
+          "status": "execute_returned",
+          "end_time": 1788867134.706335
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867134.706346,
+          "status": "execute_returned",
+          "end_time": 1788867134.706392
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788867134.7064176,
+          "status": "execute_returned",
+          "end_time": 1788867134.706448
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), cohort AS (SELECT * FROM ranked WHERE rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt) SELECT COUNT(*) AS cohort_size, AVG(investment_priority_score) AS avg_ips, AVG(composite_score) AS avg_composite, AVG(total_sales_amount) AS avg_sales, AVG(product_adoption_rate) AS avg_par, AVG(support_resolution_efficiency) AS avg_sre, AVG(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS avg_roi FROM cohort",
+          "phase": "offline_validation",
+          "start_time": 1788867134.706481,
+          "status": "execute_returned",
+          "end_time": 1788867134.740174
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), cohort AS (SELECT * FROM ranked WHERE rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt) SELECT lifecycle_stage, COUNT(*) AS cnt, AVG(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS avg_roi, MIN(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS min_roi, MAX(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS max_roi, AVG(investment_priority_score) AS avg_ips, AVG(composite_score) AS avg_comp, AVG(product_adoption_rate) AS avg_par, AVG(support_resolution_efficiency) AS avg_sre, AVG(total_sales_amount) AS avg_sales FROM cohort GROUP BY lifecycle_stage ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867134.7480094,
+          "status": "execute_returned",
+          "end_time": 1788867134.7809439
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), cohort AS (SELECT * FROM ranked WHERE rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt) SELECT industry_vertical, company_size_tier, COUNT(*) AS cnt, AVG(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS avg_roi, AVG(investment_priority_score) AS avg_ips, AVG(composite_score) AS avg_comp, AVG(product_adoption_rate) AS avg_par, AVG(support_resolution_efficiency) AS avg_sre, AVG(total_sales_amount) AS avg_sales FROM cohort WHERE NOT industry_vertical IS NULL AND NOT company_size_tier IS NULL GROUP BY industry_vertical, company_size_tier ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867134.7876024,
+          "status": "execute_returned",
+          "end_time": 1788867134.820861
+        },
+        {
+          "sequence": 7,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target FROM ranked) SELECT industry_vertical, COUNT(*) AS total_cnt, SUM(is_target) AS cohort_cnt, ROUND(100.0 * SUM(is_target) / COUNT(*), 1) AS cohort_pct, AVG(CASE WHEN is_target = 1 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS cohort_avg_roi, AVG(CASE WHEN is_target = 0 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS noncohort_avg_roi, AVG(CASE WHEN is_target = 1 THEN investment_priority_score END) AS cohort_avg_ips, AVG(CASE WHEN is_target = 0 THEN investment_priority_score END) AS noncohort_avg_ips FROM flagged WHERE NOT industry_vertical IS NULL GROUP BY industry_vertical ORDER BY cohort_cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867134.8275204,
+          "status": "execute_returned",
+          "end_time": 1788867134.8637927
+        },
+        {
+          "sequence": 8,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target FROM ranked) SELECT company_size_tier, COUNT(*) AS total_cnt, SUM(is_target) AS cohort_cnt, ROUND(100.0 * SUM(is_target) / COUNT(*), 1) AS cohort_pct, AVG(CASE WHEN is_target = 1 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS cohort_avg_roi, AVG(CASE WHEN is_target = 0 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS noncohort_avg_roi, AVG(CASE WHEN is_target = 1 THEN investment_priority_score END) AS cohort_avg_ips, AVG(CASE WHEN is_target = 0 THEN investment_priority_score END) AS noncohort_avg_ips, AVG(CASE WHEN is_target = 1 THEN customer_onboarding_score END) AS cohort_avg_onb, AVG(CASE WHEN is_target = 0 THEN customer_onboarding_score END) AS noncohort_avg_onb FROM flagged WHERE NOT company_size_tier IS NULL GROUP BY company_size_tier ORDER BY cohort_cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867134.8708916,
+          "status": "execute_returned",
+          "end_time": 1788867134.907688
+        },
+        {
+          "sequence": 9,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target FROM ranked) SELECT decision_maker_level, COUNT(*) AS total_cnt, SUM(is_target) AS cohort_cnt, ROUND(100.0 * SUM(is_target) / COUNT(*), 1) AS cohort_pct, AVG(CASE WHEN is_target = 1 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS cohort_avg_roi, AVG(CASE WHEN is_target = 0 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS noncohort_avg_roi, AVG(CASE WHEN is_target = 1 THEN product_adoption_rate END) AS cohort_avg_par, AVG(CASE WHEN is_target = 0 THEN product_adoption_rate END) AS noncohort_avg_par, AVG(CASE WHEN is_target = 1 THEN customer_onboarding_score END) AS cohort_avg_onb, AVG(CASE WHEN is_target = 0 THEN customer_onboarding_score END) AS noncohort_avg_onb FROM flagged WHERE NOT decision_maker_level IS NULL GROUP BY decision_maker_level ORDER BY cohort_cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867134.9152713,
+          "status": "execute_returned",
+          "end_time": 1788867134.9521158
+        },
+        {
+          "sequence": 10,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target, CASE WHEN team_size <= 2 THEN '1-2' WHEN team_size <= 5 THEN '3-5' WHEN team_size <= 10 THEN '6-10' WHEN team_size <= 20 THEN '11-20' ELSE '20+' END AS team_bucket FROM ranked) SELECT team_bucket, COUNT(*) AS total_cnt, SUM(is_target) AS cohort_cnt, ROUND(100.0 * SUM(is_target) / COUNT(*), 1) AS cohort_pct, AVG(CASE WHEN is_target = 1 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS cohort_avg_roi, AVG(CASE WHEN is_target = 0 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS noncohort_avg_roi, AVG(CASE WHEN is_target = 1 THEN product_adoption_rate END) AS cohort_avg_par, AVG(CASE WHEN is_target = 0 THEN product_adoption_rate END) AS noncohort_avg_par FROM flagged WHERE NOT team_size IS NULL GROUP BY team_bucket ORDER BY MIN(team_size)",
+          "phase": "offline_validation",
+          "start_time": 1788867134.959681,
+          "status": "execute_returned",
+          "end_time": 1788867134.9955537
+        },
+        {
+          "sequence": 11,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target FROM ranked) SELECT is_target, COUNT(*) AS cnt, AVG(customer_onboarding_score) AS avg_onboarding, AVG(product_adoption_rate) AS avg_par, AVG(support_resolution_efficiency) AS avg_sre, AVG(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS avg_roi, AVG(team_size) AS avg_team_size, AVG(nps_score) AS avg_nps, AVG(digital_engagement_score) AS avg_digital_eng, AVG(customer_health_score) AS avg_health, AVG(churn_probability) AS avg_churn FROM flagged GROUP BY is_target",
+          "phase": "offline_validation",
+          "start_time": 1788867135.0043266,
+          "status": "execute_returned",
+          "end_time": 1788867135.0398078
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT DISTINCT v.primary_email, v.investment_priority_score, v.product_adoption_rate, v.support_resolution_efficiency, v.acquisition_cost, v.customer_lifetime_value, v.lifecycle_stage, v.industry_vertical, v.company_size_tier, v.customer_onboarding_score, v.team_size, v.decision_maker_level, v.digital_engagement_score, v.nps_score, v.customer_health_score, v.churn_probability, c_sales.total_sales_amount FROM (SELECT DISTINCT * FROM customer360__customer_value_analysis) AS v LEFT JOIN (SELECT email, MAX(total_sales_amount) AS total_sales_amount FROM customer360__customer WHERE NOT total_sales_amount IS NULL GROUP BY email) AS c_sales ON v.primary_email = c_sales.email WHERE NOT v.primary_email IS NULL",
+          "time": 1788867134.5639646,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788867134.7063744,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788867134.7064435,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), cohort AS (SELECT * FROM ranked WHERE rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt) SELECT COUNT(*) AS cohort_size, AVG(investment_priority_score) AS avg_ips, AVG(composite_score) AS avg_composite, AVG(total_sales_amount) AS avg_sales, AVG(product_adoption_rate) AS avg_par, AVG(support_resolution_efficiency) AS avg_sre, AVG(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS avg_roi FROM cohort",
+          "time": 1788867134.7103612,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), cohort AS (SELECT * FROM ranked WHERE rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt) SELECT lifecycle_stage, COUNT(*) AS cnt, AVG(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS avg_roi, MIN(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS min_roi, MAX(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS max_roi, AVG(investment_priority_score) AS avg_ips, AVG(composite_score) AS avg_comp, AVG(product_adoption_rate) AS avg_par, AVG(support_resolution_efficiency) AS avg_sre, AVG(total_sales_amount) AS avg_sales FROM cohort GROUP BY lifecycle_stage ORDER BY cnt DESC",
+          "time": 1788867134.748942,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), cohort AS (SELECT * FROM ranked WHERE rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt) SELECT industry_vertical, company_size_tier, COUNT(*) AS cnt, AVG(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS avg_roi, AVG(investment_priority_score) AS avg_ips, AVG(composite_score) AS avg_comp, AVG(product_adoption_rate) AS avg_par, AVG(support_resolution_efficiency) AS avg_sre, AVG(total_sales_amount) AS avg_sales FROM cohort WHERE NOT industry_vertical IS NULL AND NOT company_size_tier IS NULL GROUP BY industry_vertical, company_size_tier ORDER BY cnt DESC",
+          "time": 1788867134.788387,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target FROM ranked) SELECT industry_vertical, COUNT(*) AS total_cnt, SUM(is_target) AS cohort_cnt, ROUND(100.0 * SUM(is_target) / COUNT(*), 1) AS cohort_pct, AVG(CASE WHEN is_target = 1 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS cohort_avg_roi, AVG(CASE WHEN is_target = 0 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS noncohort_avg_roi, AVG(CASE WHEN is_target = 1 THEN investment_priority_score END) AS cohort_avg_ips, AVG(CASE WHEN is_target = 0 THEN investment_priority_score END) AS noncohort_avg_ips FROM flagged WHERE NOT industry_vertical IS NULL GROUP BY industry_vertical ORDER BY cohort_cnt DESC",
+          "time": 1788867134.828285,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target FROM ranked) SELECT company_size_tier, COUNT(*) AS total_cnt, SUM(is_target) AS cohort_cnt, ROUND(100.0 * SUM(is_target) / COUNT(*), 1) AS cohort_pct, AVG(CASE WHEN is_target = 1 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS cohort_avg_roi, AVG(CASE WHEN is_target = 0 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS noncohort_avg_roi, AVG(CASE WHEN is_target = 1 THEN investment_priority_score END) AS cohort_avg_ips, AVG(CASE WHEN is_target = 0 THEN investment_priority_score END) AS noncohort_avg_ips, AVG(CASE WHEN is_target = 1 THEN customer_onboarding_score END) AS cohort_avg_onb, AVG(CASE WHEN is_target = 0 THEN customer_onboarding_score END) AS noncohort_avg_onb FROM flagged WHERE NOT company_size_tier IS NULL GROUP BY company_size_tier ORDER BY cohort_cnt DESC",
+          "time": 1788867134.8717253,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target FROM ranked) SELECT decision_maker_level, COUNT(*) AS total_cnt, SUM(is_target) AS cohort_cnt, ROUND(100.0 * SUM(is_target) / COUNT(*), 1) AS cohort_pct, AVG(CASE WHEN is_target = 1 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS cohort_avg_roi, AVG(CASE WHEN is_target = 0 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS noncohort_avg_roi, AVG(CASE WHEN is_target = 1 THEN product_adoption_rate END) AS cohort_avg_par, AVG(CASE WHEN is_target = 0 THEN product_adoption_rate END) AS noncohort_avg_par, AVG(CASE WHEN is_target = 1 THEN customer_onboarding_score END) AS cohort_avg_onb, AVG(CASE WHEN is_target = 0 THEN customer_onboarding_score END) AS noncohort_avg_onb FROM flagged WHERE NOT decision_maker_level IS NULL GROUP BY decision_maker_level ORDER BY cohort_cnt DESC",
+          "time": 1788867134.9160445,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target, CASE WHEN team_size <= 2 THEN '1-2' WHEN team_size <= 5 THEN '3-5' WHEN team_size <= 10 THEN '6-10' WHEN team_size <= 20 THEN '11-20' ELSE '20+' END AS team_bucket FROM ranked) SELECT team_bucket, COUNT(*) AS total_cnt, SUM(is_target) AS cohort_cnt, ROUND(100.0 * SUM(is_target) / COUNT(*), 1) AS cohort_pct, AVG(CASE WHEN is_target = 1 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS cohort_avg_roi, AVG(CASE WHEN is_target = 0 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS noncohort_avg_roi, AVG(CASE WHEN is_target = 1 THEN product_adoption_rate END) AS cohort_avg_par, AVG(CASE WHEN is_target = 0 THEN product_adoption_rate END) AS noncohort_avg_par FROM flagged WHERE NOT team_size IS NULL GROUP BY team_bucket ORDER BY MIN(team_size)",
+          "time": 1788867134.9604473,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target FROM ranked) SELECT is_target, COUNT(*) AS cnt, AVG(customer_onboarding_score) AS avg_onboarding, AVG(product_adoption_rate) AS avg_par, AVG(support_resolution_efficiency) AS avg_sre, AVG(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS avg_roi, AVG(team_size) AS avg_team_size, AVG(nps_score) AS avg_nps, AVG(digital_engagement_score) AS avg_digital_eng, AVG(customer_health_score) AS avg_health, AVG(churn_probability) AS avg_churn FROM flagged GROUP BY is_target",
+          "time": 1788867135.0050242,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 144.03394423425198,
+      "intermediate_rows": 4855,
+      "intermediate_columns": [
+        "primary_email",
+        "investment_priority_score",
+        "product_adoption_rate",
+        "support_resolution_efficiency",
+        "acquisition_cost",
+        "customer_lifetime_value",
+        "lifecycle_stage",
+        "industry_vertical",
+        "company_size_tier",
+        "customer_onboarding_score",
+        "team_size",
+        "decision_maker_level",
+        "digital_engagement_score",
+        "nps_score",
+        "customer_health_score",
+        "churn_probability",
+        "total_sales_amount"
+      ],
+      "validation_ended_at": 1788867135.0468404,
+      "checks": [
+        {
+          "sql_id": "S49",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), cohort AS (SELECT * FROM ranked WHERE rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt) SELECT COUNT(*) AS cohort_size, AVG(investment_priority_score) AS avg_ips, AVG(composite_score) AS avg_composite, AVG(total_sales_amount) AS avg_sales, AVG(product_adoption_rate) AS avg_par, AVG(support_resolution_efficiency) AS avg_sre, AVG(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS avg_roi FROM cohort",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 41.524630039930344
+        },
+        {
+          "sql_id": "S50",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), cohort AS (SELECT * FROM ranked WHERE rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt) SELECT lifecycle_stage, COUNT(*) AS cnt, AVG(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS avg_roi, MIN(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS min_roi, MAX(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS max_roi, AVG(investment_priority_score) AS avg_ips, AVG(composite_score) AS avg_comp, AVG(product_adoption_rate) AS avg_par, AVG(support_resolution_efficiency) AS avg_sre, AVG(total_sales_amount) AS avg_sales FROM cohort GROUP BY lifecycle_stage ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 39.58952706307173
+        },
+        {
+          "sql_id": "S51",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), cohort AS (SELECT * FROM ranked WHERE rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt) SELECT industry_vertical, company_size_tier, COUNT(*) AS cnt, AVG(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS avg_roi, AVG(investment_priority_score) AS avg_ips, AVG(composite_score) AS avg_comp, AVG(product_adoption_rate) AS avg_par, AVG(support_resolution_efficiency) AS avg_sre, AVG(total_sales_amount) AS avg_sales FROM cohort WHERE NOT industry_vertical IS NULL AND NOT company_size_tier IS NULL GROUP BY industry_vertical, company_size_tier ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 39.914355613291264
+        },
+        {
+          "sql_id": "S52",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target FROM ranked) SELECT industry_vertical, COUNT(*) AS total_cnt, SUM(is_target) AS cohort_cnt, ROUND(100.0 * SUM(is_target) / COUNT(*), 1) AS cohort_pct, AVG(CASE WHEN is_target = 1 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS cohort_avg_roi, AVG(CASE WHEN is_target = 0 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS noncohort_avg_roi, AVG(CASE WHEN is_target = 1 THEN investment_priority_score END) AS cohort_avg_ips, AVG(CASE WHEN is_target = 0 THEN investment_priority_score END) AS noncohort_avg_ips FROM flagged WHERE NOT industry_vertical IS NULL GROUP BY industry_vertical ORDER BY cohort_cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 43.36631577461958
+        },
+        {
+          "sql_id": "S53",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target FROM ranked) SELECT company_size_tier, COUNT(*) AS total_cnt, SUM(is_target) AS cohort_cnt, ROUND(100.0 * SUM(is_target) / COUNT(*), 1) AS cohort_pct, AVG(CASE WHEN is_target = 1 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS cohort_avg_roi, AVG(CASE WHEN is_target = 0 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS noncohort_avg_roi, AVG(CASE WHEN is_target = 1 THEN investment_priority_score END) AS cohort_avg_ips, AVG(CASE WHEN is_target = 0 THEN investment_priority_score END) AS noncohort_avg_ips, AVG(CASE WHEN is_target = 1 THEN customer_onboarding_score END) AS cohort_avg_onb, AVG(CASE WHEN is_target = 0 THEN customer_onboarding_score END) AS noncohort_avg_onb FROM flagged WHERE NOT company_size_tier IS NULL GROUP BY company_size_tier ORDER BY cohort_cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 44.37759146094322
+        },
+        {
+          "sql_id": "S54",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target FROM ranked) SELECT decision_maker_level, COUNT(*) AS total_cnt, SUM(is_target) AS cohort_cnt, ROUND(100.0 * SUM(is_target) / COUNT(*), 1) AS cohort_pct, AVG(CASE WHEN is_target = 1 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS cohort_avg_roi, AVG(CASE WHEN is_target = 0 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS noncohort_avg_roi, AVG(CASE WHEN is_target = 1 THEN product_adoption_rate END) AS cohort_avg_par, AVG(CASE WHEN is_target = 0 THEN product_adoption_rate END) AS noncohort_avg_par, AVG(CASE WHEN is_target = 1 THEN customer_onboarding_score END) AS cohort_avg_onb, AVG(CASE WHEN is_target = 0 THEN customer_onboarding_score END) AS noncohort_avg_onb FROM flagged WHERE NOT decision_maker_level IS NULL GROUP BY decision_maker_level ORDER BY cohort_cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 44.40654627978802
+        },
+        {
+          "sql_id": "S55",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target, CASE WHEN team_size <= 2 THEN '1-2' WHEN team_size <= 5 THEN '3-5' WHEN team_size <= 10 THEN '6-10' WHEN team_size <= 20 THEN '11-20' ELSE '20+' END AS team_bucket FROM ranked) SELECT team_bucket, COUNT(*) AS total_cnt, SUM(is_target) AS cohort_cnt, ROUND(100.0 * SUM(is_target) / COUNT(*), 1) AS cohort_pct, AVG(CASE WHEN is_target = 1 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS cohort_avg_roi, AVG(CASE WHEN is_target = 0 THEN customer_lifetime_value / NULLIF(acquisition_cost, 0) END) AS noncohort_avg_roi, AVG(CASE WHEN is_target = 1 THEN product_adoption_rate END) AS cohort_avg_par, AVG(CASE WHEN is_target = 0 THEN product_adoption_rate END) AS noncohort_avg_par FROM flagged WHERE NOT team_size IS NULL GROUP BY team_bucket ORDER BY MIN(team_size)",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 44.635520316660404
+        },
+        {
+          "sql_id": "S56",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), scaled AS (SELECT *, (total_sales_amount - (SELECT MIN(total_sales_amount) FROM base)) / NULLIF((SELECT MAX(total_sales_amount) - MIN(total_sales_amount) FROM base), 0) AS nsales, (product_adoption_rate - (SELECT MIN(product_adoption_rate) FROM base)) / NULLIF((SELECT MAX(product_adoption_rate) - MIN(product_adoption_rate) FROM base), 0) AS nadopt, (support_resolution_efficiency - (SELECT MIN(support_resolution_efficiency) FROM base)) / NULLIF((SELECT MAX(support_resolution_efficiency) - MIN(support_resolution_efficiency) FROM base), 0) AS nres FROM base WHERE NOT product_adoption_rate IS NULL AND NOT support_resolution_efficiency IS NULL AND NOT total_sales_amount IS NULL AND NOT acquisition_cost IS NULL AND NOT customer_lifetime_value IS NULL), with_comp AS (SELECT *, 0.4 * nsales + 0.35 * nadopt + 0.25 * nres AS composite_score FROM scaled), ranked AS (SELECT *, ROW_NUMBER() OVER (ORDER BY investment_priority_score ASC) AS rn_ips_asc, ROW_NUMBER() OVER (ORDER BY composite_score ASC) AS rn_comp_asc, COUNT(*) OVER () AS total_cnt FROM with_comp), flagged AS (SELECT *, CASE WHEN rn_ips_asc >= 0.7 * total_cnt AND rn_comp_asc <= 0.5 * total_cnt THEN 1 ELSE 0 END AS is_target FROM ranked) SELECT is_target, COUNT(*) AS cnt, AVG(customer_onboarding_score) AS avg_onboarding, AVG(product_adoption_rate) AS avg_par, AVG(support_resolution_efficiency) AS avg_sre, AVG(customer_lifetime_value / NULLIF(acquisition_cost, 0)) AS avg_roi, AVG(team_size) AS avg_team_size, AVG(nps_score) AS avg_nps, AVG(digital_engagement_score) AS avg_digital_eng, AVG(customer_health_score) AS avg_health, AVG(churn_probability) AS avg_churn FROM flagged GROUP BY is_target",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 42.250439524650574
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT investment_priority_score AS __g0, COUNT(*) AS __a0, MIN(customer_lifetime_value) AS __a1, MAX(customer_lifetime_value) AS __a2, SUM(customer_lifetime_value) AS __a3_sum, COUNT(customer_lifetime_value) AS __a3_n, MIN(acquisition_cost) AS __a4, MAX(acquisition_cost) AS __a5, SUM(acquisition_cost) AS __a6_sum, COUNT(acquisition_cost) AS __a6_n FROM \"customer360__customer_value_analysis\"  GROUP BY investment_priority_score",
+      "covered": [
+        "S3",
+        "S11",
+        "S34"
+      ],
+      "rewrites": {
+        "S3": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+        "S11": "SELECT MIN(__a1) AS min_clv, MAX(__a2) AS max_clv, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_clv, MIN(__a4) AS min_ac, MAX(__a5) AS max_ac, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_ac FROM temp.reuse_candidate",
+        "S34": "SELECT __g0 AS \"investment_priority_score\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0"
+      },
+      "status": "rejected_result_mismatch",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C6",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 2,
+      "denominator": 60,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867135.046892,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT investment_priority_score AS __g0, COUNT(*) AS __a0, MIN(customer_lifetime_value) AS __a1, MAX(customer_lifetime_value) AS __a2, SUM(customer_lifetime_value) AS __a3_sum, COUNT(customer_lifetime_value) AS __a3_n, MIN(acquisition_cost) AS __a4, MAX(acquisition_cost) AS __a5, SUM(acquisition_cost) AS __a6_sum, COUNT(acquisition_cost) AS __a6_n FROM \"customer360__customer_value_analysis\"  GROUP BY investment_priority_score",
+          "phase": "offline_validation",
+          "start_time": 1788867135.0471053,
+          "status": "execute_returned",
+          "end_time": 1788867135.052444
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867135.0524492,
+          "status": "execute_returned",
+          "end_time": 1788867135.0524662
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788867135.0524707,
+          "status": "execute_returned",
+          "end_time": 1788867135.0524824
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867135.052499,
+          "status": "execute_returned",
+          "end_time": 1788867135.0525262
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT MIN(__a1) AS min_clv, MAX(__a2) AS max_clv, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_clv, MIN(__a4) AS min_ac, MAX(__a5) AS max_ac, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_ac FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867135.052954,
+          "status": "execute_returned",
+          "end_time": 1788867135.05309
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS \"investment_priority_score\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788867135.053946,
+          "status": "execute_returned",
+          "end_time": 1788867135.0540304
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT investment_priority_score AS __g0, COUNT(*) AS __a0, MIN(customer_lifetime_value) AS __a1, MAX(customer_lifetime_value) AS __a2, SUM(customer_lifetime_value) AS __a3_sum, COUNT(customer_lifetime_value) AS __a3_n, MIN(acquisition_cost) AS __a4, MAX(acquisition_cost) AS __a5, SUM(acquisition_cost) AS __a6_sum, COUNT(acquisition_cost) AS __a6_n FROM \"customer360__customer_value_analysis\"  GROUP BY investment_priority_score",
+          "time": 1788867135.0474088,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788867135.0524628,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788867135.0524797,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "time": 1788867135.0525088,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a1) AS min_clv, MAX(__a2) AS max_clv, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_clv, MIN(__a4) AS min_ac, MAX(__a5) AS max_ac, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_ac FROM temp.reuse_candidate",
+          "time": 1788867135.052991,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"investment_priority_score\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "time": 1788867135.0539722,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 5.343110300600529,
+      "intermediate_rows": 282,
+      "intermediate_columns": [
+        "__g0",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3_sum",
+        "__a3_n",
+        "__a4",
+        "__a5",
+        "__a6_sum",
+        "__a6_n"
+      ],
+      "validation_ended_at": 1788867135.0556862,
+      "checks": [
+        {
+          "sql_id": "S3",
+          "rewritten_sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.4526115953922272
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT MIN(__a1) AS min_clv, MAX(__a2) AS max_clv, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_clv, MIN(__a4) AS min_ac, MAX(__a5) AS max_ac, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_ac FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.9897509589791298
+        },
+        {
+          "sql_id": "S34",
+          "rewritten_sql": "SELECT __g0 AS \"investment_priority_score\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.6513997688889503
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"customer360__mapping\" WHERE NOT stripe_customer_id IS NULL",
+      "covered": [
+        "S35",
+        "S37"
+      ],
+      "rewrites": {
+        "S35": "SELECT stripe_customer_id, COUNT(*) AS cnt FROM temp.reuse_candidate AS customer360__mapping WHERE NOT stripe_customer_id IS NULL GROUP BY stripe_customer_id ORDER BY cnt DESC LIMIT 5",
+        "S37": "SELECT COUNT(DISTINCT stripe_customer_id) AS distinct_stripe_mapping FROM temp.reuse_candidate AS customer360__mapping WHERE NOT stripe_customer_id IS NULL"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C7",
+      "offline": true,
+      "earliest_build_before": "S35",
+      "later_reuses": 1,
+      "denominator": 60,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

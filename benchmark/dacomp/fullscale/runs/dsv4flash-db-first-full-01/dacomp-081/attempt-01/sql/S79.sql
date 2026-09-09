@@ -1,0 +1,1 @@
+SELECT s.survey_name, s.project_category, s.project_type, s.brand_base_url, s.count_questions, s.count_survey_responses FROM qualtrics__survey s WHERE s.survey_id = 'SUR10001882036'

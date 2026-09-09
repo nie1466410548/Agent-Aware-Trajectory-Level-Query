@@ -1,0 +1,1 @@
+SELECT * FROM purchase_price LIMIT 5

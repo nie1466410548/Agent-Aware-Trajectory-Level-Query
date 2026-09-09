@@ -1,0 +1,1 @@
+SELECT MIN(date_day) AS min_date, MAX(date_day) AS max_date FROM pendo__visitor_daily_metrics

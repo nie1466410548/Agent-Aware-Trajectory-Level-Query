@@ -1,0 +1,1 @@
+SELECT DISTINCT acquisition_recommendation FROM google_ads__customer_acquisition_analysis

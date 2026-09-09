@@ -1,0 +1,1 @@
+SELECT "Payment Method", COUNT(*) AS cnt FROM sheet1 GROUP BY "Payment Method"

@@ -1,0 +1,1 @@
+SELECT AVG("Current Points") as avg_cur_all, AVG("Lifetime Points") as avg_life_all, MIN("Lifetime Points") as min_life_all, MAX("Lifetime Points") as max_life_all FROM membership_table

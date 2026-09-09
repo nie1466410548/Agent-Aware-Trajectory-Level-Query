@@ -1,0 +1,1 @@
+SELECT MIN("Sales Date") AS min_d, MAX("Sales Date") AS max_d FROM sheet1

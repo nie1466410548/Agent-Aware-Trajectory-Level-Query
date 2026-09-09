@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total, COUNT(DISTINCT application_id) AS distinct_apps FROM greenhouse__application_enhanced

@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS insurance_rows FROM sheet1 WHERE "Industry" LIKE '%保险%' OR "Industry" LIKE '%Insurance%'

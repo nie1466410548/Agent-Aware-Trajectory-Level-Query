@@ -1,0 +1,1 @@
+SELECT * FROM salesforce__account_daily_history LIMIT 5

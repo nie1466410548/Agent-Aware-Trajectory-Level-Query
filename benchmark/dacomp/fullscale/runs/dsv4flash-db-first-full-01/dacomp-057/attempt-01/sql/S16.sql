@@ -1,0 +1,1 @@
+SELECT DISTINCT account_name, account_id FROM google_ads__customer_acquisition_analysis

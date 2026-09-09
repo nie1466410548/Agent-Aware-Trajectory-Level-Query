@@ -1,0 +1,228 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+Please, for Exhibition Halls with an average Daily Visitor Count exceeding 900, conduct a comprehensive analysis of air quality, temperature and humidity, and light and radiation data, and, combined with the exhibited cultural relics’ ratings and condition, evaluate the core preservation risks faced by cultural relics in these high-traffic environments, and accordingly propose specific, prioritized conservation and maintenance measures.
+
+DATABASE SCHEMA:
+CREATE TABLE "air_quality_readings" (
+"Air quality record ID" INTEGER,
+  "Environmental monitoring reference" INTEGER,
+  "Carbon dioxide concentration (ppm)" INTEGER,
+  "Total volatile organic compounds concentration (ppb)" INTEGER,
+  "Ozone concentration (ppb)" REAL,
+  "Sulfur dioxide concentration (ppb)" REAL,
+  "Nitrogen dioxide concentration (ppb)" REAL,
+  "PM2.5 concentration" REAL,
+  "PM10 concentration" REAL,
+  "Formaldehyde concentration" REAL,
+  "Air exchange rate" REAL,
+  "Airflow velocity (m/s)" REAL
+)
+CREATE TABLE "artifact_conservation_and_maint" (
+"Conservation ID" INTEGER,
+  "Preserve Cultural Relic Reference" TEXT,
+  "Gallery Reference" TEXT,
+  "Surface Reading Reference" INTEGER,
+  "Treatment Status" TEXT,
+  "Treatment Priority" TEXT,
+  "Last Cleaning Date" TEXT,
+  "Next Cleaning Due Date" TEXT,
+  "Cleaning Interval (days)" INTEGER,
+  "Maintenance Log" TEXT,
+  "Incident Report Status" TEXT,
+  " Emergency Drill Status" TEXT,
+  "Staff Training Status" TEXT,
+  "Budget Allocation Status" TEXT,
+  "Maintenance Budget Status" TEXT,
+  " Maintenance Frequency" TEXT,
+  " Intervention History" TEXT,
+  "Previous Treatments" REAL,
+  "Treatment Effectiveness" TEXT,
+  "Reversibility Potential" TEXT
+)
+CREATE TABLE "artifact_rating" (
+"Rating Record Number" INTEGER,
+  "Cultural Relic Reference Number" TEXT,
+  "Historical Significance Rating" INTEGER,
+  "Research Value Rating" INTEGER,
+  "Exhibition Value Rating" INTEGER,
+  "Cultural Value Score" INTEGER,
+  "Public Accessibility Rating" INTEGER,
+  "Educational Value Rating" INTEGER,
+  "Conservation Difficulty" TEXT,
+  "Treatment Complexity" TEXT,
+  "Material Stability" TEXT,
+  "Deterioration Rate" TEXT
+)
+CREATE TABLE "artifact_security_and_access" (
+"Security Record Number" INTEGER,
+  "Cultural Relic Reference Number" TEXT,
+  "Rating Reference" INTEGER,
+  "Loan Status" TEXT,
+  "Insurance Value (USD)" INTEGER,
+  " Security Level" TEXT,
+  "Access Restrictions" TEXT,
+  "Document Status" TEXT,
+  "Photographic Record" TEXT,
+  "Condition Report Status" TEXT,
+  "Conservation Record Status" TEXT,
+  "Research Access Status" TEXT,
+  "Digitization Record Status" TEXT
+)
+CREATE TABLE "basic_artifact_information" (
+"Cultural Relic Registration Number" TEXT,
+  "Cultural Relic Name" TEXT,
+  "Dynasty" TEXT,
+  "Date (Year)" INTEGER,
+  "Material Type" TEXT,
+  "Preservation Status" TEXT
+)
+CREATE TABLE "condition_assessment" (
+"Condition Assessment Number" INTEGER,
+  "Inspected Cultural Relic Reference" TEXT,
+  "Inspected Display Case Reference" TEXT,
+  "Observed Light Reading Reference" INTEGER,
+  "Condition Assessment Rating" INTEGER,
+  "Conservation Assessment Date" TEXT,
+  "Next Assessment Due Date" TEXT
+)
+CREATE TABLE "display_case_information" (
+"Display case ID" TEXT,
+  "Gallery reference" TEXT,
+  "Airtightness" REAL,
+  "Display case material" TEXT,
+  "Seal status" TEXT,
+  "Maintenance Status" TEXT,
+  "Filter status" TEXT,
+  "Silica gel status" TEXT,
+  "Silica gel replacement date" TEXT,
+  "Humidity buffering capacity" INTEGER,
+  "Pollutant absorption capacity" REAL,
+  "Leak rate" REAL,
+  "Pressure (Pa)" REAL,
+  "Inert gas system status" TEXT,
+  "Fire suppression system status" TEXT,
+  "Power status" TEXT,
+  "Backup system status" TEXT
+)
+CREATE TABLE "environmental_monitoring_data" (
+"Environmental Reading ID" INTEGER,
+  "Monitoring Device ID" TEXT,
+  "Reading Timestamp" TEXT,
+  "Display Case Reference" TEXT,
+  "Temperature (°C)" INTEGER,
+  "24-hour Temperature Change" REAL,
+  "Relative Humidity (%)" INTEGER,
+  "24-hour Humidity Change" REAL,
+  "Atmospheric Pressure (hPa)" REAL
+)
+CREATE TABLE "gallery_information" (
+"Exhibition Hall Record ID" TEXT,
+  "Surveillance Coverage Status" TEXT,
+  "Motion Detection Status" TEXT,
+  "Alarm System Status" TEXT,
+  "Access Control Status" TEXT,
+  "Daily Visitor Count" REAL,
+  "Visitor Traffic" TEXT,
+  "Average Dwell Time (minutes)" INTEGER,
+  "Visitor Behavior Records" TEXT
+)
+CREATE TABLE "light_and_radiation_readings" (
+"Light & Radiation Record ID" INTEGER,
+  "Environmental monitoring reference" INTEGER,
+  " Illuminance (Lux)" INTEGER,
+  "UV Irradiance (μW/cm²)" REAL,
+  " IR Irradiance (W/m²)" REAL,
+  "Visible Light Exposure (Lx·h)" INTEGER
+)
+CREATE TABLE "risk_assessment" (
+"Risk Assessment ID" INTEGER,
+  "Related Cultural Relic References" TEXT,
+  "Related Gallery References" TEXT,
+  "Risk Assessment Level" TEXT,
+  "Emergency Response Plan" TEXT,
+  "Evacuation Priority" TEXT,
+  "Operational Constraints" TEXT,
+  "Conservation Priority Score" INTEGER
+)
+CREATE TABLE "sensitivity_data" (
+"Sensitivity Record Number" INTEGER,
+  "Cultural Relic Reference Number" TEXT,
+  "Environmental Sensitivity" TEXT,
+  "Light Sensitivity" TEXT,
+  "Temperature Sensitivity" TEXT,
+  "Humidity Sensitivity" TEXT,
+  "Vibration Sensitivity" TEXT,
+  "Contamination Sensitivity" TEXT,
+  "Pest Sensitivity" TEXT,
+  "Handling Sensitivity" TEXT,
+  "Transportation Sensitivity" TEXT,
+  "Display Sensitivity" TEXT,
+  "Storage Sensitivity" TEXT
+)
+CREATE TABLE "surface_and_physical_readings" (
+"Surface Physical Reading ID" INTEGER,
+  "Environmental Monitoring Reference" INTEGER,
+  " Vibration Level (mm/s²)" REAL,
+  " Noise Level (dB)" INTEGER,
+  "Dust Accumulation (mg/m²)" REAL,
+  " Microbial Count (CFU)" REAL,
+  " Mold Risk Index" REAL,
+  " Pest Activity Level" TEXT,
+  " Pest Trap Count" REAL,
+  "Detected Pest Species" TEXT,
+  "Surface pH" REAL,
+  "Material Moisture Content" REAL,
+  "Salt Crystallization Risk" TEXT,
+  "Metal Corrosion Rate" REAL,
+  "Organic Degradation Index" REAL,
+  " Color Change (ΔE)" REAL,
+  "Surface Temperature (°C)" REAL,
+  "Surface Relative Humidity (%)" REAL,
+  " Condensation Risk" TEXT,
+  " Thermal Imaging Status" TEXT,
+  "Structural Stability" TEXT,
+  "Crack Monitoring" TEXT,
+  " Deformation (mm)" REAL,
+  "Weight Change (%)" REAL,
+  "Surface Dust Coverage" REAL,
+  "Oxygen Concentration" REAL,
+  " Nitrogen Concentration" REAL
+)
+CREATE TABLE "usage_records" (
+"Use record number" INTEGER,
+  "Cultural Relic Reference Number" TEXT,
+  "Display Case Reference" TEXT,
+  "sensdatalink" INTEGER,
+  "displayrotatesched" TEXT,
+  "displaydurmonths" INTEGER,
+  "restperiodmonths" INTEGER,
+  "displayreqs" TEXT,
+  "storagereqs" TEXT,
+  "handlingreqs" TEXT,
+  "transportreqs" TEXT,
+  "packingreqs" TEXT,
+  "resaccessfreq" TEXT,
+  "publicdispfreq" TEXT,
+  "loanfreq" TEXT,
+  "handlefreq" TEXT,
+  "docufreq" TEXT,
+  "monitorfreq" TEXT,
+  "assessfreq" TEXT,
+  "maintfreq" TEXT,
+  "inspectfreq" TEXT,
+  "calibfreq" TEXT,
+  "certstatus" TEXT,
+  "compliancestatus" TEXT,
+  "auditstatus" TEXT,
+  "qualityctrlstatus" TEXT
+)

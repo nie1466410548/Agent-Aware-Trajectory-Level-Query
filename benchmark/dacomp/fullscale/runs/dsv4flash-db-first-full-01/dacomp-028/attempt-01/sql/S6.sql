@@ -1,0 +1,1 @@
+SELECT "Market Name", COUNT(*) AS n FROM agricultural_product_price_tren GROUP BY "Market Name" ORDER BY n DESC

@@ -1,0 +1,1 @@
+SELECT * FROM supplies1 LIMIT 5

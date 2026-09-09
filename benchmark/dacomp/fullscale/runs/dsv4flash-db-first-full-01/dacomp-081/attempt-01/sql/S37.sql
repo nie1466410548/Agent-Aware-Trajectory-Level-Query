@@ -1,0 +1,1 @@
+SELECT DISTINCT directory_name FROM qualtrics__contact

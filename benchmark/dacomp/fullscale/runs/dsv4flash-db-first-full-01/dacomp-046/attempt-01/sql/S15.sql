@@ -1,0 +1,1 @@
+SELECT DISTINCT "Browsing Preference Tag" FROM user_tags_table

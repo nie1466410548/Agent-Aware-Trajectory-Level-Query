@@ -1,0 +1,1 @@
+SELECT date_day, package_name, daily_net_revenue, daily_installs, store_acquisitions, store_visitors, store_conversion_rate FROM google_play__comprehensive_performance_dashboard WHERE date_day >= '2024-01-01' ORDER BY date_day, package_name LIMIT 30

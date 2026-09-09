@@ -1,0 +1,313 @@
+{
+  "fingerprint": "3dedd5ae1af58fb15c2c91673777526d3764f5aed063c3a6bdbfc98fbea205b5",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S15",
+      "covered": [
+        "S15",
+        "S16"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S15",
+      "later_reuses": 1,
+      "denominator": 17,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT \"Product Code\", \"Customer ID\", COUNT(*) AS purchase_count FROM sheet1 GROUP BY \"Product Code\", \"Customer ID\"",
+      "covered": [
+        "S11",
+        "S12",
+        "S13",
+        "S15",
+        "S16",
+        "S17"
+      ],
+      "rewrites": {
+        "S11": "WITH cust AS (SELECT * FROM temp.reuse_candidate), prod_stats AS (SELECT \"Product Code\", COUNT(*) AS n_customers, SUM(CASE WHEN purchase_count > 1 THEN 1 ELSE 0 END) AS repeat_customers FROM cust GROUP BY \"Product Code\"), sales AS (SELECT \"Product Code\", SUM(\"Sales Amount\") AS total_sales, COUNT(*) AS n_transactions, COUNT(DISTINCT \"Customer ID\") AS n_cust_sales FROM sheet1 GROUP BY \"Product Code\") SELECT s.\"Product Code\", ROUND(s.total_sales, 2) AS total_sales, s.n_transactions, ps.n_customers, ps.repeat_customers, ROUND(1.0 * ps.repeat_customers / ps.n_customers, 4) AS repurchase_rate FROM sales AS s JOIN prod_stats AS ps ON s.\"Product Code\" = ps.\"Product Code\" ORDER BY s.total_sales DESC LIMIT 30",
+        "S12": "WITH cust AS (SELECT * FROM temp.reuse_candidate), prod_stats AS (SELECT \"Product Code\", COUNT(*) AS n_customers, SUM(CASE WHEN purchase_count > 1 THEN 1 ELSE 0 END) AS repeat_customers FROM cust GROUP BY \"Product Code\"), sales AS (SELECT \"Product Code\", SUM(\"Sales Amount\") AS total_sales, COUNT(*) AS n_transactions FROM sheet1 GROUP BY \"Product Code\") SELECT s.\"Product Code\", ROUND(s.total_sales, 2) AS total_sales, s.n_transactions, ps.n_customers, ps.repeat_customers, ROUND(1.0 * ps.repeat_customers / NULLIF(ps.n_customers, 0), 4) AS repurchase_rate FROM sales AS s JOIN prod_stats AS ps ON s.\"Product Code\" = ps.\"Product Code\" WHERE ps.n_customers >= 5 ORDER BY s.total_sales DESC",
+        "S13": "WITH cust AS (SELECT * FROM temp.reuse_candidate), prod_stats AS (SELECT \"Product Code\", COUNT(*) AS n_customers, SUM(CASE WHEN purchase_count > 1 THEN 1 ELSE 0 END) AS repeat_customers FROM cust GROUP BY \"Product Code\"), sales AS (SELECT \"Product Code\", SUM(\"Sales Amount\") AS total_sales, COUNT(*) AS n_transactions FROM sheet1 GROUP BY \"Product Code\") SELECT s.\"Product Code\" AS product, s.total_sales, s.n_transactions, ps.n_customers, ps.repeat_customers, 1.0 * ps.repeat_customers / NULLIF(ps.n_customers, 0) AS repurchase_rate FROM sales AS s JOIN prod_stats AS ps ON s.\"Product Code\" = ps.\"Product Code\" WHERE ps.n_customers >= 5",
+        "S15": "WITH cust AS (SELECT * FROM temp.reuse_candidate), prod_stats AS (SELECT \"Product Code\", COUNT(*) AS n_customers, SUM(CASE WHEN purchase_count > 1 THEN 1 ELSE 0 END) AS repeat_customers FROM cust GROUP BY \"Product Code\"), sales AS (SELECT \"Product Code\", SUM(\"Sales Amount\") AS total_sales FROM sheet1 GROUP BY \"Product Code\") SELECT s.total_sales, 1.0 * ps.repeat_customers / NULLIF(ps.n_customers, 0) AS repurchase_rate FROM sales AS s JOIN prod_stats AS ps ON s.\"Product Code\" = ps.\"Product Code\" WHERE ps.n_customers >= 5",
+        "S16": "WITH cust AS (SELECT * FROM temp.reuse_candidate), prod_stats AS (SELECT \"Product Code\", COUNT(*) AS n_customers, SUM(CASE WHEN purchase_count > 1 THEN 1 ELSE 0 END) AS repeat_customers FROM cust GROUP BY \"Product Code\"), sales AS (SELECT \"Product Code\", SUM(\"Sales Amount\") AS total_sales FROM sheet1 GROUP BY \"Product Code\") SELECT s.total_sales, 1.0 * ps.repeat_customers / NULLIF(ps.n_customers, 0) AS repurchase_rate FROM sales AS s JOIN prod_stats AS ps ON s.\"Product Code\" = ps.\"Product Code\" WHERE ps.n_customers >= 5",
+        "S17": "WITH cust AS (SELECT * FROM temp.reuse_candidate), prod_stats AS (SELECT \"Product Code\", COUNT(*) AS n_customers, SUM(CASE WHEN purchase_count > 1 THEN 1 ELSE 0 END) AS repeat_customers FROM cust GROUP BY \"Product Code\"), sales AS (SELECT \"Product Code\", SUM(\"Sales Amount\") AS total_sales, COUNT(*) AS n_transactions FROM sheet1 GROUP BY \"Product Code\") SELECT s.\"Product Code\" AS product, ROUND(s.total_sales, 2) AS total_sales, s.n_transactions, ps.n_customers, ROUND(1.0 * ps.repeat_customers / NULLIF(ps.n_customers, 0), 4) AS repurchase_rate FROM sales AS s JOIN prod_stats AS ps ON s.\"Product Code\" = ps.\"Product Code\" WHERE ps.n_customers >= 5 ORDER BY s.total_sales DESC LIMIT 10"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S11",
+      "later_reuses": 5,
+      "denominator": 17,
+      "coverage_includes_trigger": true,
+      "build_ms": 36.466026678681374,
+      "intermediate_rows": 36858,
+      "intermediate_columns": [
+        "Product Code",
+        "Customer ID",
+        "purchase_count"
+      ],
+      "checks": [
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "WITH cust AS (SELECT * FROM temp.reuse_candidate), prod_stats AS (SELECT \"Product Code\", COUNT(*) AS n_customers, SUM(CASE WHEN purchase_count > 1 THEN 1 ELSE 0 END) AS repeat_customers FROM cust GROUP BY \"Product Code\"), sales AS (SELECT \"Product Code\", SUM(\"Sales Amount\") AS total_sales, COUNT(*) AS n_transactions, COUNT(DISTINCT \"Customer ID\") AS n_cust_sales FROM sheet1 GROUP BY \"Product Code\") SELECT s.\"Product Code\", ROUND(s.total_sales, 2) AS total_sales, s.n_transactions, ps.n_customers, ps.repeat_customers, ROUND(1.0 * ps.repeat_customers / ps.n_customers, 4) AS repurchase_rate FROM sales AS s JOIN prod_stats AS ps ON s.\"Product Code\" = ps.\"Product Code\" ORDER BY s.total_sales DESC LIMIT 30",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 57.792019098997116
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "WITH cust AS (SELECT * FROM temp.reuse_candidate), prod_stats AS (SELECT \"Product Code\", COUNT(*) AS n_customers, SUM(CASE WHEN purchase_count > 1 THEN 1 ELSE 0 END) AS repeat_customers FROM cust GROUP BY \"Product Code\"), sales AS (SELECT \"Product Code\", SUM(\"Sales Amount\") AS total_sales, COUNT(*) AS n_transactions FROM sheet1 GROUP BY \"Product Code\") SELECT s.\"Product Code\", ROUND(s.total_sales, 2) AS total_sales, s.n_transactions, ps.n_customers, ps.repeat_customers, ROUND(1.0 * ps.repeat_customers / NULLIF(ps.n_customers, 0), 4) AS repurchase_rate FROM sales AS s JOIN prod_stats AS ps ON s.\"Product Code\" = ps.\"Product Code\" WHERE ps.n_customers >= 5 ORDER BY s.total_sales DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 50.34279357641935
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "WITH cust AS (SELECT * FROM temp.reuse_candidate), prod_stats AS (SELECT \"Product Code\", COUNT(*) AS n_customers, SUM(CASE WHEN purchase_count > 1 THEN 1 ELSE 0 END) AS repeat_customers FROM cust GROUP BY \"Product Code\"), sales AS (SELECT \"Product Code\", SUM(\"Sales Amount\") AS total_sales, COUNT(*) AS n_transactions FROM sheet1 GROUP BY \"Product Code\") SELECT s.\"Product Code\" AS product, s.total_sales, s.n_transactions, ps.n_customers, ps.repeat_customers, 1.0 * ps.repeat_customers / NULLIF(ps.n_customers, 0) AS repurchase_rate FROM sales AS s JOIN prod_stats AS ps ON s.\"Product Code\" = ps.\"Product Code\" WHERE ps.n_customers >= 5",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 63.37799411267042
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "WITH cust AS (SELECT * FROM temp.reuse_candidate), prod_stats AS (SELECT \"Product Code\", COUNT(*) AS n_customers, SUM(CASE WHEN purchase_count > 1 THEN 1 ELSE 0 END) AS repeat_customers FROM cust GROUP BY \"Product Code\"), sales AS (SELECT \"Product Code\", SUM(\"Sales Amount\") AS total_sales FROM sheet1 GROUP BY \"Product Code\") SELECT s.total_sales, 1.0 * ps.repeat_customers / NULLIF(ps.n_customers, 0) AS repurchase_rate FROM sales AS s JOIN prod_stats AS ps ON s.\"Product Code\" = ps.\"Product Code\" WHERE ps.n_customers >= 5",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 60.45530457049608
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "WITH cust AS (SELECT * FROM temp.reuse_candidate), prod_stats AS (SELECT \"Product Code\", COUNT(*) AS n_customers, SUM(CASE WHEN purchase_count > 1 THEN 1 ELSE 0 END) AS repeat_customers FROM cust GROUP BY \"Product Code\"), sales AS (SELECT \"Product Code\", SUM(\"Sales Amount\") AS total_sales FROM sheet1 GROUP BY \"Product Code\") SELECT s.total_sales, 1.0 * ps.repeat_customers / NULLIF(ps.n_customers, 0) AS repurchase_rate FROM sales AS s JOIN prod_stats AS ps ON s.\"Product Code\" = ps.\"Product Code\" WHERE ps.n_customers >= 5",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 58.07735398411751
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "WITH cust AS (SELECT * FROM temp.reuse_candidate), prod_stats AS (SELECT \"Product Code\", COUNT(*) AS n_customers, SUM(CASE WHEN purchase_count > 1 THEN 1 ELSE 0 END) AS repeat_customers FROM cust GROUP BY \"Product Code\"), sales AS (SELECT \"Product Code\", SUM(\"Sales Amount\") AS total_sales, COUNT(*) AS n_transactions FROM sheet1 GROUP BY \"Product Code\") SELECT s.\"Product Code\" AS product, ROUND(s.total_sales, 2) AS total_sales, s.n_transactions, ps.n_customers, ROUND(1.0 * ps.repeat_customers / NULLIF(ps.n_customers, 0), 4) AS repurchase_rate FROM sales AS s JOIN prod_stats AS ps ON s.\"Product Code\" = ps.\"Product Code\" WHERE ps.n_customers >= 5 ORDER BY s.total_sales DESC LIMIT 10",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 41.73471871763468
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT \"Product Code\", SUM(\"Sales Amount\") AS total_sales, COUNT(*) AS n_transactions FROM sheet1 GROUP BY \"Product Code\"",
+      "covered": [
+        "S12",
+        "S13",
+        "S17"
+      ],
+      "rewrites": {
+        "S12": "WITH cust AS (SELECT \"Product Code\", \"Customer ID\", COUNT(*) AS purchase_count FROM sheet1 GROUP BY \"Product Code\", \"Customer ID\"), prod_stats AS (SELECT \"Product Code\", COUNT(*) AS n_customers, SUM(CASE WHEN purchase_count > 1 THEN 1 ELSE 0 END) AS repeat_customers FROM cust GROUP BY \"Product Code\"), sales AS (SELECT * FROM temp.reuse_candidate) SELECT s.\"Product Code\", ROUND(s.total_sales, 2) AS total_sales, s.n_transactions, ps.n_customers, ps.repeat_customers, ROUND(1.0 * ps.repeat_customers / NULLIF(ps.n_customers, 0), 4) AS repurchase_rate FROM sales AS s JOIN prod_stats AS ps ON s.\"Product Code\" = ps.\"Product Code\" WHERE ps.n_customers >= 5 ORDER BY s.total_sales DESC",
+        "S13": "WITH cust AS (SELECT \"Product Code\", \"Customer ID\", COUNT(*) AS purchase_count FROM sheet1 GROUP BY \"Product Code\", \"Customer ID\"), prod_stats AS (SELECT \"Product Code\", COUNT(*) AS n_customers, SUM(CASE WHEN purchase_count > 1 THEN 1 ELSE 0 END) AS repeat_customers FROM cust GROUP BY \"Product Code\"), sales AS (SELECT * FROM temp.reuse_candidate) SELECT s.\"Product Code\" AS product, s.total_sales, s.n_transactions, ps.n_customers, ps.repeat_customers, 1.0 * ps.repeat_customers / NULLIF(ps.n_customers, 0) AS repurchase_rate FROM sales AS s JOIN prod_stats AS ps ON s.\"Product Code\" = ps.\"Product Code\" WHERE ps.n_customers >= 5",
+        "S17": "WITH cust AS (SELECT \"Product Code\", \"Customer ID\", COUNT(*) AS purchase_count FROM sheet1 GROUP BY \"Product Code\", \"Customer ID\"), prod_stats AS (SELECT \"Product Code\", COUNT(*) AS n_customers, SUM(CASE WHEN purchase_count > 1 THEN 1 ELSE 0 END) AS repeat_customers FROM cust GROUP BY \"Product Code\"), sales AS (SELECT * FROM temp.reuse_candidate) SELECT s.\"Product Code\" AS product, ROUND(s.total_sales, 2) AS total_sales, s.n_transactions, ps.n_customers, ROUND(1.0 * ps.repeat_customers / NULLIF(ps.n_customers, 0), 4) AS repurchase_rate FROM sales AS s JOIN prod_stats AS ps ON s.\"Product Code\" = ps.\"Product Code\" WHERE ps.n_customers >= 5 ORDER BY s.total_sales DESC LIMIT 10"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S12",
+      "later_reuses": 2,
+      "denominator": 17,
+      "coverage_includes_trigger": true,
+      "build_ms": 25.105352513492107,
+      "intermediate_rows": 6142,
+      "intermediate_columns": [
+        "Product Code",
+        "total_sales",
+        "n_transactions"
+      ],
+      "checks": [
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "WITH cust AS (SELECT \"Product Code\", \"Customer ID\", COUNT(*) AS purchase_count FROM sheet1 GROUP BY \"Product Code\", \"Customer ID\"), prod_stats AS (SELECT \"Product Code\", COUNT(*) AS n_customers, SUM(CASE WHEN purchase_count > 1 THEN 1 ELSE 0 END) AS repeat_customers FROM cust GROUP BY \"Product Code\"), sales AS (SELECT * FROM temp.reuse_candidate) SELECT s.\"Product Code\", ROUND(s.total_sales, 2) AS total_sales, s.n_transactions, ps.n_customers, ps.repeat_customers, ROUND(1.0 * ps.repeat_customers / NULLIF(ps.n_customers, 0), 4) AS repurchase_rate FROM sales AS s JOIN prod_stats AS ps ON s.\"Product Code\" = ps.\"Product Code\" WHERE ps.n_customers >= 5 ORDER BY s.total_sales DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 55.17236329615116
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "WITH cust AS (SELECT \"Product Code\", \"Customer ID\", COUNT(*) AS purchase_count FROM sheet1 GROUP BY \"Product Code\", \"Customer ID\"), prod_stats AS (SELECT \"Product Code\", COUNT(*) AS n_customers, SUM(CASE WHEN purchase_count > 1 THEN 1 ELSE 0 END) AS repeat_customers FROM cust GROUP BY \"Product Code\"), sales AS (SELECT * FROM temp.reuse_candidate) SELECT s.\"Product Code\" AS product, s.total_sales, s.n_transactions, ps.n_customers, ps.repeat_customers, 1.0 * ps.repeat_customers / NULLIF(ps.n_customers, 0) AS repurchase_rate FROM sales AS s JOIN prod_stats AS ps ON s.\"Product Code\" = ps.\"Product Code\" WHERE ps.n_customers >= 5",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 71.98449037969112
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "WITH cust AS (SELECT \"Product Code\", \"Customer ID\", COUNT(*) AS purchase_count FROM sheet1 GROUP BY \"Product Code\", \"Customer ID\"), prod_stats AS (SELECT \"Product Code\", COUNT(*) AS n_customers, SUM(CASE WHEN purchase_count > 1 THEN 1 ELSE 0 END) AS repeat_customers FROM cust GROUP BY \"Product Code\"), sales AS (SELECT * FROM temp.reuse_candidate) SELECT s.\"Product Code\" AS product, ROUND(s.total_sales, 2) AS total_sales, s.n_transactions, ps.n_customers, ROUND(1.0 * ps.repeat_customers / NULLIF(ps.n_customers, 0), 4) AS repurchase_rate FROM sales AS s JOIN prod_stats AS ps ON s.\"Product Code\" = ps.\"Product Code\" WHERE ps.n_customers >= 5 ORDER BY s.total_sales DESC LIMIT 10",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 47.21750691533089
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT \"Product Code\", SUM(\"Sales Amount\") AS total_sales FROM sheet1 GROUP BY \"Product Code\"",
+      "covered": [
+        "S15",
+        "S16"
+      ],
+      "rewrites": {
+        "S15": "WITH cust AS (SELECT \"Product Code\", \"Customer ID\", COUNT(*) AS purchase_count FROM sheet1 GROUP BY \"Product Code\", \"Customer ID\"), prod_stats AS (SELECT \"Product Code\", COUNT(*) AS n_customers, SUM(CASE WHEN purchase_count > 1 THEN 1 ELSE 0 END) AS repeat_customers FROM cust GROUP BY \"Product Code\"), sales AS (SELECT * FROM temp.reuse_candidate) SELECT s.total_sales, 1.0 * ps.repeat_customers / NULLIF(ps.n_customers, 0) AS repurchase_rate FROM sales AS s JOIN prod_stats AS ps ON s.\"Product Code\" = ps.\"Product Code\" WHERE ps.n_customers >= 5",
+        "S16": "WITH cust AS (SELECT \"Product Code\", \"Customer ID\", COUNT(*) AS purchase_count FROM sheet1 GROUP BY \"Product Code\", \"Customer ID\"), prod_stats AS (SELECT \"Product Code\", COUNT(*) AS n_customers, SUM(CASE WHEN purchase_count > 1 THEN 1 ELSE 0 END) AS repeat_customers FROM cust GROUP BY \"Product Code\"), sales AS (SELECT * FROM temp.reuse_candidate) SELECT s.total_sales, 1.0 * ps.repeat_customers / NULLIF(ps.n_customers, 0) AS repurchase_rate FROM sales AS s JOIN prod_stats AS ps ON s.\"Product Code\" = ps.\"Product Code\" WHERE ps.n_customers >= 5"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S15",
+      "later_reuses": 1,
+      "denominator": 17,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"sheet1\" WHERE \"Product Code\" IN ('DW-1001040125', 'DW-2316020016', 'DW-1203130446', 'DW-1518040045')",
+      "covered": [
+        "S7",
+        "S8",
+        "S10",
+        "S14",
+        "S18",
+        "S19"
+      ],
+      "rewrites": {
+        "S7": "SELECT \"Sales Month\", \"Product Code\", ROUND(SUM(\"Sales Amount\"), 2) AS total_amount, COUNT(*) AS transaction_count, COUNT(DISTINCT \"Customer ID\") AS customer_count FROM temp.reuse_candidate AS sheet1 WHERE \"Product Code\" IN ('DW-1001040125', 'DW-2316020016', 'DW-1203130446', 'DW-1518040045') GROUP BY \"Sales Month\", \"Product Code\" ORDER BY \"Product Code\", \"Sales Month\"",
+        "S8": "SELECT \"Product Code\", \"Customer ID\", COUNT(*) AS purchase_count, SUM(\"Sales Amount\") AS total_spent FROM temp.reuse_candidate AS sheet1 WHERE \"Product Code\" IN ('DW-1001040125', 'DW-2316020016', 'DW-1203130446', 'DW-1518040045') GROUP BY \"Product Code\", \"Customer ID\" ORDER BY \"Product Code\", purchase_count DESC",
+        "S10": "SELECT \"Product Code\", ROUND(SUM(\"Sales Amount\"), 2) AS total_sales_amount, COUNT(*) AS total_transactions, COUNT(DISTINCT \"Customer ID\") AS total_customers, ROUND(AVG(\"Sales Amount\"), 2) AS avg_transaction_amount FROM temp.reuse_candidate AS sheet1 WHERE \"Product Code\" IN ('DW-1001040125', 'DW-2316020016', 'DW-1203130446', 'DW-1518040045') GROUP BY \"Product Code\" ORDER BY \"Product Code\"",
+        "S14": "SELECT \"Sales Month\" AS month, \"Product Code\" AS product, SUM(\"Sales Amount\") AS sales_amount FROM temp.reuse_candidate AS sheet1 WHERE \"Product Code\" IN ('DW-1001040125', 'DW-2316020016', 'DW-1203130446', 'DW-1518040045') GROUP BY \"Sales Month\", \"Product Code\" ORDER BY product, month",
+        "S18": "SELECT \"Product Code\", \"Major Category Name\", \"Middle Category Name\", \"Minor Category Name\", \"Specification/Model\", \"Product Type\", \"Unit\", MIN(\"Sales Amount\") AS min_amt, MAX(\"Sales Amount\") AS max_amt, ROUND(AVG(\"Sales Amount\"), 2) AS avg_amt, COUNT(*) AS n FROM temp.reuse_candidate AS sheet1 WHERE \"Product Code\" IN ('DW-1001040125', 'DW-2316020016', 'DW-1203130446', 'DW-1518040045') GROUP BY \"Product Code\"",
+        "S19": "SELECT \"Sales Month\", \"Product Code\", COUNT(DISTINCT \"Customer ID\") AS cust_n, COUNT(*) AS txn_n, ROUND(1.0 * (COUNT(*) - COUNT(DISTINCT \"Customer ID\")) / COUNT(*), 4) AS repeat_txn_share FROM temp.reuse_candidate AS sheet1 WHERE \"Product Code\" IN ('DW-1001040125', 'DW-2316020016', 'DW-1203130446', 'DW-1518040045') GROUP BY \"Sales Month\", \"Product Code\" ORDER BY \"Product Code\", \"Sales Month\""
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S7",
+      "later_reuses": 5,
+      "denominator": 17,
+      "coverage_includes_trigger": true,
+      "build_ms": 10.000898502767086,
+      "intermediate_rows": 501,
+      "intermediate_columns": [
+        "Customer ID",
+        "Major Category Code",
+        "Major Category Name",
+        "Middle Category Code",
+        "Middle Category Name",
+        "Minor Category Code",
+        "Minor Category Name",
+        "Sales Date",
+        "Sales Month",
+        "Product Code",
+        "Specification/Model",
+        "Product Type",
+        "Unit",
+        "Sales Amount",
+        "Is Promotional"
+      ],
+      "checks": [
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT \"Sales Month\", \"Product Code\", ROUND(SUM(\"Sales Amount\"), 2) AS total_amount, COUNT(*) AS transaction_count, COUNT(DISTINCT \"Customer ID\") AS customer_count FROM temp.reuse_candidate AS sheet1 WHERE \"Product Code\" IN ('DW-1001040125', 'DW-2316020016', 'DW-1203130446', 'DW-1518040045') GROUP BY \"Sales Month\", \"Product Code\" ORDER BY \"Product Code\", \"Sales Month\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.4803232625126839
+        },
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT \"Product Code\", \"Customer ID\", COUNT(*) AS purchase_count, SUM(\"Sales Amount\") AS total_spent FROM temp.reuse_candidate AS sheet1 WHERE \"Product Code\" IN ('DW-1001040125', 'DW-2316020016', 'DW-1203130446', 'DW-1518040045') GROUP BY \"Product Code\", \"Customer ID\" ORDER BY \"Product Code\", purchase_count DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.0101919546723366
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT \"Product Code\", ROUND(SUM(\"Sales Amount\"), 2) AS total_sales_amount, COUNT(*) AS total_transactions, COUNT(DISTINCT \"Customer ID\") AS total_customers, ROUND(AVG(\"Sales Amount\"), 2) AS avg_transaction_amount FROM temp.reuse_candidate AS sheet1 WHERE \"Product Code\" IN ('DW-1001040125', 'DW-2316020016', 'DW-1203130446', 'DW-1518040045') GROUP BY \"Product Code\" ORDER BY \"Product Code\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.4600874856114388
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT \"Sales Month\" AS month, \"Product Code\" AS product, SUM(\"Sales Amount\") AS sales_amount FROM temp.reuse_candidate AS sheet1 WHERE \"Product Code\" IN ('DW-1001040125', 'DW-2316020016', 'DW-1203130446', 'DW-1518040045') GROUP BY \"Sales Month\", \"Product Code\" ORDER BY product, month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.086575910449028
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT \"Product Code\", \"Major Category Name\", \"Middle Category Name\", \"Minor Category Name\", \"Specification/Model\", \"Product Type\", \"Unit\", MIN(\"Sales Amount\") AS min_amt, MAX(\"Sales Amount\") AS max_amt, ROUND(AVG(\"Sales Amount\"), 2) AS avg_amt, COUNT(*) AS n FROM temp.reuse_candidate AS sheet1 WHERE \"Product Code\" IN ('DW-1001040125', 'DW-2316020016', 'DW-1203130446', 'DW-1518040045') GROUP BY \"Product Code\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.4832187443971634
+        },
+        {
+          "sql_id": "S19",
+          "rewritten_sql": "SELECT \"Sales Month\", \"Product Code\", COUNT(DISTINCT \"Customer ID\") AS cust_n, COUNT(*) AS txn_n, ROUND(1.0 * (COUNT(*) - COUNT(DISTINCT \"Customer ID\")) / COUNT(*), 4) AS repeat_txn_share FROM temp.reuse_candidate AS sheet1 WHERE \"Product Code\" IN ('DW-1001040125', 'DW-2316020016', 'DW-1203130446', 'DW-1518040045') GROUP BY \"Sales Month\", \"Product Code\" ORDER BY \"Product Code\", \"Sales Month\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.6109701246023178
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Product Code\" AS __g0, \"Customer ID\" AS __g1, \"Sales Month\" AS __g2, COUNT(*) AS __a0, SUM(\"Sales Amount\") AS __a1 FROM \"sheet1\" WHERE \"Product Code\" IN ('DW-1001040125', 'DW-2316020016', 'DW-1203130446', 'DW-1518040045') GROUP BY \"Product Code\", \"Customer ID\", \"Sales Month\"",
+      "covered": [
+        "S8",
+        "S14"
+      ],
+      "rewrites": {
+        "S8": "SELECT __g0 AS \"Product Code\", __g1 AS \"Customer ID\", SUM(__a0) AS purchase_count, SUM(__a1) AS total_spent FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, purchase_count DESC",
+        "S14": "SELECT __g2 AS month, __g0 AS product, SUM(__a1) AS sales_amount FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY product, month"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C6",
+      "offline": true,
+      "earliest_build_before": "S8",
+      "later_reuses": 1,
+      "denominator": 17,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

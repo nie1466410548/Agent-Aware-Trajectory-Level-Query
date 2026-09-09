@@ -1,0 +1,1 @@
+SELECT MIN("Transaction Date") AS min_date, MAX("Transaction Date") AS max_date, COUNT(*) AS n FROM core_transaction_information

@@ -1,0 +1,1 @@
+SELECT DISTINCT "Risk Level" FROM abnormal_logins_table

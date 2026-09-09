@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT analysis_timestamp) AS distinct_ts_value FROM customer360__customer_value_analysis

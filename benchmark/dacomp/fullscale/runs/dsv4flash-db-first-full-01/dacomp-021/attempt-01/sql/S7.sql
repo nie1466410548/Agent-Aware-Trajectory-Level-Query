@@ -1,0 +1,1 @@
+SELECT "Date", count(*) AS n FROM sheet1 GROUP BY "Date" ORDER BY n DESC LIMIT 20

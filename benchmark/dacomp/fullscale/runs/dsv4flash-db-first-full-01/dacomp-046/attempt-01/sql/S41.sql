@@ -1,0 +1,1 @@
+SELECT DISTINCT "Is High-Value User" FROM user_tags_table

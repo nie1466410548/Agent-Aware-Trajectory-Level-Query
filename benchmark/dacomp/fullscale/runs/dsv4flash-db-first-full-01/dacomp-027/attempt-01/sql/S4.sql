@@ -1,0 +1,1 @@
+SELECT * FROM disaster_events LIMIT 5

@@ -1,0 +1,1 @@
+SELECT COUNT(*) as cnt FROM (SELECT "Customer ID" FROM customer_contact_table) c JOIN (SELECT DISTINCT "Customer ID" FROM customer_tag_table) t ON c."Customer ID"=t."Customer ID"

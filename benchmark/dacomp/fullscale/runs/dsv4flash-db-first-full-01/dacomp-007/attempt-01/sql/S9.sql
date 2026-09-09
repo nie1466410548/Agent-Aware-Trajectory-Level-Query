@@ -1,0 +1,1 @@
+SELECT Department, JobLevel, COUNT(*) AS total, SUM(CASE WHEN Attrition='Yes' THEN 1 ELSE 0 END) AS att FROM sheet1 WHERE Department='Sales' GROUP BY Department, JobLevel ORDER BY JobLevel;

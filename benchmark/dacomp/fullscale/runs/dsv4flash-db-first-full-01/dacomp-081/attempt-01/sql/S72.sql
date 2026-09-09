@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_resp FROM qualtrics__response r WHERE r.survey_id = 'SUR10002866953'

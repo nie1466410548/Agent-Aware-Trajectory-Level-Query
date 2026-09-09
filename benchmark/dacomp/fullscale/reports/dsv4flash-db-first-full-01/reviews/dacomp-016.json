@@ -1,0 +1,50 @@
+{
+  "task_id": "dacomp-016",
+  "status": "reviewed_with_statistical_exceptions_and_SQL_capable_summaries",
+  "reviewer": "experiment analyst",
+  "conclusion": "SQL joins the China annual series and calculates the surface/groundwater ratio. Python computes regression and correlation statistics over that small result, which is justified. P2 also calculates year-to-year differences and subperiod mean/min/max outside SQL; these are SQL-capable and are explicitly disclosed rather than labeling this trajectory fully strict.",
+  "evidence": [
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 13,
+          "text": "slope, intercept, r, p, se = stats.linregress(df['Year'], df['Surf_GW_Ratio'])"
+        },
+        {
+          "line": 15,
+          "text": "print(f\"Overall change: {df['Surf_GW_Ratio'].iloc[0]:.3f} -> {df['Surf_GW_Ratio'].iloc[-1]:.3f} ({(df['Surf_GW_Ratio'].iloc[-1]/df['Surf_GW_Ratio'].iloc[0]-1)*100:.2f}% relative)\")"
+        },
+        {
+          "line": 17,
+          "text": "df['Ratio_YoY'] = df['Surf_GW_Ratio'].diff()"
+        },
+        {
+          "line": 18,
+          "text": "df['Urban_YoY'] = df['Urbanization_Rate'].diff()"
+        },
+        {
+          "line": 24,
+          "text": "    s,i,r,p,se = stats.linregress(sub['Year'], sub['Surf_GW_Ratio'])"
+        },
+        {
+          "line": 25,
+          "text": "    print(f\"\\nSub-period {label}: mean ratio={sub['Surf_GW_Ratio'].mean():.4f}, range=[{sub['Surf_GW_Ratio'].min():.4f},{sub['Surf_GW_Ratio'].max():.4f}], slope={s:.4f}/yr, r={r:.4f}\")"
+        },
+        {
+          "line": 27,
+          "text": "r_ratio_urb, p_ratio_urb = stats.pearsonr(df['Surf_GW_Ratio'], df['Urbanization_Rate'])"
+        },
+        {
+          "line": 39,
+          "text": ""
+        },
+        {
+          "line": 43,
+          "text": "s_u,i_u,r_u,p_u,se_u = stats.linregress(df['Year'], df['Urbanization_Rate'])"
+        }
+      ]
+    }
+  ],
+  "route": "提取中国 2005–2018 年水供给和城镇化序列 → SQL 计算地表水/地下水比例并关联年份 → Python 比较全期与分期趋势和相关性 → 绘制年度关系。"
+}

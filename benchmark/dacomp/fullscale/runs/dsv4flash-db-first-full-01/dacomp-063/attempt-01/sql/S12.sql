@@ -1,0 +1,1 @@
+SELECT DISTINCT recommended_intervention FROM jira__project_risk_assessment

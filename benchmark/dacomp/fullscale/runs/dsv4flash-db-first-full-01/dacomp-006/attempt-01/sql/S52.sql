@@ -1,0 +1,1 @@
+SELECT strftime('%Y-%m', "Date") AS month, COUNT(*) AS orders, SUM("Profit") AS profit, AVG("Profit") AS avg_profit FROM sheet1 WHERE "Destination" LIKE 'South China%%' GROUP BY month ORDER BY month

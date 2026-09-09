@@ -1,0 +1,1 @@
+SELECT "Disaster Type", COUNT(*) n FROM disaster_events GROUP BY "Disaster Type" ORDER BY n DESC

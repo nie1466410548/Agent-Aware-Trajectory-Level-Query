@@ -1,0 +1,1 @@
+SELECT marketo_lead_id, COUNT(*) AS cnt FROM customer360__customer_value_analysis GROUP BY marketo_lead_id HAVING cnt > 1 LIMIT 10

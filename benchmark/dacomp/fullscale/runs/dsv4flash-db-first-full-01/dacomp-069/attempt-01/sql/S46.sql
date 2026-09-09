@@ -1,0 +1,1 @@
+SELECT country, revenue_tier, store_conversion_rate, store_visitors_30d, store_installs_30d FROM google_play__geo_market_analysis WHERE package_name='com.dev.photoeditor'

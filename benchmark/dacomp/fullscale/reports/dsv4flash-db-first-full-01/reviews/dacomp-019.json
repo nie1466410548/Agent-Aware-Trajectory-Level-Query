@@ -1,0 +1,83 @@
+{
+  "task_id": "dacomp-019",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "route": "检查药品来源、库存及质量字段 → SQL 关联进口/合资药品明细 → Python 构造积压、断供、质量风险评分及加权优先级 → 筛选高优先级药品并绘图。",
+  "conclusion": "P9 computes date differences, stock ratios, conditional risk flags and weighted priority scores, then Top-20 selection in Python; P10 computes origin/tier grouped summaries. These are SQL-capable arithmetic, CASE/ranking and aggregation. Quantile clipping and rendering are distinguished from that relational preparation. Earlier Python calls also show archive-path/column-shape errors; repeated SQL in this trajectory partly reflects tool-interface adaptation and cannot be attributed solely to intentional analytical refinement.",
+  "evidence": [
+    {
+      "source": "python/P9.py",
+      "lines": [
+        {
+          "line": 37,
+          "text": "df['days_since_inbound'] = (ref_date - df['last_inbound']).dt.days"
+        },
+        {
+          "line": 41,
+          "text": "df['total_stock'] = df['qualified'] + df['near_expiry'] + df['quarantine']"
+        },
+        {
+          "line": 44,
+          "text": "df['stock_to_threshold'] = df['total_stock'] / df['max_threshold'].replace(0, 1)"
+        },
+        {
+          "line": 92,
+          "text": "log_stock_ratio = np.log1p(df['stock_to_threshold'].clip(0, df['stock_to_threshold'].quantile(0.95)))"
+        },
+        {
+          "line": 108,
+          "text": "inbound_days_norm = df['days_since_inbound'] / 365"
+        },
+        {
+          "line": 109,
+          "text": "supply_interrupt_score = ("
+        },
+        {
+          "line": 142,
+          "text": "df['priority_score'] = (backlog_score * 0.35 + supply_interrupt_score * 0.30 + quality_score * 0.35).round(1)"
+        },
+        {
+          "line": 146,
+          "text": "print(df[['origin', 'backlog_score', 'supply_interrupt_score', 'quality_risk_score', 'priority_score']].describe())"
+        },
+        {
+          "line": 149,
+          "text": "top20 = df.nlargest(20, 'priority_score')"
+        },
+        {
+          "line": 150,
+          "text": "print(top20[['drug_id', 'origin', 'priority_score', 'backlog_score', 'supply_interrupt_score', 'quality_risk_score']].to_string(index=False))"
+        },
+        {
+          "line": 153,
+          "text": "df.to_csv('priority_scores.csv', index=False)"
+        },
+        {
+          "line": 154,
+          "text": "print(\"\\n\\nSaved to priority_scores.csv\")"
+        }
+      ]
+    },
+    {
+      "source": "python/P10.py",
+      "lines": [
+        {
+          "line": 27,
+          "text": "top15 = df.nlargest(15, 'priority_score')"
+        },
+        {
+          "line": 54,
+          "text": "print(df.groupby('origin')[['backlog_score','supply_interrupt_score','quality_risk_score','priority_score']].mean().round(1))"
+        },
+        {
+          "line": 57,
+          "text": "df['tier'] = pd.cut(df['priority_score'], bins=[0, 40, 50, 60, 100], labels=['Low','Medium','High','Critical'])"
+        },
+        {
+          "line": 59,
+          "text": "print(df.groupby(['origin','tier']).size().unstack(fill_value=0))"
+        }
+      ]
+    }
+  ]
+}

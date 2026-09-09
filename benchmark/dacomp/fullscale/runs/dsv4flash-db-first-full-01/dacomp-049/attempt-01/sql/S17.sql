@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total, COUNT("Salary Range") AS sal_nonnull, COUNT("Benefits") AS ben_nonnull, COUNT("Education Requirement") AS edu_nonnull, COUNT("Work Experience Requirement") AS exp_nonnull, COUNT("Age Requirement") AS age_nonnull FROM sheet1

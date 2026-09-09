@@ -1,0 +1,1 @@
+SELECT promotion_type, COUNT(*) AS cnt FROM attachment_3 GROUP BY promotion_type ORDER BY cnt DESC

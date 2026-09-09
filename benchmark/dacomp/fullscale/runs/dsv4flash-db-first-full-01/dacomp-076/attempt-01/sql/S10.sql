@@ -1,0 +1,1 @@
+SELECT DISTINCT activity_status FROM netsuite2_customer_analytics ORDER BY activity_status

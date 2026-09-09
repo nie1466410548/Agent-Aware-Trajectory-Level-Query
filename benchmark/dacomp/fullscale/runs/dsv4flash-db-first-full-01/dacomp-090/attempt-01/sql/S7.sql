@@ -1,0 +1,1 @@
+SELECT * FROM quickbooks__customer_analytics LIMIT 5

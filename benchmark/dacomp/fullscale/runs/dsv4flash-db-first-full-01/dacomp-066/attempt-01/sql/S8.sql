@@ -1,0 +1,1 @@
+SELECT DISTINCT application_year, application_quarter FROM greenhouse__recruitment_performance ORDER BY application_year, application_quarter

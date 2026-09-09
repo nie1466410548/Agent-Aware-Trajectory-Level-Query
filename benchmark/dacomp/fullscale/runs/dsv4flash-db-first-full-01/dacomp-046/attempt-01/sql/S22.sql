@@ -1,0 +1,1 @@
+SELECT DISTINCT "Category Preference" FROM user_tags_table

@@ -1,0 +1,1 @@
+SELECT DISTINCT "Standard Working Hours" FROM sheet1 LIMIT 20

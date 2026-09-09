@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total, COUNT(*) - COUNT(DISTINCT marketo_lead_id || stripe_customer_id || zendesk_user_id || primary_email) AS duplicate_rows FROM customer360__customer_value_analysis

@@ -1,0 +1,1 @@
+SELECT DISTINCT email_domain, COUNT(*) AS cnt FROM qualtrics__contact GROUP BY email_domain ORDER BY cnt DESC LIMIT 10

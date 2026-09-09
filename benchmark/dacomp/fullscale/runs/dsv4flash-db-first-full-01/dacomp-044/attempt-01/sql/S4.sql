@@ -1,0 +1,1 @@
+SELECT DISTINCT "Occupation/Role (Childcare/Student/Teacher)" FROM basic_medical_record_informatio

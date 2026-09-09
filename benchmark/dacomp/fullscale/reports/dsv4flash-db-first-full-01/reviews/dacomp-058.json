@@ -1,0 +1,98 @@
+{
+  "task_id": "dacomp-058",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 为风险级别、渠道、行业、竞价策略、设备、地域和关键词计算分组数量、均值、成本求和与份额。这些计算可在 SQL 内完成，且并非只做图形渲染。",
+  "route": "SQL 筛选高成本低 ROI 活动并计算健康评分与趋势 → Python 多维分组、关键词汇总和图表 → 活动诊断建议。",
+  "evidence": [
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 62,
+          "text": "risk_counts = campaigns.groupby(['risk_level', 'is_problematic']).size().unstack(fill_value=0)"
+        },
+        {
+          "line": 75,
+          "text": "dim_data = campaigns.groupby('is_problematic')[dim_cols].mean().T"
+        },
+        {
+          "line": 89,
+          "text": "order = campaigns.groupby('campaign_type')['health_score'].mean().sort_values().index"
+        },
+        {
+          "line": 100,
+          "text": "order = campaigns.groupby('industry')['health_score'].mean().sort_values().index"
+        },
+        {
+          "line": 111,
+          "text": "order = campaigns.groupby('bidding_strategy')['health_score'].mean().sort_values().index"
+        }
+      ]
+    },
+    {
+      "source": "python/P10.py",
+      "lines": [
+        {
+          "line": 66,
+          "text": "device_agg = device.groupby('device_type').agg("
+        },
+        {
+          "line": 82,
+          "text": "geo_agg = geo.groupby('geo_target').agg(avg_roas=('roas','mean'), avg_qs=('quality_score','mean'),"
+        },
+        {
+          "line": 107,
+          "text": "device_pivot = device.groupby(['device_type', 'is_problematic'])['cost'].sum().unstack(fill_value=0)"
+        },
+        {
+          "line": 120,
+          "text": "seasonal_23['cost_share'] = seasonal_23['total_cost'] / seasonal_23['total_cost'].sum() * 100"
+        }
+      ]
+    },
+    {
+      "source": "python/P12.py",
+      "lines": [
+        {
+          "line": 41,
+          "text": "    kw_agg = kw_prob.groupby(['campaign_id','keyword_text','match_type']).agg("
+        }
+      ]
+    },
+    {
+      "source": "python/P16.py",
+      "lines": [
+        {
+          "line": 52,
+          "text": "ct = campaigns.groupby('campaign_type').agg("
+        },
+        {
+          "line": 66,
+          "text": "bs = campaigns.groupby('bidding_strategy').agg("
+        },
+        {
+          "line": 80,
+          "text": "ind = campaigns.groupby('industry').agg("
+        }
+      ]
+    },
+    {
+      "source": "python/P17.py",
+      "lines": [
+        {
+          "line": 82,
+          "text": "print(\"Total cost:\", campaigns['total_cost'].sum().round(0))"
+        },
+        {
+          "line": 83,
+          "text": "print(\"Problematic cost:\", campaigns[campaigns['is_problematic']]['total_cost'].sum().round(0))"
+        },
+        {
+          "line": 84,
+          "text": "print(\"Problematic share:\", (campaigns[campaigns['is_problematic']]['total_cost'].sum()/campaigns['total_cost'].sum()*100).round(1))"
+        }
+      ]
+    }
+  ]
+}

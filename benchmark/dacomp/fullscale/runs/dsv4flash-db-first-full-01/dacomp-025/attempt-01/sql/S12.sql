@@ -1,0 +1,1 @@
+SELECT DISTINCT "Whether sold at a discount" FROM sales_records

@@ -1,0 +1,1 @@
+SELECT DISTINCT "Contract Type" FROM contracts_table

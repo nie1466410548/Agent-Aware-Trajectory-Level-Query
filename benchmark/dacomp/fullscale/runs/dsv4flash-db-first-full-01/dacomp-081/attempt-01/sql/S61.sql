@@ -1,0 +1,1 @@
+SELECT DISTINCT substr(survey_name, 1, 30) AS name_prefix FROM qualtrics__survey ORDER BY name_prefix

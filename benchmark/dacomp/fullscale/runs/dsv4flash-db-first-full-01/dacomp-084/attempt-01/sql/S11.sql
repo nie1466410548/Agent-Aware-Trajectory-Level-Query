@@ -1,0 +1,1 @@
+SELECT current_active_employees, organization_size_category FROM workday__organization_overview WHERE current_active_employees BETWEEN 25 AND 35 ORDER BY current_active_employees

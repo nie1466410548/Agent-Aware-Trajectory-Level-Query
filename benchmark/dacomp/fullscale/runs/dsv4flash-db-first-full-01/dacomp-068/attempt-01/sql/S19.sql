@@ -1,0 +1,1 @@
+SELECT package_name, AVG(avg_daily_revenue) AS avg_dr, AVG(store_conversion_rate) AS avg_cr, AVG(revenue_last_30_days) AS avg_rev30, SUM(store_visitors_30d) AS vis30, SUM(store_installs_30d) AS inst30 FROM google_play__geo_market_analysis GROUP BY package_name ORDER BY package_name

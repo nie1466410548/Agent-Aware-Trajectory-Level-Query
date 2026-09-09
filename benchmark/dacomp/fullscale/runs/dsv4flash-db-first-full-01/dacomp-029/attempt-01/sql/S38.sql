@@ -1,0 +1,1 @@
+SELECT DISTINCT '"' || Transmission || '"' AS t FROM autohome ORDER BY t

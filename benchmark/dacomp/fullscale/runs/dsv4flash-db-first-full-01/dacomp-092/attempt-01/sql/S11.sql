@@ -1,0 +1,1 @@
+SELECT DISTINCT customer_id FROM quickbooks__profitability_analysis LIMIT 20

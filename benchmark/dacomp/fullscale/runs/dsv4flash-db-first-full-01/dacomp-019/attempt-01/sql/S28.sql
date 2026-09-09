@@ -1,0 +1,1 @@
+SELECT DISTINCT "Inventory Discrepancy Rate" FROM inventory_management ORDER BY 1 LIMIT 10

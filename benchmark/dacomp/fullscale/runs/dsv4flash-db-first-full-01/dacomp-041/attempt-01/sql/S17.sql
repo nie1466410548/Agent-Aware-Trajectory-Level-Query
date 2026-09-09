@@ -1,0 +1,1 @@
+SELECT COUNT(*) as sens_count, COUNT(DISTINCT "Cultural Relic Reference Number") as distinct_relics FROM sensitivity_data

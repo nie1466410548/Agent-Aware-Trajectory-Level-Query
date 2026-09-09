@@ -1,0 +1,1 @@
+SELECT "Exhibition Hall Record ID", "Daily Visitor Count" FROM gallery_information ORDER BY "Daily Visitor Count" DESC

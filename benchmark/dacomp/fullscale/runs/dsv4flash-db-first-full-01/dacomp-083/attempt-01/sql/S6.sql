@@ -1,0 +1,1 @@
+SELECT event_type, COUNT(*) as cnt FROM workday__employee_overview GROUP BY event_type ORDER BY cnt DESC

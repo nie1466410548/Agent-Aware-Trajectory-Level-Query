@@ -1,0 +1,1 @@
+SELECT DISTINCT current_pattern_type FROM jira__team_performance_dashboard

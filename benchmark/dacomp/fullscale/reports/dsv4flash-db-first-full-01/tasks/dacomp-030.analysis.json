@@ -1,0 +1,221 @@
+{
+  "fingerprint": "c429eabb75584639c0b69af9aa7ae24c8754963d25e7bed8b82a990776752a7b",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Warning Record\" AS __g0, \"Renewal Likelihood\" AS __g1, \"Exclusion Flag\" AS __g2, \" Warning Record\" AS __g3, \" Exclusion Flag\" AS __g4, COUNT(*) AS __a0 FROM \"customer_management_table\"  GROUP BY \"Warning Record\", \"Renewal Likelihood\", \"Exclusion Flag\", \" Warning Record\", \" Exclusion Flag\"",
+      "covered": [
+        "S11",
+        "S13",
+        "S14",
+        "S15",
+        "S20",
+        "S21"
+      ],
+      "rewrites": {
+        "S11": "SELECT __g0 AS \"Warning Record\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC LIMIT 20",
+        "S13": "SELECT __g0 AS \"Warning Record\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+        "S14": "SELECT __g1 AS \"Renewal Likelihood\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1",
+        "S15": "SELECT __g2 AS \"Exclusion Flag\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2",
+        "S20": "SELECT __g3 AS warning, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3",
+        "S21": "SELECT __g4 AS flag, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4"
+      },
+      "status": "rejected_result_mismatch",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S11",
+      "later_reuses": 5,
+      "denominator": 31,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788864498.1770883,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Warning Record\" AS __g0, \"Renewal Likelihood\" AS __g1, \"Exclusion Flag\" AS __g2, \" Warning Record\" AS __g3, \" Exclusion Flag\" AS __g4, COUNT(*) AS __a0 FROM \"customer_management_table\"  GROUP BY \"Warning Record\", \"Renewal Likelihood\", \"Exclusion Flag\", \" Warning Record\", \" Exclusion Flag\"",
+          "phase": "offline_validation",
+          "start_time": 1788864498.1773617,
+          "status": "execute_returned",
+          "end_time": 1788864498.1784313
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788864498.1784358,
+          "status": "execute_returned",
+          "end_time": 1788864498.178453
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788864498.1784585,
+          "status": "execute_returned",
+          "end_time": 1788864498.1784708
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"Warning Record\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC LIMIT 20",
+          "phase": "offline_validation",
+          "start_time": 1788864498.1784842,
+          "status": "execute_returned",
+          "end_time": 1788864498.1785173
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"Warning Record\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788864498.1790805,
+          "status": "execute_returned",
+          "end_time": 1788864498.179118
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS \"Renewal Likelihood\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1",
+          "phase": "offline_validation",
+          "start_time": 1788864498.1795762,
+          "status": "execute_returned",
+          "end_time": 1788864498.179612
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g2 AS \"Exclusion Flag\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2",
+          "phase": "offline_validation",
+          "start_time": 1788864498.1800675,
+          "status": "execute_returned",
+          "end_time": 1788864498.1801019
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g3 AS warning, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3",
+          "phase": "offline_validation",
+          "start_time": 1788864498.1805484,
+          "status": "execute_returned",
+          "end_time": 1788864498.1805842
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g4 AS flag, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4",
+          "phase": "offline_validation",
+          "start_time": 1788864498.1810577,
+          "status": "execute_returned",
+          "end_time": 1788864498.181092
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Warning Record\" AS __g0, \"Renewal Likelihood\" AS __g1, \"Exclusion Flag\" AS __g2, \" Warning Record\" AS __g3, \" Exclusion Flag\" AS __g4, COUNT(*) AS __a0 FROM \"customer_management_table\"  GROUP BY \"Warning Record\", \"Renewal Likelihood\", \"Exclusion Flag\", \" Warning Record\", \" Exclusion Flag\"",
+          "time": 1788864498.1777308,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788864498.1784499,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788864498.178468,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Warning Record\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC LIMIT 20",
+          "time": 1788864498.1785026,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Warning Record\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788864498.1791055,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"Renewal Likelihood\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1",
+          "time": 1788864498.1796005,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"Exclusion Flag\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2",
+          "time": 1788864498.18009,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS warning, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3",
+          "time": 1788864498.1805723,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS flag, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4",
+          "time": 1788864498.18108,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 1.0739164426922798,
+      "intermediate_rows": 18,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__a0"
+      ],
+      "validation_ended_at": 1788864498.1816428,
+      "checks": [
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT __g0 AS \"Warning Record\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC LIMIT 20",
+          "columns_equal": false,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5934629589319229
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT __g0 AS \"Warning Record\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": false,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.49316510558128357
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT __g1 AS \"Renewal Likelihood\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.48893876373767853
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "SELECT __g2 AS \"Exclusion Flag\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2",
+          "columns_equal": false,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.47686416655778885
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "SELECT __g3 AS warning, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5083968862891197
+        },
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "SELECT __g4 AS flag, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5017714574933052
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

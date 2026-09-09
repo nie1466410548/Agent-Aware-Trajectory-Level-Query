@@ -1,0 +1,1 @@
+SELECT DISTINCT "Key Locations (School/Hospital/Community)" FROM health_education

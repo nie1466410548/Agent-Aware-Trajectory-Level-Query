@@ -1,0 +1,1 @@
+SELECT DISTINCT "Complaint Handling Speed" FROM complaints_table ORDER BY "Complaint Handling Speed"

@@ -1,0 +1,1 @@
+SELECT department, COUNT(*) AS cnt FROM salesforce__contact_enhanced GROUP BY department ORDER BY cnt DESC LIMIT 30

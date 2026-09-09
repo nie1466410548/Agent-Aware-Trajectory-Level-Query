@@ -1,0 +1,1 @@
+SELECT MIN(transaction_date), MAX(transaction_date) FROM quickbooks__profitability_analysis

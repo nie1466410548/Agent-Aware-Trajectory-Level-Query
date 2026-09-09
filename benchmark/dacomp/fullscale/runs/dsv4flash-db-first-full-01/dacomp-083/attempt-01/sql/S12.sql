@@ -1,0 +1,1 @@
+SELECT employee_id, event_type, position_start_date, analysis_timestamp, overall_employee_score, career_development_score, employee_risk_level, employee_maturity_segment FROM workday__employee_overview WHERE employee_id = '138c4f2e4ad951d86bb2c7c7e13a500a' ORDER BY analysis_timestamp DESC

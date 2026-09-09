@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_projects FROM jira__project_enhanced

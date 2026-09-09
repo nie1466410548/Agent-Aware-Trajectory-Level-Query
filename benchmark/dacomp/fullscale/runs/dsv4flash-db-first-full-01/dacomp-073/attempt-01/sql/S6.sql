@@ -1,0 +1,1 @@
+SELECT DISTINCT status FROM lever__requisition_enhanced

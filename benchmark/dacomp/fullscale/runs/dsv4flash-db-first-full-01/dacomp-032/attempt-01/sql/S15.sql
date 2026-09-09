@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS tickets_with_cust FROM service_ticket_table t JOIN contracts_table ct ON t."Contract ID" = ct."Contract ID"

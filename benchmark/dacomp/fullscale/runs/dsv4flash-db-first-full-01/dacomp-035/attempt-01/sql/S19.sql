@@ -1,0 +1,1 @@
+SELECT l."Authentication Status", COUNT(*) AS cnt FROM login_records_table l GROUP BY l."Authentication Status"

@@ -1,0 +1,1 @@
+SELECT * FROM purchase_price WHERE "Item Code" = 102900005115823 AND "Date" >= '2022-06-01' AND "Date" < '2022-09-01' ORDER BY "Date" LIMIT 10

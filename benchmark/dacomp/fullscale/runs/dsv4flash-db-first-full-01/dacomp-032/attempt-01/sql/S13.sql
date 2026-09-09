@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS complaints_in_tickets FROM complaints_table c WHERE EXISTS (SELECT 1 FROM service_ticket_table t WHERE t."Work Order ID" = c."Work Order ID")

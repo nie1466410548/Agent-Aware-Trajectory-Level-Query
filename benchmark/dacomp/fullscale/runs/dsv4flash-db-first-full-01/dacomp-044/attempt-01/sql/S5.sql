@@ -1,0 +1,1 @@
+SELECT DISTINCT "Population Covered" FROM health_education

@@ -1,0 +1,1 @@
+SELECT dashboard_date, COUNT(*) AS n FROM netsuite2_financial_dashboard GROUP BY dashboard_date ORDER BY dashboard_date

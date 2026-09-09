@@ -1,0 +1,1 @@
+SELECT DISTINCT "Sales Date" FROM sales_records ORDER BY "Sales Date" DESC LIMIT 5

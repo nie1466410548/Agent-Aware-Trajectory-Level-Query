@@ -1,0 +1,1 @@
+SELECT DISTINCT management_priority FROM asana__project_analytics

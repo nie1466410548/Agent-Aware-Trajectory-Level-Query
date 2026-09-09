@@ -1,0 +1,1 @@
+SELECT DISTINCT engagement_frequency FROM netsuite2_customer_analytics ORDER BY engagement_frequency

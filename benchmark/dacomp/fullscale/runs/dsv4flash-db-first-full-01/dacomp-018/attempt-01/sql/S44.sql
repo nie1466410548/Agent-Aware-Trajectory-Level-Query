@@ -1,0 +1,1 @@
+SELECT DISTINCT strftime('%Y-%m', "Order Date") AS ym FROM order_information WHERE "Product Category" = 'Fashion' ORDER BY ym

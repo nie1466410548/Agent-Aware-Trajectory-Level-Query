@@ -1,0 +1,1 @@
+SELECT question_type, COUNT(*) AS n FROM qualtrics__response GROUP BY question_type ORDER BY n DESC

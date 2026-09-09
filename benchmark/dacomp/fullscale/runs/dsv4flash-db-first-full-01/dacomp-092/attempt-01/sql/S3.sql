@@ -1,0 +1,1 @@
+SELECT * FROM quickbooks__profitability_analysis LIMIT 5

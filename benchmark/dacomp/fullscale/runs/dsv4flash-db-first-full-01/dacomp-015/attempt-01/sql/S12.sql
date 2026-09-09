@@ -1,0 +1,1 @@
+SELECT Orientation, COUNT(*) AS cnt FROM data GROUP BY Orientation ORDER BY cnt DESC

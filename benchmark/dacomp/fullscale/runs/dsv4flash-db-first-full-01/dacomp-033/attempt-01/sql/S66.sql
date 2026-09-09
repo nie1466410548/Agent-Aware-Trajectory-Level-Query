@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT "Customer ID") as custs, COUNT(*) as rows FROM customer_account_table

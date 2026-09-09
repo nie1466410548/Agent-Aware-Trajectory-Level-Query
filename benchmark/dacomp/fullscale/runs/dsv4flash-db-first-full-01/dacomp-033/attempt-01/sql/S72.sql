@@ -1,0 +1,1 @@
+SELECT a."Account Credit Rating", COUNT(*) as cnt FROM customer_account_table a GROUP BY a."Account Credit Rating"

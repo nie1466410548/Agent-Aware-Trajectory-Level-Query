@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT primary_email) AS distinct_emails_activity FROM customer360__customer_activity_metrics

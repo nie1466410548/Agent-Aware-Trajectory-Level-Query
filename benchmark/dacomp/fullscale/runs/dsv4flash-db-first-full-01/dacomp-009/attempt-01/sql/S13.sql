@@ -1,0 +1,1 @@
+SELECT "Employee", "Employee ID", Team FROM sheet2 GROUP BY "Employee", "Employee ID", Team ORDER BY "Employee" LIMIT 25

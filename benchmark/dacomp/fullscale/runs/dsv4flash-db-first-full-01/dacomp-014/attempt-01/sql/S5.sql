@@ -1,0 +1,1 @@
+SELECT DISTINCT "Video Category" FROM sheet1 ORDER BY "Video Category"

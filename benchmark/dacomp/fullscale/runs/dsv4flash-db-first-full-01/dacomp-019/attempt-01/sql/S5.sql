@@ -1,0 +1,1 @@
+SELECT * FROM pricing_system LIMIT 5

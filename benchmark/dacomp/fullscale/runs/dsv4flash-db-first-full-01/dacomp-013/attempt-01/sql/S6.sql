@@ -1,0 +1,1 @@
+SELECT "Priority", COUNT(*) AS cnt FROM sheet1 GROUP BY "Priority"

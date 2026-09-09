@@ -1,0 +1,1 @@
+SELECT AVG(value) as avg_val, COUNT(*) as n FROM qualtrics__response WHERE survey_id = 'SUR10001791916'

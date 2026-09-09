@@ -1,0 +1,1 @@
+SELECT DISTINCT strategic_customer_segment FROM google_ads__customer_acquisition_analysis

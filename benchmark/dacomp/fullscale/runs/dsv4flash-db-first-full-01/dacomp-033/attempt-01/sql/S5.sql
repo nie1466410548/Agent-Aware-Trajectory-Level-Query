@@ -1,0 +1,1 @@
+SELECT DISTINCT "Transaction Payment Method" FROM transaction_history_table

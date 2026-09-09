@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT marketo_lead_id || '-' || funnel_analysis_timestamp) FROM customer360__conversion_funnel_analysis

@@ -1,0 +1,1 @@
+SELECT COUNT(*) as total, COUNT(DISTINCT "Creator") as distinct_creators, COUNT(DISTINCT "Title") as distinct_titles, COUNT(DISTINCT "Video Category") as distinct_categories FROM sheet1

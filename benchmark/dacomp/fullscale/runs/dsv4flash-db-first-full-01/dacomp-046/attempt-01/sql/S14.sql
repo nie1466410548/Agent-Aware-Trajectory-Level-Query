@@ -1,0 +1,1 @@
+SELECT DISTINCT "Spending Power" FROM user_tags_table

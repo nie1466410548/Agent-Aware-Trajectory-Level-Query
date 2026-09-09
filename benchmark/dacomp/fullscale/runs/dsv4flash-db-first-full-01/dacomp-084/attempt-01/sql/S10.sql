@@ -1,0 +1,1 @@
+SELECT current_active_employees, organization_size_category FROM workday__organization_overview ORDER BY current_active_employees LIMIT 20

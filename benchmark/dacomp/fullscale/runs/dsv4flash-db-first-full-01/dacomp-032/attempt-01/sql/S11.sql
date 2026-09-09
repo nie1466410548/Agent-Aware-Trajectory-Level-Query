@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_complaints, COUNT(DISTINCT "Work Order ID") AS distinct_wo FROM complaints_table

@@ -1,0 +1,1 @@
+SELECT "Employee", COUNT(*) AS cnt, COUNT(DISTINCT "Employee ID") AS ids FROM sheet1 GROUP BY "Employee" HAVING cnt > 20

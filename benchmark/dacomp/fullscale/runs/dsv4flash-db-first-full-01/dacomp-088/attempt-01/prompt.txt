@@ -1,0 +1,195 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+The Marketing Department is questioning the ROI efficiency of our investments in different states and has requested a detailed analysis of regional market performance. Please perform calculations based on Salesforce data according to the following definitions:
+- Customer Acquisition Cost (CAC) per state = (Total number of sales representatives in the state × 150,000 annual salary) / Number of new customers in the state
+- Average Customer Value per state = A comparative analysis of the mean and median of `annual_revenue`
+- Market Penetration Rate per state = Our number of customers / (State population / 10,000)
+- Sales Efficiency per state = Average won deal amount / Average sales cycle days × Win probability
+- Industry Concentration per state = Sum of the customer share from the top 3 industries
+
+Additionally, you are required to:
+1.  Design a State Competition Intensity Assessment Model (based on average win probability, average deal size, and sales cycle length).
+2.  Construct a State Investment Return Prediction Algorithm (incorporating state GDP, population density, and primary industry types).
+
+Finally, output a ranked list of states by their Investment Efficiency Score and provide a 3-year regional expansion priority recommendation.
+
+DATABASE SCHEMA:
+CREATE TABLE "industry_benchmark_data" (
+"industry_name" TEXT,
+  "avg_deal_size" REAL,
+  "avg_sales_cycle_days" INTEGER,
+  "typical_win_rate" REAL,
+  "customer_lifetime_value_multiplier" REAL,
+  "acquisition_cost_ratio" REAL,
+  "market_growth_rate" REAL,
+  "competitive_density_score" REAL,
+  "tech_adoption_rate" REAL,
+  "regulatory_complexity_score" REAL
+)
+CREATE TABLE "salesforce__account_daily_history" (
+"account_id" TEXT,
+  "snapshot_date" TIMESTAMP,
+  "account_name" TEXT,
+  "account_source" TEXT,
+  "industry" TEXT,
+  "annual_revenue" REAL,
+  "number_of_employees" INTEGER,
+  "owner_id" TEXT,
+  "type" TEXT,
+  "billing_city" TEXT,
+  "billing_state" TEXT,
+  "billing_country" TEXT,
+  "website" TEXT,
+  "rating" TEXT,
+  "ownership" TEXT,
+  "parent_id" TEXT,
+  "last_activity_date" TIMESTAMP
+)
+CREATE TABLE "salesforce__opportunity_enhanced" (
+"account_id" TEXT,
+  "amount" REAL,
+  "campaign_id" TEXT,
+  "close_date" TIMESTAMP,
+  "created_date" TIMESTAMP,
+  "opportunity_description" TEXT,
+  "expected_revenue" REAL,
+  "fiscal" TEXT,
+  "fiscal_quarter" INTEGER,
+  "fiscal_year" INTEGER,
+  "forecast_category" TEXT,
+  "forecast_category_name" TEXT,
+  "has_open_activity" INTEGER,
+  "has_opportunity_line_item" INTEGER,
+  "has_overdue_task" INTEGER,
+  "opportunity_id" TEXT,
+  "is_closed" INTEGER,
+  "is_deleted" INTEGER,
+  "is_won" INTEGER,
+  "last_activity_date" TIMESTAMP,
+  "last_referenced_date" TIMESTAMP,
+  "last_viewed_date" TIMESTAMP,
+  "lead_source" TEXT,
+  "opportunity_name" TEXT,
+  "next_step" TEXT,
+  "owner_id" TEXT,
+  "probability" REAL,
+  "record_type_id" TEXT,
+  "stage_name" TEXT,
+  "synced_quote_id" TEXT,
+  "type" TEXT,
+  "is_created_this_month" INTEGER,
+  "is_created_this_quarter" INTEGER,
+  "days_since_created" INTEGER,
+  "days_to_close" INTEGER,
+  "is_closed_this_month" INTEGER,
+  "is_closed_this_quarter" INTEGER,
+  "account_number" TEXT,
+  "account_source" TEXT,
+  "industry" TEXT,
+  "account_name" TEXT,
+  "number_of_employees" INTEGER,
+  "account_type" TEXT,
+  "opportunity_owner_id" TEXT,
+  "opportunity_owner_name" TEXT,
+  "opportunity_owner_role_id" TEXT,
+  "opportunity_owner_city" TEXT,
+  "opportunity_owner_state" TEXT,
+  "opportunity_manager_id" TEXT,
+  "opportunity_manager_name" TEXT,
+  "opportunity_manager_city" TEXT,
+  "opportunity_manager_state" TEXT,
+  "opportunity_owner_position" TEXT,
+  "opportunity_owner_developer_name" TEXT,
+  "opportunity_owner_parent_role_id" TEXT,
+  "opportunity_owner_rollup_description" TEXT,
+  "status" TEXT,
+  "created_amount_this_month" REAL,
+  "created_amount_this_quarter" REAL,
+  "created_count_this_month" INTEGER,
+  "created_count_this_quarter" INTEGER,
+  "closed_amount_this_month" REAL,
+  "closed_amount_this_quarter" REAL,
+  "closed_count_this_month" INTEGER,
+  "closed_count_this_quarter" INTEGER,
+  "discovery_duration_days" INTEGER,
+  "proposal_duration_days" INTEGER,
+  "negotiation_duration_days" INTEGER,
+  "competitor_identified" TEXT,
+  "decision_maker_engaged" INTEGER,
+  "budget_confirmed" INTEGER
+)
+CREATE TABLE "salesforce__sales_performance_dashboard" (
+"owner_id" TEXT,
+  "rep_name" TEXT,
+  "rep_email" TEXT,
+  "rep_is_active" INTEGER,
+  "rep_role" TEXT,
+  "manager_id" TEXT,
+  "total_revenue_usd" REAL,
+  "pipeline_value_usd" REAL,
+  "weighted_pipeline_value" REAL,
+  "avg_deal_size_usd" REAL,
+  "largest_deal_usd" REAL,
+  "high_fx_risk_revenue" REAL,
+  "avg_fx_impact_coefficient" REAL,
+  "reliable_forecast_deals" INTEGER,
+  "complex_transaction_groups" INTEGER,
+  "avg_deal_complexity" REAL,
+  "hierarchy_weighted_portfolio" REAL,
+  "enterprise_complexity_deals" INTEGER,
+  "multi_stakeholder_deals" INTEGER,
+  "win_rate_pct" REAL,
+  "close_rate_pct" REAL,
+  "avg_sales_cycle_days" REAL,
+  "avg_won_cycle_days" REAL,
+  "strategic_deals" INTEGER,
+  "high_risk_deals" INTEGER,
+  "high_confidence_deals" INTEGER,
+  "opportunities_created_this_month" INTEGER,
+  "opportunities_created_this_quarter" INTEGER,
+  "won_this_month" INTEGER,
+  "won_this_quarter" INTEGER,
+  "revenue_this_month" REAL,
+  "revenue_this_quarter" REAL,
+  "unique_accounts" INTEGER,
+  "enterprise_accounts" INTEGER,
+  "high_value_accounts" INTEGER,
+  "total_opportunities" INTEGER,
+  "won_opportunities" INTEGER,
+  "manager_name" TEXT,
+  "manager_email" TEXT,
+  "team_total_revenue" REAL,
+  "avg_team_win_rate" REAL,
+  "win_rate_performance_tier" TEXT,
+  "revenue_performance_tier" TEXT,
+  "velocity_performance_tier" TEXT,
+  "deal_type_focus" TEXT,
+  "territory_coverage" TEXT,
+  "improvement_recommendation" TEXT,
+  "quarterly_momentum" TEXT
+)
+CREATE TABLE "state_economic_data" (
+"state_name" TEXT,
+  "population" INTEGER,
+  "gdp_billion" REAL,
+  "gdp_per_capita" REAL,
+  "primary_industry" TEXT,
+  "secondary_industry" TEXT,
+  "tertiary_industry" TEXT,
+  "quaternary_industry" TEXT,
+  "market_maturity_score" REAL,
+  "competition_intensity" REAL,
+  "business_friendly_index" REAL,
+  "unemployment_rate" REAL,
+  "corporate_tax_rate" REAL
+)

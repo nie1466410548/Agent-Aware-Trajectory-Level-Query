@@ -1,0 +1,1 @@
+SELECT "Product Name", "Category Name", "Brand Name" FROM product_basic_information_table LIMIT 20

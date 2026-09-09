@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT hiring_manager_user_id) as hm_cnt FROM lever__requisition_enhanced

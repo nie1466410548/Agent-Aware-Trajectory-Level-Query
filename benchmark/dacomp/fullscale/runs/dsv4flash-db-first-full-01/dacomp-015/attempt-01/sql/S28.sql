@@ -1,0 +1,1 @@
+SELECT Featured, COUNT(*) AS cnt, AVG("Watch Count") AS avg_watch, AVG(Showings) AS avg_show FROM data GROUP BY Featured

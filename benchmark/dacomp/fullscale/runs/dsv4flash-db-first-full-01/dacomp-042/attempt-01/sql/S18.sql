@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT o."Treatment reference") FROM treatmentoutcomes o

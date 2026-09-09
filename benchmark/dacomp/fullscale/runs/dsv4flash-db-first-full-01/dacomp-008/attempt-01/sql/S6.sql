@@ -1,0 +1,1 @@
+SELECT DISTINCT "Risk Level" FROM sheet1

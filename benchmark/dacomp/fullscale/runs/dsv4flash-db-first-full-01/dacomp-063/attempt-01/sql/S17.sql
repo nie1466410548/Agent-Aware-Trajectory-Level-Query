@@ -1,0 +1,1 @@
+SELECT DISTINCT project_id FROM jira__project_risk_assessment ORDER BY project_id LIMIT 10

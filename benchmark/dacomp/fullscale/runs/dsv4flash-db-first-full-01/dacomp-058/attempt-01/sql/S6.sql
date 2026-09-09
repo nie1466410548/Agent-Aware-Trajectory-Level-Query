@@ -1,0 +1,1 @@
+SELECT campaign_type, COUNT(*) AS n FROM google_ads__campaign_report GROUP BY campaign_type ORDER BY n DESC

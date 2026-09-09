@@ -1,0 +1,1 @@
+SELECT substr("Date",1,4) AS y, count(*) AS n FROM sheet1 GROUP BY y

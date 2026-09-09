@@ -1,0 +1,1 @@
+SELECT MIN(date_day) AS min_d, MAX(date_day) AS max_d, COUNT(*) AS n FROM google_play__comprehensive_performance_dashboard

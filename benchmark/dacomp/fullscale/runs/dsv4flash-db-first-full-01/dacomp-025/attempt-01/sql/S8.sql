@@ -1,0 +1,1 @@
+SELECT DISTINCT strftime('%Y', "Date") as year FROM purchase_price ORDER BY year

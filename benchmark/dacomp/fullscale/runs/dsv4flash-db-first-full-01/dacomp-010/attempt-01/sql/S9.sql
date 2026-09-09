@@ -1,0 +1,1 @@
+SELECT "Sales Channel", COUNT(*) AS n FROM core_transaction_information GROUP BY "Sales Channel" ORDER BY n DESC

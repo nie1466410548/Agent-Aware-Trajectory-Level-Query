@@ -1,0 +1,771 @@
+{
+  "fingerprint": "773402a05385b1674e4757e85e4a146aee6be4914ec818a88ba6a12f1a5d937e",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S13",
+      "covered": [
+        "S13",
+        "S26"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S13",
+      "later_reuses": 1,
+      "denominator": 36,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id",
+      "covered": [
+        "S22",
+        "S24",
+        "S25",
+        "S27",
+        "S29",
+        "S30",
+        "S31",
+        "S33",
+        "S34",
+        "S35",
+        "S36",
+        "S37",
+        "S38",
+        "S39"
+      ],
+      "rewrites": {
+        "S22": "WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol) SELECT * FROM ordered WHERE rn IN (700, 701, 2100, 2101) OR rn = 2800",
+        "S24": "WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn FROM cust_vol) SELECT vol AS threshold FROM ordered WHERE rn = 700",
+        "S25": "WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25) SELECT COUNT(*) AS n_high_vol FROM high_vol_cust",
+        "S27": "/* Define the past 12 months date range */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol /* High volatility customers (top 25%) */ AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25) /* Get gross_profit data for past 12 months */ SELECT h.customer_id, h.vol, p.gross_profit, p.transaction_date FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id WHERE p.transaction_date >= (SELECT cutoff_date FROM date_range) ORDER BY h.vol DESC, h.customer_id, p.transaction_date LIMIT 20",
+        "S29": "/* Compute coefficient of variation of gross_profit for high-vol customers over past 12 months */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), stats AS (SELECT h.customer_id, h.vol, AVG(p.gross_profit) AS mean_gp, AVG(p.gross_profit * p.gross_profit) - AVG(p.gross_profit) * AVG(p.gross_profit) AS var_gp, COUNT(p.gross_profit) AS n_obs FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, h.vol) SELECT customer_id, vol, mean_gp, CASE WHEN var_gp < 0 THEN 0 ELSE SQRT(var_gp) END AS std_gp, CASE WHEN mean_gp = 0 THEN NULL ELSE CASE WHEN var_gp < 0 THEN 0 ELSE SQRT(var_gp) END / mean_gp END AS cv_gp, n_obs FROM stats ORDER BY vol DESC LIMIT 20",
+        "S30": "/* Monthly gross profit per high-vol customer over past 12 months, then CV */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), monthly AS (SELECT h.customer_id, STRFTIME('%Y-%m', p.transaction_date) AS month, SUM(p.gross_profit) AS monthly_gp FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y-%m', p.transaction_date)), stats AS (SELECT customer_id, AVG(monthly_gp) AS mean_mgp, AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp) AS var_mgp, COUNT(*) AS n_months FROM monthly GROUP BY customer_id) SELECT customer_id, mean_mgp, CASE WHEN var_mgp < 0 THEN 0 ELSE SQRT(var_mgp) END AS std_mgp, CASE WHEN mean_mgp = 0 THEN NULL ELSE CASE WHEN var_mgp < 0 THEN 0 ELSE SQRT(var_mgp) END / ABS(mean_mgp) END AS cv_mgp, n_months FROM stats ORDER BY cv_mgp DESC LIMIT 15",
+        "S31": "/* Overall CV of monthly gross profit for high-volatility customers */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), monthly AS (SELECT h.customer_id, STRFTIME('%Y-%m', p.transaction_date) AS month, SUM(p.gross_profit) AS monthly_gp FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y-%m', p.transaction_date)) SELECT AVG(monthly_gp) AS overall_mean_gp, SQRT(AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp)) AS overall_std_gp, SQRT(AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp)) / ABS(AVG(monthly_gp)) AS overall_cv_gp, COUNT(*) AS total_month_obs, COUNT(DISTINCT customer_id) AS n_customers_with_data FROM monthly",
+        "S33": "/* Compare CV for bottom 25% (low volatility) customers */ WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol ASC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), low_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25) SELECT COUNT(*) AS n_low_vol FROM low_vol_cust",
+        "S34": "/* QoQ invoice_total growth rate for high-vol customers (based on transaction_date quarters) */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), quarterly AS (SELECT h.customer_id, STRFTIME('%Y', p.transaction_date) AS yr, CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER) AS qtr, SUM(p.invoice_total) AS qtr_invoice_total FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y', p.transaction_date), CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER)), qoqs AS (SELECT customer_id, yr, qtr, qtr_invoice_total, LAG(qtr_invoice_total) OVER (PARTITION BY customer_id ORDER BY yr, qtr) AS prev_qtr_total FROM quarterly) SELECT customer_id, yr, qtr, qtr_invoice_total, prev_qtr_total, CASE WHEN NOT prev_qtr_total IS NULL AND prev_qtr_total <> 0 THEN (qtr_invoice_total - prev_qtr_total) / prev_qtr_total ELSE NULL END AS qoq_growth FROM qoqs WHERE NOT prev_qtr_total IS NULL ORDER BY customer_id, yr, qtr LIMIT 30",
+        "S35": "/* Variance of QoQ invoice_total growth rate for high-vol customers */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), quarterly AS (SELECT h.customer_id, STRFTIME('%Y', p.transaction_date) AS yr, CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER) AS qtr, SUM(p.invoice_total) AS qtr_invoice_total FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y', p.transaction_date), CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER)), qoqs AS (SELECT customer_id, yr, qtr, qtr_invoice_total, LAG(qtr_invoice_total) OVER (PARTITION BY customer_id ORDER BY yr, qtr) AS prev_qtr_total FROM quarterly) SELECT AVG(qoq_growth) AS mean_qoq_growth, AVG(qoq_growth * qoq_growth) - AVG(qoq_growth) * AVG(qoq_growth) AS var_qoq_growth, SQRT(AVG(qoq_growth * qoq_growth) - AVG(qoq_growth) * AVG(qoq_growth)) AS std_qoq_growth, COUNT(*) AS n_obs FROM (SELECT customer_id, yr, qtr, qtr_invoice_total, prev_qtr_total, CASE WHEN NOT prev_qtr_total IS NULL AND prev_qtr_total <> 0 THEN (qtr_invoice_total - prev_qtr_total) / prev_qtr_total ELSE NULL END AS qoq_growth FROM qoqs WHERE NOT prev_qtr_total IS NULL) WHERE NOT qoq_growth IS NULL",
+        "S36": "/* Behavioral profile of high-vol customers */ WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), seg AS (SELECT customer_id, vol, CASE WHEN rn <= total * 0.25 THEN 'HighVol' WHEN rn > total * 0.75 THEN 'LowVol' ELSE 'MidVol' END AS vol_segment FROM ordered) SELECT s.vol_segment, a.rfm_segment, COUNT(*) AS n_customers FROM seg AS s JOIN quickbooks__customer_analytics AS a ON s.customer_id = a.customer_id GROUP BY s.vol_segment, a.rfm_segment ORDER BY s.vol_segment, n_customers DESC",
+        "S37": "/* Payment behavior profile by volatility segment */ WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), seg AS (SELECT customer_id, vol, CASE WHEN rn <= total * 0.25 THEN 'HighVol' WHEN rn > total * 0.75 THEN 'LowVol' ELSE 'MidVol' END AS vol_segment FROM ordered) SELECT s.vol_segment, a.payment_behavior, COUNT(*) AS n_customers FROM seg AS s JOIN quickbooks__customer_analytics AS a ON s.customer_id = a.customer_id GROUP BY s.vol_segment, a.payment_behavior ORDER BY s.vol_segment, n_customers DESC",
+        "S38": "/* Lifecycle stage profile by volatility segment */ WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), seg AS (SELECT customer_id, vol, CASE WHEN rn <= total * 0.25 THEN 'HighVol' WHEN rn > total * 0.75 THEN 'LowVol' ELSE 'MidVol' END AS vol_segment FROM ordered) SELECT s.vol_segment, a.lifecycle_stage, COUNT(*) AS n_customers FROM seg AS s JOIN quickbooks__customer_analytics AS a ON s.customer_id = a.customer_id GROUP BY s.vol_segment, a.lifecycle_stage ORDER BY s.vol_segment, n_customers DESC",
+        "S39": "/* Revenue trend correlation and other continuous behavioral features by segment */ WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), seg AS (SELECT customer_id, vol, CASE WHEN rn <= total * 0.25 THEN 'HighVol' WHEN rn > total * 0.75 THEN 'LowVol' ELSE 'MidVol' END AS vol_segment FROM ordered) SELECT s.vol_segment, COUNT(*) AS n, AVG(a.revenue_trend_correlation) AS avg_trend_corr, AVG(a.credit_score) AS avg_credit_score, AVG(a.avg_payment_days_12m) AS avg_payment_days, AVG(a.overdue_count_12m) AS avg_overdue_count, AVG(a.overall_customer_score) AS avg_overall_score, AVG(a.revenue_volatility) AS avg_rev_volatility FROM seg AS s JOIN quickbooks__customer_analytics AS a ON s.customer_id = a.customer_id GROUP BY s.vol_segment ORDER BY s.vol_segment"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S22",
+      "later_reuses": 13,
+      "denominator": 36,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788870330.2289813,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id",
+          "phase": "offline_validation",
+          "start_time": 1788870330.229228,
+          "status": "execute_returned",
+          "end_time": 1788870330.2349815
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870330.2349865,
+          "status": "execute_returned",
+          "end_time": 1788870330.2350085
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788870330.2350137,
+          "status": "execute_returned",
+          "end_time": 1788870330.2350252
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol) SELECT * FROM ordered WHERE rn IN (700, 701, 2100, 2101) OR rn = 2800",
+          "phase": "offline_validation",
+          "start_time": 1788870330.2350333,
+          "status": "execute_returned",
+          "end_time": 1788870330.2381184
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn FROM cust_vol) SELECT vol AS threshold FROM ordered WHERE rn = 700",
+          "phase": "offline_validation",
+          "start_time": 1788870330.2413635,
+          "status": "execute_returned",
+          "end_time": 1788870330.2429698
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25) SELECT COUNT(*) AS n_high_vol FROM high_vol_cust",
+          "phase": "offline_validation",
+          "start_time": 1788870330.2454448,
+          "status": "execute_returned",
+          "end_time": 1788870330.2500489
+        },
+        {
+          "sequence": 7,
+          "sql": "/* Define the past 12 months date range */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol /* High volatility customers (top 25%) */ AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25) /* Get gross_profit data for past 12 months */ SELECT h.customer_id, h.vol, p.gross_profit, p.transaction_date FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id WHERE p.transaction_date >= (SELECT cutoff_date FROM date_range) ORDER BY h.vol DESC, h.customer_id, p.transaction_date LIMIT 20",
+          "phase": "offline_validation",
+          "start_time": 1788870330.2515082,
+          "status": "execute_returned",
+          "end_time": 1788870330.2619417
+        },
+        {
+          "sequence": 8,
+          "sql": "/* Compute coefficient of variation of gross_profit for high-vol customers over past 12 months */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), stats AS (SELECT h.customer_id, h.vol, AVG(p.gross_profit) AS mean_gp, AVG(p.gross_profit * p.gross_profit) - AVG(p.gross_profit) * AVG(p.gross_profit) AS var_gp, COUNT(p.gross_profit) AS n_obs FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, h.vol) SELECT customer_id, vol, mean_gp, CASE WHEN var_gp < 0 THEN 0 ELSE SQRT(var_gp) END AS std_gp, CASE WHEN mean_gp = 0 THEN NULL ELSE CASE WHEN var_gp < 0 THEN 0 ELSE SQRT(var_gp) END / mean_gp END AS cv_gp, n_obs FROM stats ORDER BY vol DESC LIMIT 20",
+          "phase": "offline_validation",
+          "start_time": 1788870330.2646108,
+          "status": "execute_returned",
+          "end_time": 1788870330.2755268
+        },
+        {
+          "sequence": 9,
+          "sql": "/* Monthly gross profit per high-vol customer over past 12 months, then CV */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), monthly AS (SELECT h.customer_id, STRFTIME('%Y-%m', p.transaction_date) AS month, SUM(p.gross_profit) AS monthly_gp FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y-%m', p.transaction_date)), stats AS (SELECT customer_id, AVG(monthly_gp) AS mean_mgp, AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp) AS var_mgp, COUNT(*) AS n_months FROM monthly GROUP BY customer_id) SELECT customer_id, mean_mgp, CASE WHEN var_mgp < 0 THEN 0 ELSE SQRT(var_mgp) END AS std_mgp, CASE WHEN mean_mgp = 0 THEN NULL ELSE CASE WHEN var_mgp < 0 THEN 0 ELSE SQRT(var_mgp) END / ABS(mean_mgp) END AS cv_mgp, n_months FROM stats ORDER BY cv_mgp DESC LIMIT 15",
+          "phase": "offline_validation",
+          "start_time": 1788870330.279376,
+          "status": "execute_returned",
+          "end_time": 1788870330.2916343
+        },
+        {
+          "sequence": 10,
+          "sql": "/* Overall CV of monthly gross profit for high-volatility customers */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), monthly AS (SELECT h.customer_id, STRFTIME('%Y-%m', p.transaction_date) AS month, SUM(p.gross_profit) AS monthly_gp FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y-%m', p.transaction_date)) SELECT AVG(monthly_gp) AS overall_mean_gp, SQRT(AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp)) AS overall_std_gp, SQRT(AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp)) / ABS(AVG(monthly_gp)) AS overall_cv_gp, COUNT(*) AS total_month_obs, COUNT(DISTINCT customer_id) AS n_customers_with_data FROM monthly",
+          "phase": "offline_validation",
+          "start_time": 1788870330.2958117,
+          "status": "execute_returned",
+          "end_time": 1788870330.3077805
+        },
+        {
+          "sequence": 11,
+          "sql": "/* Compare CV for bottom 25% (low volatility) customers */ WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol ASC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), low_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25) SELECT COUNT(*) AS n_low_vol FROM low_vol_cust",
+          "phase": "offline_validation",
+          "start_time": 1788870330.311514,
+          "status": "execute_returned",
+          "end_time": 1788870330.3161397
+        },
+        {
+          "sequence": 12,
+          "sql": "/* QoQ invoice_total growth rate for high-vol customers (based on transaction_date quarters) */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), quarterly AS (SELECT h.customer_id, STRFTIME('%Y', p.transaction_date) AS yr, CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER) AS qtr, SUM(p.invoice_total) AS qtr_invoice_total FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y', p.transaction_date), CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER)), qoqs AS (SELECT customer_id, yr, qtr, qtr_invoice_total, LAG(qtr_invoice_total) OVER (PARTITION BY customer_id ORDER BY yr, qtr) AS prev_qtr_total FROM quarterly) SELECT customer_id, yr, qtr, qtr_invoice_total, prev_qtr_total, CASE WHEN NOT prev_qtr_total IS NULL AND prev_qtr_total <> 0 THEN (qtr_invoice_total - prev_qtr_total) / prev_qtr_total ELSE NULL END AS qoq_growth FROM qoqs WHERE NOT prev_qtr_total IS NULL ORDER BY customer_id, yr, qtr LIMIT 30",
+          "phase": "offline_validation",
+          "start_time": 1788870330.3176408,
+          "status": "execute_returned",
+          "end_time": 1788870330.3323627
+        },
+        {
+          "sequence": 13,
+          "sql": "/* Variance of QoQ invoice_total growth rate for high-vol customers */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), quarterly AS (SELECT h.customer_id, STRFTIME('%Y', p.transaction_date) AS yr, CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER) AS qtr, SUM(p.invoice_total) AS qtr_invoice_total FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y', p.transaction_date), CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER)), qoqs AS (SELECT customer_id, yr, qtr, qtr_invoice_total, LAG(qtr_invoice_total) OVER (PARTITION BY customer_id ORDER BY yr, qtr) AS prev_qtr_total FROM quarterly) SELECT AVG(qoq_growth) AS mean_qoq_growth, AVG(qoq_growth * qoq_growth) - AVG(qoq_growth) * AVG(qoq_growth) AS var_qoq_growth, SQRT(AVG(qoq_growth * qoq_growth) - AVG(qoq_growth) * AVG(qoq_growth)) AS std_qoq_growth, COUNT(*) AS n_obs FROM (SELECT customer_id, yr, qtr, qtr_invoice_total, prev_qtr_total, CASE WHEN NOT prev_qtr_total IS NULL AND prev_qtr_total <> 0 THEN (qtr_invoice_total - prev_qtr_total) / prev_qtr_total ELSE NULL END AS qoq_growth FROM qoqs WHERE NOT prev_qtr_total IS NULL) WHERE NOT qoq_growth IS NULL",
+          "phase": "offline_validation",
+          "start_time": 1788870330.3379958,
+          "status": "execute_returned",
+          "end_time": 1788870330.3529956
+        },
+        {
+          "sequence": 14,
+          "sql": "/* Behavioral profile of high-vol customers */ WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), seg AS (SELECT customer_id, vol, CASE WHEN rn <= total * 0.25 THEN 'HighVol' WHEN rn > total * 0.75 THEN 'LowVol' ELSE 'MidVol' END AS vol_segment FROM ordered) SELECT s.vol_segment, a.rfm_segment, COUNT(*) AS n_customers FROM seg AS s JOIN quickbooks__customer_analytics AS a ON s.customer_id = a.customer_id GROUP BY s.vol_segment, a.rfm_segment ORDER BY s.vol_segment, n_customers DESC",
+          "phase": "offline_validation",
+          "start_time": 1788870330.3583705,
+          "status": "execute_returned",
+          "end_time": 1788870330.3691716
+        },
+        {
+          "sequence": 15,
+          "sql": "/* Payment behavior profile by volatility segment */ WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), seg AS (SELECT customer_id, vol, CASE WHEN rn <= total * 0.25 THEN 'HighVol' WHEN rn > total * 0.75 THEN 'LowVol' ELSE 'MidVol' END AS vol_segment FROM ordered) SELECT s.vol_segment, a.payment_behavior, COUNT(*) AS n_customers FROM seg AS s JOIN quickbooks__customer_analytics AS a ON s.customer_id = a.customer_id GROUP BY s.vol_segment, a.payment_behavior ORDER BY s.vol_segment, n_customers DESC",
+          "phase": "offline_validation",
+          "start_time": 1788870330.371334,
+          "status": "execute_returned",
+          "end_time": 1788870330.381953
+        },
+        {
+          "sequence": 16,
+          "sql": "/* Lifecycle stage profile by volatility segment */ WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), seg AS (SELECT customer_id, vol, CASE WHEN rn <= total * 0.25 THEN 'HighVol' WHEN rn > total * 0.75 THEN 'LowVol' ELSE 'MidVol' END AS vol_segment FROM ordered) SELECT s.vol_segment, a.lifecycle_stage, COUNT(*) AS n_customers FROM seg AS s JOIN quickbooks__customer_analytics AS a ON s.customer_id = a.customer_id GROUP BY s.vol_segment, a.lifecycle_stage ORDER BY s.vol_segment, n_customers DESC",
+          "phase": "offline_validation",
+          "start_time": 1788870330.384311,
+          "status": "execute_returned",
+          "end_time": 1788870330.3948977
+        },
+        {
+          "sequence": 17,
+          "sql": "/* Revenue trend correlation and other continuous behavioral features by segment */ WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), seg AS (SELECT customer_id, vol, CASE WHEN rn <= total * 0.25 THEN 'HighVol' WHEN rn > total * 0.75 THEN 'LowVol' ELSE 'MidVol' END AS vol_segment FROM ordered) SELECT s.vol_segment, COUNT(*) AS n, AVG(a.revenue_trend_correlation) AS avg_trend_corr, AVG(a.credit_score) AS avg_credit_score, AVG(a.avg_payment_days_12m) AS avg_payment_days, AVG(a.overdue_count_12m) AS avg_overdue_count, AVG(a.overall_customer_score) AS avg_overall_score, AVG(a.revenue_volatility) AS avg_rev_volatility FROM seg AS s JOIN quickbooks__customer_analytics AS a ON s.customer_id = a.customer_id GROUP BY s.vol_segment ORDER BY s.vol_segment",
+          "phase": "offline_validation",
+          "start_time": 1788870330.3970366,
+          "status": "execute_returned",
+          "end_time": 1788870330.4073727
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id",
+          "time": 1788870330.229544,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788870330.2350032,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788870330.2350225,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol) SELECT * FROM ordered WHERE rn IN (700, 701, 2100, 2101) OR rn = 2800",
+          "time": 1788870330.2351046,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn FROM cust_vol) SELECT vol AS threshold FROM ordered WHERE rn = 700",
+          "time": 1788870330.241417,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25) SELECT COUNT(*) AS n_high_vol FROM high_vol_cust",
+          "time": 1788870330.2455258,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Define the past 12 months date range */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol /* High volatility customers (top 25%) */ AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25) /* Get gross_profit data for past 12 months */ SELECT h.customer_id, h.vol, p.gross_profit, p.transaction_date FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id WHERE p.transaction_date >= (SELECT cutoff_date FROM date_range) ORDER BY h.vol DESC, h.customer_id, p.transaction_date LIMIT 20",
+          "time": 1788870330.251653,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Compute coefficient of variation of gross_profit for high-vol customers over past 12 months */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), stats AS (SELECT h.customer_id, h.vol, AVG(p.gross_profit) AS mean_gp, AVG(p.gross_profit * p.gross_profit) - AVG(p.gross_profit) * AVG(p.gross_profit) AS var_gp, COUNT(p.gross_profit) AS n_obs FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, h.vol) SELECT customer_id, vol, mean_gp, CASE WHEN var_gp < 0 THEN 0 ELSE SQRT(var_gp) END AS std_gp, CASE WHEN mean_gp = 0 THEN NULL ELSE CASE WHEN var_gp < 0 THEN 0 ELSE SQRT(var_gp) END / mean_gp END AS cv_gp, n_obs FROM stats ORDER BY vol DESC LIMIT 20",
+          "time": 1788870330.2648413,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Monthly gross profit per high-vol customer over past 12 months, then CV */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), monthly AS (SELECT h.customer_id, STRFTIME('%Y-%m', p.transaction_date) AS month, SUM(p.gross_profit) AS monthly_gp FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y-%m', p.transaction_date)), stats AS (SELECT customer_id, AVG(monthly_gp) AS mean_mgp, AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp) AS var_mgp, COUNT(*) AS n_months FROM monthly GROUP BY customer_id) SELECT customer_id, mean_mgp, CASE WHEN var_mgp < 0 THEN 0 ELSE SQRT(var_mgp) END AS std_mgp, CASE WHEN mean_mgp = 0 THEN NULL ELSE CASE WHEN var_mgp < 0 THEN 0 ELSE SQRT(var_mgp) END / ABS(mean_mgp) END AS cv_mgp, n_months FROM stats ORDER BY cv_mgp DESC LIMIT 15",
+          "time": 1788870330.2796156,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Overall CV of monthly gross profit for high-volatility customers */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), monthly AS (SELECT h.customer_id, STRFTIME('%Y-%m', p.transaction_date) AS month, SUM(p.gross_profit) AS monthly_gp FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y-%m', p.transaction_date)) SELECT AVG(monthly_gp) AS overall_mean_gp, SQRT(AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp)) AS overall_std_gp, SQRT(AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp)) / ABS(AVG(monthly_gp)) AS overall_cv_gp, COUNT(*) AS total_month_obs, COUNT(DISTINCT customer_id) AS n_customers_with_data FROM monthly",
+          "time": 1788870330.296024,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Compare CV for bottom 25% (low volatility) customers */ WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol ASC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), low_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25) SELECT COUNT(*) AS n_low_vol FROM low_vol_cust",
+          "time": 1788870330.3116057,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* QoQ invoice_total growth rate for high-vol customers (based on transaction_date quarters) */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), quarterly AS (SELECT h.customer_id, STRFTIME('%Y', p.transaction_date) AS yr, CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER) AS qtr, SUM(p.invoice_total) AS qtr_invoice_total FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y', p.transaction_date), CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER)), qoqs AS (SELECT customer_id, yr, qtr, qtr_invoice_total, LAG(qtr_invoice_total) OVER (PARTITION BY customer_id ORDER BY yr, qtr) AS prev_qtr_total FROM quarterly) SELECT customer_id, yr, qtr, qtr_invoice_total, prev_qtr_total, CASE WHEN NOT prev_qtr_total IS NULL AND prev_qtr_total <> 0 THEN (qtr_invoice_total - prev_qtr_total) / prev_qtr_total ELSE NULL END AS qoq_growth FROM qoqs WHERE NOT prev_qtr_total IS NULL ORDER BY customer_id, yr, qtr LIMIT 30",
+          "time": 1788870330.3179111,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Variance of QoQ invoice_total growth rate for high-vol customers */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), quarterly AS (SELECT h.customer_id, STRFTIME('%Y', p.transaction_date) AS yr, CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER) AS qtr, SUM(p.invoice_total) AS qtr_invoice_total FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y', p.transaction_date), CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER)), qoqs AS (SELECT customer_id, yr, qtr, qtr_invoice_total, LAG(qtr_invoice_total) OVER (PARTITION BY customer_id ORDER BY yr, qtr) AS prev_qtr_total FROM quarterly) SELECT AVG(qoq_growth) AS mean_qoq_growth, AVG(qoq_growth * qoq_growth) - AVG(qoq_growth) * AVG(qoq_growth) AS var_qoq_growth, SQRT(AVG(qoq_growth * qoq_growth) - AVG(qoq_growth) * AVG(qoq_growth)) AS std_qoq_growth, COUNT(*) AS n_obs FROM (SELECT customer_id, yr, qtr, qtr_invoice_total, prev_qtr_total, CASE WHEN NOT prev_qtr_total IS NULL AND prev_qtr_total <> 0 THEN (qtr_invoice_total - prev_qtr_total) / prev_qtr_total ELSE NULL END AS qoq_growth FROM qoqs WHERE NOT prev_qtr_total IS NULL) WHERE NOT qoq_growth IS NULL",
+          "time": 1788870330.3383517,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Behavioral profile of high-vol customers */ WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), seg AS (SELECT customer_id, vol, CASE WHEN rn <= total * 0.25 THEN 'HighVol' WHEN rn > total * 0.75 THEN 'LowVol' ELSE 'MidVol' END AS vol_segment FROM ordered) SELECT s.vol_segment, a.rfm_segment, COUNT(*) AS n_customers FROM seg AS s JOIN quickbooks__customer_analytics AS a ON s.customer_id = a.customer_id GROUP BY s.vol_segment, a.rfm_segment ORDER BY s.vol_segment, n_customers DESC",
+          "time": 1788870330.3585181,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Payment behavior profile by volatility segment */ WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), seg AS (SELECT customer_id, vol, CASE WHEN rn <= total * 0.25 THEN 'HighVol' WHEN rn > total * 0.75 THEN 'LowVol' ELSE 'MidVol' END AS vol_segment FROM ordered) SELECT s.vol_segment, a.payment_behavior, COUNT(*) AS n_customers FROM seg AS s JOIN quickbooks__customer_analytics AS a ON s.customer_id = a.customer_id GROUP BY s.vol_segment, a.payment_behavior ORDER BY s.vol_segment, n_customers DESC",
+          "time": 1788870330.3714786,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Lifecycle stage profile by volatility segment */ WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), seg AS (SELECT customer_id, vol, CASE WHEN rn <= total * 0.25 THEN 'HighVol' WHEN rn > total * 0.75 THEN 'LowVol' ELSE 'MidVol' END AS vol_segment FROM ordered) SELECT s.vol_segment, a.lifecycle_stage, COUNT(*) AS n_customers FROM seg AS s JOIN quickbooks__customer_analytics AS a ON s.customer_id = a.customer_id GROUP BY s.vol_segment, a.lifecycle_stage ORDER BY s.vol_segment, n_customers DESC",
+          "time": 1788870330.384458,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Revenue trend correlation and other continuous behavioral features by segment */ WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), seg AS (SELECT customer_id, vol, CASE WHEN rn <= total * 0.25 THEN 'HighVol' WHEN rn > total * 0.75 THEN 'LowVol' ELSE 'MidVol' END AS vol_segment FROM ordered) SELECT s.vol_segment, COUNT(*) AS n, AVG(a.revenue_trend_correlation) AS avg_trend_corr, AVG(a.credit_score) AS avg_credit_score, AVG(a.avg_payment_days_12m) AS avg_payment_days, AVG(a.overdue_count_12m) AS avg_overdue_count, AVG(a.overall_customer_score) AS avg_overall_score, AVG(a.revenue_volatility) AS avg_rev_volatility FROM seg AS s JOIN quickbooks__customer_analytics AS a ON s.customer_id = a.customer_id GROUP BY s.vol_segment ORDER BY s.vol_segment",
+          "time": 1788870330.3972046,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 5.757085978984833,
+      "intermediate_rows": 2800,
+      "intermediate_columns": [
+        "customer_id",
+        "vol"
+      ],
+      "validation_ended_at": 1788870330.410936,
+      "checks": [
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol) SELECT * FROM ordered WHERE rn IN (700, 701, 2100, 2101) OR rn = 2800",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 6.327416747808456
+        },
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn FROM cust_vol) SELECT vol AS threshold FROM ordered WHERE rn = 700",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 4.079295322299004
+        },
+        {
+          "sql_id": "S25",
+          "rewritten_sql": "WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25) SELECT COUNT(*) AS n_high_vol FROM high_vol_cust",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 6.06133509427309
+        },
+        {
+          "sql_id": "S27",
+          "rewritten_sql": "/* Define the past 12 months date range */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol /* High volatility customers (top 25%) */ AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25) /* Get gross_profit data for past 12 months */ SELECT h.customer_id, h.vol, p.gross_profit, p.transaction_date FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id WHERE p.transaction_date >= (SELECT cutoff_date FROM date_range) ORDER BY h.vol DESC, h.customer_id, p.transaction_date LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 13.100205920636654
+        },
+        {
+          "sql_id": "S29",
+          "rewritten_sql": "/* Compute coefficient of variation of gross_profit for high-vol customers over past 12 months */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), stats AS (SELECT h.customer_id, h.vol, AVG(p.gross_profit) AS mean_gp, AVG(p.gross_profit * p.gross_profit) - AVG(p.gross_profit) * AVG(p.gross_profit) AS var_gp, COUNT(p.gross_profit) AS n_obs FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, h.vol) SELECT customer_id, vol, mean_gp, CASE WHEN var_gp < 0 THEN 0 ELSE SQRT(var_gp) END AS std_gp, CASE WHEN mean_gp = 0 THEN NULL ELSE CASE WHEN var_gp < 0 THEN 0 ELSE SQRT(var_gp) END / mean_gp END AS cv_gp, n_obs FROM stats ORDER BY vol DESC LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 14.762640930712223
+        },
+        {
+          "sql_id": "S30",
+          "rewritten_sql": "/* Monthly gross profit per high-vol customer over past 12 months, then CV */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), monthly AS (SELECT h.customer_id, STRFTIME('%Y-%m', p.transaction_date) AS month, SUM(p.gross_profit) AS monthly_gp FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y-%m', p.transaction_date)), stats AS (SELECT customer_id, AVG(monthly_gp) AS mean_mgp, AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp) AS var_mgp, COUNT(*) AS n_months FROM monthly GROUP BY customer_id) SELECT customer_id, mean_mgp, CASE WHEN var_mgp < 0 THEN 0 ELSE SQRT(var_mgp) END AS std_mgp, CASE WHEN mean_mgp = 0 THEN NULL ELSE CASE WHEN var_mgp < 0 THEN 0 ELSE SQRT(var_mgp) END / ABS(mean_mgp) END AS cv_mgp, n_months FROM stats ORDER BY cv_mgp DESC LIMIT 15",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 16.432938165962696
+        },
+        {
+          "sql_id": "S31",
+          "rewritten_sql": "/* Overall CV of monthly gross profit for high-volatility customers */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), monthly AS (SELECT h.customer_id, STRFTIME('%Y-%m', p.transaction_date) AS month, SUM(p.gross_profit) AS monthly_gp FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y-%m', p.transaction_date)) SELECT AVG(monthly_gp) AS overall_mean_gp, SQRT(AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp)) AS overall_std_gp, SQRT(AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp)) / ABS(AVG(monthly_gp)) AS overall_cv_gp, COUNT(*) AS total_month_obs, COUNT(DISTINCT customer_id) AS n_customers_with_data FROM monthly",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 15.699923038482666
+        },
+        {
+          "sql_id": "S33",
+          "rewritten_sql": "/* Compare CV for bottom 25% (low volatility) customers */ WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol ASC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), low_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25) SELECT COUNT(*) AS n_low_vol FROM low_vol_cust",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 6.124486215412617
+        },
+        {
+          "sql_id": "S34",
+          "rewritten_sql": "/* QoQ invoice_total growth rate for high-vol customers (based on transaction_date quarters) */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), quarterly AS (SELECT h.customer_id, STRFTIME('%Y', p.transaction_date) AS yr, CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER) AS qtr, SUM(p.invoice_total) AS qtr_invoice_total FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y', p.transaction_date), CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER)), qoqs AS (SELECT customer_id, yr, qtr, qtr_invoice_total, LAG(qtr_invoice_total) OVER (PARTITION BY customer_id ORDER BY yr, qtr) AS prev_qtr_total FROM quarterly) SELECT customer_id, yr, qtr, qtr_invoice_total, prev_qtr_total, CASE WHEN NOT prev_qtr_total IS NULL AND prev_qtr_total <> 0 THEN (qtr_invoice_total - prev_qtr_total) / prev_qtr_total ELSE NULL END AS qoq_growth FROM qoqs WHERE NOT prev_qtr_total IS NULL ORDER BY customer_id, yr, qtr LIMIT 30",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 20.352394320070744
+        },
+        {
+          "sql_id": "S35",
+          "rewritten_sql": "/* Variance of QoQ invoice_total growth rate for high-vol customers */ WITH date_range AS (SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis), cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), quarterly AS (SELECT h.customer_id, STRFTIME('%Y', p.transaction_date) AS yr, CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER) AS qtr, SUM(p.invoice_total) AS qtr_invoice_total FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y', p.transaction_date), CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER)), qoqs AS (SELECT customer_id, yr, qtr, qtr_invoice_total, LAG(qtr_invoice_total) OVER (PARTITION BY customer_id ORDER BY yr, qtr) AS prev_qtr_total FROM quarterly) SELECT AVG(qoq_growth) AS mean_qoq_growth, AVG(qoq_growth * qoq_growth) - AVG(qoq_growth) * AVG(qoq_growth) AS var_qoq_growth, SQRT(AVG(qoq_growth * qoq_growth) - AVG(qoq_growth) * AVG(qoq_growth)) AS std_qoq_growth, COUNT(*) AS n_obs FROM (SELECT customer_id, yr, qtr, qtr_invoice_total, prev_qtr_total, CASE WHEN NOT prev_qtr_total IS NULL AND prev_qtr_total <> 0 THEN (qtr_invoice_total - prev_qtr_total) / prev_qtr_total ELSE NULL END AS qoq_growth FROM qoqs WHERE NOT prev_qtr_total IS NULL) WHERE NOT qoq_growth IS NULL",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 20.37213183939457
+        },
+        {
+          "sql_id": "S36",
+          "rewritten_sql": "/* Behavioral profile of high-vol customers */ WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), seg AS (SELECT customer_id, vol, CASE WHEN rn <= total * 0.25 THEN 'HighVol' WHEN rn > total * 0.75 THEN 'LowVol' ELSE 'MidVol' END AS vol_segment FROM ordered) SELECT s.vol_segment, a.rfm_segment, COUNT(*) AS n_customers FROM seg AS s JOIN quickbooks__customer_analytics AS a ON s.customer_id = a.customer_id GROUP BY s.vol_segment, a.rfm_segment ORDER BY s.vol_segment, n_customers DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 12.961038388311863
+        },
+        {
+          "sql_id": "S37",
+          "rewritten_sql": "/* Payment behavior profile by volatility segment */ WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), seg AS (SELECT customer_id, vol, CASE WHEN rn <= total * 0.25 THEN 'HighVol' WHEN rn > total * 0.75 THEN 'LowVol' ELSE 'MidVol' END AS vol_segment FROM ordered) SELECT s.vol_segment, a.payment_behavior, COUNT(*) AS n_customers FROM seg AS s JOIN quickbooks__customer_analytics AS a ON s.customer_id = a.customer_id GROUP BY s.vol_segment, a.payment_behavior ORDER BY s.vol_segment, n_customers DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 12.973973527550697
+        },
+        {
+          "sql_id": "S38",
+          "rewritten_sql": "/* Lifecycle stage profile by volatility segment */ WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), seg AS (SELECT customer_id, vol, CASE WHEN rn <= total * 0.25 THEN 'HighVol' WHEN rn > total * 0.75 THEN 'LowVol' ELSE 'MidVol' END AS vol_segment FROM ordered) SELECT s.vol_segment, a.lifecycle_stage, COUNT(*) AS n_customers FROM seg AS s JOIN quickbooks__customer_analytics AS a ON s.customer_id = a.customer_id GROUP BY s.vol_segment, a.lifecycle_stage ORDER BY s.vol_segment, n_customers DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 12.72266823798418
+        },
+        {
+          "sql_id": "S39",
+          "rewritten_sql": "/* Revenue trend correlation and other continuous behavioral features by segment */ WITH cust_vol AS (SELECT * FROM temp.reuse_candidate), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), seg AS (SELECT customer_id, vol, CASE WHEN rn <= total * 0.25 THEN 'HighVol' WHEN rn > total * 0.75 THEN 'LowVol' ELSE 'MidVol' END AS vol_segment FROM ordered) SELECT s.vol_segment, COUNT(*) AS n, AVG(a.revenue_trend_correlation) AS avg_trend_corr, AVG(a.credit_score) AS avg_credit_score, AVG(a.avg_payment_days_12m) AS avg_payment_days, AVG(a.overdue_count_12m) AS avg_overdue_count, AVG(a.overall_customer_score) AS avg_overall_score, AVG(a.revenue_volatility) AS avg_rev_volatility FROM seg AS s JOIN quickbooks__customer_analytics AS a ON s.customer_id = a.customer_id GROUP BY s.vol_segment ORDER BY s.vol_segment",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 13.725876808166504
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis",
+      "covered": [
+        "S27",
+        "S29",
+        "S30",
+        "S31",
+        "S34",
+        "S35"
+      ],
+      "rewrites": {
+        "S27": "/* Define the past 12 months date range */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol /* High volatility customers (top 25%) */ AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25) /* Get gross_profit data for past 12 months */ SELECT h.customer_id, h.vol, p.gross_profit, p.transaction_date FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id WHERE p.transaction_date >= (SELECT cutoff_date FROM date_range) ORDER BY h.vol DESC, h.customer_id, p.transaction_date LIMIT 20",
+        "S29": "/* Compute coefficient of variation of gross_profit for high-vol customers over past 12 months */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), stats AS (SELECT h.customer_id, h.vol, AVG(p.gross_profit) AS mean_gp, AVG(p.gross_profit * p.gross_profit) - AVG(p.gross_profit) * AVG(p.gross_profit) AS var_gp, COUNT(p.gross_profit) AS n_obs FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, h.vol) SELECT customer_id, vol, mean_gp, CASE WHEN var_gp < 0 THEN 0 ELSE SQRT(var_gp) END AS std_gp, CASE WHEN mean_gp = 0 THEN NULL ELSE CASE WHEN var_gp < 0 THEN 0 ELSE SQRT(var_gp) END / mean_gp END AS cv_gp, n_obs FROM stats ORDER BY vol DESC LIMIT 20",
+        "S30": "/* Monthly gross profit per high-vol customer over past 12 months, then CV */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), monthly AS (SELECT h.customer_id, STRFTIME('%Y-%m', p.transaction_date) AS month, SUM(p.gross_profit) AS monthly_gp FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y-%m', p.transaction_date)), stats AS (SELECT customer_id, AVG(monthly_gp) AS mean_mgp, AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp) AS var_mgp, COUNT(*) AS n_months FROM monthly GROUP BY customer_id) SELECT customer_id, mean_mgp, CASE WHEN var_mgp < 0 THEN 0 ELSE SQRT(var_mgp) END AS std_mgp, CASE WHEN mean_mgp = 0 THEN NULL ELSE CASE WHEN var_mgp < 0 THEN 0 ELSE SQRT(var_mgp) END / ABS(mean_mgp) END AS cv_mgp, n_months FROM stats ORDER BY cv_mgp DESC LIMIT 15",
+        "S31": "/* Overall CV of monthly gross profit for high-volatility customers */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), monthly AS (SELECT h.customer_id, STRFTIME('%Y-%m', p.transaction_date) AS month, SUM(p.gross_profit) AS monthly_gp FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y-%m', p.transaction_date)) SELECT AVG(monthly_gp) AS overall_mean_gp, SQRT(AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp)) AS overall_std_gp, SQRT(AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp)) / ABS(AVG(monthly_gp)) AS overall_cv_gp, COUNT(*) AS total_month_obs, COUNT(DISTINCT customer_id) AS n_customers_with_data FROM monthly",
+        "S34": "/* QoQ invoice_total growth rate for high-vol customers (based on transaction_date quarters) */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), quarterly AS (SELECT h.customer_id, STRFTIME('%Y', p.transaction_date) AS yr, CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER) AS qtr, SUM(p.invoice_total) AS qtr_invoice_total FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y', p.transaction_date), CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER)), qoqs AS (SELECT customer_id, yr, qtr, qtr_invoice_total, LAG(qtr_invoice_total) OVER (PARTITION BY customer_id ORDER BY yr, qtr) AS prev_qtr_total FROM quarterly) SELECT customer_id, yr, qtr, qtr_invoice_total, prev_qtr_total, CASE WHEN NOT prev_qtr_total IS NULL AND prev_qtr_total <> 0 THEN (qtr_invoice_total - prev_qtr_total) / prev_qtr_total ELSE NULL END AS qoq_growth FROM qoqs WHERE NOT prev_qtr_total IS NULL ORDER BY customer_id, yr, qtr LIMIT 30",
+        "S35": "/* Variance of QoQ invoice_total growth rate for high-vol customers */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), quarterly AS (SELECT h.customer_id, STRFTIME('%Y', p.transaction_date) AS yr, CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER) AS qtr, SUM(p.invoice_total) AS qtr_invoice_total FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y', p.transaction_date), CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER)), qoqs AS (SELECT customer_id, yr, qtr, qtr_invoice_total, LAG(qtr_invoice_total) OVER (PARTITION BY customer_id ORDER BY yr, qtr) AS prev_qtr_total FROM quarterly) SELECT AVG(qoq_growth) AS mean_qoq_growth, AVG(qoq_growth * qoq_growth) - AVG(qoq_growth) * AVG(qoq_growth) AS var_qoq_growth, SQRT(AVG(qoq_growth * qoq_growth) - AVG(qoq_growth) * AVG(qoq_growth)) AS std_qoq_growth, COUNT(*) AS n_obs FROM (SELECT customer_id, yr, qtr, qtr_invoice_total, prev_qtr_total, CASE WHEN NOT prev_qtr_total IS NULL AND prev_qtr_total <> 0 THEN (qtr_invoice_total - prev_qtr_total) / prev_qtr_total ELSE NULL END AS qoq_growth FROM qoqs WHERE NOT prev_qtr_total IS NULL) WHERE NOT qoq_growth IS NULL"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S27",
+      "later_reuses": 5,
+      "denominator": 36,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788870330.4109602,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis",
+          "phase": "offline_validation",
+          "start_time": 1788870330.411179,
+          "status": "execute_returned",
+          "end_time": 1788870330.4127321
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870330.4127362,
+          "status": "execute_returned",
+          "end_time": 1788870330.4127529
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788870330.4127567,
+          "status": "execute_returned",
+          "end_time": 1788870330.412767
+        },
+        {
+          "sequence": 4,
+          "sql": "/* Define the past 12 months date range */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol /* High volatility customers (top 25%) */ AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25) /* Get gross_profit data for past 12 months */ SELECT h.customer_id, h.vol, p.gross_profit, p.transaction_date FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id WHERE p.transaction_date >= (SELECT cutoff_date FROM date_range) ORDER BY h.vol DESC, h.customer_id, p.transaction_date LIMIT 20",
+          "phase": "offline_validation",
+          "start_time": 1788870330.4127736,
+          "status": "execute_returned",
+          "end_time": 1788870331.6660767
+        },
+        {
+          "sequence": 5,
+          "sql": "/* Compute coefficient of variation of gross_profit for high-vol customers over past 12 months */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), stats AS (SELECT h.customer_id, h.vol, AVG(p.gross_profit) AS mean_gp, AVG(p.gross_profit * p.gross_profit) - AVG(p.gross_profit) * AVG(p.gross_profit) AS var_gp, COUNT(p.gross_profit) AS n_obs FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, h.vol) SELECT customer_id, vol, mean_gp, CASE WHEN var_gp < 0 THEN 0 ELSE SQRT(var_gp) END AS std_gp, CASE WHEN mean_gp = 0 THEN NULL ELSE CASE WHEN var_gp < 0 THEN 0 ELSE SQRT(var_gp) END / mean_gp END AS cv_gp, n_obs FROM stats ORDER BY vol DESC LIMIT 20",
+          "phase": "offline_validation",
+          "start_time": 1788870331.6690154,
+          "status": "execute_returned",
+          "end_time": 1788870332.5518925
+        },
+        {
+          "sequence": 6,
+          "sql": "/* Monthly gross profit per high-vol customer over past 12 months, then CV */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), monthly AS (SELECT h.customer_id, STRFTIME('%Y-%m', p.transaction_date) AS month, SUM(p.gross_profit) AS monthly_gp FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y-%m', p.transaction_date)), stats AS (SELECT customer_id, AVG(monthly_gp) AS mean_mgp, AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp) AS var_mgp, COUNT(*) AS n_months FROM monthly GROUP BY customer_id) SELECT customer_id, mean_mgp, CASE WHEN var_mgp < 0 THEN 0 ELSE SQRT(var_mgp) END AS std_mgp, CASE WHEN mean_mgp = 0 THEN NULL ELSE CASE WHEN var_mgp < 0 THEN 0 ELSE SQRT(var_mgp) END / ABS(mean_mgp) END AS cv_mgp, n_months FROM stats ORDER BY cv_mgp DESC LIMIT 15",
+          "phase": "offline_validation",
+          "start_time": 1788870332.556301,
+          "status": "execute_returned",
+          "end_time": 1788870333.4410925
+        },
+        {
+          "sequence": 7,
+          "sql": "/* Overall CV of monthly gross profit for high-volatility customers */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), monthly AS (SELECT h.customer_id, STRFTIME('%Y-%m', p.transaction_date) AS month, SUM(p.gross_profit) AS monthly_gp FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y-%m', p.transaction_date)) SELECT AVG(monthly_gp) AS overall_mean_gp, SQRT(AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp)) AS overall_std_gp, SQRT(AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp)) / ABS(AVG(monthly_gp)) AS overall_cv_gp, COUNT(*) AS total_month_obs, COUNT(DISTINCT customer_id) AS n_customers_with_data FROM monthly",
+          "phase": "offline_validation",
+          "start_time": 1788870333.4458375,
+          "status": "execute_returned",
+          "end_time": 1788870334.328704
+        },
+        {
+          "sequence": 8,
+          "sql": "/* QoQ invoice_total growth rate for high-vol customers (based on transaction_date quarters) */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), quarterly AS (SELECT h.customer_id, STRFTIME('%Y', p.transaction_date) AS yr, CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER) AS qtr, SUM(p.invoice_total) AS qtr_invoice_total FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y', p.transaction_date), CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER)), qoqs AS (SELECT customer_id, yr, qtr, qtr_invoice_total, LAG(qtr_invoice_total) OVER (PARTITION BY customer_id ORDER BY yr, qtr) AS prev_qtr_total FROM quarterly) SELECT customer_id, yr, qtr, qtr_invoice_total, prev_qtr_total, CASE WHEN NOT prev_qtr_total IS NULL AND prev_qtr_total <> 0 THEN (qtr_invoice_total - prev_qtr_total) / prev_qtr_total ELSE NULL END AS qoq_growth FROM qoqs WHERE NOT prev_qtr_total IS NULL ORDER BY customer_id, yr, qtr LIMIT 30",
+          "phase": "offline_validation",
+          "start_time": 1788870334.3329732,
+          "status": "execute_returned",
+          "end_time": 1788870335.219934
+        },
+        {
+          "sequence": 9,
+          "sql": "/* Variance of QoQ invoice_total growth rate for high-vol customers */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), quarterly AS (SELECT h.customer_id, STRFTIME('%Y', p.transaction_date) AS yr, CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER) AS qtr, SUM(p.invoice_total) AS qtr_invoice_total FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y', p.transaction_date), CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER)), qoqs AS (SELECT customer_id, yr, qtr, qtr_invoice_total, LAG(qtr_invoice_total) OVER (PARTITION BY customer_id ORDER BY yr, qtr) AS prev_qtr_total FROM quarterly) SELECT AVG(qoq_growth) AS mean_qoq_growth, AVG(qoq_growth * qoq_growth) - AVG(qoq_growth) * AVG(qoq_growth) AS var_qoq_growth, SQRT(AVG(qoq_growth * qoq_growth) - AVG(qoq_growth) * AVG(qoq_growth)) AS std_qoq_growth, COUNT(*) AS n_obs FROM (SELECT customer_id, yr, qtr, qtr_invoice_total, prev_qtr_total, CASE WHEN NOT prev_qtr_total IS NULL AND prev_qtr_total <> 0 THEN (qtr_invoice_total - prev_qtr_total) / prev_qtr_total ELSE NULL END AS qoq_growth FROM qoqs WHERE NOT prev_qtr_total IS NULL) WHERE NOT qoq_growth IS NULL",
+          "phase": "offline_validation",
+          "start_time": 1788870335.225144,
+          "status": "execute_returned",
+          "end_time": 1788870336.4468696
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT DATE(MAX(transaction_date), '-12 months') AS cutoff_date FROM quickbooks__profitability_analysis",
+          "time": 1788870330.4114015,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788870330.4127498,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788870330.4127643,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Define the past 12 months date range */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol /* High volatility customers (top 25%) */ AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25) /* Get gross_profit data for past 12 months */ SELECT h.customer_id, h.vol, p.gross_profit, p.transaction_date FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id WHERE p.transaction_date >= (SELECT cutoff_date FROM date_range) ORDER BY h.vol DESC, h.customer_id, p.transaction_date LIMIT 20",
+          "time": 1788870330.4128835,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Compute coefficient of variation of gross_profit for high-vol customers over past 12 months */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), stats AS (SELECT h.customer_id, h.vol, AVG(p.gross_profit) AS mean_gp, AVG(p.gross_profit * p.gross_profit) - AVG(p.gross_profit) * AVG(p.gross_profit) AS var_gp, COUNT(p.gross_profit) AS n_obs FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, h.vol) SELECT customer_id, vol, mean_gp, CASE WHEN var_gp < 0 THEN 0 ELSE SQRT(var_gp) END AS std_gp, CASE WHEN mean_gp = 0 THEN NULL ELSE CASE WHEN var_gp < 0 THEN 0 ELSE SQRT(var_gp) END / mean_gp END AS cv_gp, n_obs FROM stats ORDER BY vol DESC LIMIT 20",
+          "time": 1788870331.6692986,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Monthly gross profit per high-vol customer over past 12 months, then CV */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), monthly AS (SELECT h.customer_id, STRFTIME('%Y-%m', p.transaction_date) AS month, SUM(p.gross_profit) AS monthly_gp FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y-%m', p.transaction_date)), stats AS (SELECT customer_id, AVG(monthly_gp) AS mean_mgp, AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp) AS var_mgp, COUNT(*) AS n_months FROM monthly GROUP BY customer_id) SELECT customer_id, mean_mgp, CASE WHEN var_mgp < 0 THEN 0 ELSE SQRT(var_mgp) END AS std_mgp, CASE WHEN mean_mgp = 0 THEN NULL ELSE CASE WHEN var_mgp < 0 THEN 0 ELSE SQRT(var_mgp) END / ABS(mean_mgp) END AS cv_mgp, n_months FROM stats ORDER BY cv_mgp DESC LIMIT 15",
+          "time": 1788870332.5566041,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Overall CV of monthly gross profit for high-volatility customers */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), monthly AS (SELECT h.customer_id, STRFTIME('%Y-%m', p.transaction_date) AS month, SUM(p.gross_profit) AS monthly_gp FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y-%m', p.transaction_date)) SELECT AVG(monthly_gp) AS overall_mean_gp, SQRT(AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp)) AS overall_std_gp, SQRT(AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp)) / ABS(AVG(monthly_gp)) AS overall_cv_gp, COUNT(*) AS total_month_obs, COUNT(DISTINCT customer_id) AS n_customers_with_data FROM monthly",
+          "time": 1788870333.4461045,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* QoQ invoice_total growth rate for high-vol customers (based on transaction_date quarters) */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), quarterly AS (SELECT h.customer_id, STRFTIME('%Y', p.transaction_date) AS yr, CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER) AS qtr, SUM(p.invoice_total) AS qtr_invoice_total FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y', p.transaction_date), CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER)), qoqs AS (SELECT customer_id, yr, qtr, qtr_invoice_total, LAG(qtr_invoice_total) OVER (PARTITION BY customer_id ORDER BY yr, qtr) AS prev_qtr_total FROM quarterly) SELECT customer_id, yr, qtr, qtr_invoice_total, prev_qtr_total, CASE WHEN NOT prev_qtr_total IS NULL AND prev_qtr_total <> 0 THEN (qtr_invoice_total - prev_qtr_total) / prev_qtr_total ELSE NULL END AS qoq_growth FROM qoqs WHERE NOT prev_qtr_total IS NULL ORDER BY customer_id, yr, qtr LIMIT 30",
+          "time": 1788870334.3333225,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Variance of QoQ invoice_total growth rate for high-vol customers */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), quarterly AS (SELECT h.customer_id, STRFTIME('%Y', p.transaction_date) AS yr, CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER) AS qtr, SUM(p.invoice_total) AS qtr_invoice_total FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y', p.transaction_date), CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER)), qoqs AS (SELECT customer_id, yr, qtr, qtr_invoice_total, LAG(qtr_invoice_total) OVER (PARTITION BY customer_id ORDER BY yr, qtr) AS prev_qtr_total FROM quarterly) SELECT AVG(qoq_growth) AS mean_qoq_growth, AVG(qoq_growth * qoq_growth) - AVG(qoq_growth) * AVG(qoq_growth) AS var_qoq_growth, SQRT(AVG(qoq_growth * qoq_growth) - AVG(qoq_growth) * AVG(qoq_growth)) AS std_qoq_growth, COUNT(*) AS n_obs FROM (SELECT customer_id, yr, qtr, qtr_invoice_total, prev_qtr_total, CASE WHEN NOT prev_qtr_total IS NULL AND prev_qtr_total <> 0 THEN (qtr_invoice_total - prev_qtr_total) / prev_qtr_total ELSE NULL END AS qoq_growth FROM qoqs WHERE NOT prev_qtr_total IS NULL) WHERE NOT qoq_growth IS NULL",
+          "time": 1788870335.2255921,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 1.5562567859888077,
+      "intermediate_rows": 1,
+      "intermediate_columns": [
+        "cutoff_date"
+      ],
+      "validation_ended_at": 1788870336.4529276,
+      "checks": [
+        {
+          "sql_id": "S27",
+          "rewritten_sql": "/* Define the past 12 months date range */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol /* High volatility customers (top 25%) */ AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25) /* Get gross_profit data for past 12 months */ SELECT h.customer_id, h.vol, p.gross_profit, p.transaction_date FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id WHERE p.transaction_date >= (SELECT cutoff_date FROM date_range) ORDER BY h.vol DESC, h.customer_id, p.transaction_date LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1256.2361918389797
+        },
+        {
+          "sql_id": "S29",
+          "rewritten_sql": "/* Compute coefficient of variation of gross_profit for high-vol customers over past 12 months */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), stats AS (SELECT h.customer_id, h.vol, AVG(p.gross_profit) AS mean_gp, AVG(p.gross_profit * p.gross_profit) - AVG(p.gross_profit) * AVG(p.gross_profit) AS var_gp, COUNT(p.gross_profit) AS n_obs FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, h.vol) SELECT customer_id, vol, mean_gp, CASE WHEN var_gp < 0 THEN 0 ELSE SQRT(var_gp) END AS std_gp, CASE WHEN mean_gp = 0 THEN NULL ELSE CASE WHEN var_gp < 0 THEN 0 ELSE SQRT(var_gp) END / mean_gp END AS cv_gp, n_obs FROM stats ORDER BY vol DESC LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 887.2826648876071
+        },
+        {
+          "sql_id": "S30",
+          "rewritten_sql": "/* Monthly gross profit per high-vol customer over past 12 months, then CV */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), monthly AS (SELECT h.customer_id, STRFTIME('%Y-%m', p.transaction_date) AS month, SUM(p.gross_profit) AS monthly_gp FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y-%m', p.transaction_date)), stats AS (SELECT customer_id, AVG(monthly_gp) AS mean_mgp, AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp) AS var_mgp, COUNT(*) AS n_months FROM monthly GROUP BY customer_id) SELECT customer_id, mean_mgp, CASE WHEN var_mgp < 0 THEN 0 ELSE SQRT(var_mgp) END AS std_mgp, CASE WHEN mean_mgp = 0 THEN NULL ELSE CASE WHEN var_mgp < 0 THEN 0 ELSE SQRT(var_mgp) END / ABS(mean_mgp) END AS cv_mgp, n_months FROM stats ORDER BY cv_mgp DESC LIMIT 15",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 889.5323919132352
+        },
+        {
+          "sql_id": "S31",
+          "rewritten_sql": "/* Overall CV of monthly gross profit for high-volatility customers */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), monthly AS (SELECT h.customer_id, STRFTIME('%Y-%m', p.transaction_date) AS month, SUM(p.gross_profit) AS monthly_gp FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y-%m', p.transaction_date)) SELECT AVG(monthly_gp) AS overall_mean_gp, SQRT(AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp)) AS overall_std_gp, SQRT(AVG(monthly_gp * monthly_gp) - AVG(monthly_gp) * AVG(monthly_gp)) / ABS(AVG(monthly_gp)) AS overall_cv_gp, COUNT(*) AS total_month_obs, COUNT(DISTINCT customer_id) AS n_customers_with_data FROM monthly",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 887.1311079710722
+        },
+        {
+          "sql_id": "S34",
+          "rewritten_sql": "/* QoQ invoice_total growth rate for high-vol customers (based on transaction_date quarters) */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), quarterly AS (SELECT h.customer_id, STRFTIME('%Y', p.transaction_date) AS yr, CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER) AS qtr, SUM(p.invoice_total) AS qtr_invoice_total FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y', p.transaction_date), CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER)), qoqs AS (SELECT customer_id, yr, qtr, qtr_invoice_total, LAG(qtr_invoice_total) OVER (PARTITION BY customer_id ORDER BY yr, qtr) AS prev_qtr_total FROM quarterly) SELECT customer_id, yr, qtr, qtr_invoice_total, prev_qtr_total, CASE WHEN NOT prev_qtr_total IS NULL AND prev_qtr_total <> 0 THEN (qtr_invoice_total - prev_qtr_total) / prev_qtr_total ELSE NULL END AS qoq_growth FROM qoqs WHERE NOT prev_qtr_total IS NULL ORDER BY customer_id, yr, qtr LIMIT 30",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 892.1663267537951
+        },
+        {
+          "sql_id": "S35",
+          "rewritten_sql": "/* Variance of QoQ invoice_total growth rate for high-vol customers */ WITH date_range AS (SELECT * FROM temp.reuse_candidate), cust_vol AS (SELECT customer_id, AVG(customer_margin_volatility) AS vol FROM quickbooks__profitability_analysis GROUP BY customer_id), ordered AS (SELECT customer_id, vol, ROW_NUMBER() OVER (ORDER BY vol DESC) AS rn, COUNT(*) OVER () AS total FROM cust_vol), high_vol_cust AS (SELECT customer_id, vol FROM ordered WHERE rn <= total * 0.25), quarterly AS (SELECT h.customer_id, STRFTIME('%Y', p.transaction_date) AS yr, CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER) AS qtr, SUM(p.invoice_total) AS qtr_invoice_total FROM high_vol_cust AS h JOIN quickbooks__profitability_analysis AS p ON h.customer_id = p.customer_id AND p.transaction_date >= (SELECT cutoff_date FROM date_range) GROUP BY h.customer_id, STRFTIME('%Y', p.transaction_date), CAST((CAST(STRFTIME('%m', p.transaction_date) AS INTEGER) + 2) / 3 AS INTEGER)), qoqs AS (SELECT customer_id, yr, qtr, qtr_invoice_total, LAG(qtr_invoice_total) OVER (PARTITION BY customer_id ORDER BY yr, qtr) AS prev_qtr_total FROM quarterly) SELECT AVG(qoq_growth) AS mean_qoq_growth, AVG(qoq_growth * qoq_growth) - AVG(qoq_growth) * AVG(qoq_growth) AS var_qoq_growth, SQRT(AVG(qoq_growth * qoq_growth) - AVG(qoq_growth) * AVG(qoq_growth)) AS std_qoq_growth, COUNT(*) AS n_obs FROM (SELECT customer_id, yr, qtr, qtr_invoice_total, prev_qtr_total, CASE WHEN NOT prev_qtr_total IS NULL AND prev_qtr_total <> 0 THEN (qtr_invoice_total - prev_qtr_total) / prev_qtr_total ELSE NULL END AS qoq_growth FROM qoqs WHERE NOT prev_qtr_total IS NULL) WHERE NOT qoq_growth IS NULL",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1227.6193145662546
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT revenue_year AS __g0, revenue_quarter AS __g1, COUNT(*) AS __a0 FROM \"quickbooks__profitability_analysis\"  GROUP BY revenue_year, revenue_quarter",
+      "covered": [
+        "S7",
+        "S32"
+      ],
+      "rewrites": {
+        "S7": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+        "S32": "SELECT DISTINCT __g0 AS \"revenue_year\", __g1 AS \"revenue_quarter\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S7",
+      "later_reuses": 1,
+      "denominator": 36,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788870336.4529557,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT revenue_year AS __g0, revenue_quarter AS __g1, COUNT(*) AS __a0 FROM \"quickbooks__profitability_analysis\"  GROUP BY revenue_year, revenue_quarter",
+          "phase": "offline_validation",
+          "start_time": 1788870336.4531934,
+          "status": "execute_returned",
+          "end_time": 1788870336.4565787
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870336.4565837,
+          "status": "execute_returned",
+          "end_time": 1788870336.456603
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788870336.4566076,
+          "status": "execute_returned",
+          "end_time": 1788870336.4566193
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870336.4566295,
+          "status": "execute_returned",
+          "end_time": 1788870336.456643
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT DISTINCT __g0 AS \"revenue_year\", __g1 AS \"revenue_quarter\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "phase": "offline_validation",
+          "start_time": 1788870336.4571154,
+          "status": "execute_returned",
+          "end_time": 1788870336.4571595
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT revenue_year AS __g0, revenue_quarter AS __g1, COUNT(*) AS __a0 FROM \"quickbooks__profitability_analysis\"  GROUP BY revenue_year, revenue_quarter",
+          "time": 1788870336.4534686,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788870336.4566,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788870336.4566166,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+          "time": 1788870336.45664,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT DISTINCT __g0 AS \"revenue_year\", __g1 AS \"revenue_quarter\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "time": 1788870336.4571435,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 3.38903721421957,
+      "intermediate_rows": 11,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__a0"
+      ],
+      "validation_ended_at": 1788870336.4579217,
+      "checks": [
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.48308447003364563
+        },
+        {
+          "sql_id": "S32",
+          "rewritten_sql": "SELECT DISTINCT __g0 AS \"revenue_year\", __g1 AS \"revenue_quarter\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6957482546567917
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT COUNT(*) AS __a0, COUNT(revenue_trend_correlation) AS __a1, COUNT(credit_score) AS __a2, COUNT(avg_payment_days_12m) AS __a3, COUNT(overdue_count_12m) AS __a4, COUNT(overall_customer_score) AS __a5, COUNT(revenue_volatility) AS __a6, COUNT(rfm_segment) AS __a7, COUNT(payment_behavior) AS __a8, COUNT(lifecycle_stage) AS __a9, COUNT(customer_value_segment) AS __a10, COUNT(risk_assessment) AS __a11, COUNT(credit_grade) AS __a12, COUNT(payment_timeliness_score) AS __a13, COUNT(business_stability_score) AS __a14 FROM \"quickbooks__customer_analytics\" ",
+      "covered": [
+        "S8",
+        "S40"
+      ],
+      "rewrites": {
+        "S8": "SELECT SUM(__a0) AS cnt FROM temp.reuse_candidate",
+        "S40": "SELECT SUM(__a0) AS total, SUM(__a1) AS n_trend_corr, SUM(__a2) AS n_credit, SUM(__a3) AS n_pay_days, SUM(__a4) AS n_overdue, SUM(__a5) AS n_overall, SUM(__a6) AS n_rev_vol, SUM(__a7) AS n_rfm, SUM(__a8) AS n_payment, SUM(__a9) AS n_lifecycle, SUM(__a10) AS n_value_seg, SUM(__a11) AS n_risk, SUM(__a12) AS n_credit_grade, SUM(__a13) AS n_pay_timeliness, SUM(__a14) AS n_biz_stab FROM temp.reuse_candidate"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S8",
+      "later_reuses": 1,
+      "denominator": 36,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

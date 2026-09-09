@@ -1,0 +1,1 @@
+SELECT "Sales Month", "Is Promotional", COUNT(*) AS n, ROUND(SUM("Sales Amount"),2) AS total_amount FROM sheet1 GROUP BY "Sales Month", "Is Promotional" ORDER BY "Sales Month", "Is Promotional"

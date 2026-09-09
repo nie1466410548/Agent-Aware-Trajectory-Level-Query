@@ -1,0 +1,110 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+Analyze the marketing characteristics of user groups across different age segments (churn risk, share rate, feedback rating), and design differentiated product and marketing campaign recommendation strategies.
+
+DATABASE SCHEMA:
+CREATE TABLE "marketing_campaign_interaction" (
+"Promotion ID" TEXT,
+  "User ID" TEXT,
+  "Event Name" TEXT,
+  "Display Time" TIMESTAMP,
+  "Event URL ID" TEXT,
+  "Number of Participants" INTEGER,
+  "Participation Progress" TEXT,
+  "Usage Status" TEXT,
+  "Number of Shares" INTEGER,
+  "Event Feedback Rating" REAL,
+  "Is Event Blocked" TEXT,
+  "Event Conversion Rate" REAL,
+  "Event Dwell Time" INTEGER
+)
+CREATE TABLE "network_environment_information" (
+"Network ID" TEXT,
+  "Session ID" TEXT,
+  "Device ID" TEXT,
+  "Network Type" TEXT,
+  "Carrier" TEXT,
+  "IP Location" TEXT,
+  "DNS Server" TEXT,
+  "Connection Speed" TEXT,
+  "Latency" TEXT,
+  "Packet Loss Rate" TEXT,
+  "Signal Strength" TEXT,
+  "VPN Enabled" TEXT,
+  "Network Switch Count" INTEGER
+)
+CREATE TABLE "shopping_cart_operations_table" (
+"Cart ID" TEXT,
+  "User ID" TEXT,
+  "Product ID" TEXT,
+  "Added Time" TIMESTAMP,
+  "Quantity Added" INTEGER,
+  "Is Selected" TEXT,
+  "Number of Modifications" INTEGER,
+  "Modification Time" TEXT,
+  "Deletion Time" TEXT,
+  "Is Checked Out" TEXT
+)
+CREATE TABLE "user_basic_information_table_1" (
+"User ID" TEXT,
+  "Registration Time" TIMESTAMP,
+  "Membership Level" TEXT,
+  "Last Login Time" TIMESTAMP,
+  "Login Count" INTEGER,
+  "Device count" INTEGER,
+  "Account security level" TEXT,
+  "Gender" TEXT,
+  "Age group" TEXT,
+  "Occupation" TEXT,
+  "Education Level" TEXT,
+  "Income level" TEXT,
+  "City ID" TEXT,
+  "Real-name verification status" TEXT,
+  "Payment enabled" TEXT,
+  "Marketing SMS subscription status" TEXT
+)
+CREATE TABLE "user_geolocation_information_ta" (
+"Location ID" TEXT,
+  "User ID" TEXT,
+  "Device ID" TEXT,
+  "Acquisition Time" TIMESTAMP,
+  "Province" TEXT,
+  "City" TEXT,
+  "District/County" TEXT,
+  "Detailed Address" TEXT,
+  "Location Accuracy" TEXT,
+  "Location Change Distance" TEXT,
+  "Dwell Time" TEXT
+)
+CREATE TABLE "user_tags_table" (
+"Tag ID" TEXT,
+  "User ID" TEXT,
+  "Tag Type Count" INTEGER,
+  "Creation Time" TIMESTAMP,
+  "Update Time" TIMESTAMP,
+  "Browsing Preference Tag" TEXT,
+  "Purchase Preference Tag" TEXT,
+  "Price Sensitivity" TEXT,
+  "Brand Preference" TEXT,
+  "Category Preference" TEXT,
+  "Activity Tag" TEXT,
+  "Spending Power" TEXT,
+  "New/Returning User Tag" TEXT,
+  "Geo Tag" TEXT,
+  "Is High-Value User" TEXT,
+  "Is At-Risk User" TEXT,
+  "Is Potential Conversion User" TEXT,
+  "Personalization Tag Count" INTEGER,
+  "Repurchase Rate Tag" TEXT,
+  "Return Rate Tag" TEXT
+)

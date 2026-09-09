@@ -1,0 +1,1 @@
+SELECT DISTINCT job_departments, job_parent_departments FROM greenhouse__application_enhanced LIMIT 20

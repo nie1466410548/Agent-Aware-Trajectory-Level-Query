@@ -1,0 +1,1 @@
+SELECT DISTINCT status FROM greenhouse__application_enhanced

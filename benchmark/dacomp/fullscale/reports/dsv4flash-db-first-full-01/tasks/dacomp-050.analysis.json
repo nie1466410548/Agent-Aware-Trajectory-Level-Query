@@ -1,0 +1,966 @@
+{
+  "fingerprint": "38d1a292f2af89b15076016afd8bbf4566d11f64ab6508a5f594acb9f104a593",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT *, \"Have you ever had suicidal thoughts?\" AS suicidal FROM sheet1 WHERE \"Working professional or student\" = 'Student'",
+      "covered": [
+        "S14",
+        "S15",
+        "S16",
+        "S17",
+        "S18",
+        "S19",
+        "S20",
+        "S21",
+        "S22",
+        "S23",
+        "S24"
+      ],
+      "rewrites": {
+        "S14": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT \"Sleep duration\", COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY \"Sleep duration\" ORDER BY yes_pct DESC",
+        "S15": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Dietary habits\" IN ('Healthy', 'Moderate', 'Unhealthy') THEN \"Dietary habits\" ELSE 'Other/Unknown' END AS diet_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY diet_group ORDER BY yes_pct DESC",
+        "S16": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Academic stress\" <= 2 THEN 'Low (1-2)' WHEN \"Academic stress\" = 3 THEN 'Medium (3)' ELSE 'High (4-5)' END AS acad_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY acad_group ORDER BY yes_pct DESC",
+        "S17": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Financial stress\" <= 2 THEN 'Low (1-2)' WHEN \"Financial stress\" = 3 THEN 'Medium (3)' ELSE 'High (4-5)' END AS fin_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY fin_group ORDER BY yes_pct DESC",
+        "S18": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT Gender, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY Gender ORDER BY yes_pct DESC",
+        "S19": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT \"Family history of mental illness\", COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY \"Family history of mental illness\" ORDER BY yes_pct DESC",
+        "S20": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Satisfaction with studies\" <= 2 THEN 'Low (1-2)' WHEN \"Satisfaction with studies\" = 3 THEN 'Medium (3)' ELSE 'High (4-5)' END AS sat_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY sat_group ORDER BY yes_pct DESC",
+        "S21": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Work/study hours\" <= 6 THEN '≤6 hrs' WHEN \"Work/study hours\" <= 8 THEN '7-8 hrs' ELSE '9+ hrs' END AS hrs_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY hrs_group ORDER BY yes_pct DESC",
+        "S22": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Cumulative GPA (CGPA)\" < 6 THEN 'CGPA < 6' WHEN \"Cumulative GPA (CGPA)\" < 7.5 THEN 'CGPA 6-7.49' WHEN \"Cumulative GPA (CGPA)\" < 8.5 THEN 'CGPA 7.5-8.49' ELSE 'CGPA ≥ 8.5' END AS cgpa_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY cgpa_group ORDER BY yes_pct DESC",
+        "S23": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT Degree, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY Degree HAVING total >= 100 ORDER BY yes_pct DESC LIMIT 15",
+        "S24": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Academic stress\" >= 4 AND \"Financial stress\" >= 4 THEN 'High both' WHEN \"Academic stress\" >= 4 OR \"Financial stress\" >= 4 THEN 'High one' ELSE 'Neither high' END AS combo, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY combo ORDER BY yes_pct DESC"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S14",
+      "later_reuses": 10,
+      "denominator": 30,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866422.4512417,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT *, \"Have you ever had suicidal thoughts?\" AS suicidal FROM sheet1 WHERE \"Working professional or student\" = 'Student'",
+          "phase": "offline_validation",
+          "start_time": 1788866422.4515214,
+          "status": "execute_returned",
+          "end_time": 1788866422.4764104
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866422.476418,
+          "status": "execute_returned",
+          "end_time": 1788866422.476483
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788866422.4764898,
+          "status": "execute_returned",
+          "end_time": 1788866422.4765077
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT \"Sleep duration\", COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY \"Sleep duration\" ORDER BY yes_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866422.476538,
+          "status": "execute_returned",
+          "end_time": 1788866422.4846218
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Dietary habits\" IN ('Healthy', 'Moderate', 'Unhealthy') THEN \"Dietary habits\" ELSE 'Other/Unknown' END AS diet_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY diet_group ORDER BY yes_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866422.4863627,
+          "status": "execute_returned",
+          "end_time": 1788866422.4959946
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Academic stress\" <= 2 THEN 'Low (1-2)' WHEN \"Academic stress\" = 3 THEN 'Medium (3)' ELSE 'High (4-5)' END AS acad_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY acad_group ORDER BY yes_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866422.4977856,
+          "status": "execute_returned",
+          "end_time": 1788866422.5060394
+        },
+        {
+          "sequence": 7,
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Financial stress\" <= 2 THEN 'Low (1-2)' WHEN \"Financial stress\" = 3 THEN 'Medium (3)' ELSE 'High (4-5)' END AS fin_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY fin_group ORDER BY yes_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866422.5078049,
+          "status": "execute_returned",
+          "end_time": 1788866422.516211
+        },
+        {
+          "sequence": 8,
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT Gender, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY Gender ORDER BY yes_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866422.5185518,
+          "status": "execute_returned",
+          "end_time": 1788866422.5260575
+        },
+        {
+          "sequence": 9,
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT \"Family history of mental illness\", COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY \"Family history of mental illness\" ORDER BY yes_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866422.5275555,
+          "status": "execute_returned",
+          "end_time": 1788866422.5344138
+        },
+        {
+          "sequence": 10,
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Satisfaction with studies\" <= 2 THEN 'Low (1-2)' WHEN \"Satisfaction with studies\" = 3 THEN 'Medium (3)' ELSE 'High (4-5)' END AS sat_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY sat_group ORDER BY yes_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866422.535912,
+          "status": "execute_returned",
+          "end_time": 1788866422.544178
+        },
+        {
+          "sequence": 11,
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Work/study hours\" <= 6 THEN '≤6 hrs' WHEN \"Work/study hours\" <= 8 THEN '7-8 hrs' ELSE '9+ hrs' END AS hrs_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY hrs_group ORDER BY yes_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866422.5459197,
+          "status": "execute_returned",
+          "end_time": 1788866422.5543826
+        },
+        {
+          "sequence": 12,
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Cumulative GPA (CGPA)\" < 6 THEN 'CGPA < 6' WHEN \"Cumulative GPA (CGPA)\" < 7.5 THEN 'CGPA 6-7.49' WHEN \"Cumulative GPA (CGPA)\" < 8.5 THEN 'CGPA 7.5-8.49' ELSE 'CGPA ≥ 8.5' END AS cgpa_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY cgpa_group ORDER BY yes_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866422.5562873,
+          "status": "execute_returned",
+          "end_time": 1788866422.5651314
+        },
+        {
+          "sequence": 13,
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT Degree, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY Degree HAVING total >= 100 ORDER BY yes_pct DESC LIMIT 15",
+          "phase": "offline_validation",
+          "start_time": 1788866422.5669398,
+          "status": "execute_returned",
+          "end_time": 1788866422.5790055
+        },
+        {
+          "sequence": 14,
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Academic stress\" >= 4 AND \"Financial stress\" >= 4 THEN 'High both' WHEN \"Academic stress\" >= 4 OR \"Financial stress\" >= 4 THEN 'High one' ELSE 'Neither high' END AS combo, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY combo ORDER BY yes_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866422.580672,
+          "status": "execute_returned",
+          "end_time": 1788866422.5905378
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT *, \"Have you ever had suicidal thoughts?\" AS suicidal FROM sheet1 WHERE \"Working professional or student\" = 'Student'",
+          "time": 1788866422.4517787,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788866422.4764433,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788866422.4765046,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT \"Sleep duration\", COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY \"Sleep duration\" ORDER BY yes_pct DESC",
+          "time": 1788866422.4766185,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Dietary habits\" IN ('Healthy', 'Moderate', 'Unhealthy') THEN \"Dietary habits\" ELSE 'Other/Unknown' END AS diet_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY diet_group ORDER BY yes_pct DESC",
+          "time": 1788866422.4864693,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Academic stress\" <= 2 THEN 'Low (1-2)' WHEN \"Academic stress\" = 3 THEN 'Medium (3)' ELSE 'High (4-5)' END AS acad_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY acad_group ORDER BY yes_pct DESC",
+          "time": 1788866422.4978905,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Financial stress\" <= 2 THEN 'Low (1-2)' WHEN \"Financial stress\" = 3 THEN 'Medium (3)' ELSE 'High (4-5)' END AS fin_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY fin_group ORDER BY yes_pct DESC",
+          "time": 1788866422.5079103,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT Gender, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY Gender ORDER BY yes_pct DESC",
+          "time": 1788866422.5187004,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT \"Family history of mental illness\", COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY \"Family history of mental illness\" ORDER BY yes_pct DESC",
+          "time": 1788866422.5276473,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Satisfaction with studies\" <= 2 THEN 'Low (1-2)' WHEN \"Satisfaction with studies\" = 3 THEN 'Medium (3)' ELSE 'High (4-5)' END AS sat_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY sat_group ORDER BY yes_pct DESC",
+          "time": 1788866422.5360155,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Work/study hours\" <= 6 THEN '≤6 hrs' WHEN \"Work/study hours\" <= 8 THEN '7-8 hrs' ELSE '9+ hrs' END AS hrs_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY hrs_group ORDER BY yes_pct DESC",
+          "time": 1788866422.5460236,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Cumulative GPA (CGPA)\" < 6 THEN 'CGPA < 6' WHEN \"Cumulative GPA (CGPA)\" < 7.5 THEN 'CGPA 6-7.49' WHEN \"Cumulative GPA (CGPA)\" < 8.5 THEN 'CGPA 7.5-8.49' ELSE 'CGPA ≥ 8.5' END AS cgpa_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY cgpa_group ORDER BY yes_pct DESC",
+          "time": 1788866422.556398,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT Degree, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY Degree HAVING total >= 100 ORDER BY yes_pct DESC LIMIT 15",
+          "time": 1788866422.5670366,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Academic stress\" >= 4 AND \"Financial stress\" >= 4 THEN 'High both' WHEN \"Academic stress\" >= 4 OR \"Financial stress\" >= 4 THEN 'High one' ELSE 'Neither high' END AS combo, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY combo ORDER BY yes_pct DESC",
+          "time": 1788866422.5807827,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 24.89536814391613,
+      "intermediate_rows": 18762,
+      "intermediate_columns": [
+        "id",
+        "Name",
+        "Gender",
+        "Age",
+        "City",
+        "Working professional or student",
+        "Occupation",
+        "Academic stress",
+        "Work stress",
+        "Cumulative GPA (CGPA)",
+        "Satisfaction with studies",
+        "Job satisfaction",
+        "Sleep duration",
+        "Dietary habits",
+        "Degree",
+        "Have you ever had suicidal thoughts?",
+        "Work/study hours",
+        "Financial stress",
+        "Family history of mental illness",
+        "suicidal"
+      ],
+      "validation_ended_at": 1788866422.59325,
+      "checks": [
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT \"Sleep duration\", COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY \"Sleep duration\" ORDER BY yes_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 9.820950217545033
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Dietary habits\" IN ('Healthy', 'Moderate', 'Unhealthy') THEN \"Dietary habits\" ELSE 'Other/Unknown' END AS diet_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY diet_group ORDER BY yes_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 11.41961757093668
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Academic stress\" <= 2 THEN 'Low (1-2)' WHEN \"Academic stress\" = 3 THEN 'Medium (3)' ELSE 'High (4-5)' END AS acad_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY acad_group ORDER BY yes_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 10.015912353992462
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Financial stress\" <= 2 THEN 'Low (1-2)' WHEN \"Financial stress\" = 3 THEN 'Medium (3)' ELSE 'High (4-5)' END AS fin_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY fin_group ORDER BY yes_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 10.740025900304317
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT Gender, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY Gender ORDER BY yes_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 9.00352280586958
+        },
+        {
+          "sql_id": "S19",
+          "rewritten_sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT \"Family history of mental illness\", COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY \"Family history of mental illness\" ORDER BY yes_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 8.35278071463108
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Satisfaction with studies\" <= 2 THEN 'Low (1-2)' WHEN \"Satisfaction with studies\" = 3 THEN 'Medium (3)' ELSE 'High (4-5)' END AS sat_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY sat_group ORDER BY yes_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 9.99830849468708
+        },
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Work/study hours\" <= 6 THEN '≤6 hrs' WHEN \"Work/study hours\" <= 8 THEN '7-8 hrs' ELSE '9+ hrs' END AS hrs_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY hrs_group ORDER BY yes_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 10.3648342192173
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Cumulative GPA (CGPA)\" < 6 THEN 'CGPA < 6' WHEN \"Cumulative GPA (CGPA)\" < 7.5 THEN 'CGPA 6-7.49' WHEN \"Cumulative GPA (CGPA)\" < 8.5 THEN 'CGPA 7.5-8.49' ELSE 'CGPA ≥ 8.5' END AS cgpa_group, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY cgpa_group ORDER BY yes_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 10.64970251172781
+        },
+        {
+          "sql_id": "S23",
+          "rewritten_sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT Degree, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY Degree HAVING total >= 100 ORDER BY yes_pct DESC LIMIT 15",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 13.729454018175602
+        },
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Academic stress\" >= 4 AND \"Financial stress\" >= 4 THEN 'High both' WHEN \"Academic stress\" >= 4 OR \"Financial stress\" >= 4 THEN 'High one' ELSE 'Neither high' END AS combo, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM stu GROUP BY combo ORDER BY yes_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 11.849126778542995
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT *, \"Have you ever had suicidal thoughts?\" AS suicidal FROM sheet1 WHERE \"Working professional or student\" = 'Student' AND \"Dietary habits\" IN ('Healthy', 'Moderate', 'Unhealthy') AND NOT \"Sleep duration\" IS NULL",
+      "covered": [
+        "S29",
+        "S30"
+      ],
+      "rewrites": {
+        "S29": "WITH stu AS (SELECT * FROM temp.reuse_candidate), risk AS (SELECT *, (CASE WHEN \"Academic stress\" >= 4 THEN 1 ELSE 0 END + CASE WHEN \"Financial stress\" >= 4 THEN 1 ELSE 0 END + CASE WHEN \"Dietary habits\" = 'Unhealthy' THEN 1 ELSE 0 END + CASE WHEN \"Sleep duration\" = 'Less than 5 hours' THEN 1 ELSE 0 END) AS n_risk FROM stu) SELECT n_risk, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM risk GROUP BY n_risk ORDER BY n_risk",
+        "S30": "WITH stu AS (SELECT * FROM temp.reuse_candidate), risk AS (SELECT *, (CASE WHEN \"Academic stress\" >= 4 THEN 1 ELSE 0 END + CASE WHEN \"Financial stress\" >= 4 THEN 1 ELSE 0 END + CASE WHEN \"Dietary habits\" = 'Unhealthy' THEN 1 ELSE 0 END + CASE WHEN \"Sleep duration\" = 'Less than 5 hours' THEN 1 ELSE 0 END) AS n_risk FROM stu) SELECT CASE WHEN n_risk >= 3 THEN '3-4 risk factors' WHEN n_risk = 2 THEN '2 risk factors' WHEN n_risk = 1 THEN '1 risk factor' ELSE '0 risk factors' END AS risk_band, COUNT(*) AS total, SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN suicidal = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM risk GROUP BY risk_band ORDER BY yes_pct DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S29",
+      "later_reuses": 1,
+      "denominator": 30,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM sheet1 WHERE \"Working professional or student\" = 'Student' AND \"Dietary habits\" IN ('Healthy', 'Moderate', 'Unhealthy') AND NOT \"Sleep duration\" IS NULL",
+      "covered": [
+        "S31",
+        "S32"
+      ],
+      "rewrites": {
+        "S31": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT ROUND(100.0 * SUM(CASE WHEN \"Academic stress\" >= 4 THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_high_acad, ROUND(100.0 * SUM(CASE WHEN \"Financial stress\" >= 4 THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_high_fin, ROUND(100.0 * SUM(CASE WHEN \"Dietary habits\" = 'Unhealthy' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_unhealthy_diet, ROUND(100.0 * SUM(CASE WHEN \"Sleep duration\" = 'Less than 5 hours' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_short_sleep, COUNT(*) AS n FROM stu",
+        "S32": "WITH stu AS (SELECT * FROM temp.reuse_candidate) SELECT ROUND(100.0 * SUM(CASE WHEN \"Academic stress\" >= 4 AND \"Financial stress\" >= 4 THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_high_both, ROUND(100.0 * SUM(CASE WHEN (\"Academic stress\" >= 4 OR \"Financial stress\" >= 4) AND \"Dietary habits\" = 'Unhealthy' AND \"Sleep duration\" = 'Less than 5 hours' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_full_risk FROM stu"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S31",
+      "later_reuses": 1,
+      "denominator": 30,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Working professional or student\" AS __g0, \"Have you ever had suicidal thoughts?\" AS __g1, COUNT(*) AS __a0 FROM \"sheet1\"  GROUP BY \"Working professional or student\", \"Have you ever had suicidal thoughts?\"",
+      "covered": [
+        "S4",
+        "S5",
+        "S6"
+      ],
+      "rewrites": {
+        "S4": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+        "S5": "SELECT __g0 AS status, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+        "S6": "SELECT __g1 AS suicidal, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S4",
+      "later_reuses": 2,
+      "denominator": 30,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"sheet1\" WHERE \"Working professional or student\" = 'Student'",
+      "covered": [
+        "S7",
+        "S8",
+        "S9",
+        "S10",
+        "S11",
+        "S12",
+        "S13",
+        "S26",
+        "S27"
+      ],
+      "rewrites": {
+        "S7": "SELECT \"Have you ever had suicidal thoughts?\" AS suicidal, COUNT(*) AS n FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY suicidal",
+        "S8": "SELECT Gender, COUNT(*) AS n FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY Gender",
+        "S9": "SELECT DISTINCT \"Sleep duration\" FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student'",
+        "S10": "SELECT DISTINCT \"Dietary habits\" FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student'",
+        "S11": "SELECT \"Have you ever had suicidal thoughts?\" AS suicidal, COUNT(*) AS n, ROUND(AVG(\"Academic stress\"), 2) AS avg_academic_stress, ROUND(AVG(\"Financial stress\"), 2) AS avg_financial_stress, ROUND(AVG(\"Cumulative GPA (CGPA)\"), 2) AS avg_cgpa, ROUND(AVG(\"Satisfaction with studies\"), 2) AS avg_study_satisfaction, ROUND(AVG(\"Work/study hours\"), 2) AS avg_study_hours, ROUND(AVG(Age), 2) AS avg_age FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY suicidal",
+        "S12": "SELECT \"Have you ever had suicidal thoughts?\" AS suicidal, \"Sleep duration\", COUNT(*) AS n FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY suicidal, \"Sleep duration\" ORDER BY suicidal, \"Sleep duration\"",
+        "S13": "SELECT \"Have you ever had suicidal thoughts?\" AS suicidal, \"Dietary habits\", COUNT(*) AS n FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY suicidal, \"Dietary habits\" ORDER BY suicidal, \"Dietary habits\"",
+        "S26": "SELECT CASE WHEN Age < 20 THEN '<20' WHEN Age <= 24 THEN '20-24' WHEN Age <= 29 THEN '25-29' ELSE '30+' END AS age_group, COUNT(*) AS total, SUM(CASE WHEN \"Have you ever had suicidal thoughts?\" = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN \"Have you ever had suicidal thoughts?\" = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY age_group ORDER BY age_group",
+        "S27": "SELECT ROUND(MIN(Age), 1) AS min_age, ROUND(MAX(Age), 1) AS max_age, ROUND(AVG(Age), 1) AS avg_age FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student'"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S7",
+      "later_reuses": 8,
+      "denominator": 30,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866422.5932758,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"sheet1\" WHERE \"Working professional or student\" = 'Student'",
+          "phase": "offline_validation",
+          "start_time": 1788866422.5935013,
+          "status": "execute_returned",
+          "end_time": 1788866422.618533
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866422.6185393,
+          "status": "execute_returned",
+          "end_time": 1788866422.6185944
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788866422.6185997,
+          "status": "execute_returned",
+          "end_time": 1788866422.618617
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT \"Have you ever had suicidal thoughts?\" AS suicidal, COUNT(*) AS n FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY suicidal",
+          "phase": "offline_validation",
+          "start_time": 1788866422.618646,
+          "status": "execute_returned",
+          "end_time": 1788866422.6236343
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT Gender, COUNT(*) AS n FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY Gender",
+          "phase": "offline_validation",
+          "start_time": 1788866422.625011,
+          "status": "execute_returned",
+          "end_time": 1788866422.629628
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT DISTINCT \"Sleep duration\" FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student'",
+          "phase": "offline_validation",
+          "start_time": 1788866422.6308515,
+          "status": "execute_returned",
+          "end_time": 1788866422.630886
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT DISTINCT \"Dietary habits\" FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student'",
+          "phase": "offline_validation",
+          "start_time": 1788866422.6344032,
+          "status": "execute_returned",
+          "end_time": 1788866422.6344357
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT \"Have you ever had suicidal thoughts?\" AS suicidal, COUNT(*) AS n, ROUND(AVG(\"Academic stress\"), 2) AS avg_academic_stress, ROUND(AVG(\"Financial stress\"), 2) AS avg_financial_stress, ROUND(AVG(\"Cumulative GPA (CGPA)\"), 2) AS avg_cgpa, ROUND(AVG(\"Satisfaction with studies\"), 2) AS avg_study_satisfaction, ROUND(AVG(\"Work/study hours\"), 2) AS avg_study_hours, ROUND(AVG(Age), 2) AS avg_age FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY suicidal",
+          "phase": "offline_validation",
+          "start_time": 1788866422.6381474,
+          "status": "execute_returned",
+          "end_time": 1788866422.6480095
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT \"Have you ever had suicidal thoughts?\" AS suicidal, \"Sleep duration\", COUNT(*) AS n FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY suicidal, \"Sleep duration\" ORDER BY suicidal, \"Sleep duration\"",
+          "phase": "offline_validation",
+          "start_time": 1788866422.652988,
+          "status": "execute_returned",
+          "end_time": 1788866422.6640244
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT \"Have you ever had suicidal thoughts?\" AS suicidal, \"Dietary habits\", COUNT(*) AS n FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY suicidal, \"Dietary habits\" ORDER BY suicidal, \"Dietary habits\"",
+          "phase": "offline_validation",
+          "start_time": 1788866422.666281,
+          "status": "execute_returned",
+          "end_time": 1788866422.6764328
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT CASE WHEN Age < 20 THEN '<20' WHEN Age <= 24 THEN '20-24' WHEN Age <= 29 THEN '25-29' ELSE '30+' END AS age_group, COUNT(*) AS total, SUM(CASE WHEN \"Have you ever had suicidal thoughts?\" = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN \"Have you ever had suicidal thoughts?\" = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY age_group ORDER BY age_group",
+          "phase": "offline_validation",
+          "start_time": 1788866422.6788516,
+          "status": "execute_returned",
+          "end_time": 1788866422.6867537
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT ROUND(MIN(Age), 1) AS min_age, ROUND(MAX(Age), 1) AS max_age, ROUND(AVG(Age), 1) AS avg_age FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student'",
+          "phase": "offline_validation",
+          "start_time": 1788866422.690127,
+          "status": "execute_returned",
+          "end_time": 1788866422.692997
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"sheet1\" WHERE \"Working professional or student\" = 'Student'",
+          "time": 1788866422.5936422,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788866422.6185598,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788866422.6186142,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Have you ever had suicidal thoughts?\" AS suicidal, COUNT(*) AS n FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY suicidal",
+          "time": 1788866422.6186652,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT Gender, COUNT(*) AS n FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY Gender",
+          "time": 1788866422.6250398,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT DISTINCT \"Sleep duration\" FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student'",
+          "time": 1788866422.630875,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT DISTINCT \"Dietary habits\" FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student'",
+          "time": 1788866422.6344264,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Have you ever had suicidal thoughts?\" AS suicidal, COUNT(*) AS n, ROUND(AVG(\"Academic stress\"), 2) AS avg_academic_stress, ROUND(AVG(\"Financial stress\"), 2) AS avg_financial_stress, ROUND(AVG(\"Cumulative GPA (CGPA)\"), 2) AS avg_cgpa, ROUND(AVG(\"Satisfaction with studies\"), 2) AS avg_study_satisfaction, ROUND(AVG(\"Work/study hours\"), 2) AS avg_study_hours, ROUND(AVG(Age), 2) AS avg_age FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY suicidal",
+          "time": 1788866422.6382234,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Have you ever had suicidal thoughts?\" AS suicidal, \"Sleep duration\", COUNT(*) AS n FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY suicidal, \"Sleep duration\" ORDER BY suicidal, \"Sleep duration\"",
+          "time": 1788866422.6530344,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Have you ever had suicidal thoughts?\" AS suicidal, \"Dietary habits\", COUNT(*) AS n FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY suicidal, \"Dietary habits\" ORDER BY suicidal, \"Dietary habits\"",
+          "time": 1788866422.6663253,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT CASE WHEN Age < 20 THEN '<20' WHEN Age <= 24 THEN '20-24' WHEN Age <= 29 THEN '25-29' ELSE '30+' END AS age_group, COUNT(*) AS total, SUM(CASE WHEN \"Have you ever had suicidal thoughts?\" = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN \"Have you ever had suicidal thoughts?\" = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY age_group ORDER BY age_group",
+          "time": 1788866422.6789346,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT ROUND(MIN(Age), 1) AS min_age, ROUND(MAX(Age), 1) AS max_age, ROUND(AVG(Age), 1) AS avg_age FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student'",
+          "time": 1788866422.6901777,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 25.036404840648174,
+      "intermediate_rows": 18762,
+      "intermediate_columns": [
+        "id",
+        "Name",
+        "Gender",
+        "Age",
+        "City",
+        "Working professional or student",
+        "Occupation",
+        "Academic stress",
+        "Work stress",
+        "Cumulative GPA (CGPA)",
+        "Satisfaction with studies",
+        "Job satisfaction",
+        "Sleep duration",
+        "Dietary habits",
+        "Degree",
+        "Have you ever had suicidal thoughts?",
+        "Work/study hours",
+        "Financial stress",
+        "Family history of mental illness"
+      ],
+      "validation_ended_at": 1788866422.694481,
+      "checks": [
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT \"Have you ever had suicidal thoughts?\" AS suicidal, COUNT(*) AS n FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY suicidal",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 6.361675448715687
+        },
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT Gender, COUNT(*) AS n FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY Gender",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 5.838428623974323
+        },
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT DISTINCT \"Sleep duration\" FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 3.5494398325681686
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT DISTINCT \"Dietary habits\" FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 3.7416955456137657
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT \"Have you ever had suicidal thoughts?\" AS suicidal, COUNT(*) AS n, ROUND(AVG(\"Academic stress\"), 2) AS avg_academic_stress, ROUND(AVG(\"Financial stress\"), 2) AS avg_financial_stress, ROUND(AVG(\"Cumulative GPA (CGPA)\"), 2) AS avg_cgpa, ROUND(AVG(\"Satisfaction with studies\"), 2) AS avg_study_satisfaction, ROUND(AVG(\"Work/study hours\"), 2) AS avg_study_hours, ROUND(AVG(Age), 2) AS avg_age FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY suicidal",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 14.838063158094883
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT \"Have you ever had suicidal thoughts?\" AS suicidal, \"Sleep duration\", COUNT(*) AS n FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY suicidal, \"Sleep duration\" ORDER BY suicidal, \"Sleep duration\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 13.290062546730042
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT \"Have you ever had suicidal thoughts?\" AS suicidal, \"Dietary habits\", COUNT(*) AS n FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY suicidal, \"Dietary habits\" ORDER BY suicidal, \"Dietary habits\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 12.567827478051186
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "SELECT CASE WHEN Age < 20 THEN '<20' WHEN Age <= 24 THEN '20-24' WHEN Age <= 29 THEN '25-29' ELSE '30+' END AS age_group, COUNT(*) AS total, SUM(CASE WHEN \"Have you ever had suicidal thoughts?\" = 'Yes' THEN 1 ELSE 0 END) AS yes_n, ROUND(100.0 * SUM(CASE WHEN \"Have you ever had suicidal thoughts?\" = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 1) AS yes_pct FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student' GROUP BY age_group ORDER BY age_group",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 11.272849515080452
+        },
+        {
+          "sql_id": "S27",
+          "rewritten_sql": "SELECT ROUND(MIN(Age), 1) AS min_age, ROUND(MAX(Age), 1) AS max_age, ROUND(AVG(Age), 1) AS avg_age FROM temp.reuse_candidate AS sheet1 WHERE \"Working professional or student\" = 'Student'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 3.674865700304508
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Have you ever had suicidal thoughts?\" AS __g0, gender AS __g1, \"Sleep duration\" AS __g2, \"Dietary habits\" AS __g3, CASE WHEN age < 20 THEN '<20' WHEN age <= 24 THEN '20-24' WHEN age <= 29 THEN '25-29' ELSE '30+' END AS __g4, COUNT(*) AS __a0, SUM(\"Academic stress\") AS __a1_sum, COUNT(\"Academic stress\") AS __a1_n, SUM(\"Financial stress\") AS __a2_sum, COUNT(\"Financial stress\") AS __a2_n, SUM(\"Cumulative GPA (CGPA)\") AS __a3_sum, COUNT(\"Cumulative GPA (CGPA)\") AS __a3_n, SUM(\"Satisfaction with studies\") AS __a4_sum, COUNT(\"Satisfaction with studies\") AS __a4_n, SUM(\"Work/study hours\") AS __a5_sum, COUNT(\"Work/study hours\") AS __a5_n, SUM(age) AS __a6_sum, COUNT(age) AS __a6_n, SUM(CASE WHEN \"Have you ever had suicidal thoughts?\" = 'Yes' THEN 1 ELSE 0 END) AS __a7, MIN(age) AS __a8, MAX(age) AS __a9 FROM \"sheet1\" WHERE \"Working professional or student\" = 'Student' GROUP BY \"Have you ever had suicidal thoughts?\", gender, \"Sleep duration\", \"Dietary habits\", CASE WHEN age < 20 THEN '<20' WHEN age <= 24 THEN '20-24' WHEN age <= 29 THEN '25-29' ELSE '30+' END",
+      "covered": [
+        "S7",
+        "S8",
+        "S11",
+        "S12",
+        "S13",
+        "S26",
+        "S27"
+      ],
+      "rewrites": {
+        "S7": "SELECT __g0 AS suicidal, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+        "S8": "SELECT __g1 AS \"Gender\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1",
+        "S11": "SELECT __g0 AS suicidal, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_academic_stress, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_financial_stress, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_cgpa, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_study_satisfaction, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_study_hours, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_age FROM temp.reuse_candidate GROUP BY __g0",
+        "S12": "SELECT __g0 AS suicidal, __g2 AS \"Sleep duration\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY suicidal, __g2",
+        "S13": "SELECT __g0 AS suicidal, __g3 AS \"Dietary habits\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY suicidal, __g3",
+        "S26": "SELECT __g4 AS age_group, SUM(__a0) AS total, SUM(__a7) AS yes_n, ROUND(100.0 * SUM(__a7) / SUM(__a0), 1) AS yes_pct FROM temp.reuse_candidate GROUP BY __g4 ORDER BY age_group",
+        "S27": "SELECT ROUND(MIN(__a8), 1) AS min_age, ROUND(MAX(__a9), 1) AS max_age, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 1) AS avg_age FROM temp.reuse_candidate"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C6",
+      "offline": true,
+      "earliest_build_before": "S7",
+      "later_reuses": 6,
+      "denominator": 30,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866422.6945055,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Have you ever had suicidal thoughts?\" AS __g0, gender AS __g1, \"Sleep duration\" AS __g2, \"Dietary habits\" AS __g3, CASE WHEN age < 20 THEN '<20' WHEN age <= 24 THEN '20-24' WHEN age <= 29 THEN '25-29' ELSE '30+' END AS __g4, COUNT(*) AS __a0, SUM(\"Academic stress\") AS __a1_sum, COUNT(\"Academic stress\") AS __a1_n, SUM(\"Financial stress\") AS __a2_sum, COUNT(\"Financial stress\") AS __a2_n, SUM(\"Cumulative GPA (CGPA)\") AS __a3_sum, COUNT(\"Cumulative GPA (CGPA)\") AS __a3_n, SUM(\"Satisfaction with studies\") AS __a4_sum, COUNT(\"Satisfaction with studies\") AS __a4_n, SUM(\"Work/study hours\") AS __a5_sum, COUNT(\"Work/study hours\") AS __a5_n, SUM(age) AS __a6_sum, COUNT(age) AS __a6_n, SUM(CASE WHEN \"Have you ever had suicidal thoughts?\" = 'Yes' THEN 1 ELSE 0 END) AS __a7, MIN(age) AS __a8, MAX(age) AS __a9 FROM \"sheet1\" WHERE \"Working professional or student\" = 'Student' GROUP BY \"Have you ever had suicidal thoughts?\", gender, \"Sleep duration\", \"Dietary habits\", CASE WHEN age < 20 THEN '<20' WHEN age <= 24 THEN '20-24' WHEN age <= 29 THEN '25-29' ELSE '30+' END",
+          "phase": "offline_validation",
+          "start_time": 1788866422.6947315,
+          "status": "execute_returned",
+          "end_time": 1788866422.750531
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866422.7505388,
+          "status": "execute_returned",
+          "end_time": 1788866422.7505684
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788866422.7505736,
+          "status": "execute_returned",
+          "end_time": 1788866422.7505915
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS suicidal, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788866422.7506223,
+          "status": "execute_returned",
+          "end_time": 1788866422.7506847
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g1 AS \"Gender\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1",
+          "phase": "offline_validation",
+          "start_time": 1788866422.7514231,
+          "status": "execute_returned",
+          "end_time": 1788866422.7515013
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS suicidal, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_academic_stress, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_financial_stress, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_cgpa, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_study_satisfaction, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_study_hours, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_age FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788866422.7520518,
+          "status": "execute_returned",
+          "end_time": 1788866422.7523196
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g0 AS suicidal, __g2 AS \"Sleep duration\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY suicidal, __g2",
+          "phase": "offline_validation",
+          "start_time": 1788866422.7538135,
+          "status": "execute_returned",
+          "end_time": 1788866422.7539186
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g0 AS suicidal, __g3 AS \"Dietary habits\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY suicidal, __g3",
+          "phase": "offline_validation",
+          "start_time": 1788866422.7546268,
+          "status": "execute_returned",
+          "end_time": 1788866422.7547355
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g4 AS age_group, SUM(__a0) AS total, SUM(__a7) AS yes_n, ROUND(100.0 * SUM(__a7) / SUM(__a0), 1) AS yes_pct FROM temp.reuse_candidate GROUP BY __g4 ORDER BY age_group",
+          "phase": "offline_validation",
+          "start_time": 1788866422.755466,
+          "status": "execute_returned",
+          "end_time": 1788866422.7555761
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT ROUND(MIN(__a8), 1) AS min_age, ROUND(MAX(__a9), 1) AS max_age, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 1) AS avg_age FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866422.7573311,
+          "status": "execute_returned",
+          "end_time": 1788866422.7574267
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Have you ever had suicidal thoughts?\" AS __g0, gender AS __g1, \"Sleep duration\" AS __g2, \"Dietary habits\" AS __g3, CASE WHEN age < 20 THEN '<20' WHEN age <= 24 THEN '20-24' WHEN age <= 29 THEN '25-29' ELSE '30+' END AS __g4, COUNT(*) AS __a0, SUM(\"Academic stress\") AS __a1_sum, COUNT(\"Academic stress\") AS __a1_n, SUM(\"Financial stress\") AS __a2_sum, COUNT(\"Financial stress\") AS __a2_n, SUM(\"Cumulative GPA (CGPA)\") AS __a3_sum, COUNT(\"Cumulative GPA (CGPA)\") AS __a3_n, SUM(\"Satisfaction with studies\") AS __a4_sum, COUNT(\"Satisfaction with studies\") AS __a4_n, SUM(\"Work/study hours\") AS __a5_sum, COUNT(\"Work/study hours\") AS __a5_n, SUM(age) AS __a6_sum, COUNT(age) AS __a6_n, SUM(CASE WHEN \"Have you ever had suicidal thoughts?\" = 'Yes' THEN 1 ELSE 0 END) AS __a7, MIN(age) AS __a8, MAX(age) AS __a9 FROM \"sheet1\" WHERE \"Working professional or student\" = 'Student' GROUP BY \"Have you ever had suicidal thoughts?\", gender, \"Sleep duration\", \"Dietary habits\", CASE WHEN age < 20 THEN '<20' WHEN age <= 24 THEN '20-24' WHEN age <= 29 THEN '25-29' ELSE '30+' END",
+          "time": 1788866422.6949463,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788866422.7505639,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788866422.750588,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS suicidal, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788866422.750639,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"Gender\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1",
+          "time": 1788866422.7514498,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS suicidal, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_academic_stress, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_financial_stress, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_cgpa, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_study_satisfaction, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_study_hours, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_age FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788866422.752148,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS suicidal, __g2 AS \"Sleep duration\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY suicidal, __g2",
+          "time": 1788866422.7538497,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS suicidal, __g3 AS \"Dietary habits\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY suicidal, __g3",
+          "time": 1788866422.7546604,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS age_group, SUM(__a0) AS total, SUM(__a7) AS yes_n, ROUND(100.0 * SUM(__a7) / SUM(__a0), 1) AS yes_pct FROM temp.reuse_candidate GROUP BY __g4 ORDER BY age_group",
+          "time": 1788866422.7555084,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT ROUND(MIN(__a8), 1) AS min_age, ROUND(MAX(__a9), 1) AS max_age, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 1) AS avg_age FROM temp.reuse_candidate",
+          "time": 1788866422.7573795,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 55.80491200089455,
+      "intermediate_rows": 201,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__a0",
+        "__a1_sum",
+        "__a1_n",
+        "__a2_sum",
+        "__a2_n",
+        "__a3_sum",
+        "__a3_n",
+        "__a4_sum",
+        "__a4_n",
+        "__a5_sum",
+        "__a5_n",
+        "__a6_sum",
+        "__a6_n",
+        "__a7",
+        "__a8",
+        "__a9"
+      ],
+      "validation_ended_at": 1788866422.7586067,
+      "checks": [
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT __g0 AS suicidal, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.797525979578495
+        },
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT __g1 AS \"Gender\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6263554096221924
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT __g0 AS suicidal, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_academic_stress, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_financial_stress, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_cgpa, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_study_satisfaction, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_study_hours, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_age FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.759534701704979
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT __g0 AS suicidal, __g2 AS \"Sleep duration\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY suicidal, __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.8110729977488518
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT __g0 AS suicidal, __g3 AS \"Dietary habits\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY suicidal, __g3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.8369060233235359
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "SELECT __g4 AS age_group, SUM(__a0) AS total, SUM(__a7) AS yes_n, ROUND(100.0 * SUM(__a7) / SUM(__a0), 1) AS yes_pct FROM temp.reuse_candidate GROUP BY __g4 ORDER BY age_group",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.8627559766173363
+        },
+        {
+          "sql_id": "S27",
+          "rewritten_sql": "SELECT ROUND(MIN(__a8), 1) AS min_age, ROUND(MAX(__a9), 1) AS max_age, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 1) AS avg_age FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.873880460858345
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

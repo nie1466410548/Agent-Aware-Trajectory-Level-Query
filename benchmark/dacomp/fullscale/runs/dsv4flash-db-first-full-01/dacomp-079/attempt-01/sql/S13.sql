@@ -1,0 +1,1 @@
+SELECT * FROM pendo__visitor LIMIT 3

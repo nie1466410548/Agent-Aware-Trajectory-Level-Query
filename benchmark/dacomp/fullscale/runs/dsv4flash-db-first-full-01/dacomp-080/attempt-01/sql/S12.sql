@@ -1,0 +1,1 @@
+SELECT MIN(total_count_surveys) AS min_s, MAX(total_count_surveys) AS max_s, AVG(total_count_surveys) AS avg_s, MIN(total_count_completed_surveys) AS min_c, MAX(total_count_completed_surveys) AS max_c, AVG(total_count_completed_surveys) AS avg_c FROM qualtrics__contact

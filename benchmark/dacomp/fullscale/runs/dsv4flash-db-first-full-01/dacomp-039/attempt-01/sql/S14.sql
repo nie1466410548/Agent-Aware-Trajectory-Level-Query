@@ -1,0 +1,1 @@
+SELECT * FROM game_game_level_content_data_ta WHERE strftime('%Y', "Launch Time") = '2024'

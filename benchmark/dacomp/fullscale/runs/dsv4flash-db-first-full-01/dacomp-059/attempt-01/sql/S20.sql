@@ -1,0 +1,1 @@
+SELECT date_day, COUNT(*) AS cnt FROM google_ads__ad_group_report GROUP BY date_day ORDER BY date_day

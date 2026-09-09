@@ -1,0 +1,1 @@
+SELECT marketo_lead_id, COUNT(*) AS n FROM customer360__customer_value_analysis GROUP BY marketo_lead_id HAVING n > 1 ORDER BY n DESC LIMIT 20

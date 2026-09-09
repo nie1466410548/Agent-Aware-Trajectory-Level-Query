@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT stripe_customer_id) AS distinct_stripe_mapping FROM customer360__mapping WHERE stripe_customer_id IS NOT NULL

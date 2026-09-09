@@ -1,0 +1,1 @@
+SELECT DISTINCT "Purchase Preference Tag" FROM user_tags_table

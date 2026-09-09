@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT funnel_analysis_timestamp) AS distinct_ts_funnel FROM customer360__conversion_funnel_analysis

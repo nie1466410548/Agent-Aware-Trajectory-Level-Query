@@ -1,0 +1,703 @@
+{
+  "fingerprint": "da0d2d0f597c3a4832de31d774e5272c2eee19ecd7fb76b82444933a5baf6d45",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S28",
+      "covered": [
+        "S28",
+        "S31"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S28",
+      "later_reuses": 1,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT recipient_email, user_language AS dom_lang FROM (SELECT recipient_email, user_language, ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn FROM qualtrics__response GROUP BY recipient_email, user_language) WHERE rn = 1",
+      "covered": [
+        "S28",
+        "S30",
+        "S31"
+      ],
+      "rewrites": {
+        "S28": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC",
+        "S30": "SELECT MIN(n_survey_responses) AS min_n, MAX(n_survey_responses) AS max_n, AVG(n_survey_responses) AS avg_n, MIN(n_completed) AS min_c, MAX(n_completed) AS max_c, AVG(n_completed) AS avg_c, MIN(completion_rate) AS min_cr, MAX(completion_rate) AS max_cr, AVG(completion_rate) AS avg_cr, MIN(n_channels) AS min_ch, MAX(n_channels) AS max_ch, AVG(n_channels) AS avg_ch, MIN(avg_progress) AS min_p, MAX(avg_progress) AS max_p, AVG(avg_progress) AS avg_p FROM (WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, AVG(survey_progress) AS avg_progress FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate FROM user_agg AS u)",
+        "S31": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S28",
+      "later_reuses": 2,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869282.3591738,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT recipient_email, user_language AS dom_lang FROM (SELECT recipient_email, user_language, ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn FROM qualtrics__response GROUP BY recipient_email, user_language) WHERE rn = 1",
+          "phase": "offline_validation",
+          "start_time": 1788869282.359357,
+          "status": "execute_returned",
+          "end_time": 1788869282.4389317
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869282.4389398,
+          "status": "execute_returned",
+          "end_time": 1788869282.4389758
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788869282.4389813,
+          "status": "execute_returned",
+          "end_time": 1788869282.438994
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869282.4390044,
+          "status": "execute_returned",
+          "end_time": 1788869283.9357793
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT MIN(n_survey_responses) AS min_n, MAX(n_survey_responses) AS max_n, AVG(n_survey_responses) AS avg_n, MIN(n_completed) AS min_c, MAX(n_completed) AS max_c, AVG(n_completed) AS avg_c, MIN(completion_rate) AS min_cr, MAX(completion_rate) AS max_cr, AVG(completion_rate) AS avg_cr, MIN(n_channels) AS min_ch, MAX(n_channels) AS max_ch, AVG(n_channels) AS avg_ch, MIN(avg_progress) AS min_p, MAX(avg_progress) AS max_p, AVG(avg_progress) AS avg_p FROM (WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, AVG(survey_progress) AS avg_progress FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate FROM user_agg AS u)",
+          "phase": "offline_validation",
+          "start_time": 1788869283.9863322,
+          "status": "execute_returned",
+          "end_time": 1788869284.0752707
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869284.0814648,
+          "status": "execute_returned",
+          "end_time": 1788869285.5764802
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT recipient_email, user_language AS dom_lang FROM (SELECT recipient_email, user_language, ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn FROM qualtrics__response GROUP BY recipient_email, user_language) WHERE rn = 1",
+          "time": 1788869282.3595712,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788869282.4389665,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788869282.4389906,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC",
+          "time": 1788869282.4391592,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(n_survey_responses) AS min_n, MAX(n_survey_responses) AS max_n, AVG(n_survey_responses) AS avg_n, MIN(n_completed) AS min_c, MAX(n_completed) AS max_c, AVG(n_completed) AS avg_c, MIN(completion_rate) AS min_cr, MAX(completion_rate) AS max_cr, AVG(completion_rate) AS avg_cr, MIN(n_channels) AS min_ch, MAX(n_channels) AS max_ch, AVG(n_channels) AS avg_ch, MIN(avg_progress) AS min_p, MAX(avg_progress) AS max_p, AVG(avg_progress) AS avg_p FROM (WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, AVG(survey_progress) AS avg_progress FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate FROM user_agg AS u)",
+          "time": 1788869283.9865158,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC",
+          "time": 1788869284.0814798,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 79.57997359335423,
+      "intermediate_rows": 4422,
+      "intermediate_columns": [
+        "recipient_email",
+        "dom_lang"
+      ],
+      "validation_ended_at": 1788869285.6254196,
+      "checks": [
+        {
+          "sql_id": "S28",
+          "rewritten_sql": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1547.3216632381082
+        },
+        {
+          "sql_id": "S30",
+          "rewritten_sql": "SELECT MIN(n_survey_responses) AS min_n, MAX(n_survey_responses) AS max_n, AVG(n_survey_responses) AS avg_n, MIN(n_completed) AS min_c, MAX(n_completed) AS max_c, AVG(n_completed) AS avg_c, MIN(completion_rate) AS min_cr, MAX(completion_rate) AS max_cr, AVG(completion_rate) AS avg_cr, MIN(n_channels) AS min_ch, MAX(n_channels) AS max_ch, AVG(n_channels) AS avg_ch, MIN(avg_progress) AS min_p, MAX(avg_progress) AS max_p, AVG(avg_progress) AS avg_p FROM (WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, AVG(survey_progress) AS avg_progress FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate FROM user_agg AS u)",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 95.12942843139172
+        },
+        {
+          "sql_id": "S31",
+          "rewritten_sql": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1543.7467023730278
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email",
+      "covered": [
+        "S28",
+        "S31"
+      ],
+      "rewrites": {
+        "S28": "WITH lang_mode AS (SELECT recipient_email, user_language AS dom_lang FROM (SELECT recipient_email, user_language, ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn FROM qualtrics__response GROUP BY recipient_email, user_language) WHERE rn = 1), user_agg AS (SELECT * FROM temp.reuse_candidate) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC",
+        "S31": "WITH lang_mode AS (SELECT recipient_email, user_language AS dom_lang FROM (SELECT recipient_email, user_language, ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn FROM qualtrics__response GROUP BY recipient_email, user_language) WHERE rn = 1), user_agg AS (SELECT * FROM temp.reuse_candidate) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S28",
+      "later_reuses": 1,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT language AS __g0, CASE WHEN total_count_surveys = 1 THEN 'one' WHEN total_count_surveys BETWEEN 2 AND 5 THEN '2-5' WHEN total_count_surveys BETWEEN 6 AND 10 THEN '6-10' WHEN total_count_surveys BETWEEN 11 AND 20 THEN '11-20' WHEN total_count_surveys > 20 THEN '21+' END AS __g1, STRFTIME('%Y-%m', created_at) AS __g2, COUNT(*) AS __a0, MIN(total_count_surveys) AS __a1, MAX(total_count_surveys) AS __a2, SUM(total_count_surveys) AS __a3_sum, COUNT(total_count_surveys) AS __a3_n, MIN(total_count_completed_surveys) AS __a4, MAX(total_count_completed_surveys) AS __a5, SUM(total_count_completed_surveys) AS __a6_sum, COUNT(total_count_completed_surveys) AS __a6_n, SUM(CASE WHEN total_count_completed_surveys = 0 THEN 1 ELSE 0 END) AS __a7, SUM(1.0 * total_count_completed_surveys / NULLIF(total_count_surveys, 0)) AS __a8_sum, COUNT(1.0 * total_count_completed_surveys / NULLIF(total_count_surveys, 0)) AS __a8_n, SUM(avg_survey_progress_pct) AS __a9_sum, COUNT(avg_survey_progress_pct) AS __a9_n, SUM(count_surveys_completed_email) AS __a10_sum, COUNT(count_surveys_completed_email) AS __a10_n, SUM(count_surveys_completed_sms) AS __a11_sum, COUNT(count_surveys_completed_sms) AS __a11_n FROM \"qualtrics__contact\"  GROUP BY language, CASE WHEN total_count_surveys = 1 THEN 'one' WHEN total_count_surveys BETWEEN 2 AND 5 THEN '2-5' WHEN total_count_surveys BETWEEN 6 AND 10 THEN '6-10' WHEN total_count_surveys BETWEEN 11 AND 20 THEN '11-20' WHEN total_count_surveys > 20 THEN '21+' END, STRFTIME('%Y-%m', created_at)",
+      "covered": [
+        "S3",
+        "S9",
+        "S12",
+        "S32",
+        "S33",
+        "S34"
+      ],
+      "rewrites": {
+        "S3": "SELECT SUM(__a0) AS n_contacts FROM temp.reuse_candidate",
+        "S9": "SELECT __g0 AS \"language\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+        "S12": "SELECT MIN(__a1) AS min_s, MAX(__a2) AS max_s, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_s, MIN(__a4) AS min_c, MAX(__a5) AS max_c, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_c FROM temp.reuse_candidate",
+        "S32": "SELECT __g1 AS bucket, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY bucket",
+        "S33": "SELECT __g2 AS month, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY month",
+        "S34": "SELECT SUM(__a0) AS n, SUM(__a7) AS zero_completed, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_sent, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_completed, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_completion_rate, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_progress, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_comp_email, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_comp_sms FROM temp.reuse_candidate"
+      },
+      "status": "rejected_result_mismatch",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 5,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869282.3468173,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT language AS __g0, CASE WHEN total_count_surveys = 1 THEN 'one' WHEN total_count_surveys BETWEEN 2 AND 5 THEN '2-5' WHEN total_count_surveys BETWEEN 6 AND 10 THEN '6-10' WHEN total_count_surveys BETWEEN 11 AND 20 THEN '11-20' WHEN total_count_surveys > 20 THEN '21+' END AS __g1, STRFTIME('%Y-%m', created_at) AS __g2, COUNT(*) AS __a0, MIN(total_count_surveys) AS __a1, MAX(total_count_surveys) AS __a2, SUM(total_count_surveys) AS __a3_sum, COUNT(total_count_surveys) AS __a3_n, MIN(total_count_completed_surveys) AS __a4, MAX(total_count_completed_surveys) AS __a5, SUM(total_count_completed_surveys) AS __a6_sum, COUNT(total_count_completed_surveys) AS __a6_n, SUM(CASE WHEN total_count_completed_surveys = 0 THEN 1 ELSE 0 END) AS __a7, SUM(1.0 * total_count_completed_surveys / NULLIF(total_count_surveys, 0)) AS __a8_sum, COUNT(1.0 * total_count_completed_surveys / NULLIF(total_count_surveys, 0)) AS __a8_n, SUM(avg_survey_progress_pct) AS __a9_sum, COUNT(avg_survey_progress_pct) AS __a9_n, SUM(count_surveys_completed_email) AS __a10_sum, COUNT(count_surveys_completed_email) AS __a10_n, SUM(count_surveys_completed_sms) AS __a11_sum, COUNT(count_surveys_completed_sms) AS __a11_n FROM \"qualtrics__contact\"  GROUP BY language, CASE WHEN total_count_surveys = 1 THEN 'one' WHEN total_count_surveys BETWEEN 2 AND 5 THEN '2-5' WHEN total_count_surveys BETWEEN 6 AND 10 THEN '6-10' WHEN total_count_surveys BETWEEN 11 AND 20 THEN '11-20' WHEN total_count_surveys > 20 THEN '21+' END, STRFTIME('%Y-%m', created_at)",
+          "phase": "offline_validation",
+          "start_time": 1788869282.3470767,
+          "status": "execute_returned",
+          "end_time": 1788869282.3538394
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869282.3538442,
+          "status": "execute_returned",
+          "end_time": 1788869282.3538628
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788869282.3538673,
+          "status": "execute_returned",
+          "end_time": 1788869282.3538835
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS n_contacts FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869282.3539126,
+          "status": "execute_returned",
+          "end_time": 1788869282.353928
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"language\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869282.3544188,
+          "status": "execute_returned",
+          "end_time": 1788869282.3544726
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT MIN(__a1) AS min_s, MAX(__a2) AS max_s, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_s, MIN(__a4) AS min_c, MAX(__a5) AS max_c, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_c FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869282.3550327,
+          "status": "execute_returned",
+          "end_time": 1788869282.3551035
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g1 AS bucket, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY bucket",
+          "phase": "offline_validation",
+          "start_time": 1788869282.3559456,
+          "status": "execute_returned",
+          "end_time": 1788869282.355992
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g2 AS month, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY month",
+          "phase": "offline_validation",
+          "start_time": 1788869282.3570228,
+          "status": "execute_returned",
+          "end_time": 1788869282.3570693
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT SUM(__a0) AS n, SUM(__a7) AS zero_completed, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_sent, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_completed, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_completion_rate, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_progress, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_comp_email, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_comp_sms FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869282.3576345,
+          "status": "execute_returned",
+          "end_time": 1788869282.3577476
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT language AS __g0, CASE WHEN total_count_surveys = 1 THEN 'one' WHEN total_count_surveys BETWEEN 2 AND 5 THEN '2-5' WHEN total_count_surveys BETWEEN 6 AND 10 THEN '6-10' WHEN total_count_surveys BETWEEN 11 AND 20 THEN '11-20' WHEN total_count_surveys > 20 THEN '21+' END AS __g1, STRFTIME('%Y-%m', created_at) AS __g2, COUNT(*) AS __a0, MIN(total_count_surveys) AS __a1, MAX(total_count_surveys) AS __a2, SUM(total_count_surveys) AS __a3_sum, COUNT(total_count_surveys) AS __a3_n, MIN(total_count_completed_surveys) AS __a4, MAX(total_count_completed_surveys) AS __a5, SUM(total_count_completed_surveys) AS __a6_sum, COUNT(total_count_completed_surveys) AS __a6_n, SUM(CASE WHEN total_count_completed_surveys = 0 THEN 1 ELSE 0 END) AS __a7, SUM(1.0 * total_count_completed_surveys / NULLIF(total_count_surveys, 0)) AS __a8_sum, COUNT(1.0 * total_count_completed_surveys / NULLIF(total_count_surveys, 0)) AS __a8_n, SUM(avg_survey_progress_pct) AS __a9_sum, COUNT(avg_survey_progress_pct) AS __a9_n, SUM(count_surveys_completed_email) AS __a10_sum, COUNT(count_surveys_completed_email) AS __a10_n, SUM(count_surveys_completed_sms) AS __a11_sum, COUNT(count_surveys_completed_sms) AS __a11_n FROM \"qualtrics__contact\"  GROUP BY language, CASE WHEN total_count_surveys = 1 THEN 'one' WHEN total_count_surveys BETWEEN 2 AND 5 THEN '2-5' WHEN total_count_surveys BETWEEN 6 AND 10 THEN '6-10' WHEN total_count_surveys BETWEEN 11 AND 20 THEN '11-20' WHEN total_count_surveys > 20 THEN '21+' END, STRFTIME('%Y-%m', created_at)",
+          "time": 1788869282.347453,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788869282.35386,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788869282.3538806,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n_contacts FROM temp.reuse_candidate",
+          "time": 1788869282.3539233,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"language\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "time": 1788869282.3544466,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a1) AS min_s, MAX(__a2) AS max_s, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_s, MIN(__a4) AS min_c, MAX(__a5) AS max_c, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_c FROM temp.reuse_candidate",
+          "time": 1788869282.35508,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS bucket, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY bucket",
+          "time": 1788869282.3559735,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS month, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY month",
+          "time": 1788869282.3570507,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n, SUM(__a7) AS zero_completed, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_sent, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_completed, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_completion_rate, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_progress, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_comp_email, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_comp_sms FROM temp.reuse_candidate",
+          "time": 1788869282.3577096,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 6.767190061509609,
+      "intermediate_rows": 50,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3_sum",
+        "__a3_n",
+        "__a4",
+        "__a5",
+        "__a6_sum",
+        "__a6_n",
+        "__a7",
+        "__a8_sum",
+        "__a8_n",
+        "__a9_sum",
+        "__a9_n",
+        "__a10_sum",
+        "__a10_n",
+        "__a11_sum",
+        "__a11_n"
+      ],
+      "validation_ended_at": 1788869282.3591485,
+      "checks": [
+        {
+          "sql_id": "S3",
+          "rewritten_sql": "SELECT SUM(__a0) AS n_contacts FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5033053457736969
+        },
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT __g0 AS \"language\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6117075681686401
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT MIN(__a1) AS min_s, MAX(__a2) AS max_s, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_s, MIN(__a4) AS min_c, MAX(__a5) AS max_c, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_c FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.9107701480388641
+        },
+        {
+          "sql_id": "S32",
+          "rewritten_sql": "SELECT __g1 AS bucket, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY bucket",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.0750675573945045
+        },
+        {
+          "sql_id": "S33",
+          "rewritten_sql": "SELECT __g2 AS month, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6095487624406815
+        },
+        {
+          "sql_id": "S34",
+          "rewritten_sql": "SELECT SUM(__a0) AS n, SUM(__a7) AS zero_completed, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_sent, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_completed, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_completion_rate, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS avg_progress, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_comp_email, (1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)) AS avg_comp_sms FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.402563415467739
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT survey_response_status AS __g0, ROUND(location_latitude / 10) * 10 AS __g1, ROUND(location_longitude / 20) * 20 AS __g2, CASE WHEN location_latitude > 0 AND location_longitude < -30 THEN 'AMERICAS' WHEN location_latitude <= 0 AND location_longitude < -30 THEN 'AMERICAS' WHEN location_latitude > 35 AND location_longitude >= -30 AND location_longitude < 60 THEN 'EUROPE' WHEN location_latitude <= 35 AND location_longitude >= -30 AND location_longitude < 60 THEN 'AFRICA/MIDEAST' WHEN location_longitude >= 60 AND location_longitude < 180 THEN 'ASIA/OCEANIA' ELSE 'OTHER' END AS __g3, recipient_email AS __g4, MIN(survey_response_recorded_at) AS __a0, MAX(survey_response_recorded_at) AS __a1, MIN(survey_response_started_at) AS __a2, MAX(survey_response_started_at) AS __a3, COUNT(*) AS __a4, SUM(CASE WHEN NOT location_latitude IS NULL THEN 1 ELSE 0 END) AS __a5, SUM(CASE WHEN NOT ip_address IS NULL THEN 1 ELSE 0 END) AS __a6, SUM(CASE WHEN NOT recipient_email IS NULL THEN 1 ELSE 0 END) AS __a7, MIN(survey_progress) AS __a8, MAX(survey_progress) AS __a9, SUM(survey_progress) AS __a10_sum, COUNT(survey_progress) AS __a10_n, MIN(duration_in_seconds) AS __a11, MAX(duration_in_seconds) AS __a12, SUM(duration_in_seconds) AS __a13_sum, COUNT(duration_in_seconds) AS __a13_n, SUM(CASE WHEN is_finished_with_survey = 1 AND survey_response_status = 1 THEN 1 ELSE 0 END) AS __a14, SUM(CASE WHEN is_finished_with_survey = 0 AND survey_response_status = 0 THEN 1 ELSE 0 END) AS __a15, SUM(CASE WHEN is_finished_with_survey = 0 AND survey_response_status = 1 THEN 1 ELSE 0 END) AS __a16, SUM(CASE WHEN is_finished_with_survey = 1 AND survey_response_status = 0 THEN 1 ELSE 0 END) AS __a17, MAX(CASE WHEN distribution_channel = 'email' THEN 1 ELSE 0 END) AS __a18, MAX(CASE WHEN distribution_channel = 'sms' THEN 1 ELSE 0 END) AS __a19, MAX(CASE WHEN distribution_channel = 'mobile' THEN 1 ELSE 0 END) AS __a20, MAX(CASE WHEN distribution_channel = 'web' THEN 1 ELSE 0 END) AS __a21, MAX(CASE WHEN distribution_channel = 'social' THEN 1 ELSE 0 END) AS __a22 FROM \"qualtrics__response\"  GROUP BY survey_response_status, ROUND(location_latitude / 10) * 10, ROUND(location_longitude / 20) * 20, CASE WHEN location_latitude > 0 AND location_longitude < -30 THEN 'AMERICAS' WHEN location_latitude <= 0 AND location_longitude < -30 THEN 'AMERICAS' WHEN location_latitude > 35 AND location_longitude >= -30 AND location_longitude < 60 THEN 'EUROPE' WHEN location_latitude <= 35 AND location_longitude >= -30 AND location_longitude < 60 THEN 'AFRICA/MIDEAST' WHEN location_longitude >= 60 AND location_longitude < 180 THEN 'ASIA/OCEANIA' ELSE 'OTHER' END, recipient_email",
+      "covered": [
+        "S10",
+        "S13",
+        "S17",
+        "S21",
+        "S25",
+        "S26",
+        "S27",
+        "S37"
+      ],
+      "rewrites": {
+        "S10": "SELECT MIN(__a0) AS min_ts, MAX(__a1) AS max_ts, MIN(__a2) AS min_start, MAX(__a3) AS max_start FROM temp.reuse_candidate",
+        "S13": "SELECT DISTINCT __g0 AS \"survey_response_status\", SUM(__a4) AS n FROM temp.reuse_candidate GROUP BY __g0",
+        "S17": "SELECT SUM(__a5) AS with_lat, SUM(__a6) AS with_ip, SUM(__a7) AS with_email, SUM(__a4) AS total FROM temp.reuse_candidate",
+        "S21": "SELECT MIN(__a8) AS min_p, MAX(__a9) AS max_p, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_p, MIN(__a11) AS min_d, MAX(__a12) AS max_d, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_d FROM temp.reuse_candidate",
+        "S25": "SELECT SUM(__a14) AS both_1, SUM(__a15) AS both_0, SUM(__a16) AS f0_s1, SUM(__a17) AS f1_s0 FROM temp.reuse_candidate",
+        "S26": "SELECT __g1 AS lat_bin, __g2 AS lon_bin, SUM(__a4) AS n_rows FROM temp.reuse_candidate GROUP BY __g1, __g2 ORDER BY n_rows DESC LIMIT 30",
+        "S27": "SELECT __g3 AS rough_region, SUM(__a4) AS n FROM temp.reuse_candidate GROUP BY __g3",
+        "S37": "SELECT __g4 AS email, MAX(__a18) AS ch_email, MAX(__a19) AS ch_sms, MAX(__a20) AS ch_mobile, MAX(__a21) AS ch_web, MAX(__a22) AS ch_social FROM temp.reuse_candidate GROUP BY __g4"
+      },
+      "status": "rejected_result_mismatch",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S10",
+      "later_reuses": 7,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869281.9495819,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT survey_response_status AS __g0, ROUND(location_latitude / 10) * 10 AS __g1, ROUND(location_longitude / 20) * 20 AS __g2, CASE WHEN location_latitude > 0 AND location_longitude < -30 THEN 'AMERICAS' WHEN location_latitude <= 0 AND location_longitude < -30 THEN 'AMERICAS' WHEN location_latitude > 35 AND location_longitude >= -30 AND location_longitude < 60 THEN 'EUROPE' WHEN location_latitude <= 35 AND location_longitude >= -30 AND location_longitude < 60 THEN 'AFRICA/MIDEAST' WHEN location_longitude >= 60 AND location_longitude < 180 THEN 'ASIA/OCEANIA' ELSE 'OTHER' END AS __g3, recipient_email AS __g4, MIN(survey_response_recorded_at) AS __a0, MAX(survey_response_recorded_at) AS __a1, MIN(survey_response_started_at) AS __a2, MAX(survey_response_started_at) AS __a3, COUNT(*) AS __a4, SUM(CASE WHEN NOT location_latitude IS NULL THEN 1 ELSE 0 END) AS __a5, SUM(CASE WHEN NOT ip_address IS NULL THEN 1 ELSE 0 END) AS __a6, SUM(CASE WHEN NOT recipient_email IS NULL THEN 1 ELSE 0 END) AS __a7, MIN(survey_progress) AS __a8, MAX(survey_progress) AS __a9, SUM(survey_progress) AS __a10_sum, COUNT(survey_progress) AS __a10_n, MIN(duration_in_seconds) AS __a11, MAX(duration_in_seconds) AS __a12, SUM(duration_in_seconds) AS __a13_sum, COUNT(duration_in_seconds) AS __a13_n, SUM(CASE WHEN is_finished_with_survey = 1 AND survey_response_status = 1 THEN 1 ELSE 0 END) AS __a14, SUM(CASE WHEN is_finished_with_survey = 0 AND survey_response_status = 0 THEN 1 ELSE 0 END) AS __a15, SUM(CASE WHEN is_finished_with_survey = 0 AND survey_response_status = 1 THEN 1 ELSE 0 END) AS __a16, SUM(CASE WHEN is_finished_with_survey = 1 AND survey_response_status = 0 THEN 1 ELSE 0 END) AS __a17, MAX(CASE WHEN distribution_channel = 'email' THEN 1 ELSE 0 END) AS __a18, MAX(CASE WHEN distribution_channel = 'sms' THEN 1 ELSE 0 END) AS __a19, MAX(CASE WHEN distribution_channel = 'mobile' THEN 1 ELSE 0 END) AS __a20, MAX(CASE WHEN distribution_channel = 'web' THEN 1 ELSE 0 END) AS __a21, MAX(CASE WHEN distribution_channel = 'social' THEN 1 ELSE 0 END) AS __a22 FROM \"qualtrics__response\"  GROUP BY survey_response_status, ROUND(location_latitude / 10) * 10, ROUND(location_longitude / 20) * 20, CASE WHEN location_latitude > 0 AND location_longitude < -30 THEN 'AMERICAS' WHEN location_latitude <= 0 AND location_longitude < -30 THEN 'AMERICAS' WHEN location_latitude > 35 AND location_longitude >= -30 AND location_longitude < 60 THEN 'EUROPE' WHEN location_latitude <= 35 AND location_longitude >= -30 AND location_longitude < 60 THEN 'AFRICA/MIDEAST' WHEN location_longitude >= 60 AND location_longitude < 180 THEN 'ASIA/OCEANIA' ELSE 'OTHER' END, recipient_email",
+          "phase": "offline_validation",
+          "start_time": 1788869281.9498658,
+          "status": "execute_returned",
+          "end_time": 1788869282.2208955
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869282.2209067,
+          "status": "execute_returned",
+          "end_time": 1788869282.2224483
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788869282.2224605,
+          "status": "execute_returned",
+          "end_time": 1788869282.222497
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT MIN(__a0) AS min_ts, MAX(__a1) AS max_ts, MIN(__a2) AS min_start, MAX(__a3) AS max_start FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869282.222547,
+          "status": "execute_returned",
+          "end_time": 1788869282.227947
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT DISTINCT __g0 AS \"survey_response_status\", SUM(__a4) AS n FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788869282.2288663,
+          "status": "execute_returned",
+          "end_time": 1788869282.2328832
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT SUM(__a5) AS with_lat, SUM(__a6) AS with_ip, SUM(__a7) AS with_email, SUM(__a4) AS total FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869282.2342508,
+          "status": "execute_returned",
+          "end_time": 1788869282.2380166
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT MIN(__a8) AS min_p, MAX(__a9) AS max_p, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_p, MIN(__a11) AS min_d, MAX(__a12) AS max_d, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_d FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869282.2394984,
+          "status": "execute_returned",
+          "end_time": 1788869282.246243
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT SUM(__a14) AS both_1, SUM(__a15) AS both_0, SUM(__a16) AS f0_s1, SUM(__a17) AS f1_s0 FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869282.2474852,
+          "status": "execute_returned",
+          "end_time": 1788869282.251783
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g1 AS lat_bin, __g2 AS lon_bin, SUM(__a4) AS n_rows FROM temp.reuse_candidate GROUP BY __g1, __g2 ORDER BY n_rows DESC LIMIT 30",
+          "phase": "offline_validation",
+          "start_time": 1788869282.2533123,
+          "status": "execute_returned",
+          "end_time": 1788869282.2618997
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g3 AS rough_region, SUM(__a4) AS n FROM temp.reuse_candidate GROUP BY __g3",
+          "phase": "offline_validation",
+          "start_time": 1788869282.2629244,
+          "status": "execute_returned",
+          "end_time": 1788869282.267554
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g4 AS email, MAX(__a18) AS ch_email, MAX(__a19) AS ch_sms, MAX(__a20) AS ch_mobile, MAX(__a21) AS ch_web, MAX(__a22) AS ch_social FROM temp.reuse_candidate GROUP BY __g4",
+          "phase": "offline_validation",
+          "start_time": 1788869282.2702732,
+          "status": "execute_returned",
+          "end_time": 1788869282.2782853
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT survey_response_status AS __g0, ROUND(location_latitude / 10) * 10 AS __g1, ROUND(location_longitude / 20) * 20 AS __g2, CASE WHEN location_latitude > 0 AND location_longitude < -30 THEN 'AMERICAS' WHEN location_latitude <= 0 AND location_longitude < -30 THEN 'AMERICAS' WHEN location_latitude > 35 AND location_longitude >= -30 AND location_longitude < 60 THEN 'EUROPE' WHEN location_latitude <= 35 AND location_longitude >= -30 AND location_longitude < 60 THEN 'AFRICA/MIDEAST' WHEN location_longitude >= 60 AND location_longitude < 180 THEN 'ASIA/OCEANIA' ELSE 'OTHER' END AS __g3, recipient_email AS __g4, MIN(survey_response_recorded_at) AS __a0, MAX(survey_response_recorded_at) AS __a1, MIN(survey_response_started_at) AS __a2, MAX(survey_response_started_at) AS __a3, COUNT(*) AS __a4, SUM(CASE WHEN NOT location_latitude IS NULL THEN 1 ELSE 0 END) AS __a5, SUM(CASE WHEN NOT ip_address IS NULL THEN 1 ELSE 0 END) AS __a6, SUM(CASE WHEN NOT recipient_email IS NULL THEN 1 ELSE 0 END) AS __a7, MIN(survey_progress) AS __a8, MAX(survey_progress) AS __a9, SUM(survey_progress) AS __a10_sum, COUNT(survey_progress) AS __a10_n, MIN(duration_in_seconds) AS __a11, MAX(duration_in_seconds) AS __a12, SUM(duration_in_seconds) AS __a13_sum, COUNT(duration_in_seconds) AS __a13_n, SUM(CASE WHEN is_finished_with_survey = 1 AND survey_response_status = 1 THEN 1 ELSE 0 END) AS __a14, SUM(CASE WHEN is_finished_with_survey = 0 AND survey_response_status = 0 THEN 1 ELSE 0 END) AS __a15, SUM(CASE WHEN is_finished_with_survey = 0 AND survey_response_status = 1 THEN 1 ELSE 0 END) AS __a16, SUM(CASE WHEN is_finished_with_survey = 1 AND survey_response_status = 0 THEN 1 ELSE 0 END) AS __a17, MAX(CASE WHEN distribution_channel = 'email' THEN 1 ELSE 0 END) AS __a18, MAX(CASE WHEN distribution_channel = 'sms' THEN 1 ELSE 0 END) AS __a19, MAX(CASE WHEN distribution_channel = 'mobile' THEN 1 ELSE 0 END) AS __a20, MAX(CASE WHEN distribution_channel = 'web' THEN 1 ELSE 0 END) AS __a21, MAX(CASE WHEN distribution_channel = 'social' THEN 1 ELSE 0 END) AS __a22 FROM \"qualtrics__response\"  GROUP BY survey_response_status, ROUND(location_latitude / 10) * 10, ROUND(location_longitude / 20) * 20, CASE WHEN location_latitude > 0 AND location_longitude < -30 THEN 'AMERICAS' WHEN location_latitude <= 0 AND location_longitude < -30 THEN 'AMERICAS' WHEN location_latitude > 35 AND location_longitude >= -30 AND location_longitude < 60 THEN 'EUROPE' WHEN location_latitude <= 35 AND location_longitude >= -30 AND location_longitude < 60 THEN 'AFRICA/MIDEAST' WHEN location_longitude >= 60 AND location_longitude < 180 THEN 'ASIA/OCEANIA' ELSE 'OTHER' END, recipient_email",
+          "time": 1788869281.950401,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788869282.2209527,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788869282.2224925,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a0) AS min_ts, MAX(__a1) AS max_ts, MIN(__a2) AS min_start, MAX(__a3) AS max_start FROM temp.reuse_candidate",
+          "time": 1788869282.2225766,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT DISTINCT __g0 AS \"survey_response_status\", SUM(__a4) AS n FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788869282.2289007,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a5) AS with_lat, SUM(__a6) AS with_ip, SUM(__a7) AS with_email, SUM(__a4) AS total FROM temp.reuse_candidate",
+          "time": 1788869282.2342834,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a8) AS min_p, MAX(__a9) AS max_p, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_p, MIN(__a11) AS min_d, MAX(__a12) AS max_d, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_d FROM temp.reuse_candidate",
+          "time": 1788869282.2395632,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a14) AS both_1, SUM(__a15) AS both_0, SUM(__a16) AS f0_s1, SUM(__a17) AS f1_s0 FROM temp.reuse_candidate",
+          "time": 1788869282.2475271,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS lat_bin, __g2 AS lon_bin, SUM(__a4) AS n_rows FROM temp.reuse_candidate GROUP BY __g1, __g2 ORDER BY n_rows DESC LIMIT 30",
+          "time": 1788869282.2533581,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS rough_region, SUM(__a4) AS n FROM temp.reuse_candidate GROUP BY __g3",
+          "time": 1788869282.2629564,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS email, MAX(__a18) AS ch_email, MAX(__a19) AS ch_sms, MAX(__a20) AS ch_mobile, MAX(__a21) AS ch_web, MAX(__a22) AS ch_social FROM temp.reuse_candidate GROUP BY __g4",
+          "time": 1788869282.2703245,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 271.0379771888256,
+      "intermediate_rows": 17632,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4",
+        "__a5",
+        "__a6",
+        "__a7",
+        "__a8",
+        "__a9",
+        "__a10_sum",
+        "__a10_n",
+        "__a11",
+        "__a12",
+        "__a13_sum",
+        "__a13_n",
+        "__a14",
+        "__a15",
+        "__a16",
+        "__a17",
+        "__a18",
+        "__a19",
+        "__a20",
+        "__a21",
+        "__a22"
+      ],
+      "validation_ended_at": 1788869282.3463862,
+      "checks": [
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT MIN(__a0) AS min_ts, MAX(__a1) AS max_ts, MIN(__a2) AS min_start, MAX(__a3) AS max_start FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 6.314849480986595
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT DISTINCT __g0 AS \"survey_response_status\", SUM(__a4) AS n FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 5.3807999938726425
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "SELECT SUM(__a5) AS with_lat, SUM(__a6) AS with_ip, SUM(__a7) AS with_email, SUM(__a4) AS total FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 5.244440399110317
+        },
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "SELECT MIN(__a8) AS min_p, MAX(__a9) AS max_p, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS avg_p, MIN(__a11) AS min_d, MAX(__a12) AS max_d, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_d FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 7.981240749359131
+        },
+        {
+          "sql_id": "S25",
+          "rewritten_sql": "SELECT SUM(__a14) AS both_1, SUM(__a15) AS both_0, SUM(__a16) AS f0_s1, SUM(__a17) AS f1_s0 FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 5.82506600767374
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "SELECT __g1 AS lat_bin, __g2 AS lon_bin, SUM(__a4) AS n_rows FROM temp.reuse_candidate GROUP BY __g1, __g2 ORDER BY n_rows DESC LIMIT 30",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 9.608729742467403
+        },
+        {
+          "sql_id": "S27",
+          "rewritten_sql": "SELECT __g3 AS rough_region, SUM(__a4) AS n FROM temp.reuse_candidate GROUP BY __g3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 7.338540628552437
+        },
+        {
+          "sql_id": "S37",
+          "rewritten_sql": "SELECT __g4 AS email, MAX(__a18) AS ch_email, MAX(__a19) AS ch_sms, MAX(__a20) AS ch_mobile, MAX(__a21) AS ch_web, MAX(__a22) AS ch_social FROM temp.reuse_candidate GROUP BY __g4",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 75.36464557051659
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+SELECT "Health status", COUNT(*) AS n FROM health_status GROUP BY "Health status" ORDER BY n DESC

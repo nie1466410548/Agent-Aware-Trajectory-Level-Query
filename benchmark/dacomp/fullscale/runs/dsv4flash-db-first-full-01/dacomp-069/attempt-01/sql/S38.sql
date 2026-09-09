@@ -1,0 +1,1 @@
+SELECT date_day, overall_performance_score, quality_score, daily_net_revenue, daily_installs, daily_uninstalls, active_devices, daily_crashes, crash_rate_per_1k_devices, day_7_retention_rate, day_30_retention_rate, daily_churn_rate FROM google_play__comprehensive_performance_dashboard WHERE package_name='com.dev.photoeditor' ORDER BY date_day

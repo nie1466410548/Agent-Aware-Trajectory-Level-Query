@@ -1,0 +1,183 @@
+{
+  "task_id": "dacomp-007",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python repeatedly calculates departmental/job-level attrition rates, counts, means, ranks and cross-tabs from row-level results. These operations are supported by SQLite grouping/window expressions. The repeated query result is a verified direct-reuse opportunity, but the subsequent relational processing in pandas is a protocol violation.",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 21,
+          "text": "print(df.groupby('Department')['Attrition'].apply(lambda x: (x=='Yes').sum()/len(x)*100))"
+        }
+      ]
+    },
+    {
+      "source": "python/P10.py",
+      "lines": [
+        {
+          "line": 16,
+          "text": "print(mgr.groupby('Department').agg("
+        }
+      ]
+    },
+    {
+      "source": "python/P11.py",
+      "lines": [
+        {
+          "line": 16,
+          "text": "tab = df.groupby(['Department','numcos_bucket'])['is_attrition'].agg(['count','mean'])"
+        },
+        {
+          "line": 24,
+          "text": "tab2 = df.groupby(['Department','dist_bucket'])['is_attrition'].agg(['count','mean'])"
+        },
+        {
+          "line": 30,
+          "text": "tab3 = df.groupby(['Department','promo_bucket'])['is_attrition'].agg(['count','mean'])"
+        },
+        {
+          "line": 37,
+          "text": "tab4 = df.groupby(['Department','TrainingTimesLastYear'])['is_attrition'].agg(['count','mean'])"
+        }
+      ]
+    },
+    {
+      "source": "python/P12.py",
+      "lines": [
+        {
+          "line": 20,
+          "text": "overall = df.groupby('Department')['is_attrition'].mean()*100"
+        },
+        {
+          "line": 38,
+          "text": "        rates = sub.groupby('Department')['is_attrition'].mean()*100"
+        }
+      ]
+    },
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 8,
+          "text": "pivot = df.groupby(['Department','JobLevel'])['Attrition'].apply(lambda x: (x=='Yes').mean()*100).unstack()"
+        },
+        {
+          "line": 13,
+          "text": "comp = df.groupby(['Department','JobLevel']).size().unstack(fill_value=0)"
+        },
+        {
+          "line": 24,
+          "text": "overall_comp = df.groupby('JobLevel').size()"
+        }
+      ]
+    },
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 8,
+          "text": "pivot = df.groupby(['Department','JobLevel'])['Attrition'].apply(lambda x: (x=='Yes').mean()*100).unstack()"
+        },
+        {
+          "line": 13,
+          "text": "comp = df.groupby(['Department','JobLevel']).size().unstack(fill_value=0)"
+        },
+        {
+          "line": 19,
+          "text": "overall = df.groupby('JobLevel').size()"
+        }
+      ]
+    },
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 10,
+          "text": "print(df.groupby(['Department','JobLevel'])['MonthlyIncome'].agg(['count','mean','median']).round(0).unstack('Department'))"
+        },
+        {
+          "line": 26,
+          "text": "    rates = sub.groupby(['Department',factor])['is_attrition'].agg(['count','mean'])"
+        }
+      ]
+    },
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 10,
+          "text": "    g = sub.groupby(['Department', factor])['is_attrition'].agg(['count','mean'])"
+        }
+      ]
+    },
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 14,
+          "text": "role_summary = df.groupby(['Department','JobRole']).agg("
+        },
+        {
+          "line": 35,
+          "text": "print(dup.groupby('EmpID').size().sort_values(ascending=False).head(10))"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 23,
+          "text": "dept_att = df.groupby('Department')['is_attrition'].agg(['count','mean'])"
+        },
+        {
+          "line": 34,
+          "text": "lvl_att = df.groupby(['Department','JobLevel'])['is_attrition'].mean().unstack()*100"
+        },
+        {
+          "line": 42,
+          "text": "dept_comp = df.groupby(['Department','JobLevel']).size().unstack(fill_value=0)"
+        },
+        {
+          "line": 51,
+          "text": "ot_att = df.groupby(['Department','OverTime'])['is_attrition'].mean().unstack()*100"
+        },
+        {
+          "line": 59,
+          "text": "so_att = df.groupby(['Department','StockOptionLevel'])['is_attrition'].mean().unstack()*100"
+        },
+        {
+          "line": 67,
+          "text": "ms_att = df.groupby(['Department','MaritalStatus'])['is_attrition'].mean().unstack()*100"
+        }
+      ]
+    },
+    {
+      "source": "python/P9.py",
+      "lines": [
+        {
+          "line": 20,
+          "text": "role_counts = df.groupby(['Department','JobRole']).size().unstack(fill_value=0)"
+        },
+        {
+          "line": 29,
+          "text": "role_att = df.groupby('JobRole').agg("
+        },
+        {
+          "line": 36,
+          "text": "role_dept = df.groupby('JobRole')['Department'].agg(lambda x: x.mode().iloc[0] if len(x.mode())>0 else x.iloc[0])"
+        },
+        {
+          "line": 59,
+          "text": "income_plot = df.groupby(['Department','JobLevel'])['MonthlyIncome'].mean().unstack()"
+        },
+        {
+          "line": 67,
+          "text": "income_role = df.groupby(['Department','JobRole'])['MonthlyIncome'].mean().unstack()"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "task_id": "dacomp-050",
+  "status": "reviewed_SQL_dominant_with_statistical_model_preprocessing",
+  "reviewer": "experiment analyst",
+  "conclusion": "描述性计数、分层比例和交叉汇总在 SQL 内完成。Python 主要用于逻辑回归、编码、模型矩阵的有限值筛选、标准化与绘图；均值出现于损失函数或模型预处理，不能据此判为明细聚合迁出。分类编码和有限值筛选也可提前在 SQL 完成，记录为建模预处理边界。",
+  "route": "SQL 汇总学生压力、饮食与睡眠特征及交叉比例 → Python 拟合逻辑回归并生成图表。",
+  "evidence": [
+    {
+      "source": "python/P10.py",
+      "lines": [
+        {
+          "line": 11,
+          "text": "df['y'] = (df['suicidal']=='Yes').astype(int)"
+        },
+        {
+          "line": 14,
+          "text": "sleep = pd.get_dummies(df['Sleep duration'], prefix='sleep')"
+        },
+        {
+          "line": 22,
+          "text": "mask = np.isfinite(X).all(axis=1)"
+        },
+        {
+          "line": 32,
+          "text": "    return -np.mean(y*np.log(p)+(1-y)*np.log(1-p))"
+        },
+        {
+          "line": 37,
+          "text": "res = minimize(lambda b: nllg(b)[0], np.zeros(Xa_r.shape[1]), jac=lambda b: nllg(b)[1], method='BFGS', options={'maxiter':20000,'gtol':1e-12})"
+        },
+        {
+          "line": 41,
+          "text": "I = (Xa_r.T * (p*(1-p))) @ Xa_r   # observed information = SUM, not mean"
+        },
+        {
+          "line": 45,
+          "text": "outr = pd.DataFrame({'coef': b, 'se': se, 'OR': or_,"
+        }
+      ]
+    },
+    {
+      "source": "python/P15.py",
+      "lines": [
+        {
+          "line": 14,
+          "text": "sleep_d = todict(load(14, ['Sleep duration','total','yes_n','yes_pct']), 'Sleep duration', 'yes_pct')"
+        },
+        {
+          "line": 15,
+          "text": "diet_d  = todict(load(15, ['diet_group','total','yes_n','yes_pct']), 'diet_group', 'yes_pct')"
+        },
+        {
+          "line": 18,
+          "text": "risk_df = load(29, ['n_risk','total','yes_n','yes_pct'])"
+        },
+        {
+          "line": 45,
+          "text": "# Diet x sleep heatmap"
+        }
+      ]
+    }
+  ]
+}

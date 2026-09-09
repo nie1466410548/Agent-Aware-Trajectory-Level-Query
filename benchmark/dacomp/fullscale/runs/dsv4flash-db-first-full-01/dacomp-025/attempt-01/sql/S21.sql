@@ -1,0 +1,1 @@
+SELECT "Sales Date", COUNT(*) as cnt FROM sales_records WHERE "Sales Date" LIKE '2023-%' GROUP BY "Sales Date" ORDER BY "Sales Date"

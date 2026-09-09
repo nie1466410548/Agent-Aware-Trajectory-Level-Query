@@ -1,0 +1,92 @@
+{
+  "task_id": "dacomp-014",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "P8 exports SELECT * and performs deduplication, beginner filtering, category counts/means/maxima and engagement ratios in pandas. Other calls repeat group summaries for plotting. Median/regression/plot rendering may justify Python, but do not justify moving these SQL-capable relational computations out of the database.",
+  "evidence": [
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 4,
+          "text": "rows = db.query(\"SELECT * FROM sheet1\")"
+        },
+        {
+          "line": 9,
+          "text": "df_u = df.drop_duplicates(subset='key').copy()"
+        },
+        {
+          "line": 12,
+          "text": "beginners = df_u[df_u['Creator Followers'] < 10000]"
+        },
+        {
+          "line": 16,
+          "text": "cat_beg = beginners.groupby('Video Category').agg("
+        },
+        {
+          "line": 17,
+          "text": "    cnt=('Views','count'),"
+        },
+        {
+          "line": 18,
+          "text": "    avg_views=('Views','mean'),"
+        },
+        {
+          "line": 20,
+          "text": "    max_views=('Views','max'),"
+        },
+        {
+          "line": 21,
+          "text": "    avg_followers=('Creator Followers','mean')"
+        },
+        {
+          "line": 28,
+          "text": "cat_eng = df_u.groupby('Video Category').agg("
+        },
+        {
+          "line": 30,
+          "text": "    like_rate=('Likes', lambda x: x.sum()/df_u.loc[x.index,'Views'].sum()*100),"
+        },
+        {
+          "line": 31,
+          "text": "    coin_rate=('Coins', lambda x: x.sum()/df_u.loc[x.index,'Views'].sum()*100),"
+        },
+        {
+          "line": 32,
+          "text": "    fav_rate=('Favorites', lambda x: x.sum()/df_u.loc[x.index,'Views'].sum()*100),"
+        },
+        {
+          "line": 33,
+          "text": "    share_rate=('Shares', lambda x: x.sum()/df_u.loc[x.index,'Views'].sum()*100),"
+        }
+      ]
+    },
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 14,
+          "text": "beta, res, rank, sv = np.linalg.lstsq(Xc, y, rcond=None)"
+        }
+      ]
+    },
+    {
+      "source": "python/P12.py",
+      "lines": [
+        {
+          "line": 19,
+          "text": "cat_views = df_u.groupby('Video Category').agg("
+        },
+        {
+          "line": 41,
+          "text": "engagement = df_u.groupby('view_group').agg("
+        },
+        {
+          "line": 69,
+          "text": "size_views = df_u.groupby('creator_size')['Views'].agg(['count','mean','median']).reset_index()"
+        }
+      ]
+    }
+  ],
+  "route": "检查月榜与重复视频 → 分析类别、播放和互动指标 → 拟合播放量回归 → 筛选新手作者并比较类别表现 → 绘制互动与播放分布。"
+}

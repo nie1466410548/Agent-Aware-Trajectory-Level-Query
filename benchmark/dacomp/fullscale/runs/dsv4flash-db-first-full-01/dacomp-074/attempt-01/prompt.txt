@@ -1,0 +1,86 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+The CFO wants to build a more accurate cash flow forecasting model. Analyze the historical cash flow trajectories of subsidiaries marked with a 'High' `cash_flow_risk_level`, focusing on the changes in their key financial indicators during the 6 months prior to them entering this risk state. The specific dimensions of analysis include: revenue recognition (frequency of monthly revenue fluctuations exceeding 20%), accounts receivable management (the proportion of time `weighted_average_days_outstanding` exceeds 45 days, and instances where `overdue_percentage` rises for 3 consecutive months), and expense control (the degree of divergence between the growth rate of 'expense' account type expenditures and the revenue growth rate). By comparing the indicator trajectories of these high-risk subsidiaries with those of financially healthy subsidiaries over the same time dimensions, identify a combination of key indicators and threshold settings that can provide a 2-3 month early warning for cash flow crises.
+
+DATABASE SCHEMA:
+CREATE TABLE "netsuite2_financial_dashboard" (
+"subsidiary_id" TEXT,
+  "accounting_period_id" TEXT,
+  "dashboard_date" TIMESTAMP,
+  "current_ratio" REAL,
+  "quick_ratio" REAL,
+  "return_on_equity" REAL,
+  "gross_margin_ratio" REAL,
+  "net_profit_margin" REAL,
+  "overall_financial_health_score" REAL,
+  "financial_health_grade" TEXT,
+  "net_cash_flow" REAL,
+  "operating_cash_flow" REAL,
+  "cash_flow_health" TEXT,
+  "predicted_next_month_cash_flow" REAL,
+  "cash_flow_risk_level" TEXT,
+  "total_ar_amount" REAL,
+  "overdue_amount" REAL,
+  "overdue_percentage" REAL,
+  "weighted_average_days_outstanding" REAL,
+  "total_customers" INTEGER,
+  "high_value_customers" INTEGER,
+  "at_risk_customers" INTEGER,
+  "total_customer_revenue" REAL,
+  "average_customer_value" REAL,
+  "avg_financial_health" REAL,
+  "financial_health_volatility" REAL,
+  "avg_net_margin" REAL,
+  "avg_current_ratio" REAL,
+  "cash_flow_consistency_percentage" REAL,
+  "total_risk_score" INTEGER,
+  "risk_level" TEXT,
+  "primary_risk_factor" TEXT,
+  "liquidity_performance" TEXT,
+  "profitability_performance" TEXT,
+  "roe_performance" TEXT,
+  "collection_performance" TEXT,
+  "improvement_recommendation" TEXT,
+  "overall_rating" TEXT,
+  "key_alert" TEXT,
+  "dashboard_id" TEXT
+)
+CREATE TABLE "netsuite2_income_statement" (
+"transaction_id" TEXT,
+  "transaction_line_id" TEXT,
+  "accounting_period_id" TEXT,
+  "accounting_period_ending" TIMESTAMP,
+  "accounting_period_name" TEXT,
+  "is_accounting_period_adjustment" INTEGER,
+  "is_accounting_period_closed" INTEGER,
+  "account_name" TEXT,
+  "account_type_name" TEXT,
+  "account_id" TEXT,
+  "account_number" TEXT,
+  "subsidiary_id" TEXT,
+  "subsidiary_full_name" TEXT,
+  "subsidiary_name" TEXT,
+  "subsidiary_currency_symbol" TEXT,
+  "account_number_and_name" TEXT,
+  "class_id" TEXT,
+  "class_full_name" TEXT,
+  "location_id" TEXT,
+  "location_full_name" TEXT,
+  "department_id" TEXT,
+  "department_full_name" TEXT,
+  "account_category" TEXT,
+  "income_statement_sort_helper" INTEGER,
+  "converted_amount" REAL,
+  "transaction_amount" REAL,
+  "income_statement_id" TEXT
+)

@@ -1,0 +1,1 @@
+SELECT Province, "Total Population" FROM "2000_province_hh_pop_sex_ratio" LIMIT 35

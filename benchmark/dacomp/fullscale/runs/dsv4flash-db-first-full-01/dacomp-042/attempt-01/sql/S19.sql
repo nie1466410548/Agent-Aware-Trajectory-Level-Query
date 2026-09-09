@@ -1,0 +1,1 @@
+SELECT MIN(o."Treatment reference"), MAX(o."Treatment reference") FROM treatmentoutcomes o

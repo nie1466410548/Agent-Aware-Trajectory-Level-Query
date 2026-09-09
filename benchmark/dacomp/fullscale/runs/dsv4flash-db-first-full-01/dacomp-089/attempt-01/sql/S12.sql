@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total, SUM(CASE WHEN annual_revenue IS NOT NULL THEN 1 ELSE 0 END) AS with_rev FROM salesforce__customer_360_view

@@ -1,0 +1,2 @@
+WITH hv AS (SELECT DISTINCT "Customer ID" FROM transaction_history_table WHERE "Transaction Payment Status"='Paid' GROUP BY "Customer ID" HAVING SUM("Transaction Amount")>5000)
+SELECT d."Device Type", COUNT(*) as cnt FROM hv JOIN customer_device_table d ON hv."Customer ID"=d."Customer ID" GROUP BY d."Device Type" ORDER BY cnt DESC

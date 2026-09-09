@@ -1,0 +1,106 @@
+============================================================
+DEEPER: Non-linear relationship via binned means & interaction
+============================================================
+
+--- Binned means: conversion rate vs quality (10 bins) ---
+                mean  count
+quality_bin                
+(0.995, 1.49]  7.035   1136
+(1.49, 1.98]   7.075    148
+(1.98, 2.47]   6.729    184
+(2.47, 2.96]   6.928    228
+(2.96, 3.45]   7.116    304
+(3.45, 3.94]   7.020    392
+(3.94, 4.43]   6.857    540
+(4.43, 4.92]   6.998    808
+(4.92, 5.41]   7.009   1368
+(5.41, 5.9]    6.964   1164
+
+--- Binned means: conversion rate vs crash (10 bins) ---
+                 mean  count
+crash_bin                   
+(0.0902, 1.08]  7.001   2908
+(1.08, 2.06]    6.921   1484
+(2.06, 3.04]    6.970    800
+(3.04, 4.02]    6.871    496
+(4.02, 5.0]     7.230    244
+(5.0, 5.98]     7.039    148
+(5.98, 6.96]    7.439     72
+(6.96, 7.94]    6.686     40
+(7.94, 8.92]    6.724     28
+(8.92, 9.9]     7.969     52
+
+Interaction model conv ~ q + c + q*c: R² = 0.0007
+  coeffs: intercept=6.721, quality=0.050, crash=0.076, q*c=-0.014
+
+--- Full model: conv ~ q + c + q² + log(c) + active scale + time ---
+  R² = 0.0023, adj R² = -0.0005, n=6272
+    intercept: 7.2790
+    quality: 0.0763
+    quality²: -0.0066
+    log(crash): -0.0880
+    crash: 0.1008
+    rpad: 12.8581
+    log(active): -0.0547
+    time: 0.0004
+    r_Europe: 0.0119
+    r_North America: 0.0229
+    r_South America: -0.0172
+    p_com.demo.socialmedia: -0.1210
+    p_com.dev.photoeditor: -0.1477
+    p_com.example.gameapp: -0.4056
+    p_com.sample.productivity: -0.0750
+    p_com.studio.videostreaming: -0.0453
+    p_com.test.fitness: 0.0033
+    p_com.trial.education: 0.0170
+
+Correlation: log(active_devices) vs conv_rate: 0.01884836840474978
+
+
+--- USER VALUE DECAY: revenue per active device vs market scale ---
+
+Package scale (active devices) deciles:
+              mean  count
+scale_bin                
+0          0.01521    157
+1          0.00684    157
+2          0.00555    157
+3          0.00532    156
+4          0.00511    157
+5          0.00559    157
+6          0.00657    156
+7          0.00638    157
+8          0.00594    157
+9          0.00510    157
+
+Log-log relationship: rpad vs active_devices
+  musicplayer: corr(log-active, log-rpad) = 0.1608, elasticity = 0.4627
+  socialmedia: corr(log-active, log-rpad) = -0.1968, elasticity = -0.6849
+  photoeditor: corr(log-active, log-rpad) = -0.1435, elasticity = -0.5215
+  gameapp: corr(log-active, log-rpad) = -0.1768, elasticity = -0.3263
+  productivity: corr(log-active, log-rpad) = -0.2568, elasticity = -1.6313
+  videostreaming: corr(log-active, log-rpad) = -0.2602, elasticity = -1.3291
+  fitness: corr(log-active, log-rpad) = -0.1606, elasticity = -0.5284
+  education: corr(log-active, log-rpad) = -0.2045, elasticity = -1.1086
+
+--- Full daily rpad model (multi-dimensional) ---
+  R² = 0.3718, adj R² = 0.3690
+    intercept: 0.169859
+    quality: -0.000126
+    crash: -0.000055
+    churn: 0.008493
+    anr: -0.000149
+    active: 0.000000
+    log(active): -0.014165
+
+--- Value decay elasticity per package (rpad vs active) ---
+          package  elasticity       r       p
+0     musicplayer      0.4627  0.1608  0.0244
+1     socialmedia     -0.6849 -0.1968  0.0057
+2     photoeditor     -0.5215 -0.1435  0.0448
+3         gameapp     -0.3263 -0.1768  0.0132
+4    productivity     -1.6313 -0.2568  0.0003
+5  videostreaming     -1.3291 -0.2602  0.0002
+6         fitness     -0.5284 -0.1606  0.0245
+7       education     -1.1086 -0.2045  0.0040
+Saved fig6_value_decay_curves.png

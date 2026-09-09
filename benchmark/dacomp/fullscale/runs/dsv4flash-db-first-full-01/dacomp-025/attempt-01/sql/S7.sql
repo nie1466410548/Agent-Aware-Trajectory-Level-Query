@@ -1,0 +1,1 @@
+SELECT DISTINCT strftime('%Y', "Sales Date") as year FROM sales_records ORDER BY year

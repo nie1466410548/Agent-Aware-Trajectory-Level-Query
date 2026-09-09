@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_accounts FROM salesforce__customer_360_view

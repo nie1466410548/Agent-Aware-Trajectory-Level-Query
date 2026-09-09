@@ -1,0 +1,1 @@
+SELECT date_day, country_short, sku_id, net_amount, transactions, ROUND(net_amount/transactions,2) AS net_per_tx FROM google_play__finance_report WHERE package_name='com.dev.photoeditor' ORDER BY date_day, country_short

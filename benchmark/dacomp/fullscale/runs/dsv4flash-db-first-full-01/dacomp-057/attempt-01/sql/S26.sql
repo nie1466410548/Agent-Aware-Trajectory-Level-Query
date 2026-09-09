@@ -1,0 +1,1 @@
+SELECT strftime('%Y-%m', date_day) AS ym, COUNT(*) AS n, COUNT(DISTINCT account_id) AS accts FROM google_ads__customer_acquisition_analysis GROUP BY ym ORDER BY ym

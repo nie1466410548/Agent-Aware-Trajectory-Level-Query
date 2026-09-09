@@ -1,0 +1,1 @@
+SELECT "Category Name", COUNT(*) AS cnt FROM product_basic_information_table GROUP BY "Category Name" ORDER BY cnt DESC

@@ -1,0 +1,1 @@
+SELECT DISTINCT "Category Name" FROM product_basic_information_table ORDER BY "Category Name"

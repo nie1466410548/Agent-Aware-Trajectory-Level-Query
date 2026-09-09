@@ -1,0 +1,1 @@
+SELECT DISTINCT question_text, question_id FROM qualtrics__response WHERE question_text IS NOT NULL AND question_text != '' LIMIT 30

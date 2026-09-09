@@ -1,0 +1,1 @@
+SELECT r.survey_id, r.user_language, COUNT(*) AS n, AVG(r.value) AS avg_v, MIN(r.value) AS min_v, MAX(r.value) AS max_v FROM qualtrics__response r GROUP BY r.survey_id, r.user_language HAVING n >= 5 AND AVG(r.value) > 7.0 ORDER BY avg_v DESC LIMIT 30

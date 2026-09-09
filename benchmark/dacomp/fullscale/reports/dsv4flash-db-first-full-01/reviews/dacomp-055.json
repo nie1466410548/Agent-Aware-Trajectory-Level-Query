@@ -1,0 +1,76 @@
+{
+  "task_id": "dacomp-055",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 将客户与销售明细按邮箱合并，构造目标客群并按团队规模、行业及公司规模计算均值和比例，还计算投入与收入占比。这些连接、排名/筛选、常规聚合和算术可在 SQL 内完成。相关检验、回归及绘图不作为这些迁出计算的理由。",
+  "route": "SQL 提取投资与表现特征 → Python 合并销售数据、识别错配客群并分层聚合 → 相关检验与投资建议。",
+  "evidence": [
+    {
+      "source": "python/P9.py",
+      "lines": [
+        {
+          "line": 46,
+          "text": "df = df_v.merge(df_sales, left_on='primary_email', right_on='email', how='left')"
+        },
+        {
+          "line": 75,
+          "text": "print(f\"\\nTarget cohort size: {df['is_target'].sum()} out of {n}\")"
+        },
+        {
+          "line": 127,
+          "text": "team_agg = df.groupby('team_bucket').agg("
+        },
+        {
+          "line": 140,
+          "text": "ind_agg = df.groupby('industry_vertical').agg("
+        },
+        {
+          "line": 154,
+          "text": "size_agg = df.groupby('company_size_tier').agg("
+        }
+      ]
+    },
+    {
+      "source": "python/P15.py",
+      "lines": [
+        {
+          "line": 60,
+          "text": "sz = df.groupby('company_size_tier').agg("
+        },
+        {
+          "line": 66,
+          "text": "ind_shares = df.groupby('industry_vertical').agg("
+        }
+      ]
+    },
+    {
+      "source": "python/P16.py",
+      "lines": [
+        {
+          "line": 7,
+          "text": "total_ips = df['ips'].sum()"
+        },
+        {
+          "line": 8,
+          "text": "total_acq = df['acq'].sum()"
+        },
+        {
+          "line": 15,
+          "text": "    ips_share = 100*grp['ips'].sum()/total_ips"
+        },
+        {
+          "line": 16,
+          "text": "    acq_share = 100*grp['acq'].sum()/total_acq"
+        },
+        {
+          "line": 17,
+          "text": "    clv_share = 100*grp['clv'].sum()/total_clv"
+        },
+        {
+          "line": 18,
+          "text": "    sales_share = 100*grp['total_sales_amount'].sum()/total_sales"
+        }
+      ]
+    }
+  ]
+}

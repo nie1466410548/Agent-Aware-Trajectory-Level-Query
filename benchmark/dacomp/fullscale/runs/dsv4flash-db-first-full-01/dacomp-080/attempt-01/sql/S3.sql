@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_contacts FROM qualtrics__contact

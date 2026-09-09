@@ -1,0 +1,10 @@
+SELECT project_name,
+  AVG(avg_close_time_days) as avg_close_time,
+  MIN(avg_close_time_days) as min_close_time,
+  MAX(avg_close_time_days) as max_close_time,
+  SUM(count_closed_issues) as total_closed_issues,
+  SUM(count_open_issues) as total_open_issues,
+  AVG(avg_age_currently_open_days) as avg_age_open,
+  AVG(median_close_time_days) as avg_median_close
+FROM jira__project_enhanced
+GROUP BY project_name

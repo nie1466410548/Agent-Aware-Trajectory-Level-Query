@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS missing_inv FROM basic_drug_information b LEFT JOIN inventory_management i ON b."Drug ID" = i."Drug ID" WHERE i."Drug ID" IS NULL

@@ -1,0 +1,1 @@
+SELECT DISTINCT "Year" FROM economic_indicator_data WHERE "Region Name" = 'China' ORDER BY "Year"

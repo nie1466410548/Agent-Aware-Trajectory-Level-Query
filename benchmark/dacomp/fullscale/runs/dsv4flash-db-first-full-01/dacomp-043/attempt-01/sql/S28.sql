@@ -1,0 +1,1 @@
+SELECT "Isolation Type (Home/Hospital/Centralized)" AS iso_type, COUNT(*) AS n FROM isolation_and_disinfection GROUP BY iso_type ORDER BY n DESC;

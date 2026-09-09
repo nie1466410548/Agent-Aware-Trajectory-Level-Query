@@ -1,0 +1,1 @@
+SELECT AVG(composite_engagement_score) AS avg_composite_engagement_score FROM customer360__customer_activity_metrics

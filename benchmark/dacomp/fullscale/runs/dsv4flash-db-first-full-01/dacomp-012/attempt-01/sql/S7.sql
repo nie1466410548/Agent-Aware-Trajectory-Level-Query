@@ -1,0 +1,1 @@
+SELECT Clarity, COUNT(*) AS n FROM sheet1 GROUP BY Clarity ORDER BY Clarity

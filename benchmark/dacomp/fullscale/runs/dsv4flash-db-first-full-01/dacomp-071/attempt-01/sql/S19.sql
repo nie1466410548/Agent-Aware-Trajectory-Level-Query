@@ -1,0 +1,1 @@
+SELECT * FROM lever__opportunity_stage_history WHERE stage = 'Hired' LIMIT 10

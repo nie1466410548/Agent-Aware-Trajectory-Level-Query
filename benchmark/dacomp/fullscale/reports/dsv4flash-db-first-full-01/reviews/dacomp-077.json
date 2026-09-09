@@ -1,0 +1,60 @@
+{
+  "task_id": "dacomp-077",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "逐功能 t 检验、效应量与均值差需要统计输入，应与纯分组迁出区别评价。Python 还将统计结果与功能/采纳表多次合并并执行使用人数阈值计数，这些关系和条件聚合可在 SQL 内完成，记录偏离。",
+  "route": "SQL 提取功能与访客价值、采纳特征 → Python 逐功能检验及效应量、连接功能资料 → 隐藏价值功能建议。",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 32,
+          "text": "for fid, g in vf.groupby('feature_id'):"
+        },
+        {
+          "line": 37,
+          "text": "    tstat, pval = stats.ttest_ind(u_ccv, n_ccv, equal_var=False)"
+        },
+        {
+          "line": 38,
+          "text": "    diff = u_ccv.mean() - n_ccv.mean()"
+        },
+        {
+          "line": 51,
+          "text": "res = res.merge(feat, on='feature_id')"
+        }
+      ]
+    },
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 15,
+          "text": "merged = feat.merge(adopt, on='feature_id', suffixes=('', '_adopt'))"
+        },
+        {
+          "line": 21,
+          "text": "print(\"\\nFeatures with regular_users < 200:\", (merged['regular_users'] < 200).sum())"
+        },
+        {
+          "line": 22,
+          "text": "print(\"Features with count_visitors < 200:\", (merged['count_visitors'] < 200).sum())"
+        }
+      ]
+    },
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 14,
+          "text": "res = res.merge(adopt, on='feature_id', how='left')"
+        },
+        {
+          "line": 18,
+          "text": "res = res.merge(feat, on='feature_id', suffixes=('', '_f'))"
+        }
+      ]
+    }
+  ]
+}

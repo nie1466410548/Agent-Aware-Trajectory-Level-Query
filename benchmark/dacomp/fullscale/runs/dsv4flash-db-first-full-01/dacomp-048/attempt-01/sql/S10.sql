@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_voc, SUM(CASE WHEN "Salary Range" IS NOT NULL AND "Salary Range" != '' THEN 1 ELSE 0 END) AS with_salary, SUM(CASE WHEN "Benefits" IS NOT NULL AND "Benefits" != '' THEN 1 ELSE 0 END) AS with_benefits FROM sheet1 WHERE "Education Requirement" = 'Vocational school or above'

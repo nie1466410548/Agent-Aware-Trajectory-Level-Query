@@ -1,0 +1,1 @@
+SELECT * FROM basic_product_information LIMIT 5

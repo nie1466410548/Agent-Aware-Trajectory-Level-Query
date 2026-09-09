@@ -1,0 +1,1004 @@
+{
+  "fingerprint": "b333f77bfa54ef453e6d4011f6e4f3b2a703fe746334bdc5b3f000466048f23c",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S33",
+      "covered": [
+        "S33",
+        "S34"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S33",
+      "later_reuses": 1,
+      "denominator": 55,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S35",
+      "covered": [
+        "S35",
+        "S38"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S35",
+      "later_reuses": 1,
+      "denominator": 55,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S36",
+      "covered": [
+        "S36",
+        "S39"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S36",
+      "later_reuses": 1,
+      "denominator": 55,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S37",
+      "covered": [
+        "S37",
+        "S40"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S37",
+      "later_reuses": 1,
+      "denominator": 55,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT year_month, campaign_id, campaign_name, campaign_type, bidding_strategy, industry, cost, conversions, conversion_value, roas, cpc, cost_per_conversion, conversion_rate, quality_score, impression_share, ctr FROM google_ads__campaign_report",
+      "covered": [
+        "S29",
+        "S30",
+        "S32",
+        "S33",
+        "S34",
+        "S52",
+        "S57",
+        "S58"
+      ],
+      "rewrites": {
+        "S29": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT b.*, (b.roas - MIN(b.roas) OVER ()) / NULLIF(MAX(b.roas) OVER () - MIN(b.roas) OVER (), 0) AS roas_s, (MAX(b.cpc) OVER () - b.cpc) / NULLIF(MAX(b.cpc) OVER () - MIN(b.cpc) OVER (), 0) AS cpc_s, (MAX(b.cost_per_conversion) OVER () - b.cost_per_conversion) / NULLIF(MAX(b.cost_per_conversion) OVER () - MIN(b.cost_per_conversion) OVER (), 0) AS cpa_s, (b.conversion_rate - MIN(b.conversion_rate) OVER ()) / NULLIF(MAX(b.conversion_rate) OVER () - MIN(b.conversion_rate) OVER (), 0) AS cvr_s, (b.conversion_value / NULLIF(b.conversions, 0) - MIN(b.conversion_value / NULLIF(b.conversions, 0)) OVER ()) / NULLIF(MAX(b.conversion_value / NULLIF(b.conversions, 0)) OVER () - MIN(b.conversion_value / NULLIF(b.conversions, 0)) OVER (), 0) AS aov_s, (b.conversions - MIN(b.conversions) OVER ()) / NULLIF(MAX(b.conversions) OVER () - MIN(b.conversions) OVER (), 0) AS conv_s, (b.quality_score - MIN(b.quality_score) OVER ()) / NULLIF(MAX(b.quality_score) OVER () - MIN(b.quality_score) OVER (), 0) AS qs_s, (b.impression_share - MIN(b.impression_share) OVER ()) / NULLIF(MAX(b.impression_share) OVER () - MIN(b.impression_share) OVER (), 0) AS is_s, (b.ctr - MIN(b.ctr) OVER ()) / NULLIF(MAX(b.ctr) OVER () - MIN(b.ctr) OVER (), 0) AS ctr_s FROM base AS b) SELECT *, 100.0 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * (0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm ORDER BY campaign_id, year_month",
+        "S30": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT b.*, (b.roas - MIN(b.roas) OVER ()) / NULLIF(MAX(b.roas) OVER () - MIN(b.roas) OVER (), 0) AS roas_s, (MAX(b.cpc) OVER () - b.cpc) / NULLIF(MAX(b.cpc) OVER () - MIN(b.cpc) OVER (), 0) AS cpc_s, (MAX(b.cost_per_conversion) OVER () - b.cost_per_conversion) / NULLIF(MAX(b.cost_per_conversion) OVER () - MIN(b.cost_per_conversion) OVER (), 0) AS cpa_s, (b.conversion_rate - MIN(b.conversion_rate) OVER ()) / NULLIF(MAX(b.conversion_rate) OVER () - MIN(b.conversion_rate) OVER (), 0) AS cvr_s, (b.conversion_value / NULLIF(b.conversions, 0) - MIN(b.conversion_value / NULLIF(b.conversions, 0)) OVER ()) / NULLIF(MAX(b.conversion_value / NULLIF(b.conversions, 0)) OVER () - MIN(b.conversion_value / NULLIF(b.conversions, 0)) OVER (), 0) AS aov_s, (b.conversions - MIN(b.conversions) OVER ()) / NULLIF(MAX(b.conversions) OVER () - MIN(b.conversions) OVER (), 0) AS conv_s, (b.quality_score - MIN(b.quality_score) OVER ()) / NULLIF(MAX(b.quality_score) OVER () - MIN(b.quality_score) OVER (), 0) AS qs_s, (b.impression_share - MIN(b.impression_share) OVER ()) / NULLIF(MAX(b.impression_share) OVER () - MIN(b.impression_share) OVER (), 0) AS is_s, (b.ctr - MIN(b.ctr) OVER ()) / NULLIF(MAX(b.ctr) OVER () - MIN(b.ctr) OVER (), 0) AS ctr_s FROM base AS b) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) AS n_months, ROUND(AVG(cost), 0) AS avg_monthly_cost, ROUND(SUM(cost), 0) AS total_cost, ROUND(AVG(roas), 3) AS avg_roas, ROUND(100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s), 2) AS cost_eff, ROUND(100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s), 2) AS conv_quality, ROUND(100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s), 2) AS competitive, ROUND(100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)), 2) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score ASC",
+        "S32": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) AS n_months, AVG(cost) AS avg_monthly_cost, SUM(cost) AS total_cost, AVG(roas) AS avg_roas, AVG(roas_s) AS avg_roas_s, AVG(cpc_s) AS avg_cpc_s, AVG(cpa_s) AS avg_cpa_s, AVG(cvr_s) AS avg_cvr_s, AVG(aov_s) AS avg_aov_s, AVG(conv_s) AS avg_conv_s, AVG(qs_s) AS avg_qs_s, AVG(is_s) AS avg_is_s, AVG(ctr_s) AS avg_ctr_s, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+        "S33": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) AS n_months, AVG(cost) AS avg_monthly_cost, SUM(cost) AS total_cost, AVG(roas) AS avg_roas, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+        "S34": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) AS n_months, AVG(cost) AS avg_monthly_cost, SUM(cost) AS total_cost, AVG(roas) AS avg_roas, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+        "S52": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) AS n_months, ROUND(AVG(cost), 0) AS avg_monthly_cost, ROUND(SUM(cost), 0) AS total_cost, ROUND(AVG(roas), 3) AS avg_roas, ROUND(AVG(quality_score), 2) AS avg_qs, ROUND(AVG(impression_share), 3) AS avg_is, ROUND(AVG(ctr), 5) AS avg_ctr, ROUND(AVG(conversion_rate), 5) AS avg_cvr, ROUND(AVG(cpc), 2) AS avg_cpc, ROUND(AVG(cost_per_conversion), 2) AS avg_cpa, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+        "S57": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, SUM(cost) AS total_cost, AVG(roas) AS avg_roas, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+        "S58": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, SUM(cost) AS total_cost, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S29",
+      "later_reuses": 7,
+      "denominator": 55,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867360.035019,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT year_month, campaign_id, campaign_name, campaign_type, bidding_strategy, industry, cost, conversions, conversion_value, roas, cpc, cost_per_conversion, conversion_rate, quality_score, impression_share, ctr FROM google_ads__campaign_report",
+          "phase": "offline_validation",
+          "start_time": 1788867360.0351994,
+          "status": "execute_returned",
+          "end_time": 1788867360.0359218
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867360.0359254,
+          "status": "execute_returned",
+          "end_time": 1788867360.0359411
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788867360.0359452,
+          "status": "execute_returned",
+          "end_time": 1788867360.0359576
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT b.*, (b.roas - MIN(b.roas) OVER ()) / NULLIF(MAX(b.roas) OVER () - MIN(b.roas) OVER (), 0) AS roas_s, (MAX(b.cpc) OVER () - b.cpc) / NULLIF(MAX(b.cpc) OVER () - MIN(b.cpc) OVER (), 0) AS cpc_s, (MAX(b.cost_per_conversion) OVER () - b.cost_per_conversion) / NULLIF(MAX(b.cost_per_conversion) OVER () - MIN(b.cost_per_conversion) OVER (), 0) AS cpa_s, (b.conversion_rate - MIN(b.conversion_rate) OVER ()) / NULLIF(MAX(b.conversion_rate) OVER () - MIN(b.conversion_rate) OVER (), 0) AS cvr_s, (b.conversion_value / NULLIF(b.conversions, 0) - MIN(b.conversion_value / NULLIF(b.conversions, 0)) OVER ()) / NULLIF(MAX(b.conversion_value / NULLIF(b.conversions, 0)) OVER () - MIN(b.conversion_value / NULLIF(b.conversions, 0)) OVER (), 0) AS aov_s, (b.conversions - MIN(b.conversions) OVER ()) / NULLIF(MAX(b.conversions) OVER () - MIN(b.conversions) OVER (), 0) AS conv_s, (b.quality_score - MIN(b.quality_score) OVER ()) / NULLIF(MAX(b.quality_score) OVER () - MIN(b.quality_score) OVER (), 0) AS qs_s, (b.impression_share - MIN(b.impression_share) OVER ()) / NULLIF(MAX(b.impression_share) OVER () - MIN(b.impression_share) OVER (), 0) AS is_s, (b.ctr - MIN(b.ctr) OVER ()) / NULLIF(MAX(b.ctr) OVER () - MIN(b.ctr) OVER (), 0) AS ctr_s FROM base AS b) SELECT *, 100.0 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * (0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm ORDER BY campaign_id, year_month",
+          "phase": "offline_validation",
+          "start_time": 1788867360.0359807,
+          "status": "execute_returned",
+          "end_time": 1788867360.040932
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT b.*, (b.roas - MIN(b.roas) OVER ()) / NULLIF(MAX(b.roas) OVER () - MIN(b.roas) OVER (), 0) AS roas_s, (MAX(b.cpc) OVER () - b.cpc) / NULLIF(MAX(b.cpc) OVER () - MIN(b.cpc) OVER (), 0) AS cpc_s, (MAX(b.cost_per_conversion) OVER () - b.cost_per_conversion) / NULLIF(MAX(b.cost_per_conversion) OVER () - MIN(b.cost_per_conversion) OVER (), 0) AS cpa_s, (b.conversion_rate - MIN(b.conversion_rate) OVER ()) / NULLIF(MAX(b.conversion_rate) OVER () - MIN(b.conversion_rate) OVER (), 0) AS cvr_s, (b.conversion_value / NULLIF(b.conversions, 0) - MIN(b.conversion_value / NULLIF(b.conversions, 0)) OVER ()) / NULLIF(MAX(b.conversion_value / NULLIF(b.conversions, 0)) OVER () - MIN(b.conversion_value / NULLIF(b.conversions, 0)) OVER (), 0) AS aov_s, (b.conversions - MIN(b.conversions) OVER ()) / NULLIF(MAX(b.conversions) OVER () - MIN(b.conversions) OVER (), 0) AS conv_s, (b.quality_score - MIN(b.quality_score) OVER ()) / NULLIF(MAX(b.quality_score) OVER () - MIN(b.quality_score) OVER (), 0) AS qs_s, (b.impression_share - MIN(b.impression_share) OVER ()) / NULLIF(MAX(b.impression_share) OVER () - MIN(b.impression_share) OVER (), 0) AS is_s, (b.ctr - MIN(b.ctr) OVER ()) / NULLIF(MAX(b.ctr) OVER () - MIN(b.ctr) OVER (), 0) AS ctr_s FROM base AS b) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) AS n_months, ROUND(AVG(cost), 0) AS avg_monthly_cost, ROUND(SUM(cost), 0) AS total_cost, ROUND(AVG(roas), 3) AS avg_roas, ROUND(100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s), 2) AS cost_eff, ROUND(100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s), 2) AS conv_quality, ROUND(100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s), 2) AS competitive, ROUND(100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)), 2) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score ASC",
+          "phase": "offline_validation",
+          "start_time": 1788867360.0609856,
+          "status": "execute_returned",
+          "end_time": 1788867360.0661497
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) AS n_months, AVG(cost) AS avg_monthly_cost, SUM(cost) AS total_cost, AVG(roas) AS avg_roas, AVG(roas_s) AS avg_roas_s, AVG(cpc_s) AS avg_cpc_s, AVG(cpa_s) AS avg_cpa_s, AVG(cvr_s) AS avg_cvr_s, AVG(aov_s) AS avg_aov_s, AVG(conv_s) AS avg_conv_s, AVG(qs_s) AS avg_qs_s, AVG(is_s) AS avg_is_s, AVG(ctr_s) AS avg_ctr_s, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+          "phase": "offline_validation",
+          "start_time": 1788867360.0759938,
+          "status": "execute_returned",
+          "end_time": 1788867360.0812545
+        },
+        {
+          "sequence": 7,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) AS n_months, AVG(cost) AS avg_monthly_cost, SUM(cost) AS total_cost, AVG(roas) AS avg_roas, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+          "phase": "offline_validation",
+          "start_time": 1788867360.0896227,
+          "status": "execute_returned",
+          "end_time": 1788867360.0947065
+        },
+        {
+          "sequence": 8,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) AS n_months, AVG(cost) AS avg_monthly_cost, SUM(cost) AS total_cost, AVG(roas) AS avg_roas, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+          "phase": "offline_validation",
+          "start_time": 1788867360.1020908,
+          "status": "execute_returned",
+          "end_time": 1788867360.1068354
+        },
+        {
+          "sequence": 9,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) AS n_months, ROUND(AVG(cost), 0) AS avg_monthly_cost, ROUND(SUM(cost), 0) AS total_cost, ROUND(AVG(roas), 3) AS avg_roas, ROUND(AVG(quality_score), 2) AS avg_qs, ROUND(AVG(impression_share), 3) AS avg_is, ROUND(AVG(ctr), 5) AS avg_ctr, ROUND(AVG(conversion_rate), 5) AS avg_cvr, ROUND(AVG(cpc), 2) AS avg_cpc, ROUND(AVG(cost_per_conversion), 2) AS avg_cpa, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+          "phase": "offline_validation",
+          "start_time": 1788867360.1142259,
+          "status": "execute_returned",
+          "end_time": 1788867360.119906
+        },
+        {
+          "sequence": 10,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, SUM(cost) AS total_cost, AVG(roas) AS avg_roas, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+          "phase": "offline_validation",
+          "start_time": 1788867360.1292338,
+          "status": "execute_returned",
+          "end_time": 1788867360.1344635
+        },
+        {
+          "sequence": 11,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, SUM(cost) AS total_cost, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+          "phase": "offline_validation",
+          "start_time": 1788867360.1416168,
+          "status": "execute_returned",
+          "end_time": 1788867360.1467843
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT year_month, campaign_id, campaign_name, campaign_type, bidding_strategy, industry, cost, conversions, conversion_value, roas, cpc, cost_per_conversion, conversion_rate, quality_score, impression_share, ctr FROM google_ads__campaign_report",
+          "time": 1788867360.035363,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788867360.035937,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788867360.035955,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT b.*, (b.roas - MIN(b.roas) OVER ()) / NULLIF(MAX(b.roas) OVER () - MIN(b.roas) OVER (), 0) AS roas_s, (MAX(b.cpc) OVER () - b.cpc) / NULLIF(MAX(b.cpc) OVER () - MIN(b.cpc) OVER (), 0) AS cpc_s, (MAX(b.cost_per_conversion) OVER () - b.cost_per_conversion) / NULLIF(MAX(b.cost_per_conversion) OVER () - MIN(b.cost_per_conversion) OVER (), 0) AS cpa_s, (b.conversion_rate - MIN(b.conversion_rate) OVER ()) / NULLIF(MAX(b.conversion_rate) OVER () - MIN(b.conversion_rate) OVER (), 0) AS cvr_s, (b.conversion_value / NULLIF(b.conversions, 0) - MIN(b.conversion_value / NULLIF(b.conversions, 0)) OVER ()) / NULLIF(MAX(b.conversion_value / NULLIF(b.conversions, 0)) OVER () - MIN(b.conversion_value / NULLIF(b.conversions, 0)) OVER (), 0) AS aov_s, (b.conversions - MIN(b.conversions) OVER ()) / NULLIF(MAX(b.conversions) OVER () - MIN(b.conversions) OVER (), 0) AS conv_s, (b.quality_score - MIN(b.quality_score) OVER ()) / NULLIF(MAX(b.quality_score) OVER () - MIN(b.quality_score) OVER (), 0) AS qs_s, (b.impression_share - MIN(b.impression_share) OVER ()) / NULLIF(MAX(b.impression_share) OVER () - MIN(b.impression_share) OVER (), 0) AS is_s, (b.ctr - MIN(b.ctr) OVER ()) / NULLIF(MAX(b.ctr) OVER () - MIN(b.ctr) OVER (), 0) AS ctr_s FROM base AS b) SELECT *, 100.0 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * (0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm ORDER BY campaign_id, year_month",
+          "time": 1788867360.0363436,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT b.*, (b.roas - MIN(b.roas) OVER ()) / NULLIF(MAX(b.roas) OVER () - MIN(b.roas) OVER (), 0) AS roas_s, (MAX(b.cpc) OVER () - b.cpc) / NULLIF(MAX(b.cpc) OVER () - MIN(b.cpc) OVER (), 0) AS cpc_s, (MAX(b.cost_per_conversion) OVER () - b.cost_per_conversion) / NULLIF(MAX(b.cost_per_conversion) OVER () - MIN(b.cost_per_conversion) OVER (), 0) AS cpa_s, (b.conversion_rate - MIN(b.conversion_rate) OVER ()) / NULLIF(MAX(b.conversion_rate) OVER () - MIN(b.conversion_rate) OVER (), 0) AS cvr_s, (b.conversion_value / NULLIF(b.conversions, 0) - MIN(b.conversion_value / NULLIF(b.conversions, 0)) OVER ()) / NULLIF(MAX(b.conversion_value / NULLIF(b.conversions, 0)) OVER () - MIN(b.conversion_value / NULLIF(b.conversions, 0)) OVER (), 0) AS aov_s, (b.conversions - MIN(b.conversions) OVER ()) / NULLIF(MAX(b.conversions) OVER () - MIN(b.conversions) OVER (), 0) AS conv_s, (b.quality_score - MIN(b.quality_score) OVER ()) / NULLIF(MAX(b.quality_score) OVER () - MIN(b.quality_score) OVER (), 0) AS qs_s, (b.impression_share - MIN(b.impression_share) OVER ()) / NULLIF(MAX(b.impression_share) OVER () - MIN(b.impression_share) OVER (), 0) AS is_s, (b.ctr - MIN(b.ctr) OVER ()) / NULLIF(MAX(b.ctr) OVER () - MIN(b.ctr) OVER (), 0) AS ctr_s FROM base AS b) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) AS n_months, ROUND(AVG(cost), 0) AS avg_monthly_cost, ROUND(SUM(cost), 0) AS total_cost, ROUND(AVG(roas), 3) AS avg_roas, ROUND(100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s), 2) AS cost_eff, ROUND(100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s), 2) AS conv_quality, ROUND(100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s), 2) AS competitive, ROUND(100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)), 2) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score ASC",
+          "time": 1788867360.0613828,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) AS n_months, AVG(cost) AS avg_monthly_cost, SUM(cost) AS total_cost, AVG(roas) AS avg_roas, AVG(roas_s) AS avg_roas_s, AVG(cpc_s) AS avg_cpc_s, AVG(cpa_s) AS avg_cpa_s, AVG(cvr_s) AS avg_cvr_s, AVG(aov_s) AS avg_aov_s, AVG(conv_s) AS avg_conv_s, AVG(qs_s) AS avg_qs_s, AVG(is_s) AS avg_is_s, AVG(ctr_s) AS avg_ctr_s, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+          "time": 1788867360.0763743,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) AS n_months, AVG(cost) AS avg_monthly_cost, SUM(cost) AS total_cost, AVG(roas) AS avg_roas, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+          "time": 1788867360.0899625,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) AS n_months, AVG(cost) AS avg_monthly_cost, SUM(cost) AS total_cost, AVG(roas) AS avg_roas, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+          "time": 1788867360.1020994,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) AS n_months, ROUND(AVG(cost), 0) AS avg_monthly_cost, ROUND(SUM(cost), 0) AS total_cost, ROUND(AVG(roas), 3) AS avg_roas, ROUND(AVG(quality_score), 2) AS avg_qs, ROUND(AVG(impression_share), 3) AS avg_is, ROUND(AVG(ctr), 5) AS avg_ctr, ROUND(AVG(conversion_rate), 5) AS avg_cvr, ROUND(AVG(cpc), 2) AS avg_cpc, ROUND(AVG(cost_per_conversion), 2) AS avg_cpa, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+          "time": 1788867360.114586,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, SUM(cost) AS total_cost, AVG(roas) AS avg_roas, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+          "time": 1788867360.1295545,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, SUM(cost) AS total_cost, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+          "time": 1788867360.1419325,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.7255906239151955,
+      "intermediate_rows": 714,
+      "intermediate_columns": [
+        "year_month",
+        "campaign_id",
+        "campaign_name",
+        "campaign_type",
+        "bidding_strategy",
+        "industry",
+        "cost",
+        "conversions",
+        "conversion_value",
+        "roas",
+        "cpc",
+        "cost_per_conversion",
+        "conversion_rate",
+        "quality_score",
+        "impression_share",
+        "ctr"
+      ],
+      "validation_ended_at": 1788867360.1539428,
+      "checks": [
+        {
+          "sql_id": "S29",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT b.*, (b.roas - MIN(b.roas) OVER ()) / NULLIF(MAX(b.roas) OVER () - MIN(b.roas) OVER (), 0) AS roas_s, (MAX(b.cpc) OVER () - b.cpc) / NULLIF(MAX(b.cpc) OVER () - MIN(b.cpc) OVER (), 0) AS cpc_s, (MAX(b.cost_per_conversion) OVER () - b.cost_per_conversion) / NULLIF(MAX(b.cost_per_conversion) OVER () - MIN(b.cost_per_conversion) OVER (), 0) AS cpa_s, (b.conversion_rate - MIN(b.conversion_rate) OVER ()) / NULLIF(MAX(b.conversion_rate) OVER () - MIN(b.conversion_rate) OVER (), 0) AS cvr_s, (b.conversion_value / NULLIF(b.conversions, 0) - MIN(b.conversion_value / NULLIF(b.conversions, 0)) OVER ()) / NULLIF(MAX(b.conversion_value / NULLIF(b.conversions, 0)) OVER () - MIN(b.conversion_value / NULLIF(b.conversions, 0)) OVER (), 0) AS aov_s, (b.conversions - MIN(b.conversions) OVER ()) / NULLIF(MAX(b.conversions) OVER () - MIN(b.conversions) OVER (), 0) AS conv_s, (b.quality_score - MIN(b.quality_score) OVER ()) / NULLIF(MAX(b.quality_score) OVER () - MIN(b.quality_score) OVER (), 0) AS qs_s, (b.impression_share - MIN(b.impression_share) OVER ()) / NULLIF(MAX(b.impression_share) OVER () - MIN(b.impression_share) OVER (), 0) AS is_s, (b.ctr - MIN(b.ctr) OVER ()) / NULLIF(MAX(b.ctr) OVER () - MIN(b.ctr) OVER (), 0) AS ctr_s FROM base AS b) SELECT *, 100.0 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * (0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm ORDER BY campaign_id, year_month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 25.001414120197296
+        },
+        {
+          "sql_id": "S30",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT b.*, (b.roas - MIN(b.roas) OVER ()) / NULLIF(MAX(b.roas) OVER () - MIN(b.roas) OVER (), 0) AS roas_s, (MAX(b.cpc) OVER () - b.cpc) / NULLIF(MAX(b.cpc) OVER () - MIN(b.cpc) OVER (), 0) AS cpc_s, (MAX(b.cost_per_conversion) OVER () - b.cost_per_conversion) / NULLIF(MAX(b.cost_per_conversion) OVER () - MIN(b.cost_per_conversion) OVER (), 0) AS cpa_s, (b.conversion_rate - MIN(b.conversion_rate) OVER ()) / NULLIF(MAX(b.conversion_rate) OVER () - MIN(b.conversion_rate) OVER (), 0) AS cvr_s, (b.conversion_value / NULLIF(b.conversions, 0) - MIN(b.conversion_value / NULLIF(b.conversions, 0)) OVER ()) / NULLIF(MAX(b.conversion_value / NULLIF(b.conversions, 0)) OVER () - MIN(b.conversion_value / NULLIF(b.conversions, 0)) OVER (), 0) AS aov_s, (b.conversions - MIN(b.conversions) OVER ()) / NULLIF(MAX(b.conversions) OVER () - MIN(b.conversions) OVER (), 0) AS conv_s, (b.quality_score - MIN(b.quality_score) OVER ()) / NULLIF(MAX(b.quality_score) OVER () - MIN(b.quality_score) OVER (), 0) AS qs_s, (b.impression_share - MIN(b.impression_share) OVER ()) / NULLIF(MAX(b.impression_share) OVER () - MIN(b.impression_share) OVER (), 0) AS is_s, (b.ctr - MIN(b.ctr) OVER ()) / NULLIF(MAX(b.ctr) OVER () - MIN(b.ctr) OVER (), 0) AS ctr_s FROM base AS b) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) AS n_months, ROUND(AVG(cost), 0) AS avg_monthly_cost, ROUND(SUM(cost), 0) AS total_cost, ROUND(AVG(roas), 3) AS avg_roas, ROUND(100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s), 2) AS cost_eff, ROUND(100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s), 2) AS conv_quality, ROUND(100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s), 2) AS competitive, ROUND(100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)), 2) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score ASC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 15.006056986749172
+        },
+        {
+          "sql_id": "S32",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) AS n_months, AVG(cost) AS avg_monthly_cost, SUM(cost) AS total_cost, AVG(roas) AS avg_roas, AVG(roas_s) AS avg_roas_s, AVG(cpc_s) AS avg_cpc_s, AVG(cpa_s) AS avg_cpa_s, AVG(cvr_s) AS avg_cvr_s, AVG(aov_s) AS avg_aov_s, AVG(conv_s) AS avg_conv_s, AVG(qs_s) AS avg_qs_s, AVG(is_s) AS avg_is_s, AVG(ctr_s) AS avg_ctr_s, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 13.626695610582829
+        },
+        {
+          "sql_id": "S33",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) AS n_months, AVG(cost) AS avg_monthly_cost, SUM(cost) AS total_cost, AVG(roas) AS avg_roas, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 12.46592029929161
+        },
+        {
+          "sql_id": "S34",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) AS n_months, AVG(cost) AS avg_monthly_cost, SUM(cost) AS total_cost, AVG(roas) AS avg_roas, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 12.132560834288597
+        },
+        {
+          "sql_id": "S52",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) AS n_months, ROUND(AVG(cost), 0) AS avg_monthly_cost, ROUND(SUM(cost), 0) AS total_cost, ROUND(AVG(roas), 3) AS avg_roas, ROUND(AVG(quality_score), 2) AS avg_qs, ROUND(AVG(impression_share), 3) AS avg_is, ROUND(AVG(ctr), 5) AS avg_ctr, ROUND(AVG(conversion_rate), 5) AS avg_cvr, ROUND(AVG(cpc), 2) AS avg_cpc, ROUND(AVG(cost_per_conversion), 2) AS avg_cpa, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 15.005772933363914
+        },
+        {
+          "sql_id": "S57",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, SUM(cost) AS total_cost, AVG(roas) AS avg_roas, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 12.380600906908512
+        },
+        {
+          "sql_id": "S58",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), norm AS (SELECT *, (roas - MIN(roas) OVER ()) / NULLIF(MAX(roas) OVER () - MIN(roas) OVER (), 0) AS roas_s, (MAX(cpc) OVER () - cpc) / NULLIF(MAX(cpc) OVER () - MIN(cpc) OVER (), 0) AS cpc_s, (MAX(cost_per_conversion) OVER () - cost_per_conversion) / NULLIF(MAX(cost_per_conversion) OVER () - MIN(cost_per_conversion) OVER (), 0) AS cpa_s, (conversion_rate - MIN(conversion_rate) OVER ()) / NULLIF(MAX(conversion_rate) OVER () - MIN(conversion_rate) OVER (), 0) AS cvr_s, (conversion_value / NULLIF(conversions, 0) - MIN(conversion_value / NULLIF(conversions, 0)) OVER ()) / NULLIF(MAX(conversion_value / NULLIF(conversions, 0)) OVER () - MIN(conversion_value / NULLIF(conversions, 0)) OVER (), 0) AS aov_s, (conversions - MIN(conversions) OVER ()) / NULLIF(MAX(conversions) OVER () - MIN(conversions) OVER (), 0) AS conv_s, (quality_score - MIN(quality_score) OVER ()) / NULLIF(MAX(quality_score) OVER () - MIN(quality_score) OVER (), 0) AS qs_s, (impression_share - MIN(impression_share) OVER ()) / NULLIF(MAX(impression_share) OVER () - MIN(impression_share) OVER (), 0) AS is_s, (ctr - MIN(ctr) OVER ()) / NULLIF(MAX(ctr) OVER () - MIN(ctr) OVER (), 0) AS ctr_s FROM base) SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, SUM(cost) AS total_cost, 100.0 * AVG(0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) AS cost_eff, 100.0 * AVG(0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) AS conv_quality, 100.0 * AVG(0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s) AS competitive, 100.0 * AVG(0.4 * (0.4 * roas_s + 0.3 * cpa_s + 0.3 * cpc_s) + 0.35 * (0.4 * cvr_s + 0.3 * aov_s + 0.3 * conv_s) + 0.25 * (0.4 * qs_s + 0.3 * is_s + 0.3 * ctr_s)) AS health_score FROM norm GROUP BY campaign_id ORDER BY health_score",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 12.21407763659954
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT campaign_type AS __g0, bidding_strategy AS __g1, industry AS __g2, CASE WHEN cost < 5000 THEN '0-5K' WHEN cost < 10000 THEN '5K-10K' WHEN cost < 30000 THEN '10K-30K' WHEN cost < 50000 THEN '30K-50K' WHEN cost < 100000 THEN '50K-100K' ELSE '100K+' END AS __g3, year_month AS __g4, COUNT(*) AS __a0, COUNT(CASE WHEN cost > 1000 THEN 1 END) AS __a1, MIN(roas) AS __a2, MAX(roas) AS __a3, SUM(roas) AS __a4_sum, COUNT(roas) AS __a4_n, MIN(conversion_value / NULLIF(cost, 0)) AS __a5, MAX(conversion_value / NULLIF(cost, 0)) AS __a6, SUM(conversion_value / NULLIF(cost, 0)) AS __a7_sum, COUNT(conversion_value / NULLIF(cost, 0)) AS __a7_n, SUM(cost) AS __a8_sum, COUNT(cost) AS __a8_n, MIN(cost) AS __a9, MAX(cost) AS __a10, COUNT(CASE WHEN roas < 0.8 THEN 1 END) AS __a11, SUM(cost) AS __a12, SUM(conversions) AS __a13, SUM(conversion_value) AS __a14, SUM(quality_score) AS __a15_sum, COUNT(quality_score) AS __a15_n, SUM(impression_share) AS __a16_sum, COUNT(impression_share) AS __a16_n, SUM(ctr) AS __a17_sum, COUNT(ctr) AS __a17_n, SUM(conversion_rate) AS __a18_sum, COUNT(conversion_rate) AS __a18_n, SUM(CASE WHEN campaign_id IN (105, 135, 36, 184, 180, 56, 69, 148, 178, 27) THEN cost ELSE 0 END) AS __a19 FROM \"google_ads__campaign_report\"  GROUP BY campaign_type, bidding_strategy, industry, CASE WHEN cost < 5000 THEN '0-5K' WHEN cost < 10000 THEN '5K-10K' WHEN cost < 30000 THEN '10K-30K' WHEN cost < 50000 THEN '30K-50K' WHEN cost < 100000 THEN '50K-100K' ELSE '100K+' END, year_month",
+      "covered": [
+        "S6",
+        "S7",
+        "S8",
+        "S10",
+        "S12",
+        "S13",
+        "S16",
+        "S37",
+        "S40",
+        "S49"
+      ],
+      "rewrites": {
+        "S6": "SELECT __g0 AS \"campaign_type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+        "S7": "SELECT __g1 AS \"bidding_strategy\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+        "S8": "SELECT __g2 AS \"industry\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY n DESC",
+        "S10": "SELECT SUM(__a0) AS total_months, SUM(__a1) AS high_cost_months FROM temp.reuse_candidate",
+        "S12": "SELECT MIN(__a2) AS min_roas, MAX(__a3) AS max_roas, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_roas, MIN(__a5) AS min_roi_cv, MAX(__a6) AS max_roi_cv, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_roi_cv, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_cost, MIN(__a9) AS min_cost, MAX(__a10) AS max_cost FROM temp.reuse_candidate",
+        "S13": "/* Check cost distribution */ SELECT __g3 AS cost_range, SUM(__a0) AS n_months, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 3) AS avg_roi, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 3) AS avg_roas FROM temp.reuse_candidate GROUP BY __g3 ORDER BY MIN(__a9)",
+        "S16": "SELECT SUM(__a0) AS total, SUM(__a11) AS roas_lt_08, ROUND(100.0 * SUM(__a11) / SUM(__a0), 1) AS pct_lt_08 FROM temp.reuse_candidate",
+        "S37": "SELECT __g4 AS \"year_month\", SUM(__a12) AS total_cost, SUM(__a13) AS total_conversions, SUM(__a14) AS total_cv, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_roas, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_qs, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_is, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_ctr, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_cvr FROM temp.reuse_candidate GROUP BY __g4 ORDER BY __g4",
+        "S40": "SELECT __g4 AS \"year_month\", SUM(__a12) AS total_cost, SUM(__a13) AS total_conversions, SUM(__a14) AS total_cv, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_roas, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_qs, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_is, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_ctr, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_cvr FROM temp.reuse_candidate GROUP BY __g4 ORDER BY __g4",
+        "S49": "SELECT ROUND(SUM(__a19), 0) AS prob_cost, ROUND(SUM(__a12), 0) AS total_cost, ROUND(100.0 * SUM(__a19) / SUM(__a12), 1) AS pct FROM temp.reuse_candidate"
+      },
+      "status": "rejected_result_mismatch",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C6",
+      "offline": true,
+      "earliest_build_before": "S6",
+      "later_reuses": 9,
+      "denominator": 55,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867360.0170038,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT campaign_type AS __g0, bidding_strategy AS __g1, industry AS __g2, CASE WHEN cost < 5000 THEN '0-5K' WHEN cost < 10000 THEN '5K-10K' WHEN cost < 30000 THEN '10K-30K' WHEN cost < 50000 THEN '30K-50K' WHEN cost < 100000 THEN '50K-100K' ELSE '100K+' END AS __g3, year_month AS __g4, COUNT(*) AS __a0, COUNT(CASE WHEN cost > 1000 THEN 1 END) AS __a1, MIN(roas) AS __a2, MAX(roas) AS __a3, SUM(roas) AS __a4_sum, COUNT(roas) AS __a4_n, MIN(conversion_value / NULLIF(cost, 0)) AS __a5, MAX(conversion_value / NULLIF(cost, 0)) AS __a6, SUM(conversion_value / NULLIF(cost, 0)) AS __a7_sum, COUNT(conversion_value / NULLIF(cost, 0)) AS __a7_n, SUM(cost) AS __a8_sum, COUNT(cost) AS __a8_n, MIN(cost) AS __a9, MAX(cost) AS __a10, COUNT(CASE WHEN roas < 0.8 THEN 1 END) AS __a11, SUM(cost) AS __a12, SUM(conversions) AS __a13, SUM(conversion_value) AS __a14, SUM(quality_score) AS __a15_sum, COUNT(quality_score) AS __a15_n, SUM(impression_share) AS __a16_sum, COUNT(impression_share) AS __a16_n, SUM(ctr) AS __a17_sum, COUNT(ctr) AS __a17_n, SUM(conversion_rate) AS __a18_sum, COUNT(conversion_rate) AS __a18_n, SUM(CASE WHEN campaign_id IN (105, 135, 36, 184, 180, 56, 69, 148, 178, 27) THEN cost ELSE 0 END) AS __a19 FROM \"google_ads__campaign_report\"  GROUP BY campaign_type, bidding_strategy, industry, CASE WHEN cost < 5000 THEN '0-5K' WHEN cost < 10000 THEN '5K-10K' WHEN cost < 30000 THEN '10K-30K' WHEN cost < 50000 THEN '30K-50K' WHEN cost < 100000 THEN '50K-100K' ELSE '100K+' END, year_month",
+          "phase": "offline_validation",
+          "start_time": 1788867360.0172715,
+          "status": "execute_returned",
+          "end_time": 1788867360.0207314
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867360.020737,
+          "status": "execute_returned",
+          "end_time": 1788867360.0207589
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788867360.0207639,
+          "status": "execute_returned",
+          "end_time": 1788867360.02078
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"campaign_type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867360.0208206,
+          "status": "execute_returned",
+          "end_time": 1788867360.0210164
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g1 AS \"bidding_strategy\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867360.0215793,
+          "status": "execute_returned",
+          "end_time": 1788867360.0218077
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g2 AS \"industry\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867360.0223296,
+          "status": "execute_returned",
+          "end_time": 1788867360.0225508
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT SUM(__a0) AS total_months, SUM(__a1) AS high_cost_months FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867360.0230641,
+          "status": "execute_returned",
+          "end_time": 1788867360.0231757
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT MIN(__a2) AS min_roas, MAX(__a3) AS max_roas, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_roas, MIN(__a5) AS min_roi_cv, MAX(__a6) AS max_roi_cv, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_roi_cv, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_cost, MIN(__a9) AS min_cost, MAX(__a10) AS max_cost FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867360.0237658,
+          "status": "execute_returned",
+          "end_time": 1788867360.0241513
+        },
+        {
+          "sequence": 9,
+          "sql": "/* Check cost distribution */ SELECT __g3 AS cost_range, SUM(__a0) AS n_months, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 3) AS avg_roi, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 3) AS avg_roas FROM temp.reuse_candidate GROUP BY __g3 ORDER BY MIN(__a9)",
+          "phase": "offline_validation",
+          "start_time": 1788867360.0256352,
+          "status": "execute_returned",
+          "end_time": 1788867360.0260954
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT SUM(__a0) AS total, SUM(__a11) AS roas_lt_08, ROUND(100.0 * SUM(__a11) / SUM(__a0), 1) AS pct_lt_08 FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867360.0274806,
+          "status": "execute_returned",
+          "end_time": 1788867360.0276058
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g4 AS \"year_month\", SUM(__a12) AS total_cost, SUM(__a13) AS total_conversions, SUM(__a14) AS total_cv, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_roas, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_qs, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_is, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_ctr, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_cvr FROM temp.reuse_candidate GROUP BY __g4 ORDER BY __g4",
+          "phase": "offline_validation",
+          "start_time": 1788867360.0286155,
+          "status": "execute_returned",
+          "end_time": 1788867360.0291443
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT __g4 AS \"year_month\", SUM(__a12) AS total_cost, SUM(__a13) AS total_conversions, SUM(__a14) AS total_cv, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_roas, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_qs, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_is, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_ctr, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_cvr FROM temp.reuse_candidate GROUP BY __g4 ORDER BY __g4",
+          "phase": "offline_validation",
+          "start_time": 1788867360.0307596,
+          "status": "execute_returned",
+          "end_time": 1788867360.031216
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT ROUND(SUM(__a19), 0) AS prob_cost, ROUND(SUM(__a12), 0) AS total_cost, ROUND(100.0 * SUM(__a19) / SUM(__a12), 1) AS pct FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867360.0328143,
+          "status": "execute_returned",
+          "end_time": 1788867360.0329518
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT campaign_type AS __g0, bidding_strategy AS __g1, industry AS __g2, CASE WHEN cost < 5000 THEN '0-5K' WHEN cost < 10000 THEN '5K-10K' WHEN cost < 30000 THEN '10K-30K' WHEN cost < 50000 THEN '30K-50K' WHEN cost < 100000 THEN '50K-100K' ELSE '100K+' END AS __g3, year_month AS __g4, COUNT(*) AS __a0, COUNT(CASE WHEN cost > 1000 THEN 1 END) AS __a1, MIN(roas) AS __a2, MAX(roas) AS __a3, SUM(roas) AS __a4_sum, COUNT(roas) AS __a4_n, MIN(conversion_value / NULLIF(cost, 0)) AS __a5, MAX(conversion_value / NULLIF(cost, 0)) AS __a6, SUM(conversion_value / NULLIF(cost, 0)) AS __a7_sum, COUNT(conversion_value / NULLIF(cost, 0)) AS __a7_n, SUM(cost) AS __a8_sum, COUNT(cost) AS __a8_n, MIN(cost) AS __a9, MAX(cost) AS __a10, COUNT(CASE WHEN roas < 0.8 THEN 1 END) AS __a11, SUM(cost) AS __a12, SUM(conversions) AS __a13, SUM(conversion_value) AS __a14, SUM(quality_score) AS __a15_sum, COUNT(quality_score) AS __a15_n, SUM(impression_share) AS __a16_sum, COUNT(impression_share) AS __a16_n, SUM(ctr) AS __a17_sum, COUNT(ctr) AS __a17_n, SUM(conversion_rate) AS __a18_sum, COUNT(conversion_rate) AS __a18_n, SUM(CASE WHEN campaign_id IN (105, 135, 36, 184, 180, 56, 69, 148, 178, 27) THEN cost ELSE 0 END) AS __a19 FROM \"google_ads__campaign_report\"  GROUP BY campaign_type, bidding_strategy, industry, CASE WHEN cost < 5000 THEN '0-5K' WHEN cost < 10000 THEN '5K-10K' WHEN cost < 30000 THEN '10K-30K' WHEN cost < 50000 THEN '30K-50K' WHEN cost < 100000 THEN '50K-100K' ELSE '100K+' END, year_month",
+          "time": 1788867360.017655,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788867360.0207531,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788867360.0207772,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"campaign_type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "time": 1788867360.0208406,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"bidding_strategy\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "time": 1788867360.021611,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"industry\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY n DESC",
+          "time": 1788867360.0223606,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total_months, SUM(__a1) AS high_cost_months FROM temp.reuse_candidate",
+          "time": 1788867360.023088,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a2) AS min_roas, MAX(__a3) AS max_roas, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_roas, MIN(__a5) AS min_roi_cv, MAX(__a6) AS max_roi_cv, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_roi_cv, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_cost, MIN(__a9) AS min_cost, MAX(__a10) AS max_cost FROM temp.reuse_candidate",
+          "time": 1788867360.0238297,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Check cost distribution */ SELECT __g3 AS cost_range, SUM(__a0) AS n_months, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 3) AS avg_roi, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 3) AS avg_roas FROM temp.reuse_candidate GROUP BY __g3 ORDER BY MIN(__a9)",
+          "time": 1788867360.025695,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total, SUM(__a11) AS roas_lt_08, ROUND(100.0 * SUM(__a11) / SUM(__a0), 1) AS pct_lt_08 FROM temp.reuse_candidate",
+          "time": 1788867360.0275166,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS \"year_month\", SUM(__a12) AS total_cost, SUM(__a13) AS total_conversions, SUM(__a14) AS total_cv, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_roas, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_qs, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_is, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_ctr, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_cvr FROM temp.reuse_candidate GROUP BY __g4 ORDER BY __g4",
+          "time": 1788867360.0286942,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS \"year_month\", SUM(__a12) AS total_cost, SUM(__a13) AS total_conversions, SUM(__a14) AS total_cv, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_roas, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_qs, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_is, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_ctr, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_cvr FROM temp.reuse_candidate GROUP BY __g4 ORDER BY __g4",
+          "time": 1788867360.0307665,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT ROUND(SUM(__a19), 0) AS prob_cost, ROUND(SUM(__a12), 0) AS total_cost, ROUND(100.0 * SUM(__a19) / SUM(__a12), 1) AS pct FROM temp.reuse_candidate",
+          "time": 1788867360.032856,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 3.4647490829229355,
+      "intermediate_rows": 683,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4_sum",
+        "__a4_n",
+        "__a5",
+        "__a6",
+        "__a7_sum",
+        "__a7_n",
+        "__a8_sum",
+        "__a8_n",
+        "__a9",
+        "__a10",
+        "__a11",
+        "__a12",
+        "__a13",
+        "__a14",
+        "__a15_sum",
+        "__a15_n",
+        "__a16_sum",
+        "__a16_n",
+        "__a17_sum",
+        "__a17_n",
+        "__a18_sum",
+        "__a18_n",
+        "__a19"
+      ],
+      "validation_ended_at": 1788867360.034991,
+      "checks": [
+        {
+          "sql_id": "S6",
+          "rewritten_sql": "SELECT __g0 AS \"campaign_type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7553147152066231
+        },
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT __g1 AS \"bidding_strategy\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7479190826416016
+        },
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT __g2 AS \"industry\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7324526086449623
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT SUM(__a0) AS total_months, SUM(__a1) AS high_cost_months FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6978483870625496
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT MIN(__a2) AS min_roas, MAX(__a3) AS max_roas, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_roas, MIN(__a5) AS min_roi_cv, MAX(__a6) AS max_roi_cv, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS avg_roi_cv, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS avg_cost, MIN(__a9) AS min_cost, MAX(__a10) AS max_cost FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.8690023571252823
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "/* Check cost distribution */ SELECT __g3 AS cost_range, SUM(__a0) AS n_months, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 3) AS avg_roi, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 3) AS avg_roas FROM temp.reuse_candidate GROUP BY __g3 ORDER BY MIN(__a9)",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.8428834155201912
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "SELECT SUM(__a0) AS total, SUM(__a11) AS roas_lt_08, ROUND(100.0 * SUM(__a11) / SUM(__a0), 1) AS pct_lt_08 FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.125846989452839
+        },
+        {
+          "sql_id": "S37",
+          "rewritten_sql": "SELECT __g4 AS \"year_month\", SUM(__a12) AS total_cost, SUM(__a13) AS total_conversions, SUM(__a14) AS total_cv, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_roas, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_qs, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_is, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_ctr, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_cvr FROM temp.reuse_candidate GROUP BY __g4 ORDER BY __g4",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.142340876162052
+        },
+        {
+          "sql_id": "S40",
+          "rewritten_sql": "SELECT __g4 AS \"year_month\", SUM(__a12) AS total_cost, SUM(__a13) AS total_conversions, SUM(__a14) AS total_cv, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_roas, (1.0 * SUM(__a15_sum) / NULLIF(SUM(__a15_n), 0)) AS avg_qs, (1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)) AS avg_is, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS avg_ctr, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS avg_cvr FROM temp.reuse_candidate GROUP BY __g4 ORDER BY __g4",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.052723430097103
+        },
+        {
+          "sql_id": "S49",
+          "rewritten_sql": "SELECT ROUND(SUM(__a19), 0) AS prob_cost, ROUND(SUM(__a12), 0) AS total_cost, ROUND(100.0 * SUM(__a19) / SUM(__a12), 1) AS pct FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.0838547497987747
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"google_ads__campaign_report\" WHERE roas < 0.8",
+      "covered": [
+        "S15",
+        "S48"
+      ],
+      "rewrites": {
+        "S15": "/* Count of months with roas<0.8 grouped by campaign */ SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) AS bad_months, COUNT(CASE WHEN roas >= 0.8 THEN 1 END) AS good_months, ROUND(AVG(roas), 3) AS avg_roas, ROUND(AVG(conversion_value / NULLIF(cost, 0)), 3) AS avg_cv_ratio FROM temp.reuse_candidate AS google_ads__campaign_report WHERE roas < 0.8 GROUP BY campaign_id ORDER BY bad_months DESC",
+        "S48": "SELECT COUNT(DISTINCT campaign_id) AS campaigns_with_bad_roas FROM temp.reuse_candidate AS google_ads__campaign_report WHERE roas < 0.8"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C7",
+      "offline": true,
+      "earliest_build_before": "S15",
+      "later_reuses": 1,
+      "denominator": 55,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT match_type AS __g0, campaign_id AS __g1, COUNT(*) AS __a0, SUM(avg_position) AS __a1_sum, COUNT(avg_position) AS __a1_n, SUM(quality_score) AS __a2_sum, COUNT(quality_score) AS __a2_n, SUM(roas) AS __a3_sum, COUNT(roas) AS __a3_n FROM \"google_ads__keyword_report\"  GROUP BY match_type, campaign_id",
+      "covered": [
+        "S20",
+        "S27"
+      ],
+      "rewrites": {
+        "S20": "SELECT __g0 AS \"match_type\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_pos, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_qs, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 3) AS avg_roas FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+        "S27": "/* Get keyword-level data for avg_position */ SELECT __g1 AS \"campaign_id\", (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_position FROM temp.reuse_candidate GROUP BY __g1"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C8",
+      "offline": true,
+      "earliest_build_before": "S20",
+      "later_reuses": 1,
+      "denominator": 55,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"google_ads__device_report\" WHERE campaign_id IN (105, 135, 36, 184, 180, 56, 69, 148, 178, 27)",
+      "covered": [
+        "S42",
+        "S46",
+        "S53",
+        "S55"
+      ],
+      "rewrites": {
+        "S42": "SELECT campaign_id, device_type, ROUND(SUM(cost), 0) AS cost, ROUND(AVG(roas), 3) AS avg_roas, ROUND(AVG(quality_score), 2) AS avg_qs, ROUND(AVG(conversion_rate), 5) AS avg_cvr, ROUND(AVG(ctr), 5) AS avg_ctr FROM temp.reuse_candidate AS google_ads__device_report WHERE campaign_id IN (105, 135, 36, 184, 180, 56, 69, 148, 178, 27) GROUP BY campaign_id, device_type ORDER BY campaign_id, device_type",
+        "S46": "SELECT campaign_id, device_type, ROUND(SUM(cost), 0) AS cost FROM temp.reuse_candidate AS google_ads__device_report WHERE campaign_id IN (105, 135, 36, 184, 180, 56, 69, 148, 178, 27) GROUP BY campaign_id, device_type ORDER BY campaign_id, device_type",
+        "S53": "SELECT campaign_id, device_type, ROUND(SUM(cost), 0) AS cost, ROUND(AVG(roas), 3) AS avg_roas FROM temp.reuse_candidate AS google_ads__device_report WHERE campaign_id IN (105, 135, 36, 184, 180, 56, 69, 148, 178, 27) GROUP BY campaign_id, device_type ORDER BY campaign_id, device_type",
+        "S55": "SELECT campaign_id, device_type, ROUND(SUM(cost), 0) AS cost, ROUND(SUM(conversion_value) / NULLIF(SUM(cost), 0), 3) AS computed_roas, ROUND(AVG(roas), 3) AS roas_field, ROUND(SUM(conversions), 2) AS conversions, ROUND(SUM(conversion_value), 0) AS cv FROM temp.reuse_candidate AS google_ads__device_report WHERE campaign_id IN (105, 135, 36, 184, 180, 56, 69, 148, 178, 27) GROUP BY campaign_id, device_type ORDER BY campaign_id, device_type"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C9",
+      "offline": true,
+      "earliest_build_before": "S42",
+      "later_reuses": 3,
+      "denominator": 55,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT campaign_id AS __g0, device_type AS __g1, SUM(cost) AS __a0, SUM(roas) AS __a1_sum, COUNT(roas) AS __a1_n, SUM(quality_score) AS __a2_sum, COUNT(quality_score) AS __a2_n, SUM(conversion_rate) AS __a3_sum, COUNT(conversion_rate) AS __a3_n, SUM(ctr) AS __a4_sum, COUNT(ctr) AS __a4_n, SUM(conversions) AS __a5, SUM(conversion_value) AS __a6 FROM \"google_ads__device_report\" WHERE campaign_id IN (105, 135, 36, 184, 180, 56, 69, 148, 178, 27) GROUP BY campaign_id, device_type",
+      "covered": [
+        "S42",
+        "S46",
+        "S53",
+        "S55"
+      ],
+      "rewrites": {
+        "S42": "SELECT __g0 AS \"campaign_id\", __g1 AS \"device_type\", ROUND(SUM(__a0), 0) AS cost, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 3) AS avg_roas, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_qs, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 5) AS avg_cvr, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 5) AS avg_ctr FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+        "S46": "SELECT __g0 AS \"campaign_id\", __g1 AS \"device_type\", ROUND(SUM(__a0), 0) AS cost FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+        "S53": "SELECT __g0 AS \"campaign_id\", __g1 AS \"device_type\", ROUND(SUM(__a0), 0) AS cost, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 3) AS avg_roas FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+        "S55": "SELECT __g0 AS \"campaign_id\", __g1 AS \"device_type\", ROUND(SUM(__a0), 0) AS cost, ROUND(SUM(__a6) / NULLIF(SUM(__a0), 0), 3) AS computed_roas, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 3) AS roas_field, ROUND(SUM(__a5), 2) AS conversions, ROUND(SUM(__a6), 0) AS cv FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C10",
+      "offline": true,
+      "earliest_build_before": "S42",
+      "later_reuses": 3,
+      "denominator": 55,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867360.153989,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT campaign_id AS __g0, device_type AS __g1, SUM(cost) AS __a0, SUM(roas) AS __a1_sum, COUNT(roas) AS __a1_n, SUM(quality_score) AS __a2_sum, COUNT(quality_score) AS __a2_n, SUM(conversion_rate) AS __a3_sum, COUNT(conversion_rate) AS __a3_n, SUM(ctr) AS __a4_sum, COUNT(ctr) AS __a4_n, SUM(conversions) AS __a5, SUM(conversion_value) AS __a6 FROM \"google_ads__device_report\" WHERE campaign_id IN (105, 135, 36, 184, 180, 56, 69, 148, 178, 27) GROUP BY campaign_id, device_type",
+          "phase": "offline_validation",
+          "start_time": 1788867360.1541522,
+          "status": "execute_returned",
+          "end_time": 1788867360.1550531
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867360.155057,
+          "status": "execute_returned",
+          "end_time": 1788867360.1550722
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788867360.1550756,
+          "status": "execute_returned",
+          "end_time": 1788867360.1550863
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"campaign_id\", __g1 AS \"device_type\", ROUND(SUM(__a0), 0) AS cost, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 3) AS avg_roas, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_qs, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 5) AS avg_cvr, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 5) AS avg_ctr FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "phase": "offline_validation",
+          "start_time": 1788867360.1551054,
+          "status": "execute_returned",
+          "end_time": 1788867360.1551802
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"campaign_id\", __g1 AS \"device_type\", ROUND(SUM(__a0), 0) AS cost FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "phase": "offline_validation",
+          "start_time": 1788867360.1567874,
+          "status": "execute_returned",
+          "end_time": 1788867360.1568332
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS \"campaign_id\", __g1 AS \"device_type\", ROUND(SUM(__a0), 0) AS cost, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 3) AS avg_roas FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "phase": "offline_validation",
+          "start_time": 1788867360.1578133,
+          "status": "execute_returned",
+          "end_time": 1788867360.1578739
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g0 AS \"campaign_id\", __g1 AS \"device_type\", ROUND(SUM(__a0), 0) AS cost, ROUND(SUM(__a6) / NULLIF(SUM(__a0), 0), 3) AS computed_roas, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 3) AS roas_field, ROUND(SUM(__a5), 2) AS conversions, ROUND(SUM(__a6), 0) AS cv FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "phase": "offline_validation",
+          "start_time": 1788867360.1589952,
+          "status": "execute_returned",
+          "end_time": 1788867360.1590717
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT campaign_id AS __g0, device_type AS __g1, SUM(cost) AS __a0, SUM(roas) AS __a1_sum, COUNT(roas) AS __a1_n, SUM(quality_score) AS __a2_sum, COUNT(quality_score) AS __a2_n, SUM(conversion_rate) AS __a3_sum, COUNT(conversion_rate) AS __a3_n, SUM(ctr) AS __a4_sum, COUNT(ctr) AS __a4_n, SUM(conversions) AS __a5, SUM(conversion_value) AS __a6 FROM \"google_ads__device_report\" WHERE campaign_id IN (105, 135, 36, 184, 180, 56, 69, 148, 178, 27) GROUP BY campaign_id, device_type",
+          "time": 1788867360.1543298,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788867360.1550694,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788867360.1550841,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"campaign_id\", __g1 AS \"device_type\", ROUND(SUM(__a0), 0) AS cost, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 3) AS avg_roas, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_qs, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 5) AS avg_cvr, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 5) AS avg_ctr FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "time": 1788867360.155152,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"campaign_id\", __g1 AS \"device_type\", ROUND(SUM(__a0), 0) AS cost FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "time": 1788867360.1568184,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"campaign_id\", __g1 AS \"device_type\", ROUND(SUM(__a0), 0) AS cost, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 3) AS avg_roas FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "time": 1788867360.1578548,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"campaign_id\", __g1 AS \"device_type\", ROUND(SUM(__a0), 0) AS cost, ROUND(SUM(__a6) / NULLIF(SUM(__a0), 0), 3) AS computed_roas, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 3) AS roas_field, ROUND(SUM(__a5), 2) AS conversions, ROUND(SUM(__a6), 0) AS cv FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "time": 1788867360.1590502,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.904034823179245,
+      "intermediate_rows": 30,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__a0",
+        "__a1_sum",
+        "__a1_n",
+        "__a2_sum",
+        "__a2_n",
+        "__a3_sum",
+        "__a3_n",
+        "__a4_sum",
+        "__a4_n",
+        "__a5",
+        "__a6"
+      ],
+      "validation_ended_at": 1788867360.1609523,
+      "checks": [
+        {
+          "sql_id": "S42",
+          "rewritten_sql": "SELECT __g0 AS \"campaign_id\", __g1 AS \"device_type\", ROUND(SUM(__a0), 0) AS cost, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 3) AS avg_roas, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_qs, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 5) AS avg_cvr, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 5) AS avg_ctr FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.6798526048660278
+        },
+        {
+          "sql_id": "S46",
+          "rewritten_sql": "SELECT __g0 AS \"campaign_id\", __g1 AS \"device_type\", ROUND(SUM(__a0), 0) AS cost FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.0239426046609879
+        },
+        {
+          "sql_id": "S53",
+          "rewritten_sql": "SELECT __g0 AS \"campaign_id\", __g1 AS \"device_type\", ROUND(SUM(__a0), 0) AS cost, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 3) AS avg_roas FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.1800499632954597
+        },
+        {
+          "sql_id": "S55",
+          "rewritten_sql": "SELECT __g0 AS \"campaign_id\", __g1 AS \"device_type\", ROUND(SUM(__a0), 0) AS cost, ROUND(SUM(__a6) / NULLIF(SUM(__a0), 0), 3) AS computed_roas, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 3) AS roas_field, ROUND(SUM(__a5), 2) AS conversions, ROUND(SUM(__a6), 0) AS cv FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.9006775692105293
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"google_ads__geo_report\" WHERE campaign_id IN (105, 135, 36, 184, 180, 56, 69, 148, 178, 27)",
+      "covered": [
+        "S43",
+        "S54",
+        "S56"
+      ],
+      "rewrites": {
+        "S43": "SELECT campaign_id, geo_target, ROUND(SUM(cost), 0) AS cost, ROUND(AVG(roas), 3) AS avg_roas, ROUND(AVG(quality_score), 2) AS avg_qs, ROUND(AVG(conversion_rate), 5) AS avg_cvr, ROUND(AVG(ctr), 5) AS avg_ctr, ROUND(SUM(conversions), 2) AS conversions, ROUND(SUM(conversion_value), 0) AS cv FROM temp.reuse_candidate AS google_ads__geo_report WHERE campaign_id IN (105, 135, 36, 184, 180, 56, 69, 148, 178, 27) GROUP BY campaign_id, geo_target ORDER BY campaign_id, cost DESC",
+        "S54": "SELECT campaign_id, geo_target, ROUND(SUM(cost), 0) AS cost, ROUND(AVG(roas), 3) AS avg_roas FROM temp.reuse_candidate AS google_ads__geo_report WHERE campaign_id IN (105, 135, 36, 184, 180, 56, 69, 148, 178, 27) GROUP BY campaign_id, geo_target ORDER BY campaign_id, cost DESC",
+        "S56": "SELECT campaign_id, geo_target, ROUND(SUM(cost), 0) AS cost, ROUND(SUM(conversion_value) / NULLIF(SUM(cost), 0), 3) AS computed_roas, ROUND(AVG(roas), 3) AS roas_field, ROUND(SUM(conversions), 2) AS conversions, ROUND(SUM(conversion_value), 0) AS cv FROM temp.reuse_candidate AS google_ads__geo_report WHERE campaign_id IN (105, 135, 36, 184, 180, 56, 69, 148, 178, 27) GROUP BY campaign_id, geo_target ORDER BY campaign_id, geo_target"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C11",
+      "offline": true,
+      "earliest_build_before": "S43",
+      "later_reuses": 2,
+      "denominator": 55,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT campaign_id AS __g0, geo_target AS __g1, SUM(cost) AS __a0, SUM(roas) AS __a1_sum, COUNT(roas) AS __a1_n, SUM(quality_score) AS __a2_sum, COUNT(quality_score) AS __a2_n, SUM(conversion_rate) AS __a3_sum, COUNT(conversion_rate) AS __a3_n, SUM(ctr) AS __a4_sum, COUNT(ctr) AS __a4_n, SUM(conversions) AS __a5, SUM(conversion_value) AS __a6 FROM \"google_ads__geo_report\" WHERE campaign_id IN (105, 135, 36, 184, 180, 56, 69, 148, 178, 27) GROUP BY campaign_id, geo_target",
+      "covered": [
+        "S43",
+        "S54",
+        "S56"
+      ],
+      "rewrites": {
+        "S43": "SELECT __g0 AS \"campaign_id\", __g1 AS \"geo_target\", ROUND(SUM(__a0), 0) AS cost, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 3) AS avg_roas, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_qs, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 5) AS avg_cvr, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 5) AS avg_ctr, ROUND(SUM(__a5), 2) AS conversions, ROUND(SUM(__a6), 0) AS cv FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, cost DESC",
+        "S54": "SELECT __g0 AS \"campaign_id\", __g1 AS \"geo_target\", ROUND(SUM(__a0), 0) AS cost, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 3) AS avg_roas FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, cost DESC",
+        "S56": "SELECT __g0 AS \"campaign_id\", __g1 AS \"geo_target\", ROUND(SUM(__a0), 0) AS cost, ROUND(SUM(__a6) / NULLIF(SUM(__a0), 0), 3) AS computed_roas, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 3) AS roas_field, ROUND(SUM(__a5), 2) AS conversions, ROUND(SUM(__a6), 0) AS cv FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C12",
+      "offline": true,
+      "earliest_build_before": "S43",
+      "later_reuses": 2,
+      "denominator": 55,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"google_ads__campaign_report\" WHERE campaign_id IN (105, 135, 36, 184, 180, 56, 69, 148, 178, 27)",
+      "covered": [
+        "S45",
+        "S51"
+      ],
+      "rewrites": {
+        "S45": "SELECT year_month, campaign_id, campaign_name, campaign_type, bidding_strategy, industry, cost, roas, quality_score, impression_share, ctr, conversion_rate, conversions, conversion_value FROM temp.reuse_candidate AS google_ads__campaign_report WHERE campaign_id IN (105, 135, 36, 184, 180, 56, 69, 148, 178, 27) ORDER BY campaign_id, year_month",
+        "S51": "SELECT year_month, ROUND(SUM(cost), 0) AS total_cost, ROUND(SUM(conversion_value), 0) AS total_cv, ROUND(SUM(conversions), 2) AS total_conv, ROUND(AVG(roas), 3) AS avg_roas FROM temp.reuse_candidate AS google_ads__campaign_report WHERE campaign_id IN (105, 135, 36, 184, 180, 56, 69, 148, 178, 27) GROUP BY year_month ORDER BY year_month"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C13",
+      "offline": true,
+      "earliest_build_before": "S45",
+      "later_reuses": 1,
+      "denominator": 55,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

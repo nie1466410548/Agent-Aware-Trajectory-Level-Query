@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_rows, COUNT(DISTINCT package_name) AS n_apps, COUNT(DISTINCT country) AS n_countries FROM google_play__geo_market_analysis

@@ -1,0 +1,1 @@
+SELECT financial_health_grade, COUNT(*) n FROM netsuite2_financial_dashboard GROUP BY financial_health_grade ORDER BY n DESC

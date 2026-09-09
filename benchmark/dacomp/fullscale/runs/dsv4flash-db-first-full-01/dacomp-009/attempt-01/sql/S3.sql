@@ -1,0 +1,6 @@
+SELECT 'sheet1' AS tbl, COUNT(*) AS n FROM sheet1
+UNION ALL SELECT 'sheet2', COUNT(*) FROM sheet2
+UNION ALL SELECT 'sheet3', COUNT(*) FROM sheet3
+UNION ALL SELECT 'sheet4', COUNT(*) FROM sheet4
+UNION ALL SELECT 'sheet5', COUNT(*) FROM sheet5
+UNION ALL SELECT 'sheet6', COUNT(*) FROM sheet6

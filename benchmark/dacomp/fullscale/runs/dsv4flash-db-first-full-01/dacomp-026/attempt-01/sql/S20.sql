@@ -1,0 +1,1 @@
+SELECT "Human Resources ID", json_extract("Staffing", '$.personnel.total') AS total, json_extract("Staffing", '$.personnel.volunteers') AS vol FROM human_resources LIMIT 3

@@ -1,0 +1,258 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+For customers whose `Contact priority` equals 1 in `customer_contact_table`, analyze how effectively service staff serve this segment by examining their complaint records in `complaints_table` and their ticket-handling performance in `service_ticket_table`.
+
+DATABASE SCHEMA:
+CREATE TABLE "campaign_participation_table" (
+"Activity ID" TEXT,
+  "Event Name" TEXT,
+  "Event Start Date" TIMESTAMP,
+  "Event End Date" TIMESTAMP,
+  "Event Duration (days)" INTEGER,
+  "Number of Event Participants" INTEGER,
+  "Event Participation Prize Level" TEXT,
+  "Event Prize Collection Date" TIMESTAMP,
+  "Event Participant Contact ID" TEXT,
+  "Event Participant Contact Phone Number" INTEGER,
+  "Event Participation Score" INTEGER
+)
+CREATE TABLE "channel_source_table" (
+"Activity ID" TEXT,
+  "Channel ID" TEXT,
+  "Customer ID" TEXT,
+  "Channel Name" TEXT,
+  "Sub-channel Name" TEXT,
+  "Channel manager employee ID" TEXT,
+  "Channel partnership term" TEXT,
+  "Channel investment cost" INTEGER,
+  "Channel customer acquisition cost" INTEGER,
+  "Channel first conversion time" TIMESTAMP,
+  "Channel current status" TEXT
+)
+CREATE TABLE "complaints_table" (
+"Complaint Content ID" TEXT,
+  "Work Order ID" TEXT,
+  "Complaint Type Serial Number" INTEGER,
+  "Complaint Submission Time" TIMESTAMP,
+  "Complaint Acceptance Time" TIMESTAMP,
+  "Complaint Handler Employee ID" TEXT,
+  "Complaint Handling Plan ID" TEXT,
+  "Complaint Resolution Time" TIMESTAMP,
+  "Complaint Customer Satisfaction" INTEGER,
+  "Whether Complaint Was Escalated" TEXT,
+  "Complaint Handling Speed" TEXT
+)
+CREATE TABLE "contracts_table" (
+"Contract ID" TEXT,
+  "Customer ID" TEXT,
+  "Contract Type" TEXT,
+  "Contract Signing Date" TIMESTAMP,
+  "Contract Expiration Date" TIMESTAMP,
+  "Total Contract Amount" REAL,
+  "Contract Payment Cycle" TEXT,
+  "Contract Performance Status" TEXT,
+  "Contract Responsible Person Employee ID" TEXT,
+  "Contract Signing IP Address" TEXT,
+  "Number of Contract Attachments" INTEGER
+)
+CREATE TABLE "customer_account_table" (
+"Customer ID" TEXT,
+  "Account ID" TEXT,
+  "Account Type" TEXT,
+  "Account-Opening Bank Name" TEXT,
+  "Bank Account Number" INTEGER,
+  "Account Opening Date" TIMESTAMP,
+  "Account Last Transaction Date" TIMESTAMP,
+  "Account Credit Rating" TEXT,
+  "Account Statement Cycle" TEXT,
+  "Account Tax ID" INTEGER
+)
+CREATE TABLE "customer_contact_table" (
+"Customer ID" TEXT,
+  "Contact" TEXT,
+  "Gender" TEXT,
+  "Phone number" INTEGER,
+  "Email address" TEXT,
+  "Contact priority" INTEGER,
+  "First contacted Time" TIMESTAMP,
+  "Last contacted Time" TIMESTAMP
+)
+CREATE TABLE "customer_credit_rating_table" (
+"Credit Rating ID" TEXT,
+  "Account ID" TEXT,
+  "Rating Date" TIMESTAMP,
+  "Rating Agency Name" TEXT,
+  "Credit Grade" TEXT,
+  "Credit Score" INTEGER,
+  "Rating Expiration Date" TIMESTAMP,
+  "Credit Limit" INTEGER,
+  "Overdue Count" INTEGER,
+  "Total Overdue Amount" INTEGER,
+  "Most Recent Overdue Date" TEXT
+)
+CREATE TABLE "customer_device_table" (
+"Device ID" TEXT,
+  "Customer ID" TEXT,
+  "Device Model" TEXT,
+  "Device Type" TEXT,
+  "Device Serial Number" TEXT,
+  "Device MAC Address" TEXT,
+  "Device Installation Date" TIMESTAMP,
+  "Device Warranty Period" TEXT,
+  "Device Maintenance Status" TEXT,
+  "Device Operating Department" TEXT,
+  "Device Last Maintenance Time" TIMESTAMP,
+  "Device Failure Count" INTEGER
+)
+CREATE TABLE "customer_feedback_table" (
+"Feedback ID" TEXT,
+  "Contact ID" TEXT,
+  "Feedback Submission Time" TIMESTAMP,
+  "Feedback Handling Duration" TEXT,
+  "Handling Status" TEXT,
+  "Handling Department ID" TEXT,
+  "Handler Employee ID" TEXT,
+  "Handling Result ID" TEXT,
+  "Satisfaction Rating" INTEGER,
+  "Is Feedback Closed-Loop" TEXT
+)
+CREATE TABLE "customer_segments_table" (
+"Segment ID" TEXT,
+  "Customer ID" TEXT,
+  "Segment Name" TEXT,
+  "Segment Creation Time" TEXT,
+  "Segment Owner Employee ID" TEXT,
+  "Number of Customers in the Segment" INTEGER,
+  "Customer Status in the Segment" TEXT,
+  "Segment Validity Period" TEXT,
+  "Is the Segment Dynamically Updated" TEXT,
+  "Customer Segmentation Document Number" TEXT
+)
+CREATE TABLE "customer_tag_table" (
+"Tag ID" TEXT,
+  "Customer ID" TEXT,
+  "Contact ID" TEXT,
+  "Tag Name" TEXT,
+  "Tag Count" INTEGER,
+  "Tag Creation Time" TIMESTAMP,
+  "Tag Assignment Time" TIMESTAMP,
+  "Tag Update Time" TEXT,
+  "Tag Weight Value" REAL,
+  "Tag Validity Period" TEXT,
+  "Is System Default Tag" TEXT
+)
+CREATE TABLE "financials_table" (
+"Financial ID" TEXT,
+  "Customer ID" TEXT,
+  "Account ID" TEXT,
+  "Invoice Number" TEXT,
+  "Invoice Generation Date" TEXT,
+  "Receivable Amount" INTEGER,
+  "Amount Received" INTEGER,
+  "Outstanding Amount" INTEGER,
+  "Payment Term (days)" INTEGER,
+  "Tax Rate" INTEGER,
+  "Tax Amount" REAL,
+  "Payment Received Date" TEXT
+)
+CREATE TABLE "membership_table" (
+"Customer ID" TEXT,
+  "Membership Level" TEXT,
+  "Current Points" INTEGER,
+  "Lifetime Points" INTEGER,
+  "Points Expiration Date" TIMESTAMP,
+  "Registration Date" TIMESTAMP,
+  "Date of Birth" TIMESTAMP,
+  "Privilege Level" TEXT,
+  "Upgrade Requirements Met" TEXT,
+  "Member Status" TEXT,
+  "Automatic Renewal" TEXT
+)
+CREATE TABLE "permissions_table" (
+"Permission ID" TEXT,
+  "Customer ID" TEXT,
+  "Account ID" TEXT,
+  "Role Name" TEXT,
+  "Permission Access Scope" TEXT,
+  "Data Access Permission" TEXT,
+  "Functional Operation Permission" TEXT,
+  "Permission Effective Time" TEXT,
+  "Permission Expiration Time" TEXT,
+  "Authorizer Employee ID" TEXT,
+  "Permission Change Record" TEXT
+)
+CREATE TABLE "product_service_order_table" (
+"Subscription ID" TEXT,
+  "Customer ID" TEXT,
+  "Product ID" TEXT,
+  "Subscribed Product Name" TEXT,
+  "Quantity" INTEGER,
+  "Unit Price" REAL,
+  "Total Amount" REAL,
+  "Subscription Date" TIMESTAMP,
+  "Service End Date" TIMESTAMP,
+  "Current Service Status" TEXT,
+  "Service Level" TEXT,
+  "Service Implementation Owner" TEXT
+)
+CREATE TABLE "sales_follow_up_table" (
+"Follow-up Record Code" TEXT,
+  "Customer ID" TEXT,
+  "Work Order ID" TEXT,
+  "Customer Phone Number" INTEGER,
+  "Follow-up Responsible Employee ID" TEXT,
+  "Follow-up Date" TIMESTAMP,
+  "Next Planned Follow-up Time" TIMESTAMP,
+  "Follow-up Result Status" TEXT,
+  "Follow-up To-Do Item ID" TEXT,
+  "Follow-up Priority" TEXT
+)
+CREATE TABLE "service_ticket_table" (
+"Work Order ID" TEXT,
+  "Contract ID" TEXT,
+  "Ticket handling agent ID" TEXT,
+  "Ticket submission time" TIMESTAMP,
+  "Ticket processing urgency level" TEXT,
+  "Ticket priority" INTEGER,
+  "Ticket resolution time" TIMESTAMP,
+  "Ticket resolution duration" INTEGER,
+  "Ticket customer satisfaction score" INTEGER,
+  "Whether the ticket had a second follow-up" TEXT
+)
+CREATE TABLE "service_usage_table" (
+"Usage Record ID" TEXT,
+  "Product ID" TEXT,
+  "Service Name" TEXT,
+  "Usage Time" TIMESTAMP,
+  "Usage Duration" TEXT,
+  "Functional Module Used" TEXT,
+  "Login IP Address" TEXT,
+  "Usage Status" TEXT,
+  "Error Code" TEXT,
+  "Usage Frequency" TEXT,
+  "Usage Region" TEXT,
+  "Service Usage Satisfaction Score" INTEGER
+)
+CREATE TABLE "transaction_history_table" (
+"Transaction ID" TEXT,
+  "Customer ID" TEXT,
+  "Account ID" TEXT,
+  "Transaction Amount" REAL,
+  "Transaction Currency" TEXT,
+  "Transaction Time" TIMESTAMP,
+  "Transaction Payment Method" TEXT,
+  "Transaction Payment Status" TEXT,
+  "Transaction Order Number" TEXT,
+  "Transaction Service Period" TEXT,
+  "Transaction Operator Employee ID" TEXT
+)

@@ -1,0 +1,1 @@
+SELECT campaign_type FROM (SELECT DISTINCT substr(campaign_name, 1, instr(campaign_name,' -')-1) AS campaign_type FROM google_ads__ad_group_report) ORDER BY campaign_type

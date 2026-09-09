@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total, SUM(CASE WHEN embedded_data IS NOT NULL AND embedded_data != '' THEN 1 ELSE 0 END) AS has_embedded FROM qualtrics__response

@@ -1,0 +1,1 @@
+SELECT customer360_id, source_system, address_type, state, country FROM customer360__address LIMIT 10

@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_in_2024 FROM google_ads__customer_acquisition_analysis WHERE substr(date_day,1,10) BETWEEN '2024-01-03' AND '2024-12-31'

@@ -1,0 +1,1 @@
+SELECT cr."Account ID", a."Customer ID" FROM customer_credit_rating_table cr LEFT JOIN customer_account_table a ON cr."Account ID"=a."Account ID" LIMIT 10

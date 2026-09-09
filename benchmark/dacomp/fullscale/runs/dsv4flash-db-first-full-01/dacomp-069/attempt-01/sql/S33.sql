@@ -1,0 +1,1 @@
+SELECT country_short, sku_id, SUM(new_subscriptions) AS total_new_sub, SUM(cancelled_subscriptions) AS total_cancel, SUM(total_active_subscriptions) AS total_active FROM google_play__finance_report WHERE package_name='com.dev.photoeditor' GROUP BY country_short, sku_id ORDER BY total_active DESC

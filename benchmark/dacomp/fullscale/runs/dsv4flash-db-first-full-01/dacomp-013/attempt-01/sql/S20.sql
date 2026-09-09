@@ -1,0 +1,1 @@
+SELECT MIN("Rework Count") AS min_r, MAX("Rework Count") AS max_r FROM sheet1 WHERE "Rework Count" != '-'

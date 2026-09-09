@@ -1,0 +1,1 @@
+SELECT survey_name, project_category, project_type, count_questions FROM qualtrics__survey WHERE survey_id = 'SUR10002490769' LIMIT 1

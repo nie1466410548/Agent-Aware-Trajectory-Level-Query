@@ -1,0 +1,1 @@
+SELECT DISTINCT "Primary Diagnosis" FROM assessmentsocialanddiagnosis

@@ -1,0 +1,1 @@
+SELECT COUNT(*) as total FROM workday__employee_overview

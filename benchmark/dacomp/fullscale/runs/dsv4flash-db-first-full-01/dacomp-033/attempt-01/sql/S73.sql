@@ -1,0 +1,1 @@
+SELECT "Membership Level", COUNT(*) as all_cust FROM membership_table GROUP BY "Membership Level" ORDER BY all_cust DESC

@@ -1,0 +1,1 @@
+SELECT DISTINCT accounting_period_ending, accounting_period_name FROM netsuite2_income_statement ORDER BY accounting_period_ending

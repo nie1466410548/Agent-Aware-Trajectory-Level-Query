@@ -1,0 +1,1 @@
+SELECT strftime('%Y-%m', date_day) AS ym, COUNT(*) AS n, SUM(store_visitors) AS vis, SUM(store_acquisitions) AS acq, SUM(daily_net_revenue) AS rev FROM google_play__comprehensive_performance_dashboard GROUP BY ym ORDER BY ym

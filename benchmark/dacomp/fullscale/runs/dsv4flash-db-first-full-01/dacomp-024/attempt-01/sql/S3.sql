@@ -1,0 +1,1 @@
+SELECT DISTINCT substr("Order Date", -4, 4) AS year FROM sheet1 ORDER BY year

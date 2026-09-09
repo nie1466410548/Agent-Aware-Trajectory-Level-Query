@@ -1,0 +1,1 @@
+SELECT "Extracurricular activity participation" AS val, COUNT(*) AS n, ROUND(AVG("Exam score"),2) AS avg_exam FROM sheet1 GROUP BY "Extracurricular activity participation" ORDER BY avg_exam DESC

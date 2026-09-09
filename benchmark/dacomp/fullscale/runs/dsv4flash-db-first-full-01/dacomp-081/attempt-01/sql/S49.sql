@@ -1,0 +1,1 @@
+SELECT embedded_data, COUNT(*) AS cnt FROM qualtrics__response WHERE embedded_data IS NOT NULL AND embedded_data != '' GROUP BY embedded_data ORDER BY cnt DESC LIMIT 30

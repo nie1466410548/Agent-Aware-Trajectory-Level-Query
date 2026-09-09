@@ -1,0 +1,1 @@
+SELECT MIN(created_at) as min_date, MAX(created_at) as max_date, COUNT(*) as total_rows FROM lever__posting_enhanced

@@ -1,0 +1,1 @@
+SELECT AVG(avg_interview_score) as avg FROM greenhouse__candidate_summary WHERE avg_interview_score IS NOT NULL

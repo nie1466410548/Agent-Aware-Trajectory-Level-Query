@@ -1,0 +1,1 @@
+SELECT campaign_name FROM google_ads__ad_group_report GROUP BY campaign_name ORDER BY campaign_name LIMIT 200

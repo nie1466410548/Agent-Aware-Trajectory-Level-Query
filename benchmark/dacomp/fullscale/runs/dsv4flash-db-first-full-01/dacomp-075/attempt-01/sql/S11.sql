@@ -1,0 +1,1 @@
+SELECT DISTINCT dependency_level FROM netsuite2_vendor_risk_analysis

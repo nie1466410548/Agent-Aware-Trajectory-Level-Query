@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT title) AS distinct_titles FROM salesforce__contact_enhanced

@@ -1,0 +1,1 @@
+SELECT MIN("Year") AS miny, MAX("Year") AS maxy, COUNT(DISTINCT "Year") AS ny FROM economic_indicator_data WHERE "Region Name" != 'China'

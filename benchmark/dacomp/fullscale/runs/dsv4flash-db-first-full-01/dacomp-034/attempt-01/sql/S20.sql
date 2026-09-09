@@ -1,0 +1,1 @@
+SELECT MIN(create_dt) AS mn, MAX(create_dt) AS mx FROM attachment_3

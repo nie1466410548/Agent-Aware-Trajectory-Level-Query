@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS c FROM qualtrics__response WHERE question_text LIKE '%revenue%' OR question_text LIKE '%Revenue%' OR question_text LIKE '%performance%' OR question_text LIKE '%score%' OR question_text LIKE '%budget%' OR question_text LIKE '%app%' OR question_text LIKE '%photo%' OR question_text LIKE '%region%' OR question_text LIKE '%market%'

@@ -1,0 +1,1 @@
+SELECT DISTINCT package_name FROM google_play__comprehensive_performance_dashboard WHERE package_name LIKE '%photo%'

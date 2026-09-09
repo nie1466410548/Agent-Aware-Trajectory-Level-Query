@@ -1,0 +1,1 @@
+SELECT "Benefits", COUNT(*) AS cnt FROM sheet1 WHERE "Education Requirement" = 'Vocational school or above' AND "Benefits" IS NOT NULL AND "Benefits" != '' GROUP BY "Benefits" ORDER BY cnt DESC LIMIT 30

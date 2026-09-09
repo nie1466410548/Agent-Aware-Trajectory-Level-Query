@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n, SUM(CASE WHEN store_visitors > 0 THEN 1 ELSE 0 END) AS vis_pos, SUM(CASE WHEN store_acquisitions > 0 THEN 1 ELSE 0 END) AS acq_pos, SUM(CASE WHEN store_conversion_rate IS NOT NULL THEN 1 ELSE 0 END) AS conv_notnull, SUM(store_visitors) AS sum_vis, SUM(store_acquisitions) AS sum_acq FROM google_play__comprehensive_performance_dashboard

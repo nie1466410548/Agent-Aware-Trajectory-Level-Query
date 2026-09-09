@@ -1,0 +1,1 @@
+SELECT DISTINCT campaign_id FROM google_ads__keyword_report ORDER BY campaign_id

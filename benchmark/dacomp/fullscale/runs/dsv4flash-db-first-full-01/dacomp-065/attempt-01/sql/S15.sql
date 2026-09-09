@@ -1,0 +1,1 @@
+SELECT DISTINCT candidate_company FROM greenhouse__application_enhanced ORDER BY candidate_company

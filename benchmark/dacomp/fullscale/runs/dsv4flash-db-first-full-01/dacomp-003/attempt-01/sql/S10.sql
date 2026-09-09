@@ -1,0 +1,1 @@
+SELECT DISTINCT "Region Name" FROM sheet1 WHERE "Region Name" NOT LIKE '%Province%' AND "Region Name" NOT LIKE '%Municipality%' AND "Region Name" NOT LIKE '%Autonomous Region%' AND "Region Name" != 'China'

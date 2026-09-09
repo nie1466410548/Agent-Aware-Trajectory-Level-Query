@@ -1,0 +1,1 @@
+SELECT * FROM login_records_table LIMIT 20

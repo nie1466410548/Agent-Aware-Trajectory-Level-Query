@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_tickets FROM service_ticket_table

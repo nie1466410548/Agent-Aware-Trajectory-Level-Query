@@ -1,0 +1,1 @@
+SELECT "Ticket customer satisfaction score", COUNT(*) as cnt FROM service_ticket_table GROUP BY "Ticket customer satisfaction score"

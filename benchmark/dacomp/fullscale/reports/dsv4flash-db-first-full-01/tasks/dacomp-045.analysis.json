@@ -1,0 +1,777 @@
+{
+  "fingerprint": "1fd9475e60995a48e813d53366db2bc8e3b6ac6056b028a1b140ee1d1ffa80da",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT \"User ID\", CASE WHEN \"Membership Level\" IN ('Diamond', 'Platinum') THEN 'High-Value' WHEN \"Membership Level\" = 'Regular' THEN 'Regular' ELSE 'Gold' END AS user_group FROM user_basic_information_table",
+      "covered": [
+        "S16",
+        "S17",
+        "S18",
+        "S19",
+        "S21",
+        "S23",
+        "S24",
+        "S25",
+        "S26",
+        "S27",
+        "S28",
+        "S29",
+        "S30",
+        "S31",
+        "S32",
+        "S33",
+        "S34",
+        "S35",
+        "S36",
+        "S37"
+      ],
+      "rewrites": {
+        "S16": "/* Analyze search keyword preferences by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, s.\"Search Keyword\", COUNT(*) AS search_count FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, s.\"Search Keyword\" ORDER BY ug.user_group, search_count DESC",
+        "S17": "/* Get full search keyword distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, s.\"Search Keyword\", COUNT(*) AS search_count, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, s.\"Search Keyword\" ORDER BY ug.user_group, search_count DESC",
+        "S18": "/* Favorites by category and user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, p.\"Category Name\", COUNT(*) AS fav_count, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct FROM user_groups AS ug JOIN product_favorites_table AS f ON ug.\"User ID\" = f.\"User ID\" JOIN product_basic_information_table AS p ON f.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group, p.\"Category Name\" ORDER BY ug.user_group, fav_count DESC",
+        "S19": "/* Favorites by brand and user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, p.\"Brand Name\", COUNT(*) AS fav_count, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct FROM user_groups AS ug JOIN product_favorites_table AS f ON ug.\"User ID\" = f.\"User ID\" JOIN product_basic_information_table AS p ON f.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group, p.\"Brand Name\" ORDER BY ug.user_group, fav_count DESC",
+        "S21": "/* Search time distribution: hour of day, by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, CAST(STRFTIME('%H', s.\"Search Time\") AS INTEGER) AS search_hour, COUNT(*) AS search_count FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, search_hour ORDER BY ug.user_group, search_hour",
+        "S23": "/* Search quality metrics by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, COUNT(*) AS searches, ROUND(AVG(s.\"Input Duration\"), 1) AS avg_input_duration, ROUND(AVG(s.\"Viewed Result Count\"), 1) AS avg_viewed_results, ROUND(AVG(s.\"Clicked Result Count\"), 1) AS avg_clicked_results, ROUND(AVG(s.\"Search Conversion Rate\"), 3) AS avg_conv_rate, ROUND(AVG(s.\"Suggestion Count\"), 1) AS avg_suggestions, ROUND(SUM(s.\"No Result Search Count\"), 0) AS no_result_total, ROUND(AVG(s.\"Used Autocomplete\" = 'Yes') * 100, 1) AS autocomplete_pct FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group ORDER BY ug.user_group",
+        "S24": "/* Browsing behavior metrics by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, COUNT(*) AS browsing_events, ROUND(AVG(b.\"Time on Page\"), 1) AS avg_time_on_page, ROUND(AVG(b.\"View Count\"), 1) AS avg_view_count, ROUND(AVG(b.\"Scroll Distance\"), 1) AS avg_scroll, ROUND(AVG(b.\"Zoom Count\"), 1) AS avg_zoom_count, ROUND(AVG(b.\"Time on Detail Page\"), 1) AS avg_detail_time, ROUND(AVG(b.\"Time on Review Page\"), 1) AS avg_review_time, ROUND(SUM(b.\"Product Link Share Count\") * 1.0 / COUNT(*), 3) AS avg_share_per_view, ROUND(AVG(b.\"Has Swiped\" = 'Yes') * 100, 1) AS swiped_pct, ROUND(AVG(b.\"Has Zoomed\" = 'Yes') * 100, 1) AS zoomed_pct, ROUND(AVG(b.\"Viewed Specifications\" = 'Yes') * 100, 1) AS specs_pct FROM user_groups AS ug JOIN browsing_behavior_records_table AS b ON ug.\"User ID\" = b.\"User ID\" GROUP BY ug.user_group ORDER BY ug.user_group",
+        "S25": "/* Search behavior by day of week (0=Sunday, 6=Saturday) */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, CAST(STRFTIME('%w', s.\"Search Time\") AS INTEGER) AS day_of_week, COUNT(*) AS search_count FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, day_of_week ORDER BY ug.user_group, day_of_week",
+        "S26": "/* Search by month to see seasonal patterns */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, CAST(STRFTIME('%m', s.\"Search Time\") AS INTEGER) AS search_month, COUNT(*) AS search_count FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, search_month ORDER BY ug.user_group, search_month",
+        "S27": "/* User demographics by membership level */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, COUNT(*) AS user_count, ROUND(AVG(u.\"Login Count\"), 1) AS avg_login_count, ROUND(AVG(u.\"Device count\"), 1) AS avg_device_count, ROUND(SUM(CASE WHEN u.\"Payment enabled\" = 'Yes' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS payment_pct, ROUND(SUM(CASE WHEN u.\"Real-name verification status\" = 'Verified' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS verified_pct FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group ORDER BY ug.user_group",
+        "S28": "/* Age group distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, u.\"Age group\", COUNT(*) AS cnt FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group, u.\"Age group\" ORDER BY ug.user_group, cnt DESC",
+        "S29": "/* Income level distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, u.\"Income level\", COUNT(*) AS cnt FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group, u.\"Income level\" ORDER BY ug.user_group, cnt DESC",
+        "S30": "/* Browsing categories by user group (views) */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, p.\"Category Name\", COUNT(*) AS views, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct FROM user_groups AS ug JOIN browsing_behavior_records_table AS b ON ug.\"User ID\" = b.\"User ID\" JOIN product_basic_information_table AS p ON b.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group, p.\"Category Name\" ORDER BY ug.user_group, views DESC",
+        "S31": "/* Browsing brands by user group (views) */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, p.\"Brand Name\", COUNT(*) AS views, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct FROM user_groups AS ug JOIN browsing_behavior_records_table AS b ON ug.\"User ID\" = b.\"User ID\" JOIN product_basic_information_table AS p ON b.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group, p.\"Brand Name\" ORDER BY ug.user_group, views DESC",
+        "S32": "/* Average price of browsed/favorited products by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, ROUND(AVG(p.\"Price\"), 2) AS avg_browsed_price, ROUND(AVG(p.\"Sale Price\"), 2) AS avg_browsed_sale_price, ROUND(AVG(p.\"Original Price\"), 2) AS avg_browsed_original_price FROM user_groups AS ug JOIN browsing_behavior_records_table AS b ON ug.\"User ID\" = b.\"User ID\" JOIN product_basic_information_table AS p ON b.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group ORDER BY ug.user_group",
+        "S33": "/* Average price of favorited products by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, ROUND(AVG(p.\"Price\"), 2) AS avg_fav_price, ROUND(AVG(p.\"Sale Price\"), 2) AS avg_fav_sale_price, ROUND(AVG(p.\"Original Price\"), 2) AS avg_fav_original_price FROM user_groups AS ug JOIN product_favorites_table AS f ON ug.\"User ID\" = f.\"User ID\" JOIN product_basic_information_table AS p ON f.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group ORDER BY ug.user_group",
+        "S34": "/* Gender distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, u.\"Gender\", COUNT(*) AS cnt FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group, u.\"Gender\" ORDER BY ug.user_group, cnt DESC",
+        "S35": "/* Occupation distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, u.\"Occupation\", COUNT(*) AS cnt FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group, u.\"Occupation\" ORDER BY ug.user_group, cnt DESC",
+        "S36": "/* Education level distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, u.\"Education Level\", COUNT(*) AS cnt FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group, u.\"Education Level\" ORDER BY ug.user_group, cnt DESC",
+        "S37": "/* Search keyword preferences detailed: top keywords per user group with percentages */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate), keyword_stats AS (SELECT ug.user_group, s.\"Search Keyword\", COUNT(*) AS cnt, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct_in_group FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, s.\"Search Keyword\") SELECT * FROM keyword_stats WHERE user_group IN ('High-Value', 'Regular') ORDER BY user_group, cnt DESC"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S16",
+      "later_reuses": 19,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865863.8338459,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"User ID\", CASE WHEN \"Membership Level\" IN ('Diamond', 'Platinum') THEN 'High-Value' WHEN \"Membership Level\" = 'Regular' THEN 'Regular' ELSE 'Gold' END AS user_group FROM user_basic_information_table",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8341212,
+          "status": "execute_returned",
+          "end_time": 1788865863.8346405
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8346457,
+          "status": "execute_returned",
+          "end_time": 1788865863.834665
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8346708,
+          "status": "execute_returned",
+          "end_time": 1788865863.8346827
+        },
+        {
+          "sequence": 4,
+          "sql": "/* Analyze search keyword preferences by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, s.\"Search Keyword\", COUNT(*) AS search_count FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, s.\"Search Keyword\" ORDER BY ug.user_group, search_count DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8346927,
+          "status": "execute_returned",
+          "end_time": 1788865863.8355024
+        },
+        {
+          "sequence": 5,
+          "sql": "/* Get full search keyword distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, s.\"Search Keyword\", COUNT(*) AS search_count, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, s.\"Search Keyword\" ORDER BY ug.user_group, search_count DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8372245,
+          "status": "execute_returned",
+          "end_time": 1788865863.838123
+        },
+        {
+          "sequence": 6,
+          "sql": "/* Favorites by category and user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, p.\"Category Name\", COUNT(*) AS fav_count, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct FROM user_groups AS ug JOIN product_favorites_table AS f ON ug.\"User ID\" = f.\"User ID\" JOIN product_basic_information_table AS p ON f.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group, p.\"Category Name\" ORDER BY ug.user_group, fav_count DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8399904,
+          "status": "execute_returned",
+          "end_time": 1788865863.8414006
+        },
+        {
+          "sequence": 7,
+          "sql": "/* Favorites by brand and user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, p.\"Brand Name\", COUNT(*) AS fav_count, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct FROM user_groups AS ug JOIN product_favorites_table AS f ON ug.\"User ID\" = f.\"User ID\" JOIN product_basic_information_table AS p ON f.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group, p.\"Brand Name\" ORDER BY ug.user_group, fav_count DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865863.844095,
+          "status": "execute_returned",
+          "end_time": 1788865863.8454723
+        },
+        {
+          "sequence": 8,
+          "sql": "/* Search time distribution: hour of day, by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, CAST(STRFTIME('%H', s.\"Search Time\") AS INTEGER) AS search_hour, COUNT(*) AS search_count FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, search_hour ORDER BY ug.user_group, search_hour",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8473423,
+          "status": "execute_returned",
+          "end_time": 1788865863.848228
+        },
+        {
+          "sequence": 9,
+          "sql": "/* Search quality metrics by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, COUNT(*) AS searches, ROUND(AVG(s.\"Input Duration\"), 1) AS avg_input_duration, ROUND(AVG(s.\"Viewed Result Count\"), 1) AS avg_viewed_results, ROUND(AVG(s.\"Clicked Result Count\"), 1) AS avg_clicked_results, ROUND(AVG(s.\"Search Conversion Rate\"), 3) AS avg_conv_rate, ROUND(AVG(s.\"Suggestion Count\"), 1) AS avg_suggestions, ROUND(SUM(s.\"No Result Search Count\"), 0) AS no_result_total, ROUND(AVG(s.\"Used Autocomplete\" = 'Yes') * 100, 1) AS autocomplete_pct FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group ORDER BY ug.user_group",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8501778,
+          "status": "execute_returned",
+          "end_time": 1788865863.8510861
+        },
+        {
+          "sequence": 10,
+          "sql": "/* Browsing behavior metrics by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, COUNT(*) AS browsing_events, ROUND(AVG(b.\"Time on Page\"), 1) AS avg_time_on_page, ROUND(AVG(b.\"View Count\"), 1) AS avg_view_count, ROUND(AVG(b.\"Scroll Distance\"), 1) AS avg_scroll, ROUND(AVG(b.\"Zoom Count\"), 1) AS avg_zoom_count, ROUND(AVG(b.\"Time on Detail Page\"), 1) AS avg_detail_time, ROUND(AVG(b.\"Time on Review Page\"), 1) AS avg_review_time, ROUND(SUM(b.\"Product Link Share Count\") * 1.0 / COUNT(*), 3) AS avg_share_per_view, ROUND(AVG(b.\"Has Swiped\" = 'Yes') * 100, 1) AS swiped_pct, ROUND(AVG(b.\"Has Zoomed\" = 'Yes') * 100, 1) AS zoomed_pct, ROUND(AVG(b.\"Viewed Specifications\" = 'Yes') * 100, 1) AS specs_pct FROM user_groups AS ug JOIN browsing_behavior_records_table AS b ON ug.\"User ID\" = b.\"User ID\" GROUP BY ug.user_group ORDER BY ug.user_group",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8535998,
+          "status": "execute_returned",
+          "end_time": 1788865863.854805
+        },
+        {
+          "sequence": 11,
+          "sql": "/* Search behavior by day of week (0=Sunday, 6=Saturday) */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, CAST(STRFTIME('%w', s.\"Search Time\") AS INTEGER) AS day_of_week, COUNT(*) AS search_count FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, day_of_week ORDER BY ug.user_group, day_of_week",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8581347,
+          "status": "execute_returned",
+          "end_time": 1788865863.8590114
+        },
+        {
+          "sequence": 12,
+          "sql": "/* Search by month to see seasonal patterns */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, CAST(STRFTIME('%m', s.\"Search Time\") AS INTEGER) AS search_month, COUNT(*) AS search_count FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, search_month ORDER BY ug.user_group, search_month",
+          "phase": "offline_validation",
+          "start_time": 1788865863.860641,
+          "status": "execute_returned",
+          "end_time": 1788865863.8615248
+        },
+        {
+          "sequence": 13,
+          "sql": "/* User demographics by membership level */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, COUNT(*) AS user_count, ROUND(AVG(u.\"Login Count\"), 1) AS avg_login_count, ROUND(AVG(u.\"Device count\"), 1) AS avg_device_count, ROUND(SUM(CASE WHEN u.\"Payment enabled\" = 'Yes' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS payment_pct, ROUND(SUM(CASE WHEN u.\"Real-name verification status\" = 'Verified' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS verified_pct FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group ORDER BY ug.user_group",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8631845,
+          "status": "execute_returned",
+          "end_time": 1788865863.8640406
+        },
+        {
+          "sequence": 14,
+          "sql": "/* Age group distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, u.\"Age group\", COUNT(*) AS cnt FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group, u.\"Age group\" ORDER BY ug.user_group, cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8667417,
+          "status": "execute_returned",
+          "end_time": 1788865863.8675742
+        },
+        {
+          "sequence": 15,
+          "sql": "/* Income level distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, u.\"Income level\", COUNT(*) AS cnt FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group, u.\"Income level\" ORDER BY ug.user_group, cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8689353,
+          "status": "execute_returned",
+          "end_time": 1788865863.8697639
+        },
+        {
+          "sequence": 16,
+          "sql": "/* Browsing categories by user group (views) */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, p.\"Category Name\", COUNT(*) AS views, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct FROM user_groups AS ug JOIN browsing_behavior_records_table AS b ON ug.\"User ID\" = b.\"User ID\" JOIN product_basic_information_table AS p ON b.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group, p.\"Category Name\" ORDER BY ug.user_group, views DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8711329,
+          "status": "execute_returned",
+          "end_time": 1788865863.8726022
+        },
+        {
+          "sequence": 17,
+          "sql": "/* Browsing brands by user group (views) */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, p.\"Brand Name\", COUNT(*) AS views, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct FROM user_groups AS ug JOIN browsing_behavior_records_table AS b ON ug.\"User ID\" = b.\"User ID\" JOIN product_basic_information_table AS p ON b.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group, p.\"Brand Name\" ORDER BY ug.user_group, views DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865863.874631,
+          "status": "execute_returned",
+          "end_time": 1788865863.8761091
+        },
+        {
+          "sequence": 18,
+          "sql": "/* Average price of browsed/favorited products by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, ROUND(AVG(p.\"Price\"), 2) AS avg_browsed_price, ROUND(AVG(p.\"Sale Price\"), 2) AS avg_browsed_sale_price, ROUND(AVG(p.\"Original Price\"), 2) AS avg_browsed_original_price FROM user_groups AS ug JOIN browsing_behavior_records_table AS b ON ug.\"User ID\" = b.\"User ID\" JOIN product_basic_information_table AS p ON b.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group ORDER BY ug.user_group",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8779814,
+          "status": "execute_returned",
+          "end_time": 1788865863.879315
+        },
+        {
+          "sequence": 19,
+          "sql": "/* Average price of favorited products by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, ROUND(AVG(p.\"Price\"), 2) AS avg_fav_price, ROUND(AVG(p.\"Sale Price\"), 2) AS avg_fav_sale_price, ROUND(AVG(p.\"Original Price\"), 2) AS avg_fav_original_price FROM user_groups AS ug JOIN product_favorites_table AS f ON ug.\"User ID\" = f.\"User ID\" JOIN product_basic_information_table AS p ON f.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group ORDER BY ug.user_group",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8811474,
+          "status": "execute_returned",
+          "end_time": 1788865863.882386
+        },
+        {
+          "sequence": 20,
+          "sql": "/* Gender distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, u.\"Gender\", COUNT(*) AS cnt FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group, u.\"Gender\" ORDER BY ug.user_group, cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8843632,
+          "status": "execute_returned",
+          "end_time": 1788865863.8851488
+        },
+        {
+          "sequence": 21,
+          "sql": "/* Occupation distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, u.\"Occupation\", COUNT(*) AS cnt FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group, u.\"Occupation\" ORDER BY ug.user_group, cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8864846,
+          "status": "execute_returned",
+          "end_time": 1788865863.8874078
+        },
+        {
+          "sequence": 22,
+          "sql": "/* Education level distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, u.\"Education Level\", COUNT(*) AS cnt FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group, u.\"Education Level\" ORDER BY ug.user_group, cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8889534,
+          "status": "execute_returned",
+          "end_time": 1788865863.8898144
+        },
+        {
+          "sequence": 23,
+          "sql": "/* Search keyword preferences detailed: top keywords per user group with percentages */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate), keyword_stats AS (SELECT ug.user_group, s.\"Search Keyword\", COUNT(*) AS cnt, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct_in_group FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, s.\"Search Keyword\") SELECT * FROM keyword_stats WHERE user_group IN ('High-Value', 'Regular') ORDER BY user_group, cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865863.891192,
+          "status": "execute_returned",
+          "end_time": 1788865863.8920608
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"User ID\", CASE WHEN \"Membership Level\" IN ('Diamond', 'Platinum') THEN 'High-Value' WHEN \"Membership Level\" = 'Regular' THEN 'Regular' ELSE 'Gold' END AS user_group FROM user_basic_information_table",
+          "time": 1788865863.8344347,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865863.834662,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865863.8346796,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Analyze search keyword preferences by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, s.\"Search Keyword\", COUNT(*) AS search_count FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, s.\"Search Keyword\" ORDER BY ug.user_group, search_count DESC",
+          "time": 1788865863.8347352,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Get full search keyword distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, s.\"Search Keyword\", COUNT(*) AS search_count, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, s.\"Search Keyword\" ORDER BY ug.user_group, search_count DESC",
+          "time": 1788865863.8373191,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Favorites by category and user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, p.\"Category Name\", COUNT(*) AS fav_count, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct FROM user_groups AS ug JOIN product_favorites_table AS f ON ug.\"User ID\" = f.\"User ID\" JOIN product_basic_information_table AS p ON f.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group, p.\"Category Name\" ORDER BY ug.user_group, fav_count DESC",
+          "time": 1788865863.8400917,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Favorites by brand and user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, p.\"Brand Name\", COUNT(*) AS fav_count, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct FROM user_groups AS ug JOIN product_favorites_table AS f ON ug.\"User ID\" = f.\"User ID\" JOIN product_basic_information_table AS p ON f.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group, p.\"Brand Name\" ORDER BY ug.user_group, fav_count DESC",
+          "time": 1788865863.844207,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Search time distribution: hour of day, by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, CAST(STRFTIME('%H', s.\"Search Time\") AS INTEGER) AS search_hour, COUNT(*) AS search_count FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, search_hour ORDER BY ug.user_group, search_hour",
+          "time": 1788865863.8474085,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Search quality metrics by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, COUNT(*) AS searches, ROUND(AVG(s.\"Input Duration\"), 1) AS avg_input_duration, ROUND(AVG(s.\"Viewed Result Count\"), 1) AS avg_viewed_results, ROUND(AVG(s.\"Clicked Result Count\"), 1) AS avg_clicked_results, ROUND(AVG(s.\"Search Conversion Rate\"), 3) AS avg_conv_rate, ROUND(AVG(s.\"Suggestion Count\"), 1) AS avg_suggestions, ROUND(SUM(s.\"No Result Search Count\"), 0) AS no_result_total, ROUND(AVG(s.\"Used Autocomplete\" = 'Yes') * 100, 1) AS autocomplete_pct FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group ORDER BY ug.user_group",
+          "time": 1788865863.8502743,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Browsing behavior metrics by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, COUNT(*) AS browsing_events, ROUND(AVG(b.\"Time on Page\"), 1) AS avg_time_on_page, ROUND(AVG(b.\"View Count\"), 1) AS avg_view_count, ROUND(AVG(b.\"Scroll Distance\"), 1) AS avg_scroll, ROUND(AVG(b.\"Zoom Count\"), 1) AS avg_zoom_count, ROUND(AVG(b.\"Time on Detail Page\"), 1) AS avg_detail_time, ROUND(AVG(b.\"Time on Review Page\"), 1) AS avg_review_time, ROUND(SUM(b.\"Product Link Share Count\") * 1.0 / COUNT(*), 3) AS avg_share_per_view, ROUND(AVG(b.\"Has Swiped\" = 'Yes') * 100, 1) AS swiped_pct, ROUND(AVG(b.\"Has Zoomed\" = 'Yes') * 100, 1) AS zoomed_pct, ROUND(AVG(b.\"Viewed Specifications\" = 'Yes') * 100, 1) AS specs_pct FROM user_groups AS ug JOIN browsing_behavior_records_table AS b ON ug.\"User ID\" = b.\"User ID\" GROUP BY ug.user_group ORDER BY ug.user_group",
+          "time": 1788865863.853722,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Search behavior by day of week (0=Sunday, 6=Saturday) */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, CAST(STRFTIME('%w', s.\"Search Time\") AS INTEGER) AS day_of_week, COUNT(*) AS search_count FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, day_of_week ORDER BY ug.user_group, day_of_week",
+          "time": 1788865863.8582141,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Search by month to see seasonal patterns */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, CAST(STRFTIME('%m', s.\"Search Time\") AS INTEGER) AS search_month, COUNT(*) AS search_count FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, search_month ORDER BY ug.user_group, search_month",
+          "time": 1788865863.8607132,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* User demographics by membership level */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, COUNT(*) AS user_count, ROUND(AVG(u.\"Login Count\"), 1) AS avg_login_count, ROUND(AVG(u.\"Device count\"), 1) AS avg_device_count, ROUND(SUM(CASE WHEN u.\"Payment enabled\" = 'Yes' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS payment_pct, ROUND(SUM(CASE WHEN u.\"Real-name verification status\" = 'Verified' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS verified_pct FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group ORDER BY ug.user_group",
+          "time": 1788865863.8632836,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Age group distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, u.\"Age group\", COUNT(*) AS cnt FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group, u.\"Age group\" ORDER BY ug.user_group, cnt DESC",
+          "time": 1788865863.8668077,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Income level distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, u.\"Income level\", COUNT(*) AS cnt FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group, u.\"Income level\" ORDER BY ug.user_group, cnt DESC",
+          "time": 1788865863.8689978,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Browsing categories by user group (views) */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, p.\"Category Name\", COUNT(*) AS views, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct FROM user_groups AS ug JOIN browsing_behavior_records_table AS b ON ug.\"User ID\" = b.\"User ID\" JOIN product_basic_information_table AS p ON b.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group, p.\"Category Name\" ORDER BY ug.user_group, views DESC",
+          "time": 1788865863.8712454,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Browsing brands by user group (views) */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, p.\"Brand Name\", COUNT(*) AS views, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct FROM user_groups AS ug JOIN browsing_behavior_records_table AS b ON ug.\"User ID\" = b.\"User ID\" JOIN product_basic_information_table AS p ON b.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group, p.\"Brand Name\" ORDER BY ug.user_group, views DESC",
+          "time": 1788865863.8747377,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Average price of browsed/favorited products by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, ROUND(AVG(p.\"Price\"), 2) AS avg_browsed_price, ROUND(AVG(p.\"Sale Price\"), 2) AS avg_browsed_sale_price, ROUND(AVG(p.\"Original Price\"), 2) AS avg_browsed_original_price FROM user_groups AS ug JOIN browsing_behavior_records_table AS b ON ug.\"User ID\" = b.\"User ID\" JOIN product_basic_information_table AS p ON b.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group ORDER BY ug.user_group",
+          "time": 1788865863.8780644,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Average price of favorited products by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, ROUND(AVG(p.\"Price\"), 2) AS avg_fav_price, ROUND(AVG(p.\"Sale Price\"), 2) AS avg_fav_sale_price, ROUND(AVG(p.\"Original Price\"), 2) AS avg_fav_original_price FROM user_groups AS ug JOIN product_favorites_table AS f ON ug.\"User ID\" = f.\"User ID\" JOIN product_basic_information_table AS p ON f.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group ORDER BY ug.user_group",
+          "time": 1788865863.8812377,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Gender distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, u.\"Gender\", COUNT(*) AS cnt FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group, u.\"Gender\" ORDER BY ug.user_group, cnt DESC",
+          "time": 1788865863.8844287,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Occupation distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, u.\"Occupation\", COUNT(*) AS cnt FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group, u.\"Occupation\" ORDER BY ug.user_group, cnt DESC",
+          "time": 1788865863.8865483,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Education level distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, u.\"Education Level\", COUNT(*) AS cnt FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group, u.\"Education Level\" ORDER BY ug.user_group, cnt DESC",
+          "time": 1788865863.8890216,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Search keyword preferences detailed: top keywords per user group with percentages */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate), keyword_stats AS (SELECT ug.user_group, s.\"Search Keyword\", COUNT(*) AS cnt, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct_in_group FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, s.\"Search Keyword\") SELECT * FROM keyword_stats WHERE user_group IN ('High-Value', 'Regular') ORDER BY user_group, cnt DESC",
+          "time": 1788865863.8913255,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.5239425227046013,
+      "intermediate_rows": 491,
+      "intermediate_columns": [
+        "User ID",
+        "user_group"
+      ],
+      "validation_ended_at": 1788865863.8944378,
+      "checks": [
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "/* Analyze search keyword preferences by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, s.\"Search Keyword\", COUNT(*) AS search_count FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, s.\"Search Keyword\" ORDER BY ug.user_group, search_count DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.5278739631175995
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "/* Get full search keyword distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, s.\"Search Keyword\", COUNT(*) AS search_count, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, s.\"Search Keyword\" ORDER BY ug.user_group, search_count DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.7625123038887978
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "/* Favorites by category and user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, p.\"Category Name\", COUNT(*) AS fav_count, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct FROM user_groups AS ug JOIN product_favorites_table AS f ON ug.\"User ID\" = f.\"User ID\" JOIN product_basic_information_table AS p ON f.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group, p.\"Category Name\" ORDER BY ug.user_group, fav_count DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 4.101110622286797
+        },
+        {
+          "sql_id": "S19",
+          "rewritten_sql": "/* Favorites by brand and user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, p.\"Brand Name\", COUNT(*) AS fav_count, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct FROM user_groups AS ug JOIN product_favorites_table AS f ON ug.\"User ID\" = f.\"User ID\" JOIN product_basic_information_table AS p ON f.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group, p.\"Brand Name\" ORDER BY ug.user_group, fav_count DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.242611885070801
+        },
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "/* Search time distribution: hour of day, by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, CAST(STRFTIME('%H', s.\"Search Time\") AS INTEGER) AS search_hour, COUNT(*) AS search_count FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, search_hour ORDER BY ug.user_group, search_hour",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.833586186170578
+        },
+        {
+          "sql_id": "S23",
+          "rewritten_sql": "/* Search quality metrics by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, COUNT(*) AS searches, ROUND(AVG(s.\"Input Duration\"), 1) AS avg_input_duration, ROUND(AVG(s.\"Viewed Result Count\"), 1) AS avg_viewed_results, ROUND(AVG(s.\"Clicked Result Count\"), 1) AS avg_clicked_results, ROUND(AVG(s.\"Search Conversion Rate\"), 3) AS avg_conv_rate, ROUND(AVG(s.\"Suggestion Count\"), 1) AS avg_suggestions, ROUND(SUM(s.\"No Result Search Count\"), 0) AS no_result_total, ROUND(AVG(s.\"Used Autocomplete\" = 'Yes') * 100, 1) AS autocomplete_pct FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group ORDER BY ug.user_group",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.419589251279831
+        },
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "/* Browsing behavior metrics by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, COUNT(*) AS browsing_events, ROUND(AVG(b.\"Time on Page\"), 1) AS avg_time_on_page, ROUND(AVG(b.\"View Count\"), 1) AS avg_view_count, ROUND(AVG(b.\"Scroll Distance\"), 1) AS avg_scroll, ROUND(AVG(b.\"Zoom Count\"), 1) AS avg_zoom_count, ROUND(AVG(b.\"Time on Detail Page\"), 1) AS avg_detail_time, ROUND(AVG(b.\"Time on Review Page\"), 1) AS avg_review_time, ROUND(SUM(b.\"Product Link Share Count\") * 1.0 / COUNT(*), 3) AS avg_share_per_view, ROUND(AVG(b.\"Has Swiped\" = 'Yes') * 100, 1) AS swiped_pct, ROUND(AVG(b.\"Has Zoomed\" = 'Yes') * 100, 1) AS zoomed_pct, ROUND(AVG(b.\"Viewed Specifications\" = 'Yes') * 100, 1) AS specs_pct FROM user_groups AS ug JOIN browsing_behavior_records_table AS b ON ug.\"User ID\" = b.\"User ID\" GROUP BY ug.user_group ORDER BY ug.user_group",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 4.525505006313324
+        },
+        {
+          "sql_id": "S25",
+          "rewritten_sql": "/* Search behavior by day of week (0=Sunday, 6=Saturday) */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, CAST(STRFTIME('%w', s.\"Search Time\") AS INTEGER) AS day_of_week, COUNT(*) AS search_count FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, day_of_week ORDER BY ug.user_group, day_of_week",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.5029797106981277
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "/* Search by month to see seasonal patterns */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, CAST(STRFTIME('%m', s.\"Search Time\") AS INTEGER) AS search_month, COUNT(*) AS search_count FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, search_month ORDER BY ug.user_group, search_month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.540934830904007
+        },
+        {
+          "sql_id": "S27",
+          "rewritten_sql": "/* User demographics by membership level */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, COUNT(*) AS user_count, ROUND(AVG(u.\"Login Count\"), 1) AS avg_login_count, ROUND(AVG(u.\"Device count\"), 1) AS avg_device_count, ROUND(SUM(CASE WHEN u.\"Payment enabled\" = 'Yes' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS payment_pct, ROUND(SUM(CASE WHEN u.\"Real-name verification status\" = 'Verified' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS verified_pct FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group ORDER BY ug.user_group",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.554786555469036
+        },
+        {
+          "sql_id": "S28",
+          "rewritten_sql": "/* Age group distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, u.\"Age group\", COUNT(*) AS cnt FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group, u.\"Age group\" ORDER BY ug.user_group, cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.19133123755455
+        },
+        {
+          "sql_id": "S29",
+          "rewritten_sql": "/* Income level distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, u.\"Income level\", COUNT(*) AS cnt FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group, u.\"Income level\" ORDER BY ug.user_group, cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.1950621157884598
+        },
+        {
+          "sql_id": "S30",
+          "rewritten_sql": "/* Browsing categories by user group (views) */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, p.\"Category Name\", COUNT(*) AS views, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct FROM user_groups AS ug JOIN browsing_behavior_records_table AS b ON ug.\"User ID\" = b.\"User ID\" JOIN product_basic_information_table AS p ON b.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group, p.\"Category Name\" ORDER BY ug.user_group, views DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.4956876188516617
+        },
+        {
+          "sql_id": "S31",
+          "rewritten_sql": "/* Browsing brands by user group (views) */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, p.\"Brand Name\", COUNT(*) AS views, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct FROM user_groups AS ug JOIN browsing_behavior_records_table AS b ON ug.\"User ID\" = b.\"User ID\" JOIN product_basic_information_table AS p ON b.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group, p.\"Brand Name\" ORDER BY ug.user_group, views DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.348059020936489
+        },
+        {
+          "sql_id": "S32",
+          "rewritten_sql": "/* Average price of browsed/favorited products by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, ROUND(AVG(p.\"Price\"), 2) AS avg_browsed_price, ROUND(AVG(p.\"Sale Price\"), 2) AS avg_browsed_sale_price, ROUND(AVG(p.\"Original Price\"), 2) AS avg_browsed_original_price FROM user_groups AS ug JOIN browsing_behavior_records_table AS b ON ug.\"User ID\" = b.\"User ID\" JOIN product_basic_information_table AS p ON b.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group ORDER BY ug.user_group",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.1634457409381866
+        },
+        {
+          "sql_id": "S33",
+          "rewritten_sql": "/* Average price of favorited products by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, ROUND(AVG(p.\"Price\"), 2) AS avg_fav_price, ROUND(AVG(p.\"Sale Price\"), 2) AS avg_fav_sale_price, ROUND(AVG(p.\"Original Price\"), 2) AS avg_fav_original_price FROM user_groups AS ug JOIN product_favorites_table AS f ON ug.\"User ID\" = f.\"User ID\" JOIN product_basic_information_table AS p ON f.\"Product ID\" = p.\"Product ID\" GROUP BY ug.user_group ORDER BY ug.user_group",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.213731572031975
+        },
+        {
+          "sql_id": "S34",
+          "rewritten_sql": "/* Gender distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, u.\"Gender\", COUNT(*) AS cnt FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group, u.\"Gender\" ORDER BY ug.user_group, cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.1191006526350975
+        },
+        {
+          "sql_id": "S35",
+          "rewritten_sql": "/* Occupation distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, u.\"Occupation\", COUNT(*) AS cnt FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group, u.\"Occupation\" ORDER BY ug.user_group, cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.46619526296854
+        },
+        {
+          "sql_id": "S36",
+          "rewritten_sql": "/* Education level distribution by user group */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate) SELECT ug.user_group, u.\"Education Level\", COUNT(*) AS cnt FROM user_groups AS ug JOIN user_basic_information_table AS u ON ug.\"User ID\" = u.\"User ID\" GROUP BY ug.user_group, u.\"Education Level\" ORDER BY ug.user_group, cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.2361380979418755
+        },
+        {
+          "sql_id": "S37",
+          "rewritten_sql": "/* Search keyword preferences detailed: top keywords per user group with percentages */ WITH user_groups AS (SELECT * FROM temp.reuse_candidate), keyword_stats AS (SELECT ug.user_group, s.\"Search Keyword\", COUNT(*) AS cnt, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY ug.user_group), 1) AS pct_in_group FROM user_groups AS ug JOIN search_behavior_records_table AS s ON ug.\"User ID\" = s.\"User ID\" GROUP BY ug.user_group, s.\"Search Keyword\") SELECT * FROM keyword_stats WHERE user_group IN ('High-Value', 'Regular') ORDER BY user_group, cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.099544905126095
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Search Keyword\" AS __g0, \"Search Box Location\" AS __g1, COUNT(*) AS __a0 FROM \"search_behavior_records_table\"  GROUP BY \"Search Keyword\", \"Search Box Location\"",
+      "covered": [
+        "S10",
+        "S11"
+      ],
+      "rewrites": {
+        "S10": "SELECT __g0 AS \"Search Keyword\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 40",
+        "S11": "SELECT __g1 AS \"Search Box Location\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S10",
+      "later_reuses": 1,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865863.8964996,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Search Keyword\" AS __g0, \"Search Box Location\" AS __g1, COUNT(*) AS __a0 FROM \"search_behavior_records_table\"  GROUP BY \"Search Keyword\", \"Search Box Location\"",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8966696,
+          "status": "execute_returned",
+          "end_time": 1788865863.8971305
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8971334,
+          "status": "execute_returned",
+          "end_time": 1788865863.8971467
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865863.89715,
+          "status": "execute_returned",
+          "end_time": 1788865863.8971589
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"Search Keyword\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 40",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8971758,
+          "status": "execute_returned",
+          "end_time": 1788865863.8972163
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g1 AS \"Search Box Location\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8977935,
+          "status": "execute_returned",
+          "end_time": 1788865863.8978395
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Search Keyword\" AS __g0, \"Search Box Location\" AS __g1, COUNT(*) AS __a0 FROM \"search_behavior_records_table\"  GROUP BY \"Search Keyword\", \"Search Box Location\"",
+          "time": 1788865863.8968425,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865863.897144,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865863.8971562,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Search Keyword\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 40",
+          "time": 1788865863.8971925,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"Search Box Location\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "time": 1788865863.897819,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.46310853213071823,
+      "intermediate_rows": 39,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__a0"
+      ],
+      "validation_ended_at": 1788865863.8983858,
+      "checks": [
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT __g0 AS \"Search Keyword\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 40",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.615069642663002
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT __g1 AS \"Search Box Location\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5373628810048103
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Category Name\" AS __g0, \"Product Name\" AS __g1, COUNT(*) AS __a0 FROM \"product_basic_information_table\"  GROUP BY \"Category Name\", \"Product Name\"",
+      "covered": [
+        "S14",
+        "S20"
+      ],
+      "rewrites": {
+        "S14": "SELECT __g0 AS \"Category Name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+        "S20": "SELECT DISTINCT __g1 AS \"Product Name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S14",
+      "later_reuses": 1,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865863.8944654,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Category Name\" AS __g0, \"Product Name\" AS __g1, COUNT(*) AS __a0 FROM \"product_basic_information_table\"  GROUP BY \"Category Name\", \"Product Name\"",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8946733,
+          "status": "execute_returned",
+          "end_time": 1788865863.8952186
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865863.895223,
+          "status": "execute_returned",
+          "end_time": 1788865863.8952372
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865863.895241,
+          "status": "execute_returned",
+          "end_time": 1788865863.8952518
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"Category Name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8952615,
+          "status": "execute_returned",
+          "end_time": 1788865863.8953018
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT DISTINCT __g1 AS \"Product Name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865863.8958266,
+          "status": "execute_returned",
+          "end_time": 1788865863.89589
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Category Name\" AS __g0, \"Product Name\" AS __g1, COUNT(*) AS __a0 FROM \"product_basic_information_table\"  GROUP BY \"Category Name\", \"Product Name\"",
+          "time": 1788865863.8948529,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865863.8952346,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865863.8952491,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Category Name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "time": 1788865863.8952768,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT DISTINCT __g1 AS \"Product Name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "time": 1788865863.8958523,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.5485564470291138,
+      "intermediate_rows": 70,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__a0"
+      ],
+      "validation_ended_at": 1788865863.896484,
+      "checks": [
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT __g0 AS \"Category Name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5628066137433052
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "SELECT DISTINCT __g1 AS \"Product Name\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g1 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6004441529512405
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

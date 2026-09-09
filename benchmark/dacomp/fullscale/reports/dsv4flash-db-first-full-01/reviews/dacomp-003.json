@@ -1,0 +1,42 @@
+{
+  "task_id": "dacomp-003",
+  "status": "database_first_partial_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Pearson/Spearman tests and polynomial fitting are legitimate Python uses. Per-region mean aggregation and demeaning (P3/P4) can be prepared with SQLite GROUP BY/window arithmetic; these preparation portions were performed in pandas. Group iteration solely to run per-region statistical tests is not itself marked a violation.",
+  "evidence": [
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 44,
+          "text": "prov_dm['pc_dm'] = prov_dm['pc_gdp'] - prov_dm.groupby('region')['pc_gdp'].transform('mean')"
+        },
+        {
+          "line": 45,
+          "text": "prov_dm['sh_dm'] = prov_dm['ind_share'] - prov_dm.groupby('region')['ind_share'].transform('mean')"
+        },
+        {
+          "line": 50,
+          "text": "means = prov.groupby('region')[['pc_gdp','ind_share']].mean()"
+        }
+      ]
+    },
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 45,
+          "text": "means = prov.groupby('region')[['pc_gdp','ind_share']].mean().values"
+        },
+        {
+          "line": 61,
+          "text": "prov_dm['pc_dm'] = prov_dm['pc_gdp'] - prov_dm.groupby('region')['pc_gdp'].transform('mean')"
+        },
+        {
+          "line": 62,
+          "text": "prov_dm['sh_dm'] = prov_dm['ind_share'] - prov_dm.groupby('region')['ind_share'].transform('mean')"
+        }
+      ]
+    }
+  ]
+}

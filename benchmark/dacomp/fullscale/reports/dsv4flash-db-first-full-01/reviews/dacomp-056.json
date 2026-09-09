@@ -1,0 +1,81 @@
+{
+  "task_id": "dacomp-056",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 对客户群、生命周期、风险与投资建议等维度执行分组求和、均值、数量和常规评分，并计算贡献率。这些计算可在 SQL 完成。相关性、卡方检验与图形渲染是独立的统计补充。",
+  "route": "SQL 提取高价值企业客户与 SMB 特征 → Python 构建 RFM 指标并多维分组聚合 → 客户运营建议与图表。",
+  "evidence": [
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 37,
+          "text": "print(df.groupby('customer_group')[num_cols].mean().round(3))"
+        },
+        {
+          "line": 47,
+          "text": "print(df.groupby('customer_group')[['rfm_std','m_rf_gap','composite_rfm']].mean().round(4))"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 8,
+          "text": "print(hve.groupby(['customer_tier','customer_segment']).agg("
+        },
+        {
+          "line": 23,
+          "text": "print(hve.groupby('lifecycle_stage').agg("
+        },
+        {
+          "line": 73,
+          "text": "print(df.groupby('customer_group')['portfolio_contribution_pct'].agg(['sum','mean','max']).round(4))"
+        },
+        {
+          "line": 77,
+          "text": "print(df.groupby('customer_group')['potential_revenue_loss'].agg(['sum','mean']).round(2))"
+        }
+      ]
+    },
+    {
+      "source": "python/P9.py",
+      "lines": [
+        {
+          "line": 13,
+          "text": "print(df.groupby('customer_group')[['account_age_days','days_since_last_activity','active_share','inactive_share']].mean().round(3))"
+        },
+        {
+          "line": 17,
+          "text": "chi2, p, dof, _ = chi2_contingency(ct)"
+        },
+        {
+          "line": 30,
+          "text": "print(hve.groupby('investment_recommendation').agg(n=('marketo_lead_id','count'),"
+        },
+        {
+          "line": 44,
+          "text": "print(hve.groupby('rfm_segment').agg(n=('marketo_lead_id','count'),"
+        }
+      ]
+    },
+    {
+      "source": "python/P13.py",
+      "lines": [
+        {
+          "line": 21,
+          "text": "        'Avg LTV': sub['estimated_customer_ltv'].mean(),"
+        },
+        {
+          "line": 22,
+          "text": "        'Health Score': sub['customer_health_score'].mean(),"
+        },
+        {
+          "line": 68,
+          "text": "data_pct = data.div(data.sum(axis=1), axis=0)"
+        }
+      ]
+    }
+  ]
+}

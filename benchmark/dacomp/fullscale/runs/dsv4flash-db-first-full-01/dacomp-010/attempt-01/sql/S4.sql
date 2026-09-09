@@ -1,0 +1,1 @@
+SELECT * FROM core_transaction_information LIMIT 5

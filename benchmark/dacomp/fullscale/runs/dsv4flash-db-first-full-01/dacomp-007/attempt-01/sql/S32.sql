@@ -1,0 +1,1 @@
+SELECT Department, JobLevel, Attrition FROM sheet1

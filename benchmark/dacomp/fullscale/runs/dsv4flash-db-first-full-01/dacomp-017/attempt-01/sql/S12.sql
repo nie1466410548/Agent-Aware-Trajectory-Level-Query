@@ -1,0 +1,1 @@
+SELECT DISTINCT "Quantity" FROM order_information ORDER BY "Quantity"

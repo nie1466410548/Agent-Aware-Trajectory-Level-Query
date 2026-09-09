@@ -1,0 +1,1 @@
+SELECT ad_group_id, SUM(conversions_value) AS conv_value FROM google_ads__ad_group_report GROUP BY ad_group_id

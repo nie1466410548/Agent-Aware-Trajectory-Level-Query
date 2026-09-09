@@ -1,0 +1,1 @@
+SELECT COUNT(*) as cnt FROM jira__stakeholder_engagement_insights

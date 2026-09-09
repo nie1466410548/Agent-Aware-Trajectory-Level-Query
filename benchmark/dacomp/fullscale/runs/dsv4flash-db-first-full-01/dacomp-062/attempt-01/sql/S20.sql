@@ -1,0 +1,1 @@
+SELECT direct_network_connections, total_projects_involved, cross_functional_projects, engagement_breadth_score, engagement_depth_score, engagement_quality_score, engagement_impact_score, total_engagement_score, strategic_value_score, total_outbound_influence, total_inbound_influence, avg_outbound_influence_strength FROM jira__stakeholder_engagement_insights

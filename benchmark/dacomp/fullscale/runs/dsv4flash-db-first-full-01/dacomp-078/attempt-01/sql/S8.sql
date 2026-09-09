@@ -1,0 +1,1 @@
+SELECT MIN(first_event_on) AS min_date, MAX(last_event_on) AS max_date FROM pendo__account

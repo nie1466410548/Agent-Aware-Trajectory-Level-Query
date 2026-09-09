@@ -1,0 +1,1 @@
+SELECT "Customer ID", COUNT(*) AS cnt FROM customer_information GROUP BY "Customer ID" ORDER BY cnt DESC LIMIT 10

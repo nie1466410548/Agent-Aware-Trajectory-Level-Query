@@ -1,0 +1,1 @@
+PRAGMA table_info("point_of_sale_(pos)_information")

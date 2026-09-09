@@ -1,0 +1,1 @@
+SELECT DISTINCT customer360_id, source_system FROM customer360__address LIMIT 20

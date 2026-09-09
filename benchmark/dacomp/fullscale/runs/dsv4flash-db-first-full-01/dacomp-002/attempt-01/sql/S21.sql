@@ -1,0 +1,1 @@
+SELECT "Sales Date", LENGTH(CAST("Sales Date" AS TEXT)) AS len_date FROM sheet1 GROUP BY "Sales Date" ORDER BY "Sales Date" LIMIT 20

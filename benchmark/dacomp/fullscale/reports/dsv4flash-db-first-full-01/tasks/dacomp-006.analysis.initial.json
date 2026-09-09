@@ -1,0 +1,725 @@
+{
+  "fingerprint": "39c439d8fa41773881a224578f594b8e7ea74a1d21ec5bdf74e78e394ed99717",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S36",
+      "covered": [
+        "S36",
+        "S39",
+        "S42"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S36",
+      "later_reuses": 2,
+      "denominator": 49,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S37",
+      "covered": [
+        "S37",
+        "S40",
+        "S43"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S37",
+      "later_reuses": 2,
+      "denominator": 49,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S38",
+      "covered": [
+        "S38",
+        "S41",
+        "S44"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S38",
+      "later_reuses": 2,
+      "denominator": 49,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT \"Consigned Product\" AS dim, STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS p FROM sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY 1, 2",
+      "covered": [
+        "S21",
+        "S28",
+        "S48",
+        "S49"
+      ],
+      "rewrites": {
+        "S21": "WITH prod_month AS (SELECT * FROM temp.reuse_candidate), tot_month AS (SELECT STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS t FROM sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY 1), cov AS (SELECT dim, SUM((p - (SELECT AVG(p) FROM prod_month AS p2 WHERE p2.dim = prod_month.dim)) * (t - (SELECT AVG(t) FROM tot_month))) / 12.0 AS cov_p_t, (SELECT SUM((t - (SELECT AVG(t) FROM tot_month)) * (t - (SELECT AVG(t) FROM tot_month))) / 12.0 FROM tot_month) AS var_t FROM prod_month JOIN tot_month USING (month) GROUP BY dim) SELECT dim, ROUND(cov_p_t / var_t * 100, 1) AS variance_share_pct FROM cov ORDER BY variance_share_pct DESC",
+        "S28": "WITH pm AS (SELECT * FROM temp.reuse_candidate) SELECT dim, month, ROUND(p, 0) AS profit, ROUND(p - LAG(p) OVER (PARTITION BY dim ORDER BY month), 0) AS chg FROM pm ORDER BY dim, month",
+        "S48": "WITH prod_month AS (SELECT * FROM temp.reuse_candidate) SELECT month, ROUND(p, 0) AS kitchen_appl_profit, ROUND(p - AVG(p) OVER (PARTITION BY dim), 0) AS deviation_from_mean FROM prod_month WHERE dim = 'Kitchen Appliances' ORDER BY month",
+        "S49": "WITH pm AS (SELECT * FROM temp.reuse_candidate) SELECT dim, ROUND(AVG(p), 0) AS mean_p, ROUND(MIN(p), 0) AS min_p, ROUND(MAX(p), 0) AS max_p, ROUND((MAX(p) - MIN(p)) / AVG(p) * 100, 1) AS range_pct, ROUND(SQRT(AVG(p * p) - AVG(p) * AVG(p)), 0) AS std_p, ROUND(SQRT(AVG(p * p) - AVG(p) * AVG(p)) / AVG(p) * 100, 1) AS cv_pct FROM pm GROUP BY dim ORDER BY cv_pct DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S21",
+      "later_reuses": 3,
+      "denominator": 49,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS t FROM sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY 1",
+      "covered": [
+        "S21",
+        "S22",
+        "S23",
+        "S24"
+      ],
+      "rewrites": {
+        "S21": "WITH prod_month AS (SELECT \"Consigned Product\" AS dim, STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS p FROM sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY 1, 2), tot_month AS (SELECT * FROM temp.reuse_candidate), cov AS (SELECT dim, SUM((p - (SELECT AVG(p) FROM prod_month AS p2 WHERE p2.dim = prod_month.dim)) * (t - (SELECT AVG(t) FROM tot_month))) / 12.0 AS cov_p_t, (SELECT SUM((t - (SELECT AVG(t) FROM tot_month)) * (t - (SELECT AVG(t) FROM tot_month))) / 12.0 FROM tot_month) AS var_t FROM prod_month JOIN tot_month USING (month) GROUP BY dim) SELECT dim, ROUND(cov_p_t / var_t * 100, 1) AS variance_share_pct FROM cov ORDER BY variance_share_pct DESC",
+        "S22": "WITH prov_month AS (SELECT SUBSTRING(\"Destination\", 13, INSTR(SUBSTRING(\"Destination\", 13), '-') - 1) AS dim, STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS p FROM sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY 1, 2), tot_month AS (SELECT * FROM temp.reuse_candidate) SELECT dim, ROUND(SUM((p - (SELECT AVG(p) FROM prov_month AS p2 WHERE p2.dim = prov_month.dim)) * (t - (SELECT AVG(t) FROM tot_month))) / 12.0 / (SELECT SUM((t - (SELECT AVG(t) FROM tot_month)) * (t - (SELECT AVG(t) FROM tot_month))) / 12.0 FROM tot_month) * 100, 1) AS variance_share_pct FROM prov_month JOIN tot_month USING (month) GROUP BY dim ORDER BY variance_share_pct DESC",
+        "S23": "WITH age_month AS (SELECT \"Age Range\" AS dim, STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS p FROM sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY 1, 2), tot_month AS (SELECT * FROM temp.reuse_candidate) SELECT dim, ROUND(SUM((p - (SELECT AVG(p) FROM age_month AS p2 WHERE p2.dim = age_month.dim)) * (t - (SELECT AVG(t) FROM tot_month))) / 12.0 / (SELECT SUM((t - (SELECT AVG(t) FROM tot_month)) * (t - (SELECT AVG(t) FROM tot_month))) / 12.0 FROM tot_month) * 100, 1) AS variance_share_pct FROM age_month JOIN tot_month USING (month) GROUP BY dim ORDER BY variance_share_pct DESC",
+        "S24": "WITH g_month AS (SELECT \"Customer Gender\" AS dim, STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS p FROM sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY 1, 2), tot_month AS (SELECT * FROM temp.reuse_candidate) SELECT dim, ROUND(SUM((p - (SELECT AVG(p) FROM g_month AS p2 WHERE p2.dim = g_month.dim)) * (t - (SELECT AVG(t) FROM tot_month))) / 12.0 / (SELECT SUM((t - (SELECT AVG(t) FROM tot_month)) * (t - (SELECT AVG(t) FROM tot_month))) / 12.0 FROM tot_month) * 100, 1) AS variance_share_pct FROM g_month JOIN tot_month USING (month) GROUP BY dim ORDER BY variance_share_pct DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S21",
+      "later_reuses": 3,
+      "denominator": 49,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT SUBSTRING(\"Destination\", 13, INSTR(SUBSTRING(\"Destination\", 13), '-') - 1) AS dim, STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS p FROM sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY 1, 2",
+      "covered": [
+        "S22",
+        "S29"
+      ],
+      "rewrites": {
+        "S22": "WITH prov_month AS (SELECT * FROM temp.reuse_candidate), tot_month AS (SELECT STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS t FROM sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY 1) SELECT dim, ROUND(SUM((p - (SELECT AVG(p) FROM prov_month AS p2 WHERE p2.dim = prov_month.dim)) * (t - (SELECT AVG(t) FROM tot_month))) / 12.0 / (SELECT SUM((t - (SELECT AVG(t) FROM tot_month)) * (t - (SELECT AVG(t) FROM tot_month))) / 12.0 FROM tot_month) * 100, 1) AS variance_share_pct FROM prov_month JOIN tot_month USING (month) GROUP BY dim ORDER BY variance_share_pct DESC",
+        "S29": "WITH pm AS (SELECT * FROM temp.reuse_candidate) SELECT dim, month, ROUND(p, 0) AS profit, ROUND(p - LAG(p) OVER (PARTITION BY dim ORDER BY month), 0) AS chg FROM pm ORDER BY dim, month"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C6",
+      "offline": true,
+      "earliest_build_before": "S22",
+      "later_reuses": 1,
+      "denominator": 49,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS total_profit FROM sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY month",
+      "covered": [
+        "S26",
+        "S27"
+      ],
+      "rewrites": {
+        "S26": "WITH monthly AS (SELECT * FROM temp.reuse_candidate) SELECT a.month, ROUND(a.total_profit, 0) AS profit, ROUND(a.total_profit - b.total_profit, 0) AS change_from_prev, ROUND((a.total_profit - b.total_profit) / b.total_profit * 100, 1) AS pct_change FROM monthly AS a LEFT JOIN monthly AS b ON a.month = (SELECT MAX(month) FROM monthly AS m2 WHERE m2.month < a.month) ORDER BY a.month",
+        "S27": "WITH monthly AS (SELECT * FROM temp.reuse_candidate) SELECT month, ROUND(total_profit, 0) AS profit, ROUND(total_profit - LAG(total_profit) OVER (ORDER BY month), 0) AS change_from_prev, ROUND((total_profit - LAG(total_profit) OVER (ORDER BY month)) / LAG(total_profit) OVER (ORDER BY month) * 100, 1) AS pct_change FROM monthly ORDER BY month"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C7",
+      "offline": true,
+      "earliest_build_before": "S26",
+      "later_reuses": 1,
+      "denominator": 49,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"sheet1\" WHERE \"Destination\" LIKE 'South China%'",
+      "covered": [
+        "S4",
+        "S6",
+        "S8",
+        "S9",
+        "S18",
+        "S19",
+        "S30",
+        "S31",
+        "S33",
+        "S35",
+        "S47"
+      ],
+      "rewrites": {
+        "S4": "SELECT DISTINCT \"Destination\" FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%' ORDER BY \"Destination\"",
+        "S6": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, COUNT(*) AS order_count, SUM(\"Profit\") AS total_profit, SUM(\"Total Logistics Revenue\") AS total_revenue, SUM(\"Total Logistics Cost\") AS total_cost, AVG(\"Profit Margin\") AS avg_profit_margin FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY month ORDER BY month",
+        "S8": "SELECT \"Consigned Product\", STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS total_profit, COUNT(*) AS order_count, SUM(\"Sales Quantity\") AS total_qty, SUM(\"Total Logistics Revenue\") AS total_revenue, SUM(\"Total Logistics Cost\") AS total_cost FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY \"Consigned Product\", month ORDER BY \"Consigned Product\", month",
+        "S9": "SELECT \"Destination\", STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS total_profit, COUNT(*) AS order_count, SUM(\"Sales Quantity\") AS total_qty FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY \"Destination\", month ORDER BY \"Destination\", month",
+        "S18": "SELECT \"Destination\" FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY \"Destination\" ORDER BY \"Destination\"",
+        "S19": "SELECT SUBSTRING(\"Destination\", 13, INSTR(SUBSTRING(\"Destination\", 13), '-') - 1) AS province, COUNT(*) AS n, ROUND(SUM(\"Profit\"), 0) AS profit FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY province ORDER BY profit DESC",
+        "S30": "SELECT SUM(CASE WHEN \"Profit Margin\" > 1 THEN 1 ELSE 0 END) AS rows_margin_gt1, SUM(CASE WHEN \"Total Logistics Revenue\" <= 0 THEN 1 ELSE 0 END) AS rows_rev_le0, SUM(CASE WHEN \"Discount Amount\" < 0 THEN 1 ELSE 0 END) AS rows_discount_neg, SUM(CASE WHEN \"Total Logistics Cost\" <= 0 THEN 1 ELSE 0 END) AS rows_cost_le0, COUNT(*) AS n FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%'",
+        "S31": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, COUNT(*) AS n, ROUND(AVG(\"Profit Margin\"), 3) AS avg_margin, ROUND(MIN(\"Profit Margin\"), 3) AS min_margin, ROUND(MAX(\"Profit Margin\"), 3) AS max_margin FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY month ORDER BY month",
+        "S33": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, COUNT(*) AS orders, ROUND(SUM(\"Profit\"), 0) AS profit, ROUND(AVG(\"Profit\"), 0) AS avg_profit_per_order, ROUND(AVG(\"Sales Quantity\"), 1) AS avg_qty, ROUND(AVG(\"Profit Margin\"), 3) AS avg_margin, ROUND(AVG(\"Logistics Unit Price\"), 2) AS avg_unit_price FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY month ORDER BY month",
+        "S35": "SELECT \"Waybill Number\", \"Date\", \"Destination\", \"Consigned Product\", \"Sales Quantity\", \"Total Logistics Revenue\", \"Total Logistics Cost\", \"Profit\", \"Profit Margin\" FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%' ORDER BY \"Profit\" DESC LIMIT 15",
+        "S47": "SELECT \"Consigned Product\" AS dim, ROUND(SUM(CASE WHEN STRFTIME('%m', \"Date\") = '01' THEN \"Profit\" ELSE 0 END), 0) AS jan, ROUND(SUM(CASE WHEN STRFTIME('%m', \"Date\") = '02' THEN \"Profit\" ELSE 0 END), 0) AS feb, ROUND(SUM(CASE WHEN STRFTIME('%m', \"Date\") = '02' THEN \"Profit\" ELSE 0 END) - SUM(CASE WHEN STRFTIME('%m', \"Date\") = '01' THEN \"Profit\" ELSE 0 END), 0) AS change, ROUND(AVG(\"Profit\"), 0) AS avg_monthly FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY dim ORDER BY ABS(change) DESC"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C8",
+      "offline": true,
+      "earliest_build_before": "S4",
+      "later_reuses": 10,
+      "denominator": 49,
+      "coverage_includes_trigger": true,
+      "build_ms": 9.978271089494228,
+      "intermediate_rows": 6785,
+      "intermediate_columns": [
+        "Date",
+        "Waybill Number",
+        "Postal Code",
+        "Destination",
+        "Consignee",
+        "Customer Gender",
+        "Customer Age",
+        "Age Range",
+        "Consigned Product",
+        "Sales Quantity",
+        "Logistics Unit Price",
+        "List Price Revenue",
+        "Logistics Value-Added Service Revenue",
+        "Discount Amount",
+        "Total Logistics Revenue",
+        "Freight Cost",
+        "Warehousing Cost",
+        "Other Operating Costs",
+        "Total Logistics Cost",
+        "Profit",
+        "Profit Margin"
+      ],
+      "checks": [
+        {
+          "sql_id": "S4",
+          "rewritten_sql": "SELECT DISTINCT \"Destination\" FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%' ORDER BY \"Destination\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.4568384289741516
+        },
+        {
+          "sql_id": "S6",
+          "rewritten_sql": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, COUNT(*) AS order_count, SUM(\"Profit\") AS total_profit, SUM(\"Total Logistics Revenue\") AS total_revenue, SUM(\"Total Logistics Cost\") AS total_cost, AVG(\"Profit Margin\") AS avg_profit_margin FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY month ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 7.0204054936766624
+        },
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT \"Consigned Product\", STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS total_profit, COUNT(*) AS order_count, SUM(\"Sales Quantity\") AS total_qty, SUM(\"Total Logistics Revenue\") AS total_revenue, SUM(\"Total Logistics Cost\") AS total_cost FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY \"Consigned Product\", month ORDER BY \"Consigned Product\", month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 9.44425631314516
+        },
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT \"Destination\", STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS total_profit, COUNT(*) AS order_count, SUM(\"Sales Quantity\") AS total_qty FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY \"Destination\", month ORDER BY \"Destination\", month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 12.624062597751617
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT \"Destination\" FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY \"Destination\" ORDER BY \"Destination\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.530861809849739
+        },
+        {
+          "sql_id": "S19",
+          "rewritten_sql": "SELECT SUBSTRING(\"Destination\", 13, INSTR(SUBSTRING(\"Destination\", 13), '-') - 1) AS province, COUNT(*) AS n, ROUND(SUM(\"Profit\"), 0) AS profit FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY province ORDER BY profit DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 5.652349442243576
+        },
+        {
+          "sql_id": "S30",
+          "rewritten_sql": "SELECT SUM(CASE WHEN \"Profit Margin\" > 1 THEN 1 ELSE 0 END) AS rows_margin_gt1, SUM(CASE WHEN \"Total Logistics Revenue\" <= 0 THEN 1 ELSE 0 END) AS rows_rev_le0, SUM(CASE WHEN \"Discount Amount\" < 0 THEN 1 ELSE 0 END) AS rows_discount_neg, SUM(CASE WHEN \"Total Logistics Cost\" <= 0 THEN 1 ELSE 0 END) AS rows_cost_le0, COUNT(*) AS n FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 3.5965023562312126
+        },
+        {
+          "sql_id": "S31",
+          "rewritten_sql": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, COUNT(*) AS n, ROUND(AVG(\"Profit Margin\"), 3) AS avg_margin, ROUND(MIN(\"Profit Margin\"), 3) AS min_margin, ROUND(MAX(\"Profit Margin\"), 3) AS max_margin FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY month ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 6.295842118561268
+        },
+        {
+          "sql_id": "S33",
+          "rewritten_sql": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, COUNT(*) AS orders, ROUND(SUM(\"Profit\"), 0) AS profit, ROUND(AVG(\"Profit\"), 0) AS avg_profit_per_order, ROUND(AVG(\"Sales Quantity\"), 1) AS avg_qty, ROUND(AVG(\"Profit Margin\"), 3) AS avg_margin, ROUND(AVG(\"Logistics Unit Price\"), 2) AS avg_unit_price FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY month ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 7.529892958700657
+        },
+        {
+          "sql_id": "S35",
+          "rewritten_sql": "SELECT \"Waybill Number\", \"Date\", \"Destination\", \"Consigned Product\", \"Sales Quantity\", \"Total Logistics Revenue\", \"Total Logistics Cost\", \"Profit\", \"Profit Margin\" FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%' ORDER BY \"Profit\" DESC LIMIT 15",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.0624669268727303
+        },
+        {
+          "sql_id": "S47",
+          "rewritten_sql": "SELECT \"Consigned Product\" AS dim, ROUND(SUM(CASE WHEN STRFTIME('%m', \"Date\") = '01' THEN \"Profit\" ELSE 0 END), 0) AS jan, ROUND(SUM(CASE WHEN STRFTIME('%m', \"Date\") = '02' THEN \"Profit\" ELSE 0 END), 0) AS feb, ROUND(SUM(CASE WHEN STRFTIME('%m', \"Date\") = '02' THEN \"Profit\" ELSE 0 END) - SUM(CASE WHEN STRFTIME('%m', \"Date\") = '01' THEN \"Profit\" ELSE 0 END), 0) AS change, ROUND(AVG(\"Profit\"), 0) AS avg_monthly FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%' GROUP BY dim ORDER BY ABS(change) DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 9.223505854606628
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT STRFTIME('%Y-%m', \"Date\") AS __g0, \"Consigned Product\" AS __g1, \"Destination\" AS __g2, SUBSTRING(\"Destination\", 13, INSTR(SUBSTRING(\"Destination\", 13), '-') - 1) AS __g3, COUNT(*) AS __a0, SUM(\"Profit\") AS __a1, SUM(\"Total Logistics Revenue\") AS __a2, SUM(\"Total Logistics Cost\") AS __a3, SUM(\"Profit Margin\") AS __a4_sum, COUNT(\"Profit Margin\") AS __a4_n, SUM(\"Sales Quantity\") AS __a5, SUM(CASE WHEN \"Profit Margin\" > 1 THEN 1 ELSE 0 END) AS __a6, SUM(CASE WHEN \"Total Logistics Revenue\" <= 0 THEN 1 ELSE 0 END) AS __a7, SUM(CASE WHEN \"Discount Amount\" < 0 THEN 1 ELSE 0 END) AS __a8, SUM(CASE WHEN \"Total Logistics Cost\" <= 0 THEN 1 ELSE 0 END) AS __a9, MIN(\"Profit Margin\") AS __a10, MAX(\"Profit Margin\") AS __a11, SUM(\"Profit\") AS __a12_sum, COUNT(\"Profit\") AS __a12_n, SUM(\"Sales Quantity\") AS __a13_sum, COUNT(\"Sales Quantity\") AS __a13_n, SUM(\"Logistics Unit Price\") AS __a14_sum, COUNT(\"Logistics Unit Price\") AS __a14_n, SUM(CASE WHEN STRFTIME('%m', \"Date\") = '01' THEN \"Profit\" ELSE 0 END) AS __a15, SUM(CASE WHEN STRFTIME('%m', \"Date\") = '02' THEN \"Profit\" ELSE 0 END) AS __a16 FROM \"sheet1\" WHERE \"Destination\" LIKE 'South China%' GROUP BY STRFTIME('%Y-%m', \"Date\"), \"Consigned Product\", \"Destination\", SUBSTRING(\"Destination\", 13, INSTR(SUBSTRING(\"Destination\", 13), '-') - 1)",
+      "covered": [
+        "S6",
+        "S8",
+        "S9",
+        "S19",
+        "S30",
+        "S31",
+        "S33",
+        "S47"
+      ],
+      "rewrites": {
+        "S6": "SELECT __g0 AS month, SUM(__a0) AS order_count, SUM(__a1) AS total_profit, SUM(__a2) AS total_revenue, SUM(__a3) AS total_cost, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_profit_margin FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+        "S8": "SELECT __g1 AS \"Consigned Product\", __g0 AS month, SUM(__a1) AS total_profit, SUM(__a0) AS order_count, SUM(__a5) AS total_qty, SUM(__a2) AS total_revenue, SUM(__a3) AS total_cost FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY __g1, month",
+        "S9": "SELECT __g2 AS \"Destination\", __g0 AS month, SUM(__a1) AS total_profit, SUM(__a0) AS order_count, SUM(__a5) AS total_qty FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY __g2, month",
+        "S19": "SELECT __g3 AS province, SUM(__a0) AS n, ROUND(SUM(__a1), 0) AS profit FROM temp.reuse_candidate GROUP BY __g3 ORDER BY profit DESC",
+        "S30": "SELECT SUM(__a6) AS rows_margin_gt1, SUM(__a7) AS rows_rev_le0, SUM(__a8) AS rows_discount_neg, SUM(__a9) AS rows_cost_le0, SUM(__a0) AS n FROM temp.reuse_candidate",
+        "S31": "SELECT __g0 AS month, SUM(__a0) AS n, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 3) AS avg_margin, ROUND(MIN(__a10), 3) AS min_margin, ROUND(MAX(__a11), 3) AS max_margin FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+        "S33": "SELECT __g0 AS month, SUM(__a0) AS orders, ROUND(SUM(__a1), 0) AS profit, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 0) AS avg_profit_per_order, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 1) AS avg_qty, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 3) AS avg_margin, ROUND((1.0 * SUM(__a14_sum) / NULLIF(SUM(__a14_n), 0)), 2) AS avg_unit_price FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+        "S47": "SELECT __g1 AS dim, ROUND(SUM(__a15), 0) AS jan, ROUND(SUM(__a16), 0) AS feb, ROUND(SUM(__a16) - SUM(__a15), 0) AS change, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 0) AS avg_monthly FROM temp.reuse_candidate GROUP BY __g1 ORDER BY ABS(change) DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C9",
+      "offline": true,
+      "earliest_build_before": "S6",
+      "later_reuses": 7,
+      "denominator": 49,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"sheet1\" WHERE \"Destination\" LIKE 'South China%%'",
+      "covered": [
+        "S36",
+        "S37",
+        "S38",
+        "S39",
+        "S40",
+        "S41",
+        "S42",
+        "S43",
+        "S44",
+        "S45",
+        "S46",
+        "S52",
+        "S53",
+        "S54"
+      ],
+      "rewrites": {
+        "S36": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS profit, SUM(\"Total Logistics Revenue\") AS rev, SUM(\"Total Logistics Cost\") AS cost, SUM(\"Sales Quantity\") AS qty, COUNT(*) AS orders, AVG(\"Profit Margin\") AS avg_margin, AVG(\"Logistics Unit Price\") AS avg_price FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY month ORDER BY month",
+        "S37": "SELECT \"Consigned Product\" AS dim, STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS p FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY dim, month ORDER BY dim, month",
+        "S38": "SELECT SUBSTRING(\"Destination\", 13, INSTR(SUBSTRING(\"Destination\", 13), '-') - 1) AS province, STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS p FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY province, month ORDER BY province, month",
+        "S39": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS profit, SUM(\"Total Logistics Revenue\") AS rev, SUM(\"Total Logistics Cost\") AS cost, SUM(\"Sales Quantity\") AS qty, COUNT(*) AS orders, AVG(\"Profit Margin\") AS avg_margin, AVG(\"Logistics Unit Price\") AS avg_price FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY month ORDER BY month",
+        "S40": "SELECT \"Consigned Product\" AS dim, STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS p FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY dim, month ORDER BY dim, month",
+        "S41": "SELECT SUBSTRING(\"Destination\", 13, INSTR(SUBSTRING(\"Destination\", 13), '-') - 1) AS province, STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS p FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY province, month ORDER BY province, month",
+        "S42": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS profit, SUM(\"Total Logistics Revenue\") AS rev, SUM(\"Total Logistics Cost\") AS cost, SUM(\"Sales Quantity\") AS qty, COUNT(*) AS orders, AVG(\"Profit Margin\") AS avg_margin, AVG(\"Logistics Unit Price\") AS avg_price FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY month ORDER BY month",
+        "S43": "SELECT \"Consigned Product\" AS dim, STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS p FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY dim, month ORDER BY dim, month",
+        "S44": "SELECT SUBSTRING(\"Destination\", 13, INSTR(SUBSTRING(\"Destination\", 13), '-') - 1) AS province, STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS p FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY province, month ORDER BY province, month",
+        "S45": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"List Price Revenue\") AS list_price, SUM(\"Logistics Value-Added Service Revenue\") AS vas, SUM(\"Discount Amount\") AS discount FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY month ORDER BY month",
+        "S46": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Freight Cost\") AS freight, SUM(\"Warehousing Cost\") AS warehousing, SUM(\"Other Operating Costs\") AS other FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY month ORDER BY month",
+        "S52": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, COUNT(*) AS orders, SUM(\"Profit\") AS profit, AVG(\"Profit\") AS avg_profit FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY month ORDER BY month",
+        "S53": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Sales Quantity\") AS qty, SUM(\"Total Logistics Revenue\") AS rev, SUM(\"Profit\") AS profit FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY month ORDER BY month",
+        "S54": "SELECT \"Age Range\" AS age, \"Customer Gender\" AS gender, STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS p FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY age, gender, month ORDER BY age, gender, month"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C10",
+      "offline": true,
+      "earliest_build_before": "S36",
+      "later_reuses": 13,
+      "denominator": 49,
+      "coverage_includes_trigger": true,
+      "build_ms": 9.006836451590061,
+      "intermediate_rows": 6785,
+      "intermediate_columns": [
+        "Date",
+        "Waybill Number",
+        "Postal Code",
+        "Destination",
+        "Consignee",
+        "Customer Gender",
+        "Customer Age",
+        "Age Range",
+        "Consigned Product",
+        "Sales Quantity",
+        "Logistics Unit Price",
+        "List Price Revenue",
+        "Logistics Value-Added Service Revenue",
+        "Discount Amount",
+        "Total Logistics Revenue",
+        "Freight Cost",
+        "Warehousing Cost",
+        "Other Operating Costs",
+        "Total Logistics Cost",
+        "Profit",
+        "Profit Margin"
+      ],
+      "checks": [
+        {
+          "sql_id": "S36",
+          "rewritten_sql": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS profit, SUM(\"Total Logistics Revenue\") AS rev, SUM(\"Total Logistics Cost\") AS cost, SUM(\"Sales Quantity\") AS qty, COUNT(*) AS orders, AVG(\"Profit Margin\") AS avg_margin, AVG(\"Logistics Unit Price\") AS avg_price FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY month ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 8.350694552063942
+        },
+        {
+          "sql_id": "S37",
+          "rewritten_sql": "SELECT \"Consigned Product\" AS dim, STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS p FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY dim, month ORDER BY dim, month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 7.448584772646427
+        },
+        {
+          "sql_id": "S38",
+          "rewritten_sql": "SELECT SUBSTRING(\"Destination\", 13, INSTR(SUBSTRING(\"Destination\", 13), '-') - 1) AS province, STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS p FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY province, month ORDER BY province, month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 9.409717284142971
+        },
+        {
+          "sql_id": "S39",
+          "rewritten_sql": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS profit, SUM(\"Total Logistics Revenue\") AS rev, SUM(\"Total Logistics Cost\") AS cost, SUM(\"Sales Quantity\") AS qty, COUNT(*) AS orders, AVG(\"Profit Margin\") AS avg_margin, AVG(\"Logistics Unit Price\") AS avg_price FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY month ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 8.073857054114342
+        },
+        {
+          "sql_id": "S40",
+          "rewritten_sql": "SELECT \"Consigned Product\" AS dim, STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS p FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY dim, month ORDER BY dim, month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 7.535693235695362
+        },
+        {
+          "sql_id": "S41",
+          "rewritten_sql": "SELECT SUBSTRING(\"Destination\", 13, INSTR(SUBSTRING(\"Destination\", 13), '-') - 1) AS province, STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS p FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY province, month ORDER BY province, month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 9.312955662608147
+        },
+        {
+          "sql_id": "S42",
+          "rewritten_sql": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS profit, SUM(\"Total Logistics Revenue\") AS rev, SUM(\"Total Logistics Cost\") AS cost, SUM(\"Sales Quantity\") AS qty, COUNT(*) AS orders, AVG(\"Profit Margin\") AS avg_margin, AVG(\"Logistics Unit Price\") AS avg_price FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY month ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 8.03315732628107
+        },
+        {
+          "sql_id": "S43",
+          "rewritten_sql": "SELECT \"Consigned Product\" AS dim, STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS p FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY dim, month ORDER BY dim, month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 7.384234108030796
+        },
+        {
+          "sql_id": "S44",
+          "rewritten_sql": "SELECT SUBSTRING(\"Destination\", 13, INSTR(SUBSTRING(\"Destination\", 13), '-') - 1) AS province, STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS p FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY province, month ORDER BY province, month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 9.29654948413372
+        },
+        {
+          "sql_id": "S45",
+          "rewritten_sql": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"List Price Revenue\") AS list_price, SUM(\"Logistics Value-Added Service Revenue\") AS vas, SUM(\"Discount Amount\") AS discount FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY month ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 6.499976851046085
+        },
+        {
+          "sql_id": "S46",
+          "rewritten_sql": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Freight Cost\") AS freight, SUM(\"Warehousing Cost\") AS warehousing, SUM(\"Other Operating Costs\") AS other FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY month ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 6.390002556145191
+        },
+        {
+          "sql_id": "S52",
+          "rewritten_sql": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, COUNT(*) AS orders, SUM(\"Profit\") AS profit, AVG(\"Profit\") AS avg_profit FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY month ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 6.132317706942558
+        },
+        {
+          "sql_id": "S53",
+          "rewritten_sql": "SELECT STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Sales Quantity\") AS qty, SUM(\"Total Logistics Revenue\") AS rev, SUM(\"Profit\") AS profit FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY month ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 6.461670622229576
+        },
+        {
+          "sql_id": "S54",
+          "rewritten_sql": "SELECT \"Age Range\" AS age, \"Customer Gender\" AS gender, STRFTIME('%Y-%m', \"Date\") AS month, SUM(\"Profit\") AS p FROM temp.reuse_candidate AS sheet1 WHERE \"Destination\" LIKE 'South China%%' GROUP BY age, gender, month ORDER BY age, gender, month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 9.1734379529953
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT STRFTIME('%Y-%m', \"Date\") AS __g0, \"Consigned Product\" AS __g1, SUBSTRING(\"Destination\", 13, INSTR(SUBSTRING(\"Destination\", 13), '-') - 1) AS __g2, \"Age Range\" AS __g3, \"Customer Gender\" AS __g4, SUM(\"Profit\") AS __a0, SUM(\"Total Logistics Revenue\") AS __a1, SUM(\"Total Logistics Cost\") AS __a2, SUM(\"Sales Quantity\") AS __a3, COUNT(*) AS __a4, SUM(\"Profit Margin\") AS __a5_sum, COUNT(\"Profit Margin\") AS __a5_n, SUM(\"Logistics Unit Price\") AS __a6_sum, COUNT(\"Logistics Unit Price\") AS __a6_n, SUM(\"List Price Revenue\") AS __a7, SUM(\"Logistics Value-Added Service Revenue\") AS __a8, SUM(\"Discount Amount\") AS __a9, SUM(\"Freight Cost\") AS __a10, SUM(\"Warehousing Cost\") AS __a11, SUM(\"Other Operating Costs\") AS __a12, SUM(\"Profit\") AS __a13_sum, COUNT(\"Profit\") AS __a13_n FROM \"sheet1\" WHERE \"Destination\" LIKE 'South China%%' GROUP BY STRFTIME('%Y-%m', \"Date\"), \"Consigned Product\", SUBSTRING(\"Destination\", 13, INSTR(SUBSTRING(\"Destination\", 13), '-') - 1), \"Age Range\", \"Customer Gender\"",
+      "covered": [
+        "S36",
+        "S37",
+        "S38",
+        "S39",
+        "S40",
+        "S41",
+        "S42",
+        "S43",
+        "S44",
+        "S45",
+        "S46",
+        "S52",
+        "S53",
+        "S54"
+      ],
+      "rewrites": {
+        "S36": "SELECT __g0 AS month, SUM(__a0) AS profit, SUM(__a1) AS rev, SUM(__a2) AS cost, SUM(__a3) AS qty, SUM(__a4) AS orders, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_margin, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_price FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+        "S37": "SELECT __g1 AS dim, __g0 AS month, SUM(__a0) AS p FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY dim, month",
+        "S38": "SELECT __g2 AS province, __g0 AS month, SUM(__a0) AS p FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY province, month",
+        "S39": "SELECT __g0 AS month, SUM(__a0) AS profit, SUM(__a1) AS rev, SUM(__a2) AS cost, SUM(__a3) AS qty, SUM(__a4) AS orders, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_margin, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_price FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+        "S40": "SELECT __g1 AS dim, __g0 AS month, SUM(__a0) AS p FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY dim, month",
+        "S41": "SELECT __g2 AS province, __g0 AS month, SUM(__a0) AS p FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY province, month",
+        "S42": "SELECT __g0 AS month, SUM(__a0) AS profit, SUM(__a1) AS rev, SUM(__a2) AS cost, SUM(__a3) AS qty, SUM(__a4) AS orders, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_margin, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_price FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+        "S43": "SELECT __g1 AS dim, __g0 AS month, SUM(__a0) AS p FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY dim, month",
+        "S44": "SELECT __g2 AS province, __g0 AS month, SUM(__a0) AS p FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY province, month",
+        "S45": "SELECT __g0 AS month, SUM(__a7) AS list_price, SUM(__a8) AS vas, SUM(__a9) AS discount FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+        "S46": "SELECT __g0 AS month, SUM(__a10) AS freight, SUM(__a11) AS warehousing, SUM(__a12) AS other FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+        "S52": "SELECT __g0 AS month, SUM(__a4) AS orders, SUM(__a0) AS profit, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_profit FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+        "S53": "SELECT __g0 AS month, SUM(__a3) AS qty, SUM(__a1) AS rev, SUM(__a0) AS profit FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+        "S54": "SELECT __g3 AS age, __g4 AS gender, __g0 AS month, SUM(__a0) AS p FROM temp.reuse_candidate GROUP BY __g3, __g4, __g0 ORDER BY age, gender, month"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C11",
+      "offline": true,
+      "earliest_build_before": "S36",
+      "later_reuses": 13,
+      "denominator": 49,
+      "coverage_includes_trigger": true,
+      "build_ms": 28.037184849381447,
+      "intermediate_rows": 2921,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4",
+        "__a5_sum",
+        "__a5_n",
+        "__a6_sum",
+        "__a6_n",
+        "__a7",
+        "__a8",
+        "__a9",
+        "__a10",
+        "__a11",
+        "__a12",
+        "__a13_sum",
+        "__a13_n"
+      ],
+      "checks": [
+        {
+          "sql_id": "S36",
+          "rewritten_sql": "SELECT __g0 AS month, SUM(__a0) AS profit, SUM(__a1) AS rev, SUM(__a2) AS cost, SUM(__a3) AS qty, SUM(__a4) AS orders, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_margin, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_price FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.6986349150538445
+        },
+        {
+          "sql_id": "S37",
+          "rewritten_sql": "SELECT __g1 AS dim, __g0 AS month, SUM(__a0) AS p FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY dim, month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.448546700179577
+        },
+        {
+          "sql_id": "S38",
+          "rewritten_sql": "SELECT __g2 AS province, __g0 AS month, SUM(__a0) AS p FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY province, month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.570168115198612
+        },
+        {
+          "sql_id": "S39",
+          "rewritten_sql": "SELECT __g0 AS month, SUM(__a0) AS profit, SUM(__a1) AS rev, SUM(__a2) AS cost, SUM(__a3) AS qty, SUM(__a4) AS orders, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_margin, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_price FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.6927051842212677
+        },
+        {
+          "sql_id": "S40",
+          "rewritten_sql": "SELECT __g1 AS dim, __g0 AS month, SUM(__a0) AS p FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY dim, month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.3448215797543526
+        },
+        {
+          "sql_id": "S41",
+          "rewritten_sql": "SELECT __g2 AS province, __g0 AS month, SUM(__a0) AS p FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY province, month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.496950328350067
+        },
+        {
+          "sql_id": "S42",
+          "rewritten_sql": "SELECT __g0 AS month, SUM(__a0) AS profit, SUM(__a1) AS rev, SUM(__a2) AS cost, SUM(__a3) AS qty, SUM(__a4) AS orders, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_margin, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_price FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.5875486209988594
+        },
+        {
+          "sql_id": "S43",
+          "rewritten_sql": "SELECT __g1 AS dim, __g0 AS month, SUM(__a0) AS p FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY dim, month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.3421933874487877
+        },
+        {
+          "sql_id": "S44",
+          "rewritten_sql": "SELECT __g2 AS province, __g0 AS month, SUM(__a0) AS p FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY province, month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.6501985266804695
+        },
+        {
+          "sql_id": "S45",
+          "rewritten_sql": "SELECT __g0 AS month, SUM(__a7) AS list_price, SUM(__a8) AS vas, SUM(__a9) AS discount FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.0448975265026093
+        },
+        {
+          "sql_id": "S46",
+          "rewritten_sql": "SELECT __g0 AS month, SUM(__a10) AS freight, SUM(__a11) AS warehousing, SUM(__a12) AS other FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.041175030171871
+        },
+        {
+          "sql_id": "S52",
+          "rewritten_sql": "SELECT __g0 AS month, SUM(__a4) AS orders, SUM(__a0) AS profit, (1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)) AS avg_profit FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.209790050983429
+        },
+        {
+          "sql_id": "S53",
+          "rewritten_sql": "SELECT __g0 AS month, SUM(__a3) AS qty, SUM(__a1) AS rev, SUM(__a0) AS profit FROM temp.reuse_candidate GROUP BY __g0 ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.9621429964900017
+        },
+        {
+          "sql_id": "S54",
+          "rewritten_sql": "SELECT __g3 AS age, __g4 AS gender, __g0 AS month, SUM(__a0) AS p FROM temp.reuse_candidate GROUP BY __g3, __g4, __g0 ORDER BY age, gender, month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.5466905683279037
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

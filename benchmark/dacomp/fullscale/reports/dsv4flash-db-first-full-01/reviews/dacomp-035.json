@@ -1,0 +1,88 @@
+{
+  "task_id": "dacomp-035",
+  "status": "partial_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "SQL 完成部门、账号、登录和异常事件的主要关联与汇总。P1 将多个部门摘要在 pandas 中连续合并，P2/P3 计算风险占比，P4 追加部门均值；这些关系与汇总计算可以放在 SQL。Kruskal、卡方检验和绘图单独视为合理补充，不因使用统计检验就判整次 Python 调用违规。",
+  "route": "关联部门、用户、登录与异常安全事件 → 汇总风险分布和重复异常 → Python 合并部门摘要并检验群体差异 → 绘制重点部门对比。",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 83,
+          "text": "dept = dept.merge(anomaly_dept, on='Department', how='left')"
+        },
+        {
+          "line": 84,
+          "text": "dept = dept.merge(repeat, on='Department', how='left')"
+        },
+        {
+          "line": 85,
+          "text": "dept = dept.merge(login_dept, on='Department', how='left')"
+        },
+        {
+          "line": 86,
+          "text": "dept = dept.merge(acct_dept, on='Department', how='left')"
+        },
+        {
+          "line": 87,
+          "text": "dept = dept.merge(events_dept, on='Department', how='left')"
+        }
+      ]
+    },
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 92,
+          "text": "merged = anomaly_counts.merge(dept_users, on='Department')"
+        },
+        {
+          "line": 107,
+          "text": "risk_pivot['total'] = risk_pivot.sum(axis=1)"
+        },
+        {
+          "line": 175,
+          "text": "type_pivot_pct = type_pivot.div(type_pivot.sum(axis=1), axis=0) * 100"
+        },
+        {
+          "line": 195,
+          "text": "merged2 = anomaly_counts.merge(dept_users, on='Department')"
+        }
+      ]
+    },
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 17,
+          "text": "h, p = stats.kruskal(*groups)"
+        },
+        {
+          "line": 23,
+          "text": "    h, p = stats.kruskal(*groups)"
+        },
+        {
+          "line": 28,
+          "text": "chi2, p, dof, expected = stats.chi2_contingency(ct)"
+        },
+        {
+          "line": 35,
+          "text": "print(anomaly_full.groupby('dept')[['score', 'dev', 'net', 'beh']].mean().round(3))"
+        },
+        {
+          "line": 44,
+          "text": "print(login_data.groupby('dept')['dur'].describe().round(1))"
+        },
+        {
+          "line": 48,
+          "text": "chi2b, pb, _, _ = stats.chi2_contingency(ct2)"
+        },
+        {
+          "line": 58,
+          "text": "chi2c, pc, _, _ = stats.chi2_contingency(ct3)"
+        }
+      ]
+    }
+  ]
+}

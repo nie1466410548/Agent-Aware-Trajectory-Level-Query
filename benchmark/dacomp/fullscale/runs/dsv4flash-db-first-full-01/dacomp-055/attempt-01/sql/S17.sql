@@ -1,0 +1,1 @@
+SELECT marketo_lead_id, COUNT(*) AS cnt, COUNT(DISTINCT customer360_id) AS distinct_c360 FROM customer360__mapping GROUP BY marketo_lead_id HAVING cnt > 1 ORDER BY cnt DESC LIMIT 10

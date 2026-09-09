@@ -1,0 +1,1 @@
+SELECT COUNT(*) FROM salesforce__customer_360_view WHERE annual_revenue IS NOT NULL ORDER BY annual_revenue DESC LIMIT 2000

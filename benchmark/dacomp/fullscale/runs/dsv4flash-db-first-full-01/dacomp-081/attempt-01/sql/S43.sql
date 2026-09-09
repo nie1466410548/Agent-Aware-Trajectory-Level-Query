@@ -1,0 +1,1 @@
+SELECT survey_id, survey_name FROM qualtrics__survey ORDER BY survey_name LIMIT 100

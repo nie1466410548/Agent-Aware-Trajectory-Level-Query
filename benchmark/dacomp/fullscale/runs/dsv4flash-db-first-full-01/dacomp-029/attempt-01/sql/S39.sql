@@ -1,0 +1,1 @@
+SELECT DISTINCT '"' || Drivetrain || '"' AS d FROM autohome ORDER BY d

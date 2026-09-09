@@ -1,0 +1,65 @@
+{
+  "task_id": "dacomp-076",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "聚类和决策树为题目要求的数值分析，算法内距离、中心均值和树节点计数不当作数据库优先违规。独立的盈利分组季度均值/比例、评分分箱留存均值、异常计数和季节偏好分布可由 SQL 完成，仍构成分组聚合偏离。",
+  "route": "SQL 识别细分留存异常 → Python 季节特征、聚类与决策树并再次分组汇总 → 客户细分改进分析。",
+  "evidence": [
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 21,
+          "text": "            dists = np.sqrt(((X[:, None] - centers[None, :])**2).sum(axis=2))"
+        },
+        {
+          "line": 24,
+          "text": "            new_centers = np.array([X[labels == i].mean(axis=0) if (labels == i).sum() > 0 else centers[i] for i in range(k)])"
+        }
+      ]
+    },
+    {
+      "source": "python/P10.py",
+      "lines": [
+        {
+          "line": 72,
+          "text": "q_data = df.groupby('profitability_segment')[['q1_transactions','q2_transactions','q3_transactions','q4_transactions']].mean()"
+        },
+        {
+          "line": 73,
+          "text": "q_data = q_data.div(q_data.sum(axis=1), axis=0)"
+        }
+      ]
+    },
+    {
+      "source": "python/P11.py",
+      "lines": [
+        {
+          "line": 55,
+          "text": "tab = df.groupby(['profitability_segment','score_bin'])['retention_probability'].agg(['mean','count'])"
+        }
+      ]
+    },
+    {
+      "source": "python/P12.py",
+      "lines": [
+        {
+          "line": 86,
+          "text": "print(f\"Anomaly records: {df['is_anomaly'].sum()} ({df['is_anomaly'].mean()*100:.1f}%), unique anomaly customers: {df[df['is_anomaly']==1]['customer_id'].nunique()}\")"
+        },
+        {
+          "line": 88,
+          "text": "print(df.groupby('profitability_segment')['is_anomaly'].agg(['count','sum','mean']).round(3))"
+        },
+        {
+          "line": 90,
+          "text": "print(df[df['is_anomaly']==1].groupby('is_above_avg').size())"
+        },
+        {
+          "line": 92,
+          "text": "print(df.groupby('is_anomaly')['seasonal_preference'].value_counts(normalize=True).round(3))"
+        }
+      ]
+    }
+  ]
+}

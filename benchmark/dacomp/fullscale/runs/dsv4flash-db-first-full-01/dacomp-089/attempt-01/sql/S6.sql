@@ -1,0 +1,1 @@
+SELECT account_size_segment, COUNT(*) AS cnt, MIN(annual_revenue) AS min_rev, MAX(annual_revenue) AS max_rev FROM salesforce__customer_360_view GROUP BY account_size_segment ORDER BY cnt DESC

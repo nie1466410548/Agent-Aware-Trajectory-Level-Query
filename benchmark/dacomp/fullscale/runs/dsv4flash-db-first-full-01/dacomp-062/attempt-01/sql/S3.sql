@@ -1,0 +1,1 @@
+SELECT * FROM jira__project_risk_assessment LIMIT 5

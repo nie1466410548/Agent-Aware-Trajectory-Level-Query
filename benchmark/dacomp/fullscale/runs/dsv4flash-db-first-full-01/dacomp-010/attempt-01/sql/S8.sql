@@ -1,0 +1,1 @@
+SELECT "Agricultural Product Name", COUNT(*) AS n FROM basic_product_information GROUP BY "Agricultural Product Name" ORDER BY n DESC

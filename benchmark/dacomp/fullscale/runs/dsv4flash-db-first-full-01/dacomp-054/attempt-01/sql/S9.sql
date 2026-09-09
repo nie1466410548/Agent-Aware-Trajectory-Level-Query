@@ -1,0 +1,1 @@
+SELECT DISTINCT primary_engagement_channel FROM customer360__customer_activity_metrics ORDER BY primary_engagement_channel

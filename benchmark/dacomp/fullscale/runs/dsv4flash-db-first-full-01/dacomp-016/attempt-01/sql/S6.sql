@@ -1,0 +1,1 @@
+SELECT DISTINCT "Year" FROM economic_indicator_data ORDER BY "Year"

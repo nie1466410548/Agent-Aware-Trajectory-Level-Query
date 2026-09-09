@@ -1,0 +1,1 @@
+SELECT DISTINCT project_category, project_type FROM qualtrics__survey ORDER BY project_category

@@ -1,0 +1,1 @@
+SELECT survey_id, user_language, contact_language, value, response_text, survey_name FROM qualtrics__response WHERE survey_id = 'SUR10001882036'

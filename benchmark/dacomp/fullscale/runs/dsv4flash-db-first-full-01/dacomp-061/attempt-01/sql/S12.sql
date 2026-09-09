@@ -1,0 +1,1 @@
+SELECT health_status, COUNT(*) as cnt FROM jira__issue_intelligence_analytics GROUP BY health_status

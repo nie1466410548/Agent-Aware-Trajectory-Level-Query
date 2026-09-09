@@ -1,0 +1,1 @@
+SELECT match_type, COUNT(*) AS n, ROUND(AVG(avg_position),2) AS avg_pos, ROUND(AVG(quality_score),2) AS avg_qs, ROUND(AVG(roas),3) AS avg_roas FROM google_ads__keyword_report GROUP BY match_type ORDER BY n DESC

@@ -1,0 +1,1 @@
+SELECT "Device Type", COUNT(*) as cnt FROM customer_device_table GROUP BY "Device Type" ORDER BY cnt DESC

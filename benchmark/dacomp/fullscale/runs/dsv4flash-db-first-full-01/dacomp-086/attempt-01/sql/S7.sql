@@ -1,0 +1,1 @@
+SELECT account_size_segment, COUNT(*) AS n FROM salesforce__customer_360_view GROUP BY account_size_segment ORDER BY n DESC

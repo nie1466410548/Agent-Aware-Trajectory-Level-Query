@@ -1,0 +1,1 @@
+SELECT DISTINCT ltrim(substr(campaign_name, instr(campaign_name,' -')+2)) AS time_period FROM google_ads__ad_group_report ORDER BY time_period

@@ -1,0 +1,1 @@
+SELECT "Promotion Date", COUNT(*) AS n_rows, COUNT(DISTINCT "Promotion Tertiary Category") AS n_cat FROM sheet2 GROUP BY "Promotion Date" ORDER BY "Promotion Date"

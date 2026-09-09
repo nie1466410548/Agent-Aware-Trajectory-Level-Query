@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT marketo_lead_id) AS distinct_leads, COUNT(*) AS cnt FROM customer360__mapping

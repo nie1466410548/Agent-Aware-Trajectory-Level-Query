@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total, COUNT(DISTINCT "Customer ID") AS distinct_customers, SUM(CASE WHEN "Contact priority" = 1 THEN 1 ELSE 0 END) AS priority_1_contacts FROM customer_contact_table

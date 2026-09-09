@@ -1,0 +1,373 @@
+{
+  "task_id": "dacomp-080",
+  "candidate_id": "C2",
+  "covered": [
+    "S28",
+    "S30",
+    "S31"
+  ],
+  "build_sql": "SELECT recipient_email, user_language AS dom_lang FROM (SELECT recipient_email, user_language, ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn FROM qualtrics__response GROUP BY recipient_email, user_language) WHERE rn = 1",
+  "rewrites": {
+    "S28": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC",
+    "S30": "SELECT MIN(n_survey_responses) AS min_n, MAX(n_survey_responses) AS max_n, AVG(n_survey_responses) AS avg_n, MIN(n_completed) AS min_c, MAX(n_completed) AS max_c, AVG(n_completed) AS avg_c, MIN(completion_rate) AS min_cr, MAX(completion_rate) AS max_cr, AVG(completion_rate) AS avg_cr, MIN(n_channels) AS min_ch, MAX(n_channels) AS max_ch, AVG(n_channels) AS avg_ch, MIN(avg_progress) AS min_p, MAX(avg_progress) AS max_p, AVG(avg_progress) AS avg_p FROM (WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, AVG(survey_progress) AS avg_progress FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate FROM user_agg AS u)",
+    "S31": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC"
+  },
+  "phase": "offline_performance",
+  "cache": "warm/uncontrolled OS cache",
+  "timing_boundary": "execute + fetch all row arrays; candidate includes CREATE TEMP TABLE AS and all rewrites; includes DROP cleanup and excludes result comparison, identical consumption on both paths",
+  "teardown": "DROP is included in candidate total_ms and reported separately; no additional indexes used",
+  "rounds": [
+    {
+      "round": 1,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline": {
+        "total_ms": 8679.122935049236,
+        "build_ms": 0,
+        "teardown_ms": 0
+      },
+      "candidate": {
+        "total_ms": 3207.3902683332562,
+        "build_ms": 82.98276737332344,
+        "teardown_ms": 0.3105979412794113
+      }
+    },
+    {
+      "round": 2,
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "candidate": {
+        "total_ms": 3206.350577995181,
+        "build_ms": 82.25527685135603,
+        "teardown_ms": 0.2829795703291893
+      },
+      "baseline": {
+        "total_ms": 8716.94603562355,
+        "build_ms": 0,
+        "teardown_ms": 0
+      }
+    },
+    {
+      "round": 3,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline": {
+        "total_ms": 8727.00824122876,
+        "build_ms": 0,
+        "teardown_ms": 0
+      },
+      "candidate": {
+        "total_ms": 3212.1526580303907,
+        "build_ms": 82.61600602418184,
+        "teardown_ms": 0.3136284649372101
+      }
+    },
+    {
+      "round": 4,
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "candidate": {
+        "total_ms": 3212.203586474061,
+        "build_ms": 82.61157665401697,
+        "teardown_ms": 0.3367820754647255
+      },
+      "baseline": {
+        "total_ms": 8717.52258297056,
+        "build_ms": 0,
+        "teardown_ms": 0
+      }
+    },
+    {
+      "round": 5,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline": {
+        "total_ms": 8701.498506590724,
+        "build_ms": 0,
+        "teardown_ms": 0
+      },
+      "candidate": {
+        "total_ms": 3204.5670822262764,
+        "build_ms": 82.74868316948414,
+        "teardown_ms": 0.3329543396830559
+      }
+    }
+  ],
+  "engine_trace": [
+    {
+      "phase": "offline_performance",
+      "sql": "WITH lang_mode AS (\n  SELECT recipient_email, user_language AS dom_lang\n  FROM (\n    SELECT recipient_email, user_language,\n           ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn\n    FROM qualtrics__response\n    GROUP BY recipient_email, user_language\n  )\n  WHERE rn = 1\n),\nuser_agg AS (\n  SELECT\n    recipient_email AS email,\n    COUNT(DISTINCT survey_response_id) AS n_survey_responses,\n    COUNT(DISTINCT survey_id) AS n_distinct_surveys,\n    COUNT(DISTINCT CASE WHEN is_finished_with_survey=1 THEN survey_response_id END) AS n_completed,\n    COUNT(DISTINCT distribution_channel) AS n_channels,\n    COUNT(DISTINCT date(survey_response_recorded_at)) AS n_active_days,\n    AVG(survey_progress) AS avg_progress,\n    AVG(duration_in_seconds) AS avg_duration,\n    AVG(location_latitude) AS avg_lat,\n    AVG(location_longitude) AS avg_lon,\n    MIN(survey_response_recorded_at) AS first_response_at,\n    MAX(survey_response_recorded_at) AS last_response_at\n  FROM qualtrics__response\n  GROUP BY recipient_email\n)\nSELECT u.*, l.dom_lang,\n  1.0*u.n_completed/u.n_survey_responses AS completion_rate,\n  (julianday(u.last_response_at) - julianday(u.first_response_at))/30.44 AS active_months\nFROM user_agg u\nLEFT JOIN lang_mode l ON l.recipient_email = u.email\nORDER BY u.n_survey_responses DESC",
+      "time": 1788871471.0545182
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  MIN(n_survey_responses) AS min_n,\n  MAX(n_survey_responses) AS max_n,\n  AVG(n_survey_responses) AS avg_n,\n  MIN(n_completed) AS min_c,\n  MAX(n_completed) AS max_c,\n  AVG(n_completed) AS avg_c,\n  MIN(completion_rate) AS min_cr,\n  MAX(completion_rate) AS max_cr,\n  AVG(completion_rate) AS avg_cr,\n  MIN(n_channels) AS min_ch,\n  MAX(n_channels) AS max_ch,\n  AVG(n_channels) AS avg_ch,\n  MIN(avg_progress) AS min_p,\n  MAX(avg_progress) AS max_p,\n  AVG(avg_progress) AS avg_p\nFROM (\n  WITH lang_mode AS (\n    SELECT recipient_email, user_language AS dom_lang\n    FROM (\n      SELECT recipient_email, user_language,\n             ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn\n      FROM qualtrics__response\n      GROUP BY recipient_email, user_language\n    )\n    WHERE rn = 1\n  ),\n  user_agg AS (\n    SELECT\n      recipient_email AS email,\n      COUNT(DISTINCT survey_response_id) AS n_survey_responses,\n      COUNT(DISTINCT CASE WHEN is_finished_with_survey=1 THEN survey_response_id END) AS n_completed,\n      COUNT(DISTINCT distribution_channel) AS n_channels,\n      AVG(survey_progress) AS avg_progress\n    FROM qualtrics__response\n    GROUP BY recipient_email\n  )\n  SELECT u.*, 1.0*u.n_completed/u.n_survey_responses AS completion_rate\n  FROM user_agg u\n)",
+      "time": 1788871475.3596425
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nWITH lang_mode AS (\n  SELECT recipient_email, user_language AS dom_lang\n  FROM (\n    SELECT recipient_email, user_language,\n           ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn\n    FROM qualtrics__response\n    GROUP BY recipient_email, user_language\n  )\n  WHERE rn = 1\n),\nuser_agg AS (\n  SELECT\n    recipient_email AS email,\n    COUNT(DISTINCT survey_response_id) AS n_survey_responses,\n    COUNT(DISTINCT survey_id) AS n_distinct_surveys,\n    COUNT(DISTINCT CASE WHEN is_finished_with_survey=1 THEN survey_response_id END) AS n_completed,\n    COUNT(DISTINCT distribution_channel) AS n_channels,\n    COUNT(DISTINCT date(survey_response_recorded_at)) AS n_active_days,\n    AVG(survey_progress) AS avg_progress,\n    AVG(duration_in_seconds) AS avg_duration,\n    AVG(location_latitude) AS avg_lat,\n    AVG(location_longitude) AS avg_lon,\n    MIN(survey_response_recorded_at) AS first_response_at,\n    MAX(survey_response_recorded_at) AS last_response_at\n  FROM qualtrics__response\n  GROUP BY recipient_email\n)\nSELECT u.*, l.dom_lang,\n  1.0*u.n_completed/u.n_survey_responses AS completion_rate,\n  (julianday(u.last_response_at) - julianday(u.first_response_at))/30.44 AS active_months\nFROM user_agg u\nLEFT JOIN lang_mode l ON l.recipient_email = u.email\nORDER BY u.n_survey_responses DESC\n",
+      "time": 1788871475.4515793
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT recipient_email, user_language AS dom_lang FROM (SELECT recipient_email, user_language, ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn FROM qualtrics__response GROUP BY recipient_email, user_language) WHERE rn = 1",
+      "time": 1788871479.7663097
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC",
+      "time": 1788871479.8482122
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(n_survey_responses) AS min_n, MAX(n_survey_responses) AS max_n, AVG(n_survey_responses) AS avg_n, MIN(n_completed) AS min_c, MAX(n_completed) AS max_c, AVG(n_completed) AS avg_c, MIN(completion_rate) AS min_cr, MAX(completion_rate) AS max_cr, AVG(completion_rate) AS avg_cr, MIN(n_channels) AS min_ch, MAX(n_channels) AS max_ch, AVG(n_channels) AS avg_ch, MIN(avg_progress) AS min_p, MAX(avg_progress) AS max_p, AVG(avg_progress) AS avg_p FROM (WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, AVG(survey_progress) AS avg_progress FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate FROM user_agg AS u)",
+      "time": 1788871481.3638773
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC",
+      "time": 1788871481.4549153
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871482.9757273
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH lang_mode AS (\n  SELECT recipient_email, user_language AS dom_lang\n  FROM (\n    SELECT recipient_email, user_language,\n           ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn\n    FROM qualtrics__response\n    GROUP BY recipient_email, user_language\n  )\n  WHERE rn = 1\n),\nuser_agg AS (\n  SELECT\n    recipient_email AS email,\n    COUNT(DISTINCT survey_response_id) AS n_survey_responses,\n    COUNT(DISTINCT survey_id) AS n_distinct_surveys,\n    COUNT(DISTINCT CASE WHEN is_finished_with_survey=1 THEN survey_response_id END) AS n_completed,\n    COUNT(DISTINCT distribution_channel) AS n_channels,\n    COUNT(DISTINCT date(survey_response_recorded_at)) AS n_active_days,\n    AVG(survey_progress) AS avg_progress,\n    AVG(duration_in_seconds) AS avg_duration,\n    AVG(location_latitude) AS avg_lat,\n    AVG(location_longitude) AS avg_lon,\n    MIN(survey_response_recorded_at) AS first_response_at,\n    MAX(survey_response_recorded_at) AS last_response_at\n  FROM qualtrics__response\n  GROUP BY recipient_email\n)\nSELECT u.*, l.dom_lang,\n  1.0*u.n_completed/u.n_survey_responses AS completion_rate,\n  (julianday(u.last_response_at) - julianday(u.first_response_at))/30.44 AS active_months\nFROM user_agg u\nLEFT JOIN lang_mode l ON l.recipient_email = u.email\nORDER BY u.n_survey_responses DESC",
+      "time": 1788871483.0064282
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  MIN(n_survey_responses) AS min_n,\n  MAX(n_survey_responses) AS max_n,\n  AVG(n_survey_responses) AS avg_n,\n  MIN(n_completed) AS min_c,\n  MAX(n_completed) AS max_c,\n  AVG(n_completed) AS avg_c,\n  MIN(completion_rate) AS min_cr,\n  MAX(completion_rate) AS max_cr,\n  AVG(completion_rate) AS avg_cr,\n  MIN(n_channels) AS min_ch,\n  MAX(n_channels) AS max_ch,\n  AVG(n_channels) AS avg_ch,\n  MIN(avg_progress) AS min_p,\n  MAX(avg_progress) AS max_p,\n  AVG(avg_progress) AS avg_p\nFROM (\n  WITH lang_mode AS (\n    SELECT recipient_email, user_language AS dom_lang\n    FROM (\n      SELECT recipient_email, user_language,\n             ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn\n      FROM qualtrics__response\n      GROUP BY recipient_email, user_language\n    )\n    WHERE rn = 1\n  ),\n  user_agg AS (\n    SELECT\n      recipient_email AS email,\n      COUNT(DISTINCT survey_response_id) AS n_survey_responses,\n      COUNT(DISTINCT CASE WHEN is_finished_with_survey=1 THEN survey_response_id END) AS n_completed,\n      COUNT(DISTINCT distribution_channel) AS n_channels,\n      AVG(survey_progress) AS avg_progress\n    FROM qualtrics__response\n    GROUP BY recipient_email\n  )\n  SELECT u.*, 1.0*u.n_completed/u.n_survey_responses AS completion_rate\n  FROM user_agg u\n)",
+      "time": 1788871487.3108778
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nWITH lang_mode AS (\n  SELECT recipient_email, user_language AS dom_lang\n  FROM (\n    SELECT recipient_email, user_language,\n           ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn\n    FROM qualtrics__response\n    GROUP BY recipient_email, user_language\n  )\n  WHERE rn = 1\n),\nuser_agg AS (\n  SELECT\n    recipient_email AS email,\n    COUNT(DISTINCT survey_response_id) AS n_survey_responses,\n    COUNT(DISTINCT survey_id) AS n_distinct_surveys,\n    COUNT(DISTINCT CASE WHEN is_finished_with_survey=1 THEN survey_response_id END) AS n_completed,\n    COUNT(DISTINCT distribution_channel) AS n_channels,\n    COUNT(DISTINCT date(survey_response_recorded_at)) AS n_active_days,\n    AVG(survey_progress) AS avg_progress,\n    AVG(duration_in_seconds) AS avg_duration,\n    AVG(location_latitude) AS avg_lat,\n    AVG(location_longitude) AS avg_lon,\n    MIN(survey_response_recorded_at) AS first_response_at,\n    MAX(survey_response_recorded_at) AS last_response_at\n  FROM qualtrics__response\n  GROUP BY recipient_email\n)\nSELECT u.*, l.dom_lang,\n  1.0*u.n_completed/u.n_survey_responses AS completion_rate,\n  (julianday(u.last_response_at) - julianday(u.first_response_at))/30.44 AS active_months\nFROM user_agg u\nLEFT JOIN lang_mode l ON l.recipient_email = u.email\nORDER BY u.n_survey_responses DESC\n",
+      "time": 1788871487.4029388
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT recipient_email, user_language AS dom_lang FROM (SELECT recipient_email, user_language, ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn FROM qualtrics__response GROUP BY recipient_email, user_language) WHERE rn = 1",
+      "time": 1788871491.715695
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC",
+      "time": 1788871491.7987325
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(n_survey_responses) AS min_n, MAX(n_survey_responses) AS max_n, AVG(n_survey_responses) AS avg_n, MIN(n_completed) AS min_c, MAX(n_completed) AS max_c, AVG(n_completed) AS avg_c, MIN(completion_rate) AS min_cr, MAX(completion_rate) AS max_cr, AVG(completion_rate) AS avg_cr, MIN(n_channels) AS min_ch, MAX(n_channels) AS max_ch, AVG(n_channels) AS avg_ch, MIN(avg_progress) AS min_p, MAX(avg_progress) AS max_p, AVG(avg_progress) AS avg_p FROM (WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, AVG(survey_progress) AS avg_progress FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate FROM user_agg AS u)",
+      "time": 1788871493.3142536
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC",
+      "time": 1788871493.407512
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871494.9226809
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT recipient_email, user_language AS dom_lang FROM (SELECT recipient_email, user_language, ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn FROM qualtrics__response GROUP BY recipient_email, user_language) WHERE rn = 1",
+      "time": 1788871494.954598
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC",
+      "time": 1788871495.0369282
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(n_survey_responses) AS min_n, MAX(n_survey_responses) AS max_n, AVG(n_survey_responses) AS avg_n, MIN(n_completed) AS min_c, MAX(n_completed) AS max_c, AVG(n_completed) AS avg_c, MIN(completion_rate) AS min_cr, MAX(completion_rate) AS max_cr, AVG(completion_rate) AS avg_cr, MIN(n_channels) AS min_ch, MAX(n_channels) AS max_ch, AVG(n_channels) AS avg_ch, MIN(avg_progress) AS min_p, MAX(avg_progress) AS max_p, AVG(avg_progress) AS avg_p FROM (WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, AVG(survey_progress) AS avg_progress FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate FROM user_agg AS u)",
+      "time": 1788871496.5547042
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC",
+      "time": 1788871496.644907
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871498.1605887
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH lang_mode AS (\n  SELECT recipient_email, user_language AS dom_lang\n  FROM (\n    SELECT recipient_email, user_language,\n           ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn\n    FROM qualtrics__response\n    GROUP BY recipient_email, user_language\n  )\n  WHERE rn = 1\n),\nuser_agg AS (\n  SELECT\n    recipient_email AS email,\n    COUNT(DISTINCT survey_response_id) AS n_survey_responses,\n    COUNT(DISTINCT survey_id) AS n_distinct_surveys,\n    COUNT(DISTINCT CASE WHEN is_finished_with_survey=1 THEN survey_response_id END) AS n_completed,\n    COUNT(DISTINCT distribution_channel) AS n_channels,\n    COUNT(DISTINCT date(survey_response_recorded_at)) AS n_active_days,\n    AVG(survey_progress) AS avg_progress,\n    AVG(duration_in_seconds) AS avg_duration,\n    AVG(location_latitude) AS avg_lat,\n    AVG(location_longitude) AS avg_lon,\n    MIN(survey_response_recorded_at) AS first_response_at,\n    MAX(survey_response_recorded_at) AS last_response_at\n  FROM qualtrics__response\n  GROUP BY recipient_email\n)\nSELECT u.*, l.dom_lang,\n  1.0*u.n_completed/u.n_survey_responses AS completion_rate,\n  (julianday(u.last_response_at) - julianday(u.first_response_at))/30.44 AS active_months\nFROM user_agg u\nLEFT JOIN lang_mode l ON l.recipient_email = u.email\nORDER BY u.n_survey_responses DESC",
+      "time": 1788871498.1909847
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  MIN(n_survey_responses) AS min_n,\n  MAX(n_survey_responses) AS max_n,\n  AVG(n_survey_responses) AS avg_n,\n  MIN(n_completed) AS min_c,\n  MAX(n_completed) AS max_c,\n  AVG(n_completed) AS avg_c,\n  MIN(completion_rate) AS min_cr,\n  MAX(completion_rate) AS max_cr,\n  AVG(completion_rate) AS avg_cr,\n  MIN(n_channels) AS min_ch,\n  MAX(n_channels) AS max_ch,\n  AVG(n_channels) AS avg_ch,\n  MIN(avg_progress) AS min_p,\n  MAX(avg_progress) AS max_p,\n  AVG(avg_progress) AS avg_p\nFROM (\n  WITH lang_mode AS (\n    SELECT recipient_email, user_language AS dom_lang\n    FROM (\n      SELECT recipient_email, user_language,\n             ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn\n      FROM qualtrics__response\n      GROUP BY recipient_email, user_language\n    )\n    WHERE rn = 1\n  ),\n  user_agg AS (\n    SELECT\n      recipient_email AS email,\n      COUNT(DISTINCT survey_response_id) AS n_survey_responses,\n      COUNT(DISTINCT CASE WHEN is_finished_with_survey=1 THEN survey_response_id END) AS n_completed,\n      COUNT(DISTINCT distribution_channel) AS n_channels,\n      AVG(survey_progress) AS avg_progress\n    FROM qualtrics__response\n    GROUP BY recipient_email\n  )\n  SELECT u.*, 1.0*u.n_completed/u.n_survey_responses AS completion_rate\n  FROM user_agg u\n)",
+      "time": 1788871502.5087695
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nWITH lang_mode AS (\n  SELECT recipient_email, user_language AS dom_lang\n  FROM (\n    SELECT recipient_email, user_language,\n           ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn\n    FROM qualtrics__response\n    GROUP BY recipient_email, user_language\n  )\n  WHERE rn = 1\n),\nuser_agg AS (\n  SELECT\n    recipient_email AS email,\n    COUNT(DISTINCT survey_response_id) AS n_survey_responses,\n    COUNT(DISTINCT survey_id) AS n_distinct_surveys,\n    COUNT(DISTINCT CASE WHEN is_finished_with_survey=1 THEN survey_response_id END) AS n_completed,\n    COUNT(DISTINCT distribution_channel) AS n_channels,\n    COUNT(DISTINCT date(survey_response_recorded_at)) AS n_active_days,\n    AVG(survey_progress) AS avg_progress,\n    AVG(duration_in_seconds) AS avg_duration,\n    AVG(location_latitude) AS avg_lat,\n    AVG(location_longitude) AS avg_lon,\n    MIN(survey_response_recorded_at) AS first_response_at,\n    MAX(survey_response_recorded_at) AS last_response_at\n  FROM qualtrics__response\n  GROUP BY recipient_email\n)\nSELECT u.*, l.dom_lang,\n  1.0*u.n_completed/u.n_survey_responses AS completion_rate,\n  (julianday(u.last_response_at) - julianday(u.first_response_at))/30.44 AS active_months\nFROM user_agg u\nLEFT JOIN lang_mode l ON l.recipient_email = u.email\nORDER BY u.n_survey_responses DESC\n",
+      "time": 1788871502.602117
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH lang_mode AS (\n  SELECT recipient_email, user_language AS dom_lang\n  FROM (\n    SELECT recipient_email, user_language,\n           ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn\n    FROM qualtrics__response\n    GROUP BY recipient_email, user_language\n  )\n  WHERE rn = 1\n),\nuser_agg AS (\n  SELECT\n    recipient_email AS email,\n    COUNT(DISTINCT survey_response_id) AS n_survey_responses,\n    COUNT(DISTINCT survey_id) AS n_distinct_surveys,\n    COUNT(DISTINCT CASE WHEN is_finished_with_survey=1 THEN survey_response_id END) AS n_completed,\n    COUNT(DISTINCT distribution_channel) AS n_channels,\n    COUNT(DISTINCT date(survey_response_recorded_at)) AS n_active_days,\n    AVG(survey_progress) AS avg_progress,\n    AVG(duration_in_seconds) AS avg_duration,\n    AVG(location_latitude) AS avg_lat,\n    AVG(location_longitude) AS avg_lon,\n    MIN(survey_response_recorded_at) AS first_response_at,\n    MAX(survey_response_recorded_at) AS last_response_at\n  FROM qualtrics__response\n  GROUP BY recipient_email\n)\nSELECT u.*, l.dom_lang,\n  1.0*u.n_completed/u.n_survey_responses AS completion_rate,\n  (julianday(u.last_response_at) - julianday(u.first_response_at))/30.44 AS active_months\nFROM user_agg u\nLEFT JOIN lang_mode l ON l.recipient_email = u.email\nORDER BY u.n_survey_responses DESC",
+      "time": 1788871506.935926
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  MIN(n_survey_responses) AS min_n,\n  MAX(n_survey_responses) AS max_n,\n  AVG(n_survey_responses) AS avg_n,\n  MIN(n_completed) AS min_c,\n  MAX(n_completed) AS max_c,\n  AVG(n_completed) AS avg_c,\n  MIN(completion_rate) AS min_cr,\n  MAX(completion_rate) AS max_cr,\n  AVG(completion_rate) AS avg_cr,\n  MIN(n_channels) AS min_ch,\n  MAX(n_channels) AS max_ch,\n  AVG(n_channels) AS avg_ch,\n  MIN(avg_progress) AS min_p,\n  MAX(avg_progress) AS max_p,\n  AVG(avg_progress) AS avg_p\nFROM (\n  WITH lang_mode AS (\n    SELECT recipient_email, user_language AS dom_lang\n    FROM (\n      SELECT recipient_email, user_language,\n             ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn\n      FROM qualtrics__response\n      GROUP BY recipient_email, user_language\n    )\n    WHERE rn = 1\n  ),\n  user_agg AS (\n    SELECT\n      recipient_email AS email,\n      COUNT(DISTINCT survey_response_id) AS n_survey_responses,\n      COUNT(DISTINCT CASE WHEN is_finished_with_survey=1 THEN survey_response_id END) AS n_completed,\n      COUNT(DISTINCT distribution_channel) AS n_channels,\n      AVG(survey_progress) AS avg_progress\n    FROM qualtrics__response\n    GROUP BY recipient_email\n  )\n  SELECT u.*, 1.0*u.n_completed/u.n_survey_responses AS completion_rate\n  FROM user_agg u\n)",
+      "time": 1788871511.2613988
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nWITH lang_mode AS (\n  SELECT recipient_email, user_language AS dom_lang\n  FROM (\n    SELECT recipient_email, user_language,\n           ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn\n    FROM qualtrics__response\n    GROUP BY recipient_email, user_language\n  )\n  WHERE rn = 1\n),\nuser_agg AS (\n  SELECT\n    recipient_email AS email,\n    COUNT(DISTINCT survey_response_id) AS n_survey_responses,\n    COUNT(DISTINCT survey_id) AS n_distinct_surveys,\n    COUNT(DISTINCT CASE WHEN is_finished_with_survey=1 THEN survey_response_id END) AS n_completed,\n    COUNT(DISTINCT distribution_channel) AS n_channels,\n    COUNT(DISTINCT date(survey_response_recorded_at)) AS n_active_days,\n    AVG(survey_progress) AS avg_progress,\n    AVG(duration_in_seconds) AS avg_duration,\n    AVG(location_latitude) AS avg_lat,\n    AVG(location_longitude) AS avg_lon,\n    MIN(survey_response_recorded_at) AS first_response_at,\n    MAX(survey_response_recorded_at) AS last_response_at\n  FROM qualtrics__response\n  GROUP BY recipient_email\n)\nSELECT u.*, l.dom_lang,\n  1.0*u.n_completed/u.n_survey_responses AS completion_rate,\n  (julianday(u.last_response_at) - julianday(u.first_response_at))/30.44 AS active_months\nFROM user_agg u\nLEFT JOIN lang_mode l ON l.recipient_email = u.email\nORDER BY u.n_survey_responses DESC\n",
+      "time": 1788871511.353896
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT recipient_email, user_language AS dom_lang FROM (SELECT recipient_email, user_language, ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn FROM qualtrics__response GROUP BY recipient_email, user_language) WHERE rn = 1",
+      "time": 1788871515.692562
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC",
+      "time": 1788871515.7752423
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(n_survey_responses) AS min_n, MAX(n_survey_responses) AS max_n, AVG(n_survey_responses) AS avg_n, MIN(n_completed) AS min_c, MAX(n_completed) AS max_c, AVG(n_completed) AS avg_c, MIN(completion_rate) AS min_cr, MAX(completion_rate) AS max_cr, AVG(completion_rate) AS avg_cr, MIN(n_channels) AS min_ch, MAX(n_channels) AS max_ch, AVG(n_channels) AS avg_ch, MIN(avg_progress) AS min_p, MAX(avg_progress) AS max_p, AVG(avg_progress) AS avg_p FROM (WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, AVG(survey_progress) AS avg_progress FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate FROM user_agg AS u)",
+      "time": 1788871517.297083
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC",
+      "time": 1788871517.389864
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871518.9043086
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT recipient_email, user_language AS dom_lang FROM (SELECT recipient_email, user_language, ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn FROM qualtrics__response GROUP BY recipient_email, user_language) WHERE rn = 1",
+      "time": 1788871518.936248
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC",
+      "time": 1788871519.018921
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(n_survey_responses) AS min_n, MAX(n_survey_responses) AS max_n, AVG(n_survey_responses) AS avg_n, MIN(n_completed) AS min_c, MAX(n_completed) AS max_c, AVG(n_completed) AS avg_c, MIN(completion_rate) AS min_cr, MAX(completion_rate) AS max_cr, AVG(completion_rate) AS avg_cr, MIN(n_channels) AS min_ch, MAX(n_channels) AS max_ch, AVG(n_channels) AS avg_ch, MIN(avg_progress) AS min_p, MAX(avg_progress) AS max_p, AVG(avg_progress) AS avg_p FROM (WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, AVG(survey_progress) AS avg_progress FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate FROM user_agg AS u)",
+      "time": 1788871520.5366855
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC",
+      "time": 1788871520.6293144
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871522.1480348
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH lang_mode AS (\n  SELECT recipient_email, user_language AS dom_lang\n  FROM (\n    SELECT recipient_email, user_language,\n           ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn\n    FROM qualtrics__response\n    GROUP BY recipient_email, user_language\n  )\n  WHERE rn = 1\n),\nuser_agg AS (\n  SELECT\n    recipient_email AS email,\n    COUNT(DISTINCT survey_response_id) AS n_survey_responses,\n    COUNT(DISTINCT survey_id) AS n_distinct_surveys,\n    COUNT(DISTINCT CASE WHEN is_finished_with_survey=1 THEN survey_response_id END) AS n_completed,\n    COUNT(DISTINCT distribution_channel) AS n_channels,\n    COUNT(DISTINCT date(survey_response_recorded_at)) AS n_active_days,\n    AVG(survey_progress) AS avg_progress,\n    AVG(duration_in_seconds) AS avg_duration,\n    AVG(location_latitude) AS avg_lat,\n    AVG(location_longitude) AS avg_lon,\n    MIN(survey_response_recorded_at) AS first_response_at,\n    MAX(survey_response_recorded_at) AS last_response_at\n  FROM qualtrics__response\n  GROUP BY recipient_email\n)\nSELECT u.*, l.dom_lang,\n  1.0*u.n_completed/u.n_survey_responses AS completion_rate,\n  (julianday(u.last_response_at) - julianday(u.first_response_at))/30.44 AS active_months\nFROM user_agg u\nLEFT JOIN lang_mode l ON l.recipient_email = u.email\nORDER BY u.n_survey_responses DESC",
+      "time": 1788871522.1782584
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  MIN(n_survey_responses) AS min_n,\n  MAX(n_survey_responses) AS max_n,\n  AVG(n_survey_responses) AS avg_n,\n  MIN(n_completed) AS min_c,\n  MAX(n_completed) AS max_c,\n  AVG(n_completed) AS avg_c,\n  MIN(completion_rate) AS min_cr,\n  MAX(completion_rate) AS max_cr,\n  AVG(completion_rate) AS avg_cr,\n  MIN(n_channels) AS min_ch,\n  MAX(n_channels) AS max_ch,\n  AVG(n_channels) AS avg_ch,\n  MIN(avg_progress) AS min_p,\n  MAX(avg_progress) AS max_p,\n  AVG(avg_progress) AS avg_p\nFROM (\n  WITH lang_mode AS (\n    SELECT recipient_email, user_language AS dom_lang\n    FROM (\n      SELECT recipient_email, user_language,\n             ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn\n      FROM qualtrics__response\n      GROUP BY recipient_email, user_language\n    )\n    WHERE rn = 1\n  ),\n  user_agg AS (\n    SELECT\n      recipient_email AS email,\n      COUNT(DISTINCT survey_response_id) AS n_survey_responses,\n      COUNT(DISTINCT CASE WHEN is_finished_with_survey=1 THEN survey_response_id END) AS n_completed,\n      COUNT(DISTINCT distribution_channel) AS n_channels,\n      AVG(survey_progress) AS avg_progress\n    FROM qualtrics__response\n    GROUP BY recipient_email\n  )\n  SELECT u.*, 1.0*u.n_completed/u.n_survey_responses AS completion_rate\n  FROM user_agg u\n)",
+      "time": 1788871526.4940107
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nWITH lang_mode AS (\n  SELECT recipient_email, user_language AS dom_lang\n  FROM (\n    SELECT recipient_email, user_language,\n           ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn\n    FROM qualtrics__response\n    GROUP BY recipient_email, user_language\n  )\n  WHERE rn = 1\n),\nuser_agg AS (\n  SELECT\n    recipient_email AS email,\n    COUNT(DISTINCT survey_response_id) AS n_survey_responses,\n    COUNT(DISTINCT survey_id) AS n_distinct_surveys,\n    COUNT(DISTINCT CASE WHEN is_finished_with_survey=1 THEN survey_response_id END) AS n_completed,\n    COUNT(DISTINCT distribution_channel) AS n_channels,\n    COUNT(DISTINCT date(survey_response_recorded_at)) AS n_active_days,\n    AVG(survey_progress) AS avg_progress,\n    AVG(duration_in_seconds) AS avg_duration,\n    AVG(location_latitude) AS avg_lat,\n    AVG(location_longitude) AS avg_lon,\n    MIN(survey_response_recorded_at) AS first_response_at,\n    MAX(survey_response_recorded_at) AS last_response_at\n  FROM qualtrics__response\n  GROUP BY recipient_email\n)\nSELECT u.*, l.dom_lang,\n  1.0*u.n_completed/u.n_survey_responses AS completion_rate,\n  (julianday(u.last_response_at) - julianday(u.first_response_at))/30.44 AS active_months\nFROM user_agg u\nLEFT JOIN lang_mode l ON l.recipient_email = u.email\nORDER BY u.n_survey_responses DESC\n",
+      "time": 1788871526.58701
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH lang_mode AS (\n  SELECT recipient_email, user_language AS dom_lang\n  FROM (\n    SELECT recipient_email, user_language,\n           ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn\n    FROM qualtrics__response\n    GROUP BY recipient_email, user_language\n  )\n  WHERE rn = 1\n),\nuser_agg AS (\n  SELECT\n    recipient_email AS email,\n    COUNT(DISTINCT survey_response_id) AS n_survey_responses,\n    COUNT(DISTINCT survey_id) AS n_distinct_surveys,\n    COUNT(DISTINCT CASE WHEN is_finished_with_survey=1 THEN survey_response_id END) AS n_completed,\n    COUNT(DISTINCT distribution_channel) AS n_channels,\n    COUNT(DISTINCT date(survey_response_recorded_at)) AS n_active_days,\n    AVG(survey_progress) AS avg_progress,\n    AVG(duration_in_seconds) AS avg_duration,\n    AVG(location_latitude) AS avg_lat,\n    AVG(location_longitude) AS avg_lon,\n    MIN(survey_response_recorded_at) AS first_response_at,\n    MAX(survey_response_recorded_at) AS last_response_at\n  FROM qualtrics__response\n  GROUP BY recipient_email\n)\nSELECT u.*, l.dom_lang,\n  1.0*u.n_completed/u.n_survey_responses AS completion_rate,\n  (julianday(u.last_response_at) - julianday(u.first_response_at))/30.44 AS active_months\nFROM user_agg u\nLEFT JOIN lang_mode l ON l.recipient_email = u.email\nORDER BY u.n_survey_responses DESC",
+      "time": 1788871530.9264863
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  MIN(n_survey_responses) AS min_n,\n  MAX(n_survey_responses) AS max_n,\n  AVG(n_survey_responses) AS avg_n,\n  MIN(n_completed) AS min_c,\n  MAX(n_completed) AS max_c,\n  AVG(n_completed) AS avg_c,\n  MIN(completion_rate) AS min_cr,\n  MAX(completion_rate) AS max_cr,\n  AVG(completion_rate) AS avg_cr,\n  MIN(n_channels) AS min_ch,\n  MAX(n_channels) AS max_ch,\n  AVG(n_channels) AS avg_ch,\n  MIN(avg_progress) AS min_p,\n  MAX(avg_progress) AS max_p,\n  AVG(avg_progress) AS avg_p\nFROM (\n  WITH lang_mode AS (\n    SELECT recipient_email, user_language AS dom_lang\n    FROM (\n      SELECT recipient_email, user_language,\n             ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn\n      FROM qualtrics__response\n      GROUP BY recipient_email, user_language\n    )\n    WHERE rn = 1\n  ),\n  user_agg AS (\n    SELECT\n      recipient_email AS email,\n      COUNT(DISTINCT survey_response_id) AS n_survey_responses,\n      COUNT(DISTINCT CASE WHEN is_finished_with_survey=1 THEN survey_response_id END) AS n_completed,\n      COUNT(DISTINCT distribution_channel) AS n_channels,\n      AVG(survey_progress) AS avg_progress\n    FROM qualtrics__response\n    GROUP BY recipient_email\n  )\n  SELECT u.*, 1.0*u.n_completed/u.n_survey_responses AS completion_rate\n  FROM user_agg u\n)",
+      "time": 1788871535.2470217
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nWITH lang_mode AS (\n  SELECT recipient_email, user_language AS dom_lang\n  FROM (\n    SELECT recipient_email, user_language,\n           ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn\n    FROM qualtrics__response\n    GROUP BY recipient_email, user_language\n  )\n  WHERE rn = 1\n),\nuser_agg AS (\n  SELECT\n    recipient_email AS email,\n    COUNT(DISTINCT survey_response_id) AS n_survey_responses,\n    COUNT(DISTINCT survey_id) AS n_distinct_surveys,\n    COUNT(DISTINCT CASE WHEN is_finished_with_survey=1 THEN survey_response_id END) AS n_completed,\n    COUNT(DISTINCT distribution_channel) AS n_channels,\n    COUNT(DISTINCT date(survey_response_recorded_at)) AS n_active_days,\n    AVG(survey_progress) AS avg_progress,\n    AVG(duration_in_seconds) AS avg_duration,\n    AVG(location_latitude) AS avg_lat,\n    AVG(location_longitude) AS avg_lon,\n    MIN(survey_response_recorded_at) AS first_response_at,\n    MAX(survey_response_recorded_at) AS last_response_at\n  FROM qualtrics__response\n  GROUP BY recipient_email\n)\nSELECT u.*, l.dom_lang,\n  1.0*u.n_completed/u.n_survey_responses AS completion_rate,\n  (julianday(u.last_response_at) - julianday(u.first_response_at))/30.44 AS active_months\nFROM user_agg u\nLEFT JOIN lang_mode l ON l.recipient_email = u.email\nORDER BY u.n_survey_responses DESC\n",
+      "time": 1788871535.3389482
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT recipient_email, user_language AS dom_lang FROM (SELECT recipient_email, user_language, ROW_NUMBER() OVER (PARTITION BY recipient_email ORDER BY COUNT(*) DESC) AS rn FROM qualtrics__response GROUP BY recipient_email, user_language) WHERE rn = 1",
+      "time": 1788871539.6577792
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC",
+      "time": 1788871539.7405882
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(n_survey_responses) AS min_n, MAX(n_survey_responses) AS max_n, AVG(n_survey_responses) AS avg_n, MIN(n_completed) AS min_c, MAX(n_completed) AS max_c, AVG(n_completed) AS avg_c, MIN(completion_rate) AS min_cr, MAX(completion_rate) AS max_cr, AVG(completion_rate) AS avg_cr, MIN(n_channels) AS min_ch, MAX(n_channels) AS max_ch, AVG(n_channels) AS avg_ch, MIN(avg_progress) AS min_p, MAX(avg_progress) AS max_p, AVG(avg_progress) AS avg_p FROM (WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, AVG(survey_progress) AS avg_progress FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate FROM user_agg AS u)",
+      "time": 1788871541.256768
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "WITH lang_mode AS (SELECT * FROM temp.reuse_candidate), user_agg AS (SELECT recipient_email AS email, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT survey_id) AS n_distinct_surveys, COUNT(DISTINCT CASE WHEN is_finished_with_survey = 1 THEN survey_response_id END) AS n_completed, COUNT(DISTINCT distribution_channel) AS n_channels, COUNT(DISTINCT DATE(survey_response_recorded_at)) AS n_active_days, AVG(survey_progress) AS avg_progress, AVG(duration_in_seconds) AS avg_duration, AVG(location_latitude) AS avg_lat, AVG(location_longitude) AS avg_lon, MIN(survey_response_recorded_at) AS first_response_at, MAX(survey_response_recorded_at) AS last_response_at FROM qualtrics__response GROUP BY recipient_email) SELECT u.*, l.dom_lang, 1.0 * u.n_completed / u.n_survey_responses AS completion_rate, (JULIANDAY(u.last_response_at) - JULIANDAY(u.first_response_at)) / 30.44 AS active_months FROM user_agg AS u LEFT JOIN lang_mode AS l ON l.recipient_email = u.email ORDER BY u.n_survey_responses DESC",
+      "time": 1788871541.3483276
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871542.8619194
+    }
+  ],
+  "correctness_warmup": {
+    "baseline": {
+      "total_ms": 8681.729118339717,
+      "build_ms": 0,
+      "teardown_ms": 0
+    },
+    "candidate": {
+      "total_ms": 3209.9610595032573,
+      "build_ms": 81.85515459626913,
+      "teardown_ms": 0.4427824169397354
+    }
+  },
+  "status": "measured",
+  "baseline_median_ms": 8716.94603562355,
+  "baseline_range_ms": [
+    8679.122935049236,
+    8727.00824122876
+  ],
+  "candidate_median_ms": 3207.3902683332562,
+  "candidate_range_ms": [
+    3204.5670822262764,
+    3212.203586474061
+  ],
+  "ratio_baseline_over_candidate": 2.717769060312506,
+  "duration_s": 71.88777470588684
+}

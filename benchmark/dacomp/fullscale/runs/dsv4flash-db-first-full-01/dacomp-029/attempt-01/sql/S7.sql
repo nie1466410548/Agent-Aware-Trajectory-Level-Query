@@ -1,0 +1,1 @@
+SELECT Title, COUNT(*) AS cnt FROM autohome GROUP BY Title ORDER BY cnt DESC LIMIT 20

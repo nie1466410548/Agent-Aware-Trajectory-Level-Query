@@ -1,0 +1,84 @@
+{
+  "task_id": "dacomp-018",
+  "status": "partial_violation",
+  "reviewer": "experiment analyst",
+  "route": "按服装品类检查订单与客户资料 → SQL 汇总客户利润并连接浏览行为 → 按性别、客群和商品比较利润 → Python 检验互动关联、计算利润分位和群体摘要 → 绘制月度及商品偏好图。",
+  "conclusion": "SQL prepares customer aggregates and joins; Python uses Pearson/Mann-Whitney tests and renders figures. P1/P2 also compute per-gender and gender-by-segment counts/means/sums, engagement ratios and profit-quintile summaries; P5 rolls up monthly totals. These SQL-capable operations are execution-location deviations. SQLGlot cannot parse the unquoted schema column like in five successful statements (S29/S31/S32/S33/S48); these remain explicit unknown structures, not zero counts, while original SQL and engine results are preserved.",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 29,
+          "text": "print(df.head())"
+        },
+        {
+          "line": 30,
+          "text": "print(df.groupby('gender').agg(customers=('profit','size'), profit_per_cust=('profit','mean'), orders_per_cust=('orders','mean'),"
+        },
+        {
+          "line": 34,
+          "text": "for col in ['likes','shares','carts','browse_time','orders']:"
+        },
+        {
+          "line": 39,
+          "text": "f = df[df.gender=='Female']['profit']; m = df[df.gender=='Male']['profit']"
+        },
+        {
+          "line": 43,
+          "text": "# Engagement rates per order"
+        },
+        {
+          "line": 44,
+          "text": "df['cart_rate'] = df['carts']/df['orders']"
+        },
+        {
+          "line": 45,
+          "text": "df['like_rate'] = df['likes']/df['orders']"
+        }
+      ]
+    },
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 13,
+          "text": "g = df.groupby(['gender','segment']).agg(customers=('profit','size'), profit=('profit','sum'), profit_per=('profit','mean')).reset_index()"
+        },
+        {
+          "line": 25,
+          "text": "    'Add-to-Cart rate': (s['carts']/s['orders']).mean(),"
+        },
+        {
+          "line": 26,
+          "text": "    'Like rate': (s['likes']/s['orders']).mean(),"
+        },
+        {
+          "line": 27,
+          "text": "    'Share rate': (s['shares']/s['orders']).mean(),"
+        },
+        {
+          "line": 38,
+          "text": "df['quintile'] = pd.qcut(df['profit'].rank(method='first'), 5, labels=[5,4,3,2,1])"
+        },
+        {
+          "line": 39,
+          "text": "conc = df.groupby('quintile', as_index=False).agg(customers=('profit','size'), profit=('profit','sum'))"
+        },
+        {
+          "line": 40,
+          "text": "conc['pct_profit'] = conc['profit']/df['profit'].sum()*100"
+        }
+      ]
+    },
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 24,
+          "text": "print(tot.sort_values('mm'))"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_searches, COUNT(DISTINCT "User ID") AS search_users FROM search_behavior_records_table

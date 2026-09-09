@@ -1,0 +1,1 @@
+SELECT response_pattern_type, COUNT(*) AS n FROM jira__stakeholder_engagement_insights GROUP BY response_pattern_type ORDER BY n DESC

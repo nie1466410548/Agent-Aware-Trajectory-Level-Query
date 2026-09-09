@@ -1,0 +1,1 @@
+SELECT COUNT(*) as matched FROM complaints_table c JOIN service_ticket_table s ON c."Work Order ID"=s."Work Order ID"

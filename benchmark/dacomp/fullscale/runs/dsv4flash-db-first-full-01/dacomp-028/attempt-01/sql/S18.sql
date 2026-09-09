@@ -1,0 +1,1 @@
+SELECT strftime('%Y-%m', "Collection Date") AS month, "Price Type", "Product Category", COUNT(*) AS n, ROUND(AVG("Average Price"),3) AS avg_price FROM agricultural_product_price_tren GROUP BY month, "Price Type", "Product Category" ORDER BY month, "Product Category", "Price Type"

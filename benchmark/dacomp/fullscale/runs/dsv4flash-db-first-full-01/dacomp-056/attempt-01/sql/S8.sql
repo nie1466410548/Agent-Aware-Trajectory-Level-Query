@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_rows, COUNT(DISTINCT marketo_lead_id) AS distinct_leads, COUNT(DISTINCT primary_email) AS distinct_emails, COUNT(DISTINCT stripe_customer_id) AS distinct_stripe, COUNT(DISTINCT zendesk_user_id) AS distinct_zendesk FROM customer360__customer_value_analysis

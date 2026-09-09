@@ -1,0 +1,8 @@
+SELECT 
+  op."Resource Allocation Status",
+  op."Supply Flow Status",
+  COUNT(*) AS cnt
+FROM operations1 op JOIN disaster_events de ON de."Disaster Event ID" = op."Disaster Reference ID"
+WHERE de."Disaster Severity Level" = 'Level 5'
+GROUP BY op."Resource Allocation Status", op."Supply Flow Status"
+ORDER BY op."Resource Allocation Status", op."Supply Flow Status"

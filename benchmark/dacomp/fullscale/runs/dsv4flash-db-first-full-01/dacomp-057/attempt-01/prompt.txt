@@ -1,0 +1,83 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+The marketing team has observed complex decay patterns in the customer acquisition efficiency of multiple long-running advertising campaigns. Based on a joined analysis of the `google_ads__customer_acquisition_analysis` and `google_ads__campaign_report` tables, identify campaigns that have been running for more than 120 days and, in the last 30 days, exhibit a Customer Acquisition Cost (CAC) growth rate exceeding 25% while their LTV/CAC ratio has declined by more than 20%.
+
+You are required to conduct an in-depth analysis of how different combinations of `campaign_lifecycle_stage` (Growth, Mature, Decline), `advertising_channel_type`, `customer_maturity_stage`, and `account_maturity_stage` impact this acquisition efficiency decay. Incorporate multi-dimensional metrics such as `acquisition_sophistication_score`, `cac_efficiency_percentile`, and `channel_diversity_count` to build a comprehensive decay risk assessment model that includes factors like channel saturation, competitive intensity, and customer quality stratification. 
+
+Additionally, consider the distribution of `strategic_customer_segment`, `retention_risk` warning signals, and the `scale_opportunity` potential assessment to provide differentiated optimization recommendations for campaigns in various decay stages. Your focus should be on adjusting acquisition strategies for high-value customer segments and proposing budget reallocation plans.
+
+DATABASE SCHEMA:
+CREATE TABLE "google_ads__campaign_report" (
+"source_relation" TEXT,
+  "date_day" TEXT,
+  "account_name" TEXT,
+  "account_id" TEXT,
+  "currency_code" TEXT,
+  "campaign_name" TEXT,
+  "campaign_id" TEXT,
+  "advertising_channel_type" TEXT,
+  "advertising_channel_subtype" TEXT,
+  "status" TEXT,
+  "spend" REAL,
+  "clicks" REAL,
+  "impressions" REAL,
+  "conversions" REAL,
+  "conversions_value" REAL,
+  "view_through_conversions" REAL
+)
+CREATE TABLE "google_ads__customer_acquisition_analysis" (
+"source_relation" TEXT,
+  "account_id" TEXT,
+  "account_name" TEXT,
+  "date_day" TEXT,
+  "acquisition_cohort" TIMESTAMP,
+  "days_since_first_conversion" INTEGER,
+  "advertising_channel_type" TEXT,
+  "advertising_channel_subtype" TEXT,
+  "account_maturity_stage" TEXT,
+  "customer_maturity_stage" TEXT,
+  "campaign_lifecycle_stage" TEXT,
+  "spend" REAL,
+  "clicks" INTEGER,
+  "impressions" INTEGER,
+  "conversions" REAL,
+  "conversions_value" REAL,
+  "ctr" REAL,
+  "cpc" REAL,
+  "cost_per_conversion" REAL,
+  "roas" REAL,
+  "customer_acquisition_cost" REAL,
+  "average_customer_ltv" REAL,
+  "ltv_cac_ratio" REAL,
+  "estimated_payback_days" REAL,
+  "cumulative_acquisition_cost" REAL,
+  "cumulative_conversions" REAL,
+  "cumulative_ltv" REAL,
+  "cohort_avg_cac" REAL,
+  "cohort_avg_ltv" REAL,
+  "cac_vs_cohort_pct" REAL,
+  "ltv_vs_cohort_pct" REAL,
+  "cac_efficiency_percentile" REAL,
+  "ltv_cac_performance_percentile" REAL,
+  "acquisition_efficiency_tier" TEXT,
+  "cac_performance_tier" TEXT,
+  "strategic_customer_segment" TEXT,
+  "acquisition_sophistication_score" REAL,
+  "active_campaigns_count" INTEGER,
+  "channel_diversity_count" INTEGER,
+  "acquisition_recommendation" TEXT,
+  "negative_roi_alert" INTEGER,
+  "high_cac_alert" INTEGER,
+  "scale_opportunity" INTEGER,
+  "retention_risk" INTEGER
+)

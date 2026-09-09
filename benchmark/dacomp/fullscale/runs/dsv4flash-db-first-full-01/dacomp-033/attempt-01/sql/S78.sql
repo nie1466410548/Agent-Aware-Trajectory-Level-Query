@@ -1,0 +1,1 @@
+SELECT "Subscribed Product Name", COUNT(*) as all_cust, SUM("Total Amount") as total_amt FROM product_service_order_table GROUP BY "Subscribed Product Name" ORDER BY all_cust DESC

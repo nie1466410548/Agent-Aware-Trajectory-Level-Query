@@ -1,0 +1,1 @@
+SELECT COUNT(*) as total_rows FROM sheet1

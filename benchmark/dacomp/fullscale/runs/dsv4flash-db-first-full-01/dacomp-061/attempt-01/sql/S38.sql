@@ -1,0 +1,1 @@
+SELECT regression_ratio, COUNT(*) as cnt FROM jira__issue_intelligence_analytics GROUP BY regression_ratio ORDER BY regression_ratio

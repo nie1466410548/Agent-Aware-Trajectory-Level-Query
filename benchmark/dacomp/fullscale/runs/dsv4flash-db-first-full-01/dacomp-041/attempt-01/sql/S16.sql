@@ -1,0 +1,1 @@
+SELECT COUNT(*) as basic_count, COUNT(DISTINCT "Cultural Relic Registration Number") as distinct_relics FROM basic_artifact_information

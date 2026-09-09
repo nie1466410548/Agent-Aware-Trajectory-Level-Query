@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT location_latitude) FROM qualtrics__response WHERE location_latitude IS NOT NULL

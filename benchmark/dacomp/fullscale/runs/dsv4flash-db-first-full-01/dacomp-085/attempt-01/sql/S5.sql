@@ -1,0 +1,1 @@
+SELECT talent_competition_level, COUNT(*) AS cnt FROM workday__job_overview GROUP BY talent_competition_level ORDER BY cnt DESC

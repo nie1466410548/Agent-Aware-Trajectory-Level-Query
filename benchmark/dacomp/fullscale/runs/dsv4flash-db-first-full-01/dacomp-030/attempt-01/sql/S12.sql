@@ -1,0 +1,1 @@
+SELECT * FROM customer_management_table LIMIT 10

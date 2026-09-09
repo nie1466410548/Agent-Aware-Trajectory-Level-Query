@@ -1,0 +1,1 @@
+SELECT DISTINCT "Major Category Name" FROM sheet1 ORDER BY "Major Category Name"

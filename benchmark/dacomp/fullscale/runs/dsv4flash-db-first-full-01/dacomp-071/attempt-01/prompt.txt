@@ -1,0 +1,75 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+Management is concerned about our hiring funnel efficiency and wants to know which stages are the biggest bottlenecks. By analyzing the average time candidates spend in each hiring stage and the attrition rate, identify key bottleneck stages where the average time spent exceeds 25 days and the attrition rate is higher than 40%. Additionally, calculate an "efficiency index" for each stage (defined as: pass_rate / avg_days * 100), find stages with an efficiency index below 1.5, and provide improvement recommendations based on stage data with at least 100 samples.
+
+DATABASE SCHEMA:
+CREATE TABLE "lever__opportunity_enhanced" (
+"archived_at" TEXT,
+  "archived_reason_id" TEXT,
+  "contact_id" TEXT,
+  "created_at" TEXT,
+  "is_data_protection_contact_allowed" INTEGER,
+  "data_protection_contact_expires_at" TEXT,
+  "is_data_protection_store_allowed" INTEGER,
+  "data_protection_store_expires_at" TEXT,
+  "contact_headline" TEXT,
+  "opportunity_id" TEXT,
+  "is_anonymized" INTEGER,
+  "last_advanced_at" TEXT,
+  "last_interaction_at" TEXT,
+  "contact_location" TEXT,
+  "contact_name" TEXT,
+  "origin" TEXT,
+  "owner_user_id" TEXT,
+  "snoozed_until" TEXT,
+  "stage_id" TEXT,
+  "updated_at" TEXT,
+  "application_id" TEXT,
+  "comments" TEXT,
+  "company" TEXT,
+  "posting_hiring_manager_user_id" TEXT,
+  "posting_id" TEXT,
+  "posting_owner_user_id" TEXT,
+  "referrer_user_id" TEXT,
+  "requisition_id" TEXT,
+  "application_type" TEXT,
+  "emails" TEXT,
+  "phones" TEXT,
+  "linkedin_link" TEXT,
+  "github_link" TEXT,
+  "current_stage" TEXT,
+  "tags" TEXT,
+  "archive_reason" TEXT,
+  "job_title" TEXT,
+  "job_commitment" TEXT,
+  "job_location" TEXT,
+  "job_team" TEXT,
+  "current_state_of_job_posting" TEXT,
+  "has_offer" INTEGER,
+  "current_offer_status" TEXT
+)
+CREATE TABLE "lever__opportunity_stage_history" (
+"opportunity_id" TEXT,
+  "opportunity_contact_name" TEXT,
+  "valid_from" TEXT,
+  "valid_ending_at" TEXT,
+  "stage" TEXT,
+  "stage_id" TEXT,
+  "updater_user_name" TEXT,
+  "archive_reason" TEXT,
+  "job_title" TEXT,
+  "job_location" TEXT,
+  "job_team" TEXT,
+  "application_sources" TEXT,
+  "days_in_stage" INTEGER
+)

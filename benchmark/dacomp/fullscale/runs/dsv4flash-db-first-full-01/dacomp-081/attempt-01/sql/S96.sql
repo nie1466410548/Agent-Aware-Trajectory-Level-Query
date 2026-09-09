@@ -1,0 +1,1 @@
+SELECT contact_id, COUNT(*) AS n FROM qualtrics__response GROUP BY contact_id ORDER BY n DESC LIMIT 10

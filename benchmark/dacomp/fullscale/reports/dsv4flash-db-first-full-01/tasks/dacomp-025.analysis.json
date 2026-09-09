@@ -1,0 +1,507 @@
+{
+  "fingerprint": "edbbfc08a24c592eb1ea956250d44e7d8fb7f1e15aa35887e0f46405a0a0c9de",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S65",
+      "covered": [
+        "S65",
+        "S66"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S65",
+      "later_reuses": 1,
+      "denominator": 75,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865051.5800476,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 39,
+      "validation_ended_at": 1788865051.5869882,
+      "checks": [
+        {
+          "sql_id": "S66",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S67",
+      "covered": [
+        "S67",
+        "S68"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S67",
+      "later_reuses": 1,
+      "denominator": 75,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT DISTINCT s.\"Item Code\" FROM sales_records AS s WHERE DATE(s.\"Sales Date\") = '2023-06-30'",
+      "covered": [
+        "S38",
+        "S40",
+        "S41",
+        "S42",
+        "S48",
+        "S53",
+        "S54",
+        "S55",
+        "S56",
+        "S57",
+        "S58",
+        "S64"
+      ],
+      "rewrites": {
+        "S38": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT \"Item Code\", COUNT(*) AS n_sales, SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) AS n_loss, ROUND(100.0 * SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_loss, ROUND(AVG(up - wp / (1.0 - lr / 100.0)), 3) AS avg_profit_per_kg FROM summer_sales GROUP BY \"Item Code\" ORDER BY pct_loss DESC",
+        "S40": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT \"Item Code\", COUNT(*) AS n_sales, SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) AS n_loss, ROUND(100.0 * SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_loss, ROUND(AVG(up - wp / (1.0 - lr / 100.0)), 3) AS avg_profit_per_kg, ROUND(MIN(up - wp / (1.0 - lr / 100.0)), 3) AS min_profit FROM summer_sales GROUP BY \"Item Code\" ORDER BY pct_loss DESC, n_sales DESC",
+        "S41": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, s.\"Whether sold at a discount\" AS discount FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT \"Item Code\", COUNT(*) AS n_sales, ROUND(100.0 * SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_loss, ROUND(AVG(up - wp / (1.0 - lr / 100.0)), 3) AS avg_profit, ROUND(AVG(up), 2) AS avg_up, ROUND(AVG(wp / (1.0 - lr / 100.0)), 2) AS avg_cost, ROUND(SUM(CASE WHEN discount = 'Yes' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS pct_discount FROM summer_sales GROUP BY \"Item Code\" ORDER BY pct_loss DESC",
+        "S42": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT \"Item Code\", COUNT(*) AS n_sales, SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) AS n_loss, ROUND(100.0 * SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_loss FROM summer_sales GROUP BY \"Item Code\" ORDER BY pct_loss DESC",
+        "S48": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_items AS (SELECT DISTINCT s.\"Item Code\" FROM sales_records AS s LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT pi.\"Item Code\", p.\"Item Name\" FROM proc_items AS pi LEFT JOIN product_information AS p ON pi.\"Item Code\" = p.\"Item Code\" WHERE NOT pi.\"Item Code\" IN (SELECT \"Item Code\" FROM summer_items) ORDER BY pi.\"Item Code\"",
+        "S53": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_analysis AS (SELECT s.\"Item Code\", s.\"Sales volume (kg)\" AS vol, s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, s.\"Whether sold at a discount\" AS discount, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" / (1.0 - pl.\"Loss Rate (%)\" / 100.0) AS profit FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT \"Item Code\", COUNT(*) AS n_sales, ROUND(SUM(vol * profit), 2) AS total_profit, ROUND(AVG(profit), 3) AS avg_profit_per_kg, ROUND(SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS pct_loss, ROUND(SUM(CASE WHEN profit < 0 THEN vol ELSE 0 END) * 100.0 / SUM(vol), 1) AS vol_weighted_pct_loss, ROUND(SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END), 0) AS n_loss, ROUND(SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS pct_loss FROM summer_analysis GROUP BY \"Item Code\" ORDER BY pct_loss DESC, avg_profit_per_kg ASC",
+        "S54": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_analysis AS (SELECT s.\"Item Code\", STRFTIME('%Y', s.\"Sales Date\") AS yr, s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" / (1.0 - pl.\"Loss Rate (%)\" / 100.0) AS profit FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT \"Item Code\", yr, COUNT(*) AS n, ROUND(AVG(profit), 3) AS avg_profit, ROUND(SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS pct_loss FROM summer_analysis WHERE \"Item Code\" IN (102900011032732, 102900005118824, 102900011034439, 102900011034330, 102900011001691, 102900011030110, 102900051000944) GROUP BY \"Item Code\", yr ORDER BY \"Item Code\", yr",
+        "S55": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_analysis AS (SELECT s.\"Item Code\", s.\"Sales volume (kg)\" AS vol, s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" / (1.0 - pl.\"Loss Rate (%)\" / 100.0) AS profit FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01' AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT \"Item Code\", COUNT(*) AS n_sales, ROUND(AVG(profit), 3) AS avg_profit_per_kg, ROUND(SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS pct_loss, ROUND(SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END), 0) AS n_loss, ROUND(SUM(vol * profit), 2) AS total_profit FROM summer_analysis GROUP BY \"Item Code\" HAVING COUNT(*) >= 10 ORDER BY avg_profit_per_kg ASC",
+        "S56": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_analysis AS (SELECT s.\"Item Code\", s.\"Sales volume (kg)\" AS vol, s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" / (1.0 - pl.\"Loss Rate (%)\" / 100.0) AS profit FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01' AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT \"Item Code\", COUNT(*) AS n_sales, ROUND(SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS pct_loss, ROUND(AVG(profit), 3) AS avg_profit_per_kg, ROUND(SUM(vol * profit), 2) AS total_profit FROM summer_analysis GROUP BY \"Item Code\" ORDER BY avg_profit_per_kg ASC",
+        "S57": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_analysis AS (SELECT s.\"Item Code\", s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" AS profit_simple FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") WHERE s.\"Sales type\" = 'Sale' AND s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01' AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL) SELECT \"Item Code\", COUNT(*) AS n_sales, ROUND(AVG(profit_simple), 3) AS avg_profit_simple, ROUND(SUM(CASE WHEN profit_simple < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS pct_loss_simple, ROUND(SUM(CASE WHEN profit_simple < 0 THEN 1 ELSE 0 END), 0) AS n_loss_simple FROM summer_analysis GROUP BY \"Item Code\" ORDER BY avg_profit_simple ASC LIMIT 15",
+        "S58": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_analysis AS (SELECT s.\"Item Code\", s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" AS profit_simple FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") WHERE s.\"Sales type\" = 'Sale' AND s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01' AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL) SELECT \"Item Code\", COUNT(*) AS n, ROUND(AVG(profit_simple), 3) AS avg_profit_simple, ROUND(SUM(CASE WHEN profit_simple < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS pct_loss_simple FROM summer_analysis GROUP BY \"Item Code\" HAVING \"Item Code\" IN (102900005118824, 102900011032732) ORDER BY avg_profit_simple",
+        "S64": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_analysis AS (SELECT s.\"Item Code\", STRFTIME('%m', s.\"Sales Date\") AS mo, s.\"Sales volume (kg)\" AS vol, s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" / (1.0 - pl.\"Loss Rate (%)\" / 100.0) AS profit FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND s.\"Sales Date\" >= '2022-07-01' AND s.\"Sales Date\" < '2022-09-01' AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT \"Item Code\", mo, COUNT(*) AS n, ROUND(AVG(profit), 3) AS avg_profit, ROUND(SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS pct_loss FROM summer_analysis GROUP BY \"Item Code\", mo HAVING n >= 20 ORDER BY avg_profit ASC LIMIT 20"
+      },
+      "status": "verification_limited",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S38",
+      "later_reuses": 11,
+      "denominator": 75,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788864845.3101528,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT DISTINCT s.\"Item Code\" FROM sales_records AS s WHERE DATE(s.\"Sales Date\") = '2023-06-30'",
+          "phase": "offline_validation",
+          "start_time": 1788864845.3104398,
+          "status": "execute_returned",
+          "end_time": 1788864845.4558475
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788864845.4558568,
+          "status": "execute_returned",
+          "end_time": 1788864845.4558902
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788864845.4558983,
+          "status": "execute_returned",
+          "end_time": 1788864845.455912
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT \"Item Code\", COUNT(*) AS n_sales, SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) AS n_loss, ROUND(100.0 * SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_loss, ROUND(AVG(up - wp / (1.0 - lr / 100.0)), 3) AS avg_profit_per_kg FROM summer_sales GROUP BY \"Item Code\" ORDER BY pct_loss DESC",
+          "phase": "offline_validation",
+          "start_time": 1788864845.4559228,
+          "status": "execute_returned",
+          "end_time": 1788864868.726677
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT \"Item Code\", COUNT(*) AS n_sales, SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) AS n_loss, ROUND(100.0 * SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_loss, ROUND(AVG(up - wp / (1.0 - lr / 100.0)), 3) AS avg_profit_per_kg, ROUND(MIN(up - wp / (1.0 - lr / 100.0)), 3) AS min_profit FROM summer_sales GROUP BY \"Item Code\" ORDER BY pct_loss DESC, n_sales DESC",
+          "phase": "offline_validation",
+          "start_time": 1788864868.7327275,
+          "status": "execute_returned",
+          "end_time": 1788864891.9930093
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, s.\"Whether sold at a discount\" AS discount FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT \"Item Code\", COUNT(*) AS n_sales, ROUND(100.0 * SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_loss, ROUND(AVG(up - wp / (1.0 - lr / 100.0)), 3) AS avg_profit, ROUND(AVG(up), 2) AS avg_up, ROUND(AVG(wp / (1.0 - lr / 100.0)), 2) AS avg_cost, ROUND(SUM(CASE WHEN discount = 'Yes' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS pct_discount FROM summer_sales GROUP BY \"Item Code\" ORDER BY pct_loss DESC",
+          "phase": "offline_validation",
+          "start_time": 1788864891.9994836,
+          "status": "execute_returned",
+          "end_time": 1788864915.2770529
+        },
+        {
+          "sequence": 7,
+          "sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT \"Item Code\", COUNT(*) AS n_sales, SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) AS n_loss, ROUND(100.0 * SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_loss FROM summer_sales GROUP BY \"Item Code\" ORDER BY pct_loss DESC",
+          "phase": "offline_validation",
+          "start_time": 1788864915.283743,
+          "status": "execute_returned",
+          "end_time": 1788864938.515903
+        },
+        {
+          "sequence": 8,
+          "sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_items AS (SELECT DISTINCT s.\"Item Code\" FROM sales_records AS s LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT pi.\"Item Code\", p.\"Item Name\" FROM proc_items AS pi LEFT JOIN product_information AS p ON pi.\"Item Code\" = p.\"Item Code\" WHERE NOT pi.\"Item Code\" IN (SELECT \"Item Code\" FROM summer_items) ORDER BY pi.\"Item Code\"",
+          "phase": "offline_validation",
+          "start_time": 1788864938.5215056,
+          "status": "failed",
+          "error": "OperationalError('interrupted')",
+          "end_time": 1788864965.312116
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT DISTINCT s.\"Item Code\" FROM sales_records AS s WHERE DATE(s.\"Sales Date\") = '2023-06-30'",
+          "time": 1788864845.310667,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788864845.4558856,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788864845.4559083,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT \"Item Code\", COUNT(*) AS n_sales, SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) AS n_loss, ROUND(100.0 * SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_loss, ROUND(AVG(up - wp / (1.0 - lr / 100.0)), 3) AS avg_profit_per_kg FROM summer_sales GROUP BY \"Item Code\" ORDER BY pct_loss DESC",
+          "time": 1788864845.4561324,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT \"Item Code\", COUNT(*) AS n_sales, SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) AS n_loss, ROUND(100.0 * SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_loss, ROUND(AVG(up - wp / (1.0 - lr / 100.0)), 3) AS avg_profit_per_kg, ROUND(MIN(up - wp / (1.0 - lr / 100.0)), 3) AS min_profit FROM summer_sales GROUP BY \"Item Code\" ORDER BY pct_loss DESC, n_sales DESC",
+          "time": 1788864868.7330272,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, s.\"Whether sold at a discount\" AS discount FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT \"Item Code\", COUNT(*) AS n_sales, ROUND(100.0 * SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_loss, ROUND(AVG(up - wp / (1.0 - lr / 100.0)), 3) AS avg_profit, ROUND(AVG(up), 2) AS avg_up, ROUND(AVG(wp / (1.0 - lr / 100.0)), 2) AS avg_cost, ROUND(SUM(CASE WHEN discount = 'Yes' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS pct_discount FROM summer_sales GROUP BY \"Item Code\" ORDER BY pct_loss DESC",
+          "time": 1788864891.9997993,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT \"Item Code\", COUNT(*) AS n_sales, SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) AS n_loss, ROUND(100.0 * SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_loss FROM summer_sales GROUP BY \"Item Code\" ORDER BY pct_loss DESC",
+          "time": 1788864915.2840216,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_items AS (SELECT DISTINCT s.\"Item Code\" FROM sales_records AS s LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT pi.\"Item Code\", p.\"Item Name\" FROM proc_items AS pi LEFT JOIN product_information AS p ON pi.\"Item Code\" = p.\"Item Code\" WHERE NOT pi.\"Item Code\" IN (SELECT \"Item Code\" FROM summer_items) ORDER BY pi.\"Item Code\"",
+          "time": 1788864938.521766,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 145.41360270231962,
+      "intermediate_rows": 39,
+      "intermediate_columns": [
+        "Item Code"
+      ],
+      "error": "OperationalError('interrupted')",
+      "validation_ended_at": 1788864965.3124337,
+      "checks": [
+        {
+          "sql_id": "S38",
+          "rewritten_sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT \"Item Code\", COUNT(*) AS n_sales, SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) AS n_loss, ROUND(100.0 * SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_loss, ROUND(AVG(up - wp / (1.0 - lr / 100.0)), 3) AS avg_profit_per_kg FROM summer_sales GROUP BY \"Item Code\" ORDER BY pct_loss DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 23276.796333491802
+        },
+        {
+          "sql_id": "S40",
+          "rewritten_sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT \"Item Code\", COUNT(*) AS n_sales, SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) AS n_loss, ROUND(100.0 * SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_loss, ROUND(AVG(up - wp / (1.0 - lr / 100.0)), 3) AS avg_profit_per_kg, ROUND(MIN(up - wp / (1.0 - lr / 100.0)), 3) AS min_profit FROM summer_sales GROUP BY \"Item Code\" ORDER BY pct_loss DESC, n_sales DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 23266.750420443714
+        },
+        {
+          "sql_id": "S41",
+          "rewritten_sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, s.\"Whether sold at a discount\" AS discount FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT \"Item Code\", COUNT(*) AS n_sales, ROUND(100.0 * SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_loss, ROUND(AVG(up - wp / (1.0 - lr / 100.0)), 3) AS avg_profit, ROUND(AVG(up), 2) AS avg_up, ROUND(AVG(wp / (1.0 - lr / 100.0)), 2) AS avg_cost, ROUND(SUM(CASE WHEN discount = 'Yes' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS pct_discount FROM summer_sales GROUP BY \"Item Code\" ORDER BY pct_loss DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 23284.252890385687
+        },
+        {
+          "sql_id": "S42",
+          "rewritten_sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL) SELECT \"Item Code\", COUNT(*) AS n_sales, SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) AS n_loss, ROUND(100.0 * SUM(CASE WHEN up < wp / (1.0 - lr / 100.0) THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_loss FROM summer_sales GROUP BY \"Item Code\" ORDER BY pct_loss DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 23237.754544243217
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT s.\"Item Code\", SUM(s.\"Sales volume (kg)\") AS vol_0630 FROM sales_records AS s WHERE DATE(s.\"Sales Date\") = '2023-06-30' AND s.\"Sales type\" = 'Sale' GROUP BY s.\"Item Code\"",
+      "covered": [
+        "S65",
+        "S66",
+        "S67",
+        "S68"
+      ],
+      "rewrites": {
+        "S65": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Sales volume (kg)\" AS vol, s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, STRFTIME('%Y', s.\"Sales Date\") AS yr, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" / (1.0 - pl.\"Loss Rate (%)\" / 100.0) AS profit FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL), y2022 AS (SELECT \"Item Code\", COUNT(*) AS n22, AVG(profit) AS avgp22, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct22, SUM(vol * profit) AS tot22 FROM summer_sales WHERE yr = '2022' GROUP BY \"Item Code\"), allsum AS (SELECT \"Item Code\", COUNT(*) AS n_all, AVG(profit) AS avgp_all, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct_all, SUM(vol * profit) AS tot_all FROM summer_sales GROUP BY \"Item Code\") SELECT pi.\"Item Code\", p.\"Item Name\", ROUND(pi.vol_0630, 2) AS vol_0630, y.n22, ROUND(y.avgp22, 3) AS avgp22, ROUND(y.pct22, 1) AS pct22, ROUND(y.tot22, 2) AS tot22, a.n_all, ROUND(a.avgp_all, 3) AS avgp_all, ROUND(a.pct_all, 1) AS pct_all, ROUND(a.tot_all, 2) AS tot_all, ROUND(pl.\"Loss Rate (%)\", 2) AS loss_rate FROM proc_items AS pi LEFT JOIN product_information AS p ON pi.\"Item Code\" = p.\"Item Code\" LEFT JOIN y2022 AS y ON pi.\"Item Code\" = y.\"Item Code\" LEFT JOIN allsum AS a ON pi.\"Item Code\" = a.\"Item Code\" LEFT JOIN product_loss AS pl ON pi.\"Item Code\" = pl.\"Item Code\" ORDER BY COALESCE(y.avgp22, 999) ASC, COALESCE(a.avgp_all, 999) ASC",
+        "S66": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Sales volume (kg)\" AS vol, s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, STRFTIME('%Y', s.\"Sales Date\") AS yr, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" / (1.0 - pl.\"Loss Rate (%)\" / 100.0) AS profit FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL), y2022 AS (SELECT \"Item Code\", COUNT(*) AS n22, AVG(profit) AS avgp22, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct22, SUM(vol * profit) AS tot22 FROM summer_sales WHERE yr = '2022' GROUP BY \"Item Code\"), allsum AS (SELECT \"Item Code\", COUNT(*) AS n_all, AVG(profit) AS avgp_all, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct_all, SUM(vol * profit) AS tot_all FROM summer_sales GROUP BY \"Item Code\") SELECT pi.\"Item Code\", p.\"Item Name\", ROUND(pi.vol_0630, 2) AS vol_0630, y.n22, ROUND(y.avgp22, 3) AS avgp22, ROUND(y.pct22, 1) AS pct22, ROUND(y.tot22, 2) AS tot22, a.n_all, ROUND(a.avgp_all, 3) AS avgp_all, ROUND(a.pct_all, 1) AS pct_all, ROUND(a.tot_all, 2) AS tot_all, ROUND(pl.\"Loss Rate (%)\", 2) AS loss_rate FROM proc_items AS pi LEFT JOIN product_information AS p ON pi.\"Item Code\" = p.\"Item Code\" LEFT JOIN y2022 AS y ON pi.\"Item Code\" = y.\"Item Code\" LEFT JOIN allsum AS a ON pi.\"Item Code\" = a.\"Item Code\" LEFT JOIN product_loss AS pl ON pi.\"Item Code\" = pl.\"Item Code\" ORDER BY COALESCE(y.avgp22, 999) ASC, COALESCE(a.avgp_all, 999) ASC",
+        "S67": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Sales volume (kg)\" AS vol, s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, STRFTIME('%Y', s.\"Sales Date\") AS yr, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" / (1.0 - pl.\"Loss Rate (%)\" / 100.0) AS profit FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL), y2022 AS (SELECT \"Item Code\", COUNT(*) AS n22, AVG(profit) AS avgp22, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct22, SUM(vol * profit) AS tot22 FROM summer_sales WHERE yr = '2022' GROUP BY \"Item Code\") SELECT pi.\"Item Code\", p.\"Item Name\", ROUND(pi.vol_0630, 2) AS vol_0630, y.n22, ROUND(y.avgp22, 3) AS avgp22, ROUND(y.pct22, 1) AS pct22, ROUND(y.tot22, 2) AS tot22 FROM proc_items AS pi LEFT JOIN product_information AS p ON pi.\"Item Code\" = p.\"Item Code\" LEFT JOIN y2022 AS y ON pi.\"Item Code\" = y.\"Item Code\" ORDER BY COALESCE(y.avgp22, 999) ASC",
+        "S68": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Sales volume (kg)\" AS vol, s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, STRFTIME('%Y', s.\"Sales Date\") AS yr, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" / (1.0 - pl.\"Loss Rate (%)\" / 100.0) AS profit FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL), y2022 AS (SELECT \"Item Code\", COUNT(*) AS n22, AVG(profit) AS avgp22, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct22, SUM(vol * profit) AS tot22 FROM summer_sales WHERE yr = '2022' GROUP BY \"Item Code\") SELECT pi.\"Item Code\", p.\"Item Name\", ROUND(pi.vol_0630, 2) AS vol_0630, y.n22, ROUND(y.avgp22, 3) AS avgp22, ROUND(y.pct22, 1) AS pct22, ROUND(y.tot22, 2) AS tot22 FROM proc_items AS pi LEFT JOIN product_information AS p ON pi.\"Item Code\" = p.\"Item Code\" LEFT JOIN y2022 AS y ON pi.\"Item Code\" = y.\"Item Code\" ORDER BY COALESCE(y.avgp22, 999) ASC"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S65",
+      "later_reuses": 3,
+      "denominator": 75,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788864965.312525,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT s.\"Item Code\", SUM(s.\"Sales volume (kg)\") AS vol_0630 FROM sales_records AS s WHERE DATE(s.\"Sales Date\") = '2023-06-30' AND s.\"Sales type\" = 'Sale' GROUP BY s.\"Item Code\"",
+          "phase": "offline_validation",
+          "start_time": 1788864965.312815,
+          "status": "execute_returned",
+          "end_time": 1788864965.455075
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788864965.4550834,
+          "status": "execute_returned",
+          "end_time": 1788864965.455105
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788864965.4551113,
+          "status": "execute_returned",
+          "end_time": 1788864965.4551232
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Sales volume (kg)\" AS vol, s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, STRFTIME('%Y', s.\"Sales Date\") AS yr, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" / (1.0 - pl.\"Loss Rate (%)\" / 100.0) AS profit FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL), y2022 AS (SELECT \"Item Code\", COUNT(*) AS n22, AVG(profit) AS avgp22, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct22, SUM(vol * profit) AS tot22 FROM summer_sales WHERE yr = '2022' GROUP BY \"Item Code\"), allsum AS (SELECT \"Item Code\", COUNT(*) AS n_all, AVG(profit) AS avgp_all, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct_all, SUM(vol * profit) AS tot_all FROM summer_sales GROUP BY \"Item Code\") SELECT pi.\"Item Code\", p.\"Item Name\", ROUND(pi.vol_0630, 2) AS vol_0630, y.n22, ROUND(y.avgp22, 3) AS avgp22, ROUND(y.pct22, 1) AS pct22, ROUND(y.tot22, 2) AS tot22, a.n_all, ROUND(a.avgp_all, 3) AS avgp_all, ROUND(a.pct_all, 1) AS pct_all, ROUND(a.tot_all, 2) AS tot_all, ROUND(pl.\"Loss Rate (%)\", 2) AS loss_rate FROM proc_items AS pi LEFT JOIN product_information AS p ON pi.\"Item Code\" = p.\"Item Code\" LEFT JOIN y2022 AS y ON pi.\"Item Code\" = y.\"Item Code\" LEFT JOIN allsum AS a ON pi.\"Item Code\" = a.\"Item Code\" LEFT JOIN product_loss AS pl ON pi.\"Item Code\" = pl.\"Item Code\" ORDER BY COALESCE(y.avgp22, 999) ASC, COALESCE(a.avgp_all, 999) ASC",
+          "phase": "offline_validation",
+          "start_time": 1788864965.4551358,
+          "status": "execute_returned",
+          "end_time": 1788864998.7337174
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Sales volume (kg)\" AS vol, s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, STRFTIME('%Y', s.\"Sales Date\") AS yr, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" / (1.0 - pl.\"Loss Rate (%)\" / 100.0) AS profit FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL), y2022 AS (SELECT \"Item Code\", COUNT(*) AS n22, AVG(profit) AS avgp22, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct22, SUM(vol * profit) AS tot22 FROM summer_sales WHERE yr = '2022' GROUP BY \"Item Code\"), allsum AS (SELECT \"Item Code\", COUNT(*) AS n_all, AVG(profit) AS avgp_all, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct_all, SUM(vol * profit) AS tot_all FROM summer_sales GROUP BY \"Item Code\") SELECT pi.\"Item Code\", p.\"Item Name\", ROUND(pi.vol_0630, 2) AS vol_0630, y.n22, ROUND(y.avgp22, 3) AS avgp22, ROUND(y.pct22, 1) AS pct22, ROUND(y.tot22, 2) AS tot22, a.n_all, ROUND(a.avgp_all, 3) AS avgp_all, ROUND(a.pct_all, 1) AS pct_all, ROUND(a.tot_all, 2) AS tot_all, ROUND(pl.\"Loss Rate (%)\", 2) AS loss_rate FROM proc_items AS pi LEFT JOIN product_information AS p ON pi.\"Item Code\" = p.\"Item Code\" LEFT JOIN y2022 AS y ON pi.\"Item Code\" = y.\"Item Code\" LEFT JOIN allsum AS a ON pi.\"Item Code\" = a.\"Item Code\" LEFT JOIN product_loss AS pl ON pi.\"Item Code\" = pl.\"Item Code\" ORDER BY COALESCE(y.avgp22, 999) ASC, COALESCE(a.avgp_all, 999) ASC",
+          "phase": "offline_validation",
+          "start_time": 1788864998.7438226,
+          "status": "execute_returned",
+          "end_time": 1788865031.848286
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Sales volume (kg)\" AS vol, s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, STRFTIME('%Y', s.\"Sales Date\") AS yr, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" / (1.0 - pl.\"Loss Rate (%)\" / 100.0) AS profit FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL), y2022 AS (SELECT \"Item Code\", COUNT(*) AS n22, AVG(profit) AS avgp22, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct22, SUM(vol * profit) AS tot22 FROM summer_sales WHERE yr = '2022' GROUP BY \"Item Code\") SELECT pi.\"Item Code\", p.\"Item Name\", ROUND(pi.vol_0630, 2) AS vol_0630, y.n22, ROUND(y.avgp22, 3) AS avgp22, ROUND(y.pct22, 1) AS pct22, ROUND(y.tot22, 2) AS tot22 FROM proc_items AS pi LEFT JOIN product_information AS p ON pi.\"Item Code\" = p.\"Item Code\" LEFT JOIN y2022 AS y ON pi.\"Item Code\" = y.\"Item Code\" ORDER BY COALESCE(y.avgp22, 999) ASC",
+          "phase": "offline_validation",
+          "start_time": 1788865031.8596425,
+          "status": "execute_returned",
+          "end_time": 1788865041.7128932
+        },
+        {
+          "sequence": 7,
+          "sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Sales volume (kg)\" AS vol, s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, STRFTIME('%Y', s.\"Sales Date\") AS yr, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" / (1.0 - pl.\"Loss Rate (%)\" / 100.0) AS profit FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL), y2022 AS (SELECT \"Item Code\", COUNT(*) AS n22, AVG(profit) AS avgp22, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct22, SUM(vol * profit) AS tot22 FROM summer_sales WHERE yr = '2022' GROUP BY \"Item Code\") SELECT pi.\"Item Code\", p.\"Item Name\", ROUND(pi.vol_0630, 2) AS vol_0630, y.n22, ROUND(y.avgp22, 3) AS avgp22, ROUND(y.pct22, 1) AS pct22, ROUND(y.tot22, 2) AS tot22 FROM proc_items AS pi LEFT JOIN product_information AS p ON pi.\"Item Code\" = p.\"Item Code\" LEFT JOIN y2022 AS y ON pi.\"Item Code\" = y.\"Item Code\" ORDER BY COALESCE(y.avgp22, 999) ASC",
+          "phase": "offline_validation",
+          "start_time": 1788865041.7198684,
+          "status": "execute_returned",
+          "end_time": 1788865051.572844
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT s.\"Item Code\", SUM(s.\"Sales volume (kg)\") AS vol_0630 FROM sales_records AS s WHERE DATE(s.\"Sales Date\") = '2023-06-30' AND s.\"Sales type\" = 'Sale' GROUP BY s.\"Item Code\"",
+          "time": 1788864965.312989,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788864965.4551013,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788864965.45512,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Sales volume (kg)\" AS vol, s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, STRFTIME('%Y', s.\"Sales Date\") AS yr, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" / (1.0 - pl.\"Loss Rate (%)\" / 100.0) AS profit FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL), y2022 AS (SELECT \"Item Code\", COUNT(*) AS n22, AVG(profit) AS avgp22, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct22, SUM(vol * profit) AS tot22 FROM summer_sales WHERE yr = '2022' GROUP BY \"Item Code\"), allsum AS (SELECT \"Item Code\", COUNT(*) AS n_all, AVG(profit) AS avgp_all, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct_all, SUM(vol * profit) AS tot_all FROM summer_sales GROUP BY \"Item Code\") SELECT pi.\"Item Code\", p.\"Item Name\", ROUND(pi.vol_0630, 2) AS vol_0630, y.n22, ROUND(y.avgp22, 3) AS avgp22, ROUND(y.pct22, 1) AS pct22, ROUND(y.tot22, 2) AS tot22, a.n_all, ROUND(a.avgp_all, 3) AS avgp_all, ROUND(a.pct_all, 1) AS pct_all, ROUND(a.tot_all, 2) AS tot_all, ROUND(pl.\"Loss Rate (%)\", 2) AS loss_rate FROM proc_items AS pi LEFT JOIN product_information AS p ON pi.\"Item Code\" = p.\"Item Code\" LEFT JOIN y2022 AS y ON pi.\"Item Code\" = y.\"Item Code\" LEFT JOIN allsum AS a ON pi.\"Item Code\" = a.\"Item Code\" LEFT JOIN product_loss AS pl ON pi.\"Item Code\" = pl.\"Item Code\" ORDER BY COALESCE(y.avgp22, 999) ASC, COALESCE(a.avgp_all, 999) ASC",
+          "time": 1788864965.455615,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Sales volume (kg)\" AS vol, s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, STRFTIME('%Y', s.\"Sales Date\") AS yr, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" / (1.0 - pl.\"Loss Rate (%)\" / 100.0) AS profit FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL), y2022 AS (SELECT \"Item Code\", COUNT(*) AS n22, AVG(profit) AS avgp22, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct22, SUM(vol * profit) AS tot22 FROM summer_sales WHERE yr = '2022' GROUP BY \"Item Code\"), allsum AS (SELECT \"Item Code\", COUNT(*) AS n_all, AVG(profit) AS avgp_all, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct_all, SUM(vol * profit) AS tot_all FROM summer_sales GROUP BY \"Item Code\") SELECT pi.\"Item Code\", p.\"Item Name\", ROUND(pi.vol_0630, 2) AS vol_0630, y.n22, ROUND(y.avgp22, 3) AS avgp22, ROUND(y.pct22, 1) AS pct22, ROUND(y.tot22, 2) AS tot22, a.n_all, ROUND(a.avgp_all, 3) AS avgp_all, ROUND(a.pct_all, 1) AS pct_all, ROUND(a.tot_all, 2) AS tot_all, ROUND(pl.\"Loss Rate (%)\", 2) AS loss_rate FROM proc_items AS pi LEFT JOIN product_information AS p ON pi.\"Item Code\" = p.\"Item Code\" LEFT JOIN y2022 AS y ON pi.\"Item Code\" = y.\"Item Code\" LEFT JOIN allsum AS a ON pi.\"Item Code\" = a.\"Item Code\" LEFT JOIN product_loss AS pl ON pi.\"Item Code\" = pl.\"Item Code\" ORDER BY COALESCE(y.avgp22, 999) ASC, COALESCE(a.avgp_all, 999) ASC",
+          "time": 1788864998.7438366,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Sales volume (kg)\" AS vol, s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, STRFTIME('%Y', s.\"Sales Date\") AS yr, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" / (1.0 - pl.\"Loss Rate (%)\" / 100.0) AS profit FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL), y2022 AS (SELECT \"Item Code\", COUNT(*) AS n22, AVG(profit) AS avgp22, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct22, SUM(vol * profit) AS tot22 FROM summer_sales WHERE yr = '2022' GROUP BY \"Item Code\") SELECT pi.\"Item Code\", p.\"Item Name\", ROUND(pi.vol_0630, 2) AS vol_0630, y.n22, ROUND(y.avgp22, 3) AS avgp22, ROUND(y.pct22, 1) AS pct22, ROUND(y.tot22, 2) AS tot22 FROM proc_items AS pi LEFT JOIN product_information AS p ON pi.\"Item Code\" = p.\"Item Code\" LEFT JOIN y2022 AS y ON pi.\"Item Code\" = y.\"Item Code\" ORDER BY COALESCE(y.avgp22, 999) ASC",
+          "time": 1788865031.8600214,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Sales volume (kg)\" AS vol, s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, STRFTIME('%Y', s.\"Sales Date\") AS yr, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" / (1.0 - pl.\"Loss Rate (%)\" / 100.0) AS profit FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL), y2022 AS (SELECT \"Item Code\", COUNT(*) AS n22, AVG(profit) AS avgp22, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct22, SUM(vol * profit) AS tot22 FROM summer_sales WHERE yr = '2022' GROUP BY \"Item Code\") SELECT pi.\"Item Code\", p.\"Item Name\", ROUND(pi.vol_0630, 2) AS vol_0630, y.n22, ROUND(y.avgp22, 3) AS avgp22, ROUND(y.pct22, 1) AS pct22, ROUND(y.tot22, 2) AS tot22 FROM proc_items AS pi LEFT JOIN product_information AS p ON pi.\"Item Code\" = p.\"Item Code\" LEFT JOIN y2022 AS y ON pi.\"Item Code\" = y.\"Item Code\" ORDER BY COALESCE(y.avgp22, 999) ASC",
+          "time": 1788865041.7198846,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 142.2661393880844,
+      "intermediate_rows": 39,
+      "intermediate_columns": [
+        "Item Code",
+        "vol_0630"
+      ],
+      "validation_ended_at": 1788865051.579974,
+      "checks": [
+        {
+          "sql_id": "S65",
+          "rewritten_sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Sales volume (kg)\" AS vol, s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, STRFTIME('%Y', s.\"Sales Date\") AS yr, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" / (1.0 - pl.\"Loss Rate (%)\" / 100.0) AS profit FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL), y2022 AS (SELECT \"Item Code\", COUNT(*) AS n22, AVG(profit) AS avgp22, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct22, SUM(vol * profit) AS tot22 FROM summer_sales WHERE yr = '2022' GROUP BY \"Item Code\"), allsum AS (SELECT \"Item Code\", COUNT(*) AS n_all, AVG(profit) AS avgp_all, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct_all, SUM(vol * profit) AS tot_all FROM summer_sales GROUP BY \"Item Code\") SELECT pi.\"Item Code\", p.\"Item Name\", ROUND(pi.vol_0630, 2) AS vol_0630, y.n22, ROUND(y.avgp22, 3) AS avgp22, ROUND(y.pct22, 1) AS pct22, ROUND(y.tot22, 2) AS tot22, a.n_all, ROUND(a.avgp_all, 3) AS avgp_all, ROUND(a.pct_all, 1) AS pct_all, ROUND(a.tot_all, 2) AS tot_all, ROUND(pl.\"Loss Rate (%)\", 2) AS loss_rate FROM proc_items AS pi LEFT JOIN product_information AS p ON pi.\"Item Code\" = p.\"Item Code\" LEFT JOIN y2022 AS y ON pi.\"Item Code\" = y.\"Item Code\" LEFT JOIN allsum AS a ON pi.\"Item Code\" = a.\"Item Code\" LEFT JOIN product_loss AS pl ON pi.\"Item Code\" = pl.\"Item Code\" ORDER BY COALESCE(y.avgp22, 999) ASC, COALESCE(a.avgp_all, 999) ASC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 33288.6804100126
+        },
+        {
+          "sql_id": "S66",
+          "rewritten_sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Sales volume (kg)\" AS vol, s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, STRFTIME('%Y', s.\"Sales Date\") AS yr, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" / (1.0 - pl.\"Loss Rate (%)\" / 100.0) AS profit FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL), y2022 AS (SELECT \"Item Code\", COUNT(*) AS n22, AVG(profit) AS avgp22, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct22, SUM(vol * profit) AS tot22 FROM summer_sales WHERE yr = '2022' GROUP BY \"Item Code\"), allsum AS (SELECT \"Item Code\", COUNT(*) AS n_all, AVG(profit) AS avgp_all, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct_all, SUM(vol * profit) AS tot_all FROM summer_sales GROUP BY \"Item Code\") SELECT pi.\"Item Code\", p.\"Item Name\", ROUND(pi.vol_0630, 2) AS vol_0630, y.n22, ROUND(y.avgp22, 3) AS avgp22, ROUND(y.pct22, 1) AS pct22, ROUND(y.tot22, 2) AS tot22, a.n_all, ROUND(a.avgp_all, 3) AS avgp_all, ROUND(a.pct_all, 1) AS pct_all, ROUND(a.tot_all, 2) AS tot_all, ROUND(pl.\"Loss Rate (%)\", 2) AS loss_rate FROM proc_items AS pi LEFT JOIN product_information AS p ON pi.\"Item Code\" = p.\"Item Code\" LEFT JOIN y2022 AS y ON pi.\"Item Code\" = y.\"Item Code\" LEFT JOIN allsum AS a ON pi.\"Item Code\" = a.\"Item Code\" LEFT JOIN product_loss AS pl ON pi.\"Item Code\" = pl.\"Item Code\" ORDER BY COALESCE(y.avgp22, 999) ASC, COALESCE(a.avgp_all, 999) ASC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 33115.807180292904
+        },
+        {
+          "sql_id": "S67",
+          "rewritten_sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Sales volume (kg)\" AS vol, s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, STRFTIME('%Y', s.\"Sales Date\") AS yr, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" / (1.0 - pl.\"Loss Rate (%)\" / 100.0) AS profit FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL), y2022 AS (SELECT \"Item Code\", COUNT(*) AS n22, AVG(profit) AS avgp22, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct22, SUM(vol * profit) AS tot22 FROM summer_sales WHERE yr = '2022' GROUP BY \"Item Code\") SELECT pi.\"Item Code\", p.\"Item Name\", ROUND(pi.vol_0630, 2) AS vol_0630, y.n22, ROUND(y.avgp22, 3) AS avgp22, ROUND(y.pct22, 1) AS pct22, ROUND(y.tot22, 2) AS tot22 FROM proc_items AS pi LEFT JOIN product_information AS p ON pi.\"Item Code\" = p.\"Item Code\" LEFT JOIN y2022 AS y ON pi.\"Item Code\" = y.\"Item Code\" ORDER BY COALESCE(y.avgp22, 999) ASC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 9860.21926626563
+        },
+        {
+          "sql_id": "S68",
+          "rewritten_sql": "WITH proc_items AS (SELECT * FROM temp.reuse_candidate), summer_sales AS (SELECT s.\"Item Code\", s.\"Sales volume (kg)\" AS vol, s.\"Unit price (yuan/kg)\" AS up, pp.\"Wholesale price (yuan/kg)\" AS wp, pl.\"Loss Rate (%)\" AS lr, STRFTIME('%Y', s.\"Sales Date\") AS yr, s.\"Unit price (yuan/kg)\" - pp.\"Wholesale price (yuan/kg)\" / (1.0 - pl.\"Loss Rate (%)\" / 100.0) AS profit FROM sales_records AS s JOIN proc_items AS pi ON s.\"Item Code\" = pi.\"Item Code\" LEFT JOIN purchase_price AS pp ON s.\"Item Code\" = pp.\"Item Code\" AND DATE(s.\"Sales Date\") = DATE(pp.\"Date\") LEFT JOIN product_loss AS pl ON s.\"Item Code\" = pl.\"Item Code\" WHERE s.\"Sales type\" = 'Sale' AND ((s.\"Sales Date\" >= '2020-07-01' AND s.\"Sales Date\" < '2020-09-01') OR (s.\"Sales Date\" >= '2021-06-01' AND s.\"Sales Date\" < '2021-09-01') OR (s.\"Sales Date\" >= '2022-06-01' AND s.\"Sales Date\" < '2022-09-01')) AND NOT pp.\"Wholesale price (yuan/kg)\" IS NULL AND NOT pl.\"Loss Rate (%)\" IS NULL), y2022 AS (SELECT \"Item Code\", COUNT(*) AS n22, AVG(profit) AS avgp22, SUM(CASE WHEN profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct22, SUM(vol * profit) AS tot22 FROM summer_sales WHERE yr = '2022' GROUP BY \"Item Code\") SELECT pi.\"Item Code\", p.\"Item Name\", ROUND(pi.vol_0630, 2) AS vol_0630, y.n22, ROUND(y.avgp22, 3) AS avgp22, ROUND(y.pct22, 1) AS pct22, ROUND(y.tot22, 2) AS tot22 FROM proc_items AS pi LEFT JOIN product_information AS p ON pi.\"Item Code\" = p.\"Item Code\" LEFT JOIN y2022 AS y ON pi.\"Item Code\" = y.\"Item Code\" ORDER BY COALESCE(y.avgp22, 999) ASC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 9859.840453602374
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT \"Item Code\", \"Wholesale price (yuan/kg)\" AS wp FROM purchase_price WHERE (\"Item Code\", \"Date\") IN (SELECT \"Item Code\", MAX(\"Date\") FROM purchase_price GROUP BY \"Item Code\")",
+      "covered": [
+        "S70",
+        "S74"
+      ],
+      "rewrites": {
+        "S70": "WITH last_price AS (SELECT * FROM temp.reuse_candidate), day_sales AS (SELECT s.\"Item Code\", SUM(s.\"Sales volume (kg)\") AS vol, AVG(s.\"Unit price (yuan/kg)\") AS avg_up FROM sales_records AS s WHERE DATE(s.\"Sales Date\") = '2023-06-30' AND s.\"Sales type\" = 'Sale' GROUP BY s.\"Item Code\") SELECT ds.\"Item Code\", p.\"Item Name\", ROUND(ds.vol, 2) AS proc_vol_kg, ROUND(lp.wp, 2) AS last_wholesale, ROUND(pl.\"Loss Rate (%)\", 2) AS loss_rate, ROUND(lp.wp / (1.0 - pl.\"Loss Rate (%)\" / 100.0), 2) AS eff_cost, ROUND(ds.avg_up, 2) AS avg_sell_price, ROUND(ds.vol * (ds.avg_up - lp.wp / (1.0 - pl.\"Loss Rate (%)\" / 100.0)), 2) AS expected_pnl_0701 FROM day_sales AS ds LEFT JOIN last_price AS lp ON ds.\"Item Code\" = lp.\"Item Code\" LEFT JOIN product_information AS p ON ds.\"Item Code\" = p.\"Item Code\" LEFT JOIN product_loss AS pl ON ds.\"Item Code\" = pl.\"Item Code\" WHERE NOT lp.wp IS NULL ORDER BY expected_pnl_0701 ASC LIMIT 10",
+        "S74": "WITH last_price AS (SELECT * FROM temp.reuse_candidate), day_sales AS (SELECT s.\"Item Code\", SUM(s.\"Sales volume (kg)\") AS vol, AVG(s.\"Unit price (yuan/kg)\") AS avg_up FROM sales_records AS s WHERE DATE(s.\"Sales Date\") = '2023-06-30' AND s.\"Sales type\" = 'Sale' GROUP BY s.\"Item Code\") SELECT ds.\"Item Code\", p.\"Item Name\", ROUND(ds.vol, 2) AS proc_vol_kg, ROUND(ds.avg_up, 2) AS avg_sell_price, ROUND(lp.wp / (1.0 - pl.\"Loss Rate (%)\" / 100.0), 2) AS eff_cost, ROUND(ds.vol * (ds.avg_up - lp.wp / (1.0 - pl.\"Loss Rate (%)\" / 100.0)), 2) AS expected_pnl_0701 FROM day_sales AS ds LEFT JOIN last_price AS lp ON ds.\"Item Code\" = lp.\"Item Code\" LEFT JOIN product_information AS p ON ds.\"Item Code\" = p.\"Item Code\" LEFT JOIN product_loss AS pl ON ds.\"Item Code\" = pl.\"Item Code\" WHERE NOT lp.wp IS NULL ORDER BY expected_pnl_0701 ASC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S70",
+      "later_reuses": 1,
+      "denominator": 75,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT s.\"Item Code\", SUM(s.\"Sales volume (kg)\") AS vol, AVG(s.\"Unit price (yuan/kg)\") AS avg_up FROM sales_records AS s WHERE DATE(s.\"Sales Date\") = '2023-06-30' AND s.\"Sales type\" = 'Sale' GROUP BY s.\"Item Code\"",
+      "covered": [
+        "S70",
+        "S74"
+      ],
+      "rewrites": {
+        "S70": "WITH last_price AS (SELECT \"Item Code\", \"Wholesale price (yuan/kg)\" AS wp FROM purchase_price WHERE (\"Item Code\", \"Date\") IN (SELECT \"Item Code\", MAX(\"Date\") FROM purchase_price GROUP BY \"Item Code\")), day_sales AS (SELECT * FROM temp.reuse_candidate) SELECT ds.\"Item Code\", p.\"Item Name\", ROUND(ds.vol, 2) AS proc_vol_kg, ROUND(lp.wp, 2) AS last_wholesale, ROUND(pl.\"Loss Rate (%)\", 2) AS loss_rate, ROUND(lp.wp / (1.0 - pl.\"Loss Rate (%)\" / 100.0), 2) AS eff_cost, ROUND(ds.avg_up, 2) AS avg_sell_price, ROUND(ds.vol * (ds.avg_up - lp.wp / (1.0 - pl.\"Loss Rate (%)\" / 100.0)), 2) AS expected_pnl_0701 FROM day_sales AS ds LEFT JOIN last_price AS lp ON ds.\"Item Code\" = lp.\"Item Code\" LEFT JOIN product_information AS p ON ds.\"Item Code\" = p.\"Item Code\" LEFT JOIN product_loss AS pl ON ds.\"Item Code\" = pl.\"Item Code\" WHERE NOT lp.wp IS NULL ORDER BY expected_pnl_0701 ASC LIMIT 10",
+        "S74": "WITH last_price AS (SELECT \"Item Code\", \"Wholesale price (yuan/kg)\" AS wp FROM purchase_price WHERE (\"Item Code\", \"Date\") IN (SELECT \"Item Code\", MAX(\"Date\") FROM purchase_price GROUP BY \"Item Code\")), day_sales AS (SELECT * FROM temp.reuse_candidate) SELECT ds.\"Item Code\", p.\"Item Name\", ROUND(ds.vol, 2) AS proc_vol_kg, ROUND(ds.avg_up, 2) AS avg_sell_price, ROUND(lp.wp / (1.0 - pl.\"Loss Rate (%)\" / 100.0), 2) AS eff_cost, ROUND(ds.vol * (ds.avg_up - lp.wp / (1.0 - pl.\"Loss Rate (%)\" / 100.0)), 2) AS expected_pnl_0701 FROM day_sales AS ds LEFT JOIN last_price AS lp ON ds.\"Item Code\" = lp.\"Item Code\" LEFT JOIN product_information AS p ON ds.\"Item Code\" = p.\"Item Code\" LEFT JOIN product_loss AS pl ON ds.\"Item Code\" = pl.\"Item Code\" WHERE NOT lp.wp IS NULL ORDER BY expected_pnl_0701 ASC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C6",
+      "offline": true,
+      "earliest_build_before": "S70",
+      "later_reuses": 1,
+      "denominator": 75,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"purchase_price\" WHERE \"Item Code\" = 102900005115823 AND \"Date\" >= '2022-06-01' AND \"Date\" < '2022-09-01'",
+      "covered": [
+        "S27",
+        "S28"
+      ],
+      "rewrites": {
+        "S27": "SELECT * FROM temp.reuse_candidate AS purchase_price WHERE \"Item Code\" = 102900005115823 AND \"Date\" >= '2022-06-01' AND \"Date\" < '2022-09-01' ORDER BY \"Date\" LIMIT 10",
+        "S28": "SELECT \"Date\", AVG(\"Wholesale price (yuan/kg)\") AS avg_wholesale FROM temp.reuse_candidate AS purchase_price WHERE \"Item Code\" = 102900005115823 AND \"Date\" >= '2022-06-01' AND \"Date\" < '2022-09-01' GROUP BY \"Date\" ORDER BY \"Date\""
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C7",
+      "offline": true,
+      "earliest_build_before": "S27",
+      "later_reuses": 1,
+      "denominator": 75,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"sales_records\" WHERE \"Item Code\" = 102900011032732 AND DATE(\"Sales Date\") = '2023-06-30'",
+      "covered": [
+        "S45",
+        "S62"
+      ],
+      "rewrites": {
+        "S45": "SELECT * FROM temp.reuse_candidate AS sales_records WHERE \"Item Code\" = 102900011032732 AND DATE(\"Sales Date\") = '2023-06-30'",
+        "S62": "SELECT DATE(\"Sales Date\") AS d, \"Unit price (yuan/kg)\", \"Sales volume (kg)\", \"Whether sold at a discount\" FROM temp.reuse_candidate AS sales_records WHERE \"Item Code\" = 102900011032732 AND DATE(\"Sales Date\") = '2023-06-30'"
+      },
+      "status": "not_verified_cap",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C8",
+      "offline": true,
+      "earliest_build_before": "S45",
+      "later_reuses": 1,
+      "denominator": 75,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

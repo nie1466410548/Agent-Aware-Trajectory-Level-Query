@@ -1,0 +1,552 @@
+{
+  "fingerprint": "820a9d9f8693ae9381f7b60bfe61c2340d83c80e3e6001e26d4763ed719a49e2",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S7",
+      "covered": [
+        "S7",
+        "S21"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S7",
+      "later_reuses": 1,
+      "denominator": 20,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id",
+      "covered": [
+        "S13",
+        "S14",
+        "S17",
+        "S18",
+        "S19"
+      ],
+      "rewrites": {
+        "S13": "WITH rep_geo AS (SELECT * FROM temp.reuse_candidate), rep_cust AS (SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id) SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, rc.num_customers * 0.3 AS term1, (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 AS term2, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END AS term3, (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS term4, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id ORDER BY workload_score DESC LIMIT 20",
+        "S14": "WITH rep_geo AS (SELECT * FROM temp.reuse_candidate), rep_cust AS (SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id), scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id) SELECT COUNT(*) AS n, ROUND(AVG(workload_score), 4) AS avg_ws, ROUND(AVG(workload_score) * 1.0, 4) AS mean_ws, ROUND(SUM((workload_score - (SELECT AVG(workload_score) FROM scores)) * (workload_score - (SELECT AVG(workload_score) FROM scores))) / (COUNT(*) - 1.0), 4) AS variance_ws, ROUND(SQRT(SUM((workload_score - (SELECT AVG(workload_score) FROM scores)) * (workload_score - (SELECT AVG(workload_score) FROM scores))) / (COUNT(*) - 1.0)), 4) AS stddev_ws, ROUND(MIN(workload_score), 4) AS min_ws, ROUND(MAX(workload_score), 4) AS max_ws, ROUND((SELECT AVG(workload_score) FROM scores) * 0.3, 4) AS threshold FROM scores",
+        "S17": "WITH rep_geo AS (SELECT * FROM temp.reuse_candidate), rep_cust AS (SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.rep_name, spd.win_rate_pct / 100.0 AS win_rate, spd.avg_deal_size_usd, spd.avg_sales_cycle_days, spd.close_rate_pct / 100.0 AS opp_conversion_rate, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ws.owner_id, spd.rep_name, ws.workload_score, es.efficiency_score, es.win_rate, es.avg_deal_size_usd, es.avg_sales_cycle_days, es.opp_conversion_rate, ws.num_customers, ws.total_annual_revenue, ws.coverage_rate_capped, ws.distinct_states, ws.distinct_cities FROM workload_scores AS ws JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id JOIN salesforce__sales_performance_dashboard AS spd ON ws.owner_id = spd.owner_id ORDER BY ws.workload_score DESC LIMIT 20",
+        "S18": "WITH rep_geo AS (SELECT * FROM temp.reuse_candidate), rep_cust AS (SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ROUND(AVG(ws.workload_score), 4) AS avg_workload, ROUND(SQRT(SUM((ws.workload_score - avg_sub.avg_ws) * (ws.workload_score - avg_sub.avg_ws)) / (COUNT(*) - 1.0)), 4) AS std_workload, ROUND(AVG(es.efficiency_score), 4) AS avg_efficiency, ROUND(SQRT(SUM((es.efficiency_score - avg_sub2.avg_es) * (es.efficiency_score - avg_sub2.avg_es)) / (COUNT(*) - 1.0)), 4) AS std_efficiency, ROUND(AVG(ws.workload_score) * 0.3, 4) AS ws_threshold, ROUND(AVG(ws.workload_score) * 0.15, 4) AS ws_15pct FROM workload_scores AS ws CROSS JOIN (SELECT AVG(workload_score) AS avg_ws FROM workload_scores) AS avg_sub CROSS JOIN (SELECT AVG(efficiency_score) AS avg_es FROM efficiency_scores) AS avg_sub2 JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id",
+        "S19": "WITH rep_geo AS (SELECT * FROM temp.reuse_candidate), rep_cust AS (SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.rep_name, spd.manager_id, spd.win_rate_pct / 100.0 AS win_rate, spd.avg_deal_size_usd, spd.avg_sales_cycle_days, spd.close_rate_pct / 100.0 AS opp_conversion_rate, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ws.owner_id, spd.rep_name, spd.manager_id, ws.workload_score, es.efficiency_score, ws.num_customers, ws.total_annual_revenue, ws.coverage_rate_capped, ws.distinct_states, ws.distinct_cities, es.win_rate, es.avg_deal_size_usd, es.avg_sales_cycle_days, es.opp_conversion_rate FROM workload_scores AS ws JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id JOIN salesforce__sales_performance_dashboard AS spd ON ws.owner_id = spd.owner_id ORDER BY ws.workload_score DESC LIMIT 1000"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S13",
+      "later_reuses": 4,
+      "denominator": 20,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788870341.1861882,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id",
+          "phase": "offline_validation",
+          "start_time": 1788870341.186465,
+          "status": "execute_returned",
+          "end_time": 1788870341.1976564
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870341.197662,
+          "status": "execute_returned",
+          "end_time": 1788870341.1976857
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788870341.197692,
+          "status": "execute_returned",
+          "end_time": 1788870341.1977124
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH rep_geo AS (SELECT * FROM temp.reuse_candidate), rep_cust AS (SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id) SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, rc.num_customers * 0.3 AS term1, (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 AS term2, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END AS term3, (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS term4, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id ORDER BY workload_score DESC LIMIT 20",
+          "phase": "offline_validation",
+          "start_time": 1788870341.1977232,
+          "status": "execute_returned",
+          "end_time": 1788870341.2728927
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH rep_geo AS (SELECT * FROM temp.reuse_candidate), rep_cust AS (SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id), scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id) SELECT COUNT(*) AS n, ROUND(AVG(workload_score), 4) AS avg_ws, ROUND(AVG(workload_score) * 1.0, 4) AS mean_ws, ROUND(SUM((workload_score - (SELECT AVG(workload_score) FROM scores)) * (workload_score - (SELECT AVG(workload_score) FROM scores))) / (COUNT(*) - 1.0), 4) AS variance_ws, ROUND(SQRT(SUM((workload_score - (SELECT AVG(workload_score) FROM scores)) * (workload_score - (SELECT AVG(workload_score) FROM scores))) / (COUNT(*) - 1.0)), 4) AS stddev_ws, ROUND(MIN(workload_score), 4) AS min_ws, ROUND(MAX(workload_score), 4) AS max_ws, ROUND((SELECT AVG(workload_score) FROM scores) * 0.3, 4) AS threshold FROM scores",
+          "phase": "offline_validation",
+          "start_time": 1788870341.2783728,
+          "status": "execute_returned",
+          "end_time": 1788870341.2942808
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH rep_geo AS (SELECT * FROM temp.reuse_candidate), rep_cust AS (SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.rep_name, spd.win_rate_pct / 100.0 AS win_rate, spd.avg_deal_size_usd, spd.avg_sales_cycle_days, spd.close_rate_pct / 100.0 AS opp_conversion_rate, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ws.owner_id, spd.rep_name, ws.workload_score, es.efficiency_score, es.win_rate, es.avg_deal_size_usd, es.avg_sales_cycle_days, es.opp_conversion_rate, ws.num_customers, ws.total_annual_revenue, ws.coverage_rate_capped, ws.distinct_states, ws.distinct_cities FROM workload_scores AS ws JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id JOIN salesforce__sales_performance_dashboard AS spd ON ws.owner_id = spd.owner_id ORDER BY ws.workload_score DESC LIMIT 20",
+          "phase": "offline_validation",
+          "start_time": 1788870341.300322,
+          "status": "execute_returned",
+          "end_time": 1788870341.310819
+        },
+        {
+          "sequence": 7,
+          "sql": "WITH rep_geo AS (SELECT * FROM temp.reuse_candidate), rep_cust AS (SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ROUND(AVG(ws.workload_score), 4) AS avg_workload, ROUND(SQRT(SUM((ws.workload_score - avg_sub.avg_ws) * (ws.workload_score - avg_sub.avg_ws)) / (COUNT(*) - 1.0)), 4) AS std_workload, ROUND(AVG(es.efficiency_score), 4) AS avg_efficiency, ROUND(SQRT(SUM((es.efficiency_score - avg_sub2.avg_es) * (es.efficiency_score - avg_sub2.avg_es)) / (COUNT(*) - 1.0)), 4) AS std_efficiency, ROUND(AVG(ws.workload_score) * 0.3, 4) AS ws_threshold, ROUND(AVG(ws.workload_score) * 0.15, 4) AS ws_15pct FROM workload_scores AS ws CROSS JOIN (SELECT AVG(workload_score) AS avg_ws FROM workload_scores) AS avg_sub CROSS JOIN (SELECT AVG(efficiency_score) AS avg_es FROM efficiency_scores) AS avg_sub2 JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id",
+          "phase": "offline_validation",
+          "start_time": 1788870341.3162794,
+          "status": "execute_returned",
+          "end_time": 1788870341.3286011
+        },
+        {
+          "sequence": 8,
+          "sql": "WITH rep_geo AS (SELECT * FROM temp.reuse_candidate), rep_cust AS (SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.rep_name, spd.manager_id, spd.win_rate_pct / 100.0 AS win_rate, spd.avg_deal_size_usd, spd.avg_sales_cycle_days, spd.close_rate_pct / 100.0 AS opp_conversion_rate, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ws.owner_id, spd.rep_name, spd.manager_id, ws.workload_score, es.efficiency_score, ws.num_customers, ws.total_annual_revenue, ws.coverage_rate_capped, ws.distinct_states, ws.distinct_cities, es.win_rate, es.avg_deal_size_usd, es.avg_sales_cycle_days, es.opp_conversion_rate FROM workload_scores AS ws JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id JOIN salesforce__sales_performance_dashboard AS spd ON ws.owner_id = spd.owner_id ORDER BY ws.workload_score DESC LIMIT 1000",
+          "phase": "offline_validation",
+          "start_time": 1788870341.3352017,
+          "status": "execute_returned",
+          "end_time": 1788870341.34754
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id",
+          "time": 1788870341.1868882,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788870341.197682,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788870341.1977093,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH rep_geo AS (SELECT * FROM temp.reuse_candidate), rep_cust AS (SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id) SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, rc.num_customers * 0.3 AS term1, (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 AS term2, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END AS term3, (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS term4, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id ORDER BY workload_score DESC LIMIT 20",
+          "time": 1788870341.1978722,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH rep_geo AS (SELECT * FROM temp.reuse_candidate), rep_cust AS (SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id), scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id) SELECT COUNT(*) AS n, ROUND(AVG(workload_score), 4) AS avg_ws, ROUND(AVG(workload_score) * 1.0, 4) AS mean_ws, ROUND(SUM((workload_score - (SELECT AVG(workload_score) FROM scores)) * (workload_score - (SELECT AVG(workload_score) FROM scores))) / (COUNT(*) - 1.0), 4) AS variance_ws, ROUND(SQRT(SUM((workload_score - (SELECT AVG(workload_score) FROM scores)) * (workload_score - (SELECT AVG(workload_score) FROM scores))) / (COUNT(*) - 1.0)), 4) AS stddev_ws, ROUND(MIN(workload_score), 4) AS min_ws, ROUND(MAX(workload_score), 4) AS max_ws, ROUND((SELECT AVG(workload_score) FROM scores) * 0.3, 4) AS threshold FROM scores",
+          "time": 1788870341.2791753,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH rep_geo AS (SELECT * FROM temp.reuse_candidate), rep_cust AS (SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.rep_name, spd.win_rate_pct / 100.0 AS win_rate, spd.avg_deal_size_usd, spd.avg_sales_cycle_days, spd.close_rate_pct / 100.0 AS opp_conversion_rate, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ws.owner_id, spd.rep_name, ws.workload_score, es.efficiency_score, es.win_rate, es.avg_deal_size_usd, es.avg_sales_cycle_days, es.opp_conversion_rate, ws.num_customers, ws.total_annual_revenue, ws.coverage_rate_capped, ws.distinct_states, ws.distinct_cities FROM workload_scores AS ws JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id JOIN salesforce__sales_performance_dashboard AS spd ON ws.owner_id = spd.owner_id ORDER BY ws.workload_score DESC LIMIT 20",
+          "time": 1788870341.300653,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH rep_geo AS (SELECT * FROM temp.reuse_candidate), rep_cust AS (SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ROUND(AVG(ws.workload_score), 4) AS avg_workload, ROUND(SQRT(SUM((ws.workload_score - avg_sub.avg_ws) * (ws.workload_score - avg_sub.avg_ws)) / (COUNT(*) - 1.0)), 4) AS std_workload, ROUND(AVG(es.efficiency_score), 4) AS avg_efficiency, ROUND(SQRT(SUM((es.efficiency_score - avg_sub2.avg_es) * (es.efficiency_score - avg_sub2.avg_es)) / (COUNT(*) - 1.0)), 4) AS std_efficiency, ROUND(AVG(ws.workload_score) * 0.3, 4) AS ws_threshold, ROUND(AVG(ws.workload_score) * 0.15, 4) AS ws_15pct FROM workload_scores AS ws CROSS JOIN (SELECT AVG(workload_score) AS avg_ws FROM workload_scores) AS avg_sub CROSS JOIN (SELECT AVG(efficiency_score) AS avg_es FROM efficiency_scores) AS avg_sub2 JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id",
+          "time": 1788870341.3167531,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH rep_geo AS (SELECT * FROM temp.reuse_candidate), rep_cust AS (SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.rep_name, spd.manager_id, spd.win_rate_pct / 100.0 AS win_rate, spd.avg_deal_size_usd, spd.avg_sales_cycle_days, spd.close_rate_pct / 100.0 AS opp_conversion_rate, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ws.owner_id, spd.rep_name, spd.manager_id, ws.workload_score, es.efficiency_score, ws.num_customers, ws.total_annual_revenue, ws.coverage_rate_capped, ws.distinct_states, ws.distinct_cities, es.win_rate, es.avg_deal_size_usd, es.avg_sales_cycle_days, es.opp_conversion_rate FROM workload_scores AS ws JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id JOIN salesforce__sales_performance_dashboard AS spd ON ws.owner_id = spd.owner_id ORDER BY ws.workload_score DESC LIMIT 1000",
+          "time": 1788870341.335507,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 11.195612139999866,
+      "intermediate_rows": 1000,
+      "intermediate_columns": [
+        "owner_id",
+        "distinct_states",
+        "distinct_cities"
+      ],
+      "validation_ended_at": 1788870341.3639998,
+      "checks": [
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "WITH rep_geo AS (SELECT * FROM temp.reuse_candidate), rep_cust AS (SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id) SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, rc.num_customers * 0.3 AS term1, (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 AS term2, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END AS term3, (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS term4, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id ORDER BY workload_score DESC LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 80.64569998532534
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "WITH rep_geo AS (SELECT * FROM temp.reuse_candidate), rep_cust AS (SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id), scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id) SELECT COUNT(*) AS n, ROUND(AVG(workload_score), 4) AS avg_ws, ROUND(AVG(workload_score) * 1.0, 4) AS mean_ws, ROUND(SUM((workload_score - (SELECT AVG(workload_score) FROM scores)) * (workload_score - (SELECT AVG(workload_score) FROM scores))) / (COUNT(*) - 1.0), 4) AS variance_ws, ROUND(SQRT(SUM((workload_score - (SELECT AVG(workload_score) FROM scores)) * (workload_score - (SELECT AVG(workload_score) FROM scores))) / (COUNT(*) - 1.0)), 4) AS stddev_ws, ROUND(MIN(workload_score), 4) AS min_ws, ROUND(MAX(workload_score), 4) AS max_ws, ROUND((SELECT AVG(workload_score) FROM scores) * 0.3, 4) AS threshold FROM scores",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 21.945951506495476
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "WITH rep_geo AS (SELECT * FROM temp.reuse_candidate), rep_cust AS (SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.rep_name, spd.win_rate_pct / 100.0 AS win_rate, spd.avg_deal_size_usd, spd.avg_sales_cycle_days, spd.close_rate_pct / 100.0 AS opp_conversion_rate, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ws.owner_id, spd.rep_name, ws.workload_score, es.efficiency_score, es.win_rate, es.avg_deal_size_usd, es.avg_sales_cycle_days, es.opp_conversion_rate, ws.num_customers, ws.total_annual_revenue, ws.coverage_rate_capped, ws.distinct_states, ws.distinct_cities FROM workload_scores AS ws JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id JOIN salesforce__sales_performance_dashboard AS spd ON ws.owner_id = spd.owner_id ORDER BY ws.workload_score DESC LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 15.954449772834778
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "WITH rep_geo AS (SELECT * FROM temp.reuse_candidate), rep_cust AS (SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ROUND(AVG(ws.workload_score), 4) AS avg_workload, ROUND(SQRT(SUM((ws.workload_score - avg_sub.avg_ws) * (ws.workload_score - avg_sub.avg_ws)) / (COUNT(*) - 1.0)), 4) AS std_workload, ROUND(AVG(es.efficiency_score), 4) AS avg_efficiency, ROUND(SQRT(SUM((es.efficiency_score - avg_sub2.avg_es) * (es.efficiency_score - avg_sub2.avg_es)) / (COUNT(*) - 1.0)), 4) AS std_efficiency, ROUND(AVG(ws.workload_score) * 0.3, 4) AS ws_threshold, ROUND(AVG(ws.workload_score) * 0.15, 4) AS ws_15pct FROM workload_scores AS ws CROSS JOIN (SELECT AVG(workload_score) AS avg_ws FROM workload_scores) AS avg_sub CROSS JOIN (SELECT AVG(efficiency_score) AS avg_es FROM efficiency_scores) AS avg_sub2 JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 18.91771052032709
+        },
+        {
+          "sql_id": "S19",
+          "rewritten_sql": "WITH rep_geo AS (SELECT * FROM temp.reuse_candidate), rep_cust AS (SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.rep_name, spd.manager_id, spd.win_rate_pct / 100.0 AS win_rate, spd.avg_deal_size_usd, spd.avg_sales_cycle_days, spd.close_rate_pct / 100.0 AS opp_conversion_rate, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ws.owner_id, spd.rep_name, spd.manager_id, ws.workload_score, es.efficiency_score, ws.num_customers, ws.total_annual_revenue, ws.coverage_rate_capped, ws.distinct_states, ws.distinct_cities, es.win_rate, es.avg_deal_size_usd, es.avg_sales_cycle_days, es.opp_conversion_rate FROM workload_scores AS ws JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id JOIN salesforce__sales_performance_dashboard AS spd ON ws.owner_id = spd.owner_id ORDER BY ws.workload_score DESC LIMIT 1000",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 28.633994050323963
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id",
+      "covered": [
+        "S13",
+        "S14",
+        "S17",
+        "S18",
+        "S19"
+      ],
+      "rewrites": {
+        "S13": "WITH rep_geo AS (SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id), rep_cust AS (SELECT * FROM temp.reuse_candidate) SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, rc.num_customers * 0.3 AS term1, (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 AS term2, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END AS term3, (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS term4, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id ORDER BY workload_score DESC LIMIT 20",
+        "S14": "WITH rep_geo AS (SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id), rep_cust AS (SELECT * FROM temp.reuse_candidate), scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id) SELECT COUNT(*) AS n, ROUND(AVG(workload_score), 4) AS avg_ws, ROUND(AVG(workload_score) * 1.0, 4) AS mean_ws, ROUND(SUM((workload_score - (SELECT AVG(workload_score) FROM scores)) * (workload_score - (SELECT AVG(workload_score) FROM scores))) / (COUNT(*) - 1.0), 4) AS variance_ws, ROUND(SQRT(SUM((workload_score - (SELECT AVG(workload_score) FROM scores)) * (workload_score - (SELECT AVG(workload_score) FROM scores))) / (COUNT(*) - 1.0)), 4) AS stddev_ws, ROUND(MIN(workload_score), 4) AS min_ws, ROUND(MAX(workload_score), 4) AS max_ws, ROUND((SELECT AVG(workload_score) FROM scores) * 0.3, 4) AS threshold FROM scores",
+        "S17": "WITH rep_geo AS (SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id), rep_cust AS (SELECT * FROM temp.reuse_candidate), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.rep_name, spd.win_rate_pct / 100.0 AS win_rate, spd.avg_deal_size_usd, spd.avg_sales_cycle_days, spd.close_rate_pct / 100.0 AS opp_conversion_rate, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ws.owner_id, spd.rep_name, ws.workload_score, es.efficiency_score, es.win_rate, es.avg_deal_size_usd, es.avg_sales_cycle_days, es.opp_conversion_rate, ws.num_customers, ws.total_annual_revenue, ws.coverage_rate_capped, ws.distinct_states, ws.distinct_cities FROM workload_scores AS ws JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id JOIN salesforce__sales_performance_dashboard AS spd ON ws.owner_id = spd.owner_id ORDER BY ws.workload_score DESC LIMIT 20",
+        "S18": "WITH rep_geo AS (SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id), rep_cust AS (SELECT * FROM temp.reuse_candidate), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ROUND(AVG(ws.workload_score), 4) AS avg_workload, ROUND(SQRT(SUM((ws.workload_score - avg_sub.avg_ws) * (ws.workload_score - avg_sub.avg_ws)) / (COUNT(*) - 1.0)), 4) AS std_workload, ROUND(AVG(es.efficiency_score), 4) AS avg_efficiency, ROUND(SQRT(SUM((es.efficiency_score - avg_sub2.avg_es) * (es.efficiency_score - avg_sub2.avg_es)) / (COUNT(*) - 1.0)), 4) AS std_efficiency, ROUND(AVG(ws.workload_score) * 0.3, 4) AS ws_threshold, ROUND(AVG(ws.workload_score) * 0.15, 4) AS ws_15pct FROM workload_scores AS ws CROSS JOIN (SELECT AVG(workload_score) AS avg_ws FROM workload_scores) AS avg_sub CROSS JOIN (SELECT AVG(efficiency_score) AS avg_es FROM efficiency_scores) AS avg_sub2 JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id",
+        "S19": "WITH rep_geo AS (SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id), rep_cust AS (SELECT * FROM temp.reuse_candidate), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.rep_name, spd.manager_id, spd.win_rate_pct / 100.0 AS win_rate, spd.avg_deal_size_usd, spd.avg_sales_cycle_days, spd.close_rate_pct / 100.0 AS opp_conversion_rate, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ws.owner_id, spd.rep_name, spd.manager_id, ws.workload_score, es.efficiency_score, ws.num_customers, ws.total_annual_revenue, ws.coverage_rate_capped, ws.distinct_states, ws.distinct_cities, es.win_rate, es.avg_deal_size_usd, es.avg_sales_cycle_days, es.opp_conversion_rate FROM workload_scores AS ws JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id JOIN salesforce__sales_performance_dashboard AS spd ON ws.owner_id = spd.owner_id ORDER BY ws.workload_score DESC LIMIT 1000"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S13",
+      "later_reuses": 4,
+      "denominator": 20,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788870341.3643265,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id",
+          "phase": "offline_validation",
+          "start_time": 1788870341.3645759,
+          "status": "execute_returned",
+          "end_time": 1788870341.3713193
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870341.371324,
+          "status": "execute_returned",
+          "end_time": 1788870341.3713415
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788870341.371346,
+          "status": "execute_returned",
+          "end_time": 1788870341.3713572
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH rep_geo AS (SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id), rep_cust AS (SELECT * FROM temp.reuse_candidate) SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, rc.num_customers * 0.3 AS term1, (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 AS term2, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END AS term3, (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS term4, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id ORDER BY workload_score DESC LIMIT 20",
+          "phase": "offline_validation",
+          "start_time": 1788870341.3713684,
+          "status": "execute_returned",
+          "end_time": 1788870341.4503024
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH rep_geo AS (SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id), rep_cust AS (SELECT * FROM temp.reuse_candidate), scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id) SELECT COUNT(*) AS n, ROUND(AVG(workload_score), 4) AS avg_ws, ROUND(AVG(workload_score) * 1.0, 4) AS mean_ws, ROUND(SUM((workload_score - (SELECT AVG(workload_score) FROM scores)) * (workload_score - (SELECT AVG(workload_score) FROM scores))) / (COUNT(*) - 1.0), 4) AS variance_ws, ROUND(SQRT(SUM((workload_score - (SELECT AVG(workload_score) FROM scores)) * (workload_score - (SELECT AVG(workload_score) FROM scores))) / (COUNT(*) - 1.0)), 4) AS stddev_ws, ROUND(MIN(workload_score), 4) AS min_ws, ROUND(MAX(workload_score), 4) AS max_ws, ROUND((SELECT AVG(workload_score) FROM scores) * 0.3, 4) AS threshold FROM scores",
+          "phase": "offline_validation",
+          "start_time": 1788870341.4543464,
+          "status": "execute_returned",
+          "end_time": 1788870341.4730177
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH rep_geo AS (SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id), rep_cust AS (SELECT * FROM temp.reuse_candidate), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.rep_name, spd.win_rate_pct / 100.0 AS win_rate, spd.avg_deal_size_usd, spd.avg_sales_cycle_days, spd.close_rate_pct / 100.0 AS opp_conversion_rate, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ws.owner_id, spd.rep_name, ws.workload_score, es.efficiency_score, es.win_rate, es.avg_deal_size_usd, es.avg_sales_cycle_days, es.opp_conversion_rate, ws.num_customers, ws.total_annual_revenue, ws.coverage_rate_capped, ws.distinct_states, ws.distinct_cities FROM workload_scores AS ws JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id JOIN salesforce__sales_performance_dashboard AS spd ON ws.owner_id = spd.owner_id ORDER BY ws.workload_score DESC LIMIT 20",
+          "phase": "offline_validation",
+          "start_time": 1788870341.4790456,
+          "status": "execute_returned",
+          "end_time": 1788870341.4925494
+        },
+        {
+          "sequence": 7,
+          "sql": "WITH rep_geo AS (SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id), rep_cust AS (SELECT * FROM temp.reuse_candidate), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ROUND(AVG(ws.workload_score), 4) AS avg_workload, ROUND(SQRT(SUM((ws.workload_score - avg_sub.avg_ws) * (ws.workload_score - avg_sub.avg_ws)) / (COUNT(*) - 1.0)), 4) AS std_workload, ROUND(AVG(es.efficiency_score), 4) AS avg_efficiency, ROUND(SQRT(SUM((es.efficiency_score - avg_sub2.avg_es) * (es.efficiency_score - avg_sub2.avg_es)) / (COUNT(*) - 1.0)), 4) AS std_efficiency, ROUND(AVG(ws.workload_score) * 0.3, 4) AS ws_threshold, ROUND(AVG(ws.workload_score) * 0.15, 4) AS ws_15pct FROM workload_scores AS ws CROSS JOIN (SELECT AVG(workload_score) AS avg_ws FROM workload_scores) AS avg_sub CROSS JOIN (SELECT AVG(efficiency_score) AS avg_es FROM efficiency_scores) AS avg_sub2 JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id",
+          "phase": "offline_validation",
+          "start_time": 1788870341.497939,
+          "status": "execute_returned",
+          "end_time": 1788870341.5130594
+        },
+        {
+          "sequence": 8,
+          "sql": "WITH rep_geo AS (SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id), rep_cust AS (SELECT * FROM temp.reuse_candidate), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.rep_name, spd.manager_id, spd.win_rate_pct / 100.0 AS win_rate, spd.avg_deal_size_usd, spd.avg_sales_cycle_days, spd.close_rate_pct / 100.0 AS opp_conversion_rate, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ws.owner_id, spd.rep_name, spd.manager_id, ws.workload_score, es.efficiency_score, ws.num_customers, ws.total_annual_revenue, ws.coverage_rate_capped, ws.distinct_states, ws.distinct_cities, es.win_rate, es.avg_deal_size_usd, es.avg_sales_cycle_days, es.opp_conversion_rate FROM workload_scores AS ws JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id JOIN salesforce__sales_performance_dashboard AS spd ON ws.owner_id = spd.owner_id ORDER BY ws.workload_score DESC LIMIT 1000",
+          "phase": "offline_validation",
+          "start_time": 1788870341.5196702,
+          "status": "execute_returned",
+          "end_time": 1788870341.535066
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT owner_id, COUNT(*) AS num_customers, SUM(annual_revenue) AS total_annual_revenue, SUM(total_contacts) AS total_contacts FROM salesforce__customer_360_view GROUP BY owner_id",
+          "time": 1788870341.3648825,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788870341.371338,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788870341.3713546,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH rep_geo AS (SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id), rep_cust AS (SELECT * FROM temp.reuse_candidate) SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, rc.num_customers * 0.3 AS term1, (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 AS term2, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END AS term3, (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS term4, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id ORDER BY workload_score DESC LIMIT 20",
+          "time": 1788870341.3714921,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH rep_geo AS (SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id), rep_cust AS (SELECT * FROM temp.reuse_candidate), scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id) SELECT COUNT(*) AS n, ROUND(AVG(workload_score), 4) AS avg_ws, ROUND(AVG(workload_score) * 1.0, 4) AS mean_ws, ROUND(SUM((workload_score - (SELECT AVG(workload_score) FROM scores)) * (workload_score - (SELECT AVG(workload_score) FROM scores))) / (COUNT(*) - 1.0), 4) AS variance_ws, ROUND(SQRT(SUM((workload_score - (SELECT AVG(workload_score) FROM scores)) * (workload_score - (SELECT AVG(workload_score) FROM scores))) / (COUNT(*) - 1.0)), 4) AS stddev_ws, ROUND(MIN(workload_score), 4) AS min_ws, ROUND(MAX(workload_score), 4) AS max_ws, ROUND((SELECT AVG(workload_score) FROM scores) * 0.3, 4) AS threshold FROM scores",
+          "time": 1788870341.4550717,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH rep_geo AS (SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id), rep_cust AS (SELECT * FROM temp.reuse_candidate), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.rep_name, spd.win_rate_pct / 100.0 AS win_rate, spd.avg_deal_size_usd, spd.avg_sales_cycle_days, spd.close_rate_pct / 100.0 AS opp_conversion_rate, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ws.owner_id, spd.rep_name, ws.workload_score, es.efficiency_score, es.win_rate, es.avg_deal_size_usd, es.avg_sales_cycle_days, es.opp_conversion_rate, ws.num_customers, ws.total_annual_revenue, ws.coverage_rate_capped, ws.distinct_states, ws.distinct_cities FROM workload_scores AS ws JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id JOIN salesforce__sales_performance_dashboard AS spd ON ws.owner_id = spd.owner_id ORDER BY ws.workload_score DESC LIMIT 20",
+          "time": 1788870341.4793522,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH rep_geo AS (SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id), rep_cust AS (SELECT * FROM temp.reuse_candidate), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ROUND(AVG(ws.workload_score), 4) AS avg_workload, ROUND(SQRT(SUM((ws.workload_score - avg_sub.avg_ws) * (ws.workload_score - avg_sub.avg_ws)) / (COUNT(*) - 1.0)), 4) AS std_workload, ROUND(AVG(es.efficiency_score), 4) AS avg_efficiency, ROUND(SQRT(SUM((es.efficiency_score - avg_sub2.avg_es) * (es.efficiency_score - avg_sub2.avg_es)) / (COUNT(*) - 1.0)), 4) AS std_efficiency, ROUND(AVG(ws.workload_score) * 0.3, 4) AS ws_threshold, ROUND(AVG(ws.workload_score) * 0.15, 4) AS ws_15pct FROM workload_scores AS ws CROSS JOIN (SELECT AVG(workload_score) AS avg_ws FROM workload_scores) AS avg_sub CROSS JOIN (SELECT AVG(efficiency_score) AS avg_es FROM efficiency_scores) AS avg_sub2 JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id",
+          "time": 1788870341.4984214,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH rep_geo AS (SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id), rep_cust AS (SELECT * FROM temp.reuse_candidate), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.rep_name, spd.manager_id, spd.win_rate_pct / 100.0 AS win_rate, spd.avg_deal_size_usd, spd.avg_sales_cycle_days, spd.close_rate_pct / 100.0 AS opp_conversion_rate, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ws.owner_id, spd.rep_name, spd.manager_id, ws.workload_score, es.efficiency_score, ws.num_customers, ws.total_annual_revenue, ws.coverage_rate_capped, ws.distinct_states, ws.distinct_cities, es.win_rate, es.avg_deal_size_usd, es.avg_sales_cycle_days, es.opp_conversion_rate FROM workload_scores AS ws JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id JOIN salesforce__sales_performance_dashboard AS spd ON ws.owner_id = spd.owner_id ORDER BY ws.workload_score DESC LIMIT 1000",
+          "time": 1788870341.519968,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 6.747604347765446,
+      "intermediate_rows": 1000,
+      "intermediate_columns": [
+        "owner_id",
+        "num_customers",
+        "total_annual_revenue",
+        "total_contacts"
+      ],
+      "validation_ended_at": 1788870341.551639,
+      "checks": [
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "WITH rep_geo AS (SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id), rep_cust AS (SELECT * FROM temp.reuse_candidate) SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, rc.num_customers * 0.3 AS term1, (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 AS term2, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END AS term3, (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS term4, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id ORDER BY workload_score DESC LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 82.9673632979393
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "WITH rep_geo AS (SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id), rep_cust AS (SELECT * FROM temp.reuse_candidate), scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id) SELECT COUNT(*) AS n, ROUND(AVG(workload_score), 4) AS avg_ws, ROUND(AVG(workload_score) * 1.0, 4) AS mean_ws, ROUND(SUM((workload_score - (SELECT AVG(workload_score) FROM scores)) * (workload_score - (SELECT AVG(workload_score) FROM scores))) / (COUNT(*) - 1.0), 4) AS variance_ws, ROUND(SQRT(SUM((workload_score - (SELECT AVG(workload_score) FROM scores)) * (workload_score - (SELECT AVG(workload_score) FROM scores))) / (COUNT(*) - 1.0)), 4) AS stddev_ws, ROUND(MIN(workload_score), 4) AS min_ws, ROUND(MAX(workload_score), 4) AS max_ws, ROUND((SELECT AVG(workload_score) FROM scores) * 0.3, 4) AS threshold FROM scores",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 24.696930311620235
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "WITH rep_geo AS (SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id), rep_cust AS (SELECT * FROM temp.reuse_candidate), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.rep_name, spd.win_rate_pct / 100.0 AS win_rate, spd.avg_deal_size_usd, spd.avg_sales_cycle_days, spd.close_rate_pct / 100.0 AS opp_conversion_rate, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ws.owner_id, spd.rep_name, ws.workload_score, es.efficiency_score, es.win_rate, es.avg_deal_size_usd, es.avg_sales_cycle_days, es.opp_conversion_rate, ws.num_customers, ws.total_annual_revenue, ws.coverage_rate_capped, ws.distinct_states, ws.distinct_cities FROM workload_scores AS ws JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id JOIN salesforce__sales_performance_dashboard AS spd ON ws.owner_id = spd.owner_id ORDER BY ws.workload_score DESC LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 18.89110542833805
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "WITH rep_geo AS (SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id), rep_cust AS (SELECT * FROM temp.reuse_candidate), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ROUND(AVG(ws.workload_score), 4) AS avg_workload, ROUND(SQRT(SUM((ws.workload_score - avg_sub.avg_ws) * (ws.workload_score - avg_sub.avg_ws)) / (COUNT(*) - 1.0)), 4) AS std_workload, ROUND(AVG(es.efficiency_score), 4) AS avg_efficiency, ROUND(SQRT(SUM((es.efficiency_score - avg_sub2.avg_es) * (es.efficiency_score - avg_sub2.avg_es)) / (COUNT(*) - 1.0)), 4) AS std_efficiency, ROUND(AVG(ws.workload_score) * 0.3, 4) AS ws_threshold, ROUND(AVG(ws.workload_score) * 0.15, 4) AS ws_15pct FROM workload_scores AS ws CROSS JOIN (SELECT AVG(workload_score) AS avg_ws FROM workload_scores) AS avg_sub CROSS JOIN (SELECT AVG(efficiency_score) AS avg_es FROM efficiency_scores) AS avg_sub2 JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 21.728677675127983
+        },
+        {
+          "sql_id": "S19",
+          "rewritten_sql": "WITH rep_geo AS (SELECT owner_id, COUNT(DISTINCT billing_state) AS distinct_states, COUNT(DISTINCT billing_city) AS distinct_cities FROM salesforce__customer_360_view GROUP BY owner_id), rep_cust AS (SELECT * FROM temp.reuse_candidate), workload_scores AS (SELECT rc.owner_id, rc.num_customers, rc.total_annual_revenue, rc.total_contacts, rg.distinct_states, rg.distinct_cities, CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5.0 ELSE CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) END AS coverage_rate_capped, rc.num_customers * 0.3 + (rc.total_annual_revenue / 1000000.0) / 10 * 0.4 + CASE WHEN CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0) > 5 THEN 5 * 0.2 ELSE (CAST(rc.total_contacts AS REAL) / NULLIF(rc.num_customers, 0)) * 0.2 END + (rg.distinct_states * 2.0 + rg.distinct_cities * 0.5) * 0.1 AS workload_score FROM rep_cust AS rc JOIN rep_geo AS rg ON rc.owner_id = rg.owner_id), efficiency_scores AS (SELECT spd.owner_id, spd.rep_name, spd.manager_id, spd.win_rate_pct / 100.0 AS win_rate, spd.avg_deal_size_usd, spd.avg_sales_cycle_days, spd.close_rate_pct / 100.0 AS opp_conversion_rate, spd.win_rate_pct / 100.0 * 0.4 + (spd.avg_deal_size_usd / 100000.0) * 0.3 + (120.0 / NULLIF(spd.avg_sales_cycle_days, 0)) * 0.2 + (spd.close_rate_pct / 100.0) * 0.1 AS efficiency_score FROM salesforce__sales_performance_dashboard AS spd) SELECT ws.owner_id, spd.rep_name, spd.manager_id, ws.workload_score, es.efficiency_score, ws.num_customers, ws.total_annual_revenue, ws.coverage_rate_capped, ws.distinct_states, ws.distinct_cities, es.win_rate, es.avg_deal_size_usd, es.avg_sales_cycle_days, es.opp_conversion_rate FROM workload_scores AS ws JOIN efficiency_scores AS es ON ws.owner_id = es.owner_id JOIN salesforce__sales_performance_dashboard AS spd ON ws.owner_id = spd.owner_id ORDER BY ws.workload_score DESC LIMIT 1000",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 31.79000411182642
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT industry_normalized AS __g0, owner_id AS __g1, COUNT(*) AS __a0, SUM(annual_revenue) AS __a1, SUM(total_contacts) AS __a2, SUM(total_opportunities) AS __a3, SUM(won_opportunities) AS __a4, SUM(annual_revenue) AS __a5_sum, COUNT(annual_revenue) AS __a5_n FROM \"salesforce__customer_360_view\"  GROUP BY industry_normalized, owner_id",
+      "covered": [
+        "S3",
+        "S10",
+        "S11"
+      ],
+      "rewrites": {
+        "S3": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+        "S10": "SELECT DISTINCT __g0 AS \"industry_normalized\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 20",
+        "S11": "SELECT __g1 AS \"owner_id\", SUM(__a0) AS num_customers, SUM(__a1) AS total_annual_revenue, SUM(__a2) AS total_contacts, SUM(__a3) AS total_opps, SUM(__a4) AS won_opps, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_revenue FROM temp.reuse_candidate GROUP BY __g1 ORDER BY num_customers DESC LIMIT 10"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 2,
+      "denominator": 20,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788870341.5519593,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT industry_normalized AS __g0, owner_id AS __g1, COUNT(*) AS __a0, SUM(annual_revenue) AS __a1, SUM(total_contacts) AS __a2, SUM(total_opportunities) AS __a3, SUM(won_opportunities) AS __a4, SUM(annual_revenue) AS __a5_sum, COUNT(annual_revenue) AS __a5_n FROM \"salesforce__customer_360_view\"  GROUP BY industry_normalized, owner_id",
+          "phase": "offline_validation",
+          "start_time": 1788870341.5522282,
+          "status": "execute_returned",
+          "end_time": 1788870341.567742
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870341.567747,
+          "status": "execute_returned",
+          "end_time": 1788870341.5677755
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788870341.5677803,
+          "status": "execute_returned",
+          "end_time": 1788870341.5677931
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870341.5678089,
+          "status": "execute_returned",
+          "end_time": 1788870341.5682263
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT DISTINCT __g0 AS \"industry_normalized\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 20",
+          "phase": "offline_validation",
+          "start_time": 1788870341.5686371,
+          "status": "execute_returned",
+          "end_time": 1788870341.5705724
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS \"owner_id\", SUM(__a0) AS num_customers, SUM(__a1) AS total_annual_revenue, SUM(__a2) AS total_contacts, SUM(__a3) AS total_opps, SUM(__a4) AS won_opps, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_revenue FROM temp.reuse_candidate GROUP BY __g1 ORDER BY num_customers DESC LIMIT 10",
+          "phase": "offline_validation",
+          "start_time": 1788870341.5711904,
+          "status": "execute_returned",
+          "end_time": 1788870341.5766664
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT industry_normalized AS __g0, owner_id AS __g1, COUNT(*) AS __a0, SUM(annual_revenue) AS __a1, SUM(total_contacts) AS __a2, SUM(total_opportunities) AS __a3, SUM(won_opportunities) AS __a4, SUM(annual_revenue) AS __a5_sum, COUNT(annual_revenue) AS __a5_n FROM \"salesforce__customer_360_view\"  GROUP BY industry_normalized, owner_id",
+          "time": 1788870341.5525556,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788870341.5677636,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788870341.5677907,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "time": 1788870341.567819,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT DISTINCT __g0 AS \"industry_normalized\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 20",
+          "time": 1788870341.5686667,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"owner_id\", SUM(__a0) AS num_customers, SUM(__a1) AS total_annual_revenue, SUM(__a2) AS total_contacts, SUM(__a3) AS total_opps, SUM(__a4) AS won_opps, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_revenue FROM temp.reuse_candidate GROUP BY __g1 ORDER BY num_customers DESC LIMIT 10",
+          "time": 1788870341.5712347,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 15.518471598625183,
+      "intermediate_rows": 7432,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4",
+        "__a5_sum",
+        "__a5_n"
+      ],
+      "validation_ended_at": 1788870341.5778966,
+      "checks": [
+        {
+          "sql_id": "S3",
+          "rewritten_sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.8260682225227356
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT DISTINCT __g0 AS \"industry_normalized\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.551073208451271
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT __g1 AS \"owner_id\", SUM(__a0) AS num_customers, SUM(__a1) AS total_annual_revenue, SUM(__a2) AS total_contacts, SUM(__a3) AS total_opps, SUM(__a4) AS won_opps, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_revenue FROM temp.reuse_candidate GROUP BY __g1 ORDER BY num_customers DESC LIMIT 10",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 6.574026308953762
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

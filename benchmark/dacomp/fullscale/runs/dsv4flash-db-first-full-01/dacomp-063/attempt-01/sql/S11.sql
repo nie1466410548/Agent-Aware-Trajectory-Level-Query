@@ -1,0 +1,1 @@
+SELECT DISTINCT risk_category FROM jira__project_risk_assessment

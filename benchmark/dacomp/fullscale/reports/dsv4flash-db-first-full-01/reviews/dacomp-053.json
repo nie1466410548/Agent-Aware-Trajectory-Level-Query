@@ -1,0 +1,51 @@
+{
+  "task_id": "dacomp-053",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 为健康度与价值倒挂的组别计算指标均值、进度类别占比及条件比例，并排序。这些数据准备可以在 SQL 内完成，绘图用途不消除执行位置偏离。",
+  "route": "SQL 计算健康等级、ROI 与延期特征 → Python 按倒挂组再次汇总、条件计数并绘图 → 评价体系建议。",
+  "evidence": [
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 48,
+          "text": "hhlv = df[df['inv_group']=='HHLV'][['completion_percentage','efficiency_score','time_management_score','collaboration_score']].mean()"
+        },
+        {
+          "line": 49,
+          "text": "hh_hv = df[df['inv_group']=='HH_HV'][['completion_percentage','efficiency_score','time_management_score','collaboration_score']].mean()"
+        },
+        {
+          "line": 67,
+          "text": "schedule_pct = schedule_data.groupby('inv_group')['schedule_forecast'].value_counts(normalize=True).unstack(fill_value=0)*100"
+        },
+        {
+          "line": 97,
+          "text": "group_profile = df[df['inv_group'].isin(['HHLV','HH_HV','LHHV','LH_LV'])].groupby('inv_group').agg({"
+        }
+      ]
+    },
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 28,
+          "text": "data = df[df['inv_group'].isin(groups)].groupby('inv_group')[metrics].mean()"
+        },
+        {
+          "line": 47,
+          "text": "ratio_means = df[df['inv_group'].isin(groups)].groupby('inv_group')['elapsed_ratio'].mean().sort_values()"
+        },
+        {
+          "line": 57,
+          "text": "cats['behind_sched_%'] = df[df['inv_group'].isin(groups)].groupby('inv_group')['schedule_forecast'].apply(lambda s: (s=='behind_schedule').mean()*100)"
+        },
+        {
+          "line": 59,
+          "text": "cats['low_priority_%'] = df[df['inv_group'].isin(groups)].groupby('inv_group')['management_priority'].apply(lambda s: (s=='low').mean()*100)"
+        }
+      ]
+    }
+  ]
+}

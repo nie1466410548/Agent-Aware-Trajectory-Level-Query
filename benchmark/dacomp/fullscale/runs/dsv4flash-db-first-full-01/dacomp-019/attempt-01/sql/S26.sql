@@ -1,0 +1,1 @@
+SELECT "Inventory Discrepancy Rate", COUNT(*) AS cnt FROM inventory_management GROUP BY 1 ORDER BY cnt DESC LIMIT 15

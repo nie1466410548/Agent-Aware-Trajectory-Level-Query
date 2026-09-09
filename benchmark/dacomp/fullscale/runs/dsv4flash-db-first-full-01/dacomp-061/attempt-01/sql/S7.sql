@@ -1,0 +1,1 @@
+SELECT project_name, COUNT(*) as cnt, AVG(avg_close_time_days) as avg_close FROM jira__project_enhanced GROUP BY project_name ORDER BY project_name

@@ -1,0 +1,1 @@
+SELECT "Disaster Level", COUNT(*) AS n, COUNT(DISTINCT "Disaster Event ID") AS events FROM disaster_events GROUP BY "Disaster Level"

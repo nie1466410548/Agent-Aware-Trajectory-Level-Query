@@ -1,0 +1,101 @@
+{
+  "task_id": "dacomp-015",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "P3 computes the four-factor housing combinations and count/mean/max/Top-10 ranking in pandas; P4/P9 calculate additional grouped summaries and P8 plot-order means. SQLite can reasonably perform these operations. Quantiles, OLS/ANOVA and rendering are distinguished as statistical/visual uses, not a blanket exemption for groupby.",
+  "evidence": [
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 7,
+          "text": "sub = df[df['Floor Plan'].notna() & df['Decoration'].notna() & df['Floor'].notna() & df['Orientation'].notna()].copy()"
+        },
+        {
+          "line": 10,
+          "text": "grp = sub.groupby(['Floor Plan', 'Decoration', 'Floor', 'Orientation']).agg("
+        },
+        {
+          "line": 11,
+          "text": "    cnt=('Watch Count', 'count'),"
+        },
+        {
+          "line": 12,
+          "text": "    avg_watch=('Watch Count', 'mean'),"
+        },
+        {
+          "line": 14,
+          "text": "    max_watch=('Watch Count', 'max'),"
+        },
+        {
+          "line": 17,
+          "text": ").reset_index()"
+        },
+        {
+          "line": 21,
+          "text": "print(\"=== TOP 10 by AVG Watch Count (cnt>=5) ===\")"
+        },
+        {
+          "line": 31,
+          "text": "print(\"\\n=== TOP 10 by TOTAL Watch Count (cnt>=5) ===\")"
+        }
+      ]
+    },
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 8,
+          "text": "print(df.groupby('Decoration')['Showings'].agg(['count','mean','median']).sort_values('mean', ascending=False).to_string())"
+        },
+        {
+          "line": 10,
+          "text": "print(df.groupby('Orientation')['Showings'].agg(['count','mean','median']).sort_values('mean', ascending=False).to_string())"
+        },
+        {
+          "line": 31,
+          "text": "df['watch_bin'] = pd.cut(df['Watch Count'], [-1,0,2,5,10,20,50,100,1000], labels=['0','1-2','3-5','6-10','11-20','21-50','51-100','100+'])"
+        },
+        {
+          "line": 33,
+          "text": "print(df.groupby('watch_bin')['Showings'].agg(['count','mean','median']).to_string())"
+        }
+      ]
+    },
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 36,
+          "text": "yhat = X_mat @ beta"
+        },
+        {
+          "line": 39,
+          "text": "se = np.sqrt(np.diag(np.linalg.pinv(X_mat.T @ X_mat)) * sigma2)"
+        },
+        {
+          "line": 59,
+          "text": "        f, p = stats.f_oneway(*groups)"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 42,
+          "text": "dec_order = df.groupby('Decoration')['Showings'].mean().sort_values(ascending=False).index"
+        },
+        {
+          "line": 48,
+          "text": "ori_order = df.groupby('Orientation')['Showings'].mean().sort_values(ascending=False).index"
+        },
+        {
+          "line": 58,
+          "text": "fc_order = df.groupby('floor_category')['Showings'].mean().sort_values(ascending=False).index"
+        }
+      ]
+    }
+  ],
+  "route": "检查户型、装修、楼层、朝向和看房数据 → 解析字段 → 四因素组合汇总并取 Top-10 → 对带看量做回归/方差分析 → 绘图与分组摘要。"
+}

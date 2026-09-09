@@ -1,0 +1,1 @@
+SELECT "Complaint Customer Satisfaction", COUNT(*) as cnt FROM complaints_table GROUP BY "Complaint Customer Satisfaction" ORDER BY cnt DESC

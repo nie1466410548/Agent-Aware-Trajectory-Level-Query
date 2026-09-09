@@ -1,0 +1,1 @@
+SELECT "Role Name", COUNT(*) as cnt FROM permissions_table GROUP BY "Role Name" ORDER BY cnt DESC

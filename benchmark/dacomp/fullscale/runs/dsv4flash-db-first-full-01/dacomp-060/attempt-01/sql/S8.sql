@@ -1,0 +1,1 @@
+SELECT status, ad_group_type, COUNT(DISTINCT ad_group_id) AS n FROM google_ads__ad_group_report GROUP BY status, ad_group_type ORDER BY n DESC LIMIT 20

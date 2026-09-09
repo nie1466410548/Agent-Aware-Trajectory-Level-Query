@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS matched FROM asana__task_lifecycle_analysis t JOIN asana__user u ON CAST(t.assignee_user_id AS TEXT) = u.user_id

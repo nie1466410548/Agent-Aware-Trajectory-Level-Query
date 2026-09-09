@@ -1,0 +1,1 @@
+SELECT COUNT(*) as matched FROM service_ticket_table s JOIN contracts_table c ON s."Contract ID"=c."Contract ID"

@@ -1,0 +1,1 @@
+SELECT * FROM "2020_cn_pop_3_up_age_sex_edu" LIMIT 1

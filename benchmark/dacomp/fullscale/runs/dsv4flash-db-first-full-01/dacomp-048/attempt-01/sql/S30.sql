@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT "Benefits") AS distinct_benefits FROM sheet1 WHERE "Education Requirement" = 'Vocational school or above' AND "Benefits" IS NOT NULL AND "Benefits" != ''

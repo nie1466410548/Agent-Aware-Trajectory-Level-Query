@@ -1,0 +1,1 @@
+SELECT Department, SalarySlab, COUNT(*) AS total, SUM(CASE WHEN Attrition='Yes' THEN 1 ELSE 0 END) AS att, ROUND(100.0*SUM(CASE WHEN Attrition='Yes' THEN 1 ELSE 0 END)/COUNT(*),2) AS att_rate FROM sheet1 GROUP BY Department, SalarySlab ORDER BY Department, SalarySlab;

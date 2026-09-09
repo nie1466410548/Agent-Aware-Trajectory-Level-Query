@@ -1,0 +1,1 @@
+SELECT COUNT(*) as cnt, COUNT(DISTINCT "Account ID") as uniq_acc FROM customer_credit_rating_table

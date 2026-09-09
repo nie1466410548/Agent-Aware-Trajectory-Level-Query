@@ -1,0 +1,1 @@
+SELECT Title, Price, "New Car Price (incl. tax)", "Vehicle Class", "Registration Date", "Posting Date" FROM autohome WHERE Title LIKE '%Zeekr 009%' OR Title LIKE '%Li Xiang L9%' OR Title LIKE '%Gaohe HiPhi Z%' OR Title LIKE '%Xpeng G9%'

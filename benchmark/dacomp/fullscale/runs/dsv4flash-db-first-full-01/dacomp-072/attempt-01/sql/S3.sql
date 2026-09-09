@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS row_count FROM lever__hiring_manager_scorecard

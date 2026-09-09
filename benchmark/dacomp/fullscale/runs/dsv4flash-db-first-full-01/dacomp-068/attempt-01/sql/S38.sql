@@ -1,0 +1,1 @@
+SELECT package_name, country, avg_daily_revenue, store_conversion_rate FROM google_play__geo_market_analysis WHERE package_name = 'com.studio.videostreaming'

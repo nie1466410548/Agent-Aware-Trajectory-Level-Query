@@ -1,0 +1,1 @@
+SELECT DISTINCT "Confirmation Status" FROM abnormal_logins_table

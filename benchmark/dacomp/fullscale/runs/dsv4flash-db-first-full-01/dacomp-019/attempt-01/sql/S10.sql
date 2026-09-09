@@ -1,0 +1,1 @@
+SELECT "Inventory Alert Status" AS alert, COUNT(*) AS cnt FROM inventory_management GROUP BY 1

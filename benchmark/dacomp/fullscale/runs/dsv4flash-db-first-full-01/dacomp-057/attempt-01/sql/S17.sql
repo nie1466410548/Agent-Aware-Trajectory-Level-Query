@@ -1,0 +1,1 @@
+SELECT DISTINCT campaign_name, campaign_id, account_id, account_name FROM google_ads__campaign_report LIMIT 20

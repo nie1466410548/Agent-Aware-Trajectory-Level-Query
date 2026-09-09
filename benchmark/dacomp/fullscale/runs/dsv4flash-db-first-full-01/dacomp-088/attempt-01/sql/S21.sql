@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT owner_id) AS n_reps, COUNT(DISTINCT billing_state) AS n_states FROM salesforce__account_daily_history WHERE type = 'Customer'

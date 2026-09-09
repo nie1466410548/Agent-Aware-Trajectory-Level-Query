@@ -1,0 +1,1 @@
+SELECT current_status, COUNT(*) as cnt FROM jira__issue_intelligence_analytics GROUP BY current_status

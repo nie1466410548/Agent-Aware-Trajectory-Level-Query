@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_users, COUNT(DISTINCT "User ID") AS distinct_users FROM user_basic_information_table

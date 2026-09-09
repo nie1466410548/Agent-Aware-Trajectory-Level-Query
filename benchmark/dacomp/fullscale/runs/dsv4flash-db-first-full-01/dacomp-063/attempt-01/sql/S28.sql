@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT user_id) FROM jira__stakeholder_engagement_insights

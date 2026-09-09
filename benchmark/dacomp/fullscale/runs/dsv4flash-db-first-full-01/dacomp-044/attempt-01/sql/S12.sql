@@ -1,0 +1,1 @@
+SELECT * FROM health_education WHERE "Population Covered" = 'Student'

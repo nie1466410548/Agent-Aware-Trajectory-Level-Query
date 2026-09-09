@@ -1,0 +1,1 @@
+SELECT SUM(count_associated_visitors) AS sum_associated, (SELECT COUNT(*) FROM pendo__visitor) AS total_visitors FROM pendo__account

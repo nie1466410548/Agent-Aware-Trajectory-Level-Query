@@ -1,0 +1,1 @@
+SELECT sub_question_text, COUNT(*) AS n, AVG(value) AS avg_v FROM qualtrics__response GROUP BY sub_question_text ORDER BY n DESC LIMIT 30

@@ -1,0 +1,1 @@
+SELECT DISTINCT "Account Type" FROM customer_account_table

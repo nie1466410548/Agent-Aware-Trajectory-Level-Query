@@ -1,0 +1,1 @@
+SELECT DISTINCT "Project Type" FROM sheet1

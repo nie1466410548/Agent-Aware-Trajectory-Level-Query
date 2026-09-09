@@ -1,0 +1,56 @@
+{
+  "task_id": "dacomp-026",
+  "status": "partial_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "SQL performs multi-table disaster/resource joins, JSON extraction and many resource summaries. Python computes correlations and figures, which are reasonable supplements. P1 additionally extracts inventory JSON keys and computes allocation ratios, P4 selects top/bottom delivery events, and P5 merges outcome rows in pandas. SQLite JSON functions/joins/arithmetic/Top-K can reasonably perform these preparation steps.",
+  "route": "筛选 Level 5 灾害 → 多表关联人力、资金、物资、运输和运营指标 → 比较资源强度及交付结果 → Python 相关检验和图表，追加受益者反馈分析。",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 44,
+          "text": "inv_df = df['inv'].apply(json.loads)"
+        },
+        {
+          "line": 55,
+          "text": "df['affected_per_staff'] = df['affected']/df['staff_total']"
+        },
+        {
+          "line": 58,
+          "text": "df['displaced_per_shelter'] = df['displaced']/df['shelter_units']"
+        },
+        {
+          "line": 71,
+          "text": "    r,p = stats.pearsonr(sub[f], sub['deliv_success'])"
+        }
+      ]
+    },
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 16,
+          "text": "top = df.nlargest(10, 'deliv_success')[['Disaster Event ID','deliv_success','staff_total','budget','transport_vol','dist_points','deliv_time']]"
+        },
+        {
+          "line": 17,
+          "text": "bottom = df.nsmallest(10, 'deliv_success')[['Disaster Event ID','deliv_success','staff_total','budget','transport_vol','dist_points','deliv_time']]"
+        }
+      ]
+    },
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 17,
+          "text": "df = df.merge(bdf, on='Disaster Event ID', how='left')"
+        },
+        {
+          "line": 27,
+          "text": "        r,p = stats.pearsonr(sub[f], sub[o])"
+        }
+      ]
+    }
+  ]
+}

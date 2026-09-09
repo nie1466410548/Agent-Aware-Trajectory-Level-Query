@@ -1,0 +1,1 @@
+SELECT DISTINCT state FROM lever__posting_enhanced

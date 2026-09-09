@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_issues FROM jira__issue_enhanced

@@ -1,0 +1,2 @@
+SELECT "Customer ID", COUNT(*) AS rows_cnt, SUM("Browsing Time (minutes)") AS total_browse, SUM(like) AS likes, SUM(share) AS shares, SUM("Add to Cart") AS carts
+FROM product_browsing WHERE "Product Category" = 'Fashion' GROUP BY "Customer ID" ORDER BY rows_cnt DESC LIMIT 10

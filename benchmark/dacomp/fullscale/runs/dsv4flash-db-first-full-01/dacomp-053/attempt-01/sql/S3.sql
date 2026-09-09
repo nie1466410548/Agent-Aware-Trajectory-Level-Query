@@ -1,0 +1,1 @@
+SELECT COUNT(*) as total_rows FROM asana__project_analytics

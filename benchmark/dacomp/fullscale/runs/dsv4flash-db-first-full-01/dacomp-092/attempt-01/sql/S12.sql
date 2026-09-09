@@ -1,0 +1,1 @@
+SELECT DISTINCT customer_id FROM quickbooks__customer_analytics LIMIT 20

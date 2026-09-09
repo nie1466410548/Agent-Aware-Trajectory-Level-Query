@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT marketo_lead_id) AS distinct_leads_value FROM customer360__customer_value_analysis

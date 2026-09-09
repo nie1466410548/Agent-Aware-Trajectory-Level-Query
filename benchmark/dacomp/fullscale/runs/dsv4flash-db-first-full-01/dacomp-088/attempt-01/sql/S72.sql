@@ -1,0 +1,1 @@
+SELECT billing_state AS state, COUNT(DISTINCT owner_id) AS n_reps FROM salesforce__account_daily_history WHERE billing_state IS NOT NULL GROUP BY billing_state

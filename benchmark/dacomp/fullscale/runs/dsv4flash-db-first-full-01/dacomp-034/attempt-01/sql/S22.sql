@@ -1,0 +1,1 @@
+SELECT promotion_type, state, COUNT(*) AS cnt, SUM(sale_count) AS tot_sales FROM attachment_3 WHERE promotion_type IS NOT NULL GROUP BY promotion_type, state

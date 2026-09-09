@@ -1,0 +1,1 @@
+SELECT "Participation Progress", COUNT(*) as cnt FROM marketing_campaign_interaction GROUP BY "Participation Progress"

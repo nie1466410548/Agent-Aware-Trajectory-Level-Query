@@ -1,0 +1,1 @@
+SELECT * FROM abnormal_logins_table LIMIT 20

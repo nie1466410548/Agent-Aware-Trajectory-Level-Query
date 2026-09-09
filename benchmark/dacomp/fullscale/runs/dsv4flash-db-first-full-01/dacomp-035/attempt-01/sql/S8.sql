@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT "User ID") AS cnt FROM user_information_table

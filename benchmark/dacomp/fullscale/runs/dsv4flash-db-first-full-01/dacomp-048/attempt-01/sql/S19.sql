@@ -1,0 +1,1 @@
+SELECT "Salary Range" FROM sheet1 WHERE "Education Requirement" = 'Vocational school or above' AND "Salary Range" LIKE '%-%' AND "Salary Range" NOT LIKE '% - %' LIMIT 20

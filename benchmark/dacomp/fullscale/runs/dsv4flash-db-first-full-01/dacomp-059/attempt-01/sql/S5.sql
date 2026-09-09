@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_rows, COUNT(DISTINCT ad_group_id) AS distinct_ad_groups, COUNT(DISTINCT campaign_id) AS distinct_campaigns, COUNT(DISTINCT account_id) AS distinct_accounts, MIN(date_day) AS min_date, MAX(date_day) AS max_date FROM google_ads__ad_group_report

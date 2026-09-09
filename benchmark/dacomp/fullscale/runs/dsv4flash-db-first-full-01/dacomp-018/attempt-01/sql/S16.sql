@@ -1,0 +1,1 @@
+SELECT "Customer Segment", COUNT(*) FROM (SELECT DISTINCT "Customer ID", "Customer Segment" FROM customer_information) GROUP BY "Customer Segment"

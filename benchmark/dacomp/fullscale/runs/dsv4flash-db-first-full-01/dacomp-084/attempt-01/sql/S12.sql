@@ -1,0 +1,1 @@
+SELECT current_active_employees, organization_size_category FROM workday__organization_overview WHERE current_active_employees IN (30, 120, 121, 299, 300, 301) ORDER BY current_active_employees

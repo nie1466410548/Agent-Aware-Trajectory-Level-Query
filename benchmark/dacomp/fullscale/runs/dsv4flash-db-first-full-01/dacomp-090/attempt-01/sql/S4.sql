@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_rows FROM quickbooks__profitability_analysis

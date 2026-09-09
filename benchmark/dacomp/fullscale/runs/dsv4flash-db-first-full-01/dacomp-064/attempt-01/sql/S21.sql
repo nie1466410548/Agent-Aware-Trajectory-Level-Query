@@ -1,0 +1,1 @@
+SELECT assignee_user_id, assignee_name, COUNT(*) n FROM jira__issue_enhanced GROUP BY assignee_user_id, assignee_name ORDER BY n DESC LIMIT 5

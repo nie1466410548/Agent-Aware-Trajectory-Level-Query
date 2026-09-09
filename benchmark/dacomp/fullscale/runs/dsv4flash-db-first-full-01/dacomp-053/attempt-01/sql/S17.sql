@@ -1,0 +1,1 @@
+SELECT DISTINCT schedule_forecast FROM asana__project_analytics

@@ -1,0 +1,51 @@
+{
+  "task_id": "dacomp-054",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 为平台组合计算健康度、LTV 的分组均值与数量，并计算活跃率和客户细分×生命周期交叉计数；这些可在 SQL 完成。按组传递原始样本给 ANOVA 是合理统计输入，不能仅因出现 groupby 就判为迁出聚合。",
+  "route": "SQL 识别特定转化时长与互动分数客户 → Python 统计检验、平台分组汇总及交叉计数 → 地域与风险图表。",
+  "evidence": [
+    {
+      "source": "python/P13.py",
+      "lines": [
+        {
+          "line": 26,
+          "text": "groups = [g.values for _, g in df.groupby('platform_pattern')['customer_health_score']]"
+        },
+        {
+          "line": 27,
+          "text": "f_stat, p_val = stats.f_oneway(*groups)"
+        },
+        {
+          "line": 103,
+          "text": "print(f\"Average RFM scores: Recency={df['composite_engagement_score'].mean():.2f} (composite proxy)\")"
+        },
+        {
+          "line": 104,
+          "text": "print(f\"Average LTV: ${df['funnel_ltv'].mean():.2f}\")"
+        },
+        {
+          "line": 106,
+          "text": "print(f\"Zendesk Active: {df['zendesk_active'].sum()}/{len(df)} = {df['zendesk_active'].mean()*100:.2f}%\")"
+        },
+        {
+          "line": 107,
+          "text": "print(f\"Platform completers (all 3): {(df['in_marketo']*df['in_stripe']*df['in_zendesk']).sum()}\")"
+        },
+        {
+          "line": 111,
+          "text": "print(df.groupby('platform_pattern').agg({"
+        }
+      ]
+    },
+    {
+      "source": "python/P14.py",
+      "lines": [
+        {
+          "line": 51,
+          "text": "ct = pd.crosstab(df['customer_segment'], df['lifecycle_stage'])"
+        }
+      ]
+    }
+  ]
+}

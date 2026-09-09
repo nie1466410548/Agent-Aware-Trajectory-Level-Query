@@ -1,0 +1,1 @@
+SELECT state, COUNT(*) as cnt FROM lever__posting_enhanced GROUP BY state

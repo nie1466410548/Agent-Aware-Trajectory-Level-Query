@@ -1,0 +1,1 @@
+SELECT currency_code, COUNT(*) AS cnt FROM google_ads__ad_group_report GROUP BY currency_code ORDER BY cnt DESC

@@ -1,0 +1,1 @@
+SELECT DISTINCT development_opportunity FROM customer360__customer_value_analysis ORDER BY 1

@@ -1,0 +1,1 @@
+SELECT "Registration Date", "Posting Date", "Inspection Expiry", Title, Price, "New Car Price (incl. tax)" FROM autohome WHERE "Vehicle Class" = 'Microcar' LIMIT 5

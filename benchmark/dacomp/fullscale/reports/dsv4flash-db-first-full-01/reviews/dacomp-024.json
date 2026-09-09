@@ -1,0 +1,82 @@
+{
+  "task_id": "dacomp-024",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "SQL supplies the region-segment-year aggregate. P2 performs grouped rollups, merges yearly totals, computes penetration ratios and within-region/segment percentage changes in pandas before plotting. These are SQL-capable operations over a small aggregated result, not an unlogged database access. Rendering is allowed; the preparation is explicitly marked as a protocol deviation.",
+  "route": "SQL 汇总区域×客群×年份销售、利润和客户数 → Python 计算渗透份额、同比和更粗粒度汇总 → 比较区域客群组合并绘图。",
+  "evidence": [
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 24,
+          "text": "df['margin_pct'] = round(100 * df['profit'] / df['sales'], 2)"
+        },
+        {
+          "line": 25,
+          "text": "df['profit_per_customer'] = round(df['profit'] / df['customers'], 2)"
+        },
+        {
+          "line": 30,
+          "text": "year_totals = df.groupby('year')[['customers', 'sales']].sum().rename("
+        },
+        {
+          "line": 32,
+          "text": "df = df.merge(year_totals, on='year')"
+        },
+        {
+          "line": 39,
+          "text": "    df[col + '_yoy'] = df.groupby(['Region', 'Segment'])[col].pct_change() * 100"
+        },
+        {
+          "line": 42,
+          "text": "region_year = df.groupby(['Region', 'year']).agg("
+        },
+        {
+          "line": 45,
+          "text": "region_year['margin_pct'] = round(100 * region_year['profit'] / region_year['sales'], 2)"
+        },
+        {
+          "line": 46,
+          "text": "region_year['profit_per_customer'] = round(region_year['profit'] / region_year['customers'], 2)"
+        },
+        {
+          "line": 49,
+          "text": "seg_year = df.groupby(['Segment', 'year']).agg("
+        },
+        {
+          "line": 52,
+          "text": "seg_year['margin_pct'] = round(100 * seg_year['profit'] / seg_year['sales'], 2)"
+        },
+        {
+          "line": 79,
+          "text": "    vals = region_year[region_year['Region']==reg].set_index('year').loc[years, 'margin_pct'].values"
+        },
+        {
+          "line": 112,
+          "text": "    vals = [df_2017[(df_2017['Region']==r) & (df_2017['Segment']==seg)]['margin_pct'].values[0] for r in regions]"
+        },
+        {
+          "line": 126,
+          "text": "df_total = df.groupby(['Region','Segment']).agg(sales=('sales','sum'), profit=('profit','sum')).reset_index()"
+        },
+        {
+          "line": 143,
+          "text": "region_year['customer_share_pct'] = region_year.groupby('year')['customers'].transform(lambda x: 100*x/x.sum())"
+        },
+        {
+          "line": 159,
+          "text": "ry['sales_growth'] = ry.groupby('Region')['sales'].pct_change() * 100"
+        },
+        {
+          "line": 175,
+          "text": "print(df_2017[['Region','Segment','margin_pct']].sort_values('margin_pct', ascending=False))"
+        },
+        {
+          "line": 177,
+          "text": "print(df_2017[['Region','Segment','profit_per_customer']].sort_values('profit_per_customer', ascending=False))"
+        }
+      ]
+    }
+  ]
+}

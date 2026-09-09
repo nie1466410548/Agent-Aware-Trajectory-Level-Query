@@ -1,0 +1,1 @@
+SELECT DISTINCT territory_coverage FROM salesforce__sales_performance_dashboard

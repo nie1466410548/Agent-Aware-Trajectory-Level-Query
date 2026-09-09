@@ -1,0 +1,1 @@
+SELECT substr("Order Date",1,4) AS yr, COUNT(*) AS n FROM order_information GROUP BY yr

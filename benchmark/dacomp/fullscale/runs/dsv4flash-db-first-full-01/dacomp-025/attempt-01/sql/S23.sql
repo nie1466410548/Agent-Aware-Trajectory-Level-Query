@@ -1,0 +1,1 @@
+SELECT "Sales Date" FROM sales_records WHERE "Sales Date" >= '2023-06-01' AND "Sales Date" < '2023-08-01' GROUP BY "Sales Date" ORDER BY "Sales Date"

@@ -1,0 +1,1 @@
+SELECT stakeholder_archetype, COUNT(*) AS n FROM jira__stakeholder_engagement_insights GROUP BY stakeholder_archetype ORDER BY n DESC

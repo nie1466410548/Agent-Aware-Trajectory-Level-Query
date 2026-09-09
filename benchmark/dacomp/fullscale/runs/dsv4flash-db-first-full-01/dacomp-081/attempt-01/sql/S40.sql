@@ -1,0 +1,1 @@
+SELECT DISTINCT contact_language FROM qualtrics__response

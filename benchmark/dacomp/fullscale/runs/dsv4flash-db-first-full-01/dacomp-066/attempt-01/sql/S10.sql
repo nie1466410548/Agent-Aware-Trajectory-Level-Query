@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n, COUNT(DISTINCT job_id) AS jobs FROM greenhouse__job_enhanced

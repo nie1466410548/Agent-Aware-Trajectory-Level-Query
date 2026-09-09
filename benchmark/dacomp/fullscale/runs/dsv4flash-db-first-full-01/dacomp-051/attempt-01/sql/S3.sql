@@ -1,0 +1,1 @@
+SELECT * FROM asana__user ORDER BY avg_close_time_assigned_days DESC

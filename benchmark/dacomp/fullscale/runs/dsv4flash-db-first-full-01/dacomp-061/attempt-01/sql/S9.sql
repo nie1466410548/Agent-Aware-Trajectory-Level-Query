@@ -1,0 +1,1 @@
+SELECT project_name, COUNT(*) as cnt FROM jira__issue_intelligence_analytics GROUP BY project_name ORDER BY cnt DESC

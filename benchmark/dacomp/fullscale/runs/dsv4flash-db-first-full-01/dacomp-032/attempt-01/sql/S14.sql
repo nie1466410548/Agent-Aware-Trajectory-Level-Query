@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS tickets_in_sfu FROM service_ticket_table t WHERE EXISTS (SELECT 1 FROM sales_follow_up_table s WHERE s."Work Order ID" = t."Work Order ID")

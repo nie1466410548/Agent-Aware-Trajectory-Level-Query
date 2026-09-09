@@ -1,0 +1,1 @@
+SELECT DISTINCT SUBSTR("Date", 6) as month_part FROM sheet1 LIMIT 20

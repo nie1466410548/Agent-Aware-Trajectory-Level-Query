@@ -1,0 +1,1 @@
+SELECT DISTINCT "Transaction Payment Status" FROM transaction_history_table

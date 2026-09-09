@@ -1,0 +1,1 @@
+SELECT MIN("Launch Time"), MAX("Launch Time") FROM game_game_level_content_data_ta

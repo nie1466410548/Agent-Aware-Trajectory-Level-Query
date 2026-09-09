@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n, COUNT(DISTINCT owner_id) AS n_reps FROM salesforce__sales_performance_dashboard

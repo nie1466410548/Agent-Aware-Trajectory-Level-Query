@@ -1,0 +1,1 @@
+SELECT MIN("Treatment ID") min_id, MAX("Treatment ID") max_id, COUNT(*) cnt FROM treatmentbasics

@@ -1,0 +1,1861 @@
+{
+  "task_id": "dacomp-022",
+  "candidate_id": "C3",
+  "covered": [
+    "S7",
+    "S8",
+    "S9",
+    "S10",
+    "S15",
+    "S16",
+    "S18",
+    "S19",
+    "S24",
+    "S30",
+    "S35",
+    "S36",
+    "S42",
+    "S43",
+    "S45",
+    "S46",
+    "S47",
+    "S48",
+    "S49",
+    "S53",
+    "S54",
+    "S55",
+    "S58",
+    "S62",
+    "S63",
+    "S64",
+    "S65"
+  ],
+  "build_sql": "SELECT * FROM \"sheet1\" WHERE \"Booking Status\" = 'Completed'",
+  "rewrites": {
+    "S7": "SELECT \"Vehicle Type\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Ride Distance\"), 2) AS avg_distance, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Vehicle Type\" ORDER BY avg_fare_per_km DESC",
+    "S8": "SELECT ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS overall_fare_per_km, ROUND(AVG(\"Booking Value\"), 2) AS overall_avg_booking, ROUND(AVG(\"Ride Distance\"), 2) AS overall_avg_distance, ROUND(SUM(\"Booking Value\"), 2) AS overall_total_earnings, COUNT(*) AS completed_rides FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+    "S9": "SELECT \"Driver Ratings\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Driver Ratings\" ORDER BY \"Driver Ratings\"",
+    "S10": "SELECT MIN(\"Driver Ratings\") AS min_r, MAX(\"Driver Ratings\") AS max_r, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_r, MIN(\"Booking Value\") AS min_bv, MAX(\"Booking Value\") AS max_bv, MIN(\"Ride Distance\") AS min_d, MAX(\"Ride Distance\") AS max_d FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+    "S15": "SELECT CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour_of_day, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY hour_of_day ORDER BY hour_of_day",
+    "S16": "SELECT \"Payment Method\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Payment Method\" ORDER BY ride_count DESC",
+    "S18": "SELECT CAST(STRFTIME('%w', \"Date\") AS INTEGER) AS day_of_week, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY day_of_week ORDER BY day_of_week",
+    "S19": "SELECT CAST(STRFTIME('%m', \"Date\") AS INTEGER) AS month, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY month ORDER BY month",
+    "S24": "SELECT CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER) AS month, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY month ORDER BY month",
+    "S30": "SELECT CASE WHEN STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) || '-' || SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6)) IS NULL THEN 'unparsed' ELSE 'parsed' END AS parse_status, COUNT(*) AS cnt FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY parse_status",
+    "S35": "SELECT STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY day_of_week ORDER BY day_of_week",
+    "S36": "SELECT CASE WHEN \"Ride Distance\" <= 5 THEN '0-5 km' WHEN \"Ride Distance\" <= 10 THEN '5-10 km' WHEN \"Ride Distance\" <= 15 THEN '10-15 km' WHEN \"Ride Distance\" <= 20 THEN '15-20 km' WHEN \"Ride Distance\" <= 25 THEN '20-25 km' WHEN \"Ride Distance\" <= 30 THEN '25-30 km' WHEN \"Ride Distance\" <= 40 THEN '30-40 km' ELSE '40+ km' END AS distance_band, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY distance_band ORDER BY MIN(\"Ride Distance\")",
+    "S42": "SELECT CASE WHEN \"Driver Ratings\" < 3.5 THEN '3.0-3.4' WHEN \"Driver Ratings\" < 4.0 THEN '3.5-3.9' WHEN \"Driver Ratings\" < 4.5 THEN '4.0-4.4' ELSE '4.5-5.0' END AS rating_band, COUNT(*) AS rides, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY rating_band ORDER BY MIN(\"Driver Ratings\")",
+    "S43": "SELECT \"Pickup Location\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Pickup Location\" ORDER BY ride_count DESC LIMIT 20",
+    "S45": "SELECT CASE WHEN \"Voice Talk Average Time\" < 5 THEN '0-5 min' WHEN \"Voice Talk Average Time\" < 10 THEN '5-10 min' WHEN \"Voice Talk Average Time\" < 15 THEN '10-15 min' ELSE '15+ min' END AS voice_band, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY voice_band ORDER BY MIN(\"Voice Talk Average Time\")",
+    "S46": "SELECT CASE WHEN \"Customer Technical Assistance Time\" < 5 THEN '0-5 min' WHEN \"Customer Technical Assistance Time\" < 10 THEN '5-10 min' WHEN \"Customer Technical Assistance Time\" < 15 THEN '10-15 min' ELSE '15+ min' END AS assist_band, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY assist_band ORDER BY MIN(\"Customer Technical Assistance Time\")",
+    "S47": "SELECT MIN(\"Customer Technical Assistance Time\") AS min_ctat, MAX(\"Customer Technical Assistance Time\") AS max_ctat, ROUND(AVG(\"Customer Technical Assistance Time\"), 2) AS avg_ctat FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+    "S48": "SELECT DISTINCT \"Customer Technical Assistance Time\" FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' ORDER BY \"Customer Technical Assistance Time\" LIMIT 20",
+    "S49": "SELECT CASE WHEN \"Customer Technical Assistance Time\" < 20 THEN '15-20 min' WHEN \"Customer Technical Assistance Time\" < 25 THEN '20-25 min' WHEN \"Customer Technical Assistance Time\" < 30 THEN '25-30 min' WHEN \"Customer Technical Assistance Time\" < 35 THEN '30-35 min' ELSE '35+ min' END AS assist_band, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY assist_band ORDER BY MIN(\"Customer Technical Assistance Time\")",
+    "S53": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+    "S54": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+    "S55": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Pickup Location\", \"Drop Location\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+    "S58": "SELECT \"Vehicle Type\", ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Ride Distance\"), 2) AS avg_dist, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings, COUNT(*) AS completed_rides FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Vehicle Type\" ORDER BY total_earnings DESC",
+    "S62": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Pickup Location\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+    "S63": "SELECT \"Pickup Location\" || ' → ' || \"Drop Location\" AS route, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Ride Distance\"), 2) AS avg_distance FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY route HAVING ride_count >= 100 ORDER BY avg_fare_per_km DESC LIMIT 15",
+    "S64": "SELECT \"Drop Location\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Drop Location\" ORDER BY avg_fare_per_km DESC LIMIT 10",
+    "S65": "SELECT CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER) AS month, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS fare_per_km, ROUND(SUM(\"Booking Value\"), 0) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY month ORDER BY month"
+  },
+  "phase": "offline_performance",
+  "cache": "warm/uncontrolled OS cache",
+  "timing_boundary": "execute + fetch all row arrays; candidate includes CREATE TEMP TABLE AS and all rewrites; includes DROP cleanup and excludes result comparison, identical consumption on both paths",
+  "teardown": "DROP is included in candidate total_ms and reported separately; no additional indexes used",
+  "rounds": [
+    {
+      "round": 1,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline": {
+        "total_ms": 3605.2614329382777,
+        "build_ms": 0,
+        "teardown_ms": 0
+      },
+      "candidate": {
+        "total_ms": 3634.2780953273177,
+        "build_ms": 96.40268050134182,
+        "teardown_ms": 20.282420329749584
+      }
+    },
+    {
+      "round": 2,
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "candidate": {
+        "total_ms": 3604.4236291199923,
+        "build_ms": 96.33983112871647,
+        "teardown_ms": 20.154510624706745
+      },
+      "baseline": {
+        "total_ms": 3700.186513364315,
+        "build_ms": 0,
+        "teardown_ms": 0
+      }
+    },
+    {
+      "round": 3,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline": {
+        "total_ms": 3872.778035700321,
+        "build_ms": 0,
+        "teardown_ms": 0
+      },
+      "candidate": {
+        "total_ms": 3634.870016016066,
+        "build_ms": 95.90630326420069,
+        "teardown_ms": 19.332642666995525
+      }
+    },
+    {
+      "round": 4,
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "candidate": {
+        "total_ms": 3612.9672741517425,
+        "build_ms": 96.02487739175558,
+        "teardown_ms": 20.78905515372753
+      },
+      "baseline": {
+        "total_ms": 3588.633474893868,
+        "build_ms": 0,
+        "teardown_ms": 0
+      }
+    },
+    {
+      "round": 5,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline": {
+        "total_ms": 3837.315121665597,
+        "build_ms": 0,
+        "teardown_ms": 0
+      },
+      "candidate": {
+        "total_ms": 3593.3589497581124,
+        "build_ms": 96.21960017830133,
+        "teardown_ms": 20.25020495057106
+      }
+    }
+  ],
+  "engine_trace": [
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Ride Distance\"), 2) as avg_distance,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"), 2) as avg_driver_rating,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Vehicle Type\"\nORDER BY avg_fare_per_km DESC",
+      "time": 1788871544.3349757
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as overall_fare_per_km,\n       ROUND(AVG(\"Booking Value\"), 2) as overall_avg_booking,\n       ROUND(AVG(\"Ride Distance\"), 2) as overall_avg_distance,\n       ROUND(SUM(\"Booking Value\"), 2) as overall_total_earnings,\n       COUNT(*) as completed_rides\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871544.4197092
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Driver Ratings\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Driver Ratings\"\nORDER BY \"Driver Ratings\"",
+      "time": 1788871544.4550471
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Driver Ratings\") as min_r, MAX(\"Driver Ratings\") as max_r,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_r,\n       MIN(\"Booking Value\") as min_bv, MAX(\"Booking Value\") as max_bv,\n       MIN(\"Ride Distance\") as min_d, MAX(\"Ride Distance\") as max_d\nFROM sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871544.5468607
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour_of_day,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY hour_of_day\nORDER BY hour_of_day",
+      "time": 1788871544.5881662
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Payment Method\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Payment Method\"\nORDER BY ride_count DESC",
+      "time": 1788871544.6654992
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%w', \"Date\") AS INTEGER) as day_of_week,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY day_of_week\nORDER BY day_of_week",
+      "time": 1788871544.7292721
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%m', \"Date\") AS INTEGER) as month,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY month\nORDER BY month",
+      "time": 1788871544.8024755
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER) as month,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY month\nORDER BY month",
+      "time": 1788871544.8754814
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n       CASE WHEN STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) || '-' || \n            SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6)) IS NULL THEN 'unparsed' ELSE 'parsed' END as parse_status,\n       COUNT(*) as cnt\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY parse_status",
+      "time": 1788871544.9745255
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n       PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n       PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY day_of_week\nORDER BY day_of_week",
+      "time": 1788871545.121374
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Ride Distance\" <= 5 THEN '0-5 km'\n       WHEN \"Ride Distance\" <= 10 THEN '5-10 km'\n       WHEN \"Ride Distance\" <= 15 THEN '10-15 km'\n       WHEN \"Ride Distance\" <= 20 THEN '15-20 km'\n       WHEN \"Ride Distance\" <= 25 THEN '20-25 km'\n       WHEN \"Ride Distance\" <= 30 THEN '25-30 km'\n       WHEN \"Ride Distance\" <= 40 THEN '30-40 km'\n       ELSE '40+ km' END as distance_band,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY distance_band\nORDER BY MIN(\"Ride Distance\")",
+      "time": 1788871545.353532
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Driver Ratings\" < 3.5 THEN '3.0-3.4'\n       WHEN \"Driver Ratings\" < 4.0 THEN '3.5-3.9'\n       WHEN \"Driver Ratings\" < 4.5 THEN '4.0-4.4'\n       ELSE '4.5-5.0' END as rating_band,\n       COUNT(*) as rides,\n       ROUND(SUM(\"Booking Value\"),2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY rating_band\nORDER BY MIN(\"Driver Ratings\")",
+      "time": 1788871545.4364247
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Pickup Location\"\nORDER BY ride_count DESC\nLIMIT 20",
+      "time": 1788871545.5023906
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Voice Talk Average Time\" < 5 THEN '0-5 min'\n       WHEN \"Voice Talk Average Time\" < 10 THEN '5-10 min'\n       WHEN \"Voice Talk Average Time\" < 15 THEN '10-15 min'\n       ELSE '15+ min' END as voice_band,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\"/NULLIF(\"Ride Distance\",0)),2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_driver_rating\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY voice_band\nORDER BY MIN(\"Voice Talk Average Time\")",
+      "time": 1788871545.5759475
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Customer Technical Assistance Time\" < 5 THEN '0-5 min'\n       WHEN \"Customer Technical Assistance Time\" < 10 THEN '5-10 min'\n       WHEN \"Customer Technical Assistance Time\" < 15 THEN '10-15 min'\n       ELSE '15+ min' END as assist_band,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\"/NULLIF(\"Ride Distance\",0)),2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_driver_rating\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY assist_band\nORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871545.6592007
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Customer Technical Assistance Time\") as min_ctat,\n       MAX(\"Customer Technical Assistance Time\") as max_ctat,\n       ROUND(AVG(\"Customer Technical Assistance Time\"),2) as avg_ctat\nFROM sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871545.7377212
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT DISTINCT \"Customer Technical Assistance Time\"\nFROM sheet1 WHERE \"Booking Status\" = 'Completed'\nORDER BY \"Customer Technical Assistance Time\"\nLIMIT 20",
+      "time": 1788871545.7627835
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Customer Technical Assistance Time\" < 20 THEN '15-20 min'\n       WHEN \"Customer Technical Assistance Time\" < 25 THEN '20-25 min'\n       WHEN \"Customer Technical Assistance Time\" < 30 THEN '25-30 min'\n       WHEN \"Customer Technical Assistance Time\" < 35 THEN '30-35 min'\n       ELSE '35+ min' END as assist_band,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\"/NULLIF(\"Ride Distance\",0)),2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_driver_rating\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY assist_band\nORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871545.8194683
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871545.9062035
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871546.3758402
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Pickup Location\", \"Drop Location\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871546.8746026
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\",\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Ride Distance\"),2) as avg_dist,\n       ROUND(SUM(\"Booking Value\"),2) as total_earnings,\n       COUNT(*) as completed_rides\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Vehicle Type\"\nORDER BY total_earnings DESC",
+      "time": 1788871547.4509873
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Pickup Location\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871547.5201876
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\" || ' → ' || \"Drop Location\" as route,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(AVG(\"Ride Distance\"), 2) as avg_distance\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY route\nHAVING ride_count >= 100\nORDER BY avg_fare_per_km DESC\nLIMIT 15",
+      "time": 1788871547.8690643
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Drop Location\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Drop Location\"\nORDER BY avg_fare_per_km DESC\nLIMIT 10",
+      "time": 1788871548.001988
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER) as month,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)),2) as fare_per_km,\n       ROUND(SUM(\"Booking Value\"),0) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY month\nORDER BY month",
+      "time": 1788871548.0786304
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"sheet1\" WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871553.4294326
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Ride Distance\"), 2) AS avg_distance, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Vehicle Type\" ORDER BY avg_fare_per_km DESC",
+      "time": 1788871553.5259783
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS overall_fare_per_km, ROUND(AVG(\"Booking Value\"), 2) AS overall_avg_booking, ROUND(AVG(\"Ride Distance\"), 2) AS overall_avg_distance, ROUND(SUM(\"Booking Value\"), 2) AS overall_total_earnings, COUNT(*) AS completed_rides FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871553.6016262
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Driver Ratings\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Driver Ratings\" ORDER BY \"Driver Ratings\"",
+      "time": 1788871553.6297069
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Driver Ratings\") AS min_r, MAX(\"Driver Ratings\") AS max_r, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_r, MIN(\"Booking Value\") AS min_bv, MAX(\"Booking Value\") AS max_bv, MIN(\"Ride Distance\") AS min_d, MAX(\"Ride Distance\") AS max_d FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871553.7136424
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour_of_day, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY hour_of_day ORDER BY hour_of_day",
+      "time": 1788871553.7480972
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Payment Method\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Payment Method\" ORDER BY ride_count DESC",
+      "time": 1788871553.8182201
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%w', \"Date\") AS INTEGER) AS day_of_week, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY day_of_week ORDER BY day_of_week",
+      "time": 1788871553.8754253
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%m', \"Date\") AS INTEGER) AS month, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY month ORDER BY month",
+      "time": 1788871553.9416702
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER) AS month, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY month ORDER BY month",
+      "time": 1788871554.007888
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) || '-' || SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6)) IS NULL THEN 'unparsed' ELSE 'parsed' END AS parse_status, COUNT(*) AS cnt FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY parse_status",
+      "time": 1788871554.0993073
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY day_of_week ORDER BY day_of_week",
+      "time": 1788871554.2374637
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Ride Distance\" <= 5 THEN '0-5 km' WHEN \"Ride Distance\" <= 10 THEN '5-10 km' WHEN \"Ride Distance\" <= 15 THEN '10-15 km' WHEN \"Ride Distance\" <= 20 THEN '15-20 km' WHEN \"Ride Distance\" <= 25 THEN '20-25 km' WHEN \"Ride Distance\" <= 30 THEN '25-30 km' WHEN \"Ride Distance\" <= 40 THEN '30-40 km' ELSE '40+ km' END AS distance_band, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY distance_band ORDER BY MIN(\"Ride Distance\")",
+      "time": 1788871554.4566648
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Driver Ratings\" < 3.5 THEN '3.0-3.4' WHEN \"Driver Ratings\" < 4.0 THEN '3.5-3.9' WHEN \"Driver Ratings\" < 4.5 THEN '4.0-4.4' ELSE '4.5-5.0' END AS rating_band, COUNT(*) AS rides, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY rating_band ORDER BY MIN(\"Driver Ratings\")",
+      "time": 1788871554.5323212
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Pickup Location\" ORDER BY ride_count DESC LIMIT 20",
+      "time": 1788871554.5913963
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Voice Talk Average Time\" < 5 THEN '0-5 min' WHEN \"Voice Talk Average Time\" < 10 THEN '5-10 min' WHEN \"Voice Talk Average Time\" < 15 THEN '10-15 min' ELSE '15+ min' END AS voice_band, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY voice_band ORDER BY MIN(\"Voice Talk Average Time\")",
+      "time": 1788871554.6581566
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Customer Technical Assistance Time\" < 5 THEN '0-5 min' WHEN \"Customer Technical Assistance Time\" < 10 THEN '5-10 min' WHEN \"Customer Technical Assistance Time\" < 15 THEN '10-15 min' ELSE '15+ min' END AS assist_band, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY assist_band ORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871554.7339523
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Customer Technical Assistance Time\") AS min_ctat, MAX(\"Customer Technical Assistance Time\") AS max_ctat, ROUND(AVG(\"Customer Technical Assistance Time\"), 2) AS avg_ctat FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871554.8061333
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT DISTINCT \"Customer Technical Assistance Time\" FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' ORDER BY \"Customer Technical Assistance Time\" LIMIT 20",
+      "time": 1788871554.8243072
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Customer Technical Assistance Time\" < 20 THEN '15-20 min' WHEN \"Customer Technical Assistance Time\" < 25 THEN '20-25 min' WHEN \"Customer Technical Assistance Time\" < 30 THEN '25-30 min' WHEN \"Customer Technical Assistance Time\" < 35 THEN '30-35 min' ELSE '35+ min' END AS assist_band, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY assist_band ORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871554.8741207
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871554.9537578
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871555.4250212
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Pickup Location\", \"Drop Location\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871555.7660465
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Ride Distance\"), 2) AS avg_dist, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings, COUNT(*) AS completed_rides FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Vehicle Type\" ORDER BY total_earnings DESC",
+      "time": 1788871556.3211374
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Pickup Location\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871556.3830078
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\" || ' → ' || \"Drop Location\" AS route, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Ride Distance\"), 2) AS avg_distance FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY route HAVING ride_count >= 100 ORDER BY avg_fare_per_km DESC LIMIT 15",
+      "time": 1788871556.9187176
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Drop Location\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Drop Location\" ORDER BY avg_fare_per_km DESC LIMIT 10",
+      "time": 1788871557.0442135
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER) AS month, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS fare_per_km, ROUND(SUM(\"Booking Value\"), 0) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY month ORDER BY month",
+      "time": 1788871557.111994
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871557.204212
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Ride Distance\"), 2) as avg_distance,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"), 2) as avg_driver_rating,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Vehicle Type\"\nORDER BY avg_fare_per_km DESC",
+      "time": 1788871562.4961572
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as overall_fare_per_km,\n       ROUND(AVG(\"Booking Value\"), 2) as overall_avg_booking,\n       ROUND(AVG(\"Ride Distance\"), 2) as overall_avg_distance,\n       ROUND(SUM(\"Booking Value\"), 2) as overall_total_earnings,\n       COUNT(*) as completed_rides\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871562.5796914
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Driver Ratings\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Driver Ratings\"\nORDER BY \"Driver Ratings\"",
+      "time": 1788871562.6139321
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Driver Ratings\") as min_r, MAX(\"Driver Ratings\") as max_r,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_r,\n       MIN(\"Booking Value\") as min_bv, MAX(\"Booking Value\") as max_bv,\n       MIN(\"Ride Distance\") as min_d, MAX(\"Ride Distance\") as max_d\nFROM sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871562.7043943
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour_of_day,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY hour_of_day\nORDER BY hour_of_day",
+      "time": 1788871562.746181
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Payment Method\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Payment Method\"\nORDER BY ride_count DESC",
+      "time": 1788871562.8228676
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%w', \"Date\") AS INTEGER) as day_of_week,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY day_of_week\nORDER BY day_of_week",
+      "time": 1788871562.8866844
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%m', \"Date\") AS INTEGER) as month,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY month\nORDER BY month",
+      "time": 1788871562.9596567
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER) as month,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY month\nORDER BY month",
+      "time": 1788871563.0326989
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n       CASE WHEN STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) || '-' || \n            SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6)) IS NULL THEN 'unparsed' ELSE 'parsed' END as parse_status,\n       COUNT(*) as cnt\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY parse_status",
+      "time": 1788871563.1202433
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n       PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n       PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY day_of_week\nORDER BY day_of_week",
+      "time": 1788871563.2186859
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Ride Distance\" <= 5 THEN '0-5 km'\n       WHEN \"Ride Distance\" <= 10 THEN '5-10 km'\n       WHEN \"Ride Distance\" <= 15 THEN '10-15 km'\n       WHEN \"Ride Distance\" <= 20 THEN '15-20 km'\n       WHEN \"Ride Distance\" <= 25 THEN '20-25 km'\n       WHEN \"Ride Distance\" <= 30 THEN '25-30 km'\n       WHEN \"Ride Distance\" <= 40 THEN '30-40 km'\n       ELSE '40+ km' END as distance_band,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY distance_band\nORDER BY MIN(\"Ride Distance\")",
+      "time": 1788871563.3791554
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Driver Ratings\" < 3.5 THEN '3.0-3.4'\n       WHEN \"Driver Ratings\" < 4.0 THEN '3.5-3.9'\n       WHEN \"Driver Ratings\" < 4.5 THEN '4.0-4.4'\n       ELSE '4.5-5.0' END as rating_band,\n       COUNT(*) as rides,\n       ROUND(SUM(\"Booking Value\"),2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY rating_band\nORDER BY MIN(\"Driver Ratings\")",
+      "time": 1788871563.4611182
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Pickup Location\"\nORDER BY ride_count DESC\nLIMIT 20",
+      "time": 1788871563.5275638
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Voice Talk Average Time\" < 5 THEN '0-5 min'\n       WHEN \"Voice Talk Average Time\" < 10 THEN '5-10 min'\n       WHEN \"Voice Talk Average Time\" < 15 THEN '10-15 min'\n       ELSE '15+ min' END as voice_band,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\"/NULLIF(\"Ride Distance\",0)),2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_driver_rating\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY voice_band\nORDER BY MIN(\"Voice Talk Average Time\")",
+      "time": 1788871563.6037939
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Customer Technical Assistance Time\" < 5 THEN '0-5 min'\n       WHEN \"Customer Technical Assistance Time\" < 10 THEN '5-10 min'\n       WHEN \"Customer Technical Assistance Time\" < 15 THEN '10-15 min'\n       ELSE '15+ min' END as assist_band,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\"/NULLIF(\"Ride Distance\",0)),2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_driver_rating\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY assist_band\nORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871563.6864088
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Customer Technical Assistance Time\") as min_ctat,\n       MAX(\"Customer Technical Assistance Time\") as max_ctat,\n       ROUND(AVG(\"Customer Technical Assistance Time\"),2) as avg_ctat\nFROM sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871563.7646284
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT DISTINCT \"Customer Technical Assistance Time\"\nFROM sheet1 WHERE \"Booking Status\" = 'Completed'\nORDER BY \"Customer Technical Assistance Time\"\nLIMIT 20",
+      "time": 1788871563.7894309
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Customer Technical Assistance Time\" < 20 THEN '15-20 min'\n       WHEN \"Customer Technical Assistance Time\" < 25 THEN '20-25 min'\n       WHEN \"Customer Technical Assistance Time\" < 30 THEN '25-30 min'\n       WHEN \"Customer Technical Assistance Time\" < 35 THEN '30-35 min'\n       ELSE '35+ min' END as assist_band,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\"/NULLIF(\"Ride Distance\",0)),2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_driver_rating\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY assist_band\nORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871563.8462803
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871563.933393
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871564.274651
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Pickup Location\", \"Drop Location\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871564.7842593
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\",\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Ride Distance\"),2) as avg_dist,\n       ROUND(SUM(\"Booking Value\"),2) as total_earnings,\n       COUNT(*) as completed_rides\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Vehicle Type\"\nORDER BY total_earnings DESC",
+      "time": 1788871565.1848798
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Pickup Location\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871565.2542
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\" || ' → ' || \"Drop Location\" as route,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(AVG(\"Ride Distance\"), 2) as avg_distance\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY route\nHAVING ride_count >= 100\nORDER BY avg_fare_per_km DESC\nLIMIT 15",
+      "time": 1788871565.7929993
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Drop Location\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Drop Location\"\nORDER BY avg_fare_per_km DESC\nLIMIT 10",
+      "time": 1788871565.9260042
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER) as month,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)),2) as fare_per_km,\n       ROUND(SUM(\"Booking Value\"),0) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY month\nORDER BY month",
+      "time": 1788871566.0010548
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"sheet1\" WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871571.342037
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Ride Distance\"), 2) AS avg_distance, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Vehicle Type\" ORDER BY avg_fare_per_km DESC",
+      "time": 1788871571.438394
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS overall_fare_per_km, ROUND(AVG(\"Booking Value\"), 2) AS overall_avg_booking, ROUND(AVG(\"Ride Distance\"), 2) AS overall_avg_distance, ROUND(SUM(\"Booking Value\"), 2) AS overall_total_earnings, COUNT(*) AS completed_rides FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871571.514012
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Driver Ratings\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Driver Ratings\" ORDER BY \"Driver Ratings\"",
+      "time": 1788871571.541458
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Driver Ratings\") AS min_r, MAX(\"Driver Ratings\") AS max_r, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_r, MIN(\"Booking Value\") AS min_bv, MAX(\"Booking Value\") AS max_bv, MIN(\"Ride Distance\") AS min_d, MAX(\"Ride Distance\") AS max_d FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871571.6255293
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour_of_day, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY hour_of_day ORDER BY hour_of_day",
+      "time": 1788871571.660346
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Payment Method\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Payment Method\" ORDER BY ride_count DESC",
+      "time": 1788871571.7325704
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%w', \"Date\") AS INTEGER) AS day_of_week, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY day_of_week ORDER BY day_of_week",
+      "time": 1788871571.7898428
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%m', \"Date\") AS INTEGER) AS month, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY month ORDER BY month",
+      "time": 1788871571.8563678
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER) AS month, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY month ORDER BY month",
+      "time": 1788871571.9224322
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) || '-' || SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6)) IS NULL THEN 'unparsed' ELSE 'parsed' END AS parse_status, COUNT(*) AS cnt FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY parse_status",
+      "time": 1788871572.0135474
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY day_of_week ORDER BY day_of_week",
+      "time": 1788871572.1531148
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Ride Distance\" <= 5 THEN '0-5 km' WHEN \"Ride Distance\" <= 10 THEN '5-10 km' WHEN \"Ride Distance\" <= 15 THEN '10-15 km' WHEN \"Ride Distance\" <= 20 THEN '15-20 km' WHEN \"Ride Distance\" <= 25 THEN '20-25 km' WHEN \"Ride Distance\" <= 30 THEN '25-30 km' WHEN \"Ride Distance\" <= 40 THEN '30-40 km' ELSE '40+ km' END AS distance_band, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY distance_band ORDER BY MIN(\"Ride Distance\")",
+      "time": 1788871572.371556
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Driver Ratings\" < 3.5 THEN '3.0-3.4' WHEN \"Driver Ratings\" < 4.0 THEN '3.5-3.9' WHEN \"Driver Ratings\" < 4.5 THEN '4.0-4.4' ELSE '4.5-5.0' END AS rating_band, COUNT(*) AS rides, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY rating_band ORDER BY MIN(\"Driver Ratings\")",
+      "time": 1788871572.4477172
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Pickup Location\" ORDER BY ride_count DESC LIMIT 20",
+      "time": 1788871572.5094135
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Voice Talk Average Time\" < 5 THEN '0-5 min' WHEN \"Voice Talk Average Time\" < 10 THEN '5-10 min' WHEN \"Voice Talk Average Time\" < 15 THEN '10-15 min' ELSE '15+ min' END AS voice_band, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY voice_band ORDER BY MIN(\"Voice Talk Average Time\")",
+      "time": 1788871572.577354
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Customer Technical Assistance Time\" < 5 THEN '0-5 min' WHEN \"Customer Technical Assistance Time\" < 10 THEN '5-10 min' WHEN \"Customer Technical Assistance Time\" < 15 THEN '10-15 min' ELSE '15+ min' END AS assist_band, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY assist_band ORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871572.6537685
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Customer Technical Assistance Time\") AS min_ctat, MAX(\"Customer Technical Assistance Time\") AS max_ctat, ROUND(AVG(\"Customer Technical Assistance Time\"), 2) AS avg_ctat FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871572.727279
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT DISTINCT \"Customer Technical Assistance Time\" FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' ORDER BY \"Customer Technical Assistance Time\" LIMIT 20",
+      "time": 1788871572.745877
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Customer Technical Assistance Time\" < 20 THEN '15-20 min' WHEN \"Customer Technical Assistance Time\" < 25 THEN '20-25 min' WHEN \"Customer Technical Assistance Time\" < 30 THEN '25-30 min' WHEN \"Customer Technical Assistance Time\" < 35 THEN '30-35 min' ELSE '35+ min' END AS assist_band, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY assist_band ORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871572.795739
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871572.8757248
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871573.2026315
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Pickup Location\", \"Drop Location\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871573.697436
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Ride Distance\"), 2) AS avg_dist, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings, COUNT(*) AS completed_rides FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Vehicle Type\" ORDER BY total_earnings DESC",
+      "time": 1788871574.08602
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Pickup Location\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871574.1478705
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\" || ' → ' || \"Drop Location\" AS route, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Ride Distance\"), 2) AS avg_distance FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY route HAVING ride_count >= 100 ORDER BY avg_fare_per_km DESC LIMIT 15",
+      "time": 1788871574.669423
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Drop Location\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Drop Location\" ORDER BY avg_fare_per_km DESC LIMIT 10",
+      "time": 1788871574.795903
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER) AS month, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS fare_per_km, ROUND(SUM(\"Booking Value\"), 0) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY month ORDER BY month",
+      "time": 1788871574.8638241
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871574.9559126
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"sheet1\" WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871580.2059379
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Ride Distance\"), 2) AS avg_distance, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Vehicle Type\" ORDER BY avg_fare_per_km DESC",
+      "time": 1788871580.3022456
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS overall_fare_per_km, ROUND(AVG(\"Booking Value\"), 2) AS overall_avg_booking, ROUND(AVG(\"Ride Distance\"), 2) AS overall_avg_distance, ROUND(SUM(\"Booking Value\"), 2) AS overall_total_earnings, COUNT(*) AS completed_rides FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871580.3776648
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Driver Ratings\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Driver Ratings\" ORDER BY \"Driver Ratings\"",
+      "time": 1788871580.4053617
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Driver Ratings\") AS min_r, MAX(\"Driver Ratings\") AS max_r, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_r, MIN(\"Booking Value\") AS min_bv, MAX(\"Booking Value\") AS max_bv, MIN(\"Ride Distance\") AS min_d, MAX(\"Ride Distance\") AS max_d FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871580.4896116
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour_of_day, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY hour_of_day ORDER BY hour_of_day",
+      "time": 1788871580.5243187
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Payment Method\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Payment Method\" ORDER BY ride_count DESC",
+      "time": 1788871580.5947242
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%w', \"Date\") AS INTEGER) AS day_of_week, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY day_of_week ORDER BY day_of_week",
+      "time": 1788871580.6524677
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%m', \"Date\") AS INTEGER) AS month, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY month ORDER BY month",
+      "time": 1788871580.7185602
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER) AS month, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY month ORDER BY month",
+      "time": 1788871580.7847564
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) || '-' || SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6)) IS NULL THEN 'unparsed' ELSE 'parsed' END AS parse_status, COUNT(*) AS cnt FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY parse_status",
+      "time": 1788871580.8776278
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY day_of_week ORDER BY day_of_week",
+      "time": 1788871581.018741
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Ride Distance\" <= 5 THEN '0-5 km' WHEN \"Ride Distance\" <= 10 THEN '5-10 km' WHEN \"Ride Distance\" <= 15 THEN '10-15 km' WHEN \"Ride Distance\" <= 20 THEN '15-20 km' WHEN \"Ride Distance\" <= 25 THEN '20-25 km' WHEN \"Ride Distance\" <= 30 THEN '25-30 km' WHEN \"Ride Distance\" <= 40 THEN '30-40 km' ELSE '40+ km' END AS distance_band, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY distance_band ORDER BY MIN(\"Ride Distance\")",
+      "time": 1788871581.2356396
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Driver Ratings\" < 3.5 THEN '3.0-3.4' WHEN \"Driver Ratings\" < 4.0 THEN '3.5-3.9' WHEN \"Driver Ratings\" < 4.5 THEN '4.0-4.4' ELSE '4.5-5.0' END AS rating_band, COUNT(*) AS rides, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY rating_band ORDER BY MIN(\"Driver Ratings\")",
+      "time": 1788871581.3109884
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Pickup Location\" ORDER BY ride_count DESC LIMIT 20",
+      "time": 1788871581.3701932
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Voice Talk Average Time\" < 5 THEN '0-5 min' WHEN \"Voice Talk Average Time\" < 10 THEN '5-10 min' WHEN \"Voice Talk Average Time\" < 15 THEN '10-15 min' ELSE '15+ min' END AS voice_band, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY voice_band ORDER BY MIN(\"Voice Talk Average Time\")",
+      "time": 1788871581.4372752
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Customer Technical Assistance Time\" < 5 THEN '0-5 min' WHEN \"Customer Technical Assistance Time\" < 10 THEN '5-10 min' WHEN \"Customer Technical Assistance Time\" < 15 THEN '10-15 min' ELSE '15+ min' END AS assist_band, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY assist_band ORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871581.5134294
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Customer Technical Assistance Time\") AS min_ctat, MAX(\"Customer Technical Assistance Time\") AS max_ctat, ROUND(AVG(\"Customer Technical Assistance Time\"), 2) AS avg_ctat FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871581.5854454
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT DISTINCT \"Customer Technical Assistance Time\" FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' ORDER BY \"Customer Technical Assistance Time\" LIMIT 20",
+      "time": 1788871581.6033707
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Customer Technical Assistance Time\" < 20 THEN '15-20 min' WHEN \"Customer Technical Assistance Time\" < 25 THEN '20-25 min' WHEN \"Customer Technical Assistance Time\" < 30 THEN '25-30 min' WHEN \"Customer Technical Assistance Time\" < 35 THEN '30-35 min' ELSE '35+ min' END AS assist_band, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY assist_band ORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871581.6529734
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871581.7330453
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871582.062208
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Pickup Location\", \"Drop Location\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871582.542877
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Ride Distance\"), 2) AS avg_dist, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings, COUNT(*) AS completed_rides FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Vehicle Type\" ORDER BY total_earnings DESC",
+      "time": 1788871583.1035302
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Pickup Location\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871583.1652255
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\" || ' → ' || \"Drop Location\" AS route, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Ride Distance\"), 2) AS avg_distance FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY route HAVING ride_count >= 100 ORDER BY avg_fare_per_km DESC LIMIT 15",
+      "time": 1788871583.503484
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Drop Location\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Drop Location\" ORDER BY avg_fare_per_km DESC LIMIT 10",
+      "time": 1788871583.6302764
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER) AS month, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS fare_per_km, ROUND(SUM(\"Booking Value\"), 0) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY month ORDER BY month",
+      "time": 1788871583.6979895
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871583.7900956
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Ride Distance\"), 2) as avg_distance,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"), 2) as avg_driver_rating,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Vehicle Type\"\nORDER BY avg_fare_per_km DESC",
+      "time": 1788871589.0349865
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as overall_fare_per_km,\n       ROUND(AVG(\"Booking Value\"), 2) as overall_avg_booking,\n       ROUND(AVG(\"Ride Distance\"), 2) as overall_avg_distance,\n       ROUND(SUM(\"Booking Value\"), 2) as overall_total_earnings,\n       COUNT(*) as completed_rides\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871589.1195686
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Driver Ratings\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Driver Ratings\"\nORDER BY \"Driver Ratings\"",
+      "time": 1788871589.1548278
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Driver Ratings\") as min_r, MAX(\"Driver Ratings\") as max_r,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_r,\n       MIN(\"Booking Value\") as min_bv, MAX(\"Booking Value\") as max_bv,\n       MIN(\"Ride Distance\") as min_d, MAX(\"Ride Distance\") as max_d\nFROM sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871589.2465248
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour_of_day,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY hour_of_day\nORDER BY hour_of_day",
+      "time": 1788871589.287967
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Payment Method\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Payment Method\"\nORDER BY ride_count DESC",
+      "time": 1788871589.364877
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%w', \"Date\") AS INTEGER) as day_of_week,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY day_of_week\nORDER BY day_of_week",
+      "time": 1788871589.4287074
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%m', \"Date\") AS INTEGER) as month,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY month\nORDER BY month",
+      "time": 1788871589.5015583
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER) as month,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY month\nORDER BY month",
+      "time": 1788871589.5742648
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n       CASE WHEN STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) || '-' || \n            SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6)) IS NULL THEN 'unparsed' ELSE 'parsed' END as parse_status,\n       COUNT(*) as cnt\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY parse_status",
+      "time": 1788871589.6618667
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n       PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n       PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY day_of_week\nORDER BY day_of_week",
+      "time": 1788871589.7605145
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Ride Distance\" <= 5 THEN '0-5 km'\n       WHEN \"Ride Distance\" <= 10 THEN '5-10 km'\n       WHEN \"Ride Distance\" <= 15 THEN '10-15 km'\n       WHEN \"Ride Distance\" <= 20 THEN '15-20 km'\n       WHEN \"Ride Distance\" <= 25 THEN '20-25 km'\n       WHEN \"Ride Distance\" <= 30 THEN '25-30 km'\n       WHEN \"Ride Distance\" <= 40 THEN '30-40 km'\n       ELSE '40+ km' END as distance_band,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY distance_band\nORDER BY MIN(\"Ride Distance\")",
+      "time": 1788871589.9227657
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Driver Ratings\" < 3.5 THEN '3.0-3.4'\n       WHEN \"Driver Ratings\" < 4.0 THEN '3.5-3.9'\n       WHEN \"Driver Ratings\" < 4.5 THEN '4.0-4.4'\n       ELSE '4.5-5.0' END as rating_band,\n       COUNT(*) as rides,\n       ROUND(SUM(\"Booking Value\"),2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY rating_band\nORDER BY MIN(\"Driver Ratings\")",
+      "time": 1788871590.004912
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Pickup Location\"\nORDER BY ride_count DESC\nLIMIT 20",
+      "time": 1788871590.073352
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Voice Talk Average Time\" < 5 THEN '0-5 min'\n       WHEN \"Voice Talk Average Time\" < 10 THEN '5-10 min'\n       WHEN \"Voice Talk Average Time\" < 15 THEN '10-15 min'\n       ELSE '15+ min' END as voice_band,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\"/NULLIF(\"Ride Distance\",0)),2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_driver_rating\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY voice_band\nORDER BY MIN(\"Voice Talk Average Time\")",
+      "time": 1788871590.147023
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Customer Technical Assistance Time\" < 5 THEN '0-5 min'\n       WHEN \"Customer Technical Assistance Time\" < 10 THEN '5-10 min'\n       WHEN \"Customer Technical Assistance Time\" < 15 THEN '10-15 min'\n       ELSE '15+ min' END as assist_band,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\"/NULLIF(\"Ride Distance\",0)),2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_driver_rating\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY assist_band\nORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871590.2296436
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Customer Technical Assistance Time\") as min_ctat,\n       MAX(\"Customer Technical Assistance Time\") as max_ctat,\n       ROUND(AVG(\"Customer Technical Assistance Time\"),2) as avg_ctat\nFROM sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871590.3080895
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT DISTINCT \"Customer Technical Assistance Time\"\nFROM sheet1 WHERE \"Booking Status\" = 'Completed'\nORDER BY \"Customer Technical Assistance Time\"\nLIMIT 20",
+      "time": 1788871590.3327596
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Customer Technical Assistance Time\" < 20 THEN '15-20 min'\n       WHEN \"Customer Technical Assistance Time\" < 25 THEN '20-25 min'\n       WHEN \"Customer Technical Assistance Time\" < 30 THEN '25-30 min'\n       WHEN \"Customer Technical Assistance Time\" < 35 THEN '30-35 min'\n       ELSE '35+ min' END as assist_band,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\"/NULLIF(\"Ride Distance\",0)),2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_driver_rating\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY assist_band\nORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871590.389116
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871590.476137
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871590.933491
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Pickup Location\", \"Drop Location\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871591.4272559
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\",\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Ride Distance\"),2) as avg_dist,\n       ROUND(SUM(\"Booking Value\"),2) as total_earnings,\n       COUNT(*) as completed_rides\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Vehicle Type\"\nORDER BY total_earnings DESC",
+      "time": 1788871592.0075521
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Pickup Location\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871592.0777586
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\" || ' → ' || \"Drop Location\" as route,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(AVG(\"Ride Distance\"), 2) as avg_distance\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY route\nHAVING ride_count >= 100\nORDER BY avg_fare_per_km DESC\nLIMIT 15",
+      "time": 1788871592.4258606
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Drop Location\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Drop Location\"\nORDER BY avg_fare_per_km DESC\nLIMIT 10",
+      "time": 1788871592.5604272
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER) as month,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)),2) as fare_per_km,\n       ROUND(SUM(\"Booking Value\"),0) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY month\nORDER BY month",
+      "time": 1788871592.6352303
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Ride Distance\"), 2) as avg_distance,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"), 2) as avg_driver_rating,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Vehicle Type\"\nORDER BY avg_fare_per_km DESC",
+      "time": 1788871597.9618058
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as overall_fare_per_km,\n       ROUND(AVG(\"Booking Value\"), 2) as overall_avg_booking,\n       ROUND(AVG(\"Ride Distance\"), 2) as overall_avg_distance,\n       ROUND(SUM(\"Booking Value\"), 2) as overall_total_earnings,\n       COUNT(*) as completed_rides\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871598.046031
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Driver Ratings\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Driver Ratings\"\nORDER BY \"Driver Ratings\"",
+      "time": 1788871598.08141
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Driver Ratings\") as min_r, MAX(\"Driver Ratings\") as max_r,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_r,\n       MIN(\"Booking Value\") as min_bv, MAX(\"Booking Value\") as max_bv,\n       MIN(\"Ride Distance\") as min_d, MAX(\"Ride Distance\") as max_d\nFROM sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871598.1726532
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour_of_day,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY hour_of_day\nORDER BY hour_of_day",
+      "time": 1788871598.2160645
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Payment Method\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Payment Method\"\nORDER BY ride_count DESC",
+      "time": 1788871598.293878
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%w', \"Date\") AS INTEGER) as day_of_week,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY day_of_week\nORDER BY day_of_week",
+      "time": 1788871598.3577468
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%m', \"Date\") AS INTEGER) as month,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY month\nORDER BY month",
+      "time": 1788871598.4306257
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER) as month,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY month\nORDER BY month",
+      "time": 1788871598.5032737
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n       CASE WHEN STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) || '-' || \n            SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6)) IS NULL THEN 'unparsed' ELSE 'parsed' END as parse_status,\n       COUNT(*) as cnt\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY parse_status",
+      "time": 1788871598.6015928
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n       PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n       PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY day_of_week\nORDER BY day_of_week",
+      "time": 1788871598.7481003
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Ride Distance\" <= 5 THEN '0-5 km'\n       WHEN \"Ride Distance\" <= 10 THEN '5-10 km'\n       WHEN \"Ride Distance\" <= 15 THEN '10-15 km'\n       WHEN \"Ride Distance\" <= 20 THEN '15-20 km'\n       WHEN \"Ride Distance\" <= 25 THEN '20-25 km'\n       WHEN \"Ride Distance\" <= 30 THEN '25-30 km'\n       WHEN \"Ride Distance\" <= 40 THEN '30-40 km'\n       ELSE '40+ km' END as distance_band,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY distance_band\nORDER BY MIN(\"Ride Distance\")",
+      "time": 1788871598.9762886
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Driver Ratings\" < 3.5 THEN '3.0-3.4'\n       WHEN \"Driver Ratings\" < 4.0 THEN '3.5-3.9'\n       WHEN \"Driver Ratings\" < 4.5 THEN '4.0-4.4'\n       ELSE '4.5-5.0' END as rating_band,\n       COUNT(*) as rides,\n       ROUND(SUM(\"Booking Value\"),2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY rating_band\nORDER BY MIN(\"Driver Ratings\")",
+      "time": 1788871599.0580695
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Pickup Location\"\nORDER BY ride_count DESC\nLIMIT 20",
+      "time": 1788871599.1238234
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Voice Talk Average Time\" < 5 THEN '0-5 min'\n       WHEN \"Voice Talk Average Time\" < 10 THEN '5-10 min'\n       WHEN \"Voice Talk Average Time\" < 15 THEN '10-15 min'\n       ELSE '15+ min' END as voice_band,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\"/NULLIF(\"Ride Distance\",0)),2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_driver_rating\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY voice_band\nORDER BY MIN(\"Voice Talk Average Time\")",
+      "time": 1788871599.1996212
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Customer Technical Assistance Time\" < 5 THEN '0-5 min'\n       WHEN \"Customer Technical Assistance Time\" < 10 THEN '5-10 min'\n       WHEN \"Customer Technical Assistance Time\" < 15 THEN '10-15 min'\n       ELSE '15+ min' END as assist_band,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\"/NULLIF(\"Ride Distance\",0)),2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_driver_rating\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY assist_band\nORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871599.283652
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Customer Technical Assistance Time\") as min_ctat,\n       MAX(\"Customer Technical Assistance Time\") as max_ctat,\n       ROUND(AVG(\"Customer Technical Assistance Time\"),2) as avg_ctat\nFROM sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871599.362733
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT DISTINCT \"Customer Technical Assistance Time\"\nFROM sheet1 WHERE \"Booking Status\" = 'Completed'\nORDER BY \"Customer Technical Assistance Time\"\nLIMIT 20",
+      "time": 1788871599.3875563
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Customer Technical Assistance Time\" < 20 THEN '15-20 min'\n       WHEN \"Customer Technical Assistance Time\" < 25 THEN '20-25 min'\n       WHEN \"Customer Technical Assistance Time\" < 30 THEN '25-30 min'\n       WHEN \"Customer Technical Assistance Time\" < 35 THEN '30-35 min'\n       ELSE '35+ min' END as assist_band,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\"/NULLIF(\"Ride Distance\",0)),2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_driver_rating\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY assist_band\nORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871599.4437776
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871599.5298035
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871600.004336
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Pickup Location\", \"Drop Location\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871600.3494735
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\",\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Ride Distance\"),2) as avg_dist,\n       ROUND(SUM(\"Booking Value\"),2) as total_earnings,\n       COUNT(*) as completed_rides\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Vehicle Type\"\nORDER BY total_earnings DESC",
+      "time": 1788871600.9146688
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Pickup Location\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871600.9833062
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\" || ' → ' || \"Drop Location\" as route,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(AVG(\"Ride Distance\"), 2) as avg_distance\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY route\nHAVING ride_count >= 100\nORDER BY avg_fare_per_km DESC\nLIMIT 15",
+      "time": 1788871601.5253732
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Drop Location\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Drop Location\"\nORDER BY avg_fare_per_km DESC\nLIMIT 10",
+      "time": 1788871601.660339
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER) as month,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)),2) as fare_per_km,\n       ROUND(SUM(\"Booking Value\"),0) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY month\nORDER BY month",
+      "time": 1788871601.7351162
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"sheet1\" WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871607.068752
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Ride Distance\"), 2) AS avg_distance, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Vehicle Type\" ORDER BY avg_fare_per_km DESC",
+      "time": 1788871607.1646154
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS overall_fare_per_km, ROUND(AVG(\"Booking Value\"), 2) AS overall_avg_booking, ROUND(AVG(\"Ride Distance\"), 2) AS overall_avg_distance, ROUND(SUM(\"Booking Value\"), 2) AS overall_total_earnings, COUNT(*) AS completed_rides FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871607.2402232
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Driver Ratings\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Driver Ratings\" ORDER BY \"Driver Ratings\"",
+      "time": 1788871607.2680047
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Driver Ratings\") AS min_r, MAX(\"Driver Ratings\") AS max_r, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_r, MIN(\"Booking Value\") AS min_bv, MAX(\"Booking Value\") AS max_bv, MIN(\"Ride Distance\") AS min_d, MAX(\"Ride Distance\") AS max_d FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871607.35375
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour_of_day, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY hour_of_day ORDER BY hour_of_day",
+      "time": 1788871607.3895707
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Payment Method\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Payment Method\" ORDER BY ride_count DESC",
+      "time": 1788871607.46021
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%w', \"Date\") AS INTEGER) AS day_of_week, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY day_of_week ORDER BY day_of_week",
+      "time": 1788871607.5175552
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%m', \"Date\") AS INTEGER) AS month, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY month ORDER BY month",
+      "time": 1788871607.5835462
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER) AS month, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY month ORDER BY month",
+      "time": 1788871607.649496
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) || '-' || SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6)) IS NULL THEN 'unparsed' ELSE 'parsed' END AS parse_status, COUNT(*) AS cnt FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY parse_status",
+      "time": 1788871607.7407372
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY day_of_week ORDER BY day_of_week",
+      "time": 1788871607.8795326
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Ride Distance\" <= 5 THEN '0-5 km' WHEN \"Ride Distance\" <= 10 THEN '5-10 km' WHEN \"Ride Distance\" <= 15 THEN '10-15 km' WHEN \"Ride Distance\" <= 20 THEN '15-20 km' WHEN \"Ride Distance\" <= 25 THEN '20-25 km' WHEN \"Ride Distance\" <= 30 THEN '25-30 km' WHEN \"Ride Distance\" <= 40 THEN '30-40 km' ELSE '40+ km' END AS distance_band, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY distance_band ORDER BY MIN(\"Ride Distance\")",
+      "time": 1788871608.0988996
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Driver Ratings\" < 3.5 THEN '3.0-3.4' WHEN \"Driver Ratings\" < 4.0 THEN '3.5-3.9' WHEN \"Driver Ratings\" < 4.5 THEN '4.0-4.4' ELSE '4.5-5.0' END AS rating_band, COUNT(*) AS rides, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY rating_band ORDER BY MIN(\"Driver Ratings\")",
+      "time": 1788871608.174086
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Pickup Location\" ORDER BY ride_count DESC LIMIT 20",
+      "time": 1788871608.2332644
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Voice Talk Average Time\" < 5 THEN '0-5 min' WHEN \"Voice Talk Average Time\" < 10 THEN '5-10 min' WHEN \"Voice Talk Average Time\" < 15 THEN '10-15 min' ELSE '15+ min' END AS voice_band, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY voice_band ORDER BY MIN(\"Voice Talk Average Time\")",
+      "time": 1788871608.3002284
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Customer Technical Assistance Time\" < 5 THEN '0-5 min' WHEN \"Customer Technical Assistance Time\" < 10 THEN '5-10 min' WHEN \"Customer Technical Assistance Time\" < 15 THEN '10-15 min' ELSE '15+ min' END AS assist_band, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY assist_band ORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871608.377386
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Customer Technical Assistance Time\") AS min_ctat, MAX(\"Customer Technical Assistance Time\") AS max_ctat, ROUND(AVG(\"Customer Technical Assistance Time\"), 2) AS avg_ctat FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871608.449741
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT DISTINCT \"Customer Technical Assistance Time\" FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' ORDER BY \"Customer Technical Assistance Time\" LIMIT 20",
+      "time": 1788871608.467824
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Customer Technical Assistance Time\" < 20 THEN '15-20 min' WHEN \"Customer Technical Assistance Time\" < 25 THEN '20-25 min' WHEN \"Customer Technical Assistance Time\" < 30 THEN '25-30 min' WHEN \"Customer Technical Assistance Time\" < 35 THEN '30-35 min' ELSE '35+ min' END AS assist_band, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY assist_band ORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871608.517697
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871608.5973892
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871608.923754
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Pickup Location\", \"Drop Location\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871609.4118364
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Ride Distance\"), 2) AS avg_dist, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings, COUNT(*) AS completed_rides FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Vehicle Type\" ORDER BY total_earnings DESC",
+      "time": 1788871609.8026743
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Pickup Location\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871609.8645248
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\" || ' → ' || \"Drop Location\" AS route, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Ride Distance\"), 2) AS avg_distance FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY route HAVING ride_count >= 100 ORDER BY avg_fare_per_km DESC LIMIT 15",
+      "time": 1788871610.3982036
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Drop Location\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Drop Location\" ORDER BY avg_fare_per_km DESC LIMIT 10",
+      "time": 1788871610.5252447
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER) AS month, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS fare_per_km, ROUND(SUM(\"Booking Value\"), 0) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY month ORDER BY month",
+      "time": 1788871610.592537
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871610.6841745
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"sheet1\" WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871615.9266932
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Ride Distance\"), 2) AS avg_distance, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Vehicle Type\" ORDER BY avg_fare_per_km DESC",
+      "time": 1788871616.0226693
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS overall_fare_per_km, ROUND(AVG(\"Booking Value\"), 2) AS overall_avg_booking, ROUND(AVG(\"Ride Distance\"), 2) AS overall_avg_distance, ROUND(SUM(\"Booking Value\"), 2) AS overall_total_earnings, COUNT(*) AS completed_rides FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871616.0983658
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Driver Ratings\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Driver Ratings\" ORDER BY \"Driver Ratings\"",
+      "time": 1788871616.1259754
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Driver Ratings\") AS min_r, MAX(\"Driver Ratings\") AS max_r, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_r, MIN(\"Booking Value\") AS min_bv, MAX(\"Booking Value\") AS max_bv, MIN(\"Ride Distance\") AS min_d, MAX(\"Ride Distance\") AS max_d FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871616.2097633
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour_of_day, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY hour_of_day ORDER BY hour_of_day",
+      "time": 1788871616.244993
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Payment Method\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Payment Method\" ORDER BY ride_count DESC",
+      "time": 1788871616.315404
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%w', \"Date\") AS INTEGER) AS day_of_week, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY day_of_week ORDER BY day_of_week",
+      "time": 1788871616.3724725
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%m', \"Date\") AS INTEGER) AS month, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY month ORDER BY month",
+      "time": 1788871616.4384274
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER) AS month, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY month ORDER BY month",
+      "time": 1788871616.505126
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) || '-' || SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6)) IS NULL THEN 'unparsed' ELSE 'parsed' END AS parse_status, COUNT(*) AS cnt FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY parse_status",
+      "time": 1788871616.5981555
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY day_of_week ORDER BY day_of_week",
+      "time": 1788871616.7379196
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Ride Distance\" <= 5 THEN '0-5 km' WHEN \"Ride Distance\" <= 10 THEN '5-10 km' WHEN \"Ride Distance\" <= 15 THEN '10-15 km' WHEN \"Ride Distance\" <= 20 THEN '15-20 km' WHEN \"Ride Distance\" <= 25 THEN '20-25 km' WHEN \"Ride Distance\" <= 30 THEN '25-30 km' WHEN \"Ride Distance\" <= 40 THEN '30-40 km' ELSE '40+ km' END AS distance_band, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY distance_band ORDER BY MIN(\"Ride Distance\")",
+      "time": 1788871616.9572906
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Driver Ratings\" < 3.5 THEN '3.0-3.4' WHEN \"Driver Ratings\" < 4.0 THEN '3.5-3.9' WHEN \"Driver Ratings\" < 4.5 THEN '4.0-4.4' ELSE '4.5-5.0' END AS rating_band, COUNT(*) AS rides, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY rating_band ORDER BY MIN(\"Driver Ratings\")",
+      "time": 1788871617.0323937
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Pickup Location\" ORDER BY ride_count DESC LIMIT 20",
+      "time": 1788871617.0913525
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Voice Talk Average Time\" < 5 THEN '0-5 min' WHEN \"Voice Talk Average Time\" < 10 THEN '5-10 min' WHEN \"Voice Talk Average Time\" < 15 THEN '10-15 min' ELSE '15+ min' END AS voice_band, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY voice_band ORDER BY MIN(\"Voice Talk Average Time\")",
+      "time": 1788871617.158453
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Customer Technical Assistance Time\" < 5 THEN '0-5 min' WHEN \"Customer Technical Assistance Time\" < 10 THEN '5-10 min' WHEN \"Customer Technical Assistance Time\" < 15 THEN '10-15 min' ELSE '15+ min' END AS assist_band, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY assist_band ORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871617.2342885
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Customer Technical Assistance Time\") AS min_ctat, MAX(\"Customer Technical Assistance Time\") AS max_ctat, ROUND(AVG(\"Customer Technical Assistance Time\"), 2) AS avg_ctat FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871617.3058565
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT DISTINCT \"Customer Technical Assistance Time\" FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' ORDER BY \"Customer Technical Assistance Time\" LIMIT 20",
+      "time": 1788871617.323812
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Customer Technical Assistance Time\" < 20 THEN '15-20 min' WHEN \"Customer Technical Assistance Time\" < 25 THEN '20-25 min' WHEN \"Customer Technical Assistance Time\" < 30 THEN '25-30 min' WHEN \"Customer Technical Assistance Time\" < 35 THEN '30-35 min' ELSE '35+ min' END AS assist_band, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY assist_band ORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871617.3735375
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871617.4529407
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871617.7815304
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Pickup Location\", \"Drop Location\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871618.26642
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Ride Distance\"), 2) AS avg_dist, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings, COUNT(*) AS completed_rides FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Vehicle Type\" ORDER BY total_earnings DESC",
+      "time": 1788871618.6538727
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Pickup Location\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871618.7154417
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\" || ' → ' || \"Drop Location\" AS route, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Ride Distance\"), 2) AS avg_distance FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY route HAVING ride_count >= 100 ORDER BY avg_fare_per_km DESC LIMIT 15",
+      "time": 1788871619.2336335
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Drop Location\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Drop Location\" ORDER BY avg_fare_per_km DESC LIMIT 10",
+      "time": 1788871619.3589516
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER) AS month, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS fare_per_km, ROUND(SUM(\"Booking Value\"), 0) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY month ORDER BY month",
+      "time": 1788871619.4265318
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871619.51875
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Ride Distance\"), 2) as avg_distance,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"), 2) as avg_driver_rating,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Vehicle Type\"\nORDER BY avg_fare_per_km DESC",
+      "time": 1788871624.7983396
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as overall_fare_per_km,\n       ROUND(AVG(\"Booking Value\"), 2) as overall_avg_booking,\n       ROUND(AVG(\"Ride Distance\"), 2) as overall_avg_distance,\n       ROUND(SUM(\"Booking Value\"), 2) as overall_total_earnings,\n       COUNT(*) as completed_rides\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871624.8842635
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Driver Ratings\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Driver Ratings\"\nORDER BY \"Driver Ratings\"",
+      "time": 1788871624.91979
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Driver Ratings\") as min_r, MAX(\"Driver Ratings\") as max_r,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_r,\n       MIN(\"Booking Value\") as min_bv, MAX(\"Booking Value\") as max_bv,\n       MIN(\"Ride Distance\") as min_d, MAX(\"Ride Distance\") as max_d\nFROM sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871625.0108876
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour_of_day,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY hour_of_day\nORDER BY hour_of_day",
+      "time": 1788871625.052477
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Payment Method\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Payment Method\"\nORDER BY ride_count DESC",
+      "time": 1788871625.1294918
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%w', \"Date\") AS INTEGER) as day_of_week,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY day_of_week\nORDER BY day_of_week",
+      "time": 1788871625.1932569
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%m', \"Date\") AS INTEGER) as month,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY month\nORDER BY month",
+      "time": 1788871625.2659187
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER) as month,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY month\nORDER BY month",
+      "time": 1788871625.3385782
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n       CASE WHEN STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) || '-' || \n            SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6)) IS NULL THEN 'unparsed' ELSE 'parsed' END as parse_status,\n       COUNT(*) as cnt\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY parse_status",
+      "time": 1788871625.4262407
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n       PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n       PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY day_of_week\nORDER BY day_of_week",
+      "time": 1788871625.5556133
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Ride Distance\" <= 5 THEN '0-5 km'\n       WHEN \"Ride Distance\" <= 10 THEN '5-10 km'\n       WHEN \"Ride Distance\" <= 15 THEN '10-15 km'\n       WHEN \"Ride Distance\" <= 20 THEN '15-20 km'\n       WHEN \"Ride Distance\" <= 25 THEN '20-25 km'\n       WHEN \"Ride Distance\" <= 30 THEN '25-30 km'\n       WHEN \"Ride Distance\" <= 40 THEN '30-40 km'\n       ELSE '40+ km' END as distance_band,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY distance_band\nORDER BY MIN(\"Ride Distance\")",
+      "time": 1788871625.7456367
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Driver Ratings\" < 3.5 THEN '3.0-3.4'\n       WHEN \"Driver Ratings\" < 4.0 THEN '3.5-3.9'\n       WHEN \"Driver Ratings\" < 4.5 THEN '4.0-4.4'\n       ELSE '4.5-5.0' END as rating_band,\n       COUNT(*) as rides,\n       ROUND(SUM(\"Booking Value\"),2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY rating_band\nORDER BY MIN(\"Driver Ratings\")",
+      "time": 1788871625.8284934
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Pickup Location\"\nORDER BY ride_count DESC\nLIMIT 20",
+      "time": 1788871625.8944988
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Voice Talk Average Time\" < 5 THEN '0-5 min'\n       WHEN \"Voice Talk Average Time\" < 10 THEN '5-10 min'\n       WHEN \"Voice Talk Average Time\" < 15 THEN '10-15 min'\n       ELSE '15+ min' END as voice_band,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\"/NULLIF(\"Ride Distance\",0)),2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_driver_rating\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY voice_band\nORDER BY MIN(\"Voice Talk Average Time\")",
+      "time": 1788871625.9679606
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Customer Technical Assistance Time\" < 5 THEN '0-5 min'\n       WHEN \"Customer Technical Assistance Time\" < 10 THEN '5-10 min'\n       WHEN \"Customer Technical Assistance Time\" < 15 THEN '10-15 min'\n       ELSE '15+ min' END as assist_band,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\"/NULLIF(\"Ride Distance\",0)),2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_driver_rating\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY assist_band\nORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871626.0503516
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Customer Technical Assistance Time\") as min_ctat,\n       MAX(\"Customer Technical Assistance Time\") as max_ctat,\n       ROUND(AVG(\"Customer Technical Assistance Time\"),2) as avg_ctat\nFROM sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871626.1286857
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT DISTINCT \"Customer Technical Assistance Time\"\nFROM sheet1 WHERE \"Booking Status\" = 'Completed'\nORDER BY \"Customer Technical Assistance Time\"\nLIMIT 20",
+      "time": 1788871626.1533468
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Customer Technical Assistance Time\" < 20 THEN '15-20 min'\n       WHEN \"Customer Technical Assistance Time\" < 25 THEN '20-25 min'\n       WHEN \"Customer Technical Assistance Time\" < 30 THEN '25-30 min'\n       WHEN \"Customer Technical Assistance Time\" < 35 THEN '30-35 min'\n       ELSE '35+ min' END as assist_band,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\"/NULLIF(\"Ride Distance\",0)),2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_driver_rating\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY assist_band\nORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871626.209559
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871626.2955878
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871626.6209674
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Pickup Location\", \"Drop Location\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871627.0893745
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\",\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Ride Distance\"),2) as avg_dist,\n       ROUND(SUM(\"Booking Value\"),2) as total_earnings,\n       COUNT(*) as completed_rides\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Vehicle Type\"\nORDER BY total_earnings DESC",
+      "time": 1788871627.655836
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Pickup Location\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871627.7263727
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\" || ' → ' || \"Drop Location\" as route,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(AVG(\"Ride Distance\"), 2) as avg_distance\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY route\nHAVING ride_count >= 100\nORDER BY avg_fare_per_km DESC\nLIMIT 15",
+      "time": 1788871628.0769377
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Drop Location\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Drop Location\"\nORDER BY avg_fare_per_km DESC\nLIMIT 10",
+      "time": 1788871628.2120843
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER) as month,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)),2) as fare_per_km,\n       ROUND(SUM(\"Booking Value\"),0) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY month\nORDER BY month",
+      "time": 1788871628.2870917
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Ride Distance\"), 2) as avg_distance,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"), 2) as avg_driver_rating,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Vehicle Type\"\nORDER BY avg_fare_per_km DESC",
+      "time": 1788871633.6362078
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as overall_fare_per_km,\n       ROUND(AVG(\"Booking Value\"), 2) as overall_avg_booking,\n       ROUND(AVG(\"Ride Distance\"), 2) as overall_avg_distance,\n       ROUND(SUM(\"Booking Value\"), 2) as overall_total_earnings,\n       COUNT(*) as completed_rides\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871633.720618
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Driver Ratings\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Driver Ratings\"\nORDER BY \"Driver Ratings\"",
+      "time": 1788871633.7560031
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Driver Ratings\") as min_r, MAX(\"Driver Ratings\") as max_r,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_r,\n       MIN(\"Booking Value\") as min_bv, MAX(\"Booking Value\") as max_bv,\n       MIN(\"Ride Distance\") as min_d, MAX(\"Ride Distance\") as max_d\nFROM sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871633.8487916
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour_of_day,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY hour_of_day\nORDER BY hour_of_day",
+      "time": 1788871633.8915162
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Payment Method\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Payment Method\"\nORDER BY ride_count DESC",
+      "time": 1788871633.9684238
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%w', \"Date\") AS INTEGER) as day_of_week,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY day_of_week\nORDER BY day_of_week",
+      "time": 1788871634.032288
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%m', \"Date\") AS INTEGER) as month,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY month\nORDER BY month",
+      "time": 1788871634.1053593
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER) as month,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY month\nORDER BY month",
+      "time": 1788871634.17796
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n       CASE WHEN STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) || '-' || \n            SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6)) IS NULL THEN 'unparsed' ELSE 'parsed' END as parse_status,\n       COUNT(*) as cnt\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY parse_status",
+      "time": 1788871634.2766204
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n       PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n       PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY day_of_week\nORDER BY day_of_week",
+      "time": 1788871634.4242928
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Ride Distance\" <= 5 THEN '0-5 km'\n       WHEN \"Ride Distance\" <= 10 THEN '5-10 km'\n       WHEN \"Ride Distance\" <= 15 THEN '10-15 km'\n       WHEN \"Ride Distance\" <= 20 THEN '15-20 km'\n       WHEN \"Ride Distance\" <= 25 THEN '20-25 km'\n       WHEN \"Ride Distance\" <= 30 THEN '25-30 km'\n       WHEN \"Ride Distance\" <= 40 THEN '30-40 km'\n       ELSE '40+ km' END as distance_band,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking_value,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY distance_band\nORDER BY MIN(\"Ride Distance\")",
+      "time": 1788871634.6555417
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Driver Ratings\" < 3.5 THEN '3.0-3.4'\n       WHEN \"Driver Ratings\" < 4.0 THEN '3.5-3.9'\n       WHEN \"Driver Ratings\" < 4.5 THEN '4.0-4.4'\n       ELSE '4.5-5.0' END as rating_band,\n       COUNT(*) as rides,\n       ROUND(SUM(\"Booking Value\"),2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY rating_band\nORDER BY MIN(\"Driver Ratings\")",
+      "time": 1788871634.7376592
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(SUM(\"Booking Value\"), 2) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Pickup Location\"\nORDER BY ride_count DESC\nLIMIT 20",
+      "time": 1788871634.8032417
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Voice Talk Average Time\" < 5 THEN '0-5 min'\n       WHEN \"Voice Talk Average Time\" < 10 THEN '5-10 min'\n       WHEN \"Voice Talk Average Time\" < 15 THEN '10-15 min'\n       ELSE '15+ min' END as voice_band,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\"/NULLIF(\"Ride Distance\",0)),2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_driver_rating\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY voice_band\nORDER BY MIN(\"Voice Talk Average Time\")",
+      "time": 1788871634.8798208
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Customer Technical Assistance Time\" < 5 THEN '0-5 min'\n       WHEN \"Customer Technical Assistance Time\" < 10 THEN '5-10 min'\n       WHEN \"Customer Technical Assistance Time\" < 15 THEN '10-15 min'\n       ELSE '15+ min' END as assist_band,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\"/NULLIF(\"Ride Distance\",0)),2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_driver_rating\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY assist_band\nORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871634.9633865
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Customer Technical Assistance Time\") as min_ctat,\n       MAX(\"Customer Technical Assistance Time\") as max_ctat,\n       ROUND(AVG(\"Customer Technical Assistance Time\"),2) as avg_ctat\nFROM sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871635.0418725
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT DISTINCT \"Customer Technical Assistance Time\"\nFROM sheet1 WHERE \"Booking Status\" = 'Completed'\nORDER BY \"Customer Technical Assistance Time\"\nLIMIT 20",
+      "time": 1788871635.0666912
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \n  CASE WHEN \"Customer Technical Assistance Time\" < 20 THEN '15-20 min'\n       WHEN \"Customer Technical Assistance Time\" < 25 THEN '20-25 min'\n       WHEN \"Customer Technical Assistance Time\" < 30 THEN '25-30 min'\n       WHEN \"Customer Technical Assistance Time\" < 35 THEN '30-35 min'\n       ELSE '35+ min' END as assist_band,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\"/NULLIF(\"Ride Distance\",0)),2) as avg_fare_per_km,\n       ROUND(AVG(\"Driver Ratings\"),2) as avg_driver_rating\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY assist_band\nORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871635.123231
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871635.2100556
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871635.674868
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Pickup Location\", \"Drop Location\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week,\n       CAST(SUBSTR(\"Time\", 1, 2) AS INTEGER) as hour\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871636.1678445
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\",\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Ride Distance\"),2) as avg_dist,\n       ROUND(SUM(\"Booking Value\"),2) as total_earnings,\n       COUNT(*) as completed_rides\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Vehicle Type\"\nORDER BY total_earnings DESC",
+      "time": 1788871636.5671363
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\nSELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\",\n       \"Pickup Location\",\n       \"Booking Value\" / NULLIF(\"Ride Distance\", 0) as fare_per_km,\n       STRFTIME('%w', SUBSTR(\"Date\", 1, 4) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || \n            PRINTF('%02d', CAST(SUBSTR(\"Date\", INSTR(SUBSTR(\"Date\", 6), '/') + 6) AS INTEGER))) as day_of_week\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\n",
+      "time": 1788871636.63633
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\" || ' → ' || \"Drop Location\" as route,\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km,\n       ROUND(AVG(\"Ride Distance\"), 2) as avg_distance\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY route\nHAVING ride_count >= 100\nORDER BY avg_fare_per_km DESC\nLIMIT 15",
+      "time": 1788871637.1653085
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Drop Location\",\n       COUNT(*) as ride_count,\n       ROUND(AVG(\"Booking Value\"), 2) as avg_booking,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) as avg_fare_per_km\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY \"Drop Location\"\nORDER BY avg_fare_per_km DESC\nLIMIT 10",
+      "time": 1788871637.299438
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTR(\"Date\", 6, INSTR(SUBSTR(\"Date\", 6), '/') - 1) AS INTEGER) as month,\n       COUNT(*) as rides,\n       ROUND(AVG(\"Booking Value\"),2) as avg_booking,\n       ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)),2) as fare_per_km,\n       ROUND(SUM(\"Booking Value\"),0) as total_earnings\nFROM sheet1\nWHERE \"Booking Status\" = 'Completed'\nGROUP BY month\nORDER BY month",
+      "time": 1788871637.3740468
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"sheet1\" WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871642.6991472
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Ride Distance\"), 2) AS avg_distance, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Vehicle Type\" ORDER BY avg_fare_per_km DESC",
+      "time": 1788871642.7953339
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS overall_fare_per_km, ROUND(AVG(\"Booking Value\"), 2) AS overall_avg_booking, ROUND(AVG(\"Ride Distance\"), 2) AS overall_avg_distance, ROUND(SUM(\"Booking Value\"), 2) AS overall_total_earnings, COUNT(*) AS completed_rides FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871642.8710458
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Driver Ratings\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Driver Ratings\" ORDER BY \"Driver Ratings\"",
+      "time": 1788871642.8986402
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Driver Ratings\") AS min_r, MAX(\"Driver Ratings\") AS max_r, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_r, MIN(\"Booking Value\") AS min_bv, MAX(\"Booking Value\") AS max_bv, MIN(\"Ride Distance\") AS min_d, MAX(\"Ride Distance\") AS max_d FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871642.9828851
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour_of_day, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY hour_of_day ORDER BY hour_of_day",
+      "time": 1788871643.0198789
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Payment Method\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Payment Method\" ORDER BY ride_count DESC",
+      "time": 1788871643.0903804
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%w', \"Date\") AS INTEGER) AS day_of_week, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY day_of_week ORDER BY day_of_week",
+      "time": 1788871643.1476145
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(STRFTIME('%m', \"Date\") AS INTEGER) AS month, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY month ORDER BY month",
+      "time": 1788871643.2139325
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER) AS month, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY month ORDER BY month",
+      "time": 1788871643.2802553
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) || '-' || SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6)) IS NULL THEN 'unparsed' ELSE 'parsed' END AS parse_status, COUNT(*) AS cnt FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY parse_status",
+      "time": 1788871643.371547
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY day_of_week ORDER BY day_of_week",
+      "time": 1788871643.511195
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Ride Distance\" <= 5 THEN '0-5 km' WHEN \"Ride Distance\" <= 10 THEN '5-10 km' WHEN \"Ride Distance\" <= 15 THEN '10-15 km' WHEN \"Ride Distance\" <= 20 THEN '15-20 km' WHEN \"Ride Distance\" <= 25 THEN '20-25 km' WHEN \"Ride Distance\" <= 30 THEN '25-30 km' WHEN \"Ride Distance\" <= 40 THEN '30-40 km' ELSE '40+ km' END AS distance_band, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking_value, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY distance_band ORDER BY MIN(\"Ride Distance\")",
+      "time": 1788871643.7288125
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Driver Ratings\" < 3.5 THEN '3.0-3.4' WHEN \"Driver Ratings\" < 4.0 THEN '3.5-3.9' WHEN \"Driver Ratings\" < 4.5 THEN '4.0-4.4' ELSE '4.5-5.0' END AS rating_band, COUNT(*) AS rides, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY rating_band ORDER BY MIN(\"Driver Ratings\")",
+      "time": 1788871643.8037074
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Pickup Location\" ORDER BY ride_count DESC LIMIT 20",
+      "time": 1788871643.8626766
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Voice Talk Average Time\" < 5 THEN '0-5 min' WHEN \"Voice Talk Average Time\" < 10 THEN '5-10 min' WHEN \"Voice Talk Average Time\" < 15 THEN '10-15 min' ELSE '15+ min' END AS voice_band, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY voice_band ORDER BY MIN(\"Voice Talk Average Time\")",
+      "time": 1788871643.9294693
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Customer Technical Assistance Time\" < 5 THEN '0-5 min' WHEN \"Customer Technical Assistance Time\" < 10 THEN '5-10 min' WHEN \"Customer Technical Assistance Time\" < 15 THEN '10-15 min' ELSE '15+ min' END AS assist_band, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY assist_band ORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871644.0058284
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT MIN(\"Customer Technical Assistance Time\") AS min_ctat, MAX(\"Customer Technical Assistance Time\") AS max_ctat, ROUND(AVG(\"Customer Technical Assistance Time\"), 2) AS avg_ctat FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871644.0796883
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT DISTINCT \"Customer Technical Assistance Time\" FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' ORDER BY \"Customer Technical Assistance Time\" LIMIT 20",
+      "time": 1788871644.0979006
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CASE WHEN \"Customer Technical Assistance Time\" < 20 THEN '15-20 min' WHEN \"Customer Technical Assistance Time\" < 25 THEN '20-25 min' WHEN \"Customer Technical Assistance Time\" < 30 THEN '25-30 min' WHEN \"Customer Technical Assistance Time\" < 35 THEN '30-35 min' ELSE '35+ min' END AS assist_band, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Driver Ratings\"), 2) AS avg_driver_rating FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY assist_band ORDER BY MIN(\"Customer Technical Assistance Time\")",
+      "time": 1788871644.1478534
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871644.2274296
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871644.5533268
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Pickup Location\", \"Drop Location\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week, CAST(SUBSTRING(\"Time\", 1, 2) AS INTEGER) AS hour FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871645.0200825
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Ride Distance\"), 2) AS avg_dist, ROUND(SUM(\"Booking Value\"), 2) AS total_earnings, COUNT(*) AS completed_rides FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Vehicle Type\" ORDER BY total_earnings DESC",
+      "time": 1788871645.5803812
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Vehicle Type\", \"Booking Value\", \"Ride Distance\", \"Driver Ratings\", \"Pickup Location\", \"Booking Value\" / NULLIF(\"Ride Distance\", 0) AS fare_per_km, STRFTIME('%w', SUBSTRING(\"Date\", 1, 4) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER)) || '-' || PRINTF('%02d', CAST(SUBSTRING(\"Date\", INSTR(SUBSTRING(\"Date\", 6), '/') + 6) AS INTEGER))) AS day_of_week FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed'",
+      "time": 1788871645.642299
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Pickup Location\" || ' → ' || \"Drop Location\" AS route, COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km, ROUND(AVG(\"Ride Distance\"), 2) AS avg_distance FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY route HAVING ride_count >= 100 ORDER BY avg_fare_per_km DESC LIMIT 15",
+      "time": 1788871645.9847248
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT \"Drop Location\", COUNT(*) AS ride_count, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS avg_fare_per_km FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY \"Drop Location\" ORDER BY avg_fare_per_km DESC LIMIT 10",
+      "time": 1788871646.1123774
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(SUBSTRING(\"Date\", 6, INSTR(SUBSTRING(\"Date\", 6), '/') - 1) AS INTEGER) AS month, COUNT(*) AS rides, ROUND(AVG(\"Booking Value\"), 2) AS avg_booking, ROUND(AVG(\"Booking Value\" / NULLIF(\"Ride Distance\", 0)), 2) AS fare_per_km, ROUND(SUM(\"Booking Value\"), 0) AS total_earnings FROM temp.reuse_candidate AS sheet1 WHERE \"Booking Status\" = 'Completed' GROUP BY month ORDER BY month",
+      "time": 1788871646.180212
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871646.2721364
+    }
+  ],
+  "correctness_warmup": {
+    "baseline": {
+      "total_ms": 3843.9803766086698,
+      "build_ms": 0,
+      "teardown_ms": 0
+    },
+    "candidate": {
+      "total_ms": 3794.9404530227184,
+      "build_ms": 96.60042636096478,
+      "teardown_ms": 20.048698410391808
+    }
+  },
+  "status": "measured",
+  "baseline_median_ms": 3700.186513364315,
+  "baseline_range_ms": [
+    3588.633474893868,
+    3872.778035700321
+  ],
+  "candidate_median_ms": 3612.9672741517425,
+  "candidate_range_ms": [
+    3593.3589497581124,
+    3634.870016016066
+  ],
+  "ratio_baseline_over_candidate": 1.0241406114681872,
+  "duration_s": 108.62089848518372
+}

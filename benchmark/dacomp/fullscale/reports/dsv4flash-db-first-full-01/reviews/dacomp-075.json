@@ -1,0 +1,86 @@
+{
+  "task_id": "dacomp-075",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 对供应商进行最小最大归一化、加权评分、风险阈值分类、策略成本收益求和、分组计数和结果连接。这些属于 SQL 能够支持的常规算术、条件与关系运算，不能因称为风险模型或 ROI 分析就豁免。绘图另行保留。",
+  "route": "SQL 筛选关键供应商 → Python 构建韧性分数、预警及 ROI 情景并连接策略 → 供应商改进计划。",
+  "evidence": [
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 15,
+          "text": "def normalize_minmax(col, higher_is_better=True):"
+        },
+        {
+          "line": 17,
+          "text": "    c_min, c_max = np.min(c), np.max(c)"
+        },
+        {
+          "line": 33,
+          "text": "df['financial_overdue_score'] = normalize_minmax('overdue_payment_percentage', higher_is_better=False)"
+        }
+      ]
+    },
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 131,
+          "text": "cat_data = df.groupby('vendor_category_name')[['financial_resilience', 'operational_resilience', "
+        },
+        {
+          "line": 132,
+          "text": "                                                'market_resilience', 'strategic_resilience']].mean()"
+        }
+      ]
+    },
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 93,
+          "text": "    total_cost = annual_cost.sum() * 3"
+        },
+        {
+          "line": 94,
+          "text": "    total_benefit = annual_benefit.sum() * 3"
+        },
+        {
+          "line": 100,
+          "text": "    n_pos = int(np.sum(per_vendor_roi > 0))"
+        },
+        {
+          "line": 181,
+          "text": "strat_counts = best_df.groupby('best_strategy')['vendor_name'].count().sort_values(ascending=False)"
+        }
+      ]
+    },
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 35,
+          "text": "key_high_risk = key_high_risk.merge(best_df[['vendor_id', 'best_strategy', 'best_roi']], on='vendor_id', how='left')"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 73,
+          "text": "print(f\"High-risk (prob>=60): {(df['disruption_probability_12_18mo']>=60).sum()}\")"
+        },
+        {
+          "line": 74,
+          "text": "print(f\"Red alert: {(df['warning_level']=='RED ALERT - Critical Disruption Risk').sum()}\")"
+        },
+        {
+          "line": 85,
+          "text": "print(df.groupby('expiry_month').size().sort_values(ascending=False).head(8))"
+        }
+      ]
+    }
+  ]
+}

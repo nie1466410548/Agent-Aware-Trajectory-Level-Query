@@ -1,0 +1,1 @@
+SELECT DISTINCT company_size_tier FROM customer360__customer_value_analysis ORDER BY company_size_tier

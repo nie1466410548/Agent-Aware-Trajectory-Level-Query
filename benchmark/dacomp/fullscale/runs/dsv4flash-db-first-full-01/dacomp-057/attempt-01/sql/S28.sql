@@ -1,0 +1,1 @@
+SELECT date_day, typeof(date_day) FROM google_ads__campaign_report LIMIT 5

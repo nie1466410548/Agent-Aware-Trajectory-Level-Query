@@ -1,0 +1,1 @@
+SELECT current_company, COUNT(*) AS n FROM greenhouse__application_enhanced GROUP BY current_company ORDER BY n DESC LIMIT 20

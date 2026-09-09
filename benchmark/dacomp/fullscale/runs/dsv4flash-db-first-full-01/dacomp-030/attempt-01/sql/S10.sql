@@ -1,0 +1,1 @@
+SELECT * FROM appeal_record_table LIMIT 10

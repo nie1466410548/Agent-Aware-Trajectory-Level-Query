@@ -1,0 +1,1 @@
+SELECT DISTINCT opportunity_owner_state FROM salesforce__opportunity_enhanced ORDER BY opportunity_owner_state

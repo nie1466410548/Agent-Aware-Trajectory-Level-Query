@@ -1,0 +1,1 @@
+SELECT overall_recommendation, COUNT(*) AS n FROM greenhouse__interview_enhanced GROUP BY overall_recommendation ORDER BY n DESC

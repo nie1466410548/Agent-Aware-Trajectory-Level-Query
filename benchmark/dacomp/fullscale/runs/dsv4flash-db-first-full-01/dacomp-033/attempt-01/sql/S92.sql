@@ -1,0 +1,1 @@
+SELECT AVG("Ticket customer satisfaction score") as avg_sat_all, AVG("Ticket resolution duration") as avg_duration_all FROM service_ticket_table

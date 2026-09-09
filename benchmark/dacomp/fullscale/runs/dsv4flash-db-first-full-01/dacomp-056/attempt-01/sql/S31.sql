@@ -1,0 +1,1 @@
+SELECT DISTINCT success_target FROM customer360__customer_value_analysis ORDER BY 1

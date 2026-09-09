@@ -1,0 +1,1 @@
+SELECT campaign_id, geo_target, ROUND(SUM(cost),0) AS cost, ROUND(AVG(roas),3) AS avg_roas FROM google_ads__geo_report WHERE campaign_id IN (105,135,36,184,180,56,69,148,178,27) GROUP BY campaign_id, geo_target ORDER BY campaign_id, cost DESC

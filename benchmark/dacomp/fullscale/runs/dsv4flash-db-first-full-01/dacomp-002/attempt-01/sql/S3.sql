@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_rows, MIN("Sales Date") AS min_date, MAX("Sales Date") AS max_date, MIN("Sales Month") AS min_month, MAX("Sales Month") AS max_month FROM sheet1

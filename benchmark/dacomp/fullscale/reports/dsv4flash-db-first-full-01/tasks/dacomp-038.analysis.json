@@ -1,0 +1,386 @@
+{
+  "fingerprint": "8ccc31c581a51f5d3de0e504c2a0ce9d14ddd73d2dc74300d7e739c6ad52a081",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S27",
+      "covered": [
+        "S27",
+        "S31"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S27",
+      "later_reuses": 1,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865432.840298,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 511,
+      "validation_ended_at": 1788865432.8455338,
+      "checks": [
+        {
+          "sql_id": "S31",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S28",
+      "covered": [
+        "S28",
+        "S32"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S28",
+      "later_reuses": 1,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S33",
+      "covered": [
+        "S33",
+        "S35",
+        "S36"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S33",
+      "later_reuses": 2,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865432.8159764,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 511,
+      "validation_ended_at": 1788865432.8400354,
+      "checks": [
+        {
+          "sql_id": "S35",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S36",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S34",
+      "covered": [
+        "S34",
+        "S37"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S34",
+      "later_reuses": 1,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Promotion Date\" AS __g0, strategy AS __g1, CASE WHEN \"Promotion Date\" <= '2025-07-03' THEN 'pre' ELSE 'gray' END AS __g2, \"Day of the Week\" AS __g3, COUNT(*) AS __a0, SUM(impressions) AS __a1, SUM(clicks) AS __a2, SUM(\"Spend (Yuan)\") AS __a3, SUM(\"Budget Utilization Rate\") AS __a4_sum, COUNT(\"Budget Utilization Rate\") AS __a4_n FROM \"sheet1\"  GROUP BY \"Promotion Date\", strategy, CASE WHEN \"Promotion Date\" <= '2025-07-03' THEN 'pre' ELSE 'gray' END, \"Day of the Week\"",
+      "covered": [
+        "S8",
+        "S10",
+        "S11",
+        "S12",
+        "S13",
+        "S17",
+        "S22",
+        "S24"
+      ],
+      "rewrites": {
+        "S8": "SELECT __g0 AS \"Promotion Date\", __g1 AS \"Strategy\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+        "S10": "SELECT __g0 AS \"Promotion Date\", __g1 AS \"Strategy\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g1, __g0",
+        "S11": "SELECT __g0 AS \"Promotion Date\", __g1 AS \"Strategy\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g1, __g0 LIMIT 20 OFFSET 10",
+        "S12": "SELECT __g0 AS \"Promotion Date\", __g1 AS \"Strategy\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g1, __g0 LIMIT 20 OFFSET 30",
+        "S13": "SELECT __g0 AS \"Promotion Date\", __g1 AS \"Strategy\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g1, __g0 LIMIT 10 OFFSET 40",
+        "S17": "SELECT __g2 AS period, __g1 AS \"Strategy\", SUM(__a0) AS rows, ROUND(SUM(__a3), 0) AS spend, SUM(__a1) AS impressions, SUM(__a2) AS clicks, ROUND(SUM(__a2) * 1.0 / SUM(__a1), 4) AS ctr_w, ROUND(SUM(__a3) * 1.0 / SUM(__a2), 3) AS cpc_w, ROUND(SUM(__a3) * 1000.0 / SUM(__a1), 3) AS cpm_w, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 4) AS budutil_avg FROM temp.reuse_candidate GROUP BY __g2, __g1 ORDER BY __g1, period",
+        "S22": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+        "S24": "SELECT __g3 AS \"Day of the Week\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY __g0"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S8",
+      "later_reuses": 7,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865432.8066862,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Promotion Date\" AS __g0, strategy AS __g1, CASE WHEN \"Promotion Date\" <= '2025-07-03' THEN 'pre' ELSE 'gray' END AS __g2, \"Day of the Week\" AS __g3, COUNT(*) AS __a0, SUM(impressions) AS __a1, SUM(clicks) AS __a2, SUM(\"Spend (Yuan)\") AS __a3, SUM(\"Budget Utilization Rate\") AS __a4_sum, COUNT(\"Budget Utilization Rate\") AS __a4_n FROM \"sheet1\"  GROUP BY \"Promotion Date\", strategy, CASE WHEN \"Promotion Date\" <= '2025-07-03' THEN 'pre' ELSE 'gray' END, \"Day of the Week\"",
+          "phase": "offline_validation",
+          "start_time": 1788865432.8069763,
+          "status": "execute_returned",
+          "end_time": 1788865432.80799
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865432.807995,
+          "status": "execute_returned",
+          "end_time": 1788865432.8080142
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865432.8080194,
+          "status": "execute_returned",
+          "end_time": 1788865432.80804
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"Promotion Date\", __g1 AS \"Strategy\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "phase": "offline_validation",
+          "start_time": 1788865432.808059,
+          "status": "execute_returned",
+          "end_time": 1788865432.8080916
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"Promotion Date\", __g1 AS \"Strategy\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g1, __g0",
+          "phase": "offline_validation",
+          "start_time": 1788865432.809643,
+          "status": "execute_returned",
+          "end_time": 1788865432.8097186
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS \"Promotion Date\", __g1 AS \"Strategy\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g1, __g0 LIMIT 20 OFFSET 10",
+          "phase": "offline_validation",
+          "start_time": 1788865432.8104825,
+          "status": "execute_returned",
+          "end_time": 1788865432.8105688
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g0 AS \"Promotion Date\", __g1 AS \"Strategy\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g1, __g0 LIMIT 20 OFFSET 30",
+          "phase": "offline_validation",
+          "start_time": 1788865432.81129,
+          "status": "execute_returned",
+          "end_time": 1788865432.8113754
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g0 AS \"Promotion Date\", __g1 AS \"Strategy\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g1, __g0 LIMIT 10 OFFSET 40",
+          "phase": "offline_validation",
+          "start_time": 1788865432.8120515,
+          "status": "execute_returned",
+          "end_time": 1788865432.8121352
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g2 AS period, __g1 AS \"Strategy\", SUM(__a0) AS rows, ROUND(SUM(__a3), 0) AS spend, SUM(__a1) AS impressions, SUM(__a2) AS clicks, ROUND(SUM(__a2) * 1.0 / SUM(__a1), 4) AS ctr_w, ROUND(SUM(__a3) * 1.0 / SUM(__a2), 3) AS cpc_w, ROUND(SUM(__a3) * 1000.0 / SUM(__a1), 3) AS cpm_w, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 4) AS budutil_avg FROM temp.reuse_candidate GROUP BY __g2, __g1 ORDER BY __g1, period",
+          "phase": "offline_validation",
+          "start_time": 1788865432.812767,
+          "status": "execute_returned",
+          "end_time": 1788865432.8129206
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865432.8149107,
+          "status": "execute_returned",
+          "end_time": 1788865432.8149416
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g3 AS \"Day of the Week\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788865432.8153343,
+          "status": "execute_returned",
+          "end_time": 1788865432.8153915
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Promotion Date\" AS __g0, strategy AS __g1, CASE WHEN \"Promotion Date\" <= '2025-07-03' THEN 'pre' ELSE 'gray' END AS __g2, \"Day of the Week\" AS __g3, COUNT(*) AS __a0, SUM(impressions) AS __a1, SUM(clicks) AS __a2, SUM(\"Spend (Yuan)\") AS __a3, SUM(\"Budget Utilization Rate\") AS __a4_sum, COUNT(\"Budget Utilization Rate\") AS __a4_n FROM \"sheet1\"  GROUP BY \"Promotion Date\", strategy, CASE WHEN \"Promotion Date\" <= '2025-07-03' THEN 'pre' ELSE 'gray' END, \"Day of the Week\"",
+          "time": 1788865432.8072453,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865432.8080108,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865432.8080368,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Promotion Date\", __g1 AS \"Strategy\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "time": 1788865432.808077,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Promotion Date\", __g1 AS \"Strategy\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g1, __g0",
+          "time": 1788865432.809678,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Promotion Date\", __g1 AS \"Strategy\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g1, __g0 LIMIT 20 OFFSET 10",
+          "time": 1788865432.8105154,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Promotion Date\", __g1 AS \"Strategy\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g1, __g0 LIMIT 20 OFFSET 30",
+          "time": 1788865432.8113256,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Promotion Date\", __g1 AS \"Strategy\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g1, __g0 LIMIT 10 OFFSET 40",
+          "time": 1788865432.8120859,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS period, __g1 AS \"Strategy\", SUM(__a0) AS rows, ROUND(SUM(__a3), 0) AS spend, SUM(__a1) AS impressions, SUM(__a2) AS clicks, ROUND(SUM(__a2) * 1.0 / SUM(__a1), 4) AS ctr_w, ROUND(SUM(__a3) * 1.0 / SUM(__a2), 3) AS cpc_w, ROUND(SUM(__a3) * 1000.0 / SUM(__a1), 3) AS cpm_w, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 4) AS budutil_avg FROM temp.reuse_candidate GROUP BY __g2, __g1 ORDER BY __g1, period",
+          "time": 1788865432.8128488,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "time": 1788865432.814934,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS \"Day of the Week\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY __g0",
+          "time": 1788865432.815366,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 1.0192431509494781,
+      "intermediate_rows": 45,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4_sum",
+        "__a4_n"
+      ],
+      "validation_ended_at": 1788865432.8159566,
+      "checks": [
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT __g0 AS \"Promotion Date\", __g1 AS \"Strategy\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g0, __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.5803128480911255
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT __g0 AS \"Promotion Date\", __g1 AS \"Strategy\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g1, __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.8364729583263397
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT __g0 AS \"Promotion Date\", __g1 AS \"Strategy\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g1, __g0 LIMIT 20 OFFSET 10",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.8046235889196396
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT __g0 AS \"Promotion Date\", __g1 AS \"Strategy\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g1, __g0 LIMIT 20 OFFSET 30",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7567703723907471
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT __g0 AS \"Promotion Date\", __g1 AS \"Strategy\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g1, __g0 LIMIT 10 OFFSET 40",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7143104448914528
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "SELECT __g2 AS period, __g1 AS \"Strategy\", SUM(__a0) AS rows, ROUND(SUM(__a3), 0) AS spend, SUM(__a1) AS impressions, SUM(__a2) AS clicks, ROUND(SUM(__a2) * 1.0 / SUM(__a1), 4) AS ctr_w, ROUND(SUM(__a3) * 1.0 / SUM(__a2), 3) AS cpc_w, ROUND(SUM(__a3) * 1000.0 / SUM(__a1), 3) AS cpm_w, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 4) AS budutil_avg FROM temp.reuse_candidate GROUP BY __g2, __g1 ORDER BY __g1, period",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.140614204108715
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "SELECT SUM(__a0) AS n FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.4145912826061249
+        },
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "SELECT __g3 AS \"Day of the Week\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5485387519001961
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

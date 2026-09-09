@@ -1,0 +1,1 @@
+SELECT DISTINCT survey_name, project_category, project_type, brand_base_url FROM qualtrics__survey WHERE survey_name LIKE '%photo%' OR survey_name LIKE '%editor%' OR project_category LIKE '%photo%' OR project_type LIKE '%photo%'

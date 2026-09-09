@@ -1,0 +1,1 @@
+SELECT r.survey_id, r.user_language, COUNT(*) AS n, AVG(r.value) AS avg_v FROM qualtrics__response r GROUP BY r.survey_id, r.user_language HAVING n >= 5 AND AVG(r.value) < 3.0 ORDER BY avg_v ASC LIMIT 30

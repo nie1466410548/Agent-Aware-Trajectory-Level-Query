@@ -1,0 +1,1 @@
+SELECT "Contract Status", COUNT(*) n FROM customer_information_table GROUP BY "Contract Status"

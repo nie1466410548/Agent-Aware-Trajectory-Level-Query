@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT "Salary Range") AS distinct_salary_formats FROM sheet1 WHERE "Education Requirement" = 'Vocational school or above' AND "Salary Range" IS NOT NULL AND "Salary Range" != ''

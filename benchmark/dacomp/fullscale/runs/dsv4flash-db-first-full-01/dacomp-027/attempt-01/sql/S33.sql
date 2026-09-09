@@ -1,0 +1,1 @@
+SELECT "fundingstate", COUNT(*) FROM financials1 GROUP BY "fundingstate"

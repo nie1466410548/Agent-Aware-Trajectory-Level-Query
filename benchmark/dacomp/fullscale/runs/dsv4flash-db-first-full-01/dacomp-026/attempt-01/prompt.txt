@@ -1,0 +1,158 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+For the Level 5 disasters in the `disaster_events` table, identify the relevant records and then systematically assess emergency response resource allocation effectiveness across the human resources (`human_resources` + `operations1`), financial resources (`financials1`), material supplies (`supplies1` + `distribution_hubs`), and transportation (`transportation1`) dimensions. Describe how the resource mix supports operational outcomes, highlight documented anchors (e.g., staffing ratios, ROI, delivery efficiency), and explain how your conclusions draw on the English schema terminology so that the assessment fully captures the quantified performance expectations for Level 5 events.
+
+DATABASE SCHEMA:
+CREATE TABLE "beneficiaries_and_assessments" (
+"Affected Population Registration ID" TEXT,
+  "Distribution Reference ID" TEXT,
+  "Action Reference ID" TEXT,
+  "Affected Population Registration Information" TEXT,
+  "Vulnerability Assessment" TEXT,
+  "Needs Assessment Status" TEXT,
+  "Distribution Equity Index" REAL,
+  "Affected Population Feedback Score" REAL,
+  "Community Engagement" TEXT,
+  "Local Capacity Building" TEXT
+)
+CREATE TABLE "coordination_and_evaluation" (
+"Coordevalregistry ID" TEXT,
+  "Distribution Reference ID" TEXT,
+  "Action Reference ID" TEXT,
+  "Secincident Count" INTEGER,
+  "Safety Ranking" TEXT,
+  "Accesslimitation" TEXT,
+  "coordeffectlvl" TEXT,
+  "partnerorgs" INTEGER,
+  "infosharingstate" TEXT,
+  "reportcompliance" REAL,
+  "dataqualityvalue" INTEGER,
+  "monitoringfreq" TEXT,
+  "evaluationstage" TEXT,
+  "lessonslearnedstage" TEXT,
+  "contingencyplanstage" TEXT,
+  "riskmitigationsteps" TEXT,
+  "insurancescope" TEXT,
+  "compliancestate" TEXT,
+  "auditstate" TEXT,
+  "qualitycontrolsteps" TEXT,
+  "stakeholdersatisf" REAL,
+  "mediacoversentiment" TEXT,
+  "publicperception" REAL,
+  "documentationstate" TEXT,
+  "lessonsrecorded" INTEGER,
+  "bestpracticeslisted" INTEGER,
+  "improvementrecs" INTEGER,
+  "nextreviewdate" TEXT,
+  "notes" TEXT
+)
+CREATE TABLE "disaster_events" (
+"Disaster Event ID" TEXT,
+  "Timestamp" TEXT,
+  "Disaster Type" TEXT,
+  "Disaster Severity Level" TEXT,
+  "Affected Region" TEXT,
+  "Region Tag" TEXT,
+  "Latitude Coordinate" REAL,
+  "Longitude Coordinate" REAL,
+  "Impact Indicator" TEXT
+)
+CREATE TABLE "distribution_hubs" (
+"Distribution Center ID" TEXT,
+  "Disaster Event Reference ID" TEXT,
+  "Center Capacity (tons)" INTEGER,
+  "Utilization (%)" REAL,
+  "Storage Capacity (m³)" INTEGER,
+  "Available Capacity (m³)" INTEGER,
+  "Cold Storage Capacity (m³)" INTEGER,
+  "Cold Storage Temperature (℃)" REAL,
+  "Warehouse Status" TEXT,
+  "Inventory Accuracy (%)" REAL,
+  "Inventory Turnover Rate" REAL
+)
+CREATE TABLE "environment_and_health" (
+"Environmental Health ID" TEXT,
+  "Disaster Reference ID" TEXT,
+  "Environmental Impact Rate" TEXT,
+  "Waste Management Status" TEXT,
+  "Recycling Rate (%)" REAL,
+  "Carbon Emissions (tons)" REAL,
+  "Renewable Energy Share (%)" REAL,
+  "Water Quality Index" REAL,
+  "Health Coverage Rate" REAL,
+  "Disease Risk" TEXT,
+  "Medical Emergency Response Capacity" TEXT,
+  "Vaccination Coverage Rate" REAL,
+  "Mental Health Assistance" TEXT
+)
+CREATE TABLE "financials1" (
+"financeregistry ID" TEXT,
+  "Disaster Reference ID" TEXT,
+  "Action Reference ID" TEXT,
+  "budgetallot(USD)" INTEGER,
+  "fundsutilpct(%)" REAL,
+  "costbene(USD)" REAL,
+  "opscosts(USD)" INTEGER,
+  "transportcosts(USD)" INTEGER,
+  "storagecosts(USD)" INTEGER,
+  "personnelcosts(USD)" INTEGER,
+  "fundingstate" TEXT,
+  "donorcommitments(USD)" INTEGER,
+  "resourcegaps(USD)" INTEGER
+)
+CREATE TABLE "human_resources" (
+"Human Resources ID" TEXT,
+  "Disaster Reference ID" TEXT,
+  "Action Reference ID" TEXT,
+  "Staffing" TEXT
+)
+CREATE TABLE "operations1" (
+"Operation ID" TEXT,
+  "Disaster Reference ID" TEXT,
+  "Distribution Center Reference ID" TEXT,
+  "Emergency Level" TEXT,
+  "Response Phase" TEXT,
+  "Operation Status" TEXT,
+  "Coordination Center" TEXT,
+  "Start Date" TEXT,
+  "Estimated Duration (days)" INTEGER,
+  "Priority" TEXT,
+  "Resource Allocation Status" TEXT,
+  "Supply Flow Status" TEXT
+)
+CREATE TABLE "supplies1" (
+"Material ID" TEXT,
+  "Disaster Reference ID" TEXT,
+  "Distribution Center Reference ID" TEXT,
+  "Inventory resources" TEXT
+)
+CREATE TABLE "transportation1" (
+"Transport ID" TEXT,
+  "Disaster Reference ID" TEXT,
+  "Distribution Center Reference ID" TEXT,
+  "Supply Reference ID" TEXT,
+  "Number of Vehicles" INTEGER,
+  "Available Trucks" INTEGER,
+  "Available Helicopters" INTEGER,
+  "Available Ships" INTEGER,
+  "Total Transport Volume (tons)" INTEGER,
+  "Daily Transport Volume (tons)" INTEGER,
+  "Last-Mile Delivery Status" TEXT,
+  "Number of Distribution Points" INTEGER,
+  "Average Delivery Time" REAL,
+  "Delivery Success Rate" REAL,
+  "Route Optimization Status" TEXT,
+  "Fuel Consumption (L/km)" REAL,
+  "Maintenance Status" TEXT,
+  "Vehicle Failure Rate" REAL
+)

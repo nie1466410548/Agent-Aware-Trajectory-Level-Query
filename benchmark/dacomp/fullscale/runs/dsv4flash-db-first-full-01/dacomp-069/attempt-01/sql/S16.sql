@@ -1,0 +1,1 @@
+SELECT date_day, overall_performance_score, quality_score, avg_transaction_value, average_revenue_per_user, daily_net_revenue, daily_transactions, research_budget_usd, primary_risk_flag FROM google_play__comprehensive_performance_dashboard WHERE package_name='com.dev.photoeditor' ORDER BY date_day

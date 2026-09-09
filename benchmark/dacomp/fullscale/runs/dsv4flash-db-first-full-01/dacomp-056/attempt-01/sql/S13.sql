@@ -1,0 +1,1 @@
+SELECT COUNT(*) FROM customer360__customer_activity_metrics

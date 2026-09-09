@@ -1,0 +1,1 @@
+SELECT "Transaction Payment Status", COUNT(*) as cnt, SUM("Transaction Amount") as amt FROM transaction_history_table GROUP BY "Transaction Payment Status"

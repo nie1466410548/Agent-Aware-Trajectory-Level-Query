@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n, COUNT(DISTINCT country_short) AS countries, COUNT(DISTINCT date_day) AS days, MIN(date_day) AS min_date, MAX(date_day) AS max_date FROM google_play__finance_report WHERE package_name='com.dev.photoeditor'

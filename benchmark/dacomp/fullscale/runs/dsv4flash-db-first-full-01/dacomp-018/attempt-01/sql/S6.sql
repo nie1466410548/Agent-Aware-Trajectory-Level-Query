@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_browsing FROM product_browsing

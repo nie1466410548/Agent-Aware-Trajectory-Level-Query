@@ -1,0 +1,1 @@
+SELECT * FROM sheet1 LIMIT 20

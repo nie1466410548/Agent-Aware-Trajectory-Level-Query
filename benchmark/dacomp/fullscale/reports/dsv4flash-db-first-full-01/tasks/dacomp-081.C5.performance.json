@@ -1,0 +1,1303 @@
+{
+  "task_id": "dacomp-081",
+  "candidate_id": "C5",
+  "covered": [
+    "S5",
+    "S33",
+    "S44",
+    "S47",
+    "S51",
+    "S52",
+    "S56",
+    "S57",
+    "S58",
+    "S94",
+    "S95",
+    "S96",
+    "S101",
+    "S102",
+    "S103",
+    "S106",
+    "S107",
+    "S108"
+  ],
+  "build_sql": "SELECT survey_response_id AS __g0, user_language AS __g1, contact_language AS __g2, response_text AS __g3, question_type AS __g4, distribution_channel AS __g5, contact_id AS __g6, CAST(value AS INTEGER) AS __g7, sub_question_text AS __g8, question_option_key AS __g9, survey_id AS __g10, question_text AS __g11, COUNT(*) AS __a0, SUM(CASE WHEN NOT embedded_data IS NULL AND embedded_data <> '' THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN NOT survey_response_recorded_at IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN NOT survey_response_started_at IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN NOT survey_finished_at IS NULL THEN 1 ELSE 0 END) AS __a4, SUM(value) AS __a5_sum, COUNT(value) AS __a5_n, MIN(value) AS __a6, MAX(value) AS __a7 FROM \"qualtrics__response\"  GROUP BY survey_response_id, user_language, contact_language, response_text, question_type, distribution_channel, contact_id, CAST(value AS INTEGER), sub_question_text, question_option_key, survey_id, question_text",
+  "rewrites": {
+    "S5": "SELECT SUM(__a0) AS total FROM temp.reuse_candidate",
+    "S33": "SELECT SUM(__a0) AS total, SUM(__a1) AS has_embedded FROM temp.reuse_candidate",
+    "S44": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_q_per_resp FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_q_per_resp DESC LIMIT 20",
+    "S47": "SELECT SUM(__a0) AS total, SUM(__a2) AS has_recorded, SUM(__a3) AS has_started, SUM(__a4) AS has_finished FROM temp.reuse_candidate",
+    "S51": "SELECT __g1 AS \"user_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_value DESC",
+    "S52": "SELECT __g2 AS \"contact_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_value DESC",
+    "S56": "SELECT __g3 AS \"response_text\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+    "S57": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+    "S58": "SELECT __g3 AS \"response_text\", MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_v DESC",
+    "S94": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n, MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+    "S95": "SELECT __g5 AS \"distribution_channel\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5 ORDER BY n DESC",
+    "S96": "SELECT __g6 AS \"contact_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6 ORDER BY n DESC LIMIT 10",
+    "S101": "SELECT __g7 AS v_int, SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_val FROM temp.reuse_candidate GROUP BY __g7 ORDER BY v_int",
+    "S102": "SELECT __g8 AS \"sub_question_text\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g8 ORDER BY n DESC LIMIT 30",
+    "S103": "SELECT __g9 AS \"question_option_key\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g9 ORDER BY n DESC LIMIT 30",
+    "S106": "SELECT __g10 AS \"survey_id\", __g4 AS \"question_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g10, __g4 HAVING SUM(__a0) >= 10 ORDER BY cnt DESC LIMIT 20",
+    "S107": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_questions FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_questions DESC LIMIT 20",
+    "S108": "SELECT __g11 AS \"question_text\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g11 ORDER BY cnt DESC LIMIT 30"
+  },
+  "phase": "offline_performance",
+  "cache": "warm/uncontrolled OS cache",
+  "timing_boundary": "execute + fetch all row arrays; candidate includes CREATE TEMP TABLE AS and all rewrites; includes DROP cleanup and excludes result comparison, identical consumption on both paths",
+  "teardown": "DROP is included in candidate total_ms and reported separately; no additional indexes used",
+  "rounds": [
+    {
+      "round": 1,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline": {
+        "total_ms": 774.913964793086,
+        "build_ms": 0,
+        "teardown_ms": 0
+      },
+      "candidate": {
+        "total_ms": 1133.3981109783053,
+        "build_ms": 387.97796703875065,
+        "teardown_ms": 14.207818545401096
+      }
+    },
+    {
+      "round": 2,
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "candidate": {
+        "total_ms": 1138.93376942724,
+        "build_ms": 395.9948280826211,
+        "teardown_ms": 14.263094402849674
+      },
+      "baseline": {
+        "total_ms": 775.5411770194769,
+        "build_ms": 0,
+        "teardown_ms": 0
+      }
+    },
+    {
+      "round": 3,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline": {
+        "total_ms": 765.5311841517687,
+        "build_ms": 0,
+        "teardown_ms": 0
+      },
+      "candidate": {
+        "total_ms": 1106.64514452219,
+        "build_ms": 363.8783097267151,
+        "teardown_ms": 14.419796876609325
+      }
+    },
+    {
+      "round": 4,
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "candidate": {
+        "total_ms": 1139.3688144162297,
+        "build_ms": 396.18821162730455,
+        "teardown_ms": 14.406692236661911
+      },
+      "baseline": {
+        "total_ms": 777.1156243979931,
+        "build_ms": 0,
+        "teardown_ms": 0
+      }
+    },
+    {
+      "round": 5,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline": {
+        "total_ms": 760.7810636982322,
+        "build_ms": 0,
+        "teardown_ms": 0
+      },
+      "candidate": {
+        "total_ms": 1101.7985669896007,
+        "build_ms": 371.31583597511053,
+        "teardown_ms": 16.099100932478905
+      }
+    }
+  ],
+  "engine_trace": [
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS total FROM qualtrics__response",
+      "time": 1788871680.3674326
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN embedded_data IS NOT NULL AND embedded_data != '' THEN 1 ELSE 0 END) AS has_embedded FROM qualtrics__response",
+      "time": 1788871680.3776708
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT survey_response_id, COUNT(*) AS n_q_per_resp FROM qualtrics__response GROUP BY survey_response_id ORDER BY n_q_per_resp DESC LIMIT 20",
+      "time": 1788871680.3965123
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN survey_response_recorded_at IS NOT NULL THEN 1 ELSE 0 END) AS has_recorded, SUM(CASE WHEN survey_response_started_at IS NOT NULL THEN 1 ELSE 0 END) AS has_started, SUM(CASE WHEN survey_finished_at IS NOT NULL THEN 1 ELSE 0 END) AS has_finished FROM qualtrics__response",
+      "time": 1788871680.4440715
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT user_language, COUNT(*) AS n, AVG(value) AS avg_value, MIN(value) AS min_v, MAX(value) AS max_v FROM qualtrics__response GROUP BY user_language ORDER BY avg_value DESC",
+      "time": 1788871680.4640067
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT contact_language, COUNT(*) AS n, AVG(value) AS avg_value, MIN(value) AS min_v, MAX(value) AS max_v FROM qualtrics__response GROUP BY contact_language ORDER BY avg_value DESC",
+      "time": 1788871680.512672
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT response_text, COUNT(*) AS n FROM qualtrics__response GROUP BY response_text ORDER BY n DESC",
+      "time": 1788871680.5692604
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT question_type, COUNT(*) AS n FROM qualtrics__response GROUP BY question_type ORDER BY n DESC",
+      "time": 1788871680.6067083
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT response_text, MIN(value) AS min_v, MAX(value) AS max_v, AVG(value) AS avg_v FROM qualtrics__response GROUP BY response_text ORDER BY avg_v DESC",
+      "time": 1788871680.6420293
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT question_type, COUNT(*) AS n, MIN(value) AS min_v, MAX(value) AS max_v, AVG(value) AS avg_v FROM qualtrics__response GROUP BY question_type ORDER BY n DESC",
+      "time": 1788871680.6881943
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT distribution_channel, COUNT(*) AS n FROM qualtrics__response GROUP BY distribution_channel ORDER BY n DESC",
+      "time": 1788871680.7419138
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT contact_id, COUNT(*) AS n FROM qualtrics__response GROUP BY contact_id ORDER BY n DESC LIMIT 10",
+      "time": 1788871680.7733014
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(value AS INTEGER) AS v_int, COUNT(*) AS n, AVG(value) AS avg_val FROM qualtrics__response GROUP BY CAST(value AS INTEGER) ORDER BY v_int",
+      "time": 1788871680.8233032
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT sub_question_text, COUNT(*) AS n, AVG(value) AS avg_v FROM qualtrics__response GROUP BY sub_question_text ORDER BY n DESC LIMIT 30",
+      "time": 1788871680.8597822
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT question_option_key, COUNT(*) AS n, AVG(value) AS avg_v FROM qualtrics__response GROUP BY question_option_key ORDER BY n DESC LIMIT 30",
+      "time": 1788871680.9319959
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\n    SELECT survey_id, question_type, COUNT(*) as cnt\n    FROM qualtrics__response\n    GROUP BY survey_id, question_type\n    HAVING COUNT(*) >= 10\n    ORDER BY cnt DESC\n    LIMIT 20\n",
+      "time": 1788871681.0042236
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\n    SELECT survey_response_id, COUNT(*) as n_questions\n    FROM qualtrics__response\n    GROUP BY survey_response_id\n    ORDER BY n_questions DESC\n    LIMIT 20\n",
+      "time": 1788871681.0727336
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\n    SELECT question_text, COUNT(*) as cnt\n    FROM qualtrics__response\n    GROUP BY question_text\n    ORDER BY cnt DESC\n    LIMIT 30\n",
+      "time": 1788871681.1207047
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT survey_response_id AS __g0, user_language AS __g1, contact_language AS __g2, response_text AS __g3, question_type AS __g4, distribution_channel AS __g5, contact_id AS __g6, CAST(value AS INTEGER) AS __g7, sub_question_text AS __g8, question_option_key AS __g9, survey_id AS __g10, question_text AS __g11, COUNT(*) AS __a0, SUM(CASE WHEN NOT embedded_data IS NULL AND embedded_data <> '' THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN NOT survey_response_recorded_at IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN NOT survey_response_started_at IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN NOT survey_finished_at IS NULL THEN 1 ELSE 0 END) AS __a4, SUM(value) AS __a5_sum, COUNT(value) AS __a5_n, MIN(value) AS __a6, MAX(value) AS __a7 FROM \"qualtrics__response\"  GROUP BY survey_response_id, user_language, contact_language, response_text, question_type, distribution_channel, contact_id, CAST(value AS INTEGER), sub_question_text, question_option_key, survey_id, question_text",
+      "time": 1788871681.172572
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS total FROM temp.reuse_candidate",
+      "time": 1788871681.5739088
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS total, SUM(__a1) AS has_embedded FROM temp.reuse_candidate",
+      "time": 1788871681.5807288
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_q_per_resp FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_q_per_resp DESC LIMIT 20",
+      "time": 1788871681.5916018
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS total, SUM(__a2) AS has_recorded, SUM(__a3) AS has_started, SUM(__a4) AS has_finished FROM temp.reuse_candidate",
+      "time": 1788871681.623576
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g1 AS \"user_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_value DESC",
+      "time": 1788871681.6374927
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g2 AS \"contact_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_value DESC",
+      "time": 1788871681.688611
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g3 AS \"response_text\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+      "time": 1788871681.749923
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+      "time": 1788871681.7850034
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g3 AS \"response_text\", MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_v DESC",
+      "time": 1788871681.8143637
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n, MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+      "time": 1788871681.8639724
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g5 AS \"distribution_channel\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5 ORDER BY n DESC",
+      "time": 1788871681.917482
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g6 AS \"contact_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6 ORDER BY n DESC LIMIT 10",
+      "time": 1788871681.9438343
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g7 AS v_int, SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_val FROM temp.reuse_candidate GROUP BY __g7 ORDER BY v_int",
+      "time": 1788871681.9788897
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g8 AS \"sub_question_text\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g8 ORDER BY n DESC LIMIT 30",
+      "time": 1788871682.0176473
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g9 AS \"question_option_key\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g9 ORDER BY n DESC LIMIT 30",
+      "time": 1788871682.096465
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g10 AS \"survey_id\", __g4 AS \"question_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g10, __g4 HAVING SUM(__a0) >= 10 ORDER BY cnt DESC LIMIT 20",
+      "time": 1788871682.1753683
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_questions FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_questions DESC LIMIT 20",
+      "time": 1788871682.232102
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g11 AS \"question_text\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g11 ORDER BY cnt DESC LIMIT 30",
+      "time": 1788871682.264093
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871682.3038778
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS total FROM qualtrics__response",
+      "time": 1788871682.3279977
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN embedded_data IS NOT NULL AND embedded_data != '' THEN 1 ELSE 0 END) AS has_embedded FROM qualtrics__response",
+      "time": 1788871682.3385415
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT survey_response_id, COUNT(*) AS n_q_per_resp FROM qualtrics__response GROUP BY survey_response_id ORDER BY n_q_per_resp DESC LIMIT 20",
+      "time": 1788871682.3574085
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN survey_response_recorded_at IS NOT NULL THEN 1 ELSE 0 END) AS has_recorded, SUM(CASE WHEN survey_response_started_at IS NOT NULL THEN 1 ELSE 0 END) AS has_started, SUM(CASE WHEN survey_finished_at IS NOT NULL THEN 1 ELSE 0 END) AS has_finished FROM qualtrics__response",
+      "time": 1788871682.4056268
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT user_language, COUNT(*) AS n, AVG(value) AS avg_value, MIN(value) AS min_v, MAX(value) AS max_v FROM qualtrics__response GROUP BY user_language ORDER BY avg_value DESC",
+      "time": 1788871682.4254172
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT contact_language, COUNT(*) AS n, AVG(value) AS avg_value, MIN(value) AS min_v, MAX(value) AS max_v FROM qualtrics__response GROUP BY contact_language ORDER BY avg_value DESC",
+      "time": 1788871682.4744112
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT response_text, COUNT(*) AS n FROM qualtrics__response GROUP BY response_text ORDER BY n DESC",
+      "time": 1788871682.5293498
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT question_type, COUNT(*) AS n FROM qualtrics__response GROUP BY question_type ORDER BY n DESC",
+      "time": 1788871682.5666666
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT response_text, MIN(value) AS min_v, MAX(value) AS max_v, AVG(value) AS avg_v FROM qualtrics__response GROUP BY response_text ORDER BY avg_v DESC",
+      "time": 1788871682.60221
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT question_type, COUNT(*) AS n, MIN(value) AS min_v, MAX(value) AS max_v, AVG(value) AS avg_v FROM qualtrics__response GROUP BY question_type ORDER BY n DESC",
+      "time": 1788871682.6480014
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT distribution_channel, COUNT(*) AS n FROM qualtrics__response GROUP BY distribution_channel ORDER BY n DESC",
+      "time": 1788871682.6989553
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT contact_id, COUNT(*) AS n FROM qualtrics__response GROUP BY contact_id ORDER BY n DESC LIMIT 10",
+      "time": 1788871682.7307086
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(value AS INTEGER) AS v_int, COUNT(*) AS n, AVG(value) AS avg_val FROM qualtrics__response GROUP BY CAST(value AS INTEGER) ORDER BY v_int",
+      "time": 1788871682.7828953
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT sub_question_text, COUNT(*) AS n, AVG(value) AS avg_v FROM qualtrics__response GROUP BY sub_question_text ORDER BY n DESC LIMIT 30",
+      "time": 1788871682.8199403
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT question_option_key, COUNT(*) AS n, AVG(value) AS avg_v FROM qualtrics__response GROUP BY question_option_key ORDER BY n DESC LIMIT 30",
+      "time": 1788871682.8853672
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\n    SELECT survey_id, question_type, COUNT(*) as cnt\n    FROM qualtrics__response\n    GROUP BY survey_id, question_type\n    HAVING COUNT(*) >= 10\n    ORDER BY cnt DESC\n    LIMIT 20\n",
+      "time": 1788871682.9507163
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\n    SELECT survey_response_id, COUNT(*) as n_questions\n    FROM qualtrics__response\n    GROUP BY survey_response_id\n    ORDER BY n_questions DESC\n    LIMIT 20\n",
+      "time": 1788871683.0158215
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\n    SELECT question_text, COUNT(*) as cnt\n    FROM qualtrics__response\n    GROUP BY question_text\n    ORDER BY cnt DESC\n    LIMIT 30\n",
+      "time": 1788871683.061457
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT survey_response_id AS __g0, user_language AS __g1, contact_language AS __g2, response_text AS __g3, question_type AS __g4, distribution_channel AS __g5, contact_id AS __g6, CAST(value AS INTEGER) AS __g7, sub_question_text AS __g8, question_option_key AS __g9, survey_id AS __g10, question_text AS __g11, COUNT(*) AS __a0, SUM(CASE WHEN NOT embedded_data IS NULL AND embedded_data <> '' THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN NOT survey_response_recorded_at IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN NOT survey_response_started_at IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN NOT survey_finished_at IS NULL THEN 1 ELSE 0 END) AS __a4, SUM(value) AS __a5_sum, COUNT(value) AS __a5_n, MIN(value) AS __a6, MAX(value) AS __a7 FROM \"qualtrics__response\"  GROUP BY survey_response_id, user_language, contact_language, response_text, question_type, distribution_channel, contact_id, CAST(value AS INTEGER), sub_question_text, question_option_key, survey_id, question_text",
+      "time": 1788871683.114305
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS total FROM temp.reuse_candidate",
+      "time": 1788871683.5021412
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS total, SUM(__a1) AS has_embedded FROM temp.reuse_candidate",
+      "time": 1788871683.509344
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_q_per_resp FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_q_per_resp DESC LIMIT 20",
+      "time": 1788871683.519971
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS total, SUM(__a2) AS has_recorded, SUM(__a3) AS has_started, SUM(__a4) AS has_finished FROM temp.reuse_candidate",
+      "time": 1788871683.5513117
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g1 AS \"user_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_value DESC",
+      "time": 1788871683.5652964
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g2 AS \"contact_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_value DESC",
+      "time": 1788871683.616869
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g3 AS \"response_text\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+      "time": 1788871683.6770248
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+      "time": 1788871683.7120392
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g3 AS \"response_text\", MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_v DESC",
+      "time": 1788871683.74254
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n, MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+      "time": 1788871683.794127
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g5 AS \"distribution_channel\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5 ORDER BY n DESC",
+      "time": 1788871683.8478725
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g6 AS \"contact_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6 ORDER BY n DESC LIMIT 10",
+      "time": 1788871683.8739057
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g7 AS v_int, SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_val FROM temp.reuse_candidate GROUP BY __g7 ORDER BY v_int",
+      "time": 1788871683.9091258
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g8 AS \"sub_question_text\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g8 ORDER BY n DESC LIMIT 30",
+      "time": 1788871683.9478807
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g9 AS \"question_option_key\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g9 ORDER BY n DESC LIMIT 30",
+      "time": 1788871684.0269
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g10 AS \"survey_id\", __g4 AS \"question_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g10, __g4 HAVING SUM(__a0) >= 10 ORDER BY cnt DESC LIMIT 20",
+      "time": 1788871684.1059968
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_questions FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_questions DESC LIMIT 20",
+      "time": 1788871684.161706
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g11 AS \"question_text\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g11 ORDER BY cnt DESC LIMIT 30",
+      "time": 1788871684.1935616
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871684.233338
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT survey_response_id AS __g0, user_language AS __g1, contact_language AS __g2, response_text AS __g3, question_type AS __g4, distribution_channel AS __g5, contact_id AS __g6, CAST(value AS INTEGER) AS __g7, sub_question_text AS __g8, question_option_key AS __g9, survey_id AS __g10, question_text AS __g11, COUNT(*) AS __a0, SUM(CASE WHEN NOT embedded_data IS NULL AND embedded_data <> '' THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN NOT survey_response_recorded_at IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN NOT survey_response_started_at IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN NOT survey_finished_at IS NULL THEN 1 ELSE 0 END) AS __a4, SUM(value) AS __a5_sum, COUNT(value) AS __a5_n, MIN(value) AS __a6, MAX(value) AS __a7 FROM \"qualtrics__response\"  GROUP BY survey_response_id, user_language, contact_language, response_text, question_type, distribution_channel, contact_id, CAST(value AS INTEGER), sub_question_text, question_option_key, survey_id, question_text",
+      "time": 1788871684.2577074
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS total FROM temp.reuse_candidate",
+      "time": 1788871684.6535573
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS total, SUM(__a1) AS has_embedded FROM temp.reuse_candidate",
+      "time": 1788871684.6604242
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_q_per_resp FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_q_per_resp DESC LIMIT 20",
+      "time": 1788871684.6709023
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS total, SUM(__a2) AS has_recorded, SUM(__a3) AS has_started, SUM(__a4) AS has_finished FROM temp.reuse_candidate",
+      "time": 1788871684.7027843
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g1 AS \"user_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_value DESC",
+      "time": 1788871684.7168179
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g2 AS \"contact_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_value DESC",
+      "time": 1788871684.768283
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g3 AS \"response_text\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+      "time": 1788871684.8297865
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+      "time": 1788871684.8646429
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g3 AS \"response_text\", MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_v DESC",
+      "time": 1788871684.894102
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n, MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+      "time": 1788871684.9436848
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g5 AS \"distribution_channel\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5 ORDER BY n DESC",
+      "time": 1788871684.997135
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g6 AS \"contact_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6 ORDER BY n DESC LIMIT 10",
+      "time": 1788871685.0230207
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g7 AS v_int, SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_val FROM temp.reuse_candidate GROUP BY __g7 ORDER BY v_int",
+      "time": 1788871685.0581434
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g8 AS \"sub_question_text\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g8 ORDER BY n DESC LIMIT 30",
+      "time": 1788871685.0966861
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g9 AS \"question_option_key\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g9 ORDER BY n DESC LIMIT 30",
+      "time": 1788871685.1755471
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g10 AS \"survey_id\", __g4 AS \"question_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g10, __g4 HAVING SUM(__a0) >= 10 ORDER BY cnt DESC LIMIT 20",
+      "time": 1788871685.254656
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_questions FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_questions DESC LIMIT 20",
+      "time": 1788871685.310328
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g11 AS \"question_text\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g11 ORDER BY cnt DESC LIMIT 30",
+      "time": 1788871685.3420742
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871685.3822343
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS total FROM qualtrics__response",
+      "time": 1788871685.4063923
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN embedded_data IS NOT NULL AND embedded_data != '' THEN 1 ELSE 0 END) AS has_embedded FROM qualtrics__response",
+      "time": 1788871685.4169126
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT survey_response_id, COUNT(*) AS n_q_per_resp FROM qualtrics__response GROUP BY survey_response_id ORDER BY n_q_per_resp DESC LIMIT 20",
+      "time": 1788871685.435745
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN survey_response_recorded_at IS NOT NULL THEN 1 ELSE 0 END) AS has_recorded, SUM(CASE WHEN survey_response_started_at IS NOT NULL THEN 1 ELSE 0 END) AS has_started, SUM(CASE WHEN survey_finished_at IS NOT NULL THEN 1 ELSE 0 END) AS has_finished FROM qualtrics__response",
+      "time": 1788871685.4859834
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT user_language, COUNT(*) AS n, AVG(value) AS avg_value, MIN(value) AS min_v, MAX(value) AS max_v FROM qualtrics__response GROUP BY user_language ORDER BY avg_value DESC",
+      "time": 1788871685.505719
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT contact_language, COUNT(*) AS n, AVG(value) AS avg_value, MIN(value) AS min_v, MAX(value) AS max_v FROM qualtrics__response GROUP BY contact_language ORDER BY avg_value DESC",
+      "time": 1788871685.5553882
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT response_text, COUNT(*) AS n FROM qualtrics__response GROUP BY response_text ORDER BY n DESC",
+      "time": 1788871685.6105866
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT question_type, COUNT(*) AS n FROM qualtrics__response GROUP BY question_type ORDER BY n DESC",
+      "time": 1788871685.647972
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT response_text, MIN(value) AS min_v, MAX(value) AS max_v, AVG(value) AS avg_v FROM qualtrics__response GROUP BY response_text ORDER BY avg_v DESC",
+      "time": 1788871685.6833177
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT question_type, COUNT(*) AS n, MIN(value) AS min_v, MAX(value) AS max_v, AVG(value) AS avg_v FROM qualtrics__response GROUP BY question_type ORDER BY n DESC",
+      "time": 1788871685.7287354
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT distribution_channel, COUNT(*) AS n FROM qualtrics__response GROUP BY distribution_channel ORDER BY n DESC",
+      "time": 1788871685.7795076
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT contact_id, COUNT(*) AS n FROM qualtrics__response GROUP BY contact_id ORDER BY n DESC LIMIT 10",
+      "time": 1788871685.8134015
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(value AS INTEGER) AS v_int, COUNT(*) AS n, AVG(value) AS avg_val FROM qualtrics__response GROUP BY CAST(value AS INTEGER) ORDER BY v_int",
+      "time": 1788871685.8631551
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT sub_question_text, COUNT(*) AS n, AVG(value) AS avg_v FROM qualtrics__response GROUP BY sub_question_text ORDER BY n DESC LIMIT 30",
+      "time": 1788871685.8995357
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT question_option_key, COUNT(*) AS n, AVG(value) AS avg_v FROM qualtrics__response GROUP BY question_option_key ORDER BY n DESC LIMIT 30",
+      "time": 1788871685.9648948
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\n    SELECT survey_id, question_type, COUNT(*) as cnt\n    FROM qualtrics__response\n    GROUP BY survey_id, question_type\n    HAVING COUNT(*) >= 10\n    ORDER BY cnt DESC\n    LIMIT 20\n",
+      "time": 1788871686.0304914
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\n    SELECT survey_response_id, COUNT(*) as n_questions\n    FROM qualtrics__response\n    GROUP BY survey_response_id\n    ORDER BY n_questions DESC\n    LIMIT 20\n",
+      "time": 1788871686.0939066
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\n    SELECT question_text, COUNT(*) as cnt\n    FROM qualtrics__response\n    GROUP BY question_text\n    ORDER BY cnt DESC\n    LIMIT 30\n",
+      "time": 1788871686.140404
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS total FROM qualtrics__response",
+      "time": 1788871686.1920722
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN embedded_data IS NOT NULL AND embedded_data != '' THEN 1 ELSE 0 END) AS has_embedded FROM qualtrics__response",
+      "time": 1788871686.1996694
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT survey_response_id, COUNT(*) AS n_q_per_resp FROM qualtrics__response GROUP BY survey_response_id ORDER BY n_q_per_resp DESC LIMIT 20",
+      "time": 1788871686.2162359
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN survey_response_recorded_at IS NOT NULL THEN 1 ELSE 0 END) AS has_recorded, SUM(CASE WHEN survey_response_started_at IS NOT NULL THEN 1 ELSE 0 END) AS has_started, SUM(CASE WHEN survey_finished_at IS NOT NULL THEN 1 ELSE 0 END) AS has_finished FROM qualtrics__response",
+      "time": 1788871686.2623184
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT user_language, COUNT(*) AS n, AVG(value) AS avg_value, MIN(value) AS min_v, MAX(value) AS max_v FROM qualtrics__response GROUP BY user_language ORDER BY avg_value DESC",
+      "time": 1788871686.2813277
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT contact_language, COUNT(*) AS n, AVG(value) AS avg_value, MIN(value) AS min_v, MAX(value) AS max_v FROM qualtrics__response GROUP BY contact_language ORDER BY avg_value DESC",
+      "time": 1788871686.3306403
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT response_text, COUNT(*) AS n FROM qualtrics__response GROUP BY response_text ORDER BY n DESC",
+      "time": 1788871686.3868377
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT question_type, COUNT(*) AS n FROM qualtrics__response GROUP BY question_type ORDER BY n DESC",
+      "time": 1788871686.4241683
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT response_text, MIN(value) AS min_v, MAX(value) AS max_v, AVG(value) AS avg_v FROM qualtrics__response GROUP BY response_text ORDER BY avg_v DESC",
+      "time": 1788871686.4592302
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT question_type, COUNT(*) AS n, MIN(value) AS min_v, MAX(value) AS max_v, AVG(value) AS avg_v FROM qualtrics__response GROUP BY question_type ORDER BY n DESC",
+      "time": 1788871686.504549
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT distribution_channel, COUNT(*) AS n FROM qualtrics__response GROUP BY distribution_channel ORDER BY n DESC",
+      "time": 1788871686.5553274
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT contact_id, COUNT(*) AS n FROM qualtrics__response GROUP BY contact_id ORDER BY n DESC LIMIT 10",
+      "time": 1788871686.5861857
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(value AS INTEGER) AS v_int, COUNT(*) AS n, AVG(value) AS avg_val FROM qualtrics__response GROUP BY CAST(value AS INTEGER) ORDER BY v_int",
+      "time": 1788871686.6350868
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT sub_question_text, COUNT(*) AS n, AVG(value) AS avg_v FROM qualtrics__response GROUP BY sub_question_text ORDER BY n DESC LIMIT 30",
+      "time": 1788871686.6713994
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT question_option_key, COUNT(*) AS n, AVG(value) AS avg_v FROM qualtrics__response GROUP BY question_option_key ORDER BY n DESC LIMIT 30",
+      "time": 1788871686.737083
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\n    SELECT survey_id, question_type, COUNT(*) as cnt\n    FROM qualtrics__response\n    GROUP BY survey_id, question_type\n    HAVING COUNT(*) >= 10\n    ORDER BY cnt DESC\n    LIMIT 20\n",
+      "time": 1788871686.802788
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\n    SELECT survey_response_id, COUNT(*) as n_questions\n    FROM qualtrics__response\n    GROUP BY survey_response_id\n    ORDER BY n_questions DESC\n    LIMIT 20\n",
+      "time": 1788871686.8693519
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\n    SELECT question_text, COUNT(*) as cnt\n    FROM qualtrics__response\n    GROUP BY question_text\n    ORDER BY cnt DESC\n    LIMIT 30\n",
+      "time": 1788871686.9156175
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT survey_response_id AS __g0, user_language AS __g1, contact_language AS __g2, response_text AS __g3, question_type AS __g4, distribution_channel AS __g5, contact_id AS __g6, CAST(value AS INTEGER) AS __g7, sub_question_text AS __g8, question_option_key AS __g9, survey_id AS __g10, question_text AS __g11, COUNT(*) AS __a0, SUM(CASE WHEN NOT embedded_data IS NULL AND embedded_data <> '' THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN NOT survey_response_recorded_at IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN NOT survey_response_started_at IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN NOT survey_finished_at IS NULL THEN 1 ELSE 0 END) AS __a4, SUM(value) AS __a5_sum, COUNT(value) AS __a5_n, MIN(value) AS __a6, MAX(value) AS __a7 FROM \"qualtrics__response\"  GROUP BY survey_response_id, user_language, contact_language, response_text, question_type, distribution_channel, contact_id, CAST(value AS INTEGER), sub_question_text, question_option_key, survey_id, question_text",
+      "time": 1788871686.9677253
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS total FROM temp.reuse_candidate",
+      "time": 1788871687.3314416
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS total, SUM(__a1) AS has_embedded FROM temp.reuse_candidate",
+      "time": 1788871687.338683
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_q_per_resp FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_q_per_resp DESC LIMIT 20",
+      "time": 1788871687.3493085
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS total, SUM(__a2) AS has_recorded, SUM(__a3) AS has_started, SUM(__a4) AS has_finished FROM temp.reuse_candidate",
+      "time": 1788871687.3801699
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g1 AS \"user_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_value DESC",
+      "time": 1788871687.3940408
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g2 AS \"contact_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_value DESC",
+      "time": 1788871687.4450805
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g3 AS \"response_text\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+      "time": 1788871687.5045795
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+      "time": 1788871687.5392575
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g3 AS \"response_text\", MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_v DESC",
+      "time": 1788871687.5685847
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n, MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+      "time": 1788871687.618124
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g5 AS \"distribution_channel\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5 ORDER BY n DESC",
+      "time": 1788871687.6718156
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g6 AS \"contact_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6 ORDER BY n DESC LIMIT 10",
+      "time": 1788871687.6977367
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g7 AS v_int, SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_val FROM temp.reuse_candidate GROUP BY __g7 ORDER BY v_int",
+      "time": 1788871687.7329807
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g8 AS \"sub_question_text\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g8 ORDER BY n DESC LIMIT 30",
+      "time": 1788871687.7715065
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g9 AS \"question_option_key\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g9 ORDER BY n DESC LIMIT 30",
+      "time": 1788871687.85159
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g10 AS \"survey_id\", __g4 AS \"question_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g10, __g4 HAVING SUM(__a0) >= 10 ORDER BY cnt DESC LIMIT 20",
+      "time": 1788871687.932096
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_questions FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_questions DESC LIMIT 20",
+      "time": 1788871687.987894
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g11 AS \"question_text\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g11 ORDER BY cnt DESC LIMIT 30",
+      "time": 1788871688.019636
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871688.0597696
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT survey_response_id AS __g0, user_language AS __g1, contact_language AS __g2, response_text AS __g3, question_type AS __g4, distribution_channel AS __g5, contact_id AS __g6, CAST(value AS INTEGER) AS __g7, sub_question_text AS __g8, question_option_key AS __g9, survey_id AS __g10, question_text AS __g11, COUNT(*) AS __a0, SUM(CASE WHEN NOT embedded_data IS NULL AND embedded_data <> '' THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN NOT survey_response_recorded_at IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN NOT survey_response_started_at IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN NOT survey_finished_at IS NULL THEN 1 ELSE 0 END) AS __a4, SUM(value) AS __a5_sum, COUNT(value) AS __a5_n, MIN(value) AS __a6, MAX(value) AS __a7 FROM \"qualtrics__response\"  GROUP BY survey_response_id, user_language, contact_language, response_text, question_type, distribution_channel, contact_id, CAST(value AS INTEGER), sub_question_text, question_option_key, survey_id, question_text",
+      "time": 1788871688.0841186
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS total FROM temp.reuse_candidate",
+      "time": 1788871688.4801676
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS total, SUM(__a1) AS has_embedded FROM temp.reuse_candidate",
+      "time": 1788871688.4869819
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_q_per_resp FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_q_per_resp DESC LIMIT 20",
+      "time": 1788871688.497335
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS total, SUM(__a2) AS has_recorded, SUM(__a3) AS has_started, SUM(__a4) AS has_finished FROM temp.reuse_candidate",
+      "time": 1788871688.5298228
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g1 AS \"user_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_value DESC",
+      "time": 1788871688.5437047
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g2 AS \"contact_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_value DESC",
+      "time": 1788871688.5947542
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g3 AS \"response_text\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+      "time": 1788871688.6541061
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+      "time": 1788871688.6888669
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g3 AS \"response_text\", MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_v DESC",
+      "time": 1788871688.7182329
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n, MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+      "time": 1788871688.7677257
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g5 AS \"distribution_channel\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5 ORDER BY n DESC",
+      "time": 1788871688.8212864
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g6 AS \"contact_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6 ORDER BY n DESC LIMIT 10",
+      "time": 1788871688.847821
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g7 AS v_int, SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_val FROM temp.reuse_candidate GROUP BY __g7 ORDER BY v_int",
+      "time": 1788871688.8847435
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g8 AS \"sub_question_text\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g8 ORDER BY n DESC LIMIT 30",
+      "time": 1788871688.9233499
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g9 AS \"question_option_key\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g9 ORDER BY n DESC LIMIT 30",
+      "time": 1788871689.0025713
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g10 AS \"survey_id\", __g4 AS \"question_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g10, __g4 HAVING SUM(__a0) >= 10 ORDER BY cnt DESC LIMIT 20",
+      "time": 1788871689.0815933
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_questions FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_questions DESC LIMIT 20",
+      "time": 1788871689.1373217
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g11 AS \"question_text\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g11 ORDER BY cnt DESC LIMIT 30",
+      "time": 1788871689.1692116
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871689.208935
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS total FROM qualtrics__response",
+      "time": 1788871689.2335896
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN embedded_data IS NOT NULL AND embedded_data != '' THEN 1 ELSE 0 END) AS has_embedded FROM qualtrics__response",
+      "time": 1788871689.2440505
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT survey_response_id, COUNT(*) AS n_q_per_resp FROM qualtrics__response GROUP BY survey_response_id ORDER BY n_q_per_resp DESC LIMIT 20",
+      "time": 1788871689.2628896
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN survey_response_recorded_at IS NOT NULL THEN 1 ELSE 0 END) AS has_recorded, SUM(CASE WHEN survey_response_started_at IS NOT NULL THEN 1 ELSE 0 END) AS has_started, SUM(CASE WHEN survey_finished_at IS NOT NULL THEN 1 ELSE 0 END) AS has_finished FROM qualtrics__response",
+      "time": 1788871689.313071
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT user_language, COUNT(*) AS n, AVG(value) AS avg_value, MIN(value) AS min_v, MAX(value) AS max_v FROM qualtrics__response GROUP BY user_language ORDER BY avg_value DESC",
+      "time": 1788871689.3327906
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT contact_language, COUNT(*) AS n, AVG(value) AS avg_value, MIN(value) AS min_v, MAX(value) AS max_v FROM qualtrics__response GROUP BY contact_language ORDER BY avg_value DESC",
+      "time": 1788871689.3824656
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT response_text, COUNT(*) AS n FROM qualtrics__response GROUP BY response_text ORDER BY n DESC",
+      "time": 1788871689.4386306
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT question_type, COUNT(*) AS n FROM qualtrics__response GROUP BY question_type ORDER BY n DESC",
+      "time": 1788871689.4760814
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT response_text, MIN(value) AS min_v, MAX(value) AS max_v, AVG(value) AS avg_v FROM qualtrics__response GROUP BY response_text ORDER BY avg_v DESC",
+      "time": 1788871689.5112135
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT question_type, COUNT(*) AS n, MIN(value) AS min_v, MAX(value) AS max_v, AVG(value) AS avg_v FROM qualtrics__response GROUP BY question_type ORDER BY n DESC",
+      "time": 1788871689.5565863
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT distribution_channel, COUNT(*) AS n FROM qualtrics__response GROUP BY distribution_channel ORDER BY n DESC",
+      "time": 1788871689.6065538
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT contact_id, COUNT(*) AS n FROM qualtrics__response GROUP BY contact_id ORDER BY n DESC LIMIT 10",
+      "time": 1788871689.6376789
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(value AS INTEGER) AS v_int, COUNT(*) AS n, AVG(value) AS avg_val FROM qualtrics__response GROUP BY CAST(value AS INTEGER) ORDER BY v_int",
+      "time": 1788871689.6869822
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT sub_question_text, COUNT(*) AS n, AVG(value) AS avg_v FROM qualtrics__response GROUP BY sub_question_text ORDER BY n DESC LIMIT 30",
+      "time": 1788871689.7234225
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT question_option_key, COUNT(*) AS n, AVG(value) AS avg_v FROM qualtrics__response GROUP BY question_option_key ORDER BY n DESC LIMIT 30",
+      "time": 1788871689.7892332
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\n    SELECT survey_id, question_type, COUNT(*) as cnt\n    FROM qualtrics__response\n    GROUP BY survey_id, question_type\n    HAVING COUNT(*) >= 10\n    ORDER BY cnt DESC\n    LIMIT 20\n",
+      "time": 1788871689.8548179
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\n    SELECT survey_response_id, COUNT(*) as n_questions\n    FROM qualtrics__response\n    GROUP BY survey_response_id\n    ORDER BY n_questions DESC\n    LIMIT 20\n",
+      "time": 1788871689.9222136
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\n    SELECT question_text, COUNT(*) as cnt\n    FROM qualtrics__response\n    GROUP BY question_text\n    ORDER BY cnt DESC\n    LIMIT 30\n",
+      "time": 1788871689.968743
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS total FROM qualtrics__response",
+      "time": 1788871690.0206716
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN embedded_data IS NOT NULL AND embedded_data != '' THEN 1 ELSE 0 END) AS has_embedded FROM qualtrics__response",
+      "time": 1788871690.0282087
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT survey_response_id, COUNT(*) AS n_q_per_resp FROM qualtrics__response GROUP BY survey_response_id ORDER BY n_q_per_resp DESC LIMIT 20",
+      "time": 1788871690.0446398
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT COUNT(*) AS total, SUM(CASE WHEN survey_response_recorded_at IS NOT NULL THEN 1 ELSE 0 END) AS has_recorded, SUM(CASE WHEN survey_response_started_at IS NOT NULL THEN 1 ELSE 0 END) AS has_started, SUM(CASE WHEN survey_finished_at IS NOT NULL THEN 1 ELSE 0 END) AS has_finished FROM qualtrics__response",
+      "time": 1788871690.0907638
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT user_language, COUNT(*) AS n, AVG(value) AS avg_value, MIN(value) AS min_v, MAX(value) AS max_v FROM qualtrics__response GROUP BY user_language ORDER BY avg_value DESC",
+      "time": 1788871690.1098137
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT contact_language, COUNT(*) AS n, AVG(value) AS avg_value, MIN(value) AS min_v, MAX(value) AS max_v FROM qualtrics__response GROUP BY contact_language ORDER BY avg_value DESC",
+      "time": 1788871690.158977
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT response_text, COUNT(*) AS n FROM qualtrics__response GROUP BY response_text ORDER BY n DESC",
+      "time": 1788871690.2150452
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT question_type, COUNT(*) AS n FROM qualtrics__response GROUP BY question_type ORDER BY n DESC",
+      "time": 1788871690.252185
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT response_text, MIN(value) AS min_v, MAX(value) AS max_v, AVG(value) AS avg_v FROM qualtrics__response GROUP BY response_text ORDER BY avg_v DESC",
+      "time": 1788871690.2877376
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT question_type, COUNT(*) AS n, MIN(value) AS min_v, MAX(value) AS max_v, AVG(value) AS avg_v FROM qualtrics__response GROUP BY question_type ORDER BY n DESC",
+      "time": 1788871690.3338284
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT distribution_channel, COUNT(*) AS n FROM qualtrics__response GROUP BY distribution_channel ORDER BY n DESC",
+      "time": 1788871690.3832886
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT contact_id, COUNT(*) AS n FROM qualtrics__response GROUP BY contact_id ORDER BY n DESC LIMIT 10",
+      "time": 1788871690.414194
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT CAST(value AS INTEGER) AS v_int, COUNT(*) AS n, AVG(value) AS avg_val FROM qualtrics__response GROUP BY CAST(value AS INTEGER) ORDER BY v_int",
+      "time": 1788871690.462799
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT sub_question_text, COUNT(*) AS n, AVG(value) AS avg_v FROM qualtrics__response GROUP BY sub_question_text ORDER BY n DESC LIMIT 30",
+      "time": 1788871690.4990103
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT question_option_key, COUNT(*) AS n, AVG(value) AS avg_v FROM qualtrics__response GROUP BY question_option_key ORDER BY n DESC LIMIT 30",
+      "time": 1788871690.564292
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\n    SELECT survey_id, question_type, COUNT(*) as cnt\n    FROM qualtrics__response\n    GROUP BY survey_id, question_type\n    HAVING COUNT(*) >= 10\n    ORDER BY cnt DESC\n    LIMIT 20\n",
+      "time": 1788871690.6294916
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\n    SELECT survey_response_id, COUNT(*) as n_questions\n    FROM qualtrics__response\n    GROUP BY survey_response_id\n    ORDER BY n_questions DESC\n    LIMIT 20\n",
+      "time": 1788871690.693372
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "\n    SELECT question_text, COUNT(*) as cnt\n    FROM qualtrics__response\n    GROUP BY question_text\n    ORDER BY cnt DESC\n    LIMIT 30\n",
+      "time": 1788871690.73927
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT survey_response_id AS __g0, user_language AS __g1, contact_language AS __g2, response_text AS __g3, question_type AS __g4, distribution_channel AS __g5, contact_id AS __g6, CAST(value AS INTEGER) AS __g7, sub_question_text AS __g8, question_option_key AS __g9, survey_id AS __g10, question_text AS __g11, COUNT(*) AS __a0, SUM(CASE WHEN NOT embedded_data IS NULL AND embedded_data <> '' THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN NOT survey_response_recorded_at IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN NOT survey_response_started_at IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN NOT survey_finished_at IS NULL THEN 1 ELSE 0 END) AS __a4, SUM(value) AS __a5_sum, COUNT(value) AS __a5_n, MIN(value) AS __a6, MAX(value) AS __a7 FROM \"qualtrics__response\"  GROUP BY survey_response_id, user_language, contact_language, response_text, question_type, distribution_channel, contact_id, CAST(value AS INTEGER), sub_question_text, question_option_key, survey_id, question_text",
+      "time": 1788871690.8090289
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS total FROM temp.reuse_candidate",
+      "time": 1788871691.1801982
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS total, SUM(__a1) AS has_embedded FROM temp.reuse_candidate",
+      "time": 1788871691.187105
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_q_per_resp FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_q_per_resp DESC LIMIT 20",
+      "time": 1788871691.197434
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT SUM(__a0) AS total, SUM(__a2) AS has_recorded, SUM(__a3) AS has_started, SUM(__a4) AS has_finished FROM temp.reuse_candidate",
+      "time": 1788871691.2273743
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g1 AS \"user_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_value DESC",
+      "time": 1788871691.2412677
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g2 AS \"contact_language\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_value, MIN(__a6) AS min_v, MAX(__a7) AS max_v FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_value DESC",
+      "time": 1788871691.2923412
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g3 AS \"response_text\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+      "time": 1788871691.3516293
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+      "time": 1788871691.3865428
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g3 AS \"response_text\", MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_v DESC",
+      "time": 1788871691.4158523
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g4 AS \"question_type\", SUM(__a0) AS n, MIN(__a6) AS min_v, MAX(__a7) AS max_v, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g4 ORDER BY n DESC",
+      "time": 1788871691.4655042
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g5 AS \"distribution_channel\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5 ORDER BY n DESC",
+      "time": 1788871691.5189466
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g6 AS \"contact_id\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6 ORDER BY n DESC LIMIT 10",
+      "time": 1788871691.5447671
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g7 AS v_int, SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_val FROM temp.reuse_candidate GROUP BY __g7 ORDER BY v_int",
+      "time": 1788871691.5800846
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g8 AS \"sub_question_text\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g8 ORDER BY n DESC LIMIT 30",
+      "time": 1788871691.6188111
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g9 AS \"question_option_key\", SUM(__a0) AS n, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_v FROM temp.reuse_candidate GROUP BY __g9 ORDER BY n DESC LIMIT 30",
+      "time": 1788871691.6906698
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g10 AS \"survey_id\", __g4 AS \"question_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g10, __g4 HAVING SUM(__a0) >= 10 ORDER BY cnt DESC LIMIT 20",
+      "time": 1788871691.7665172
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g0 AS \"survey_response_id\", SUM(__a0) AS n_questions FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n_questions DESC LIMIT 20",
+      "time": 1788871691.8222651
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "SELECT __g11 AS \"question_text\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g11 ORDER BY cnt DESC LIMIT 30",
+      "time": 1788871691.8543339
+    },
+    {
+      "phase": "offline_performance",
+      "sql": "DROP TABLE temp.reuse_candidate",
+      "time": 1788871691.8945866
+    }
+  ],
+  "correctness_warmup": {
+    "baseline": {
+      "total_ms": 795.2247550711036,
+      "build_ms": 0,
+      "teardown_ms": 0
+    },
+    "candidate": {
+      "total_ms": 1145.7445779815316,
+      "build_ms": 401.4753233641386,
+      "teardown_ms": 14.284580945968628
+    }
+  },
+  "status": "measured",
+  "baseline_median_ms": 774.913964793086,
+  "baseline_range_ms": [
+    760.7810636982322,
+    777.1156243979931
+  ],
+  "candidate_median_ms": 1133.3981109783053,
+  "candidate_range_ms": [
+    1101.7985669896007,
+    1139.3688144162297
+  ],
+  "ratio_baseline_over_candidate": 0.6837085374389854,
+  "duration_s": 11.559181451797485
+}

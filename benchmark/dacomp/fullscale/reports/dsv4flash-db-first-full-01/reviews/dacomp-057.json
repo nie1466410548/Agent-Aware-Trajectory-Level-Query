@@ -1,0 +1,80 @@
+{
+  "task_id": "dacomp-057",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 对广告生命周期、渠道、客户阶段和月份执行计数、均值、份额与风险比较，复现了 SQL 可支持的聚合与条件计算。用于图表的结果准备也应优先在数据库完成。",
+  "route": "SQL 连接广告与获客数据并识别衰退活动 → Python 分层汇总、月趋势和风险比较 → 渠道与客户群优化建议。",
+  "evidence": [
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 99,
+          "text": "lc_groups = df_joined.groupby('campaign_lifecycle_stage')"
+        },
+        {
+          "line": 102,
+          "text": "    print(f\"  {name}: n={len(grp)}, Avg CAC={grp['customer_acquisition_cost'].mean():.2f}, \""
+        },
+        {
+          "line": 103,
+          "text": "          f\"Avg LTV/CAC={grp['ltv_cac_ratio'].mean():.2f}, \""
+        },
+        {
+          "line": 106,
+          "text": "          f\"Retention Risk={grp['retention_risk'].mean()*100:.1f}%, \""
+        },
+        {
+          "line": 203,
+          "text": "ret_ch = df_joined.groupby('advertising_channel_type')[['retention_risk','scale_opportunity']].mean().reset_index()"
+        }
+      ]
+    },
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 45,
+          "text": "prof = dz.groupby('campaign_lifecycle_stage').agg("
+        },
+        {
+          "line": 97,
+          "text": "dz_stats = dz.groupby(['account_id','advertising_channel_type']).agg("
+        },
+        {
+          "line": 129,
+          "text": "seg_efficiency = dz.groupby('strategic_customer_segment').agg("
+        },
+        {
+          "line": 138,
+          "text": "seg_efficiency['spend_share'] = seg_efficiency['spend'] / seg_efficiency['spend'].sum()"
+        }
+      ]
+    },
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 38,
+          "text": "trend_dz = dz.groupby('ym').agg(cac=('customer_acquisition_cost','mean'), ltv_cac=('ltv_cac_ratio','mean')).reset_index()"
+        },
+        {
+          "line": 39,
+          "text": "trend_hz = hz.groupby('ym').agg(cac=('customer_acquisition_cost','mean'), ltv_cac=('ltv_cac_ratio','mean')).reset_index()"
+        },
+        {
+          "line": 90,
+          "text": "prof_dec = df_camp[df_camp['decay_flag']==1][factors].mean().round(2)"
+        },
+        {
+          "line": 91,
+          "text": "prof_hea = df_camp[df_camp['decay_flag']==0][factors].mean().round(2)"
+        },
+        {
+          "line": 95,
+          "text": "print(dz.groupby('acquisition_recommendation').agg(n=('campaign_id','count'), avg_cac=('customer_acquisition_cost','mean')).to_string())"
+        }
+      ]
+    }
+  ]
+}

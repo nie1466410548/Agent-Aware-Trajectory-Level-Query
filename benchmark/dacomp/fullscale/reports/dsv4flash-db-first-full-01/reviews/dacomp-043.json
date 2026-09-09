@@ -1,0 +1,60 @@
+{
+  "task_id": "dacomp-043",
+  "status": "reviewed_SQL_dominant_with_statistical_and_chart_exceptions",
+  "reviewer": "experiment analyst",
+  "conclusion": "核心病例结局划分、症状/治疗/防控分组均在 SQL；Python 主要将手工转录摘要转成百分比图，或读取已按 SQL 划分结局的数值用于箱线图和 Mann-Whitney 检验。图表百分比及附带组均值可由 SQL 准备，已单列这一有限偏离。没有发现将完整关联分组工作整体迁到 pandas 的情形；图中转录值的一致性不在本次协议审查中自动认定。",
+  "route": "SQL 构造病例结局公共 CTE → 分别比较症状、防控、治疗和记录完整性 → Python 绘图并检验温度/完整性分布。",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 12,
+          "text": "deceased_comp_pct = [c/58*100 for c in deceased_comp]"
+        },
+        {
+          "line": 13,
+          "text": "recovered_comp_pct = [c/224*100 for c in recovered_comp]"
+        },
+        {
+          "line": 17,
+          "text": "bars1 = ax1.bar(x - width/2, deceased_comp_pct, width, label='Deceased (n=58)', color='#d62728')"
+        },
+        {
+          "line": 18,
+          "text": "bars2 = ax1.bar(x + width/2, recovered_comp_pct, width, label='Recovered (n=224)', color='#2ca02c')"
+        }
+      ]
+    },
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 19,
+          "text": "print(df_t['grp'].value_counts())"
+        }
+      ]
+    },
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 55,
+          "text": "u_stat, p_val = stats.mannwhitneyu(deceased_temps, recovered_temps, alternative='two-sided')"
+        },
+        {
+          "line": 56,
+          "text": "print(f\"Temperature: Deceased mean={np.mean(deceased_temps):.2f}, Recovered mean={np.mean(recovered_temps):.2f}, p={p_val:.4f}\")"
+        },
+        {
+          "line": 57,
+          "text": "u_stat2, p_val2 = stats.mannwhitneyu(dec_scores, rec_scores, alternative='two-sided')"
+        },
+        {
+          "line": 58,
+          "text": "print(f\"Completeness: Deceased mean={np.mean(dec_scores):.2f}, Recovered mean={np.mean(rec_scores):.2f}, p={p_val2:.4f}\")"
+        }
+      ]
+    }
+  ]
+}

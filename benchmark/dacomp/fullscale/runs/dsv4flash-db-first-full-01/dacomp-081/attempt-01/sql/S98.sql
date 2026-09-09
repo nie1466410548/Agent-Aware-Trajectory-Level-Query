@@ -1,0 +1,1 @@
+SELECT question_id, COUNT(DISTINCT survey_id) AS n_surveys, COUNT(*) AS n_resp FROM qualtrics__response GROUP BY question_id ORDER BY n_surveys DESC LIMIT 20

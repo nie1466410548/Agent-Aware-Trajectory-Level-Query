@@ -1,0 +1,1 @@
+PRAGMA table_info(pendo__account)

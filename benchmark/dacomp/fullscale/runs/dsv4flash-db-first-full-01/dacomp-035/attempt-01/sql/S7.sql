@@ -1,0 +1,1 @@
+SELECT DISTINCT Department FROM user_information_table ORDER BY Department

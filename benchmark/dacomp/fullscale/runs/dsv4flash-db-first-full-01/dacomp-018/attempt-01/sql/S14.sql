@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT "Customer ID") FROM customer_information

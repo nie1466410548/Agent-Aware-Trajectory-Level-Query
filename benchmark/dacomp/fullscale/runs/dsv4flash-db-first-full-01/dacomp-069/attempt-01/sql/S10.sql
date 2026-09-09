@@ -1,0 +1,1 @@
+SELECT date_day, package_name, daily_revenue, daily_transactions, avg_transaction_value, revenue_per_active_device FROM google_play__time_series_trends WHERE package_name = 'com.dev.photoeditor' ORDER BY date_day

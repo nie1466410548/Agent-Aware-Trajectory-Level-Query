@@ -1,0 +1,1 @@
+SELECT * FROM customer360__customer_value_analysis WHERE marketo_lead_id IS NULL LIMIT 5

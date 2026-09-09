@@ -1,0 +1,1 @@
+SELECT Floor, COUNT(*) AS cnt FROM data WHERE Floor LIKE '%story%' OR Floor LIKE '%floors%' OR Floor LIKE '%floor building%' GROUP BY Floor ORDER BY cnt DESC

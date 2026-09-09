@@ -1,0 +1,493 @@
+{
+  "fingerprint": "edcbe32083cdd41d0f259479465223c69cce946a396b554139b7c00c694d5375",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"login_records_table\" WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024'",
+      "covered": [
+        "S5",
+        "S8",
+        "S9",
+        "S10",
+        "S13",
+        "S24",
+        "S27",
+        "S28",
+        "S29"
+      ],
+      "rewrites": {
+        "S5": "SELECT \"Login Method\", \"Authentication Status\", \"Authentication Level\", \"Two-Factor Authentication Status\", \"Two-Factor Authentication Method\", COUNT(*) AS cnt FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY 1, 2, 3, 4, 5 ORDER BY cnt DESC",
+        "S8": "SELECT DISTINCT \"Login Method\" FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024'",
+        "S9": "SELECT DISTINCT \"Two-Factor Authentication Method\" FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024'",
+        "S10": "SELECT DISTINCT \"Authentication Level\" FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024'",
+        "S13": "SELECT \"Login Method\", \"Two-Factor Authentication Status\", \"Two-Factor Authentication Method\", \"Authentication Status\", COUNT(*) AS cnt FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY 1, 2, 3, 4 ORDER BY \"Login Method\", \"Two-Factor Authentication Status\", \"Authentication Status\"",
+        "S24": "SELECT lr.\"Login Method\", lr.\"Two-Factor Authentication Status\", lr.\"Two-Factor Authentication Method\", lr.\"Authentication Level\", COUNT(*) AS cnt, SUM(CASE WHEN lr.\"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) AS failures FROM temp.reuse_candidate AS lr WHERE SUBSTRING(lr.\"Login Time\", 1, 4) = '2024' GROUP BY 1, 2, 3, 4 ORDER BY 1, 2, 3, 4",
+        "S27": "SELECT \"Login Method\", COUNT(*) AS total_2024, SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) AS failures, ROUND(100.0 * SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) / COUNT(*), 1) AS fail_pct, COUNT(DISTINCT \"Two-Factor Authentication Method\") AS num_2fa_types FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY 1 ORDER BY total_2024 DESC",
+        "S28": "SELECT \"Two-Factor Authentication Status\", COUNT(*) AS total_2024, SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) AS failures, ROUND(100.0 * SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) / COUNT(*), 1) AS fail_pct FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY 1",
+        "S29": "SELECT \"Two-Factor Authentication Method\", COUNT(*) AS total_2024, SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) AS failures, ROUND(100.0 * SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) / COUNT(*), 1) AS fail_pct FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY 1 ORDER BY total_2024 DESC"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S5",
+      "later_reuses": 8,
+      "denominator": 38,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865224.215467,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"login_records_table\" WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024'",
+          "phase": "offline_validation",
+          "start_time": 1788865224.2157443,
+          "status": "execute_returned",
+          "end_time": 1788865224.2164106
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865224.2164168,
+          "status": "execute_returned",
+          "end_time": 1788865224.2164378
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865224.2164435,
+          "status": "execute_returned",
+          "end_time": 1788865224.2164595
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT \"Login Method\", \"Authentication Status\", \"Authentication Level\", \"Two-Factor Authentication Status\", \"Two-Factor Authentication Method\", COUNT(*) AS cnt FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY 1, 2, 3, 4, 5 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865224.216488,
+          "status": "execute_returned",
+          "end_time": 1788865224.2167542
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT DISTINCT \"Login Method\" FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024'",
+          "phase": "offline_validation",
+          "start_time": 1788865224.2181826,
+          "status": "execute_returned",
+          "end_time": 1788865224.2182257
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT DISTINCT \"Two-Factor Authentication Method\" FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024'",
+          "phase": "offline_validation",
+          "start_time": 1788865224.2187881,
+          "status": "execute_returned",
+          "end_time": 1788865224.2188249
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT DISTINCT \"Authentication Level\" FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024'",
+          "phase": "offline_validation",
+          "start_time": 1788865224.21932,
+          "status": "execute_returned",
+          "end_time": 1788865224.219355
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT \"Login Method\", \"Two-Factor Authentication Status\", \"Two-Factor Authentication Method\", \"Authentication Status\", COUNT(*) AS cnt FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY 1, 2, 3, 4 ORDER BY \"Login Method\", \"Two-Factor Authentication Status\", \"Authentication Status\"",
+          "phase": "offline_validation",
+          "start_time": 1788865224.219836,
+          "status": "execute_returned",
+          "end_time": 1788865224.2200835
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT lr.\"Login Method\", lr.\"Two-Factor Authentication Status\", lr.\"Two-Factor Authentication Method\", lr.\"Authentication Level\", COUNT(*) AS cnt, SUM(CASE WHEN lr.\"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) AS failures FROM temp.reuse_candidate AS lr WHERE SUBSTRING(lr.\"Login Time\", 1, 4) = '2024' GROUP BY 1, 2, 3, 4 ORDER BY 1, 2, 3, 4",
+          "phase": "offline_validation",
+          "start_time": 1788865224.221214,
+          "status": "execute_returned",
+          "end_time": 1788865224.2214034
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT \"Login Method\", COUNT(*) AS total_2024, SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) AS failures, ROUND(100.0 * SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) / COUNT(*), 1) AS fail_pct, COUNT(DISTINCT \"Two-Factor Authentication Method\") AS num_2fa_types FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY 1 ORDER BY total_2024 DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865224.222957,
+          "status": "execute_returned",
+          "end_time": 1788865224.2231507
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT \"Two-Factor Authentication Status\", COUNT(*) AS total_2024, SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) AS failures, ROUND(100.0 * SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) / COUNT(*), 1) AS fail_pct FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY 1",
+          "phase": "offline_validation",
+          "start_time": 1788865224.2246177,
+          "status": "execute_returned",
+          "end_time": 1788865224.2247517
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT \"Two-Factor Authentication Method\", COUNT(*) AS total_2024, SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) AS failures, ROUND(100.0 * SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) / COUNT(*), 1) AS fail_pct FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY 1 ORDER BY total_2024 DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865224.2260244,
+          "status": "execute_returned",
+          "end_time": 1788865224.226187
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"login_records_table\" WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024'",
+          "time": 1788865224.2161014,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865224.2164338,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865224.2164567,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Login Method\", \"Authentication Status\", \"Authentication Level\", \"Two-Factor Authentication Status\", \"Two-Factor Authentication Method\", COUNT(*) AS cnt FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY 1, 2, 3, 4, 5 ORDER BY cnt DESC",
+          "time": 1788865224.216518,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT DISTINCT \"Login Method\" FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024'",
+          "time": 1788865224.2182121,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT DISTINCT \"Two-Factor Authentication Method\" FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024'",
+          "time": 1788865224.2188141,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT DISTINCT \"Authentication Level\" FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024'",
+          "time": 1788865224.2193453,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Login Method\", \"Two-Factor Authentication Status\", \"Two-Factor Authentication Method\", \"Authentication Status\", COUNT(*) AS cnt FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY 1, 2, 3, 4 ORDER BY \"Login Method\", \"Two-Factor Authentication Status\", \"Authentication Status\"",
+          "time": 1788865224.2198865,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT lr.\"Login Method\", lr.\"Two-Factor Authentication Status\", lr.\"Two-Factor Authentication Method\", lr.\"Authentication Level\", COUNT(*) AS cnt, SUM(CASE WHEN lr.\"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) AS failures FROM temp.reuse_candidate AS lr WHERE SUBSTRING(lr.\"Login Time\", 1, 4) = '2024' GROUP BY 1, 2, 3, 4 ORDER BY 1, 2, 3, 4",
+          "time": 1788865224.2212715,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Login Method\", COUNT(*) AS total_2024, SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) AS failures, ROUND(100.0 * SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) / COUNT(*), 1) AS fail_pct, COUNT(DISTINCT \"Two-Factor Authentication Method\") AS num_2fa_types FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY 1 ORDER BY total_2024 DESC",
+          "time": 1788865224.223021,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Two-Factor Authentication Status\", COUNT(*) AS total_2024, SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) AS failures, ROUND(100.0 * SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) / COUNT(*), 1) AS fail_pct FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY 1",
+          "time": 1788865224.2246816,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Two-Factor Authentication Method\", COUNT(*) AS total_2024, SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) AS failures, ROUND(100.0 * SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) / COUNT(*), 1) AS fail_pct FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY 1 ORDER BY total_2024 DESC",
+          "time": 1788865224.2260857,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.6712162867188454,
+      "intermediate_rows": 177,
+      "intermediate_columns": [
+        "Login Record ID",
+        "User ID",
+        "Account ID",
+        "Login Time",
+        "Login Method",
+        "Authentication Status",
+        "Login Duration",
+        "Logout Time",
+        "Session ID",
+        "Token ID",
+        "Token Expiration Time",
+        "Authentication Level",
+        "Two-Factor Authentication Status",
+        "Two-Factor Authentication Method",
+        "Login Batch Number",
+        "Business System ID",
+        "Document Number"
+      ],
+      "validation_ended_at": 1788865224.2275546,
+      "checks": [
+        {
+          "sql_id": "S5",
+          "rewritten_sql": "SELECT \"Login Method\", \"Authentication Status\", \"Authentication Level\", \"Two-Factor Authentication Status\", \"Two-Factor Authentication Method\", COUNT(*) AS cnt FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY 1, 2, 3, 4, 5 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.6912668943405151
+        },
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT DISTINCT \"Login Method\" FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6028935313224792
+        },
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT DISTINCT \"Two-Factor Authentication Method\" FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5296766757965088
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT DISTINCT \"Authentication Level\" FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5119061097502708
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT \"Login Method\", \"Two-Factor Authentication Status\", \"Two-Factor Authentication Method\", \"Authentication Status\", COUNT(*) AS cnt FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY 1, 2, 3, 4 ORDER BY \"Login Method\", \"Two-Factor Authentication Status\", \"Authentication Status\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.3769092038273811
+        },
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "SELECT lr.\"Login Method\", lr.\"Two-Factor Authentication Status\", lr.\"Two-Factor Authentication Method\", lr.\"Authentication Level\", COUNT(*) AS cnt, SUM(CASE WHEN lr.\"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) AS failures FROM temp.reuse_candidate AS lr WHERE SUBSTRING(lr.\"Login Time\", 1, 4) = '2024' GROUP BY 1, 2, 3, 4 ORDER BY 1, 2, 3, 4",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7400169745087624
+        },
+        {
+          "sql_id": "S27",
+          "rewritten_sql": "SELECT \"Login Method\", COUNT(*) AS total_2024, SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) AS failures, ROUND(100.0 * SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) / COUNT(*), 1) AS fail_pct, COUNT(DISTINCT \"Two-Factor Authentication Method\") AS num_2fa_types FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY 1 ORDER BY total_2024 DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.6513876616954803
+        },
+        {
+          "sql_id": "S28",
+          "rewritten_sql": "SELECT \"Two-Factor Authentication Status\", COUNT(*) AS total_2024, SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) AS failures, ROUND(100.0 * SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) / COUNT(*), 1) AS fail_pct FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY 1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.4042230322957039
+        },
+        {
+          "sql_id": "S29",
+          "rewritten_sql": "SELECT \"Two-Factor Authentication Method\", COUNT(*) AS total_2024, SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) AS failures, ROUND(100.0 * SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) / COUNT(*), 1) AS fail_pct FROM temp.reuse_candidate AS login_records_table WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY 1 ORDER BY total_2024 DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.4340970665216446
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Login Method\" AS __g0, \"Authentication Status\" AS __g1, \"Authentication Level\" AS __g2, \"Two-Factor Authentication Status\" AS __g3, \"Two-Factor Authentication Method\" AS __g4, COUNT(*) AS __a0, SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) AS __a1 FROM \"login_records_table\" WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY \"Login Method\", \"Authentication Status\", \"Authentication Level\", \"Two-Factor Authentication Status\", \"Two-Factor Authentication Method\"",
+      "covered": [
+        "S5",
+        "S13",
+        "S24",
+        "S28",
+        "S29"
+      ],
+      "rewrites": {
+        "S5": "SELECT __g0 AS \"Login Method\", __g1 AS \"Authentication Status\", __g2 AS \"Authentication Level\", __g3 AS \"Two-Factor Authentication Status\", __g4 AS \"Two-Factor Authentication Method\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1, __g2, __g3, __g4 ORDER BY cnt DESC",
+        "S13": "SELECT __g0 AS \"Login Method\", __g3 AS \"Two-Factor Authentication Status\", __g4 AS \"Two-Factor Authentication Method\", __g1 AS \"Authentication Status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g3, __g4, __g1 ORDER BY __g0, __g3, __g1",
+        "S24": "SELECT __g0 AS \"Login Method\", __g3 AS \"Two-Factor Authentication Status\", __g4 AS \"Two-Factor Authentication Method\", __g2 AS \"Authentication Level\", SUM(__a0) AS cnt, SUM(__a1) AS failures FROM temp.reuse_candidate GROUP BY __g0, __g3, __g4, __g2 ORDER BY 1, 2, 3, 4",
+        "S28": "SELECT __g3 AS \"Two-Factor Authentication Status\", SUM(__a0) AS total_2024, SUM(__a1) AS failures, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS fail_pct FROM temp.reuse_candidate GROUP BY __g3",
+        "S29": "SELECT __g4 AS \"Two-Factor Authentication Method\", SUM(__a0) AS total_2024, SUM(__a1) AS failures, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS fail_pct FROM temp.reuse_candidate GROUP BY __g4 ORDER BY total_2024 DESC"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S5",
+      "later_reuses": 4,
+      "denominator": 38,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865224.2275758,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Login Method\" AS __g0, \"Authentication Status\" AS __g1, \"Authentication Level\" AS __g2, \"Two-Factor Authentication Status\" AS __g3, \"Two-Factor Authentication Method\" AS __g4, COUNT(*) AS __a0, SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) AS __a1 FROM \"login_records_table\" WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY \"Login Method\", \"Authentication Status\", \"Authentication Level\", \"Two-Factor Authentication Status\", \"Two-Factor Authentication Method\"",
+          "phase": "offline_validation",
+          "start_time": 1788865224.2277615,
+          "status": "execute_returned",
+          "end_time": 1788865224.2283542
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865224.2283595,
+          "status": "execute_returned",
+          "end_time": 1788865224.2283752
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865224.2283792,
+          "status": "execute_returned",
+          "end_time": 1788865224.22839
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"Login Method\", __g1 AS \"Authentication Status\", __g2 AS \"Authentication Level\", __g3 AS \"Two-Factor Authentication Status\", __g4 AS \"Two-Factor Authentication Method\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1, __g2, __g3, __g4 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865224.2284024,
+          "status": "execute_returned",
+          "end_time": 1788865224.2285554
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"Login Method\", __g3 AS \"Two-Factor Authentication Status\", __g4 AS \"Two-Factor Authentication Method\", __g1 AS \"Authentication Status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g3, __g4, __g1 ORDER BY __g0, __g3, __g1",
+          "phase": "offline_validation",
+          "start_time": 1788865224.2304428,
+          "status": "execute_returned",
+          "end_time": 1788865224.230588
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS \"Login Method\", __g3 AS \"Two-Factor Authentication Status\", __g4 AS \"Two-Factor Authentication Method\", __g2 AS \"Authentication Level\", SUM(__a0) AS cnt, SUM(__a1) AS failures FROM temp.reuse_candidate GROUP BY __g0, __g3, __g4, __g2 ORDER BY 1, 2, 3, 4",
+          "phase": "offline_validation",
+          "start_time": 1788865224.231596,
+          "status": "execute_returned",
+          "end_time": 1788865224.2317019
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g3 AS \"Two-Factor Authentication Status\", SUM(__a0) AS total_2024, SUM(__a1) AS failures, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS fail_pct FROM temp.reuse_candidate GROUP BY __g3",
+          "phase": "offline_validation",
+          "start_time": 1788865224.2331889,
+          "status": "execute_returned",
+          "end_time": 1788865224.233266
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g4 AS \"Two-Factor Authentication Method\", SUM(__a0) AS total_2024, SUM(__a1) AS failures, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS fail_pct FROM temp.reuse_candidate GROUP BY __g4 ORDER BY total_2024 DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865224.234528,
+          "status": "execute_returned",
+          "end_time": 1788865224.2346246
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Login Method\" AS __g0, \"Authentication Status\" AS __g1, \"Authentication Level\" AS __g2, \"Two-Factor Authentication Status\" AS __g3, \"Two-Factor Authentication Method\" AS __g4, COUNT(*) AS __a0, SUM(CASE WHEN \"Authentication Status\" = 'Failure' THEN 1 ELSE 0 END) AS __a1 FROM \"login_records_table\" WHERE SUBSTRING(\"Login Time\", 1, 4) = '2024' GROUP BY \"Login Method\", \"Authentication Status\", \"Authentication Level\", \"Two-Factor Authentication Status\", \"Two-Factor Authentication Method\"",
+          "time": 1788865224.227972,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865224.2283719,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865224.2283874,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Login Method\", __g1 AS \"Authentication Status\", __g2 AS \"Authentication Level\", __g3 AS \"Two-Factor Authentication Status\", __g4 AS \"Two-Factor Authentication Method\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1, __g2, __g3, __g4 ORDER BY cnt DESC",
+          "time": 1788865224.2284238,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Login Method\", __g3 AS \"Two-Factor Authentication Status\", __g4 AS \"Two-Factor Authentication Method\", __g1 AS \"Authentication Status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g3, __g4, __g1 ORDER BY __g0, __g3, __g1",
+          "time": 1788865224.2304785,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Login Method\", __g3 AS \"Two-Factor Authentication Status\", __g4 AS \"Two-Factor Authentication Method\", __g2 AS \"Authentication Level\", SUM(__a0) AS cnt, SUM(__a1) AS failures FROM temp.reuse_candidate GROUP BY __g0, __g3, __g4, __g2 ORDER BY 1, 2, 3, 4",
+          "time": 1788865224.2316368,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS \"Two-Factor Authentication Status\", SUM(__a0) AS total_2024, SUM(__a1) AS failures, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS fail_pct FROM temp.reuse_candidate GROUP BY __g3",
+          "time": 1788865224.2332258,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS \"Two-Factor Authentication Method\", SUM(__a0) AS total_2024, SUM(__a1) AS failures, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS fail_pct FROM temp.reuse_candidate GROUP BY __g4 ORDER BY total_2024 DESC",
+          "time": 1788865224.234571,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.5966322496533394,
+      "intermediate_rows": 106,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__a0",
+        "__a1"
+      ],
+      "validation_ended_at": 1788865224.235964,
+      "checks": [
+        {
+          "sql_id": "S5",
+          "rewritten_sql": "SELECT __g0 AS \"Login Method\", __g1 AS \"Authentication Status\", __g2 AS \"Authentication Level\", __g3 AS \"Two-Factor Authentication Status\", __g4 AS \"Two-Factor Authentication Method\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g1, __g2, __g3, __g4 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.038172446191311
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT __g0 AS \"Login Method\", __g3 AS \"Two-Factor Authentication Status\", __g4 AS \"Two-Factor Authentication Method\", __g1 AS \"Authentication Status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0, __g3, __g4, __g1 ORDER BY __g0, __g3, __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.1514890938997269
+        },
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "SELECT __g0 AS \"Login Method\", __g3 AS \"Two-Factor Authentication Status\", __g4 AS \"Two-Factor Authentication Method\", __g2 AS \"Authentication Level\", SUM(__a0) AS cnt, SUM(__a1) AS failures FROM temp.reuse_candidate GROUP BY __g0, __g3, __g4, __g2 ORDER BY 1, 2, 3, 4",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.5909336507320404
+        },
+        {
+          "sql_id": "S28",
+          "rewritten_sql": "SELECT __g3 AS \"Two-Factor Authentication Status\", SUM(__a0) AS total_2024, SUM(__a1) AS failures, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS fail_pct FROM temp.reuse_candidate GROUP BY __g3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.3373158872127533
+        },
+        {
+          "sql_id": "S29",
+          "rewritten_sql": "SELECT __g4 AS \"Two-Factor Authentication Method\", SUM(__a0) AS total_2024, SUM(__a1) AS failures, ROUND(100.0 * SUM(__a1) / SUM(__a0), 1) AS fail_pct FROM temp.reuse_candidate GROUP BY __g4 ORDER BY total_2024 DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.3696588575839996
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

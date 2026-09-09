@@ -1,0 +1,1 @@
+SELECT title, COUNT(*) AS cnt FROM salesforce__contact_enhanced GROUP BY title ORDER BY cnt DESC LIMIT 40

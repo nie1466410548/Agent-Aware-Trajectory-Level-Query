@@ -1,0 +1,1 @@
+SELECT " Exclusion Flag" AS flag, COUNT(*) n FROM customer_management_table GROUP BY flag

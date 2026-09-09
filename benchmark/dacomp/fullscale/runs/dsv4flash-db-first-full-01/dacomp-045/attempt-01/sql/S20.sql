@@ -1,0 +1,1 @@
+SELECT DISTINCT "Product Name", COUNT(*) AS cnt FROM product_basic_information_table GROUP BY "Product Name" ORDER BY cnt DESC

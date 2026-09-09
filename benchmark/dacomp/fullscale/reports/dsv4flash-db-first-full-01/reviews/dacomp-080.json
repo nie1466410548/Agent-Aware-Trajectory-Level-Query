@@ -1,0 +1,97 @@
+{
+  "task_id": "dacomp-080",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 按价值层级、语言和大洲计算均值、数量及贡献份额，按邮箱连接渠道信息并计算高低价值差异。这些 SQL 可支持的连接与聚合迁出数据库；效应量、显著性检验和绘图单独评价。",
+  "route": "SQL 提取用户参与与跨渠道特征 → Python 价值分层、语言地域聚合和渠道连接 → 激励与分群建议。",
+  "evidence": [
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 34,
+          "text": "cont = prof.groupby('tier').agg("
+        },
+        {
+          "line": 45,
+          "text": "cont['pct_users'] = (cont.n_users/cont.n_users.sum()*100).round(1)"
+        },
+        {
+          "line": 46,
+          "text": "cont['pct_responses'] = (cont.total_responses/cont.total_responses.sum()*100).round(1)"
+        },
+        {
+          "line": 47,
+          "text": "cont['pct_completed'] = (cont.total_completed/cont.total_completed.sum()*100).round(1)"
+        }
+      ]
+    },
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 6,
+          "text": "lang_agg = prof.groupby('dom_lang').agg("
+        },
+        {
+          "line": 13,
+          "text": "    pct_high_power=('tier', lambda s: 100*(s.isin(['high_value','power_user'])).mean()),"
+        },
+        {
+          "line": 21,
+          "text": "region_agg = prof.groupby('continent').agg("
+        },
+        {
+          "line": 28,
+          "text": "    pct_high_power=('tier', lambda s: 100*(s.isin(['high_value','power_user'])).mean()),"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 143,
+          "text": "lang_order = prof.groupby('dom_lang')['value_score'].mean().sort_values(ascending=False).index"
+        },
+        {
+          "line": 150,
+          "text": "cont_order = prof.groupby('continent')['value_score'].mean().sort_values(ascending=False).index"
+        },
+        {
+          "line": 193,
+          "text": "tier_scores = prof.groupby('tier')[components].mean().loc[tier_order]"
+        }
+      ]
+    },
+    {
+      "source": "python/P12.py",
+      "lines": [
+        {
+          "line": 27,
+          "text": "prof = prof.merge(chan, on='email', how='left')"
+        },
+        {
+          "line": 41,
+          "text": "    'high_power_pct': [hp[c].mean()*100 for c in channels],"
+        },
+        {
+          "line": 42,
+          "text": "    'rest_pct': [rest[c].mean()*100 for c in channels]"
+        },
+        {
+          "line": 57,
+          "text": "            'freq_gap': h.n_survey_responses.mean() - m.n_survey_responses.mean(),"
+        },
+        {
+          "line": 58,
+          "text": "            'comp_gap': h.completion_rate.mean() - m.completion_rate.mean(),"
+        },
+        {
+          "line": 59,
+          "text": "            'chan_gap': h.n_channels.mean() - m.n_channels.mean()"
+        }
+      ]
+    }
+  ]
+}

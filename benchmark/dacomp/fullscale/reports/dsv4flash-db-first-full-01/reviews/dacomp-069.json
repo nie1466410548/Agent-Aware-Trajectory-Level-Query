@@ -1,0 +1,64 @@
+{
+  "task_id": "dacomp-069",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 对国家月份交易、地区和收入等级进行求和与均值，并计算收入份额和正负增长数量，属于可在 SQL 内完成的聚合。相关检验和绘图单独保留。",
+  "route": "SQL 提取目标应用的地域和财务记录 → Python 按地区、收入层级汇总 → 高低收入市场比较。",
+  "evidence": [
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 79,
+          "text": "fin_summary = fin.groupby(['country_short', 'month']).agg({'net_amount': 'sum', 'transactions': 'sum'}).reset_index()"
+        },
+        {
+          "line": 114,
+          "text": "    means = geo.groupby('group')[m].mean()"
+        }
+      ]
+    },
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 18,
+          "text": "region = geo.groupby('region').agg("
+        },
+        {
+          "line": 35,
+          "text": "summary = geo.groupby('grp').agg("
+        },
+        {
+          "line": 52,
+          "text": "tier = geo.groupby('revenue_tier').agg("
+        }
+      ]
+    },
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 18,
+          "text": "tier_rev = geo.groupby('revenue_tier')['avg_daily_revenue'].sum()"
+        },
+        {
+          "line": 21,
+          "text": "print(\"Share Tier1:\", (tier_rev['Tier 1']/tier_rev.sum()*100).round(1), \"%\")"
+        },
+        {
+          "line": 26,
+          "text": "mt = geo.groupby('market_tier')['avg_daily_revenue'].sum()"
+        },
+        {
+          "line": 41,
+          "text": "print(\"High ARPU markets with negative growth:\", (top['weekly_growth_rate'] < 0).sum(), \"of\", len(top))"
+        },
+        {
+          "line": 42,
+          "text": "print(\"Low ARPU markets with positive growth:\", (low['weekly_growth_rate'] > 0).sum(), \"of\", len(low))"
+        }
+      ]
+    }
+  ]
+}

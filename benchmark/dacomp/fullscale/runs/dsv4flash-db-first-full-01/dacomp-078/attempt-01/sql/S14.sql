@@ -1,0 +1,1 @@
+SELECT substr(first_event_on,1,7) AS month, COUNT(*) AS accounts FROM pendo__account GROUP BY month ORDER BY month

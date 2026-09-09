@@ -1,0 +1,1 @@
+SELECT MIN("Units Produced") AS min_units, MAX("Units Produced") AS max_units, COUNT(*) AS n, COUNT(CASE WHEN "Units Produced" <= 0 THEN 1 END) AS nonpos FROM sheet1

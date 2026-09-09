@@ -1,0 +1,1333 @@
+{
+  "fingerprint": "9c15ecdadb71fffb4b7ef35a69c9bc77f29d030230b2263b2a0b3e983faa0df3",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT *, ROW_NUMBER() OVER (PARTITION BY employee_id ORDER BY position_start_date DESC, overall_employee_score DESC, career_development_score DESC, total_promotions DESC) AS rn FROM workday__employee_overview",
+      "covered": [
+        "S19",
+        "S20",
+        "S21",
+        "S22",
+        "S24",
+        "S25",
+        "S26",
+        "S27",
+        "S28",
+        "S29",
+        "S30",
+        "S31",
+        "S32",
+        "S33",
+        "S34",
+        "S35",
+        "S36",
+        "S37",
+        "S38",
+        "S39",
+        "S40",
+        "S41",
+        "S42",
+        "S43",
+        "S44",
+        "S45",
+        "S46",
+        "S47",
+        "S48",
+        "S49",
+        "S50",
+        "S51",
+        "S52",
+        "S53",
+        "S54",
+        "S55",
+        "S56",
+        "S57",
+        "S58",
+        "S59",
+        "S60",
+        "S61",
+        "S62",
+        "S63",
+        "S64",
+        "S65"
+      ],
+      "rewrites": {
+        "S19": "WITH ranked AS (SELECT * FROM temp.reuse_candidate) SELECT COUNT(*) AS n, AVG(career_development_score) AS avg_career, MIN(career_development_score) AS min_career, MAX(career_development_score) AS max_career, AVG(overall_employee_score) AS avg_overall, MIN(overall_employee_score) AS min_overall, MAX(overall_employee_score) AS max_overall FROM ranked WHERE rn = 1",
+        "S20": "WITH ranked AS (SELECT * FROM temp.reuse_candidate) SELECT career_development_score FROM ranked WHERE rn = 1 ORDER BY career_development_score LIMIT 1 OFFSET (SELECT COUNT(*) / 2 FROM ranked WHERE rn = 1)",
+        "S21": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), ordered AS (SELECT career_development_score, ROW_NUMBER() OVER (ORDER BY career_development_score) AS rn, COUNT(*) OVER () AS total FROM emp) SELECT career_development_score AS median_career FROM ordered WHERE rn = (total + 1) / 2",
+        "S22": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT SUM(CASE WHEN overall_employee_score > 75 AND career_development_score > 78.57581219355939 THEN 1 ELSE 0 END) AS core_emp, COUNT(*) AS total_emp FROM emp",
+        "S24": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT marital_status, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY marital_status ORDER BY cnt DESC",
+        "S25": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT ethnicity_codes, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY ethnicity_codes ORDER BY cnt DESC",
+        "S26": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT 'Age' AS feature, ROUND(AVG(age), 1) AS avg_val, MIN(age) AS min_val, MAX(age) AS max_val FROM core UNION ALL SELECT 'Tenure_years', ROUND(AVG(tenure_years), 2), ROUND(MIN(tenure_years), 2), ROUND(MAX(tenure_years), 2) FROM core UNION ALL SELECT 'Total_positions_held', ROUND(AVG(total_positions_held), 2), MIN(total_positions_held), MAX(total_positions_held) FROM core UNION ALL SELECT 'Total_promotions', ROUND(AVG(total_promotions), 2), MIN(total_promotions), MAX(total_promotions) FROM core UNION ALL SELECT 'Lateral_moves', ROUND(AVG(lateral_moves), 2), MIN(lateral_moves), MAX(lateral_moves) FROM core UNION ALL SELECT 'Management_positions_held', ROUND(AVG(management_positions_held), 2), MIN(management_positions_held), MAX(management_positions_held) FROM core",
+        "S27": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT career_phase, employee_maturity_segment, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) AS high_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) / COUNT(*), 1) AS high_risk_pct, SUM(CASE WHEN employee_risk_level = 'Medium' THEN 1 ELSE 0 END) AS medium_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Medium' THEN 1 ELSE 0 END) / COUNT(*), 1) AS medium_risk_pct, SUM(CASE WHEN employee_risk_level = 'Low' THEN 1 ELSE 0 END) AS low_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Low' THEN 1 ELSE 0 END) / COUNT(*), 1) AS low_risk_pct FROM core GROUP BY career_phase, employee_maturity_segment ORDER BY career_phase, employee_maturity_segment",
+        "S28": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT compensation_tier, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) AS high_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) / COUNT(*), 1) AS high_risk_pct, ROUND(AVG(work_conditions_score), 1) AS avg_work_cond, ROUND(AVG(dept_turnover_rate), 3) AS avg_turnover, ROUND(AVG(dept_management_ratio), 3) AS avg_mgmt_ratio, ROUND(AVG(dept_health_score), 1) AS avg_dept_health FROM core GROUP BY compensation_tier ORDER BY high_risk_pct DESC",
+        "S29": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT organization_type, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) AS high_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) / COUNT(*), 1) AS high_risk_pct, ROUND(AVG(dept_turnover_rate), 3) AS avg_turnover, ROUND(AVG(dept_health_score), 1) AS avg_dept_health FROM core GROUP BY organization_type ORDER BY high_risk_pct DESC",
+        "S30": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT employee_risk_level, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY employee_risk_level ORDER BY cnt DESC",
+        "S31": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT employee_risk_level, ROUND(AVG(work_conditions_score), 1) AS avg_work_cond, ROUND(AVG(dept_turnover_rate), 3) AS avg_turnover, ROUND(AVG(dept_management_ratio), 3) AS avg_mgmt_ratio, ROUND(AVG(dept_health_score), 1) AS avg_dept_health, ROUND(AVG(compensation_tier), 1) AS avg_comp FROM core GROUP BY employee_risk_level",
+        "S32": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT COUNT(*) AS total_emp, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS high_value_attrition_risk FROM emp",
+        "S33": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT employee_value_segment, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM emp WHERE retention_stability_score < 60 AND overall_employee_score > 80), 1) AS pct FROM emp WHERE retention_stability_score < 60 AND overall_employee_score > 80 GROUP BY employee_value_segment ORDER BY cnt DESC",
+        "S34": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT SUM(is_work_shift_required) AS shift_required, SUM(is_union_eligible) AS union_eligible, ROUND(100.0 * SUM(is_work_shift_required) / COUNT(*), 1) AS shift_required_pct, ROUND(100.0 * SUM(is_union_eligible) / COUNT(*), 1) AS union_eligible_pct FROM emp WHERE retention_stability_score < 60 AND overall_employee_score > 80",
+        "S35": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT 'All employees' AS grp, COUNT(*) AS n, ROUND(100.0 * SUM(is_work_shift_required) / COUNT(*), 1) AS shift_pct, ROUND(100.0 * SUM(is_union_eligible) / COUNT(*), 1) AS union_pct, ROUND(AVG(retention_stability_score), 1) AS avg_retention, ROUND(AVG(overall_employee_score), 1) AS avg_overall FROM emp UNION ALL SELECT 'High-value attrition risk', COUNT(*), ROUND(100.0 * SUM(is_work_shift_required) / COUNT(*), 1), ROUND(100.0 * SUM(is_union_eligible) / COUNT(*), 1), ROUND(AVG(retention_stability_score), 1), ROUND(AVG(overall_employee_score), 1) FROM emp WHERE retention_stability_score < 60 AND overall_employee_score > 80",
+        "S36": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT DISTINCT employee_value_segment FROM emp ORDER BY employee_value_segment",
+        "S37": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT DISTINCT highest_management_level_reached FROM emp ORDER BY highest_management_level_reached",
+        "S38": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT DISTINCT dept_performance_category FROM emp ORDER BY dept_performance_category",
+        "S39": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT DISTINCT organization_sub_type FROM emp ORDER BY organization_sub_type",
+        "S40": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT organization_sub_type, COUNT(*) AS cnt FROM emp GROUP BY organization_sub_type ORDER BY cnt DESC",
+        "S41": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT highest_management_level_reached, dept_performance_category, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS risk_core, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / COUNT(*), 1) AS risk_pct, SUM(CASE WHEN retention_stability_score < 60 THEN 1 ELSE 0 END) AS low_retention, ROUND(100.0 * SUM(CASE WHEN retention_stability_score < 60 THEN 1 ELSE 0 END) / COUNT(*), 1) AS low_retention_pct, ROUND(AVG(overall_employee_score), 1) AS avg_overall, ROUND(AVG(career_development_score), 1) AS avg_career FROM core GROUP BY highest_management_level_reached, dept_performance_category ORDER BY highest_management_level_reached, dept_performance_category",
+        "S42": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT organization_sub_type, dept_performance_category, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS risk_core, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 1) AS risk_pct, SUM(CASE WHEN retention_stability_score < 60 THEN 1 ELSE 0 END) AS low_retention, ROUND(AVG(overall_employee_score), 1) AS avg_overall, ROUND(AVG(career_development_score), 1) AS avg_career FROM core GROUP BY organization_sub_type, dept_performance_category ORDER BY total_core DESC",
+        "S43": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT CASE WHEN age < 45 THEN '<45' WHEN age BETWEEN 45 AND 50 THEN '45-50' WHEN age BETWEEN 51 AND 55 THEN '51-55' WHEN age BETWEEN 56 AND 60 THEN '56-60' ELSE '60+' END AS age_band, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY age_band ORDER BY MIN(age)",
+        "S44": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT employee_id, age, tenure_years, marital_status, ethnicity_codes, total_positions_held, total_promotions, lateral_moves, management_positions_held, career_phase, employee_maturity_segment, compensation_tier, work_conditions_score, dept_turnover_rate, dept_health_score, organization_type, organization_sub_type, retention_stability_score, overall_employee_score, career_development_score FROM core WHERE employee_risk_level = 'High' ORDER BY retention_stability_score",
+        "S45": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT tenure_group, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY tenure_group ORDER BY cnt DESC",
+        "S46": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT career_phase, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY career_phase ORDER BY cnt DESC",
+        "S47": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT employee_maturity_segment, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY employee_maturity_segment ORDER BY cnt DESC",
+        "S48": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT 'All Employees' AS grp, COUNT(*) AS n, ROUND(AVG(age), 1) AS avg_age, ROUND(AVG(tenure_years), 2) AS avg_tenure, ROUND(AVG(overall_employee_score), 1) AS avg_overall, ROUND(AVG(career_development_score), 1) AS avg_career, ROUND(AVG(retention_stability_score), 1) AS avg_retention, ROUND(AVG(total_positions_held), 2) AS avg_positions, ROUND(AVG(total_promotions), 2) AS avg_promotions, ROUND(AVG(lateral_moves), 2) AS avg_lateral, ROUND(AVG(management_positions_held), 2) AS avg_mgmt FROM emp UNION ALL SELECT 'Core Employees', COUNT(*), ROUND(AVG(age), 1), ROUND(AVG(tenure_years), 2), ROUND(AVG(overall_employee_score), 1), ROUND(AVG(career_development_score), 1), ROUND(AVG(retention_stability_score), 1), ROUND(AVG(total_positions_held), 2), ROUND(AVG(total_promotions), 2), ROUND(AVG(lateral_moves), 2), ROUND(AVG(management_positions_held), 2) FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939",
+        "S49": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT 'All Employees' AS grp, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) / COUNT(*), 1) AS high_risk_pct, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Medium' THEN 1 ELSE 0 END) / COUNT(*), 1) AS med_risk_pct, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Low' THEN 1 ELSE 0 END) / COUNT(*), 1) AS low_risk_pct, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS high_value_attrition_risk FROM emp UNION ALL SELECT 'Core Employees', ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) / COUNT(*), 1), ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Medium' THEN 1 ELSE 0 END) / COUNT(*), 1), ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Low' THEN 1 ELSE 0 END) / COUNT(*), 1), SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939",
+        "S50": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT age, tenure_years, total_positions_held, total_promotions, lateral_moves, management_positions_held, overall_employee_score, career_development_score, retention_stability_score, marital_status, ethnicity_codes, career_phase, employee_maturity_segment, employee_risk_level, compensation_tier, work_conditions_score, dept_turnover_rate, dept_health_score, dept_management_ratio, organization_type, organization_sub_type, dept_performance_category, highest_management_level_reached, is_work_shift_required, is_union_eligible, employee_value_segment FROM core",
+        "S51": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT age, tenure_years, overall_employee_score, career_development_score, retention_stability_score, employee_risk_level, total_positions_held, total_promotions, lateral_moves, management_positions_held FROM emp",
+        "S52": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT career_phase, employee_maturity_segment, COUNT(*) AS total, SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) AS high_risk, SUM(CASE WHEN employee_risk_level = 'Medium' THEN 1 ELSE 0 END) AS med_risk, SUM(CASE WHEN employee_risk_level = 'Low' THEN 1 ELSE 0 END) AS low_risk FROM core GROUP BY career_phase, employee_maturity_segment ORDER BY career_phase, employee_maturity_segment",
+        "S53": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT employee_value_segment, COUNT(*) AS cnt FROM emp WHERE retention_stability_score < 60 AND overall_employee_score > 80 GROUP BY employee_value_segment ORDER BY cnt DESC",
+        "S54": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT employee_risk_level, AVG(work_conditions_score) AS avg_work_cond, AVG(dept_turnover_rate) AS avg_turnover, AVG(dept_health_score) AS avg_dept_health FROM core GROUP BY employee_risk_level ORDER BY employee_risk_level",
+        "S55": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT compensation_tier, COUNT(*) AS cnt FROM core GROUP BY compensation_tier ORDER BY cnt DESC",
+        "S56": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT highest_management_level_reached, dept_performance_category, COUNT(*) AS total, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS at_risk, SUM(CASE WHEN retention_stability_score < 60 THEN 1 ELSE 0 END) AS low_retention FROM core GROUP BY highest_management_level_reached, dept_performance_category ORDER BY highest_management_level_reached, dept_performance_category",
+        "S57": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT organization_type, organization_sub_type, COUNT(*) AS total_core, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / COUNT(*), 1) AS risk_pct, ROUND(AVG(highest_management_level_reached), 2) AS avg_mgmt_level, ROUND(AVG(retention_stability_score), 1) AS avg_retention, ROUND(AVG(overall_employee_score), 1) AS avg_overall FROM core GROUP BY organization_type, organization_sub_type HAVING COUNT(*) >= 20 ORDER BY risk_pct DESC",
+        "S58": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT ethnicity_codes, COUNT(*) AS total, SUM(CASE WHEN overall_employee_score > 75 AND career_development_score > 78.57581219355939 THEN 1 ELSE 0 END) AS core, ROUND(100.0 * SUM(CASE WHEN overall_employee_score > 75 AND career_development_score > 78.57581219355939 THEN 1 ELSE 0 END) / COUNT(*), 1) AS core_rate_pct FROM emp GROUP BY ethnicity_codes ORDER BY core_rate_pct DESC",
+        "S59": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT compensation_tier, COUNT(*) AS total, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS attrition_risk, ROUND(100.0 * SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) / COUNT(*), 1) AS attrition_pct FROM emp GROUP BY compensation_tier ORDER BY attrition_pct DESC",
+        "S60": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT dept_performance_category, COUNT(*) AS total, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS attrition_risk, ROUND(100.0 * SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) / COUNT(*), 1) AS attrition_pct, ROUND(AVG(dept_turnover_rate), 3) AS avg_turnover FROM emp GROUP BY dept_performance_category ORDER BY attrition_pct DESC",
+        "S61": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT organization_sub_type, COUNT(*) AS total, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS attrition_risk, ROUND(100.0 * SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 1) AS attrition_pct FROM emp GROUP BY organization_sub_type HAVING COUNT(*) >= 20 ORDER BY attrition_pct DESC LIMIT 10",
+        "S62": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT organization_type, dept_performance_category, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS risk_core, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / COUNT(*), 1) AS risk_pct, ROUND(AVG(overall_employee_score), 1) AS avg_overall, ROUND(AVG(career_development_score), 1) AS avg_career, ROUND(AVG(retention_stability_score), 1) AS avg_retention FROM core GROUP BY organization_type, dept_performance_category ORDER BY risk_pct DESC",
+        "S63": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939), tiers AS (SELECT CASE WHEN highest_management_level_reached = 0 THEN 'Individual Contributor (L0)' WHEN highest_management_level_reached = 1 THEN 'Team Lead (L1)' WHEN highest_management_level_reached = 2 THEN 'Manager (L2)' ELSE 'Senior Management (L3+)' END AS mgmt_tier, dept_performance_category, COUNT(*) AS n_core, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS n_at_risk, SUM(CASE WHEN retention_stability_score < 60 THEN 1 ELSE 0 END) AS n_low_retention, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / COUNT(*), 1) AS at_risk_pct, ROUND(AVG(overall_employee_score), 1) AS avg_overall, ROUND(AVG(career_development_score), 1) AS avg_career, ROUND(AVG(retention_stability_score), 1) AS avg_retention FROM core GROUP BY mgmt_tier, dept_performance_category) SELECT * FROM tiers ORDER BY at_risk_pct DESC, n_core DESC",
+        "S64": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT CASE WHEN highest_management_level_reached = 0 THEN 'IC (L0)' WHEN highest_management_level_reached = 1 THEN 'Team Lead (L1)' WHEN highest_management_level_reached = 2 THEN 'Manager (L2)' ELSE 'Sr Mgmt (L3+)' END AS mgmt_tier, dept_performance_category, COUNT(*) AS n_core, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS n_at_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / COUNT(*), 1) AS at_risk_pct FROM core GROUP BY mgmt_tier, dept_performance_category",
+        "S65": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT organization_sub_type, COUNT(*) AS total, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS attrition_risk, ROUND(100.0 * SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) / COUNT(*), 1) AS attrition_pct FROM emp GROUP BY organization_sub_type HAVING COUNT(*) >= 20 ORDER BY attrition_pct DESC"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S19",
+      "later_reuses": 45,
+      "denominator": 62,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869675.711841,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT *, ROW_NUMBER() OVER (PARTITION BY employee_id ORDER BY position_start_date DESC, overall_employee_score DESC, career_development_score DESC, total_promotions DESC) AS rn FROM workday__employee_overview",
+          "phase": "offline_validation",
+          "start_time": 1788869675.7121184,
+          "status": "execute_returned",
+          "end_time": 1788869677.4479952
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869677.448007,
+          "status": "execute_returned",
+          "end_time": 1788869677.4744174
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788869677.4744322,
+          "status": "execute_returned",
+          "end_time": 1788869677.4744966
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate) SELECT COUNT(*) AS n, AVG(career_development_score) AS avg_career, MIN(career_development_score) AS min_career, MAX(career_development_score) AS max_career, AVG(overall_employee_score) AS avg_overall, MIN(overall_employee_score) AS min_overall, MAX(overall_employee_score) AS max_overall FROM ranked WHERE rn = 1",
+          "phase": "offline_validation",
+          "start_time": 1788869677.4746125,
+          "status": "execute_returned",
+          "end_time": 1788869677.531638
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate) SELECT career_development_score FROM ranked WHERE rn = 1 ORDER BY career_development_score LIMIT 1 OFFSET (SELECT COUNT(*) / 2 FROM ranked WHERE rn = 1)",
+          "phase": "offline_validation",
+          "start_time": 1788869677.5334756,
+          "status": "execute_returned",
+          "end_time": 1788869677.640459
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), ordered AS (SELECT career_development_score, ROW_NUMBER() OVER (ORDER BY career_development_score) AS rn, COUNT(*) OVER () AS total FROM emp) SELECT career_development_score AS median_career FROM ordered WHERE rn = (total + 1) / 2",
+          "phase": "offline_validation",
+          "start_time": 1788869677.6422071,
+          "status": "execute_returned",
+          "end_time": 1788869677.7047088
+        },
+        {
+          "sequence": 7,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT SUM(CASE WHEN overall_employee_score > 75 AND career_development_score > 78.57581219355939 THEN 1 ELSE 0 END) AS core_emp, COUNT(*) AS total_emp FROM emp",
+          "phase": "offline_validation",
+          "start_time": 1788869677.7101114,
+          "status": "execute_returned",
+          "end_time": 1788869677.7613437
+        },
+        {
+          "sequence": 8,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT marital_status, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY marital_status ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869677.7630627,
+          "status": "execute_returned",
+          "end_time": 1788869677.865261
+        },
+        {
+          "sequence": 9,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT ethnicity_codes, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY ethnicity_codes ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869677.8675642,
+          "status": "execute_returned",
+          "end_time": 1788869677.9684708
+        },
+        {
+          "sequence": 10,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT 'Age' AS feature, ROUND(AVG(age), 1) AS avg_val, MIN(age) AS min_val, MAX(age) AS max_val FROM core UNION ALL SELECT 'Tenure_years', ROUND(AVG(tenure_years), 2), ROUND(MIN(tenure_years), 2), ROUND(MAX(tenure_years), 2) FROM core UNION ALL SELECT 'Total_positions_held', ROUND(AVG(total_positions_held), 2), MIN(total_positions_held), MAX(total_positions_held) FROM core UNION ALL SELECT 'Total_promotions', ROUND(AVG(total_promotions), 2), MIN(total_promotions), MAX(total_promotions) FROM core UNION ALL SELECT 'Lateral_moves', ROUND(AVG(lateral_moves), 2), MIN(lateral_moves), MAX(lateral_moves) FROM core UNION ALL SELECT 'Management_positions_held', ROUND(AVG(management_positions_held), 2), MIN(management_positions_held), MAX(management_positions_held) FROM core",
+          "phase": "offline_validation",
+          "start_time": 1788869677.9706023,
+          "status": "execute_returned",
+          "end_time": 1788869678.0231242
+        },
+        {
+          "sequence": 11,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT career_phase, employee_maturity_segment, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) AS high_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) / COUNT(*), 1) AS high_risk_pct, SUM(CASE WHEN employee_risk_level = 'Medium' THEN 1 ELSE 0 END) AS medium_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Medium' THEN 1 ELSE 0 END) / COUNT(*), 1) AS medium_risk_pct, SUM(CASE WHEN employee_risk_level = 'Low' THEN 1 ELSE 0 END) AS low_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Low' THEN 1 ELSE 0 END) / COUNT(*), 1) AS low_risk_pct FROM core GROUP BY career_phase, employee_maturity_segment ORDER BY career_phase, employee_maturity_segment",
+          "phase": "offline_validation",
+          "start_time": 1788869678.2792938,
+          "status": "execute_returned",
+          "end_time": 1788869678.331394
+        },
+        {
+          "sequence": 12,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT compensation_tier, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) AS high_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) / COUNT(*), 1) AS high_risk_pct, ROUND(AVG(work_conditions_score), 1) AS avg_work_cond, ROUND(AVG(dept_turnover_rate), 3) AS avg_turnover, ROUND(AVG(dept_management_ratio), 3) AS avg_mgmt_ratio, ROUND(AVG(dept_health_score), 1) AS avg_dept_health FROM core GROUP BY compensation_tier ORDER BY high_risk_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869678.3360622,
+          "status": "execute_returned",
+          "end_time": 1788869678.38825
+        },
+        {
+          "sequence": 13,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT organization_type, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) AS high_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) / COUNT(*), 1) AS high_risk_pct, ROUND(AVG(dept_turnover_rate), 3) AS avg_turnover, ROUND(AVG(dept_health_score), 1) AS avg_dept_health FROM core GROUP BY organization_type ORDER BY high_risk_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869678.3912892,
+          "status": "execute_returned",
+          "end_time": 1788869678.4429557
+        },
+        {
+          "sequence": 14,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT employee_risk_level, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY employee_risk_level ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869678.4458227,
+          "status": "execute_returned",
+          "end_time": 1788869678.5473485
+        },
+        {
+          "sequence": 15,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT employee_risk_level, ROUND(AVG(work_conditions_score), 1) AS avg_work_cond, ROUND(AVG(dept_turnover_rate), 3) AS avg_turnover, ROUND(AVG(dept_management_ratio), 3) AS avg_mgmt_ratio, ROUND(AVG(dept_health_score), 1) AS avg_dept_health, ROUND(AVG(compensation_tier), 1) AS avg_comp FROM core GROUP BY employee_risk_level",
+          "phase": "offline_validation",
+          "start_time": 1788869678.5494952,
+          "status": "execute_returned",
+          "end_time": 1788869678.6007214
+        },
+        {
+          "sequence": 16,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT COUNT(*) AS total_emp, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS high_value_attrition_risk FROM emp",
+          "phase": "offline_validation",
+          "start_time": 1788869678.603819,
+          "status": "execute_returned",
+          "end_time": 1788869678.6549647
+        },
+        {
+          "sequence": 17,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT employee_value_segment, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM emp WHERE retention_stability_score < 60 AND overall_employee_score > 80), 1) AS pct FROM emp WHERE retention_stability_score < 60 AND overall_employee_score > 80 GROUP BY employee_value_segment ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869678.6566765,
+          "status": "execute_returned",
+          "end_time": 1788869678.7581236
+        },
+        {
+          "sequence": 18,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT SUM(is_work_shift_required) AS shift_required, SUM(is_union_eligible) AS union_eligible, ROUND(100.0 * SUM(is_work_shift_required) / COUNT(*), 1) AS shift_required_pct, ROUND(100.0 * SUM(is_union_eligible) / COUNT(*), 1) AS union_eligible_pct FROM emp WHERE retention_stability_score < 60 AND overall_employee_score > 80",
+          "phase": "offline_validation",
+          "start_time": 1788869678.7602372,
+          "status": "execute_returned",
+          "end_time": 1788869678.8106325
+        },
+        {
+          "sequence": 19,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT 'All employees' AS grp, COUNT(*) AS n, ROUND(100.0 * SUM(is_work_shift_required) / COUNT(*), 1) AS shift_pct, ROUND(100.0 * SUM(is_union_eligible) / COUNT(*), 1) AS union_pct, ROUND(AVG(retention_stability_score), 1) AS avg_retention, ROUND(AVG(overall_employee_score), 1) AS avg_overall FROM emp UNION ALL SELECT 'High-value attrition risk', COUNT(*), ROUND(100.0 * SUM(is_work_shift_required) / COUNT(*), 1), ROUND(100.0 * SUM(is_union_eligible) / COUNT(*), 1), ROUND(AVG(retention_stability_score), 1), ROUND(AVG(overall_employee_score), 1) FROM emp WHERE retention_stability_score < 60 AND overall_employee_score > 80",
+          "phase": "offline_validation",
+          "start_time": 1788869678.8128746,
+          "status": "execute_returned",
+          "end_time": 1788869678.864958
+        },
+        {
+          "sequence": 20,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT DISTINCT employee_value_segment FROM emp ORDER BY employee_value_segment",
+          "phase": "offline_validation",
+          "start_time": 1788869678.9182806,
+          "status": "execute_returned",
+          "end_time": 1788869678.9711468
+        },
+        {
+          "sequence": 21,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT DISTINCT highest_management_level_reached FROM emp ORDER BY highest_management_level_reached",
+          "phase": "offline_validation",
+          "start_time": 1788869678.9729445,
+          "status": "execute_returned",
+          "end_time": 1788869679.025508
+        },
+        {
+          "sequence": 22,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT DISTINCT dept_performance_category FROM emp ORDER BY dept_performance_category",
+          "phase": "offline_validation",
+          "start_time": 1788869679.0269606,
+          "status": "execute_returned",
+          "end_time": 1788869679.0803297
+        },
+        {
+          "sequence": 23,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT DISTINCT organization_sub_type FROM emp ORDER BY organization_sub_type",
+          "phase": "offline_validation",
+          "start_time": 1788869679.0822804,
+          "status": "execute_returned",
+          "end_time": 1788869679.135999
+        },
+        {
+          "sequence": 24,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT organization_sub_type, COUNT(*) AS cnt FROM emp GROUP BY organization_sub_type ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869679.1379719,
+          "status": "execute_returned",
+          "end_time": 1788869679.1915784
+        },
+        {
+          "sequence": 25,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT highest_management_level_reached, dept_performance_category, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS risk_core, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / COUNT(*), 1) AS risk_pct, SUM(CASE WHEN retention_stability_score < 60 THEN 1 ELSE 0 END) AS low_retention, ROUND(100.0 * SUM(CASE WHEN retention_stability_score < 60 THEN 1 ELSE 0 END) / COUNT(*), 1) AS low_retention_pct, ROUND(AVG(overall_employee_score), 1) AS avg_overall, ROUND(AVG(career_development_score), 1) AS avg_career FROM core GROUP BY highest_management_level_reached, dept_performance_category ORDER BY highest_management_level_reached, dept_performance_category",
+          "phase": "offline_validation",
+          "start_time": 1788869679.1931393,
+          "status": "execute_returned",
+          "end_time": 1788869679.245925
+        },
+        {
+          "sequence": 26,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT organization_sub_type, dept_performance_category, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS risk_core, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 1) AS risk_pct, SUM(CASE WHEN retention_stability_score < 60 THEN 1 ELSE 0 END) AS low_retention, ROUND(AVG(overall_employee_score), 1) AS avg_overall, ROUND(AVG(career_development_score), 1) AS avg_career FROM core GROUP BY organization_sub_type, dept_performance_category ORDER BY total_core DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869679.2503147,
+          "status": "execute_returned",
+          "end_time": 1788869679.3031988
+        },
+        {
+          "sequence": 27,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT CASE WHEN age < 45 THEN '<45' WHEN age BETWEEN 45 AND 50 THEN '45-50' WHEN age BETWEEN 51 AND 55 THEN '51-55' WHEN age BETWEEN 56 AND 60 THEN '56-60' ELSE '60+' END AS age_band, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY age_band ORDER BY MIN(age)",
+          "phase": "offline_validation",
+          "start_time": 1788869679.306782,
+          "status": "execute_returned",
+          "end_time": 1788869679.4092088
+        },
+        {
+          "sequence": 28,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT employee_id, age, tenure_years, marital_status, ethnicity_codes, total_positions_held, total_promotions, lateral_moves, management_positions_held, career_phase, employee_maturity_segment, compensation_tier, work_conditions_score, dept_turnover_rate, dept_health_score, organization_type, organization_sub_type, retention_stability_score, overall_employee_score, career_development_score FROM core WHERE employee_risk_level = 'High' ORDER BY retention_stability_score",
+          "phase": "offline_validation",
+          "start_time": 1788869679.411851,
+          "status": "execute_returned",
+          "end_time": 1788869679.463136
+        },
+        {
+          "sequence": 29,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT tenure_group, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY tenure_group ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869679.4669006,
+          "status": "execute_returned",
+          "end_time": 1788869679.5692146
+        },
+        {
+          "sequence": 30,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT career_phase, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY career_phase ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869679.571328,
+          "status": "execute_returned",
+          "end_time": 1788869679.6729085
+        },
+        {
+          "sequence": 31,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT employee_maturity_segment, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY employee_maturity_segment ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869679.675003,
+          "status": "execute_returned",
+          "end_time": 1788869679.777368
+        },
+        {
+          "sequence": 32,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT 'All Employees' AS grp, COUNT(*) AS n, ROUND(AVG(age), 1) AS avg_age, ROUND(AVG(tenure_years), 2) AS avg_tenure, ROUND(AVG(overall_employee_score), 1) AS avg_overall, ROUND(AVG(career_development_score), 1) AS avg_career, ROUND(AVG(retention_stability_score), 1) AS avg_retention, ROUND(AVG(total_positions_held), 2) AS avg_positions, ROUND(AVG(total_promotions), 2) AS avg_promotions, ROUND(AVG(lateral_moves), 2) AS avg_lateral, ROUND(AVG(management_positions_held), 2) AS avg_mgmt FROM emp UNION ALL SELECT 'Core Employees', COUNT(*), ROUND(AVG(age), 1), ROUND(AVG(tenure_years), 2), ROUND(AVG(overall_employee_score), 1), ROUND(AVG(career_development_score), 1), ROUND(AVG(retention_stability_score), 1), ROUND(AVG(total_positions_held), 2), ROUND(AVG(total_promotions), 2), ROUND(AVG(lateral_moves), 2), ROUND(AVG(management_positions_held), 2) FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939",
+          "phase": "offline_validation",
+          "start_time": 1788869679.7796755,
+          "status": "execute_returned",
+          "end_time": 1788869679.8335292
+        },
+        {
+          "sequence": 33,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT 'All Employees' AS grp, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) / COUNT(*), 1) AS high_risk_pct, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Medium' THEN 1 ELSE 0 END) / COUNT(*), 1) AS med_risk_pct, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Low' THEN 1 ELSE 0 END) / COUNT(*), 1) AS low_risk_pct, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS high_value_attrition_risk FROM emp UNION ALL SELECT 'Core Employees', ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) / COUNT(*), 1), ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Medium' THEN 1 ELSE 0 END) / COUNT(*), 1), ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Low' THEN 1 ELSE 0 END) / COUNT(*), 1), SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939",
+          "phase": "offline_validation",
+          "start_time": 1788869679.8885827,
+          "status": "execute_returned",
+          "end_time": 1788869679.941449
+        },
+        {
+          "sequence": 34,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT age, tenure_years, total_positions_held, total_promotions, lateral_moves, management_positions_held, overall_employee_score, career_development_score, retention_stability_score, marital_status, ethnicity_codes, career_phase, employee_maturity_segment, employee_risk_level, compensation_tier, work_conditions_score, dept_turnover_rate, dept_health_score, dept_management_ratio, organization_type, organization_sub_type, dept_performance_category, highest_management_level_reached, is_work_shift_required, is_union_eligible, employee_value_segment FROM core",
+          "phase": "offline_validation",
+          "start_time": 1788869679.9968684,
+          "status": "execute_returned",
+          "end_time": 1788869679.9974213
+        },
+        {
+          "sequence": 35,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT age, tenure_years, overall_employee_score, career_development_score, retention_stability_score, employee_risk_level, total_positions_held, total_promotions, lateral_moves, management_positions_held FROM emp",
+          "phase": "offline_validation",
+          "start_time": 1788869680.1259758,
+          "status": "execute_returned",
+          "end_time": 1788869680.126384
+        },
+        {
+          "sequence": 36,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT career_phase, employee_maturity_segment, COUNT(*) AS total, SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) AS high_risk, SUM(CASE WHEN employee_risk_level = 'Medium' THEN 1 ELSE 0 END) AS med_risk, SUM(CASE WHEN employee_risk_level = 'Low' THEN 1 ELSE 0 END) AS low_risk FROM core GROUP BY career_phase, employee_maturity_segment ORDER BY career_phase, employee_maturity_segment",
+          "phase": "offline_validation",
+          "start_time": 1788869680.558034,
+          "status": "execute_returned",
+          "end_time": 1788869680.6109529
+        },
+        {
+          "sequence": 37,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT employee_value_segment, COUNT(*) AS cnt FROM emp WHERE retention_stability_score < 60 AND overall_employee_score > 80 GROUP BY employee_value_segment ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869680.6168838,
+          "status": "execute_returned",
+          "end_time": 1788869680.6678238
+        },
+        {
+          "sequence": 38,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT employee_risk_level, AVG(work_conditions_score) AS avg_work_cond, AVG(dept_turnover_rate) AS avg_turnover, AVG(dept_health_score) AS avg_dept_health FROM core GROUP BY employee_risk_level ORDER BY employee_risk_level",
+          "phase": "offline_validation",
+          "start_time": 1788869680.669486,
+          "status": "execute_returned",
+          "end_time": 1788869680.7214997
+        },
+        {
+          "sequence": 39,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT compensation_tier, COUNT(*) AS cnt FROM core GROUP BY compensation_tier ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869680.7240276,
+          "status": "execute_returned",
+          "end_time": 1788869680.7755182
+        },
+        {
+          "sequence": 40,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT highest_management_level_reached, dept_performance_category, COUNT(*) AS total, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS at_risk, SUM(CASE WHEN retention_stability_score < 60 THEN 1 ELSE 0 END) AS low_retention FROM core GROUP BY highest_management_level_reached, dept_performance_category ORDER BY highest_management_level_reached, dept_performance_category",
+          "phase": "offline_validation",
+          "start_time": 1788869680.7772918,
+          "status": "execute_returned",
+          "end_time": 1788869680.8294284
+        },
+        {
+          "sequence": 41,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT organization_type, organization_sub_type, COUNT(*) AS total_core, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / COUNT(*), 1) AS risk_pct, ROUND(AVG(highest_management_level_reached), 2) AS avg_mgmt_level, ROUND(AVG(retention_stability_score), 1) AS avg_retention, ROUND(AVG(overall_employee_score), 1) AS avg_overall FROM core GROUP BY organization_type, organization_sub_type HAVING COUNT(*) >= 20 ORDER BY risk_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869680.8323448,
+          "status": "execute_returned",
+          "end_time": 1788869680.8851924
+        },
+        {
+          "sequence": 42,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT ethnicity_codes, COUNT(*) AS total, SUM(CASE WHEN overall_employee_score > 75 AND career_development_score > 78.57581219355939 THEN 1 ELSE 0 END) AS core, ROUND(100.0 * SUM(CASE WHEN overall_employee_score > 75 AND career_development_score > 78.57581219355939 THEN 1 ELSE 0 END) / COUNT(*), 1) AS core_rate_pct FROM emp GROUP BY ethnicity_codes ORDER BY core_rate_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869680.8882086,
+          "status": "execute_returned",
+          "end_time": 1788869680.9427528
+        },
+        {
+          "sequence": 43,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT compensation_tier, COUNT(*) AS total, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS attrition_risk, ROUND(100.0 * SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) / COUNT(*), 1) AS attrition_pct FROM emp GROUP BY compensation_tier ORDER BY attrition_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869680.9453297,
+          "status": "execute_returned",
+          "end_time": 1788869680.999338
+        },
+        {
+          "sequence": 44,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT dept_performance_category, COUNT(*) AS total, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS attrition_risk, ROUND(100.0 * SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) / COUNT(*), 1) AS attrition_pct, ROUND(AVG(dept_turnover_rate), 3) AS avg_turnover FROM emp GROUP BY dept_performance_category ORDER BY attrition_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869681.0017872,
+          "status": "execute_returned",
+          "end_time": 1788869681.066166
+        },
+        {
+          "sequence": 45,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT organization_sub_type, COUNT(*) AS total, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS attrition_risk, ROUND(100.0 * SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 1) AS attrition_pct FROM emp GROUP BY organization_sub_type HAVING COUNT(*) >= 20 ORDER BY attrition_pct DESC LIMIT 10",
+          "phase": "offline_validation",
+          "start_time": 1788869681.0687313,
+          "status": "execute_returned",
+          "end_time": 1788869681.1232967
+        },
+        {
+          "sequence": 46,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT organization_type, dept_performance_category, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS risk_core, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / COUNT(*), 1) AS risk_pct, ROUND(AVG(overall_employee_score), 1) AS avg_overall, ROUND(AVG(career_development_score), 1) AS avg_career, ROUND(AVG(retention_stability_score), 1) AS avg_retention FROM core GROUP BY organization_type, dept_performance_category ORDER BY risk_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869681.1260877,
+          "status": "execute_returned",
+          "end_time": 1788869681.1787746
+        },
+        {
+          "sequence": 47,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939), tiers AS (SELECT CASE WHEN highest_management_level_reached = 0 THEN 'Individual Contributor (L0)' WHEN highest_management_level_reached = 1 THEN 'Team Lead (L1)' WHEN highest_management_level_reached = 2 THEN 'Manager (L2)' ELSE 'Senior Management (L3+)' END AS mgmt_tier, dept_performance_category, COUNT(*) AS n_core, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS n_at_risk, SUM(CASE WHEN retention_stability_score < 60 THEN 1 ELSE 0 END) AS n_low_retention, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / COUNT(*), 1) AS at_risk_pct, ROUND(AVG(overall_employee_score), 1) AS avg_overall, ROUND(AVG(career_development_score), 1) AS avg_career, ROUND(AVG(retention_stability_score), 1) AS avg_retention FROM core GROUP BY mgmt_tier, dept_performance_category) SELECT * FROM tiers ORDER BY at_risk_pct DESC, n_core DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869681.1818972,
+          "status": "execute_returned",
+          "end_time": 1788869681.235156
+        },
+        {
+          "sequence": 48,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT CASE WHEN highest_management_level_reached = 0 THEN 'IC (L0)' WHEN highest_management_level_reached = 1 THEN 'Team Lead (L1)' WHEN highest_management_level_reached = 2 THEN 'Manager (L2)' ELSE 'Sr Mgmt (L3+)' END AS mgmt_tier, dept_performance_category, COUNT(*) AS n_core, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS n_at_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / COUNT(*), 1) AS at_risk_pct FROM core GROUP BY mgmt_tier, dept_performance_category",
+          "phase": "offline_validation",
+          "start_time": 1788869681.2395697,
+          "status": "execute_returned",
+          "end_time": 1788869681.291788
+        },
+        {
+          "sequence": 49,
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT organization_sub_type, COUNT(*) AS total, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS attrition_risk, ROUND(100.0 * SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) / COUNT(*), 1) AS attrition_pct FROM emp GROUP BY organization_sub_type HAVING COUNT(*) >= 20 ORDER BY attrition_pct DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869681.2951076,
+          "status": "execute_returned",
+          "end_time": 1788869681.3496537
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT *, ROW_NUMBER() OVER (PARTITION BY employee_id ORDER BY position_start_date DESC, overall_employee_score DESC, career_development_score DESC, total_promotions DESC) AS rn FROM workday__employee_overview",
+          "time": 1788869675.7126946,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788869677.448048,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788869677.474491,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate) SELECT COUNT(*) AS n, AVG(career_development_score) AS avg_career, MIN(career_development_score) AS min_career, MAX(career_development_score) AS max_career, AVG(overall_employee_score) AS avg_overall, MIN(overall_employee_score) AS min_overall, MAX(overall_employee_score) AS max_overall FROM ranked WHERE rn = 1",
+          "time": 1788869677.474799,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate) SELECT career_development_score FROM ranked WHERE rn = 1 ORDER BY career_development_score LIMIT 1 OFFSET (SELECT COUNT(*) / 2 FROM ranked WHERE rn = 1)",
+          "time": 1788869677.533798,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), ordered AS (SELECT career_development_score, ROW_NUMBER() OVER (ORDER BY career_development_score) AS rn, COUNT(*) OVER () AS total FROM emp) SELECT career_development_score AS median_career FROM ordered WHERE rn = (total + 1) / 2",
+          "time": 1788869677.6426399,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT SUM(CASE WHEN overall_employee_score > 75 AND career_development_score > 78.57581219355939 THEN 1 ELSE 0 END) AS core_emp, COUNT(*) AS total_emp FROM emp",
+          "time": 1788869677.7104666,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT marital_status, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY marital_status ORDER BY cnt DESC",
+          "time": 1788869677.7638936,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT ethnicity_codes, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY ethnicity_codes ORDER BY cnt DESC",
+          "time": 1788869677.8683956,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT 'Age' AS feature, ROUND(AVG(age), 1) AS avg_val, MIN(age) AS min_val, MAX(age) AS max_val FROM core UNION ALL SELECT 'Tenure_years', ROUND(AVG(tenure_years), 2), ROUND(MIN(tenure_years), 2), ROUND(MAX(tenure_years), 2) FROM core UNION ALL SELECT 'Total_positions_held', ROUND(AVG(total_positions_held), 2), MIN(total_positions_held), MAX(total_positions_held) FROM core UNION ALL SELECT 'Total_promotions', ROUND(AVG(total_promotions), 2), MIN(total_promotions), MAX(total_promotions) FROM core UNION ALL SELECT 'Lateral_moves', ROUND(AVG(lateral_moves), 2), MIN(lateral_moves), MAX(lateral_moves) FROM core UNION ALL SELECT 'Management_positions_held', ROUND(AVG(management_positions_held), 2), MIN(management_positions_held), MAX(management_positions_held) FROM core",
+          "time": 1788869677.9727032,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT career_phase, employee_maturity_segment, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) AS high_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) / COUNT(*), 1) AS high_risk_pct, SUM(CASE WHEN employee_risk_level = 'Medium' THEN 1 ELSE 0 END) AS medium_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Medium' THEN 1 ELSE 0 END) / COUNT(*), 1) AS medium_risk_pct, SUM(CASE WHEN employee_risk_level = 'Low' THEN 1 ELSE 0 END) AS low_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Low' THEN 1 ELSE 0 END) / COUNT(*), 1) AS low_risk_pct FROM core GROUP BY career_phase, employee_maturity_segment ORDER BY career_phase, employee_maturity_segment",
+          "time": 1788869678.2798426,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT compensation_tier, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) AS high_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) / COUNT(*), 1) AS high_risk_pct, ROUND(AVG(work_conditions_score), 1) AS avg_work_cond, ROUND(AVG(dept_turnover_rate), 3) AS avg_turnover, ROUND(AVG(dept_management_ratio), 3) AS avg_mgmt_ratio, ROUND(AVG(dept_health_score), 1) AS avg_dept_health FROM core GROUP BY compensation_tier ORDER BY high_risk_pct DESC",
+          "time": 1788869678.3366036,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT organization_type, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) AS high_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) / COUNT(*), 1) AS high_risk_pct, ROUND(AVG(dept_turnover_rate), 3) AS avg_turnover, ROUND(AVG(dept_health_score), 1) AS avg_dept_health FROM core GROUP BY organization_type ORDER BY high_risk_pct DESC",
+          "time": 1788869678.3918004,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT employee_risk_level, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY employee_risk_level ORDER BY cnt DESC",
+          "time": 1788869678.44663,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT employee_risk_level, ROUND(AVG(work_conditions_score), 1) AS avg_work_cond, ROUND(AVG(dept_turnover_rate), 3) AS avg_turnover, ROUND(AVG(dept_management_ratio), 3) AS avg_mgmt_ratio, ROUND(AVG(dept_health_score), 1) AS avg_dept_health, ROUND(AVG(compensation_tier), 1) AS avg_comp FROM core GROUP BY employee_risk_level",
+          "time": 1788869678.5499873,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT COUNT(*) AS total_emp, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS high_value_attrition_risk FROM emp",
+          "time": 1788869678.6041725,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT employee_value_segment, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM emp WHERE retention_stability_score < 60 AND overall_employee_score > 80), 1) AS pct FROM emp WHERE retention_stability_score < 60 AND overall_employee_score > 80 GROUP BY employee_value_segment ORDER BY cnt DESC",
+          "time": 1788869678.6572819,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT SUM(is_work_shift_required) AS shift_required, SUM(is_union_eligible) AS union_eligible, ROUND(100.0 * SUM(is_work_shift_required) / COUNT(*), 1) AS shift_required_pct, ROUND(100.0 * SUM(is_union_eligible) / COUNT(*), 1) AS union_eligible_pct FROM emp WHERE retention_stability_score < 60 AND overall_employee_score > 80",
+          "time": 1788869678.7606218,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT 'All employees' AS grp, COUNT(*) AS n, ROUND(100.0 * SUM(is_work_shift_required) / COUNT(*), 1) AS shift_pct, ROUND(100.0 * SUM(is_union_eligible) / COUNT(*), 1) AS union_pct, ROUND(AVG(retention_stability_score), 1) AS avg_retention, ROUND(AVG(overall_employee_score), 1) AS avg_overall FROM emp UNION ALL SELECT 'High-value attrition risk', COUNT(*), ROUND(100.0 * SUM(is_work_shift_required) / COUNT(*), 1), ROUND(100.0 * SUM(is_union_eligible) / COUNT(*), 1), ROUND(AVG(retention_stability_score), 1), ROUND(AVG(overall_employee_score), 1) FROM emp WHERE retention_stability_score < 60 AND overall_employee_score > 80",
+          "time": 1788869678.813484,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT DISTINCT employee_value_segment FROM emp ORDER BY employee_value_segment",
+          "time": 1788869678.918629,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT DISTINCT highest_management_level_reached FROM emp ORDER BY highest_management_level_reached",
+          "time": 1788869678.973296,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT DISTINCT dept_performance_category FROM emp ORDER BY dept_performance_category",
+          "time": 1788869679.0273118,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT DISTINCT organization_sub_type FROM emp ORDER BY organization_sub_type",
+          "time": 1788869679.082641,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT organization_sub_type, COUNT(*) AS cnt FROM emp GROUP BY organization_sub_type ORDER BY cnt DESC",
+          "time": 1788869679.1383402,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT highest_management_level_reached, dept_performance_category, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS risk_core, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / COUNT(*), 1) AS risk_pct, SUM(CASE WHEN retention_stability_score < 60 THEN 1 ELSE 0 END) AS low_retention, ROUND(100.0 * SUM(CASE WHEN retention_stability_score < 60 THEN 1 ELSE 0 END) / COUNT(*), 1) AS low_retention_pct, ROUND(AVG(overall_employee_score), 1) AS avg_overall, ROUND(AVG(career_development_score), 1) AS avg_career FROM core GROUP BY highest_management_level_reached, dept_performance_category ORDER BY highest_management_level_reached, dept_performance_category",
+          "time": 1788869679.1936884,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT organization_sub_type, dept_performance_category, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS risk_core, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 1) AS risk_pct, SUM(CASE WHEN retention_stability_score < 60 THEN 1 ELSE 0 END) AS low_retention, ROUND(AVG(overall_employee_score), 1) AS avg_overall, ROUND(AVG(career_development_score), 1) AS avg_career FROM core GROUP BY organization_sub_type, dept_performance_category ORDER BY total_core DESC",
+          "time": 1788869679.2508793,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT CASE WHEN age < 45 THEN '<45' WHEN age BETWEEN 45 AND 50 THEN '45-50' WHEN age BETWEEN 51 AND 55 THEN '51-55' WHEN age BETWEEN 56 AND 60 THEN '56-60' ELSE '60+' END AS age_band, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY age_band ORDER BY MIN(age)",
+          "time": 1788869679.307611,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT employee_id, age, tenure_years, marital_status, ethnicity_codes, total_positions_held, total_promotions, lateral_moves, management_positions_held, career_phase, employee_maturity_segment, compensation_tier, work_conditions_score, dept_turnover_rate, dept_health_score, organization_type, organization_sub_type, retention_stability_score, overall_employee_score, career_development_score FROM core WHERE employee_risk_level = 'High' ORDER BY retention_stability_score",
+          "time": 1788869679.4123766,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT tenure_group, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY tenure_group ORDER BY cnt DESC",
+          "time": 1788869679.467732,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT career_phase, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY career_phase ORDER BY cnt DESC",
+          "time": 1788869679.5721407,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT employee_maturity_segment, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY employee_maturity_segment ORDER BY cnt DESC",
+          "time": 1788869679.675835,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT 'All Employees' AS grp, COUNT(*) AS n, ROUND(AVG(age), 1) AS avg_age, ROUND(AVG(tenure_years), 2) AS avg_tenure, ROUND(AVG(overall_employee_score), 1) AS avg_overall, ROUND(AVG(career_development_score), 1) AS avg_career, ROUND(AVG(retention_stability_score), 1) AS avg_retention, ROUND(AVG(total_positions_held), 2) AS avg_positions, ROUND(AVG(total_promotions), 2) AS avg_promotions, ROUND(AVG(lateral_moves), 2) AS avg_lateral, ROUND(AVG(management_positions_held), 2) AS avg_mgmt FROM emp UNION ALL SELECT 'Core Employees', COUNT(*), ROUND(AVG(age), 1), ROUND(AVG(tenure_years), 2), ROUND(AVG(overall_employee_score), 1), ROUND(AVG(career_development_score), 1), ROUND(AVG(retention_stability_score), 1), ROUND(AVG(total_positions_held), 2), ROUND(AVG(total_promotions), 2), ROUND(AVG(lateral_moves), 2), ROUND(AVG(management_positions_held), 2) FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939",
+          "time": 1788869679.7803533,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT 'All Employees' AS grp, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) / COUNT(*), 1) AS high_risk_pct, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Medium' THEN 1 ELSE 0 END) / COUNT(*), 1) AS med_risk_pct, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Low' THEN 1 ELSE 0 END) / COUNT(*), 1) AS low_risk_pct, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS high_value_attrition_risk FROM emp UNION ALL SELECT 'Core Employees', ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) / COUNT(*), 1), ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Medium' THEN 1 ELSE 0 END) / COUNT(*), 1), ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Low' THEN 1 ELSE 0 END) / COUNT(*), 1), SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939",
+          "time": 1788869679.889252,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT age, tenure_years, total_positions_held, total_promotions, lateral_moves, management_positions_held, overall_employee_score, career_development_score, retention_stability_score, marital_status, ethnicity_codes, career_phase, employee_maturity_segment, employee_risk_level, compensation_tier, work_conditions_score, dept_turnover_rate, dept_health_score, dept_management_ratio, organization_type, organization_sub_type, dept_performance_category, highest_management_level_reached, is_work_shift_required, is_union_eligible, employee_value_segment FROM core",
+          "time": 1788869679.997392,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT age, tenure_years, overall_employee_score, career_development_score, retention_stability_score, employee_risk_level, total_positions_held, total_promotions, lateral_moves, management_positions_held FROM emp",
+          "time": 1788869680.1263509,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT career_phase, employee_maturity_segment, COUNT(*) AS total, SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) AS high_risk, SUM(CASE WHEN employee_risk_level = 'Medium' THEN 1 ELSE 0 END) AS med_risk, SUM(CASE WHEN employee_risk_level = 'Low' THEN 1 ELSE 0 END) AS low_risk FROM core GROUP BY career_phase, employee_maturity_segment ORDER BY career_phase, employee_maturity_segment",
+          "time": 1788869680.558559,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT employee_value_segment, COUNT(*) AS cnt FROM emp WHERE retention_stability_score < 60 AND overall_employee_score > 80 GROUP BY employee_value_segment ORDER BY cnt DESC",
+          "time": 1788869680.6172526,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT employee_risk_level, AVG(work_conditions_score) AS avg_work_cond, AVG(dept_turnover_rate) AS avg_turnover, AVG(dept_health_score) AS avg_dept_health FROM core GROUP BY employee_risk_level ORDER BY employee_risk_level",
+          "time": 1788869680.6699693,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT compensation_tier, COUNT(*) AS cnt FROM core GROUP BY compensation_tier ORDER BY cnt DESC",
+          "time": 1788869680.7245107,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT highest_management_level_reached, dept_performance_category, COUNT(*) AS total, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS at_risk, SUM(CASE WHEN retention_stability_score < 60 THEN 1 ELSE 0 END) AS low_retention FROM core GROUP BY highest_management_level_reached, dept_performance_category ORDER BY highest_management_level_reached, dept_performance_category",
+          "time": 1788869680.7777846,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT organization_type, organization_sub_type, COUNT(*) AS total_core, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / COUNT(*), 1) AS risk_pct, ROUND(AVG(highest_management_level_reached), 2) AS avg_mgmt_level, ROUND(AVG(retention_stability_score), 1) AS avg_retention, ROUND(AVG(overall_employee_score), 1) AS avg_overall FROM core GROUP BY organization_type, organization_sub_type HAVING COUNT(*) >= 20 ORDER BY risk_pct DESC",
+          "time": 1788869680.8328676,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT ethnicity_codes, COUNT(*) AS total, SUM(CASE WHEN overall_employee_score > 75 AND career_development_score > 78.57581219355939 THEN 1 ELSE 0 END) AS core, ROUND(100.0 * SUM(CASE WHEN overall_employee_score > 75 AND career_development_score > 78.57581219355939 THEN 1 ELSE 0 END) / COUNT(*), 1) AS core_rate_pct FROM emp GROUP BY ethnicity_codes ORDER BY core_rate_pct DESC",
+          "time": 1788869680.888584,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT compensation_tier, COUNT(*) AS total, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS attrition_risk, ROUND(100.0 * SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) / COUNT(*), 1) AS attrition_pct FROM emp GROUP BY compensation_tier ORDER BY attrition_pct DESC",
+          "time": 1788869680.94572,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT dept_performance_category, COUNT(*) AS total, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS attrition_risk, ROUND(100.0 * SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) / COUNT(*), 1) AS attrition_pct, ROUND(AVG(dept_turnover_rate), 3) AS avg_turnover FROM emp GROUP BY dept_performance_category ORDER BY attrition_pct DESC",
+          "time": 1788869681.0021873,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT organization_sub_type, COUNT(*) AS total, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS attrition_risk, ROUND(100.0 * SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 1) AS attrition_pct FROM emp GROUP BY organization_sub_type HAVING COUNT(*) >= 20 ORDER BY attrition_pct DESC LIMIT 10",
+          "time": 1788869681.0691254,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT organization_type, dept_performance_category, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS risk_core, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / COUNT(*), 1) AS risk_pct, ROUND(AVG(overall_employee_score), 1) AS avg_overall, ROUND(AVG(career_development_score), 1) AS avg_career, ROUND(AVG(retention_stability_score), 1) AS avg_retention FROM core GROUP BY organization_type, dept_performance_category ORDER BY risk_pct DESC",
+          "time": 1788869681.126613,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939), tiers AS (SELECT CASE WHEN highest_management_level_reached = 0 THEN 'Individual Contributor (L0)' WHEN highest_management_level_reached = 1 THEN 'Team Lead (L1)' WHEN highest_management_level_reached = 2 THEN 'Manager (L2)' ELSE 'Senior Management (L3+)' END AS mgmt_tier, dept_performance_category, COUNT(*) AS n_core, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS n_at_risk, SUM(CASE WHEN retention_stability_score < 60 THEN 1 ELSE 0 END) AS n_low_retention, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / COUNT(*), 1) AS at_risk_pct, ROUND(AVG(overall_employee_score), 1) AS avg_overall, ROUND(AVG(career_development_score), 1) AS avg_career, ROUND(AVG(retention_stability_score), 1) AS avg_retention FROM core GROUP BY mgmt_tier, dept_performance_category) SELECT * FROM tiers ORDER BY at_risk_pct DESC, n_core DESC",
+          "time": 1788869681.1825042,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT CASE WHEN highest_management_level_reached = 0 THEN 'IC (L0)' WHEN highest_management_level_reached = 1 THEN 'Team Lead (L1)' WHEN highest_management_level_reached = 2 THEN 'Manager (L2)' ELSE 'Sr Mgmt (L3+)' END AS mgmt_tier, dept_performance_category, COUNT(*) AS n_core, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS n_at_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / COUNT(*), 1) AS at_risk_pct FROM core GROUP BY mgmt_tier, dept_performance_category",
+          "time": 1788869681.2400908,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT organization_sub_type, COUNT(*) AS total, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS attrition_risk, ROUND(100.0 * SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) / COUNT(*), 1) AS attrition_pct FROM emp GROUP BY organization_sub_type HAVING COUNT(*) >= 20 ORDER BY attrition_pct DESC",
+          "time": 1788869681.2954946,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 1735.8846133574843,
+      "intermediate_rows": 156205,
+      "intermediate_columns": [
+        "employee_id",
+        "worker_id",
+        "source_relation",
+        "position_id",
+        "position_start_date",
+        "worker_history_id",
+        "event_type",
+        "is_employed",
+        "hire_date",
+        "departure_date",
+        "days_as_worker",
+        "first_name",
+        "last_name",
+        "full_name",
+        "date_of_birth",
+        "marital_status",
+        "city_of_birth",
+        "country_of_birth",
+        "email_address",
+        "ethnicity_codes",
+        "is_military_service",
+        "military_status",
+        "business_title",
+        "employee_type",
+        "default_weekly_hours",
+        "position_end_date",
+        "days_in_position",
+        "is_employed_one_year",
+        "is_employed_five_years",
+        "is_employed_ten_years",
+        "is_current_employee_one_year",
+        "is_current_employee_five_years",
+        "is_current_employee_ten_years",
+        "age",
+        "tenure_group",
+        "retained_30_days",
+        "retained_90_days",
+        "retained_1_year",
+        "retained_3_years",
+        "churn_risk_category",
+        "employee_maturity_segment",
+        "departure_category",
+        "tenure_years",
+        "hire_quarter_cohort",
+        "hire_year_cohort",
+        "retention_stability_score",
+        "hire_month",
+        "hire_season",
+        "total_positions_held",
+        "total_promotions",
+        "total_demotions",
+        "lateral_moves",
+        "fast_promotions",
+        "management_positions_held",
+        "highest_management_level_reached",
+        "career_stability_category",
+        "career_growth_pace",
+        "career_development_score",
+        "career_phase",
+        "organization_id",
+        "organization_name",
+        "organization_type",
+        "organization_sub_type",
+        "dept_size",
+        "dept_health_score",
+        "dept_turnover_rate",
+        "dept_management_ratio",
+        "dept_performance_category",
+        "dept_size_category",
+        "compensation_grade_id",
+        "compensation_tier",
+        "is_work_shift_required",
+        "is_union_eligible",
+        "work_conditions_score",
+        "overall_employee_score",
+        "employee_risk_level",
+        "employee_value_segment",
+        "comprehensive_data_quality_flag",
+        "analysis_timestamp",
+        "rn"
+      ],
+      "validation_ended_at": 1788869681.361686,
+      "checks": [
+        {
+          "sql_id": "S19",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate) SELECT COUNT(*) AS n, AVG(career_development_score) AS avg_career, MIN(career_development_score) AS min_career, MAX(career_development_score) AS max_career, AVG(overall_employee_score) AS avg_overall, MIN(overall_employee_score) AS min_overall, MAX(overall_employee_score) AS max_overall FROM ranked WHERE rn = 1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 58.85843466967344
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate) SELECT career_development_score FROM ranked WHERE rn = 1 ORDER BY career_development_score LIMIT 1 OFFSET (SELECT COUNT(*) / 2 FROM ranked WHERE rn = 1)",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 108.72792825102806
+        },
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), ordered AS (SELECT career_development_score, ROW_NUMBER() OVER (ORDER BY career_development_score) AS rn, COUNT(*) OVER () AS total FROM emp) SELECT career_development_score AS median_career FROM ordered WHERE rn = (total + 1) / 2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 67.89961084723473
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT SUM(CASE WHEN overall_employee_score > 75 AND career_development_score > 78.57581219355939 THEN 1 ELSE 0 END) AS core_emp, COUNT(*) AS total_emp FROM emp",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 52.944631315767765
+        },
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT marital_status, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY marital_status ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 104.49931677430868
+        },
+        {
+          "sql_id": "S25",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT ethnicity_codes, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY ethnicity_codes ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 103.03337592631578
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT 'Age' AS feature, ROUND(AVG(age), 1) AS avg_val, MIN(age) AS min_val, MAX(age) AS max_val FROM core UNION ALL SELECT 'Tenure_years', ROUND(AVG(tenure_years), 2), ROUND(MIN(tenure_years), 2), ROUND(MAX(tenure_years), 2) FROM core UNION ALL SELECT 'Total_positions_held', ROUND(AVG(total_positions_held), 2), MIN(total_positions_held), MAX(total_positions_held) FROM core UNION ALL SELECT 'Total_promotions', ROUND(AVG(total_promotions), 2), MIN(total_promotions), MAX(total_promotions) FROM core UNION ALL SELECT 'Lateral_moves', ROUND(AVG(lateral_moves), 2), MIN(lateral_moves), MAX(lateral_moves) FROM core UNION ALL SELECT 'Management_positions_held', ROUND(AVG(management_positions_held), 2), MIN(management_positions_held), MAX(management_positions_held) FROM core",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 308.6803052574396
+        },
+        {
+          "sql_id": "S27",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT career_phase, employee_maturity_segment, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) AS high_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) / COUNT(*), 1) AS high_risk_pct, SUM(CASE WHEN employee_risk_level = 'Medium' THEN 1 ELSE 0 END) AS medium_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Medium' THEN 1 ELSE 0 END) / COUNT(*), 1) AS medium_risk_pct, SUM(CASE WHEN employee_risk_level = 'Low' THEN 1 ELSE 0 END) AS low_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Low' THEN 1 ELSE 0 END) / COUNT(*), 1) AS low_risk_pct FROM core GROUP BY career_phase, employee_maturity_segment ORDER BY career_phase, employee_maturity_segment",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 56.765022687613964
+        },
+        {
+          "sql_id": "S28",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT compensation_tier, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) AS high_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) / COUNT(*), 1) AS high_risk_pct, ROUND(AVG(work_conditions_score), 1) AS avg_work_cond, ROUND(AVG(dept_turnover_rate), 3) AS avg_turnover, ROUND(AVG(dept_management_ratio), 3) AS avg_mgmt_ratio, ROUND(AVG(dept_health_score), 1) AS avg_dept_health FROM core GROUP BY compensation_tier ORDER BY high_risk_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 55.22412247955799
+        },
+        {
+          "sql_id": "S29",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT organization_type, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) AS high_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) / COUNT(*), 1) AS high_risk_pct, ROUND(AVG(dept_turnover_rate), 3) AS avg_turnover, ROUND(AVG(dept_health_score), 1) AS avg_dept_health FROM core GROUP BY organization_type ORDER BY high_risk_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 54.53042034059763
+        },
+        {
+          "sql_id": "S30",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT employee_risk_level, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY employee_risk_level ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 103.66914793848991
+        },
+        {
+          "sql_id": "S31",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT employee_risk_level, ROUND(AVG(work_conditions_score), 1) AS avg_work_cond, ROUND(AVG(dept_turnover_rate), 3) AS avg_turnover, ROUND(AVG(dept_management_ratio), 3) AS avg_mgmt_ratio, ROUND(AVG(dept_health_score), 1) AS avg_dept_health, ROUND(AVG(compensation_tier), 1) AS avg_comp FROM core GROUP BY employee_risk_level",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 54.32015284895897
+        },
+        {
+          "sql_id": "S32",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT COUNT(*) AS total_emp, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS high_value_attrition_risk FROM emp",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 52.85468604415655
+        },
+        {
+          "sql_id": "S33",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT employee_value_segment, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM emp WHERE retention_stability_score < 60 AND overall_employee_score > 80), 1) AS pct FROM emp WHERE retention_stability_score < 60 AND overall_employee_score > 80 GROUP BY employee_value_segment ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 103.55701670050621
+        },
+        {
+          "sql_id": "S34",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT SUM(is_work_shift_required) AS shift_required, SUM(is_union_eligible) AS union_eligible, ROUND(100.0 * SUM(is_work_shift_required) / COUNT(*), 1) AS shift_required_pct, ROUND(100.0 * SUM(is_union_eligible) / COUNT(*), 1) AS union_eligible_pct FROM emp WHERE retention_stability_score < 60 AND overall_employee_score > 80",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 52.63440776616335
+        },
+        {
+          "sql_id": "S35",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT 'All employees' AS grp, COUNT(*) AS n, ROUND(100.0 * SUM(is_work_shift_required) / COUNT(*), 1) AS shift_pct, ROUND(100.0 * SUM(is_union_eligible) / COUNT(*), 1) AS union_pct, ROUND(AVG(retention_stability_score), 1) AS avg_retention, ROUND(AVG(overall_employee_score), 1) AS avg_overall FROM emp UNION ALL SELECT 'High-value attrition risk', COUNT(*), ROUND(100.0 * SUM(is_work_shift_required) / COUNT(*), 1), ROUND(100.0 * SUM(is_union_eligible) / COUNT(*), 1), ROUND(AVG(retention_stability_score), 1), ROUND(AVG(overall_employee_score), 1) FROM emp WHERE retention_stability_score < 60 AND overall_employee_score > 80",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 105.40268756449223
+        },
+        {
+          "sql_id": "S36",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT DISTINCT employee_value_segment FROM emp ORDER BY employee_value_segment",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 54.65966463088989
+        },
+        {
+          "sql_id": "S37",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT DISTINCT highest_management_level_reached FROM emp ORDER BY highest_management_level_reached",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 54.01232372969389
+        },
+        {
+          "sql_id": "S38",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT DISTINCT dept_performance_category FROM emp ORDER BY dept_performance_category",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 55.316012352705
+        },
+        {
+          "sql_id": "S39",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT DISTINCT organization_sub_type FROM emp ORDER BY organization_sub_type",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 55.68772368133068
+        },
+        {
+          "sql_id": "S40",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT organization_sub_type, COUNT(*) AS cnt FROM emp GROUP BY organization_sub_type ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 55.16412202268839
+        },
+        {
+          "sql_id": "S41",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT highest_management_level_reached, dept_performance_category, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS risk_core, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / COUNT(*), 1) AS risk_pct, SUM(CASE WHEN retention_stability_score < 60 THEN 1 ELSE 0 END) AS low_retention, ROUND(100.0 * SUM(CASE WHEN retention_stability_score < 60 THEN 1 ELSE 0 END) / COUNT(*), 1) AS low_retention_pct, ROUND(AVG(overall_employee_score), 1) AS avg_overall, ROUND(AVG(career_development_score), 1) AS avg_career FROM core GROUP BY highest_management_level_reached, dept_performance_category ORDER BY highest_management_level_reached, dept_performance_category",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 57.17232823371887
+        },
+        {
+          "sql_id": "S42",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT organization_sub_type, dept_performance_category, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS risk_core, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 1) AS risk_pct, SUM(CASE WHEN retention_stability_score < 60 THEN 1 ELSE 0 END) AS low_retention, ROUND(AVG(overall_employee_score), 1) AS avg_overall, ROUND(AVG(career_development_score), 1) AS avg_career FROM core GROUP BY organization_sub_type, dept_performance_category ORDER BY total_core DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 56.46391864866018
+        },
+        {
+          "sql_id": "S43",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT CASE WHEN age < 45 THEN '<45' WHEN age BETWEEN 45 AND 50 THEN '45-50' WHEN age BETWEEN 51 AND 55 THEN '51-55' WHEN age BETWEEN 56 AND 60 THEN '56-60' ELSE '60+' END AS age_band, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY age_band ORDER BY MIN(age)",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 105.06489127874374
+        },
+        {
+          "sql_id": "S44",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT employee_id, age, tenure_years, marital_status, ethnicity_codes, total_positions_held, total_promotions, lateral_moves, management_positions_held, career_phase, employee_maturity_segment, compensation_tier, work_conditions_score, dept_turnover_rate, dept_health_score, organization_type, organization_sub_type, retention_stability_score, overall_employee_score, career_development_score FROM core WHERE employee_risk_level = 'High' ORDER BY retention_stability_score",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 55.04618491977453
+        },
+        {
+          "sql_id": "S45",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT tenure_group, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY tenure_group ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 104.4242326170206
+        },
+        {
+          "sql_id": "S46",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT career_phase, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY career_phase ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 103.67163643240929
+        },
+        {
+          "sql_id": "S47",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT employee_maturity_segment, COUNT(*) AS cnt, ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM core), 1) AS pct FROM core GROUP BY employee_maturity_segment ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 104.66895718127489
+        },
+        {
+          "sql_id": "S48",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT 'All Employees' AS grp, COUNT(*) AS n, ROUND(AVG(age), 1) AS avg_age, ROUND(AVG(tenure_years), 2) AS avg_tenure, ROUND(AVG(overall_employee_score), 1) AS avg_overall, ROUND(AVG(career_development_score), 1) AS avg_career, ROUND(AVG(retention_stability_score), 1) AS avg_retention, ROUND(AVG(total_positions_held), 2) AS avg_positions, ROUND(AVG(total_promotions), 2) AS avg_promotions, ROUND(AVG(lateral_moves), 2) AS avg_lateral, ROUND(AVG(management_positions_held), 2) AS avg_mgmt FROM emp UNION ALL SELECT 'Core Employees', COUNT(*), ROUND(AVG(age), 1), ROUND(AVG(tenure_years), 2), ROUND(AVG(overall_employee_score), 1), ROUND(AVG(career_development_score), 1), ROUND(AVG(retention_stability_score), 1), ROUND(AVG(total_positions_held), 2), ROUND(AVG(total_promotions), 2), ROUND(AVG(lateral_moves), 2), ROUND(AVG(management_positions_held), 2) FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 108.90365391969681
+        },
+        {
+          "sql_id": "S49",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT 'All Employees' AS grp, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) / COUNT(*), 1) AS high_risk_pct, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Medium' THEN 1 ELSE 0 END) / COUNT(*), 1) AS med_risk_pct, ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Low' THEN 1 ELSE 0 END) / COUNT(*), 1) AS low_risk_pct, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS high_value_attrition_risk FROM emp UNION ALL SELECT 'Core Employees', ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) / COUNT(*), 1), ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Medium' THEN 1 ELSE 0 END) / COUNT(*), 1), ROUND(100.0 * SUM(CASE WHEN employee_risk_level = 'Low' THEN 1 ELSE 0 END) / COUNT(*), 1), SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 108.28201845288277
+        },
+        {
+          "sql_id": "S50",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT age, tenure_years, total_positions_held, total_promotions, lateral_moves, management_positions_held, overall_employee_score, career_development_score, retention_stability_score, marital_status, ethnicity_codes, career_phase, employee_maturity_segment, employee_risk_level, compensation_tier, work_conditions_score, dept_turnover_rate, dept_health_score, dept_management_ratio, organization_type, organization_sub_type, dept_performance_category, highest_management_level_reached, is_work_shift_required, is_union_eligible, employee_value_segment FROM core",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 129.10174392163754
+        },
+        {
+          "sql_id": "S51",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT age, tenure_years, overall_employee_score, career_development_score, retention_stability_score, employee_risk_level, total_positions_held, total_promotions, lateral_moves, management_positions_held FROM emp",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 432.053598575294
+        },
+        {
+          "sql_id": "S52",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT career_phase, employee_maturity_segment, COUNT(*) AS total, SUM(CASE WHEN employee_risk_level = 'High' THEN 1 ELSE 0 END) AS high_risk, SUM(CASE WHEN employee_risk_level = 'Medium' THEN 1 ELSE 0 END) AS med_risk, SUM(CASE WHEN employee_risk_level = 'Low' THEN 1 ELSE 0 END) AS low_risk FROM core GROUP BY career_phase, employee_maturity_segment ORDER BY career_phase, employee_maturity_segment",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 58.845643885433674
+        },
+        {
+          "sql_id": "S53",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT employee_value_segment, COUNT(*) AS cnt FROM emp WHERE retention_stability_score < 60 AND overall_employee_score > 80 GROUP BY employee_value_segment ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 52.59845033288002
+        },
+        {
+          "sql_id": "S54",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT employee_risk_level, AVG(work_conditions_score) AS avg_work_cond, AVG(dept_turnover_rate) AS avg_turnover, AVG(dept_health_score) AS avg_dept_health FROM core GROUP BY employee_risk_level ORDER BY employee_risk_level",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 54.53803949058056
+        },
+        {
+          "sql_id": "S55",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT compensation_tier, COUNT(*) AS cnt FROM core GROUP BY compensation_tier ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 53.259965032339096
+        },
+        {
+          "sql_id": "S56",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT highest_management_level_reached, dept_performance_category, COUNT(*) AS total, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS at_risk, SUM(CASE WHEN retention_stability_score < 60 THEN 1 ELSE 0 END) AS low_retention FROM core GROUP BY highest_management_level_reached, dept_performance_category ORDER BY highest_management_level_reached, dept_performance_category",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 55.04958890378475
+        },
+        {
+          "sql_id": "S57",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT organization_type, organization_sub_type, COUNT(*) AS total_core, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / COUNT(*), 1) AS risk_pct, ROUND(AVG(highest_management_level_reached), 2) AS avg_mgmt_level, ROUND(AVG(retention_stability_score), 1) AS avg_retention, ROUND(AVG(overall_employee_score), 1) AS avg_overall FROM core GROUP BY organization_type, organization_sub_type HAVING COUNT(*) >= 20 ORDER BY risk_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 55.85969891399145
+        },
+        {
+          "sql_id": "S58",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT ethnicity_codes, COUNT(*) AS total, SUM(CASE WHEN overall_employee_score > 75 AND career_development_score > 78.57581219355939 THEN 1 ELSE 0 END) AS core, ROUND(100.0 * SUM(CASE WHEN overall_employee_score > 75 AND career_development_score > 78.57581219355939 THEN 1 ELSE 0 END) / COUNT(*), 1) AS core_rate_pct FROM emp GROUP BY ethnicity_codes ORDER BY core_rate_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 57.117363438010216
+        },
+        {
+          "sql_id": "S59",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT compensation_tier, COUNT(*) AS total, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS attrition_risk, ROUND(100.0 * SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) / COUNT(*), 1) AS attrition_pct FROM emp GROUP BY compensation_tier ORDER BY attrition_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 56.45347107201815
+        },
+        {
+          "sql_id": "S60",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT dept_performance_category, COUNT(*) AS total, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS attrition_risk, ROUND(100.0 * SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) / COUNT(*), 1) AS attrition_pct, ROUND(AVG(dept_turnover_rate), 3) AS avg_turnover FROM emp GROUP BY dept_performance_category ORDER BY attrition_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 66.94047339260578
+        },
+        {
+          "sql_id": "S61",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT organization_sub_type, COUNT(*) AS total, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS attrition_risk, ROUND(100.0 * SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 1) AS attrition_pct FROM emp GROUP BY organization_sub_type HAVING COUNT(*) >= 20 ORDER BY attrition_pct DESC LIMIT 10",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 57.35280178487301
+        },
+        {
+          "sql_id": "S62",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT organization_type, dept_performance_category, COUNT(*) AS total_core, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS risk_core, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / COUNT(*), 1) AS risk_pct, ROUND(AVG(overall_employee_score), 1) AS avg_overall, ROUND(AVG(career_development_score), 1) AS avg_career, ROUND(AVG(retention_stability_score), 1) AS avg_retention FROM core GROUP BY organization_type, dept_performance_category ORDER BY risk_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 55.80565985292196
+        },
+        {
+          "sql_id": "S63",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939), tiers AS (SELECT CASE WHEN highest_management_level_reached = 0 THEN 'Individual Contributor (L0)' WHEN highest_management_level_reached = 1 THEN 'Team Lead (L1)' WHEN highest_management_level_reached = 2 THEN 'Manager (L2)' ELSE 'Senior Management (L3+)' END AS mgmt_tier, dept_performance_category, COUNT(*) AS n_core, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS n_at_risk, SUM(CASE WHEN retention_stability_score < 60 THEN 1 ELSE 0 END) AS n_low_retention, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / COUNT(*), 1) AS at_risk_pct, ROUND(AVG(overall_employee_score), 1) AS avg_overall, ROUND(AVG(career_development_score), 1) AS avg_career, ROUND(AVG(retention_stability_score), 1) AS avg_retention FROM core GROUP BY mgmt_tier, dept_performance_category) SELECT * FROM tiers ORDER BY at_risk_pct DESC, n_core DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 57.669252157211304
+        },
+        {
+          "sql_id": "S64",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1), core AS (SELECT * FROM emp WHERE overall_employee_score > 75 AND career_development_score > 78.57581219355939) SELECT CASE WHEN highest_management_level_reached = 0 THEN 'IC (L0)' WHEN highest_management_level_reached = 1 THEN 'Team Lead (L1)' WHEN highest_management_level_reached = 2 THEN 'Manager (L2)' ELSE 'Sr Mgmt (L3+)' END AS mgmt_tier, dept_performance_category, COUNT(*) AS n_core, SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) AS n_at_risk, ROUND(100.0 * SUM(CASE WHEN employee_risk_level IN ('High', 'Medium') THEN 1 ELSE 0 END) / COUNT(*), 1) AS at_risk_pct FROM core GROUP BY mgmt_tier, dept_performance_category",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 55.533893406391144
+        },
+        {
+          "sql_id": "S65",
+          "rewritten_sql": "WITH ranked AS (SELECT * FROM temp.reuse_candidate), emp AS (SELECT * FROM ranked WHERE rn = 1) SELECT organization_sub_type, COUNT(*) AS total, SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) AS attrition_risk, ROUND(100.0 * SUM(CASE WHEN retention_stability_score < 60 AND overall_employee_score > 80 THEN 1 ELSE 0 END) / COUNT(*), 1) AS attrition_pct FROM emp GROUP BY organization_sub_type HAVING COUNT(*) >= 20 ORDER BY attrition_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 57.30506218969822
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT event_type AS __g0, COUNT(*) AS __a0 FROM \"workday__employee_overview\"  GROUP BY event_type",
+      "covered": [
+        "S3",
+        "S6"
+      ],
+      "rewrites": {
+        "S3": "SELECT SUM(__a0) AS total FROM temp.reuse_candidate",
+        "S6": "SELECT __g0 AS \"event_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 1,
+      "denominator": 62,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788869681.3617368,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT event_type AS __g0, COUNT(*) AS __a0 FROM \"workday__employee_overview\"  GROUP BY event_type",
+          "phase": "offline_validation",
+          "start_time": 1788869681.3620946,
+          "status": "execute_returned",
+          "end_time": 1788869681.449742
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869681.4497511,
+          "status": "execute_returned",
+          "end_time": 1788869681.4497778
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788869681.4497836,
+          "status": "execute_returned",
+          "end_time": 1788869681.4497967
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS total FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788869681.449806,
+          "status": "execute_returned",
+          "end_time": 1788869681.4498222
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"event_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788869681.4503815,
+          "status": "execute_returned",
+          "end_time": 1788869681.450422
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT event_type AS __g0, COUNT(*) AS __a0 FROM \"workday__employee_overview\"  GROUP BY event_type",
+          "time": 1788869681.3622994,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788869681.4497743,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788869681.4497929,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total FROM temp.reuse_candidate",
+          "time": 1788869681.4498186,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"event_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "time": 1788869681.4504097,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 87.65417896211147,
+      "intermediate_rows": 5,
+      "intermediate_columns": [
+        "__g0",
+        "__a0"
+      ],
+      "validation_ended_at": 1788869681.4510934,
+      "checks": [
+        {
+          "sql_id": "S3",
+          "rewritten_sql": "SELECT SUM(__a0) AS total FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5724355578422546
+        },
+        {
+          "sql_id": "S6",
+          "rewritten_sql": "SELECT __g0 AS \"event_type\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6006769835948944
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

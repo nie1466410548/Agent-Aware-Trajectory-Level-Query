@@ -1,0 +1,1 @@
+SELECT * FROM product_browsing LIMIT 20

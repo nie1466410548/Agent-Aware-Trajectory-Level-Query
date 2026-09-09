@@ -1,0 +1,1 @@
+SELECT account_name, COUNT(DISTINCT account_id) AS ids FROM google_ads__ad_group_report GROUP BY account_name ORDER BY account_name

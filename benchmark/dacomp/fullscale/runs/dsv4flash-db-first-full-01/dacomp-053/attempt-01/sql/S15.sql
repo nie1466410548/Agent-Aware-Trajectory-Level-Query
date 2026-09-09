@@ -1,0 +1,1 @@
+SELECT DISTINCT project_size_category FROM asana__project_analytics

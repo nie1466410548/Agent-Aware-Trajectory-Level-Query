@@ -1,0 +1,1 @@
+SELECT MIN(updated_at) as min_upd, MAX(updated_at) as max_upd FROM lever__posting_enhanced

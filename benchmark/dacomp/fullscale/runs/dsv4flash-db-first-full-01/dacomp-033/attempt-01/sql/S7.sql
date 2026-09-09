@@ -1,0 +1,1 @@
+SELECT "Customer ID", COUNT(*) as n_tx, SUM("Transaction Amount") as total_amt, SUM(CASE WHEN "Transaction Payment Status"='Paid' THEN "Transaction Amount" ELSE 0 END) as paid_amt FROM transaction_history_table GROUP BY "Customer ID" HAVING SUM(CASE WHEN "Transaction Payment Status"='Paid' THEN "Transaction Amount" ELSE 0 END) > 5000 ORDER BY paid_amt DESC

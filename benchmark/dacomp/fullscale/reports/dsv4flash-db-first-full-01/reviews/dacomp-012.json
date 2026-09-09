@@ -1,0 +1,76 @@
+{
+  "task_id": "dacomp-012",
+  "status": "partial_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "P2 fits OLS models and Python renders distribution/scatter plots, both reasonable exceptions. P3/P4 also compute price-per-carat arithmetic, bins, per-bin count/mean and crossed group means over exported rows; these SQL-capable summaries violate the preferred execution location. The failed SQL STDEV and timed-out Cartesian join remain recorded and do not justify moving all later aggregation outside SQL.",
+  "evidence": [
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 25,
+          "text": "beta, res, rank, sv = np.linalg.lstsq(Xm, y, rcond=None)"
+        },
+        {
+          "line": 45,
+          "text": "b2 = np.linalg.lstsq(X2, y, rcond=None)[0]"
+        }
+      ]
+    },
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 12,
+          "text": "df['interval'] = pd.cut(df['carat'], bins=bins, labels=labels, include_lowest=True)"
+        },
+        {
+          "line": 13,
+          "text": "df['ppc'] = df['price'] / df['carat']"
+        },
+        {
+          "line": 24,
+          "text": "means = df.groupby('interval', observed=True)['ppc'].mean()"
+        },
+        {
+          "line": 36,
+          "text": "fine_summary = df.groupby('carat_round').agg(n=('price','count'), avg_ppc=('ppc','mean')).reset_index()"
+        },
+        {
+          "line": 70,
+          "text": "cross = df.groupby(['interval', 'clarity'], observed=True)['ppc'].mean().unstack()"
+        },
+        {
+          "line": 84,
+          "text": "cross_color = df.groupby(['interval', 'color'], observed=True)['ppc'].mean().unstack()"
+        },
+        {
+          "line": 129,
+          "text": "summary = df.groupby('interval', observed=True).agg("
+        }
+      ]
+    },
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 6,
+          "text": "fine = df.groupby('bin01').agg(n=('price','count'), avg_ppc=('ppc','mean'), avg_price=('price','mean')).reset_index()"
+        },
+        {
+          "line": 24,
+          "text": "df['depth_cat'] = pd.cut(df['depth'], bins=[0,58,60,62,64,100], labels=['<58','58-60','60-62','62-64','>64'])"
+        },
+        {
+          "line": 26,
+          "text": "print(df.groupby('depth_cat', observed=True)['ppc'].mean().round(2).to_string())"
+        },
+        {
+          "line": 29,
+          "text": "print(df.groupby('tbl_cat', observed=True)['ppc'].mean().round(2).to_string())"
+        }
+      ]
+    }
+  ],
+  "route": "检查钻石数据并尝试 SQL 分箱统计 → Python 拟合价格回归 → 按克拉、净度、颜色汇总单位克拉价格 → 绘图及细分区间比较。"
+}

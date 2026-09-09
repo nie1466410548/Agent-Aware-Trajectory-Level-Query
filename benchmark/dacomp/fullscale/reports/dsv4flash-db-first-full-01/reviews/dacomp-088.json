@@ -1,0 +1,76 @@
+{
+  "task_id": "dacomp-088",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 按州连接客户、销售机会、销售代表和经济指标，并对行业份额求和、排序选前三、汇总扩张层级。这些 SQL 可执行的连接与 Top-K 聚合迁出数据库；收入中位数及绘图单独评价。",
+  "route": "SQL 提取州级客户与机会指标 → Python 多表连接、行业集中度与投资评分 → 州排名及扩张建议。",
+  "evidence": [
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 68,
+          "text": "cust = cust.merge(new_cust, on='state', how='left')"
+        },
+        {
+          "line": 71,
+          "text": "ind['state_total'] = ind.groupby('state')['n_cust_industry'].transform('sum')"
+        },
+        {
+          "line": 73,
+          "text": "top3 = ind.sort_values(['state','share'], ascending=[True,False]).groupby('state').head(3)"
+        },
+        {
+          "line": 74,
+          "text": "conc = top3.groupby('state')['share'].sum().rename('industry_concentration')"
+        },
+        {
+          "line": 75,
+          "text": "cust = cust.merge(conc, on='state', how='left')"
+        },
+        {
+          "line": 78,
+          "text": "merged = eco.merge(cust, on='state', how='left')"
+        },
+        {
+          "line": 79,
+          "text": "merged = merged.merge(opp, on='state', how='left')"
+        },
+        {
+          "line": 80,
+          "text": "merged = merged.merge(reps, on='state', how='left')"
+        }
+      ]
+    },
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 26,
+          "text": "ind['state_total'] = ind.groupby('state')['n_cust_industry'].transform('sum')"
+        },
+        {
+          "line": 28,
+          "text": "conc = ind.sort_values(['state','share'], ascending=[True,False]).groupby('state').head(3).groupby('state')['share'].sum().rename('industry_concentration')"
+        },
+        {
+          "line": 31,
+          "text": "merged = eco.merge(cust, on='state', how='left').merge(opp, on='state', how='left').merge(reps, on='state', how='left')"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 73,
+          "text": "print(f\"Total customers: {df['n_customers'].sum():.0f}, Total new customers: {df['n_new_customers'].sum():.0f}, Total reps: {df['n_reps'].sum():.0f}\")"
+        },
+        {
+          "line": 80,
+          "text": "tier_stats = df.groupby('expansion_tier').agg("
+        }
+      ]
+    }
+  ]
+}

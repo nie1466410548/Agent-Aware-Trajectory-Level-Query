@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_vf_clv_match FROM pendo__visitor_feature vf JOIN pendo__customer_lifecycle_insights c ON vf.visitor_id = c.visitor_id

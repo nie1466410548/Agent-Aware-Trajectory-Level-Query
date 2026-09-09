@@ -1,0 +1,1 @@
+SELECT MIN(date_day) AS min_day, MAX(date_day) AS max_day FROM jira__daily_issue_field_history

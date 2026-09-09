@@ -1,0 +1,1 @@
+SELECT DISTINCT "Sales type" FROM sales_records

@@ -1,0 +1,1 @@
+SELECT i."Drug ID", COUNT(*) AS cnt FROM inventory_management i LEFT JOIN basic_drug_information b ON i."Drug ID" = b."Drug ID" WHERE b."Drug ID" IS NULL GROUP BY i."Drug ID"

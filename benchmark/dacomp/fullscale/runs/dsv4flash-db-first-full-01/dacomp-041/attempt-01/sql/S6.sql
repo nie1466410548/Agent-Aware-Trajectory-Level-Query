@@ -1,0 +1,1 @@
+SELECT DISTINCT "Gallery reference" FROM display_case_information LIMIT 20

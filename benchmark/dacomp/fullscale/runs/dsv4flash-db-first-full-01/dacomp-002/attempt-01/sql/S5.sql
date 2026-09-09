@@ -1,0 +1,1 @@
+SELECT "Major Category Name", ROUND(SUM("Sales Amount"),2) AS total_amount FROM sheet1 GROUP BY "Major Category Name" ORDER BY total_amount DESC

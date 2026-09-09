@@ -1,0 +1,1 @@
+SELECT "Consigned Product" AS dim, strftime('%Y-%m', "Date") AS month, SUM("Profit") AS p FROM sheet1 WHERE "Destination" LIKE 'South China%%' GROUP BY dim, month ORDER BY dim, month

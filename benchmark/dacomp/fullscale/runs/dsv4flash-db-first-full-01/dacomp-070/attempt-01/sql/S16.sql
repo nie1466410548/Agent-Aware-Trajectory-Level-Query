@@ -1,0 +1,1 @@
+SELECT install_trend, revenue_trend, install_stability, performance_momentum, risk_growth_profile, anomaly_flag, daily_performance_vs_baseline, COUNT(*) AS n FROM google_play__time_series_trends GROUP BY install_trend, revenue_trend, install_stability, performance_momentum, risk_growth_profile, anomaly_flag, daily_performance_vs_baseline ORDER BY n DESC

@@ -1,0 +1,1 @@
+SELECT DISTINCT "Gender" FROM customer_contact_table

@@ -1,0 +1,1 @@
+SELECT e."Mental Health Assistance", COUNT(*) n FROM environment_and_health e GROUP BY e."Mental Health Assistance"

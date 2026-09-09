@@ -1,0 +1,1 @@
+SELECT MIN("Year") AS min_year, MAX("Year") AS max_year, COUNT(DISTINCT "Year") AS n_years FROM sheet1

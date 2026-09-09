@@ -1,0 +1,1 @@
+SELECT * FROM industry_benchmark_data ORDER BY industry_name

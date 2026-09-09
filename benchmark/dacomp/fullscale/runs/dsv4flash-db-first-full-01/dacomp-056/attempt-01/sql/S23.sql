@@ -1,0 +1,1 @@
+SELECT rfm_segment, COUNT(*) AS n FROM customer360__customer_value_analysis GROUP BY rfm_segment ORDER BY n DESC

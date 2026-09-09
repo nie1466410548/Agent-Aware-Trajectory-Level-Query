@@ -1,0 +1,1 @@
+SELECT "Education Requirement", COUNT(*) AS cnt FROM sheet1 GROUP BY "Education Requirement" ORDER BY cnt DESC

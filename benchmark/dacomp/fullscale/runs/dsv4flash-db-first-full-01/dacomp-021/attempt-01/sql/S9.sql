@@ -1,0 +1,1 @@
+SELECT "Date", length("Date") AS dlen FROM sheet1 GROUP BY "Date" ORDER BY dlen, "Date" LIMIT 30

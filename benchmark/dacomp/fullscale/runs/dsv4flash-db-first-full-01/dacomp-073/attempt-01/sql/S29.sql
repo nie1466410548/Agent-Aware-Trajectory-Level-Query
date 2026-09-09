@@ -1,0 +1,1 @@
+SELECT requisition_code, COUNT(*) as cnt FROM lever__posting_enhanced GROUP BY requisition_code ORDER BY cnt DESC LIMIT 15

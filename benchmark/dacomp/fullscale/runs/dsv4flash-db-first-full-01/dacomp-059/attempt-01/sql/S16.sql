@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total, COUNT(DISTINCT ad_group_id || '|' || date_day) AS unique_pairs FROM google_ads__ad_group_report

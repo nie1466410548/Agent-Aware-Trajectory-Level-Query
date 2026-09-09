@@ -1,0 +1,1 @@
+SELECT substr(created_at, 1, 7) as ym, team, COUNT(*) as cnt FROM lever__requisition_enhanced GROUP BY ym, team ORDER BY ym, team

@@ -1,0 +1,1 @@
+SELECT "Membership Level", COUNT(*) as cnt FROM membership_table GROUP BY "Membership Level" ORDER BY cnt DESC

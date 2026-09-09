@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_issues_assigned FROM jira__issue_enhanced WHERE assignee_name IS NOT NULL

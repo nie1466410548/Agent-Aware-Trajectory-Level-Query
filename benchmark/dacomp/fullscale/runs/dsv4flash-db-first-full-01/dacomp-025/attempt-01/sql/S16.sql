@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT "Item Code") FROM product_loss

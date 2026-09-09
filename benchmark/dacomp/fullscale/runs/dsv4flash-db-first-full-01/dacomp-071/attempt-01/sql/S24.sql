@@ -1,0 +1,1 @@
+SELECT current_stage, COUNT(*) as cnt FROM lever__opportunity_enhanced GROUP BY current_stage ORDER BY cnt DESC

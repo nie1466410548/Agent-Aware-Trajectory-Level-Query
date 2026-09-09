@@ -1,0 +1,1 @@
+SELECT job_value_tier, COUNT(*) AS cnt FROM workday__job_overview GROUP BY job_value_tier ORDER BY cnt DESC

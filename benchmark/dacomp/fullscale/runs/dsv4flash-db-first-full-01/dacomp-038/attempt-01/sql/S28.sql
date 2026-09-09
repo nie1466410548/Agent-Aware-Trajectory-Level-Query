@@ -1,0 +1,1 @@
+SELECT * FROM sheet2 ORDER BY "Promotion Date"

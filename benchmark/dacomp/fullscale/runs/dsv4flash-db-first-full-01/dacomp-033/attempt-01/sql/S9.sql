@@ -1,0 +1,1 @@
+SELECT COUNT(*) as cnt, COUNT(DISTINCT "Customer ID") as uniq_cust FROM customer_tag_table

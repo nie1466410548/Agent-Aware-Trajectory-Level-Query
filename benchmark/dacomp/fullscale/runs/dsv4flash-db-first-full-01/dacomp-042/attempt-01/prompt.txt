@@ -1,0 +1,140 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+Compare and analyze how the primary barrier factors to treatment adherence differ across patient age groups (recommended groupings: young adults 18–44, middle-aged 45–59, older adults 60+), and how the impact of these barriers on the degree of symptom improvement differs across age groups. Based on the distinct challenges of each age group, propose targeted intervention strategies for each group, and set quantifiable monitoring indicators for each strategy to evaluate its applicability and effectiveness across different populations.
+
+DATABASE SCHEMA:
+CREATE TABLE "assessmentbasics" (
+"Assessment ID" TEXT,
+  "Assessment Type" TEXT,
+  "Assessment Method" TEXT,
+  "Assessment Duration (minutes)" INTEGER,
+  "Assessment Language" TEXT,
+  "Assessment Validity" TEXT,
+  "Response Consistency" TEXT,
+  "Symptom Validity" TEXT,
+  "Associated Patient ID" TEXT
+)
+CREATE TABLE "assessmentsocialanddiagnosis" (
+"Social Diagnosis Assessment ID" TEXT,
+  "Record Status" TEXT,
+  "Social Support" TEXT,
+  "Family Involvement" TEXT,
+  "Interpersonal Relationship Quality" TEXT,
+  "Work Functioning" TEXT,
+  "Social Functioning" TEXT,
+  "Daily Living Functioning" TEXT,
+  "Stress Level" INTEGER,
+  "Coping Skills" TEXT,
+  "Resource Score" INTEGER,
+  "Dependency Level" TEXT,
+  "Motivation Level" TEXT,
+  "Primary Diagnosis" TEXT,
+  "Secondary Diagnosis" TEXT,
+  "Diagnosis Duration (months)" INTEGER,
+  "History of Hospitalization" INTEGER,
+  "Most Recent Hospitalization Date" TEXT,
+  "Quality of Life Score" INTEGER,
+  "Functional Impairment" TEXT
+)
+CREATE TABLE "assessmentsymptomsandrisk" (
+"Symptom Risk Assessment ID" TEXT,
+  "Suicidal Ideation" TEXT,
+  "Suicide Risk" TEXT,
+  "Self-Harm Behavior" TEXT,
+  "Violence Risk" TEXT,
+  "Substance Use" TEXT,
+  "Substance Use Frequency" TEXT,
+  "Substance Use Severity" TEXT,
+  "Mental health score" TEXT
+)
+CREATE TABLE "clinicians" (
+"clinkey" TEXT,
+  "clinconf" TEXT,
+  "assesslim" TEXT,
+  "docustat" TEXT,
+  "billcode" TEXT,
+  "nxtrevdt" TEXT,
+  "carecoord" TEXT,
+  "refneed" TEXT,
+  "fuptype" TEXT,
+  "fupfreq" TEXT,
+  "facconnect" TEXT
+)
+CREATE TABLE "encounters" (
+"Visit Record Number" TEXT,
+  "Timestamp" TEXT,
+  "Assessment Reference" TEXT,
+  "Patient Reference Number" TEXT,
+  "Doctor ID" TEXT,
+  "Organization ID" TEXT,
+  "Missed Appointment" INTEGER,
+  "Treatment Barriers" TEXT,
+  "Next Appointment Date" TEXT,
+  "Data Quality Score" INTEGER,
+  "Assessment Completion Status" REAL
+)
+CREATE TABLE "facilities" (
+"Organization ID" TEXT,
+  "Resource status" TEXT,
+  "Environmental pressure" TEXT,
+  "Impact on daily life" TEXT,
+  "Seasonal patterns" TEXT,
+  "Legal issues" TEXT,
+  "System changes" TEXT,
+  "Support and resources" TEXT
+)
+CREATE TABLE "patients" (
+"Patient number" TEXT,
+  "Age" INTEGER,
+  "Gender" TEXT,
+  "Race or ethnicity" TEXT,
+  "Education level" TEXT,
+  "Employment status" TEXT,
+  "Marital Status" TEXT,
+  "Living situation" TEXT,
+  "Insurance type" TEXT,
+  "Insurance status" TEXT,
+  "Disability status" TEXT,
+  "Housing stability" TEXT,
+  "Cultural factors" TEXT,
+  "Stigma effect" TEXT,
+  "Financial stress" TEXT,
+  "Attending physician reference" TEXT
+)
+CREATE TABLE "treatmentbasics" (
+"Treatment ID" INTEGER,
+  "Visit Reference" TEXT,
+  "Current Medications" TEXT,
+  "Medication Adherence" TEXT,
+  "Medication Side Effects" TEXT,
+  "Medication Adjustments" TEXT,
+  "Crisis Intervention" INTEGER,
+  "Treatment Details" TEXT
+)
+CREATE TABLE "treatmentoutcomes" (
+"Treatment outcome ID" INTEGER,
+  "Treatment reference" INTEGER,
+  "Treatment progress" TEXT,
+  "Treatment adherence" TEXT,
+  "Treatment response" TEXT,
+  "Side-effect burden" TEXT,
+  "Treatment goal status" TEXT,
+  "Recovery goal status" TEXT,
+  "Symptom improvement" TEXT,
+  "Functional improvement" TEXT,
+  "Employment status change" TEXT,
+  "Satisfaction Rating" INTEGER,
+  "Therapeutic alliance" TEXT,
+  "Treatment engagement" TEXT,
+  "Treatment satisfaction" TEXT
+)

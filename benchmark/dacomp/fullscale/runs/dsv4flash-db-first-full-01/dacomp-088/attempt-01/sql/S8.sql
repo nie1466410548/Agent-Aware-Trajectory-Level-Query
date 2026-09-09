@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n, COUNT(DISTINCT account_id) AS n_accounts, COUNT(DISTINCT snapshot_date) AS n_snapshots FROM salesforce__account_daily_history

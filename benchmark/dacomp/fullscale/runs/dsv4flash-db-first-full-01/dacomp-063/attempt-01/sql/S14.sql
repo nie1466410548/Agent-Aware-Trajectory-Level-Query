@@ -1,0 +1,1 @@
+SELECT MIN(overall_health_score), AVG(overall_health_score), MAX(overall_health_score) FROM jira__project_risk_assessment

@@ -1,0 +1,1 @@
+SELECT DISTINCT "Severity" FROM security_events_table

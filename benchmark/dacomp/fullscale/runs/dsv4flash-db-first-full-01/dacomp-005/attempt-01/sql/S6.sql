@@ -1,0 +1,1 @@
+SELECT 0.5 * AVG("Profit Margin") AS low_margin_threshold FROM sheet1

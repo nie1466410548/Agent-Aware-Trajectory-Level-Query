@@ -1,0 +1,1 @@
+SELECT "Max Inventory Threshold" AS thresh, "Expiry Alert Days" AS alert_days FROM basic_drug_information LIMIT 10

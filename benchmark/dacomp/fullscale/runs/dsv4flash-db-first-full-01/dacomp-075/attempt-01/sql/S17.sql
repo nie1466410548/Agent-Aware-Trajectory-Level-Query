@@ -1,0 +1,1 @@
+SELECT MIN(analysis_date), MAX(analysis_date), MIN(contract_expiry_date), MAX(contract_expiry_date), MIN(first_transaction_date), MAX(last_transaction_date) FROM netsuite2_vendor_risk_analysis

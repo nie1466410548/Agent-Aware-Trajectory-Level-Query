@@ -1,0 +1,1 @@
+SELECT DISTINCT "Number of Previous Owners" FROM autohome

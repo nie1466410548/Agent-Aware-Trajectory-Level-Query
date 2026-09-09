@@ -1,0 +1,1 @@
+SELECT DISTINCT type FROM salesforce__account_daily_history

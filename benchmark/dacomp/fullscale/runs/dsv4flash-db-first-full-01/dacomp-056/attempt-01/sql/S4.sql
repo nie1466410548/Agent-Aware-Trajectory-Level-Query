@@ -1,0 +1,1 @@
+SELECT customer_tier, customer_segment, COUNT(*) AS n FROM customer360__customer_value_analysis GROUP BY customer_tier, customer_segment ORDER BY n DESC

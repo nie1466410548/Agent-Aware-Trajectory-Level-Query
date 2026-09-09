@@ -1,0 +1,1 @@
+SELECT substr(date_day,1,7) AS ym, COUNT(*) AS n FROM google_ads__customer_acquisition_analysis GROUP BY ym ORDER BY ym

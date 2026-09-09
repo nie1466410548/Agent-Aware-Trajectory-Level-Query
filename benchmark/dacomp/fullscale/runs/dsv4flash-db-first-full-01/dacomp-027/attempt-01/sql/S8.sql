@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS missing_coord FROM disaster_events d LEFT JOIN coordination_and_evaluation c ON c."Distribution Reference ID" = d."Disaster Event ID" WHERE c."Coordevalregistry ID" IS NULL

@@ -1,0 +1,1 @@
+SELECT industry_normalized, COUNT(*) AS cnt FROM salesforce__customer_360_view GROUP BY industry_normalized ORDER BY cnt

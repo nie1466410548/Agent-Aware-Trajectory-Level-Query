@@ -1,0 +1,1 @@
+SELECT DISTINCT lifecycle_stage FROM quickbooks__customer_analytics

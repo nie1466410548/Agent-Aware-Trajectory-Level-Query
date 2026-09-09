@@ -1,0 +1,6 @@
+SELECT "Quantity", COUNT(*) AS n, SUM(profit) AS profit, SUM(Sales) AS sales,
+       ROUND(SUM(profit)*1.0/SUM(Sales),4) AS margin
+FROM order_information
+WHERE "Product Category" = 'Home & Furniture' AND "Product" = 'Umbrellas'
+GROUP BY "Quantity"
+ORDER BY "Quantity"

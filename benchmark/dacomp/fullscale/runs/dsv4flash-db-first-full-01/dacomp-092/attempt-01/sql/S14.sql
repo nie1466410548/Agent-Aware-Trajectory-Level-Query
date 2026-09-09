@@ -1,0 +1,1 @@
+SELECT DISTINCT rfm_segment FROM quickbooks__customer_analytics

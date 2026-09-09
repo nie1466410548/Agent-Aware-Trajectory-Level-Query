@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n FROM economic_indicator_data

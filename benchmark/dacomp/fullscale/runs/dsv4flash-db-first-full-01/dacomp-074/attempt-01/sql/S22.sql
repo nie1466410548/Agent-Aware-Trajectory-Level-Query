@@ -1,0 +1,1 @@
+SELECT subsidiary_id, MIN(dashboard_date) AS first_high_date FROM netsuite2_financial_dashboard WHERE cash_flow_risk_level = 'High' GROUP BY subsidiary_id ORDER BY first_high_date

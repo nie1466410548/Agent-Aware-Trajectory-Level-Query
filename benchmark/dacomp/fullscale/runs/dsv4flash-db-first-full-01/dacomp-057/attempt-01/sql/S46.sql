@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_camp_days, COUNT(DISTINCT substr(date_day,1,10)) AS n_days FROM google_ads__campaign_report WHERE substr(date_day,1,10) BETWEEN '2024-01-03' AND '2024-12-31'

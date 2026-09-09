@@ -1,0 +1,1 @@
+SELECT campaign_id, campaign_name, campaign_type, bidding_strategy, industry, COUNT(*) n FROM google_ads__campaign_report GROUP BY campaign_id

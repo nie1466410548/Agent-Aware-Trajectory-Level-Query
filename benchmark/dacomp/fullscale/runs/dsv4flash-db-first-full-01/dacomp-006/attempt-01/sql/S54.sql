@@ -1,0 +1,1 @@
+SELECT "Age Range" AS age, "Customer Gender" AS gender, strftime('%Y-%m', "Date") AS month, SUM("Profit") AS p FROM sheet1 WHERE "Destination" LIKE 'South China%%' GROUP BY age, gender, month ORDER BY age, gender, month

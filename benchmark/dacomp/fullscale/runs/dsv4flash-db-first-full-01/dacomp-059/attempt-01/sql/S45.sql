@@ -1,0 +1,1 @@
+SELECT keyword_text, keyword_match_type FROM google_ads__keyword_report GROUP BY keyword_text ORDER BY keyword_text LIMIT 100

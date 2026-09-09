@@ -1,0 +1,1 @@
+SELECT "Last-Mile Delivery Status", COUNT(*) AS cnt FROM transportation1 tr JOIN disaster_events de ON de."Disaster Event ID"=tr."Disaster Reference ID" WHERE de."Disaster Severity Level"='Level 5' GROUP BY "Last-Mile Delivery Status"

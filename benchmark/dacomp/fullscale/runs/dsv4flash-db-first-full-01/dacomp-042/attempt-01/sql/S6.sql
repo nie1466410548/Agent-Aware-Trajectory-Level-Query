@@ -1,0 +1,1 @@
+SELECT DISTINCT "Symptom improvement" FROM treatmentoutcomes

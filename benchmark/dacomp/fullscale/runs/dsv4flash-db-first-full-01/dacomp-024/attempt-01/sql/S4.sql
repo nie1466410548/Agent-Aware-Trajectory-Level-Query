@@ -1,0 +1,1 @@
+SELECT DISTINCT Region FROM sheet1 ORDER BY Region

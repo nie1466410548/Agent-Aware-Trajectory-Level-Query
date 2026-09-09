@@ -1,0 +1,1 @@
+SELECT COUNT(*) as cnt, COUNT(DISTINCT employee_id) as emp FROM (SELECT employee_id, COUNT(*) as c FROM workday__employee_overview GROUP BY employee_id HAVING COUNT(*)=1)

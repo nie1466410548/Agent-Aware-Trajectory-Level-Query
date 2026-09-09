@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_rows, COUNT(DISTINCT email) AS distinct_emails, COUNT(DISTINCT customer360_id) AS distinct_ids, COUNT(DISTINCT customer360_organization_id) AS distinct_orgs FROM customer360__customer

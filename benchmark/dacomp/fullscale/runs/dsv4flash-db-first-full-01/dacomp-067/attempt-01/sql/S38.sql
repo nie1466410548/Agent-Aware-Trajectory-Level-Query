@@ -1,0 +1,1 @@
+SELECT DISTINCT attribute_name FROM greenhouse__interview_scorecard_detail LIMIT 20

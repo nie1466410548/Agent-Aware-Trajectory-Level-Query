@@ -1,0 +1,1 @@
+SELECT "Inventory Discrepancy Rate" FROM inventory_management WHERE "Inventory Discrepancy Rate" LIKE '%0.0%' LIMIT 10

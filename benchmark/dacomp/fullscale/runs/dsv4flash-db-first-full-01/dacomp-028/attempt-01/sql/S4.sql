@@ -1,0 +1,1 @@
+SELECT MIN("Collection Date") AS min_date, MAX("Collection Date") AS max_date, COUNT(*) AS n FROM agricultural_product_price_tren

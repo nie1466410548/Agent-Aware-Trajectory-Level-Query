@@ -1,0 +1,1 @@
+SELECT "auditstate", COUNT(*) AS cnt FROM coordination_and_evaluation ce JOIN operations1 op ON op."Operation ID" = ce."Action Reference ID" JOIN disaster_events de ON de."Disaster Event ID" = op."Disaster Reference ID" WHERE de."Disaster Severity Level"='Level 5' GROUP BY "auditstate" ORDER BY cnt DESC

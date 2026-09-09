@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT activity_analysis_timestamp) AS distinct_ts_activity FROM customer360__customer_activity_metrics

@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total, SUM(CASE WHEN survey_response_recorded_at IS NOT NULL THEN 1 ELSE 0 END) AS has_recorded, SUM(CASE WHEN survey_response_started_at IS NOT NULL THEN 1 ELSE 0 END) AS has_started, SUM(CASE WHEN survey_finished_at IS NOT NULL THEN 1 ELSE 0 END) AS has_finished FROM qualtrics__response

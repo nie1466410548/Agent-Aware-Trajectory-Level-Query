@@ -1,0 +1,1 @@
+SELECT influence_level, COUNT(*) AS n FROM jira__stakeholder_engagement_insights GROUP BY influence_level ORDER BY n DESC

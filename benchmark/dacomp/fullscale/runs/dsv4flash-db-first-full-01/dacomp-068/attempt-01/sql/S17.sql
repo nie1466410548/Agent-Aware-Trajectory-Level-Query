@@ -1,0 +1,1 @@
+SELECT package_name, COUNT(*) AS n, SUM(CASE WHEN store_visitors > 0 THEN 1 ELSE 0 END) AS vis_pos, SUM(store_visitors) AS sum_vis, SUM(store_acquisitions) AS sum_acq, SUM(daily_net_revenue) AS sum_rev FROM google_play__comprehensive_performance_dashboard GROUP BY package_name ORDER BY package_name

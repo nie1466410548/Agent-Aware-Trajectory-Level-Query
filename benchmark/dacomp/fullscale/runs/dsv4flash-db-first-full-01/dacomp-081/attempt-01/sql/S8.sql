@@ -1,0 +1,1 @@
+SELECT DISTINCT embedded_data FROM qualtrics__response WHERE embedded_data IS NOT NULL AND embedded_data != '' LIMIT 20

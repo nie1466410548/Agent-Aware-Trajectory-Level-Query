@@ -1,0 +1,2 @@
+SELECT COUNT(DISTINCT account_id || '|' || substr(date_day,1,10) || '|' || advertising_channel_type || '|' || advertising_channel_subtype || '|' || customer_maturity_stage || '|' || campaign_lifecycle_stage) AS key2
+FROM google_ads__customer_acquisition_analysis

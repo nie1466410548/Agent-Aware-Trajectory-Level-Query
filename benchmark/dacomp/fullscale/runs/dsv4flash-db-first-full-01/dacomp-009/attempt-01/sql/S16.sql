@@ -1,0 +1,1 @@
+SELECT "Hire Date", COUNT(*) AS cnt FROM sheet1 GROUP BY "Hire Date" ORDER BY cnt DESC LIMIT 25

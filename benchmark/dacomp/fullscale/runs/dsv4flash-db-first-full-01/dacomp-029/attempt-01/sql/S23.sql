@@ -1,0 +1,1 @@
+SELECT DISTINCT Title FROM autohome WHERE "Vehicle Class" = 'Microcar' OR "Vehicle Class" = 'Microcar (with space)' OR "Vehicle Class" = 'Mini Car' LIMIT 20

@@ -1,0 +1,1 @@
+SELECT Attrition, COUNT(*) AS cnt FROM sheet1 GROUP BY Attrition

@@ -1,0 +1,1 @@
+SELECT COUNT(*) as total_cases, COUNT(DISTINCT "Display case ID") as distinct_cases, COUNT(DISTINCT "Gallery reference") as distinct_galleries FROM display_case_information

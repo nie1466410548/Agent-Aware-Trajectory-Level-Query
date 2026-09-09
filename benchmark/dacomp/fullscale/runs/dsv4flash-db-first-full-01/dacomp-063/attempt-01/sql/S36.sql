@@ -1,0 +1,1 @@
+SELECT DISTINCT stakeholder_archetype FROM jira__stakeholder_engagement_insights

@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_favs, COUNT(DISTINCT "User ID") AS fav_users FROM product_favorites_table

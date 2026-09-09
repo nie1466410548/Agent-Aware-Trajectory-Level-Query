@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT marketo_lead_id) AS distinct_leads_activity FROM customer360__customer_activity_metrics

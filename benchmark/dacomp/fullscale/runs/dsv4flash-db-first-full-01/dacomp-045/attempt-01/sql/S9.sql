@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_products, COUNT(DISTINCT "Category ID") AS categories, COUNT(DISTINCT "Brand ID") AS brands FROM product_basic_information_table

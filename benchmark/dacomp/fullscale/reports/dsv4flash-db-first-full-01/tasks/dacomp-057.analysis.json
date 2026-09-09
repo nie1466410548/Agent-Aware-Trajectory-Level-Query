@@ -1,0 +1,718 @@
+{
+  "fingerprint": "61844366ebec7c4b7021e8325d87ebe6125ce03de2c9a0ad89b8147eb3c90294",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT campaign_id, campaign_name, account_id, account_name, advertising_channel_type, advertising_channel_subtype, MIN(SUBSTRING(date_day, 1, 10)) AS first_date, MAX(SUBSTRING(date_day, 1, 10)) AS last_date, CAST(JULIANDAY(MAX(SUBSTRING(date_day, 1, 10))) - JULIANDAY(MIN(SUBSTRING(date_day, 1, 10))) AS INTEGER) AS days_running FROM google_ads__campaign_report GROUP BY campaign_id HAVING days_running > 120",
+      "covered": [
+        "S53",
+        "S54",
+        "S59",
+        "S60",
+        "S61",
+        "S64",
+        "S65",
+        "S66",
+        "S67",
+        "S69",
+        "S71",
+        "S72"
+      ],
+      "rewrites": {
+        "S53": "WITH camp AS (SELECT * FROM temp.reuse_candidate) SELECT c.campaign_id, c.account_id, c.advertising_channel_type, c.advertising_channel_subtype, COUNT(a.rowid) AS matched_rows FROM camp AS c LEFT JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date GROUP BY c.campaign_id ORDER BY matched_rows DESC",
+        "S54": "WITH camp AS (SELECT * FROM temp.reuse_candidate) SELECT c.campaign_id, c.account_id, c.advertising_channel_type, c.advertising_channel_subtype, c.days_running, COUNT(a.rowid) AS matched_rows FROM camp AS c LEFT JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date GROUP BY c.campaign_id HAVING matched_rows = 0 ORDER BY c.campaign_id",
+        "S59": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, a.campaign_lifecycle_stage, a.customer_maturity_stage, a.account_maturity_stage, a.strategic_customer_segment, a.acquisition_sophistication_score, a.cac_efficiency_percentile, a.channel_diversity_count, a.retention_risk, a.scale_opportunity, a.high_cac_alert, a.negative_roi_alert, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date), refs AS (SELECT campaign_id, MAX(jd) AS ref_jd, MAX(d) AS ref_date, COUNT(*) AS n_rows, MAX(jd) - MIN(jd) AS span_days FROM joined GROUP BY campaign_id) SELECT j.campaign_id, j.campaign_name, j.account_id, j.advertising_channel_type, j.advertising_channel_subtype, r.ref_date, r.span_days, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN 1 ELSE 0 END) AS n_last30, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN 1 ELSE 0 END) AS n_prior30 FROM joined AS j JOIN refs AS r ON r.campaign_id = j.campaign_id GROUP BY j.campaign_id ORDER BY r.ref_date DESC",
+        "S60": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date), refs AS (SELECT campaign_id, MAX(jd) AS ref_jd FROM joined GROUP BY campaign_id), win AS (SELECT j.campaign_id, j.campaign_name, j.account_id, j.account_name, j.advertising_channel_type, j.advertising_channel_subtype, r.ref_jd, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.spend ELSE 0 END) AS spend_last, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.conversions * j.ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_last, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.conversions ELSE 0 END) AS conv_prior, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.conversions * j.ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_prior FROM joined AS j JOIN refs AS r ON r.campaign_id = j.campaign_id GROUP BY j.campaign_id) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, spend_last, conv_last, spend_prior, conv_prior, ROUND(spend_last / NULLIF(conv_last, 0), 2) AS cac_last, ROUND(spend_prior / NULLIF(conv_prior, 0), 2) AS cac_prior, ROUND((spend_last / NULLIF(conv_last, 0) - spend_prior / NULLIF(conv_prior, 0)) / NULLIF(spend_prior / NULLIF(conv_prior, 0), 0), 4) AS cac_growth, ROUND(ltv_cac_w_last / NULLIF(conv_last, 0), 2) AS ltv_cac_last, ROUND(ltv_cac_w_prior / NULLIF(conv_prior, 0), 2) AS ltv_cac_prior, ROUND((ltv_cac_w_last / NULLIF(conv_last, 0) - ltv_cac_w_prior / NULLIF(conv_prior, 0)) / NULLIF(ltv_cac_w_prior / NULLIF(conv_prior, 0), 0), 4) AS ltv_cac_change FROM win ORDER BY cac_growth DESC",
+        "S61": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date), refs AS (SELECT campaign_id, MAX(jd) AS ref_jd FROM joined GROUP BY campaign_id), win AS (SELECT j.campaign_id, j.campaign_name, j.account_id, j.account_name, j.advertising_channel_type, j.advertising_channel_subtype, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.spend ELSE 0 END) AS spend_last, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.conversions * j.ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_last, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.conversions ELSE 0 END) AS conv_prior, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.conversions * j.ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_prior FROM joined AS j JOIN refs AS r ON r.campaign_id = j.campaign_id GROUP BY j.campaign_id) SELECT COUNT(*) AS n_candidates, SUM(CASE WHEN cac_last > 0 AND cac_prior > 0 AND cac_growth > 0.25 AND ltv_cac_change < -0.20 THEN 1 ELSE 0 END) AS n_decay_flag FROM (SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, spend_last, conv_last, spend_prior, conv_prior, (spend_last / NULLIF(conv_last, 0)) AS cac_last, (spend_prior / NULLIF(conv_prior, 0)) AS cac_prior, (spend_last / NULLIF(conv_last, 0) - spend_prior / NULLIF(conv_prior, 0)) / NULLIF(spend_prior / NULLIF(conv_prior, 0), 0) AS cac_growth, (ltv_cac_w_last / NULLIF(conv_last, 0) - ltv_cac_w_prior / NULLIF(conv_prior, 0)) / NULLIF(ltv_cac_w_prior / NULLIF(conv_prior, 0), 0) AS ltv_cac_change FROM win)",
+        "S64": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN spend ELSE 0 END) AS spend_last, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END) AS conv_prior, ROUND(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN spend ELSE 0 END) / NULLIF(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END), 0), 2) AS cac_last, ROUND(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN spend ELSE 0 END) / NULLIF(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END), 0), 2) AS cac_prior FROM joined GROUP BY campaign_id ORDER BY cac_last DESC",
+        "S65": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END) AS conv_prior FROM joined GROUP BY campaign_id HAVING conv_last > 0 AND conv_prior > 0 ORDER BY conv_last DESC",
+        "S66": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, ROUND(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN spend ELSE 0 END) / NULLIF(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END), 0), 2) AS cac_last, ROUND(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN spend ELSE 0 END) / NULLIF(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END), 0), 2) AS cac_prior, ROUND(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions * ltv_cac_ratio ELSE 0 END) / NULLIF(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END), 0), 2) AS ltv_cac_last, ROUND(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions * ltv_cac_ratio ELSE 0 END) / NULLIF(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END), 0), 2) AS ltv_cac_prior FROM joined GROUP BY campaign_id HAVING SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END) > 0 AND SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END) > 0 ORDER BY campaign_id",
+        "S67": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date), metrics AS (SELECT campaign_id, campaign_name, account_id, account_name, advertising_channel_type, advertising_channel_subtype, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN spend ELSE 0 END) AS spend_last, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END) AS conv_prior, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_last, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_prior FROM joined GROUP BY campaign_id HAVING conv_last > 0 AND conv_prior > 0) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, ROUND((spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior), 4) AS cac_growth, ROUND((ltv_cac_w_last / conv_last - ltv_cac_w_prior / conv_prior) / (ltv_cac_w_prior / conv_prior), 4) AS ltv_cac_change, CASE WHEN (spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior) > 0.25 AND (ltv_cac_w_last / conv_last - ltv_cac_w_prior / conv_prior) / (ltv_cac_w_prior / conv_prior) < -0.20 THEN 'DECAY_FLAG' ELSE 'ok' END AS status FROM metrics ORDER BY (spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior) DESC",
+        "S69": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd, JULIANDAY(c.last_date) AS ref_jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date), metrics AS (SELECT campaign_id, campaign_name, account_id, account_name, advertising_channel_type, advertising_channel_subtype, SUM(CASE WHEN jd >= ref_jd - 29 THEN spend ELSE 0 END) AS spend_last, SUM(CASE WHEN jd >= ref_jd - 29 THEN conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN conversions ELSE 0 END) AS conv_prior, SUM(CASE WHEN jd >= ref_jd - 29 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_last, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_prior FROM joined GROUP BY campaign_id HAVING conv_last > 0 AND conv_prior > 0) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, ROUND((spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior), 4) AS cac_growth, ROUND((ltv_cac_w_last / conv_last - ltv_cac_w_prior / conv_prior) / (ltv_cac_w_prior / conv_prior), 4) AS ltv_cac_change, CASE WHEN (spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior) > 0.25 AND (ltv_cac_w_last / conv_last - ltv_cac_w_prior / conv_prior) / (ltv_cac_w_prior / conv_prior) < -0.20 THEN 'DECAY_FLAG' ELSE 'ok' END AS status FROM metrics ORDER BY (spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior) DESC",
+        "S71": "WITH camp AS (SELECT * FROM temp.reuse_candidate) SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.days_running, c.last_date AS camp_last_date, a.date_day, a.campaign_lifecycle_stage, a.advertising_channel_type, a.advertising_channel_subtype, a.customer_maturity_stage, a.account_maturity_stage, a.strategic_customer_segment, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, a.conversions_value, a.acquisition_sophistication_score, a.cac_efficiency_percentile, a.channel_diversity_count, a.retention_risk, a.scale_opportunity, a.high_cac_alert, a.negative_roi_alert, a.cac_performance_tier, a.acquisition_efficiency_tier, a.acquisition_recommendation, a.roas, a.cpc, a.ctr, a.estimated_payback_days, a.active_campaigns_count, a.cumulative_acquisition_cost, a.cumulative_conversions, a.cumulative_ltv, a.cac_vs_cohort_pct, a.ltv_vs_cohort_pct, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date ORDER BY c.campaign_id, a.date_day",
+        "S72": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd, JULIANDAY(c.last_date) AS ref_jd, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, a.campaign_lifecycle_stage, a.customer_maturity_stage, a.account_maturity_stage, a.strategic_customer_segment, a.acquisition_sophistication_score, a.cac_efficiency_percentile, a.channel_diversity_count, a.retention_risk, a.scale_opportunity, a.high_cac_alert, a.negative_roi_alert, a.cac_performance_tier, a.acquisition_efficiency_tier, a.acquisition_recommendation FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date) SELECT campaign_id, campaign_name, account_id, account_name, advertising_channel_type, advertising_channel_subtype, SUM(CASE WHEN jd >= ref_jd - 29 THEN spend ELSE 0 END) AS spend_last, SUM(CASE WHEN jd >= ref_jd - 29 THEN conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN conversions ELSE 0 END) AS conv_prior, SUM(CASE WHEN jd >= ref_jd - 29 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_last, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_prior, MAX(CASE WHEN jd >= ref_jd - 29 THEN acquisition_sophistication_score ELSE 0 END) AS soph_score_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN cac_efficiency_percentile ELSE 0 END) AS eff_perc_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN channel_diversity_count ELSE 0 END) AS ch_div_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN retention_risk ELSE 0 END) AS retention_risk_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN scale_opportunity ELSE 0 END) AS scale_opp_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN high_cac_alert ELSE 0 END) AS high_cac_alert_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN negative_roi_alert ELSE 0 END) AS neg_roi_last FROM joined GROUP BY campaign_id HAVING conv_last > 0 AND conv_prior > 0"
+      },
+      "status": "rejected_result_mismatch",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S53",
+      "later_reuses": 11,
+      "denominator": 67,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867319.8220723,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT campaign_id, campaign_name, account_id, account_name, advertising_channel_type, advertising_channel_subtype, MIN(SUBSTRING(date_day, 1, 10)) AS first_date, MAX(SUBSTRING(date_day, 1, 10)) AS last_date, CAST(JULIANDAY(MAX(SUBSTRING(date_day, 1, 10))) - JULIANDAY(MIN(SUBSTRING(date_day, 1, 10))) AS INTEGER) AS days_running FROM google_ads__campaign_report GROUP BY campaign_id HAVING days_running > 120",
+          "phase": "offline_validation",
+          "start_time": 1788867319.8229756,
+          "status": "execute_returned",
+          "end_time": 1788867319.8330603
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867319.833067,
+          "status": "execute_returned",
+          "end_time": 1788867319.8330922
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788867319.8331082,
+          "status": "execute_returned",
+          "end_time": 1788867319.833123
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate) SELECT c.campaign_id, c.account_id, c.advertising_channel_type, c.advertising_channel_subtype, COUNT(a.rowid) AS matched_rows FROM camp AS c LEFT JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date GROUP BY c.campaign_id ORDER BY matched_rows DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867319.8331428,
+          "status": "execute_returned",
+          "end_time": 1788867319.853127
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate) SELECT c.campaign_id, c.account_id, c.advertising_channel_type, c.advertising_channel_subtype, c.days_running, COUNT(a.rowid) AS matched_rows FROM camp AS c LEFT JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date GROUP BY c.campaign_id HAVING matched_rows = 0 ORDER BY c.campaign_id",
+          "phase": "offline_validation",
+          "start_time": 1788867319.8576102,
+          "status": "execute_returned",
+          "end_time": 1788867319.8779144
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, a.campaign_lifecycle_stage, a.customer_maturity_stage, a.account_maturity_stage, a.strategic_customer_segment, a.acquisition_sophistication_score, a.cac_efficiency_percentile, a.channel_diversity_count, a.retention_risk, a.scale_opportunity, a.high_cac_alert, a.negative_roi_alert, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date), refs AS (SELECT campaign_id, MAX(jd) AS ref_jd, MAX(d) AS ref_date, COUNT(*) AS n_rows, MAX(jd) - MIN(jd) AS span_days FROM joined GROUP BY campaign_id) SELECT j.campaign_id, j.campaign_name, j.account_id, j.advertising_channel_type, j.advertising_channel_subtype, r.ref_date, r.span_days, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN 1 ELSE 0 END) AS n_last30, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN 1 ELSE 0 END) AS n_prior30 FROM joined AS j JOIN refs AS r ON r.campaign_id = j.campaign_id GROUP BY j.campaign_id ORDER BY r.ref_date DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867319.881614,
+          "status": "execute_returned",
+          "end_time": 1788867319.9250946
+        },
+        {
+          "sequence": 7,
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date), refs AS (SELECT campaign_id, MAX(jd) AS ref_jd FROM joined GROUP BY campaign_id), win AS (SELECT j.campaign_id, j.campaign_name, j.account_id, j.account_name, j.advertising_channel_type, j.advertising_channel_subtype, r.ref_jd, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.spend ELSE 0 END) AS spend_last, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.conversions * j.ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_last, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.conversions ELSE 0 END) AS conv_prior, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.conversions * j.ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_prior FROM joined AS j JOIN refs AS r ON r.campaign_id = j.campaign_id GROUP BY j.campaign_id) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, spend_last, conv_last, spend_prior, conv_prior, ROUND(spend_last / NULLIF(conv_last, 0), 2) AS cac_last, ROUND(spend_prior / NULLIF(conv_prior, 0), 2) AS cac_prior, ROUND((spend_last / NULLIF(conv_last, 0) - spend_prior / NULLIF(conv_prior, 0)) / NULLIF(spend_prior / NULLIF(conv_prior, 0), 0), 4) AS cac_growth, ROUND(ltv_cac_w_last / NULLIF(conv_last, 0), 2) AS ltv_cac_last, ROUND(ltv_cac_w_prior / NULLIF(conv_prior, 0), 2) AS ltv_cac_prior, ROUND((ltv_cac_w_last / NULLIF(conv_last, 0) - ltv_cac_w_prior / NULLIF(conv_prior, 0)) / NULLIF(ltv_cac_w_prior / NULLIF(conv_prior, 0), 0), 4) AS ltv_cac_change FROM win ORDER BY cac_growth DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867319.9312384,
+          "status": "execute_returned",
+          "end_time": 1788867319.9777527
+        },
+        {
+          "sequence": 8,
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date), refs AS (SELECT campaign_id, MAX(jd) AS ref_jd FROM joined GROUP BY campaign_id), win AS (SELECT j.campaign_id, j.campaign_name, j.account_id, j.account_name, j.advertising_channel_type, j.advertising_channel_subtype, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.spend ELSE 0 END) AS spend_last, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.conversions * j.ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_last, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.conversions ELSE 0 END) AS conv_prior, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.conversions * j.ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_prior FROM joined AS j JOIN refs AS r ON r.campaign_id = j.campaign_id GROUP BY j.campaign_id) SELECT COUNT(*) AS n_candidates, SUM(CASE WHEN cac_last > 0 AND cac_prior > 0 AND cac_growth > 0.25 AND ltv_cac_change < -0.20 THEN 1 ELSE 0 END) AS n_decay_flag FROM (SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, spend_last, conv_last, spend_prior, conv_prior, (spend_last / NULLIF(conv_last, 0)) AS cac_last, (spend_prior / NULLIF(conv_prior, 0)) AS cac_prior, (spend_last / NULLIF(conv_last, 0) - spend_prior / NULLIF(conv_prior, 0)) / NULLIF(spend_prior / NULLIF(conv_prior, 0), 0) AS cac_growth, (ltv_cac_w_last / NULLIF(conv_last, 0) - ltv_cac_w_prior / NULLIF(conv_prior, 0)) / NULLIF(ltv_cac_w_prior / NULLIF(conv_prior, 0), 0) AS ltv_cac_change FROM win)",
+          "phase": "offline_validation",
+          "start_time": 1788867319.9869597,
+          "status": "execute_returned",
+          "end_time": 1788867320.0327897
+        },
+        {
+          "sequence": 9,
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN spend ELSE 0 END) AS spend_last, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END) AS conv_prior, ROUND(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN spend ELSE 0 END) / NULLIF(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END), 0), 2) AS cac_last, ROUND(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN spend ELSE 0 END) / NULLIF(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END), 0), 2) AS cac_prior FROM joined GROUP BY campaign_id ORDER BY cac_last DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867320.0411716,
+          "status": "execute_returned",
+          "end_time": 1788867320.0642266
+        },
+        {
+          "sequence": 10,
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END) AS conv_prior FROM joined GROUP BY campaign_id HAVING conv_last > 0 AND conv_prior > 0 ORDER BY conv_last DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867320.0714788,
+          "status": "execute_returned",
+          "end_time": 1788867320.0926619
+        },
+        {
+          "sequence": 11,
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, ROUND(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN spend ELSE 0 END) / NULLIF(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END), 0), 2) AS cac_last, ROUND(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN spend ELSE 0 END) / NULLIF(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END), 0), 2) AS cac_prior, ROUND(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions * ltv_cac_ratio ELSE 0 END) / NULLIF(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END), 0), 2) AS ltv_cac_last, ROUND(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions * ltv_cac_ratio ELSE 0 END) / NULLIF(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END), 0), 2) AS ltv_cac_prior FROM joined GROUP BY campaign_id HAVING SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END) > 0 AND SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END) > 0 ORDER BY campaign_id",
+          "phase": "offline_validation",
+          "start_time": 1788867320.0984652,
+          "status": "execute_returned",
+          "end_time": 1788867320.1203103
+        },
+        {
+          "sequence": 12,
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date), metrics AS (SELECT campaign_id, campaign_name, account_id, account_name, advertising_channel_type, advertising_channel_subtype, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN spend ELSE 0 END) AS spend_last, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END) AS conv_prior, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_last, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_prior FROM joined GROUP BY campaign_id HAVING conv_last > 0 AND conv_prior > 0) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, ROUND((spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior), 4) AS cac_growth, ROUND((ltv_cac_w_last / conv_last - ltv_cac_w_prior / conv_prior) / (ltv_cac_w_prior / conv_prior), 4) AS ltv_cac_change, CASE WHEN (spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior) > 0.25 AND (ltv_cac_w_last / conv_last - ltv_cac_w_prior / conv_prior) / (ltv_cac_w_prior / conv_prior) < -0.20 THEN 'DECAY_FLAG' ELSE 'ok' END AS status FROM metrics ORDER BY (spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior) DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867320.1311975,
+          "status": "execute_returned",
+          "end_time": 1788867320.1565976
+        },
+        {
+          "sequence": 13,
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd, JULIANDAY(c.last_date) AS ref_jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date), metrics AS (SELECT campaign_id, campaign_name, account_id, account_name, advertising_channel_type, advertising_channel_subtype, SUM(CASE WHEN jd >= ref_jd - 29 THEN spend ELSE 0 END) AS spend_last, SUM(CASE WHEN jd >= ref_jd - 29 THEN conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN conversions ELSE 0 END) AS conv_prior, SUM(CASE WHEN jd >= ref_jd - 29 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_last, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_prior FROM joined GROUP BY campaign_id HAVING conv_last > 0 AND conv_prior > 0) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, ROUND((spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior), 4) AS cac_growth, ROUND((ltv_cac_w_last / conv_last - ltv_cac_w_prior / conv_prior) / (ltv_cac_w_prior / conv_prior), 4) AS ltv_cac_change, CASE WHEN (spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior) > 0.25 AND (ltv_cac_w_last / conv_last - ltv_cac_w_prior / conv_prior) / (ltv_cac_w_prior / conv_prior) < -0.20 THEN 'DECAY_FLAG' ELSE 'ok' END AS status FROM metrics ORDER BY (spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior) DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867320.1645277,
+          "status": "execute_returned",
+          "end_time": 1788867320.1925924
+        },
+        {
+          "sequence": 14,
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate) SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.days_running, c.last_date AS camp_last_date, a.date_day, a.campaign_lifecycle_stage, a.advertising_channel_type, a.advertising_channel_subtype, a.customer_maturity_stage, a.account_maturity_stage, a.strategic_customer_segment, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, a.conversions_value, a.acquisition_sophistication_score, a.cac_efficiency_percentile, a.channel_diversity_count, a.retention_risk, a.scale_opportunity, a.high_cac_alert, a.negative_roi_alert, a.cac_performance_tier, a.acquisition_efficiency_tier, a.acquisition_recommendation, a.roas, a.cpc, a.ctr, a.estimated_payback_days, a.active_campaigns_count, a.cumulative_acquisition_cost, a.cumulative_conversions, a.cumulative_ltv, a.cac_vs_cohort_pct, a.ltv_vs_cohort_pct, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date ORDER BY c.campaign_id, a.date_day",
+          "phase": "offline_validation",
+          "start_time": 1788867320.200043,
+          "status": "execute_returned",
+          "end_time": 1788867320.2501364
+        },
+        {
+          "sequence": 15,
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd, JULIANDAY(c.last_date) AS ref_jd, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, a.campaign_lifecycle_stage, a.customer_maturity_stage, a.account_maturity_stage, a.strategic_customer_segment, a.acquisition_sophistication_score, a.cac_efficiency_percentile, a.channel_diversity_count, a.retention_risk, a.scale_opportunity, a.high_cac_alert, a.negative_roi_alert, a.cac_performance_tier, a.acquisition_efficiency_tier, a.acquisition_recommendation FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date) SELECT campaign_id, campaign_name, account_id, account_name, advertising_channel_type, advertising_channel_subtype, SUM(CASE WHEN jd >= ref_jd - 29 THEN spend ELSE 0 END) AS spend_last, SUM(CASE WHEN jd >= ref_jd - 29 THEN conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN conversions ELSE 0 END) AS conv_prior, SUM(CASE WHEN jd >= ref_jd - 29 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_last, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_prior, MAX(CASE WHEN jd >= ref_jd - 29 THEN acquisition_sophistication_score ELSE 0 END) AS soph_score_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN cac_efficiency_percentile ELSE 0 END) AS eff_perc_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN channel_diversity_count ELSE 0 END) AS ch_div_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN retention_risk ELSE 0 END) AS retention_risk_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN scale_opportunity ELSE 0 END) AS scale_opp_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN high_cac_alert ELSE 0 END) AS high_cac_alert_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN negative_roi_alert ELSE 0 END) AS neg_roi_last FROM joined GROUP BY campaign_id HAVING conv_last > 0 AND conv_prior > 0",
+          "phase": "offline_validation",
+          "start_time": 1788867320.301239,
+          "status": "execute_returned",
+          "end_time": 1788867320.3293028
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT campaign_id, campaign_name, account_id, account_name, advertising_channel_type, advertising_channel_subtype, MIN(SUBSTRING(date_day, 1, 10)) AS first_date, MAX(SUBSTRING(date_day, 1, 10)) AS last_date, CAST(JULIANDAY(MAX(SUBSTRING(date_day, 1, 10))) - JULIANDAY(MIN(SUBSTRING(date_day, 1, 10))) AS INTEGER) AS days_running FROM google_ads__campaign_report GROUP BY campaign_id HAVING days_running > 120",
+          "time": 1788867319.8240385,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788867319.8330882,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788867319.8331194,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate) SELECT c.campaign_id, c.account_id, c.advertising_channel_type, c.advertising_channel_subtype, COUNT(a.rowid) AS matched_rows FROM camp AS c LEFT JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date GROUP BY c.campaign_id ORDER BY matched_rows DESC",
+          "time": 1788867319.833357,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate) SELECT c.campaign_id, c.account_id, c.advertising_channel_type, c.advertising_channel_subtype, c.days_running, COUNT(a.rowid) AS matched_rows FROM camp AS c LEFT JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date GROUP BY c.campaign_id HAVING matched_rows = 0 ORDER BY c.campaign_id",
+          "time": 1788867319.8579392,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, a.campaign_lifecycle_stage, a.customer_maturity_stage, a.account_maturity_stage, a.strategic_customer_segment, a.acquisition_sophistication_score, a.cac_efficiency_percentile, a.channel_diversity_count, a.retention_risk, a.scale_opportunity, a.high_cac_alert, a.negative_roi_alert, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date), refs AS (SELECT campaign_id, MAX(jd) AS ref_jd, MAX(d) AS ref_date, COUNT(*) AS n_rows, MAX(jd) - MIN(jd) AS span_days FROM joined GROUP BY campaign_id) SELECT j.campaign_id, j.campaign_name, j.account_id, j.advertising_channel_type, j.advertising_channel_subtype, r.ref_date, r.span_days, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN 1 ELSE 0 END) AS n_last30, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN 1 ELSE 0 END) AS n_prior30 FROM joined AS j JOIN refs AS r ON r.campaign_id = j.campaign_id GROUP BY j.campaign_id ORDER BY r.ref_date DESC",
+          "time": 1788867319.883182,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date), refs AS (SELECT campaign_id, MAX(jd) AS ref_jd FROM joined GROUP BY campaign_id), win AS (SELECT j.campaign_id, j.campaign_name, j.account_id, j.account_name, j.advertising_channel_type, j.advertising_channel_subtype, r.ref_jd, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.spend ELSE 0 END) AS spend_last, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.conversions * j.ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_last, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.conversions ELSE 0 END) AS conv_prior, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.conversions * j.ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_prior FROM joined AS j JOIN refs AS r ON r.campaign_id = j.campaign_id GROUP BY j.campaign_id) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, spend_last, conv_last, spend_prior, conv_prior, ROUND(spend_last / NULLIF(conv_last, 0), 2) AS cac_last, ROUND(spend_prior / NULLIF(conv_prior, 0), 2) AS cac_prior, ROUND((spend_last / NULLIF(conv_last, 0) - spend_prior / NULLIF(conv_prior, 0)) / NULLIF(spend_prior / NULLIF(conv_prior, 0), 0), 4) AS cac_growth, ROUND(ltv_cac_w_last / NULLIF(conv_last, 0), 2) AS ltv_cac_last, ROUND(ltv_cac_w_prior / NULLIF(conv_prior, 0), 2) AS ltv_cac_prior, ROUND((ltv_cac_w_last / NULLIF(conv_last, 0) - ltv_cac_w_prior / NULLIF(conv_prior, 0)) / NULLIF(ltv_cac_w_prior / NULLIF(conv_prior, 0), 0), 4) AS ltv_cac_change FROM win ORDER BY cac_growth DESC",
+          "time": 1788867319.9321864,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date), refs AS (SELECT campaign_id, MAX(jd) AS ref_jd FROM joined GROUP BY campaign_id), win AS (SELECT j.campaign_id, j.campaign_name, j.account_id, j.account_name, j.advertising_channel_type, j.advertising_channel_subtype, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.spend ELSE 0 END) AS spend_last, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.conversions * j.ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_last, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.conversions ELSE 0 END) AS conv_prior, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.conversions * j.ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_prior FROM joined AS j JOIN refs AS r ON r.campaign_id = j.campaign_id GROUP BY j.campaign_id) SELECT COUNT(*) AS n_candidates, SUM(CASE WHEN cac_last > 0 AND cac_prior > 0 AND cac_growth > 0.25 AND ltv_cac_change < -0.20 THEN 1 ELSE 0 END) AS n_decay_flag FROM (SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, spend_last, conv_last, spend_prior, conv_prior, (spend_last / NULLIF(conv_last, 0)) AS cac_last, (spend_prior / NULLIF(conv_prior, 0)) AS cac_prior, (spend_last / NULLIF(conv_last, 0) - spend_prior / NULLIF(conv_prior, 0)) / NULLIF(spend_prior / NULLIF(conv_prior, 0), 0) AS cac_growth, (ltv_cac_w_last / NULLIF(conv_last, 0) - ltv_cac_w_prior / NULLIF(conv_prior, 0)) / NULLIF(ltv_cac_w_prior / NULLIF(conv_prior, 0), 0) AS ltv_cac_change FROM win)",
+          "time": 1788867319.9876542,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN spend ELSE 0 END) AS spend_last, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END) AS conv_prior, ROUND(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN spend ELSE 0 END) / NULLIF(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END), 0), 2) AS cac_last, ROUND(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN spend ELSE 0 END) / NULLIF(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END), 0), 2) AS cac_prior FROM joined GROUP BY campaign_id ORDER BY cac_last DESC",
+          "time": 1788867320.041544,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END) AS conv_prior FROM joined GROUP BY campaign_id HAVING conv_last > 0 AND conv_prior > 0 ORDER BY conv_last DESC",
+          "time": 1788867320.0717652,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, ROUND(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN spend ELSE 0 END) / NULLIF(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END), 0), 2) AS cac_last, ROUND(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN spend ELSE 0 END) / NULLIF(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END), 0), 2) AS cac_prior, ROUND(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions * ltv_cac_ratio ELSE 0 END) / NULLIF(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END), 0), 2) AS ltv_cac_last, ROUND(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions * ltv_cac_ratio ELSE 0 END) / NULLIF(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END), 0), 2) AS ltv_cac_prior FROM joined GROUP BY campaign_id HAVING SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END) > 0 AND SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END) > 0 ORDER BY campaign_id",
+          "time": 1788867320.0988863,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date), metrics AS (SELECT campaign_id, campaign_name, account_id, account_name, advertising_channel_type, advertising_channel_subtype, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN spend ELSE 0 END) AS spend_last, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END) AS conv_prior, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_last, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_prior FROM joined GROUP BY campaign_id HAVING conv_last > 0 AND conv_prior > 0) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, ROUND((spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior), 4) AS cac_growth, ROUND((ltv_cac_w_last / conv_last - ltv_cac_w_prior / conv_prior) / (ltv_cac_w_prior / conv_prior), 4) AS ltv_cac_change, CASE WHEN (spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior) > 0.25 AND (ltv_cac_w_last / conv_last - ltv_cac_w_prior / conv_prior) / (ltv_cac_w_prior / conv_prior) < -0.20 THEN 'DECAY_FLAG' ELSE 'ok' END AS status FROM metrics ORDER BY (spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior) DESC",
+          "time": 1788867320.1316338,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd, JULIANDAY(c.last_date) AS ref_jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date), metrics AS (SELECT campaign_id, campaign_name, account_id, account_name, advertising_channel_type, advertising_channel_subtype, SUM(CASE WHEN jd >= ref_jd - 29 THEN spend ELSE 0 END) AS spend_last, SUM(CASE WHEN jd >= ref_jd - 29 THEN conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN conversions ELSE 0 END) AS conv_prior, SUM(CASE WHEN jd >= ref_jd - 29 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_last, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_prior FROM joined GROUP BY campaign_id HAVING conv_last > 0 AND conv_prior > 0) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, ROUND((spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior), 4) AS cac_growth, ROUND((ltv_cac_w_last / conv_last - ltv_cac_w_prior / conv_prior) / (ltv_cac_w_prior / conv_prior), 4) AS ltv_cac_change, CASE WHEN (spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior) > 0.25 AND (ltv_cac_w_last / conv_last - ltv_cac_w_prior / conv_prior) / (ltv_cac_w_prior / conv_prior) < -0.20 THEN 'DECAY_FLAG' ELSE 'ok' END AS status FROM metrics ORDER BY (spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior) DESC",
+          "time": 1788867320.1649542,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate) SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.days_running, c.last_date AS camp_last_date, a.date_day, a.campaign_lifecycle_stage, a.advertising_channel_type, a.advertising_channel_subtype, a.customer_maturity_stage, a.account_maturity_stage, a.strategic_customer_segment, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, a.conversions_value, a.acquisition_sophistication_score, a.cac_efficiency_percentile, a.channel_diversity_count, a.retention_risk, a.scale_opportunity, a.high_cac_alert, a.negative_roi_alert, a.cac_performance_tier, a.acquisition_efficiency_tier, a.acquisition_recommendation, a.roas, a.cpc, a.ctr, a.estimated_payback_days, a.active_campaigns_count, a.cumulative_acquisition_cost, a.cumulative_conversions, a.cumulative_ltv, a.cac_vs_cohort_pct, a.ltv_vs_cohort_pct, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date ORDER BY c.campaign_id, a.date_day",
+          "time": 1788867320.2002752,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd, JULIANDAY(c.last_date) AS ref_jd, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, a.campaign_lifecycle_stage, a.customer_maturity_stage, a.account_maturity_stage, a.strategic_customer_segment, a.acquisition_sophistication_score, a.cac_efficiency_percentile, a.channel_diversity_count, a.retention_risk, a.scale_opportunity, a.high_cac_alert, a.negative_roi_alert, a.cac_performance_tier, a.acquisition_efficiency_tier, a.acquisition_recommendation FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date) SELECT campaign_id, campaign_name, account_id, account_name, advertising_channel_type, advertising_channel_subtype, SUM(CASE WHEN jd >= ref_jd - 29 THEN spend ELSE 0 END) AS spend_last, SUM(CASE WHEN jd >= ref_jd - 29 THEN conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN conversions ELSE 0 END) AS conv_prior, SUM(CASE WHEN jd >= ref_jd - 29 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_last, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_prior, MAX(CASE WHEN jd >= ref_jd - 29 THEN acquisition_sophistication_score ELSE 0 END) AS soph_score_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN cac_efficiency_percentile ELSE 0 END) AS eff_perc_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN channel_diversity_count ELSE 0 END) AS ch_div_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN retention_risk ELSE 0 END) AS retention_risk_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN scale_opportunity ELSE 0 END) AS scale_opp_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN high_cac_alert ELSE 0 END) AS high_cac_alert_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN negative_roi_alert ELSE 0 END) AS neg_roi_last FROM joined GROUP BY campaign_id HAVING conv_last > 0 AND conv_prior > 0",
+          "time": 1788867320.3017344,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 10.09067427366972,
+      "intermediate_rows": 77,
+      "intermediate_columns": [
+        "campaign_id",
+        "campaign_name",
+        "account_id",
+        "account_name",
+        "advertising_channel_type",
+        "advertising_channel_subtype",
+        "first_date",
+        "last_date",
+        "days_running"
+      ],
+      "validation_ended_at": 1788867320.3536713,
+      "checks": [
+        {
+          "sql_id": "S53",
+          "rewritten_sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate) SELECT c.campaign_id, c.account_id, c.advertising_channel_type, c.advertising_channel_subtype, COUNT(a.rowid) AS matched_rows FROM camp AS c LEFT JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date GROUP BY c.campaign_id ORDER BY matched_rows DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 24.46230687201023
+        },
+        {
+          "sql_id": "S54",
+          "rewritten_sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate) SELECT c.campaign_id, c.account_id, c.advertising_channel_type, c.advertising_channel_subtype, c.days_running, COUNT(a.rowid) AS matched_rows FROM camp AS c LEFT JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date GROUP BY c.campaign_id HAVING matched_rows = 0 ORDER BY c.campaign_id",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 23.998863995075226
+        },
+        {
+          "sql_id": "S59",
+          "rewritten_sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, a.campaign_lifecycle_stage, a.customer_maturity_stage, a.account_maturity_stage, a.strategic_customer_segment, a.acquisition_sophistication_score, a.cac_efficiency_percentile, a.channel_diversity_count, a.retention_risk, a.scale_opportunity, a.high_cac_alert, a.negative_roi_alert, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date), refs AS (SELECT campaign_id, MAX(jd) AS ref_jd, MAX(d) AS ref_date, COUNT(*) AS n_rows, MAX(jd) - MIN(jd) AS span_days FROM joined GROUP BY campaign_id) SELECT j.campaign_id, j.campaign_name, j.account_id, j.advertising_channel_type, j.advertising_channel_subtype, r.ref_date, r.span_days, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN 1 ELSE 0 END) AS n_last30, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN 1 ELSE 0 END) AS n_prior30 FROM joined AS j JOIN refs AS r ON r.campaign_id = j.campaign_id GROUP BY j.campaign_id ORDER BY r.ref_date DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 49.61959645152092
+        },
+        {
+          "sql_id": "S60",
+          "rewritten_sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date), refs AS (SELECT campaign_id, MAX(jd) AS ref_jd FROM joined GROUP BY campaign_id), win AS (SELECT j.campaign_id, j.campaign_name, j.account_id, j.account_name, j.advertising_channel_type, j.advertising_channel_subtype, r.ref_jd, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.spend ELSE 0 END) AS spend_last, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.conversions * j.ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_last, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.conversions ELSE 0 END) AS conv_prior, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.conversions * j.ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_prior FROM joined AS j JOIN refs AS r ON r.campaign_id = j.campaign_id GROUP BY j.campaign_id) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, spend_last, conv_last, spend_prior, conv_prior, ROUND(spend_last / NULLIF(conv_last, 0), 2) AS cac_last, ROUND(spend_prior / NULLIF(conv_prior, 0), 2) AS cac_prior, ROUND((spend_last / NULLIF(conv_last, 0) - spend_prior / NULLIF(conv_prior, 0)) / NULLIF(spend_prior / NULLIF(conv_prior, 0), 0), 4) AS cac_growth, ROUND(ltv_cac_w_last / NULLIF(conv_last, 0), 2) AS ltv_cac_last, ROUND(ltv_cac_w_prior / NULLIF(conv_prior, 0), 2) AS ltv_cac_prior, ROUND((ltv_cac_w_last / NULLIF(conv_last, 0) - ltv_cac_w_prior / NULLIF(conv_prior, 0)) / NULLIF(ltv_cac_w_prior / NULLIF(conv_prior, 0), 0), 4) AS ltv_cac_change FROM win ORDER BY cac_growth DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 55.7151734828949
+        },
+        {
+          "sql_id": "S61",
+          "rewritten_sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date), refs AS (SELECT campaign_id, MAX(jd) AS ref_jd FROM joined GROUP BY campaign_id), win AS (SELECT j.campaign_id, j.campaign_name, j.account_id, j.account_name, j.advertising_channel_type, j.advertising_channel_subtype, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.spend ELSE 0 END) AS spend_last, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN j.jd >= r.ref_jd - 29 THEN j.conversions * j.ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_last, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.conversions ELSE 0 END) AS conv_prior, SUM(CASE WHEN j.jd BETWEEN r.ref_jd - 59 AND r.ref_jd - 30 THEN j.conversions * j.ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_prior FROM joined AS j JOIN refs AS r ON r.campaign_id = j.campaign_id GROUP BY j.campaign_id) SELECT COUNT(*) AS n_candidates, SUM(CASE WHEN cac_last > 0 AND cac_prior > 0 AND cac_growth > 0.25 AND ltv_cac_change < -0.20 THEN 1 ELSE 0 END) AS n_decay_flag FROM (SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, spend_last, conv_last, spend_prior, conv_prior, (spend_last / NULLIF(conv_last, 0)) AS cac_last, (spend_prior / NULLIF(conv_prior, 0)) AS cac_prior, (spend_last / NULLIF(conv_last, 0) - spend_prior / NULLIF(conv_prior, 0)) / NULLIF(spend_prior / NULLIF(conv_prior, 0), 0) AS cac_growth, (ltv_cac_w_last / NULLIF(conv_last, 0) - ltv_cac_w_prior / NULLIF(conv_prior, 0)) / NULLIF(ltv_cac_w_prior / NULLIF(conv_prior, 0), 0) AS ltv_cac_change FROM win)",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 54.20367605984211
+        },
+        {
+          "sql_id": "S64",
+          "rewritten_sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN spend ELSE 0 END) AS spend_last, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END) AS conv_prior, ROUND(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN spend ELSE 0 END) / NULLIF(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END), 0), 2) AS cac_last, ROUND(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN spend ELSE 0 END) / NULLIF(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END), 0), 2) AS cac_prior FROM joined GROUP BY campaign_id ORDER BY cac_last DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 30.302442610263824
+        },
+        {
+          "sql_id": "S65",
+          "rewritten_sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END) AS conv_prior FROM joined GROUP BY campaign_id HAVING conv_last > 0 AND conv_prior > 0 ORDER BY conv_last DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 26.97512973099947
+        },
+        {
+          "sql_id": "S66",
+          "rewritten_sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, ROUND(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN spend ELSE 0 END) / NULLIF(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END), 0), 2) AS cac_last, ROUND(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN spend ELSE 0 END) / NULLIF(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END), 0), 2) AS cac_prior, ROUND(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions * ltv_cac_ratio ELSE 0 END) / NULLIF(SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END), 0), 2) AS ltv_cac_last, ROUND(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions * ltv_cac_ratio ELSE 0 END) / NULLIF(SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END), 0), 2) AS ltv_cac_prior FROM joined GROUP BY campaign_id HAVING SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END) > 0 AND SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END) > 0 ORDER BY campaign_id",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 32.727641984820366
+        },
+        {
+          "sql_id": "S67",
+          "rewritten_sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date), metrics AS (SELECT campaign_id, campaign_name, account_id, account_name, advertising_channel_type, advertising_channel_subtype, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN spend ELSE 0 END) AS spend_last, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions ELSE 0 END) AS conv_prior, SUM(CASE WHEN jd >= JULIANDAY('2024-12-31') - 29 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_last, SUM(CASE WHEN jd BETWEEN JULIANDAY('2024-12-31') - 59 AND JULIANDAY('2024-12-31') - 30 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_prior FROM joined GROUP BY campaign_id HAVING conv_last > 0 AND conv_prior > 0) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, ROUND((spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior), 4) AS cac_growth, ROUND((ltv_cac_w_last / conv_last - ltv_cac_w_prior / conv_prior) / (ltv_cac_w_prior / conv_prior), 4) AS ltv_cac_change, CASE WHEN (spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior) > 0.25 AND (ltv_cac_w_last / conv_last - ltv_cac_w_prior / conv_prior) / (ltv_cac_w_prior / conv_prior) < -0.20 THEN 'DECAY_FLAG' ELSE 'ok' END AS status FROM metrics ORDER BY (spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior) DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 33.32572989165783
+        },
+        {
+          "sql_id": "S69",
+          "rewritten_sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, SUBSTRING(a.date_day, 1, 10) AS d, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd, JULIANDAY(c.last_date) AS ref_jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date), metrics AS (SELECT campaign_id, campaign_name, account_id, account_name, advertising_channel_type, advertising_channel_subtype, SUM(CASE WHEN jd >= ref_jd - 29 THEN spend ELSE 0 END) AS spend_last, SUM(CASE WHEN jd >= ref_jd - 29 THEN conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN conversions ELSE 0 END) AS conv_prior, SUM(CASE WHEN jd >= ref_jd - 29 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_last, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_prior FROM joined GROUP BY campaign_id HAVING conv_last > 0 AND conv_prior > 0) SELECT campaign_id, campaign_name, account_id, advertising_channel_type, advertising_channel_subtype, ROUND((spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior), 4) AS cac_growth, ROUND((ltv_cac_w_last / conv_last - ltv_cac_w_prior / conv_prior) / (ltv_cac_w_prior / conv_prior), 4) AS ltv_cac_change, CASE WHEN (spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior) > 0.25 AND (ltv_cac_w_last / conv_last - ltv_cac_w_prior / conv_prior) / (ltv_cac_w_prior / conv_prior) < -0.20 THEN 'DECAY_FLAG' ELSE 'ok' END AS status FROM metrics ORDER BY (spend_last / conv_last - spend_prior / conv_prior) / (spend_prior / conv_prior) DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 35.51157843321562
+        },
+        {
+          "sql_id": "S71",
+          "rewritten_sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate) SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.days_running, c.last_date AS camp_last_date, a.date_day, a.campaign_lifecycle_stage, a.advertising_channel_type, a.advertising_channel_subtype, a.customer_maturity_stage, a.account_maturity_stage, a.strategic_customer_segment, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, a.conversions_value, a.acquisition_sophistication_score, a.cac_efficiency_percentile, a.channel_diversity_count, a.retention_risk, a.scale_opportunity, a.high_cac_alert, a.negative_roi_alert, a.cac_performance_tier, a.acquisition_efficiency_tier, a.acquisition_recommendation, a.roas, a.cpc, a.ctr, a.estimated_payback_days, a.active_campaigns_count, a.cumulative_acquisition_cost, a.cumulative_conversions, a.cumulative_ltv, a.cac_vs_cohort_pct, a.ltv_vs_cohort_pct, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date ORDER BY c.campaign_id, a.date_day",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 101.19147691875696
+        },
+        {
+          "sql_id": "S72",
+          "rewritten_sql": "WITH camp AS (SELECT * FROM temp.reuse_candidate), joined AS (SELECT c.campaign_id, c.campaign_name, c.account_id, c.account_name, c.advertising_channel_type, c.advertising_channel_subtype, JULIANDAY(SUBSTRING(a.date_day, 1, 10)) AS jd, JULIANDAY(c.last_date) AS ref_jd, a.customer_acquisition_cost, a.ltv_cac_ratio, a.spend, a.conversions, a.campaign_lifecycle_stage, a.customer_maturity_stage, a.account_maturity_stage, a.strategic_customer_segment, a.acquisition_sophistication_score, a.cac_efficiency_percentile, a.channel_diversity_count, a.retention_risk, a.scale_opportunity, a.high_cac_alert, a.negative_roi_alert, a.cac_performance_tier, a.acquisition_efficiency_tier, a.acquisition_recommendation FROM camp AS c JOIN google_ads__customer_acquisition_analysis AS a ON a.account_id = c.account_id AND a.advertising_channel_type = c.advertising_channel_type AND COALESCE(a.advertising_channel_subtype, '') = COALESCE(c.advertising_channel_subtype, '') AND SUBSTRING(a.date_day, 1, 10) BETWEEN c.first_date AND c.last_date) SELECT campaign_id, campaign_name, account_id, account_name, advertising_channel_type, advertising_channel_subtype, SUM(CASE WHEN jd >= ref_jd - 29 THEN spend ELSE 0 END) AS spend_last, SUM(CASE WHEN jd >= ref_jd - 29 THEN conversions ELSE 0 END) AS conv_last, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN spend ELSE 0 END) AS spend_prior, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN conversions ELSE 0 END) AS conv_prior, SUM(CASE WHEN jd >= ref_jd - 29 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_last, SUM(CASE WHEN jd BETWEEN ref_jd - 59 AND ref_jd - 30 THEN conversions * ltv_cac_ratio ELSE 0 END) AS ltv_cac_w_prior, MAX(CASE WHEN jd >= ref_jd - 29 THEN acquisition_sophistication_score ELSE 0 END) AS soph_score_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN cac_efficiency_percentile ELSE 0 END) AS eff_perc_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN channel_diversity_count ELSE 0 END) AS ch_div_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN retention_risk ELSE 0 END) AS retention_risk_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN scale_opportunity ELSE 0 END) AS scale_opp_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN high_cac_alert ELSE 0 END) AS high_cac_alert_last, MAX(CASE WHEN jd >= ref_jd - 29 THEN negative_roi_alert ELSE 0 END) AS neg_roi_last FROM joined GROUP BY campaign_id HAVING conv_last > 0 AND conv_prior > 0",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 52.05050017684698
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT account_id AS __g0, SUBSTRING(date_day, 1, 7) AS __g1, advertising_channel_type AS __g2, advertising_channel_subtype AS __g3, campaign_lifecycle_stage AS __g4, customer_maturity_stage AS __g5, account_maturity_stage AS __g6, strategic_customer_segment AS __g7, COUNT(*) AS __a0, MIN(SUBSTRING(date_day, 1, 10)) AS __a1, MAX(SUBSTRING(date_day, 1, 10)) AS __a2 FROM \"google_ads__customer_acquisition_analysis\"  GROUP BY account_id, SUBSTRING(date_day, 1, 7), advertising_channel_type, advertising_channel_subtype, campaign_lifecycle_stage, customer_maturity_stage, account_maturity_stage, strategic_customer_segment",
+      "covered": [
+        "S3",
+        "S36",
+        "S37",
+        "S55",
+        "S73"
+      ],
+      "rewrites": {
+        "S3": "SELECT SUM(__a0) AS n_rows FROM temp.reuse_candidate",
+        "S36": "SELECT __g0 AS \"account_id\", MIN(__a1) AS min_date, MAX(__a2) AS max_date, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+        "S37": "SELECT __g1 AS ym, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY ym",
+        "S55": "SELECT __g0 AS \"account_id\", __g2 AS \"advertising_channel_type\", __g3 AS \"advertising_channel_subtype\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g2, __g3 ORDER BY __g0, __g2",
+        "S73": "SELECT DISTINCT __g4 AS \"campaign_lifecycle_stage\", __g5 AS \"customer_maturity_stage\", __g6 AS \"account_maturity_stage\", __g7 AS \"strategic_customer_segment\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g4, __g5, __g6, __g7 ORDER BY n_rows DESC LIMIT 30"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 4,
+      "denominator": 67,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867320.3537655,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT account_id AS __g0, SUBSTRING(date_day, 1, 7) AS __g1, advertising_channel_type AS __g2, advertising_channel_subtype AS __g3, campaign_lifecycle_stage AS __g4, customer_maturity_stage AS __g5, account_maturity_stage AS __g6, strategic_customer_segment AS __g7, COUNT(*) AS __a0, MIN(SUBSTRING(date_day, 1, 10)) AS __a1, MAX(SUBSTRING(date_day, 1, 10)) AS __a2 FROM \"google_ads__customer_acquisition_analysis\"  GROUP BY account_id, SUBSTRING(date_day, 1, 7), advertising_channel_type, advertising_channel_subtype, campaign_lifecycle_stage, customer_maturity_stage, account_maturity_stage, strategic_customer_segment",
+          "phase": "offline_validation",
+          "start_time": 1788867320.3540525,
+          "status": "execute_returned",
+          "end_time": 1788867320.3811889
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867320.3811944,
+          "status": "execute_returned",
+          "end_time": 1788867320.3812356
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788867320.3812404,
+          "status": "execute_returned",
+          "end_time": 1788867320.3812523
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS n_rows FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867320.3812726,
+          "status": "execute_returned",
+          "end_time": 1788867320.3818734
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"account_id\", MIN(__a1) AS min_date, MAX(__a2) AS max_date, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788867320.3823905,
+          "status": "execute_returned",
+          "end_time": 1788867320.3841178
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS ym, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY ym",
+          "phase": "offline_validation",
+          "start_time": 1788867320.3862884,
+          "status": "execute_returned",
+          "end_time": 1788867320.3877428
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g0 AS \"account_id\", __g2 AS \"advertising_channel_type\", __g3 AS \"advertising_channel_subtype\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g2, __g3 ORDER BY __g0, __g2",
+          "phase": "offline_validation",
+          "start_time": 1788867320.3892004,
+          "status": "execute_returned",
+          "end_time": 1788867320.3939757
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT DISTINCT __g4 AS \"campaign_lifecycle_stage\", __g5 AS \"customer_maturity_stage\", __g6 AS \"account_maturity_stage\", __g7 AS \"strategic_customer_segment\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g4, __g5, __g6, __g7 ORDER BY n_rows DESC LIMIT 30",
+          "phase": "offline_validation",
+          "start_time": 1788867320.394847,
+          "status": "execute_returned",
+          "end_time": 1788867320.4024303
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT account_id AS __g0, SUBSTRING(date_day, 1, 7) AS __g1, advertising_channel_type AS __g2, advertising_channel_subtype AS __g3, campaign_lifecycle_stage AS __g4, customer_maturity_stage AS __g5, account_maturity_stage AS __g6, strategic_customer_segment AS __g7, COUNT(*) AS __a0, MIN(SUBSTRING(date_day, 1, 10)) AS __a1, MAX(SUBSTRING(date_day, 1, 10)) AS __a2 FROM \"google_ads__customer_acquisition_analysis\"  GROUP BY account_id, SUBSTRING(date_day, 1, 7), advertising_channel_type, advertising_channel_subtype, campaign_lifecycle_stage, customer_maturity_stage, account_maturity_stage, strategic_customer_segment",
+          "time": 1788867320.3543613,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788867320.381211,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788867320.38125,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n_rows FROM temp.reuse_candidate",
+          "time": 1788867320.381284,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"account_id\", MIN(__a1) AS min_date, MAX(__a2) AS max_date, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "time": 1788867320.3824234,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS ym, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY ym",
+          "time": 1788867320.3863158,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"account_id\", __g2 AS \"advertising_channel_type\", __g3 AS \"advertising_channel_subtype\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g2, __g3 ORDER BY __g0, __g2",
+          "time": 1788867320.3892336,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT DISTINCT __g4 AS \"campaign_lifecycle_stage\", __g5 AS \"customer_maturity_stage\", __g6 AS \"account_maturity_stage\", __g7 AS \"strategic_customer_segment\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g4, __g5, __g6, __g7 ORDER BY n_rows DESC LIMIT 30",
+          "time": 1788867320.3948984,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 27.141578495502472,
+      "intermediate_rows": 7270,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__g5",
+        "__g6",
+        "__g7",
+        "__a0",
+        "__a1",
+        "__a2"
+      ],
+      "validation_ended_at": 1788867320.403488,
+      "checks": [
+        {
+          "sql_id": "S3",
+          "rewritten_sql": "SELECT SUM(__a0) AS n_rows FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.114754006266594
+        },
+        {
+          "sql_id": "S36",
+          "rewritten_sql": "SELECT __g0 AS \"account_id\", MIN(__a1) AS min_date, MAX(__a2) AS max_date, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.8953693583607674
+        },
+        {
+          "sql_id": "S37",
+          "rewritten_sql": "SELECT __g1 AS ym, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY ym",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.909403294324875
+        },
+        {
+          "sql_id": "S55",
+          "rewritten_sql": "SELECT __g0 AS \"account_id\", __g2 AS \"advertising_channel_type\", __g3 AS \"advertising_channel_subtype\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g2, __g3 ORDER BY __g0, __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 5.643900483846664
+        },
+        {
+          "sql_id": "S73",
+          "rewritten_sql": "SELECT DISTINCT __g4 AS \"campaign_lifecycle_stage\", __g5 AS \"customer_maturity_stage\", __g6 AS \"account_maturity_stage\", __g7 AS \"strategic_customer_segment\", SUM(__a0) AS n_rows FROM temp.reuse_candidate GROUP BY __g4, __g5, __g6, __g7 ORDER BY n_rows DESC LIMIT 30",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 8.49982351064682
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"google_ads__customer_acquisition_analysis\" WHERE SUBSTRING(date_day, 1, 10) BETWEEN '2024-11-02' AND '2024-12-31'",
+      "covered": [
+        "S41",
+        "S42"
+      ],
+      "rewrites": {
+        "S41": "SELECT account_id, advertising_channel_type, COUNT(DISTINCT SUBSTRING(date_day, 1, 10)) AS n_days FROM temp.reuse_candidate AS google_ads__customer_acquisition_analysis WHERE SUBSTRING(date_day, 1, 10) BETWEEN '2024-11-02' AND '2024-12-31' GROUP BY account_id, advertising_channel_type ORDER BY account_id, advertising_channel_type",
+        "S42": "SELECT COUNT(*) AS total_days, COUNT(DISTINCT account_id || '|' || SUBSTRING(date_day, 1, 10)) AS acct_days FROM temp.reuse_candidate AS google_ads__customer_acquisition_analysis WHERE SUBSTRING(date_day, 1, 10) BETWEEN '2024-11-02' AND '2024-12-31'"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S41",
+      "later_reuses": 1,
+      "denominator": 67,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867320.403535,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"google_ads__customer_acquisition_analysis\" WHERE SUBSTRING(date_day, 1, 10) BETWEEN '2024-11-02' AND '2024-12-31'",
+          "phase": "offline_validation",
+          "start_time": 1788867320.4037342,
+          "status": "execute_returned",
+          "end_time": 1788867320.4071212
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867320.407126,
+          "status": "execute_returned",
+          "end_time": 1788867320.407147
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788867320.4071507,
+          "status": "execute_returned",
+          "end_time": 1788867320.4071739
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT account_id, advertising_channel_type, COUNT(DISTINCT SUBSTRING(date_day, 1, 10)) AS n_days FROM temp.reuse_candidate AS google_ads__customer_acquisition_analysis WHERE SUBSTRING(date_day, 1, 10) BETWEEN '2024-11-02' AND '2024-12-31' GROUP BY account_id, advertising_channel_type ORDER BY account_id, advertising_channel_type",
+          "phase": "offline_validation",
+          "start_time": 1788867320.4072278,
+          "status": "execute_returned",
+          "end_time": 1788867320.407396
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT COUNT(*) AS total_days, COUNT(DISTINCT account_id || '|' || SUBSTRING(date_day, 1, 10)) AS acct_days FROM temp.reuse_candidate AS google_ads__customer_acquisition_analysis WHERE SUBSTRING(date_day, 1, 10) BETWEEN '2024-11-02' AND '2024-12-31'",
+          "phase": "offline_validation",
+          "start_time": 1788867320.4084253,
+          "status": "execute_returned",
+          "end_time": 1788867320.4086351
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"google_ads__customer_acquisition_analysis\" WHERE SUBSTRING(date_day, 1, 10) BETWEEN '2024-11-02' AND '2024-12-31'",
+          "time": 1788867320.4040542,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788867320.4071414,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788867320.407171,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT account_id, advertising_channel_type, COUNT(DISTINCT SUBSTRING(date_day, 1, 10)) AS n_days FROM temp.reuse_candidate AS google_ads__customer_acquisition_analysis WHERE SUBSTRING(date_day, 1, 10) BETWEEN '2024-11-02' AND '2024-12-31' GROUP BY account_id, advertising_channel_type ORDER BY account_id, advertising_channel_type",
+          "time": 1788867320.407272,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) AS total_days, COUNT(DISTINCT account_id || '|' || SUBSTRING(date_day, 1, 10)) AS acct_days FROM temp.reuse_candidate AS google_ads__customer_acquisition_analysis WHERE SUBSTRING(date_day, 1, 10) BETWEEN '2024-11-02' AND '2024-12-31'",
+          "time": 1788867320.40847,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 3.3903587609529495,
+      "intermediate_rows": 251,
+      "intermediate_columns": [
+        "source_relation",
+        "account_id",
+        "account_name",
+        "date_day",
+        "acquisition_cohort",
+        "days_since_first_conversion",
+        "advertising_channel_type",
+        "advertising_channel_subtype",
+        "account_maturity_stage",
+        "customer_maturity_stage",
+        "campaign_lifecycle_stage",
+        "spend",
+        "clicks",
+        "impressions",
+        "conversions",
+        "conversions_value",
+        "ctr",
+        "cpc",
+        "cost_per_conversion",
+        "roas",
+        "customer_acquisition_cost",
+        "average_customer_ltv",
+        "ltv_cac_ratio",
+        "estimated_payback_days",
+        "cumulative_acquisition_cost",
+        "cumulative_conversions",
+        "cumulative_ltv",
+        "cohort_avg_cac",
+        "cohort_avg_ltv",
+        "cac_vs_cohort_pct",
+        "ltv_vs_cohort_pct",
+        "cac_efficiency_percentile",
+        "ltv_cac_performance_percentile",
+        "acquisition_efficiency_tier",
+        "cac_performance_tier",
+        "strategic_customer_segment",
+        "acquisition_sophistication_score",
+        "active_campaigns_count",
+        "channel_diversity_count",
+        "acquisition_recommendation",
+        "negative_roi_alert",
+        "high_cac_alert",
+        "scale_opportunity",
+        "retention_risk"
+      ],
+      "validation_ended_at": 1788867320.409529,
+      "checks": [
+        {
+          "sql_id": "S41",
+          "rewritten_sql": "SELECT account_id, advertising_channel_type, COUNT(DISTINCT SUBSTRING(date_day, 1, 10)) AS n_days FROM temp.reuse_candidate AS google_ads__customer_acquisition_analysis WHERE SUBSTRING(date_day, 1, 10) BETWEEN '2024-11-02' AND '2024-12-31' GROUP BY account_id, advertising_channel_type ORDER BY account_id, advertising_channel_type",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.1947127059102058
+        },
+        {
+          "sql_id": "S42",
+          "rewritten_sql": "SELECT COUNT(*) AS total_days, COUNT(DISTINCT account_id || '|' || SUBSTRING(date_day, 1, 10)) AS acct_days FROM temp.reuse_candidate AS google_ads__customer_acquisition_analysis WHERE SUBSTRING(date_day, 1, 10) BETWEEN '2024-11-02' AND '2024-12-31'",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.0005375370383263
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

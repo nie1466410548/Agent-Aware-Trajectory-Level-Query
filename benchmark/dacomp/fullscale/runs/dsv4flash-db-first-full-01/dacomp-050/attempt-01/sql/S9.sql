@@ -1,0 +1,1 @@
+SELECT DISTINCT "Sleep duration" FROM sheet1 WHERE "Working professional or student" = 'Student'

@@ -1,0 +1,1 @@
+SELECT "Registration Date", "Posting Date", "Inspection Expiry", Title FROM autohome WHERE "Vehicle Class" = 'Microcar' AND "Posting Date" IS NULL LIMIT 5

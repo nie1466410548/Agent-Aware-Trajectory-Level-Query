@@ -1,0 +1,1 @@
+SELECT DISTINCT engagement_risk_status FROM jira__stakeholder_engagement_insights

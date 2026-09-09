@@ -1,0 +1,1 @@
+SELECT "Renewal Likelihood", COUNT(*) n FROM customer_management_table GROUP BY "Renewal Likelihood"

@@ -1,0 +1,318 @@
+{
+  "fingerprint": "f935b60ab9e719ddfa53d847aae1a843a6b78df48ff1c8592807d589c925d5dc",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S6",
+      "covered": [
+        "S6",
+        "S22",
+        "S23",
+        "S24",
+        "S25",
+        "S28"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S6",
+      "later_reuses": 5,
+      "denominator": 17,
+      "coverage_includes_trigger": true,
+      "intermediate_rows": 29,
+      "checks": [
+        {
+          "sql_id": "S22",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        },
+        {
+          "sql_id": "S23",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        },
+        {
+          "sql_id": "S24",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        },
+        {
+          "sql_id": "S25",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        },
+        {
+          "sql_id": "S28",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup.",
+      "phase": "offline_validation",
+      "validation_started_at": 1788870408.5703325,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "validation_ended_at": 1788870408.5724063,
+      "initial_validation_status": "verified",
+      "verification_source_version": "d4227169a78914a6585241e2bcc71ebb061353208158133235881b149879b00a",
+      "additional_replay_reason": "Same preselected candidate, repeated only to enrich phase-separated offline SQL evidence; no model invocation or candidate reselection."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Invoice Status\" AS __g0, COUNT(*) AS __a0, MIN(\"Invoice Date\") AS __a1, MAX(\"Invoice Date\") AS __a2 FROM \"ch___sales_invoices\"  GROUP BY \"Invoice Status\"",
+      "covered": [
+        "S8",
+        "S10"
+      ],
+      "rewrites": {
+        "S8": "SELECT SUM(__a0) AS cnt, MIN(__a1) AS min_dt, MAX(__a2) AS max_dt FROM temp.reuse_candidate",
+        "S10": "SELECT __g0 AS \"Invoice Status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S8",
+      "later_reuses": 1,
+      "denominator": 17,
+      "coverage_includes_trigger": true,
+      "build_ms": 80.84082510322332,
+      "intermediate_rows": 3,
+      "intermediate_columns": [
+        "__g0",
+        "__a0",
+        "__a1",
+        "__a2"
+      ],
+      "checks": [
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT SUM(__a0) AS cnt, MIN(__a1) AS min_dt, MAX(__a2) AS max_dt FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.7627420127391815
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT __g0 AS \"Invoice Status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5827182903885841
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup.",
+      "phase": "offline_validation",
+      "validation_started_at": 1788870408.5724254,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Invoice Status\" AS __g0, COUNT(*) AS __a0, MIN(\"Invoice Date\") AS __a1, MAX(\"Invoice Date\") AS __a2 FROM \"ch___sales_invoices\"  GROUP BY \"Invoice Status\"",
+          "phase": "offline_validation",
+          "start_time": 1788870408.5726054,
+          "status": "execute_returned",
+          "end_time": 1788870408.6534407
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870408.6534503,
+          "status": "execute_returned",
+          "end_time": 1788870408.653483
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788870408.6534882,
+          "status": "execute_returned",
+          "end_time": 1788870408.6534998
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS cnt, MIN(__a1) AS min_dt, MAX(__a2) AS max_dt FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870408.6535127,
+          "status": "execute_returned",
+          "end_time": 1788870408.653534
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"Invoice Status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788870408.6542792,
+          "status": "execute_returned",
+          "end_time": 1788870408.654322
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Invoice Status\" AS __g0, COUNT(*) AS __a0, MIN(\"Invoice Date\") AS __a1, MAX(\"Invoice Date\") AS __a2 FROM \"ch___sales_invoices\"  GROUP BY \"Invoice Status\"",
+          "time": 1788870408.5727408,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788870408.6534784,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788870408.6534967,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS cnt, MIN(__a1) AS min_dt, MAX(__a2) AS max_dt FROM temp.reuse_candidate",
+          "time": 1788870408.6535294,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Invoice Status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "time": 1788870408.654309,
+          "phase": "offline_validation"
+        }
+      ],
+      "validation_ended_at": 1788870408.6549633,
+      "initial_validation_status": "verified",
+      "verification_source_version": "d4227169a78914a6585241e2bcc71ebb061353208158133235881b149879b00a",
+      "additional_replay_reason": "Same preselected candidate, repeated only to enrich phase-separated offline SQL evidence; no model invocation or candidate reselection."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Invoice Status\" AS __g0, COUNT(*) AS __a0, MIN(\"Invoice Date\") AS __a1, MAX(\"Invoice Date\") AS __a2 FROM \"ch___input_invoices\"  GROUP BY \"Invoice Status\"",
+      "covered": [
+        "S9",
+        "S11"
+      ],
+      "rewrites": {
+        "S9": "SELECT SUM(__a0) AS cnt, MIN(__a1) AS min_dt, MAX(__a2) AS max_dt FROM temp.reuse_candidate",
+        "S11": "SELECT __g0 AS \"Invoice Status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S9",
+      "later_reuses": 1,
+      "denominator": 17,
+      "coverage_includes_trigger": true,
+      "build_ms": 103.47208846360445,
+      "intermediate_rows": 2,
+      "intermediate_columns": [
+        "__g0",
+        "__a0",
+        "__a1",
+        "__a2"
+      ],
+      "checks": [
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT SUM(__a0) AS cnt, MIN(__a1) AS min_dt, MAX(__a2) AS max_dt FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6969226524233818
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT __g0 AS \"Invoice Status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5559111014008522
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup.",
+      "phase": "offline_validation",
+      "validation_started_at": 1788870408.6549847,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Invoice Status\" AS __g0, COUNT(*) AS __a0, MIN(\"Invoice Date\") AS __a1, MAX(\"Invoice Date\") AS __a2 FROM \"ch___input_invoices\"  GROUP BY \"Invoice Status\"",
+          "phase": "offline_validation",
+          "start_time": 1788870408.6552024,
+          "status": "execute_returned",
+          "end_time": 1788870408.7586699
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870408.7586775,
+          "status": "execute_returned",
+          "end_time": 1788870408.7587047
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788870408.7587097,
+          "status": "execute_returned",
+          "end_time": 1788870408.7587214
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS cnt, MIN(__a1) AS min_dt, MAX(__a2) AS max_dt FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870408.758733,
+          "status": "execute_returned",
+          "end_time": 1788870408.7587528
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"Invoice Status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "phase": "offline_validation",
+          "start_time": 1788870408.7594328,
+          "status": "execute_returned",
+          "end_time": 1788870408.759471
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Invoice Status\" AS __g0, COUNT(*) AS __a0, MIN(\"Invoice Date\") AS __a1, MAX(\"Invoice Date\") AS __a2 FROM \"ch___input_invoices\"  GROUP BY \"Invoice Status\"",
+          "time": 1788870408.655348,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788870408.7587008,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788870408.7587185,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS cnt, MIN(__a1) AS min_dt, MAX(__a2) AS max_dt FROM temp.reuse_candidate",
+          "time": 1788870408.7587485,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Invoice Status\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC",
+          "time": 1788870408.7594607,
+          "phase": "offline_validation"
+        }
+      ],
+      "validation_ended_at": 1788870408.7600846,
+      "initial_validation_status": "verified",
+      "verification_source_version": "d4227169a78914a6585241e2bcc71ebb061353208158133235881b149879b00a",
+      "additional_replay_reason": "Same preselected candidate, repeated only to enrich phase-separated offline SQL evidence; no model invocation or candidate reselection."
+    }
+  ],
+  "final_verification_source_version": "d4227169a78914a6585241e2bcc71ebb061353208158133235881b149879b00a"
+}

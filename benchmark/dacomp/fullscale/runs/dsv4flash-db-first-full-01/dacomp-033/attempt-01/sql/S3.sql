@@ -1,0 +1,1 @@
+SELECT * FROM transaction_history_table LIMIT 5

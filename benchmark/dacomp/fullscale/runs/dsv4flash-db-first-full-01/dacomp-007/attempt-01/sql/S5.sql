@@ -1,0 +1,1 @@
+SELECT Department, JobRole, COUNT(*) AS total, SUM(CASE WHEN Attrition='Yes' THEN 1 ELSE 0 END) AS attrition_count, ROUND(100.0*SUM(CASE WHEN Attrition='Yes' THEN 1 ELSE 0 END)/COUNT(*),2) AS attrition_rate FROM sheet1 GROUP BY Department, JobRole ORDER BY Department, attrition_rate DESC;

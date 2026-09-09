@@ -1,0 +1,80 @@
+{
+  "task_id": "dacomp-085",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 构造常规投入产出评分、最小最大归一化和比率，计算错配组均值、轮班及层级条件计数。这些 SQL 可支持的算术和聚合迁出数据库。分位数、t/卡方检验与图形渲染另行保留。",
+  "route": "SQL 提取高价值高竞争岗位指标 → Python 评分、错配判定与分组统计 → 岗位优化优先级。",
+  "evidence": [
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 24,
+          "text": "df['output_index'] = 0.5 * df['health_norm'] + 0.5 * df['dev_norm']"
+        },
+        {
+          "line": 27,
+          "text": "df['sat_norm'] = (df['talent_saturation'] - sat_min) / (sat_max - sat_min)"
+        },
+        {
+          "line": 28,
+          "text": "df['hrs_norm'] = (df['avg_weekly_hours'] - hrs_min) / (hrs_max - hrs_min)"
+        },
+        {
+          "line": 29,
+          "text": "df['input_index'] = 0.5 * df['sat_norm'] + 0.5 * df['hrs_norm']"
+        },
+        {
+          "line": 30,
+          "text": "df['io_ratio'] = df['input_index'] / (df['output_index'] + 0.01)"
+        },
+        {
+          "line": 53,
+          "text": "ct = pd.crosstab(df['is_mismatch'], df['retention_difficulty_level'], normalize='index')"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 38,
+          "text": "print(f\"\\nShift required: {mis['is_work_shift_required'].sum()} out of {len(mis)}\")"
+        },
+        {
+          "line": 39,
+          "text": "print(f\"\\nAvg health: {mis['job_health_score'].mean():.2f}\")"
+        },
+        {
+          "line": 40,
+          "text": "print(f\"Avg dev: {mis['avg_career_development_score'].mean():.2f}\")"
+        },
+        {
+          "line": 41,
+          "text": "print(f\"Avg saturation: {mis['talent_saturation'].mean():.3f}\")"
+        },
+        {
+          "line": 42,
+          "text": "print(f\"Avg quality: {mis['talent_quality_index'].mean():.5f}\")"
+        }
+      ]
+    },
+    {
+      "source": "python/P11.py",
+      "lines": [
+        {
+          "line": 5,
+          "text": "print(f\"Shift-required count: {crit['is_work_shift_required'].sum()}\")"
+        },
+        {
+          "line": 6,
+          "text": "print(f\"Shift ratio: {crit['is_work_shift_required'].mean():.3f}\")"
+        },
+        {
+          "line": 11,
+          "text": "print(f\"Tier1 count: {(crit['job_value_tier']=='Tier 1').sum()}, Tier2: {(crit['job_value_tier']=='Tier 2').sum()}\")"
+        }
+      ]
+    }
+  ]
+}

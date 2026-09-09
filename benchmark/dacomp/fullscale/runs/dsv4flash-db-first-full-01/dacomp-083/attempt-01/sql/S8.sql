@@ -1,0 +1,1 @@
+SELECT rows_per_emp, COUNT(*) as num_emp FROM (SELECT employee_id, COUNT(*) as rows_per_emp FROM workday__employee_overview GROUP BY employee_id) GROUP BY rows_per_emp ORDER BY rows_per_emp

@@ -1,0 +1,1 @@
+SELECT DISTINCT current_lifecycle_stage FROM jira__team_performance_dashboard

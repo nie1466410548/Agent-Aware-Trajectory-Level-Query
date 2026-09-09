@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT embedded_data) AS cnt FROM qualtrics__response WHERE embedded_data IS NOT NULL

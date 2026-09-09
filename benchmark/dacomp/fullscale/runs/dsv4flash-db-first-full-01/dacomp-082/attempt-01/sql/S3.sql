@@ -1,0 +1,1 @@
+SELECT * FROM qualtrics__channel_performance ORDER BY distribution_channel

@@ -1,0 +1,1 @@
+SELECT * FROM customer360__customer_activity_metrics LIMIT 1000

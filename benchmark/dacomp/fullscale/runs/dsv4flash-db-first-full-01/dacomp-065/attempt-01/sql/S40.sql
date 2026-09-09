@@ -1,0 +1,4 @@
+SELECT COUNT(*) AS n_distinct FROM (
+  SELECT DISTINCT application_id, interview_id, interviewer_user_id, scorecard_id, technical_score, problem_solving_score, communication_score, culture_fit_score, leadership_score, overall_recommendation, job_stage, interviewer_gender, interviewer_level, interviewer_experience_years, interviewer_company_tenure, interview_time_of_day, interview_day_of_week, interview_season, candidate_gender, candidate_race, candidate_disability_status, candidate_veteran_status, interview_duration_minutes, interviewer_is_hiring_manager, follow_up_questions_count, interviewer_satisfaction
+  FROM greenhouse__interview_enhanced
+)

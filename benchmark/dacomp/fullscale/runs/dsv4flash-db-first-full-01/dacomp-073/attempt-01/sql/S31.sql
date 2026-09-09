@@ -1,0 +1,1 @@
+SELECT has_posting, COUNT(*) as cnt FROM lever__requisition_enhanced GROUP BY has_posting

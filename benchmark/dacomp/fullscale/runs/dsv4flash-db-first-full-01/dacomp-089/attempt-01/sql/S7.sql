@@ -1,0 +1,1 @@
+SELECT company_size_category, COUNT(*) AS cnt FROM salesforce__customer_360_view GROUP BY company_size_category

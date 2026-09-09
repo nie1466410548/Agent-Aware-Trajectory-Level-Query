@@ -1,0 +1,1 @@
+SELECT DISTINCT "Behavioral Change Assessment" FROM health_education

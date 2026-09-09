@@ -1,0 +1,1 @@
+SELECT organization_size_category, COUNT(*) n FROM workday__organization_overview GROUP BY organization_size_category

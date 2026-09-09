@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS single_discount_items FROM attachment_2 WHERE "SKU Cost Price" > 0

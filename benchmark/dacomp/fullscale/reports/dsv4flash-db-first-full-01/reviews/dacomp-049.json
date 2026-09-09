@@ -1,0 +1,47 @@
+{
+  "task_id": "dacomp-049",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 从归档薪资明细计算均值、最小最大值及阈值占比；这些可在 SQL 中计算。中位数、分位数与图表另行保留，不把所有 Python 统计都判为违规。",
+  "route": "SQL 提取同类岗位与市场薪资 → Python 解析薪资区间并计算均值、分位数和市场定位 → 岗位建议。",
+  "evidence": [
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 13,
+          "text": "peer = pd.DataFrame(load('/results/S18.rows.jsonl'), columns=cols18)"
+        },
+        {
+          "line": 14,
+          "text": "sal = pd.DataFrame(load('/results/S19.rows.jsonl'), columns=[\"Salary Range\"])"
+        },
+        {
+          "line": 38,
+          "text": "print(f\"n with salary={len(mids)}; median={mids.median():.0f}; mean={mids.mean():.0f}; min={mids.min():.0f}; max={mids.max():.0f}; P25={mids.quantile(.25):.0f}; P75={mids.quantile(.75):.0f}\")"
+        },
+        {
+          "line": 43,
+          "text": "print(f\"median={mids_all.median():.0f}; mean={mids_all.mean():.0f}; P75={mids_all.quantile(.75):.0f}; P90={mids_all.quantile(.90):.0f}; P95={mids_all.quantile(.95):.0f}; max={mids_all.max():.0f}\")"
+        },
+        {
+          "line": 44,
+          "text": "print(f\"% jobs with midpoint >=30000: {(mids_all>=30000).mean()*100:.2f}% ; >=40000: {(mids_all>=40000).mean()*100:.2f}%\")"
+        }
+      ]
+    },
+    {
+      "source": "python/P12.py",
+      "lines": [
+        {
+          "line": 37,
+          "text": "pct = (mids < 40000).mean()*100"
+        },
+        {
+          "line": 39,
+          "text": "pct_lo = (mids < 30000).mean()*100"
+        }
+      ]
+    }
+  ]
+}

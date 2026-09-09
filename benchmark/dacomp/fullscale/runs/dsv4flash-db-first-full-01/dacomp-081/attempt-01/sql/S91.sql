@@ -1,0 +1,1 @@
+SELECT DISTINCT substr(survey_name, 1, length(survey_name) - 5) AS base_name FROM qualtrics__survey ORDER BY base_name

@@ -1,0 +1,1 @@
+SELECT COUNT(*) FROM asana__project_analytics WHERE overall_health_score <= 60 AND roi_efficiency_ratio > 0.5

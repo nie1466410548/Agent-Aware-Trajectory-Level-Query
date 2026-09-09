@@ -1,0 +1,1 @@
+SELECT "Credit Grade", COUNT(*) as cnt FROM customer_credit_rating_table GROUP BY "Credit Grade" ORDER BY cnt DESC

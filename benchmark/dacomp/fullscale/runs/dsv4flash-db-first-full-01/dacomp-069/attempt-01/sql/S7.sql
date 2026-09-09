@@ -1,0 +1,1 @@
+SELECT * FROM google_play__finance_report WHERE package_name = 'com.dev.photoeditor' LIMIT 10

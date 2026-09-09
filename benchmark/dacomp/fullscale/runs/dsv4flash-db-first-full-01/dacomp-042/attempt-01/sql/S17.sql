@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT tb."Visit Reference") FROM treatmentbasics tb

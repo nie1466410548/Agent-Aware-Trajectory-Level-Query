@@ -1,0 +1,1 @@
+SELECT DISTINCT stage FROM lever__opportunity_stage_history ORDER BY stage

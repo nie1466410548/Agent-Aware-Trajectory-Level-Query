@@ -1,0 +1,1 @@
+SELECT Title, Price, "New Car Price (incl. tax)", "Vehicle Class" FROM autohome WHERE Title LIKE '%Cadillac LYRIQ%' OR Title LIKE '%Mercedes%' OR Title LIKE '%Model Y%'

@@ -1,0 +1,1 @@
+SELECT * FROM customer_credit_rating_table LIMIT 5

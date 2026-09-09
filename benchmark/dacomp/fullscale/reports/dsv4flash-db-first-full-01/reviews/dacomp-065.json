@@ -1,0 +1,64 @@
+{
+  "task_id": "dacomp-065",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 进行回归、效应量及显著性检验，符合统计补充用途；但公司类别推荐率、候选人与面试官性别交叉均值/计数、录用与 offer 比例等可在 SQL 完成，存在独立的分组聚合迁出。",
+  "route": "SQL 比较公司背景、教育与面试表现 → Python 控制变量回归、检验和录用率分组 → 招聘偏差分析。",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 100,
+          "text": "print(app_data.groupby('company_cat')['ever_pos_rec'].mean())"
+        },
+        {
+          "line": 105,
+          "text": "chi2, p_chi, dof, expected = chi2_contingency(contingency)"
+        }
+      ]
+    },
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 111,
+          "text": "cross_tab = cross_gender.groupby(['candidate_gender', 'interviewer_gender'])['technical_score'].agg(['mean', 'count', 'std'])"
+        },
+        {
+          "line": 200,
+          "text": "race_hiring_rate = bias_app_data.dropna(subset=['candidate_race']).groupby('candidate_race')['stage_hired'].mean()"
+        },
+        {
+          "line": 213,
+          "text": "gender_hire = bias_app_data.dropna(subset=['candidate_gender']).groupby('candidate_gender')['stage_hired'].mean()"
+        },
+        {
+          "line": 217,
+          "text": "race_hire = bias_app_data.dropna(subset=['candidate_race']).groupby('candidate_race')['stage_hired'].mean()"
+        },
+        {
+          "line": 221,
+          "text": "race_offer = bias_app_data.dropna(subset=['candidate_race']).groupby('candidate_race')['stage_offer'].mean()"
+        }
+      ]
+    },
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 83,
+          "text": "    faang_mean = data[data['company_cat']=='FAANG'][dim].mean()"
+        },
+        {
+          "line": 84,
+          "text": "    trad_mean = data[data['company_cat']=='Traditional'][dim].mean()"
+        },
+        {
+          "line": 91,
+          "text": "    premium = data[data['company_cat']=='FAANG'][dim].mean() - data[data['company_cat']=='Traditional'][dim].mean()"
+        }
+      ]
+    }
+  ]
+}

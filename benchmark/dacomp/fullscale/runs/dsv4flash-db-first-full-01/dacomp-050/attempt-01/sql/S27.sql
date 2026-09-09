@@ -1,0 +1,1 @@
+SELECT ROUND(MIN(Age),1) AS min_age, ROUND(MAX(Age),1) AS max_age, ROUND(AVG(Age),1) AS avg_age FROM sheet1 WHERE "Working professional or student" = 'Student'

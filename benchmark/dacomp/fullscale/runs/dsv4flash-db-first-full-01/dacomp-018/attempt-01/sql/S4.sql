@@ -1,0 +1,1 @@
+SELECT "Product Category", COUNT(*) AS orders, COUNT(DISTINCT "Customer ID") AS customers, SUM(Sales) AS total_sales, SUM(profit) AS total_profit, AVG(profit) AS avg_profit_per_order FROM order_information GROUP BY "Product Category" ORDER BY total_profit DESC

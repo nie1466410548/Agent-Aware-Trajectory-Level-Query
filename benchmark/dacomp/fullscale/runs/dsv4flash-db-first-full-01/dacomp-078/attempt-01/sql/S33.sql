@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT feature_id) AS feat_ids FROM pendo__feature

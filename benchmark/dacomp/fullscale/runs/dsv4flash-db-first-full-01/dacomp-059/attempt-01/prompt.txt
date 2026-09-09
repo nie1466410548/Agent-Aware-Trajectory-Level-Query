@@ -1,0 +1,56 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+In a recent analysis of ad performance, an anomaly was discovered where some ad groups exhibit a high click-through rate (CTR) but a low conversion rate. This suggests a potential mismatch between user search intent and ad content. Using the criteria of a CTR greater than the 75th percentile and a conversion rate less than the 25th percentile to identify problem ad groups, please conduct an in-depth analysis of the characteristic patterns of these high-CTR, low-conversion ad groups. Your analysis should incorporate multiple dimensions, including basic ad group data, keyword match types, audience targeting attributes, device distribution, time-of-day performance, geographical distribution, landing page quality scores, and bidding strategy. You are required to calculate an Intent Match Index (actual conversion rate / expected conversion rate for the same industry and keyword) and a Traffic Quality Score. Based on your findings, identify the root causes and propose a systematic solution that includes keyword optimization, audience segmentation, landing page improvements, bid adjustments, and time-of-day optimizations.
+
+DATABASE SCHEMA:
+CREATE TABLE "google_ads__ad_group_report" (
+"source_relation" TEXT,
+  "date_day" TEXT,
+  "account_name" TEXT,
+  "account_id" TEXT,
+  "currency_code" TEXT,
+  "campaign_name" TEXT,
+  "campaign_id" TEXT,
+  "ad_group_name" TEXT,
+  "ad_group_id" TEXT,
+  "ad_group_type" TEXT,
+  "status" TEXT,
+  "spend" REAL,
+  "clicks" REAL,
+  "impressions" REAL,
+  "conversions" REAL,
+  "conversions_value" REAL,
+  "view_through_conversions" REAL
+)
+CREATE TABLE "google_ads__keyword_report" (
+"source_relation" TEXT,
+  "date_day" TEXT,
+  "account_name" TEXT,
+  "account_id" TEXT,
+  "currency_code" TEXT,
+  "campaign_name" TEXT,
+  "campaign_id" TEXT,
+  "ad_group_name" TEXT,
+  "ad_group_id" TEXT,
+  "criterion_id" TEXT,
+  "type" TEXT,
+  "status" TEXT,
+  "keyword_match_type" TEXT,
+  "keyword_text" TEXT,
+  "spend" REAL,
+  "clicks" REAL,
+  "impressions" REAL,
+  "conversions" REAL,
+  "conversions_value" REAL,
+  "view_through_conversions" REAL
+)

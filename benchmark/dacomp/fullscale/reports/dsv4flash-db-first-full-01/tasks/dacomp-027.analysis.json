@@ -1,0 +1,354 @@
+{
+  "fingerprint": "5eb8bc144478c1c776e6e349658f04454ec4c1f8ba15d06918cf0292dd49ed79",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Disaster Type\" AS __g0, \"Disaster Level\" AS __g1, COUNT(*) AS __a0, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.affected')) AS __a1_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.affected')) AS __a1_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.displaced')) AS __a2_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.displaced')) AS __a2_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.casualties')) AS __a3_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.casualties')) AS __a3_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.injured')) AS __a4_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.injured')) AS __a4_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.damage_percent')) AS __a5_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.damage_percent')) AS __a5_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.power_outage_percent')) AS __a6_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.power_outage_percent')) AS __a6_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.water_damage_percent')) AS __a7_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.water_damage_percent')) AS __a7_n FROM \"disaster_events\"  GROUP BY \"Disaster Type\", \"Disaster Level\"",
+      "covered": [
+        "S11",
+        "S12",
+        "S37"
+      ],
+      "rewrites": {
+        "S11": "SELECT __g0 AS \"Disaster Type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+        "S12": "SELECT __g1 AS \"Disaster Level\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 0) AS avg_affected, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 0) AS avg_displaced, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_casualties, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_injured, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 1) AS avg_damage FROM temp.reuse_candidate GROUP BY __g1",
+        "S37": "SELECT __g1 AS \"Disaster Level\", ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_damage_pct, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_power_outage, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_water_damage FROM temp.reuse_candidate GROUP BY __g1"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S11",
+      "later_reuses": 2,
+      "denominator": 36,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788864245.8889976,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Disaster Type\" AS __g0, \"Disaster Level\" AS __g1, COUNT(*) AS __a0, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.affected')) AS __a1_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.affected')) AS __a1_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.displaced')) AS __a2_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.displaced')) AS __a2_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.casualties')) AS __a3_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.casualties')) AS __a3_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.injured')) AS __a4_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.injured')) AS __a4_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.damage_percent')) AS __a5_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.damage_percent')) AS __a5_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.power_outage_percent')) AS __a6_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.power_outage_percent')) AS __a6_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.water_damage_percent')) AS __a7_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.water_damage_percent')) AS __a7_n FROM \"disaster_events\"  GROUP BY \"Disaster Type\", \"Disaster Level\"",
+          "phase": "offline_validation",
+          "start_time": 1788864245.889179,
+          "status": "execute_returned",
+          "end_time": 1788864245.8943388
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788864245.8943431,
+          "status": "execute_returned",
+          "end_time": 1788864245.8943603
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788864245.8943646,
+          "status": "execute_returned",
+          "end_time": 1788864245.894377
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"Disaster Type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788864245.8944018,
+          "status": "execute_returned",
+          "end_time": 1788864245.8944337
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g1 AS \"Disaster Level\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 0) AS avg_affected, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 0) AS avg_displaced, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_casualties, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_injured, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 1) AS avg_damage FROM temp.reuse_candidate GROUP BY __g1",
+          "phase": "offline_validation",
+          "start_time": 1788864245.8949518,
+          "status": "execute_returned",
+          "end_time": 1788864245.8950486
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS \"Disaster Level\", ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_damage_pct, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_power_outage, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_water_damage FROM temp.reuse_candidate GROUP BY __g1",
+          "phase": "offline_validation",
+          "start_time": 1788864245.8970442,
+          "status": "execute_returned",
+          "end_time": 1788864245.8971207
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Disaster Type\" AS __g0, \"Disaster Level\" AS __g1, COUNT(*) AS __a0, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.affected')) AS __a1_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.affected')) AS __a1_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.displaced')) AS __a2_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.displaced')) AS __a2_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.casualties')) AS __a3_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.casualties')) AS __a3_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.population.injured')) AS __a4_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.population.injured')) AS __a4_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.damage_percent')) AS __a5_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.damage_percent')) AS __a5_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.power_outage_percent')) AS __a6_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.power_outage_percent')) AS __a6_n, SUM(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.water_damage_percent')) AS __a7_sum, COUNT(JSON_EXTRACT(\"Impact Indicator\", '$.infrastructure.water_damage_percent')) AS __a7_n FROM \"disaster_events\"  GROUP BY \"Disaster Type\", \"Disaster Level\"",
+          "time": 1788864245.8894308,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788864245.8943574,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788864245.8943744,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Disaster Type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "time": 1788864245.894419,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"Disaster Level\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 0) AS avg_affected, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 0) AS avg_displaced, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_casualties, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_injured, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 1) AS avg_damage FROM temp.reuse_candidate GROUP BY __g1",
+          "time": 1788864245.895019,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"Disaster Level\", ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_damage_pct, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_power_outage, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_water_damage FROM temp.reuse_candidate GROUP BY __g1",
+          "time": 1788864245.897098,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 5.16362302005291,
+      "intermediate_rows": 25,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__a0",
+        "__a1_sum",
+        "__a1_n",
+        "__a2_sum",
+        "__a2_n",
+        "__a3_sum",
+        "__a3_n",
+        "__a4_sum",
+        "__a4_n",
+        "__a5_sum",
+        "__a5_n",
+        "__a6_sum",
+        "__a6_n",
+        "__a7_sum",
+        "__a7_n"
+      ],
+      "validation_ended_at": 1788864245.8984942,
+      "checks": [
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT __g0 AS \"Disaster Type\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5407994613051414
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT __g1 AS \"Disaster Level\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 0) AS avg_affected, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 0) AS avg_displaced, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_casualties, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_injured, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 1) AS avg_damage FROM temp.reuse_candidate GROUP BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.090304158627987
+        },
+        {
+          "sql_id": "S37",
+          "rewritten_sql": "SELECT __g1 AS \"Disaster Level\", ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_damage_pct, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_power_outage, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_water_damage FROM temp.reuse_candidate GROUP BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.3785315677523613
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Environmental Impact Rate\" AS __g0, \"Disease Risk\" AS __g1, \"Mental Health Assistance\" AS __g2, \"Medical Emergency Response Capacity\" AS __g3, \"Waste Management Status\" AS __g4, COUNT(*) AS __a0 FROM \"environment_and_health\"  GROUP BY \"Environmental Impact Rate\", \"Disease Risk\", \"Mental Health Assistance\", \"Medical Emergency Response Capacity\", \"Waste Management Status\"",
+      "covered": [
+        "S13",
+        "S14",
+        "S15",
+        "S16",
+        "S17"
+      ],
+      "rewrites": {
+        "S13": "SELECT __g0 AS \"Environmental Impact Rate\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+        "S14": "SELECT __g1 AS \"Disease Risk\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1",
+        "S15": "SELECT __g2 AS \"Mental Health Assistance\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2",
+        "S16": "SELECT __g3 AS \"Medical Emergency Response Capacity\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3",
+        "S17": "SELECT __g4 AS \"Waste Management Status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S13",
+      "later_reuses": 4,
+      "denominator": 36,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788864245.8842,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Environmental Impact Rate\" AS __g0, \"Disease Risk\" AS __g1, \"Mental Health Assistance\" AS __g2, \"Medical Emergency Response Capacity\" AS __g3, \"Waste Management Status\" AS __g4, COUNT(*) AS __a0 FROM \"environment_and_health\"  GROUP BY \"Environmental Impact Rate\", \"Disease Risk\", \"Mental Health Assistance\", \"Medical Emergency Response Capacity\", \"Waste Management Status\"",
+          "phase": "offline_validation",
+          "start_time": 1788864245.8844645,
+          "status": "execute_returned",
+          "end_time": 1788864245.8859637
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788864245.8859684,
+          "status": "execute_returned",
+          "end_time": 1788864245.8859847
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788864245.8859906,
+          "status": "execute_returned",
+          "end_time": 1788864245.886003
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"Environmental Impact Rate\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788864245.8860168,
+          "status": "execute_returned",
+          "end_time": 1788864245.8860629
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g1 AS \"Disease Risk\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1",
+          "phase": "offline_validation",
+          "start_time": 1788864245.886633,
+          "status": "execute_returned",
+          "end_time": 1788864245.8866982
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g2 AS \"Mental Health Assistance\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2",
+          "phase": "offline_validation",
+          "start_time": 1788864245.8872204,
+          "status": "execute_returned",
+          "end_time": 1788864245.8872864
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g3 AS \"Medical Emergency Response Capacity\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3",
+          "phase": "offline_validation",
+          "start_time": 1788864245.88778,
+          "status": "execute_returned",
+          "end_time": 1788864245.887845
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g4 AS \"Waste Management Status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4",
+          "phase": "offline_validation",
+          "start_time": 1788864245.888354,
+          "status": "execute_returned",
+          "end_time": 1788864245.88842
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Environmental Impact Rate\" AS __g0, \"Disease Risk\" AS __g1, \"Mental Health Assistance\" AS __g2, \"Medical Emergency Response Capacity\" AS __g3, \"Waste Management Status\" AS __g4, COUNT(*) AS __a0 FROM \"environment_and_health\"  GROUP BY \"Environmental Impact Rate\", \"Disease Risk\", \"Mental Health Assistance\", \"Medical Emergency Response Capacity\", \"Waste Management Status\"",
+          "time": 1788864245.8847828,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788864245.885982,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788864245.8860002,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"Environmental Impact Rate\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788864245.8860307,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"Disease Risk\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1",
+          "time": 1788864245.8866591,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"Mental Health Assistance\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2",
+          "time": 1788864245.8872445,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS \"Medical Emergency Response Capacity\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3",
+          "time": 1788864245.8878028,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS \"Waste Management Status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4",
+          "time": 1788864245.8883781,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 1.5034526586532593,
+      "intermediate_rows": 159,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__a0"
+      ],
+      "validation_ended_at": 1788864245.8889832,
+      "checks": [
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT __g0 AS \"Environmental Impact Rate\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6129927933216095
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT __g1 AS \"Disease Risk\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.585523433983326
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "SELECT __g2 AS \"Mental Health Assistance\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5569225177168846
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "SELECT __g3 AS \"Medical Emergency Response Capacity\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5702124908566475
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "SELECT __g4 AS \"Waste Management Status\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.562434084713459
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

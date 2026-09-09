@@ -1,0 +1,1 @@
+SELECT MIN("Date"), MAX("Date") FROM sheet1

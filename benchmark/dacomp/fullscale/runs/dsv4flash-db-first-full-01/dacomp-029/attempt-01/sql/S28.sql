@@ -1,0 +1,1 @@
+SELECT "Posting Date", typeof("Posting Date"), length("Posting Date") FROM autohome WHERE "Vehicle Class" = 'Microcar (with space)' LIMIT 5

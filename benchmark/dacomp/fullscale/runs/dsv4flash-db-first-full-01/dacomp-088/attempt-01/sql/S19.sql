@@ -1,0 +1,1 @@
+SELECT * FROM salesforce__sales_performance_dashboard LIMIT 5

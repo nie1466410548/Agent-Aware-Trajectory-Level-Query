@@ -1,0 +1,132 @@
+{
+  "task_id": "dacomp-028",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "route": "检查市场与商品价格数据 → Python 按月份/类别/市场汇总 → 构造连续月份滞后和环比 → 分析价格波动与上架量、交易量的关系并绘图。",
+  "conclusion": "Python performs month/category/market grouping, previous-period shifts, month-over-month arithmetic and quantity rollups across many calls. These can reasonably use SQLite GROUP BY and LAG/window expressions. Correlation/dispersion estimation and figure rendering are separate statistical/visual steps. No window SQL was observed; the Python shifts are not counted as SQL windows.",
+  "evidence": [
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 16,
+          "text": "monthly = df.groupby(['month', 'Product Category', 'Market Name', 'Price Type']).agg("
+        },
+        {
+          "line": 27,
+          "text": "monthly['prev_avg_price'] = monthly.groupby(['Product Category', 'Market Name', 'Price Type'])['avg_price'].shift(1)"
+        },
+        {
+          "line": 28,
+          "text": "monthly['mom_growth_pct'] = ((monthly['avg_price'] - monthly['prev_avg_price']) / monthly['prev_avg_price']) * 100"
+        },
+        {
+          "line": 31,
+          "text": "overall = df.groupby(['month', 'Product Category', 'Price Type']).agg("
+        },
+        {
+          "line": 41,
+          "text": "overall['prev_avg_price'] = overall.groupby(['Product Category', 'Price Type'])['avg_price'].shift(1)"
+        },
+        {
+          "line": 42,
+          "text": "overall['mom_growth_pct'] = ((overall['avg_price'] - overall['prev_avg_price']) / overall['prev_avg_price']) * 100"
+        },
+        {
+          "line": 45,
+          "text": "cols = ['month', 'Product Category', 'Price Type', 'avg_price', 'mom_growth_pct', 'count', 'avg_on_shelf', 'avg_trading_vol']"
+        },
+        {
+          "line": 49,
+          "text": "overall.to_csv('/work/overall_mom.csv', index=False)"
+        },
+        {
+          "line": 50,
+          "text": "monthly.to_csv('/work/monthly_mom.csv', index=False)"
+        },
+        {
+          "line": 62,
+          "text": "for (cat, pt), sub in df.groupby(['Product Category', 'Price Type']):"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 17,
+          "text": "g = df.groupby(key + ['month']).agg("
+        },
+        {
+          "line": 25,
+          "text": "g['prev_price'] = g.groupby(key)['avg_price'].shift(1)"
+        },
+        {
+          "line": 26,
+          "text": "g['prev_month'] = g.groupby(key)['month'].shift(1)"
+        },
+        {
+          "line": 27,
+          "text": "g['prev_on_shelf'] = g.groupby(key)['on_shelf'].shift(1)"
+        },
+        {
+          "line": 28,
+          "text": "g['prev_vol'] = g.groupby(key)['vol'].shift(1)"
+        },
+        {
+          "line": 53,
+          "text": "monthly_vol = df.groupby(['month','Product Category','Price Type','Market Name']).agg("
+        },
+        {
+          "line": 117,
+          "text": "vol = df.groupby(key).agg("
+        }
+      ]
+    },
+    {
+      "source": "python/P10.py",
+      "lines": [
+        {
+          "line": 16,
+          "text": "monthly = df.groupby(['month','Product Category','Market Name','Price Type']).agg("
+        },
+        {
+          "line": 21,
+          "text": "monthly['prev_price'] = monthly.groupby(['Product Category','Market Name','Price Type'])['avg_price'].shift(1)"
+        },
+        {
+          "line": 34,
+          "text": "overall = df.groupby(['month','Product Category','Price Type']).agg("
+        },
+        {
+          "line": 38,
+          "text": "overall['prev_price'] = overall.groupby(['Product Category','Price Type'])['avg_price'].shift(1)"
+        },
+        {
+          "line": 48,
+          "text": "g = df.groupby(key + ['month']).agg("
+        },
+        {
+          "line": 55,
+          "text": "g['prev_price'] = g.groupby(key)['avg_price'].shift(1)"
+        },
+        {
+          "line": 56,
+          "text": "g['prev_month'] = g.groupby(key)['month'].shift(1)"
+        },
+        {
+          "line": 57,
+          "text": "g['prev_on_shelf'] = g.groupby(key)['on_shelf'].shift(1)"
+        },
+        {
+          "line": 58,
+          "text": "g['prev_vol'] = g.groupby(key)['vol'].shift(1)"
+        },
+        {
+          "line": 75,
+          "text": "veg_m = df[df['Product Category']=='Vegetable'].groupby(['month','Price Type','Market Name']).agg("
+        }
+      ]
+    }
+  ]
+}

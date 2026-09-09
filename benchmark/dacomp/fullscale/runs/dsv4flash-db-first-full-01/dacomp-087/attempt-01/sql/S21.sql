@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT owner_id) AS n_owners, COUNT(DISTINCT account_id) AS n_accts FROM salesforce__customer_360_view

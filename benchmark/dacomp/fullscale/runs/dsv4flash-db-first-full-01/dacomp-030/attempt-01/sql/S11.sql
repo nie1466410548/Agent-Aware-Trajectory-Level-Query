@@ -1,0 +1,1 @@
+SELECT "Warning Record", COUNT(*) AS n FROM customer_management_table GROUP BY "Warning Record" ORDER BY n DESC LIMIT 20

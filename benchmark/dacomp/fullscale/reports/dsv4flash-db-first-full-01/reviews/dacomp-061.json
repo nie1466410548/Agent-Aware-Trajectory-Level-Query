@@ -1,0 +1,34 @@
+{
+  "task_id": "dacomp-061",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Most large-table preparation is in SQL. Python performs statistical comparisons and rendering, which are allowed, but also merges SQL-derived project/issue/team aggregates using pandas. Those joins are supported in SQLite and no engine limitation is shown; these portions violate database_first_v1. Preserve this primary attempt.",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 17,
+          "text": "merged = issue_agg.merge(proj_agg, on='project_name', how='inner')"
+        },
+        {
+          "line": 18,
+          "text": "merged_all = merged.merge(team_agg, on='project_name', how='left')"
+        }
+      ]
+    },
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 103,
+          "text": "combined = proj_data.merge(proj_enhanced, on='project_name')"
+        },
+        {
+          "line": 118,
+          "text": "combined2 = combined.merge(team_data, on='project_name', how='left')"
+        }
+      ]
+    }
+  ]
+}

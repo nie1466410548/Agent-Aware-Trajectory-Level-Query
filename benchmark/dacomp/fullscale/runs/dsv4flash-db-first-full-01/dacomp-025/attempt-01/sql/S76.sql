@@ -1,0 +1,1 @@
+SELECT "Item Code", "Item Name" FROM product_information WHERE "Item Code" IN (102900005118824, 102900011032732)

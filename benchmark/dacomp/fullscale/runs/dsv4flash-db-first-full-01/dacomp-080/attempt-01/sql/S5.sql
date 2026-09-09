@@ -1,0 +1,1 @@
+SELECT * FROM qualtrics__user_cohort_analysis ORDER BY cohort_month LIMIT 20

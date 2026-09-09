@@ -1,0 +1,1 @@
+SELECT "Vaccination History (Doses/Date/Type)" AS vacc, COUNT(*) AS n FROM epidemiological_investigation GROUP BY vacc ORDER BY n DESC;

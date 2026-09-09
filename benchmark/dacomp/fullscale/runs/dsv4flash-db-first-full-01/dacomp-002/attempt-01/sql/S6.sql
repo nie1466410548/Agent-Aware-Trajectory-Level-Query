@@ -1,0 +1,1 @@
+SELECT "Sales Month", COUNT(*) AS n_rows, ROUND(SUM("Sales Amount"),2) AS total_amount, ROUND(SUM("Sales Quantity"),0) AS total_qty FROM sheet1 GROUP BY "Sales Month" ORDER BY "Sales Month"

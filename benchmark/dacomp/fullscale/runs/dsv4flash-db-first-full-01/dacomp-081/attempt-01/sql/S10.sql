@@ -1,0 +1,1 @@
+SELECT DISTINCT external_data_reference FROM qualtrics__contact WHERE external_data_reference IS NOT NULL AND external_data_reference != '' LIMIT 30

@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_fashion_customers, COUNT(DISTINCT "Customer ID") AS distinct_fashion_customers FROM order_information WHERE "Product Category" = 'Fashion'

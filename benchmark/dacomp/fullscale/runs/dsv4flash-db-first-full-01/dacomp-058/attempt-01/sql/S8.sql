@@ -1,0 +1,1 @@
+SELECT industry, COUNT(*) AS n FROM google_ads__campaign_report GROUP BY industry ORDER BY n DESC

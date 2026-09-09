@@ -1,0 +1,1 @@
+SELECT survey_response_id, survey_id, question_id, sub_question_key, value, response_text, user_language, location_latitude, location_longitude FROM qualtrics__response WHERE survey_id = 'SUR10000587639' LIMIT 50

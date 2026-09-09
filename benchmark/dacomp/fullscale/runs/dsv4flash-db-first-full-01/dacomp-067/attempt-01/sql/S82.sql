@@ -1,0 +1,1 @@
+SELECT AVG(rating) as avg_all FROM greenhouse__interview_scorecard_detail WHERE rating IS NOT NULL

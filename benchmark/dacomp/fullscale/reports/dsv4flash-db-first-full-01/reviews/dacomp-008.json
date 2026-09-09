@@ -1,0 +1,107 @@
+{
+  "task_id": "dacomp-008",
+  "status": "reviewed_with_statistical_exceptions_and_SQL_capable_summaries",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python groups raw inputs for statistical tests and renders figures; those statistical procedures justify Python inputs. P3–P5 also calculate count/mean/median summaries outside SQL. Count/mean portions are SQL-capable and are disclosed separately; median and tests are statistical exceptions. This trajectory is not labeled strictly SQL-only or fully strict database-first.",
+  "evidence": [
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 9,
+          "text": "groups = [g['deviation'].values for _, g in df.groupby('Project Type')]"
+        },
+        {
+          "line": 10,
+          "text": "h, p = stats.kruskal(*groups)"
+        },
+        {
+          "line": 16,
+          "text": "groups_comp = [g['deviation'].values for _, g in df_comp.groupby('Project Type')]"
+        },
+        {
+          "line": 17,
+          "text": "h2, p2 = stats.kruskal(*groups_comp)"
+        },
+        {
+          "line": 22,
+          "text": "groups_risk = [g['deviation'].values for _, g in df.groupby('risk')]"
+        },
+        {
+          "line": 23,
+          "text": "h3, p3 = stats.kruskal(*groups_risk)"
+        },
+        {
+          "line": 28,
+          "text": "groups_risk_comp = [g['deviation'].values for _, g in df_comp.groupby('risk')]"
+        },
+        {
+          "line": 29,
+          "text": "h4, p4 = stats.kruskal(*groups_risk_comp)"
+        },
+        {
+          "line": 34,
+          "text": "groups_pri = [g['deviation'].values for _, g in df.groupby('Priority')]"
+        },
+        {
+          "line": 35,
+          "text": "h5, p5 = stats.kruskal(*groups_pri)"
+        },
+        {
+          "line": 40,
+          "text": "groups_st = [g['deviation'].values for _, g in df.groupby('status')]"
+        },
+        {
+          "line": 41,
+          "text": "h6, p6 = stats.kruskal(*groups_st)"
+        },
+        {
+          "line": 73,
+          "text": "summary = df.groupby(['Project Type', 'risk']).agg("
+        },
+        {
+          "line": 83,
+          "text": "summary2 = df.groupby(['Project Type', 'status']).agg("
+        }
+      ]
+    },
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 85,
+          "text": "for pt, g in dfc.groupby('Project Type'):"
+        },
+        {
+          "line": 92,
+          "text": "print(dfc.groupby('team_bucket', observed=True)['deviation'].agg(['count','mean','median']).round(2).to_string())"
+        }
+      ]
+    },
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 15,
+          "text": "r, p = stats.spearmanr(df_ip['deviation'], df_ip['remaining'])"
+        },
+        {
+          "line": 20,
+          "text": "r2, p2 = stats.spearmanr(df_ip['deviation'], df_ip['expected_remaining_cost'])"
+        },
+        {
+          "line": 27,
+          "text": "print(f\"  by type: \\n{df_del.groupby('Project Type')['deviation'].agg(['count','mean','median']).round(2).to_string()}\")"
+        },
+        {
+          "line": 69,
+          "text": "print(df.groupby('Project Type')['deviation'].agg("
+        },
+        {
+          "line": 72,
+          "text": "print(dfc.groupby('Project Type')['deviation'].agg("
+        }
+      ]
+    }
+  ]
+}

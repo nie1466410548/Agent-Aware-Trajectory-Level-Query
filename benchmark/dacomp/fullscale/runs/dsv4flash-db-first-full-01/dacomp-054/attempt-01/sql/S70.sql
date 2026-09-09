@@ -1,0 +1,1 @@
+SELECT * FROM customer360__customer_value_analysis LIMIT 2000

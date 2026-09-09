@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS complaints_in_sfu FROM complaints_table c WHERE EXISTS (SELECT 1 FROM sales_follow_up_table s WHERE s."Work Order ID" = c."Work Order ID")

@@ -1,0 +1,1 @@
+SELECT is_finished_with_survey, COUNT(DISTINCT survey_response_id) AS n FROM qualtrics__response GROUP BY is_finished_with_survey

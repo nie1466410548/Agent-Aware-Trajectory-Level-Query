@@ -1,0 +1,1 @@
+SELECT question_id, COUNT(*) AS n, MIN(value) AS min_v, MAX(value) AS max_v, AVG(value) AS avg_v, COUNT(DISTINCT survey_id) AS n_surveys FROM qualtrics__response GROUP BY question_id ORDER BY n DESC LIMIT 20

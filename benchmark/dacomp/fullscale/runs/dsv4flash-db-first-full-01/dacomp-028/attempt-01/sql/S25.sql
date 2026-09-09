@@ -1,0 +1,1 @@
+SELECT "Notes", COUNT(*) AS n, ROUND(AVG("Average Price"),2) AS avg_price, ROUND(AVG("On-shelf Quantity (tons)"),2) AS avg_shelf, ROUND(AVG("Trading Volume (tons)"),2) AS avg_vol FROM agricultural_product_price_tren GROUP BY "Notes" ORDER BY n DESC

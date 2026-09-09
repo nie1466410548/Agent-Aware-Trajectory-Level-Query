@@ -1,0 +1,1 @@
+SELECT DISTINCT question_text FROM qualtrics__response ORDER BY question_text LIMIT 100

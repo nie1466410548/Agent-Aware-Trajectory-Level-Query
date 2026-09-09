@@ -1,0 +1,47 @@
+{
+  "task_id": "dacomp-031",
+  "status": "partial_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "SQL handles tenure bands, many attrition aggregates and windows. Python correlation and rendering are reasonable uses, but P1 groups leaver/stayer summaries and P2 rolls up attrition rates by unweighted pandas means. These are SQL-capable preparations, explicitly retained as actual Python operations rather than counted as SQL. This execution-location review is not an official answer-correctness judgment.",
+  "route": "按工龄区间汇总在职/离职 → 比较长期留存员工的收入、加班、股权和晋升特征 → Python 相关分析 → 绘图及额外离职分组摘要。",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 19,
+          "text": "corr = df.corr(numeric_only=True)['YearsAtCompany'].sort_values(ascending=False)"
+        },
+        {
+          "line": 33,
+          "text": "df2['long_term'] = np.where(df2['YearsAtCompany'] >= 10, '10+ years', '<10 years')"
+        },
+        {
+          "line": 36,
+          "text": "print(df2.groupby('Attrition').agg(cnt=('YearsAtCompany','size'),"
+        },
+        {
+          "line": 42,
+          "text": "lt = df2[df2['long_term']=='10+ years']"
+        },
+        {
+          "line": 43,
+          "text": "print(lt.groupby('Attrition').agg(cnt=('YearsAtCompany','size'),"
+        }
+      ]
+    },
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 161,
+          "text": "ot_data = df_driver.groupby('OverTime')['attrition_rate'].mean().reset_index()"
+        },
+        {
+          "line": 172,
+          "text": "so_data = df_driver.groupby('StockOptionLevel')['attrition_rate'].mean().reset_index()"
+        }
+      ]
+    }
+  ]
+}

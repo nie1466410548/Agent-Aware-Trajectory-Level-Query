@@ -1,0 +1,470 @@
+{
+  "fingerprint": "3782a7784e3d97e2acb249f89beddf9f646d53ae1afc9b8aa8c38bfdea6e1469",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S35",
+      "covered": [
+        "S35",
+        "S36"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S35",
+      "later_reuses": 1,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866185.868114,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 7936,
+      "validation_ended_at": 1788866186.0945635,
+      "checks": [
+        {
+          "sql_id": "S36",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Education Requirement\" AS __g0, COUNT(*) AS __a0 FROM \"sheet1\"  GROUP BY \"Education Requirement\"",
+      "covered": [
+        "S5",
+        "S6"
+      ],
+      "rewrites": {
+        "S5": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+        "S6": "SELECT __g0 AS \"Education Requirement\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S5",
+      "later_reuses": 1,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"sheet1\" WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> ''",
+      "covered": [
+        "S8",
+        "S17",
+        "S18",
+        "S35",
+        "S36",
+        "S37"
+      ],
+      "rewrites": {
+        "S8": "SELECT \"Salary Range\", COUNT(*) AS cnt FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> '' GROUP BY \"Salary Range\" ORDER BY cnt DESC LIMIT 30",
+        "S17": "SELECT COUNT(DISTINCT \"Salary Range\") AS distinct_salary_formats FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> ''",
+        "S18": "SELECT \"Salary Range\", CAST(REPLACE(SUBSTRING(\"Salary Range\", 1, INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_min_raw, CAST(REPLACE(SUBSTRING(\"Salary Range\", INSTR(\"Salary Range\", '-') + 1, INSTR(\"Salary Range\", ' ') - INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_max_raw FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> '' LIMIT 20",
+        "S35": "SELECT \"Job Title\", \"Work Experience Requirement\", \"Foreign Language Requirement\", \"Gender Requirement\", \"Company Type\", \"Industry\", \"Work Location\", \"Working Hours\", \"Benefits\", \"Salary Range\", CAST(REPLACE(SUBSTRING(\"Salary Range\", 1, INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_min, CAST(REPLACE(SUBSTRING(\"Salary Range\", INSTR(\"Salary Range\", '-') + 1, INSTR(\"Salary Range\", ' ') - INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_max FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> ''",
+        "S36": "SELECT \"Job Title\", \"Work Experience Requirement\", \"Foreign Language Requirement\", \"Gender Requirement\", \"Company Type\", \"Industry\", \"Work Location\", \"Working Hours\", \"Benefits\", \"Salary Range\", CAST(REPLACE(SUBSTRING(\"Salary Range\", 1, INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_min, CAST(REPLACE(SUBSTRING(\"Salary Range\", INSTR(\"Salary Range\", '-') + 1, INSTR(\"Salary Range\", ' ') - INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_max FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> ''",
+        "S37": "SELECT \"Job Title\", \"Work Experience Requirement\", \"Foreign Language Requirement\", \"Gender Requirement\", \"Company Type\", \"Industry\", \"Work Location\", \"Working Hours\", \"Benefits\", \"Salary Range\", CAST(REPLACE(SUBSTRING(\"Salary Range\", 1, INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_min, CAST(REPLACE(SUBSTRING(\"Salary Range\", INSTR(\"Salary Range\", '-') + 1, INSTR(\"Salary Range\", ' ') - INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_max FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> '' LIMIT 3"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S8",
+      "later_reuses": 5,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866185.0793107,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"sheet1\" WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> ''",
+          "phase": "offline_validation",
+          "start_time": 1788866185.0795949,
+          "status": "execute_returned",
+          "end_time": 1788866185.177261
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866185.1772714,
+          "status": "execute_returned",
+          "end_time": 1788866185.1816604
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788866185.1816723,
+          "status": "execute_returned",
+          "end_time": 1788866185.1817114
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT \"Salary Range\", COUNT(*) AS cnt FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> '' GROUP BY \"Salary Range\" ORDER BY cnt DESC LIMIT 30",
+          "phase": "offline_validation",
+          "start_time": 1788866185.1817474,
+          "status": "execute_returned",
+          "end_time": 1788866185.1909955
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT COUNT(DISTINCT \"Salary Range\") AS distinct_salary_formats FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> ''",
+          "phase": "offline_validation",
+          "start_time": 1788866185.19212,
+          "status": "execute_returned",
+          "end_time": 1788866185.2001357
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT \"Salary Range\", CAST(REPLACE(SUBSTRING(\"Salary Range\", 1, INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_min_raw, CAST(REPLACE(SUBSTRING(\"Salary Range\", INSTR(\"Salary Range\", '-') + 1, INSTR(\"Salary Range\", ' ') - INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_max_raw FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> '' LIMIT 20",
+          "phase": "offline_validation",
+          "start_time": 1788866185.200927,
+          "status": "execute_returned",
+          "end_time": 1788866185.201006
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT \"Job Title\", \"Work Experience Requirement\", \"Foreign Language Requirement\", \"Gender Requirement\", \"Company Type\", \"Industry\", \"Work Location\", \"Working Hours\", \"Benefits\", \"Salary Range\", CAST(REPLACE(SUBSTRING(\"Salary Range\", 1, INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_min, CAST(REPLACE(SUBSTRING(\"Salary Range\", INSTR(\"Salary Range\", '-') + 1, INSTR(\"Salary Range\", ' ') - INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_max FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> ''",
+          "phase": "offline_validation",
+          "start_time": 1788866185.2029588,
+          "status": "execute_returned",
+          "end_time": 1788866185.2030454
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT \"Job Title\", \"Work Experience Requirement\", \"Foreign Language Requirement\", \"Gender Requirement\", \"Company Type\", \"Industry\", \"Work Location\", \"Working Hours\", \"Benefits\", \"Salary Range\", CAST(REPLACE(SUBSTRING(\"Salary Range\", 1, INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_min, CAST(REPLACE(SUBSTRING(\"Salary Range\", INSTR(\"Salary Range\", '-') + 1, INSTR(\"Salary Range\", ' ') - INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_max FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> ''",
+          "phase": "offline_validation",
+          "start_time": 1788866185.4302669,
+          "status": "execute_returned",
+          "end_time": 1788866185.4303305
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT \"Job Title\", \"Work Experience Requirement\", \"Foreign Language Requirement\", \"Gender Requirement\", \"Company Type\", \"Industry\", \"Work Location\", \"Working Hours\", \"Benefits\", \"Salary Range\", CAST(REPLACE(SUBSTRING(\"Salary Range\", 1, INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_min, CAST(REPLACE(SUBSTRING(\"Salary Range\", INSTR(\"Salary Range\", '-') + 1, INSTR(\"Salary Range\", ' ') - INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_max FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> '' LIMIT 3",
+          "phase": "offline_validation",
+          "start_time": 1788866185.6606672,
+          "status": "execute_returned",
+          "end_time": 1788866185.660863
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"sheet1\" WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> ''",
+          "time": 1788866185.0798457,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788866185.1773045,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788866185.1817074,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Salary Range\", COUNT(*) AS cnt FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> '' GROUP BY \"Salary Range\" ORDER BY cnt DESC LIMIT 30",
+          "time": 1788866185.1817834,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(DISTINCT \"Salary Range\") AS distinct_salary_formats FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> ''",
+          "time": 1788866185.192157,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Salary Range\", CAST(REPLACE(SUBSTRING(\"Salary Range\", 1, INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_min_raw, CAST(REPLACE(SUBSTRING(\"Salary Range\", INSTR(\"Salary Range\", '-') + 1, INSTR(\"Salary Range\", ' ') - INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_max_raw FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> '' LIMIT 20",
+          "time": 1788866185.20099,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Job Title\", \"Work Experience Requirement\", \"Foreign Language Requirement\", \"Gender Requirement\", \"Company Type\", \"Industry\", \"Work Location\", \"Working Hours\", \"Benefits\", \"Salary Range\", CAST(REPLACE(SUBSTRING(\"Salary Range\", 1, INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_min, CAST(REPLACE(SUBSTRING(\"Salary Range\", INSTR(\"Salary Range\", '-') + 1, INSTR(\"Salary Range\", ' ') - INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_max FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> ''",
+          "time": 1788866185.2030346,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Job Title\", \"Work Experience Requirement\", \"Foreign Language Requirement\", \"Gender Requirement\", \"Company Type\", \"Industry\", \"Work Location\", \"Working Hours\", \"Benefits\", \"Salary Range\", CAST(REPLACE(SUBSTRING(\"Salary Range\", 1, INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_min, CAST(REPLACE(SUBSTRING(\"Salary Range\", INSTR(\"Salary Range\", '-') + 1, INSTR(\"Salary Range\", ' ') - INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_max FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> ''",
+          "time": 1788866185.4302921,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Job Title\", \"Work Experience Requirement\", \"Foreign Language Requirement\", \"Gender Requirement\", \"Company Type\", \"Industry\", \"Work Location\", \"Working Hours\", \"Benefits\", \"Salary Range\", CAST(REPLACE(SUBSTRING(\"Salary Range\", 1, INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_min, CAST(REPLACE(SUBSTRING(\"Salary Range\", INSTR(\"Salary Range\", '-') + 1, INSTR(\"Salary Range\", ' ') - INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_max FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> '' LIMIT 3",
+          "time": 1788866185.6608315,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 97.67302591353655,
+      "intermediate_rows": 7936,
+      "intermediate_columns": [
+        "Job Title",
+        "Number of Openings",
+        "Company Name",
+        "Employment Type",
+        "Work Experience Requirement",
+        "Foreign Language Requirement",
+        "Age Requirement",
+        "Gender Requirement",
+        "Education Requirement",
+        "Work Location",
+        "Working Hours",
+        "Salary Range",
+        "Benefits",
+        "Contact Person",
+        "Contact Information",
+        "Company Address",
+        "Company Type",
+        "Industry",
+        "Job Description"
+      ],
+      "validation_ended_at": 1788866185.6692514,
+      "checks": [
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT \"Salary Range\", COUNT(*) AS cnt FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> '' GROUP BY \"Salary Range\" ORDER BY cnt DESC LIMIT 30",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 10.368133895099163
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "SELECT COUNT(DISTINCT \"Salary Range\") AS distinct_salary_formats FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> ''",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 8.803908713161945
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT \"Salary Range\", CAST(REPLACE(SUBSTRING(\"Salary Range\", 1, INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_min_raw, CAST(REPLACE(SUBSTRING(\"Salary Range\", INSTR(\"Salary Range\", '-') + 1, INSTR(\"Salary Range\", ' ') - INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_max_raw FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> '' LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.0286589860916138
+        },
+        {
+          "sql_id": "S35",
+          "rewritten_sql": "SELECT \"Job Title\", \"Work Experience Requirement\", \"Foreign Language Requirement\", \"Gender Requirement\", \"Company Type\", \"Industry\", \"Work Location\", \"Working Hours\", \"Benefits\", \"Salary Range\", CAST(REPLACE(SUBSTRING(\"Salary Range\", 1, INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_min, CAST(REPLACE(SUBSTRING(\"Salary Range\", INSTR(\"Salary Range\", '-') + 1, INSTR(\"Salary Range\", ' ') - INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_max FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> ''",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 227.2958792746067
+        },
+        {
+          "sql_id": "S36",
+          "rewritten_sql": "SELECT \"Job Title\", \"Work Experience Requirement\", \"Foreign Language Requirement\", \"Gender Requirement\", \"Company Type\", \"Industry\", \"Work Location\", \"Working Hours\", \"Benefits\", \"Salary Range\", CAST(REPLACE(SUBSTRING(\"Salary Range\", 1, INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_min, CAST(REPLACE(SUBSTRING(\"Salary Range\", INSTR(\"Salary Range\", '-') + 1, INSTR(\"Salary Range\", ' ') - INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_max FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> ''",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 230.39391171187162
+        },
+        {
+          "sql_id": "S37",
+          "rewritten_sql": "SELECT \"Job Title\", \"Work Experience Requirement\", \"Foreign Language Requirement\", \"Gender Requirement\", \"Company Type\", \"Industry\", \"Work Location\", \"Working Hours\", \"Benefits\", \"Salary Range\", CAST(REPLACE(SUBSTRING(\"Salary Range\", 1, INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_min, CAST(REPLACE(SUBSTRING(\"Salary Range\", INSTR(\"Salary Range\", '-') + 1, INSTR(\"Salary Range\", ' ') - INSTR(\"Salary Range\", '-') - 1), ',', '') AS INTEGER) AS salary_max FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Salary Range\" IS NULL AND \"Salary Range\" <> '' LIMIT 3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 7.029389031231403
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"sheet1\" WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Benefits\" IS NULL AND \"Benefits\" <> ''",
+      "covered": [
+        "S9",
+        "S30",
+        "S32"
+      ],
+      "rewrites": {
+        "S9": "SELECT \"Benefits\", COUNT(*) AS cnt FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Benefits\" IS NULL AND \"Benefits\" <> '' GROUP BY \"Benefits\" ORDER BY cnt DESC LIMIT 30",
+        "S30": "SELECT COUNT(DISTINCT \"Benefits\") AS distinct_benefits FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Benefits\" IS NULL AND \"Benefits\" <> ''",
+        "S32": "SELECT SUM(CASE WHEN \"Benefits\" LIKE '%Five social insurances%' THEN 1 ELSE 0 END) AS five_social, SUM(CASE WHEN \"Benefits\" LIKE '%housing provident fund%' OR \"Benefits\" LIKE '%housing fund%' THEN 1 ELSE 0 END) AS housing_fund, SUM(CASE WHEN \"Benefits\" LIKE '%commercial insurance%' THEN 1 ELSE 0 END) AS commercial_ins, SUM(CASE WHEN \"Benefits\" LIKE '%paid annual leave%' THEN 1 ELSE 0 END) AS annual_leave, SUM(CASE WHEN \"Benefits\" LIKE '%double pay at the end%' OR \"Benefits\" LIKE '%double salary at the end%' THEN 1 ELSE 0 END) AS double_pay, SUM(CASE WHEN \"Benefits\" LIKE '%performance bonus%' THEN 1 ELSE 0 END) AS perf_bonus, SUM(CASE WHEN \"Benefits\" LIKE '%year-end bonus%' OR \"Benefits\" LIKE '%year end bonus%' THEN 1 ELSE 0 END) AS year_end_bonus, SUM(CASE WHEN \"Benefits\" LIKE '%meal allowance%' OR \"Benefits\" LIKE '%meal subsidy%' OR \"Benefits\" LIKE '%food allowance%' THEN 1 ELSE 0 END) AS meal_allowance, SUM(CASE WHEN \"Benefits\" LIKE '%accommodation%' OR \"Benefits\" LIKE '%housing%' THEN 1 ELSE 0 END) AS accommodation, SUM(CASE WHEN \"Benefits\" LIKE '%meals provided%' OR \"Benefits\" LIKE '%meals and accommodation provided%' THEN 1 ELSE 0 END) AS meals_provided, SUM(CASE WHEN \"Benefits\" LIKE '%overtime pay%' THEN 1 ELSE 0 END) AS overtime_pay, SUM(CASE WHEN \"Benefits\" LIKE '%holiday benefits%' THEN 1 ELSE 0 END) AS holiday_benefits, SUM(CASE WHEN \"Benefits\" LIKE '%training%' THEN 1 ELSE 0 END) AS training, SUM(CASE WHEN \"Benefits\" LIKE '%travel%' THEN 1 ELSE 0 END) AS travel, SUM(CASE WHEN \"Benefits\" LIKE '%communication allowance%' OR \"Benefits\" LIKE '%communication subsidy%' THEN 1 ELSE 0 END) AS comm_allowance, SUM(CASE WHEN \"Benefits\" LIKE '%full attendance bonus%' OR \"Benefits\" LIKE '%attendance bonus%' THEN 1 ELSE 0 END) AS attendance_bonus, SUM(CASE WHEN \"Benefits\" LIKE '%high-temperature%' OR \"Benefits\" LIKE '%high temperature%' THEN 1 ELSE 0 END) AS high_temp, SUM(CASE WHEN \"Benefits\" LIKE '%shuttle%' THEN 1 ELSE 0 END) AS shuttle, SUM(CASE WHEN \"Benefits\" LIKE '%medical checkup%' OR \"Benefits\" LIKE '%physical examination%' THEN 1 ELSE 0 END) AS checkup, SUM(CASE WHEN \"Benefits\" LIKE '%work uniform%' OR \"Benefits\" LIKE '%uniform%' THEN 1 ELSE 0 END) AS uniform, SUM(CASE WHEN \"Benefits\" LIKE '%flexible working hours%' THEN 1 ELSE 0 END) AS flexible_hours FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Benefits\" IS NULL AND \"Benefits\" <> ''"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S9",
+      "later_reuses": 2,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866185.66929,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"sheet1\" WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Benefits\" IS NULL AND \"Benefits\" <> ''",
+          "phase": "offline_validation",
+          "start_time": 1788866185.6695378,
+          "status": "execute_returned",
+          "end_time": 1788866185.7668414
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866185.7668526,
+          "status": "execute_returned",
+          "end_time": 1788866185.7715
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788866185.7715106,
+          "status": "execute_returned",
+          "end_time": 1788866185.7715406
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT \"Benefits\", COUNT(*) AS cnt FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Benefits\" IS NULL AND \"Benefits\" <> '' GROUP BY \"Benefits\" ORDER BY cnt DESC LIMIT 30",
+          "phase": "offline_validation",
+          "start_time": 1788866185.7715755,
+          "status": "execute_returned",
+          "end_time": 1788866185.783674
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT COUNT(DISTINCT \"Benefits\") AS distinct_benefits FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Benefits\" IS NULL AND \"Benefits\" <> ''",
+          "phase": "offline_validation",
+          "start_time": 1788866185.7847996,
+          "status": "execute_returned",
+          "end_time": 1788866185.800558
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT SUM(CASE WHEN \"Benefits\" LIKE '%Five social insurances%' THEN 1 ELSE 0 END) AS five_social, SUM(CASE WHEN \"Benefits\" LIKE '%housing provident fund%' OR \"Benefits\" LIKE '%housing fund%' THEN 1 ELSE 0 END) AS housing_fund, SUM(CASE WHEN \"Benefits\" LIKE '%commercial insurance%' THEN 1 ELSE 0 END) AS commercial_ins, SUM(CASE WHEN \"Benefits\" LIKE '%paid annual leave%' THEN 1 ELSE 0 END) AS annual_leave, SUM(CASE WHEN \"Benefits\" LIKE '%double pay at the end%' OR \"Benefits\" LIKE '%double salary at the end%' THEN 1 ELSE 0 END) AS double_pay, SUM(CASE WHEN \"Benefits\" LIKE '%performance bonus%' THEN 1 ELSE 0 END) AS perf_bonus, SUM(CASE WHEN \"Benefits\" LIKE '%year-end bonus%' OR \"Benefits\" LIKE '%year end bonus%' THEN 1 ELSE 0 END) AS year_end_bonus, SUM(CASE WHEN \"Benefits\" LIKE '%meal allowance%' OR \"Benefits\" LIKE '%meal subsidy%' OR \"Benefits\" LIKE '%food allowance%' THEN 1 ELSE 0 END) AS meal_allowance, SUM(CASE WHEN \"Benefits\" LIKE '%accommodation%' OR \"Benefits\" LIKE '%housing%' THEN 1 ELSE 0 END) AS accommodation, SUM(CASE WHEN \"Benefits\" LIKE '%meals provided%' OR \"Benefits\" LIKE '%meals and accommodation provided%' THEN 1 ELSE 0 END) AS meals_provided, SUM(CASE WHEN \"Benefits\" LIKE '%overtime pay%' THEN 1 ELSE 0 END) AS overtime_pay, SUM(CASE WHEN \"Benefits\" LIKE '%holiday benefits%' THEN 1 ELSE 0 END) AS holiday_benefits, SUM(CASE WHEN \"Benefits\" LIKE '%training%' THEN 1 ELSE 0 END) AS training, SUM(CASE WHEN \"Benefits\" LIKE '%travel%' THEN 1 ELSE 0 END) AS travel, SUM(CASE WHEN \"Benefits\" LIKE '%communication allowance%' OR \"Benefits\" LIKE '%communication subsidy%' THEN 1 ELSE 0 END) AS comm_allowance, SUM(CASE WHEN \"Benefits\" LIKE '%full attendance bonus%' OR \"Benefits\" LIKE '%attendance bonus%' THEN 1 ELSE 0 END) AS attendance_bonus, SUM(CASE WHEN \"Benefits\" LIKE '%high-temperature%' OR \"Benefits\" LIKE '%high temperature%' THEN 1 ELSE 0 END) AS high_temp, SUM(CASE WHEN \"Benefits\" LIKE '%shuttle%' THEN 1 ELSE 0 END) AS shuttle, SUM(CASE WHEN \"Benefits\" LIKE '%medical checkup%' OR \"Benefits\" LIKE '%physical examination%' THEN 1 ELSE 0 END) AS checkup, SUM(CASE WHEN \"Benefits\" LIKE '%work uniform%' OR \"Benefits\" LIKE '%uniform%' THEN 1 ELSE 0 END) AS uniform, SUM(CASE WHEN \"Benefits\" LIKE '%flexible working hours%' THEN 1 ELSE 0 END) AS flexible_hours FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Benefits\" IS NULL AND \"Benefits\" <> ''",
+          "phase": "offline_validation",
+          "start_time": 1788866185.8014495,
+          "status": "execute_returned",
+          "end_time": 1788866185.8598583
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"sheet1\" WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Benefits\" IS NULL AND \"Benefits\" <> ''",
+          "time": 1788866185.6697137,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788866185.766884,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788866185.7715364,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Benefits\", COUNT(*) AS cnt FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Benefits\" IS NULL AND \"Benefits\" <> '' GROUP BY \"Benefits\" ORDER BY cnt DESC LIMIT 30",
+          "time": 1788866185.771618,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(DISTINCT \"Benefits\") AS distinct_benefits FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Benefits\" IS NULL AND \"Benefits\" <> ''",
+          "time": 1788866185.7848485,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(CASE WHEN \"Benefits\" LIKE '%Five social insurances%' THEN 1 ELSE 0 END) AS five_social, SUM(CASE WHEN \"Benefits\" LIKE '%housing provident fund%' OR \"Benefits\" LIKE '%housing fund%' THEN 1 ELSE 0 END) AS housing_fund, SUM(CASE WHEN \"Benefits\" LIKE '%commercial insurance%' THEN 1 ELSE 0 END) AS commercial_ins, SUM(CASE WHEN \"Benefits\" LIKE '%paid annual leave%' THEN 1 ELSE 0 END) AS annual_leave, SUM(CASE WHEN \"Benefits\" LIKE '%double pay at the end%' OR \"Benefits\" LIKE '%double salary at the end%' THEN 1 ELSE 0 END) AS double_pay, SUM(CASE WHEN \"Benefits\" LIKE '%performance bonus%' THEN 1 ELSE 0 END) AS perf_bonus, SUM(CASE WHEN \"Benefits\" LIKE '%year-end bonus%' OR \"Benefits\" LIKE '%year end bonus%' THEN 1 ELSE 0 END) AS year_end_bonus, SUM(CASE WHEN \"Benefits\" LIKE '%meal allowance%' OR \"Benefits\" LIKE '%meal subsidy%' OR \"Benefits\" LIKE '%food allowance%' THEN 1 ELSE 0 END) AS meal_allowance, SUM(CASE WHEN \"Benefits\" LIKE '%accommodation%' OR \"Benefits\" LIKE '%housing%' THEN 1 ELSE 0 END) AS accommodation, SUM(CASE WHEN \"Benefits\" LIKE '%meals provided%' OR \"Benefits\" LIKE '%meals and accommodation provided%' THEN 1 ELSE 0 END) AS meals_provided, SUM(CASE WHEN \"Benefits\" LIKE '%overtime pay%' THEN 1 ELSE 0 END) AS overtime_pay, SUM(CASE WHEN \"Benefits\" LIKE '%holiday benefits%' THEN 1 ELSE 0 END) AS holiday_benefits, SUM(CASE WHEN \"Benefits\" LIKE '%training%' THEN 1 ELSE 0 END) AS training, SUM(CASE WHEN \"Benefits\" LIKE '%travel%' THEN 1 ELSE 0 END) AS travel, SUM(CASE WHEN \"Benefits\" LIKE '%communication allowance%' OR \"Benefits\" LIKE '%communication subsidy%' THEN 1 ELSE 0 END) AS comm_allowance, SUM(CASE WHEN \"Benefits\" LIKE '%full attendance bonus%' OR \"Benefits\" LIKE '%attendance bonus%' THEN 1 ELSE 0 END) AS attendance_bonus, SUM(CASE WHEN \"Benefits\" LIKE '%high-temperature%' OR \"Benefits\" LIKE '%high temperature%' THEN 1 ELSE 0 END) AS high_temp, SUM(CASE WHEN \"Benefits\" LIKE '%shuttle%' THEN 1 ELSE 0 END) AS shuttle, SUM(CASE WHEN \"Benefits\" LIKE '%medical checkup%' OR \"Benefits\" LIKE '%physical examination%' THEN 1 ELSE 0 END) AS checkup, SUM(CASE WHEN \"Benefits\" LIKE '%work uniform%' OR \"Benefits\" LIKE '%uniform%' THEN 1 ELSE 0 END) AS uniform, SUM(CASE WHEN \"Benefits\" LIKE '%flexible working hours%' THEN 1 ELSE 0 END) AS flexible_hours FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Benefits\" IS NULL AND \"Benefits\" <> ''",
+          "time": 1788866185.8016741,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 97.31120243668556,
+      "intermediate_rows": 8055,
+      "intermediate_columns": [
+        "Job Title",
+        "Number of Openings",
+        "Company Name",
+        "Employment Type",
+        "Work Experience Requirement",
+        "Foreign Language Requirement",
+        "Age Requirement",
+        "Gender Requirement",
+        "Education Requirement",
+        "Work Location",
+        "Working Hours",
+        "Salary Range",
+        "Benefits",
+        "Contact Person",
+        "Contact Information",
+        "Company Address",
+        "Company Type",
+        "Industry",
+        "Job Description"
+      ],
+      "validation_ended_at": 1788866185.868085,
+      "checks": [
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT \"Benefits\", COUNT(*) AS cnt FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Benefits\" IS NULL AND \"Benefits\" <> '' GROUP BY \"Benefits\" ORDER BY cnt DESC LIMIT 30",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 13.21914978325367
+        },
+        {
+          "sql_id": "S30",
+          "rewritten_sql": "SELECT COUNT(DISTINCT \"Benefits\") AS distinct_benefits FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Benefits\" IS NULL AND \"Benefits\" <> ''",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 16.645019873976707
+        },
+        {
+          "sql_id": "S32",
+          "rewritten_sql": "SELECT SUM(CASE WHEN \"Benefits\" LIKE '%Five social insurances%' THEN 1 ELSE 0 END) AS five_social, SUM(CASE WHEN \"Benefits\" LIKE '%housing provident fund%' OR \"Benefits\" LIKE '%housing fund%' THEN 1 ELSE 0 END) AS housing_fund, SUM(CASE WHEN \"Benefits\" LIKE '%commercial insurance%' THEN 1 ELSE 0 END) AS commercial_ins, SUM(CASE WHEN \"Benefits\" LIKE '%paid annual leave%' THEN 1 ELSE 0 END) AS annual_leave, SUM(CASE WHEN \"Benefits\" LIKE '%double pay at the end%' OR \"Benefits\" LIKE '%double salary at the end%' THEN 1 ELSE 0 END) AS double_pay, SUM(CASE WHEN \"Benefits\" LIKE '%performance bonus%' THEN 1 ELSE 0 END) AS perf_bonus, SUM(CASE WHEN \"Benefits\" LIKE '%year-end bonus%' OR \"Benefits\" LIKE '%year end bonus%' THEN 1 ELSE 0 END) AS year_end_bonus, SUM(CASE WHEN \"Benefits\" LIKE '%meal allowance%' OR \"Benefits\" LIKE '%meal subsidy%' OR \"Benefits\" LIKE '%food allowance%' THEN 1 ELSE 0 END) AS meal_allowance, SUM(CASE WHEN \"Benefits\" LIKE '%accommodation%' OR \"Benefits\" LIKE '%housing%' THEN 1 ELSE 0 END) AS accommodation, SUM(CASE WHEN \"Benefits\" LIKE '%meals provided%' OR \"Benefits\" LIKE '%meals and accommodation provided%' THEN 1 ELSE 0 END) AS meals_provided, SUM(CASE WHEN \"Benefits\" LIKE '%overtime pay%' THEN 1 ELSE 0 END) AS overtime_pay, SUM(CASE WHEN \"Benefits\" LIKE '%holiday benefits%' THEN 1 ELSE 0 END) AS holiday_benefits, SUM(CASE WHEN \"Benefits\" LIKE '%training%' THEN 1 ELSE 0 END) AS training, SUM(CASE WHEN \"Benefits\" LIKE '%travel%' THEN 1 ELSE 0 END) AS travel, SUM(CASE WHEN \"Benefits\" LIKE '%communication allowance%' OR \"Benefits\" LIKE '%communication subsidy%' THEN 1 ELSE 0 END) AS comm_allowance, SUM(CASE WHEN \"Benefits\" LIKE '%full attendance bonus%' OR \"Benefits\" LIKE '%attendance bonus%' THEN 1 ELSE 0 END) AS attendance_bonus, SUM(CASE WHEN \"Benefits\" LIKE '%high-temperature%' OR \"Benefits\" LIKE '%high temperature%' THEN 1 ELSE 0 END) AS high_temp, SUM(CASE WHEN \"Benefits\" LIKE '%shuttle%' THEN 1 ELSE 0 END) AS shuttle, SUM(CASE WHEN \"Benefits\" LIKE '%medical checkup%' OR \"Benefits\" LIKE '%physical examination%' THEN 1 ELSE 0 END) AS checkup, SUM(CASE WHEN \"Benefits\" LIKE '%work uniform%' OR \"Benefits\" LIKE '%uniform%' THEN 1 ELSE 0 END) AS uniform, SUM(CASE WHEN \"Benefits\" LIKE '%flexible working hours%' THEN 1 ELSE 0 END) AS flexible_hours FROM temp.reuse_candidate AS sheet1 WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Benefits\" IS NULL AND \"Benefits\" <> ''",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 65.05576148629189
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Benefits\" AS __g0, COUNT(*) AS __a0, SUM(CASE WHEN \"Benefits\" LIKE '%Five social insurances%' THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN \"Benefits\" LIKE '%housing provident fund%' OR \"Benefits\" LIKE '%housing fund%' THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN \"Benefits\" LIKE '%commercial insurance%' THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN \"Benefits\" LIKE '%paid annual leave%' THEN 1 ELSE 0 END) AS __a4, SUM(CASE WHEN \"Benefits\" LIKE '%double pay at the end%' OR \"Benefits\" LIKE '%double salary at the end%' THEN 1 ELSE 0 END) AS __a5, SUM(CASE WHEN \"Benefits\" LIKE '%performance bonus%' THEN 1 ELSE 0 END) AS __a6, SUM(CASE WHEN \"Benefits\" LIKE '%year-end bonus%' OR \"Benefits\" LIKE '%year end bonus%' THEN 1 ELSE 0 END) AS __a7, SUM(CASE WHEN \"Benefits\" LIKE '%meal allowance%' OR \"Benefits\" LIKE '%meal subsidy%' OR \"Benefits\" LIKE '%food allowance%' THEN 1 ELSE 0 END) AS __a8, SUM(CASE WHEN \"Benefits\" LIKE '%accommodation%' OR \"Benefits\" LIKE '%housing%' THEN 1 ELSE 0 END) AS __a9, SUM(CASE WHEN \"Benefits\" LIKE '%meals provided%' OR \"Benefits\" LIKE '%meals and accommodation provided%' THEN 1 ELSE 0 END) AS __a10, SUM(CASE WHEN \"Benefits\" LIKE '%overtime pay%' THEN 1 ELSE 0 END) AS __a11, SUM(CASE WHEN \"Benefits\" LIKE '%holiday benefits%' THEN 1 ELSE 0 END) AS __a12, SUM(CASE WHEN \"Benefits\" LIKE '%training%' THEN 1 ELSE 0 END) AS __a13, SUM(CASE WHEN \"Benefits\" LIKE '%travel%' THEN 1 ELSE 0 END) AS __a14, SUM(CASE WHEN \"Benefits\" LIKE '%communication allowance%' OR \"Benefits\" LIKE '%communication subsidy%' THEN 1 ELSE 0 END) AS __a15, SUM(CASE WHEN \"Benefits\" LIKE '%full attendance bonus%' OR \"Benefits\" LIKE '%attendance bonus%' THEN 1 ELSE 0 END) AS __a16, SUM(CASE WHEN \"Benefits\" LIKE '%high-temperature%' OR \"Benefits\" LIKE '%high temperature%' THEN 1 ELSE 0 END) AS __a17, SUM(CASE WHEN \"Benefits\" LIKE '%shuttle%' THEN 1 ELSE 0 END) AS __a18, SUM(CASE WHEN \"Benefits\" LIKE '%medical checkup%' OR \"Benefits\" LIKE '%physical examination%' THEN 1 ELSE 0 END) AS __a19, SUM(CASE WHEN \"Benefits\" LIKE '%work uniform%' OR \"Benefits\" LIKE '%uniform%' THEN 1 ELSE 0 END) AS __a20, SUM(CASE WHEN \"Benefits\" LIKE '%flexible working hours%' THEN 1 ELSE 0 END) AS __a21 FROM \"sheet1\" WHERE \"Education Requirement\" = 'Vocational school or above' AND NOT \"Benefits\" IS NULL AND \"Benefits\" <> '' GROUP BY \"Benefits\"",
+      "covered": [
+        "S9",
+        "S32"
+      ],
+      "rewrites": {
+        "S9": "SELECT __g0 AS \"Benefits\", SUM(__a0) AS cnt FROM temp.reuse_candidate GROUP BY __g0 ORDER BY cnt DESC LIMIT 30",
+        "S32": "SELECT SUM(__a1) AS five_social, SUM(__a2) AS housing_fund, SUM(__a3) AS commercial_ins, SUM(__a4) AS annual_leave, SUM(__a5) AS double_pay, SUM(__a6) AS perf_bonus, SUM(__a7) AS year_end_bonus, SUM(__a8) AS meal_allowance, SUM(__a9) AS accommodation, SUM(__a10) AS meals_provided, SUM(__a11) AS overtime_pay, SUM(__a12) AS holiday_benefits, SUM(__a13) AS training, SUM(__a14) AS travel, SUM(__a15) AS comm_allowance, SUM(__a16) AS attendance_bonus, SUM(__a17) AS high_temp, SUM(__a18) AS shuttle, SUM(__a19) AS checkup, SUM(__a20) AS uniform, SUM(__a21) AS flexible_hours FROM temp.reuse_candidate"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S9",
+      "later_reuses": 1,
+      "denominator": 35,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

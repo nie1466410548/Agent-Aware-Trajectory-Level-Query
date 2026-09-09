@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_rows, COUNT(DISTINCT "Product Code") AS n_products, COUNT(DISTINCT "Sales Month") AS n_months, COUNT(DISTINCT "Customer ID") AS n_customers, MIN("Sales Month") AS min_month, MAX("Sales Month") AS max_month, SUM("Sales Amount") AS total_sales FROM sheet1

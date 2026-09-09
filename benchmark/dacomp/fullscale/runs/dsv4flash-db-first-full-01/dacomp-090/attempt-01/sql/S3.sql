@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_customers FROM quickbooks__customer_analytics

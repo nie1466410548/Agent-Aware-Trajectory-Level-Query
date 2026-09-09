@@ -1,0 +1,1 @@
+SELECT "Working professional or student" AS status, COUNT(*) AS n FROM sheet1 GROUP BY status

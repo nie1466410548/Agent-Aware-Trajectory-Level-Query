@@ -1,0 +1,1 @@
+SELECT MIN(date_day) AS min_date, MAX(date_day) AS max_date, COUNT(*) AS n_rows FROM google_play__time_series_trends

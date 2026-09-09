@@ -1,0 +1,85 @@
+{
+  "task_id": "dacomp-017",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "SQL computes category-year margins and customer RFM inputs. Python then performs percentile/rank segmentation, year-by-segment aggregation, quantity/product means and arithmetic scenarios over exported results. Those operations are SQL-capable; regression, statistical tests and plotting are separately justified uses. The observed SQL trajectory excludes these actual Python computations; no equivalent SQL is invented.",
+  "evidence": [
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 16,
+          "text": "rfm['R_score'] = pd.qcut(rfm['recency'], 4, labels=[4, 3, 2, 1], duplicates='drop')"
+        },
+        {
+          "line": 18,
+          "text": "rfm['F_score'] = pd.qcut(rfm['frequency'].rank(method='first'), 4, labels=[1, 2, 3, 4])"
+        },
+        {
+          "line": 20,
+          "text": "rfm['M_score'] = pd.qcut(rfm['monetary'].rank(method='first'), 4, labels=[1, 2, 3, 4])"
+        }
+      ]
+    },
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 25,
+          "text": "stats = orders.groupby(['yr', 'segment']).agg("
+        },
+        {
+          "line": 36,
+          "text": "qty_stats = orders.groupby(['yr', 'segment'])['Quantity'].mean().round(3)"
+        },
+        {
+          "line": 40,
+          "text": "qty_dist = orders.groupby(['segment', 'Quantity']).size().unstack(fill_value=0)"
+        },
+        {
+          "line": 52,
+          "text": "share = orders.groupby(['yr', 'segment'])['large_order'].mean().round(4)"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 27,
+          "text": "prod_qty = hf.groupby(['Product', 'yr'])['Quantity'].mean().unstack().round(3)"
+        },
+        {
+          "line": 32,
+          "text": "prod_margin = hf.groupby(['Product', 'yr']).apply(lambda g: g['profit'].sum()/g['Sales'].sum()).unstack().round(4)"
+        },
+        {
+          "line": 45,
+          "text": "sales24 = hf24.groupby('Product')['Sales'].sum()"
+        },
+        {
+          "line": 46,
+          "text": "qty23 = hf23.groupby('Product')['Quantity'].mean()"
+        }
+      ]
+    },
+    {
+      "source": "python/P12.py",
+      "lines": [
+        {
+          "line": 26,
+          "text": "coef, res, rank, sv = np.linalg.lstsq(A, y, rcond=None)"
+        },
+        {
+          "line": 47,
+          "text": "    c, *_ = np.linalg.lstsq(Xp, g['Margin'].values, rcond=None)"
+        },
+        {
+          "line": 70,
+          "text": "swing = cy.groupby('Category')['Margin'].agg(lambda s: s.max() - s.min()).round(4)"
+        }
+      ]
+    }
+  ],
+  "route": "按品类×年份计算利润率 → 针对波动品类检查折扣、数量、商品和浏览互动 → 构造客户 RFM 分层 → 比较分层消费者对波动因素的敏感性，并做数量情景和回归分析。"
+}

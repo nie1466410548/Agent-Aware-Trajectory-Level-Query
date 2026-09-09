@@ -1,0 +1,1 @@
+SELECT DISTINCT current_engagement_tier FROM jira__team_performance_dashboard

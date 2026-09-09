@@ -1,0 +1,1 @@
+SELECT marketo_lead_id, COUNT(*) AS cnt, COUNT(DISTINCT stripe_customer_id) AS distinct_stripe, COUNT(DISTINCT zendesk_user_id) AS distinct_zd, COUNT(DISTINCT primary_email) AS distinct_email FROM customer360__customer_value_analysis GROUP BY marketo_lead_id HAVING cnt > 1 ORDER BY cnt DESC LIMIT 10

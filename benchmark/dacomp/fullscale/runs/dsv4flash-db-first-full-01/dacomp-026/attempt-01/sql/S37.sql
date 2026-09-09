@@ -1,0 +1,1 @@
+SELECT "Disaster Type", COUNT(*) AS cnt FROM disaster_events WHERE "Disaster Severity Level" = 'Level 5' GROUP BY "Disaster Type" ORDER BY cnt DESC

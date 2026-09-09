@@ -1,0 +1,1 @@
+SELECT * FROM greenhouse__talent_pipeline_simplified ORDER BY source_name

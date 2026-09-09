@@ -1,0 +1,1 @@
+SELECT subsidiary_id, dashboard_date, cash_flow_risk_level FROM netsuite2_financial_dashboard ORDER BY subsidiary_id, dashboard_date

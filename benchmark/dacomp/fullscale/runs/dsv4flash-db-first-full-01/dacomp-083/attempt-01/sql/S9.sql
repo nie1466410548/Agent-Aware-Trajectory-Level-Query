@@ -1,0 +1,1 @@
+SELECT MIN(worker_id) as min_w, MAX(worker_id) as max_w, MIN(age) as min_age, MAX(age) as max_age, COUNT(*) FILTER (WHERE age IS NULL) as null_age FROM workday__employee_overview

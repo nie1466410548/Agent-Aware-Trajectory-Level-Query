@@ -1,0 +1,1 @@
+SELECT "Contact Status (Positive/Negative/Pending)" AS contact, COUNT(*) AS n FROM epidemiological_investigation GROUP BY contact ORDER BY n DESC;

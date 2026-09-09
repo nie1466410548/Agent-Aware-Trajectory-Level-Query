@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS c FROM qualtrics__survey WHERE survey_name LIKE '%photo%' OR survey_name LIKE '%editor%' OR brand_base_url LIKE '%photo%' OR brand_base_url LIKE '%dev%' OR brand_id LIKE '%photo%'

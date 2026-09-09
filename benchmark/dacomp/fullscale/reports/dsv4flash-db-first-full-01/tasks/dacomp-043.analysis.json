@@ -1,0 +1,2052 @@
+{
+  "fingerprint": "814416b079b13e629203b6df754b3c427c3bd16db2ba75630d0e115bdc1b443e",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S84",
+      "covered": [
+        "S84",
+        "S85",
+        "S86",
+        "S88"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S84",
+      "later_reuses": 3,
+      "denominator": 89,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S87",
+      "covered": [
+        "S87",
+        "S89"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S87",
+      "later_reuses": 1,
+      "denominator": 89,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT \"Case ID\", MAX(CASE WHEN \"Outcome (Cured/Improved/Deceased)\" = 'Deceased' THEN 1 ELSE 0 END) AS is_deceased FROM clinical_manifestations GROUP BY \"Case ID\"",
+      "covered": [
+        "S33",
+        "S34",
+        "S35",
+        "S36",
+        "S37",
+        "S38",
+        "S39",
+        "S40",
+        "S41",
+        "S42",
+        "S44",
+        "S45",
+        "S46",
+        "S47",
+        "S48",
+        "S49",
+        "S50",
+        "S51",
+        "S52",
+        "S53",
+        "S54",
+        "S55",
+        "S56",
+        "S57",
+        "S58",
+        "S59",
+        "S60",
+        "S61",
+        "S62",
+        "S63",
+        "S64",
+        "S65",
+        "S66",
+        "S67",
+        "S68",
+        "S69",
+        "S70",
+        "S71",
+        "S72",
+        "S73",
+        "S74",
+        "S75",
+        "S76",
+        "S77",
+        "S78",
+        "S79",
+        "S80",
+        "S81",
+        "S82",
+        "S83",
+        "S84",
+        "S85",
+        "S86",
+        "S87",
+        "S88",
+        "S89",
+        "S90",
+        "S91"
+      ],
+      "rewrites": {
+        "S33": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Complication Type (Pneumonia/Encephalitis/Skin Infection)\" AS complication, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, complication ORDER BY grp, n DESC",
+        "S34": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Associated Symptoms (Cough/Headache/Vomiting)\" AS symptom, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, symptom ORDER BY grp, n DESC",
+        "S35": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Hospitalization (Yes/No)\" AS hosp, \"Treatment (Antiviral/Symptomatic)\" AS trt, \"Isolation Status (Yes/No)\" AS iso, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, hosp, trt, iso ORDER BY grp, n DESC",
+        "S36": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, COUNT(DISTINCT cm.\"Case ID\") AS n_cases, COUNT(*) AS n_records, ROUND(AVG(\"Highest Body Temperature (°C)\"), 2) AS avg_temp, ROUND(MIN(\"Highest Body Temperature (°C)\"), 2) AS min_temp, ROUND(MAX(\"Highest Body Temperature (°C)\"), 2) AS max_temp FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+        "S37": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Rash Distribution (Head & Face/Trunk/Limbs)\" AS rash_dist, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, rash_dist ORDER BY grp, n DESC",
+        "S38": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Rash Morphology (Macule/Papule/Vesicle)\" AS rash_morph, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, rash_morph ORDER BY grp, n DESC",
+        "S39": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"TCM Pattern Differentiation (Wind-Heat/Damp-Heat)\" AS tcm, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, tcm ORDER BY grp, n DESC",
+        "S40": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Vaccination History (Doses/Date/Type)\" AS vacc, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, vacc ORDER BY grp, n DESC",
+        "S41": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Contact Status (Positive/Negative/Pending)\" AS contact, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, contact ORDER BY grp, n DESC",
+        "S42": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Contact Location Type (Hospital/School/Mall)\" AS loc, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, loc ORDER BY grp, n DESC",
+        "S44": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, CASE WHEN ei.\"Vaccination History (Doses/Date/Type)\" LIKE '0%' THEN '0 dose/None' WHEN ei.\"Vaccination History (Doses/Date/Type)\" LIKE '1%' THEN '1 dose' WHEN ei.\"Vaccination History (Doses/Date/Type)\" LIKE '2%' THEN '2 doses' WHEN ei.\"Vaccination History (Doses/Date/Type)\" LIKE '3%' THEN '3 doses' ELSE 'No vaccination' END AS vacc_cat, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, vacc_cat ORDER BY grp, n DESC",
+        "S45": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, COUNT(*) AS n_records FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+        "S46": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, COUNT(*) AS n_records FROM isolation_and_disinfection AS id JOIN case_outcome AS co ON id.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+        "S47": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, COUNT(*) AS n_records FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+        "S48": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, COUNT(*) AS n_records FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+        "S49": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, id.\"Isolation Type (Home/Hospital/Centralized)\" AS iso_type, id.\"Disinfection Frequency (times/day)\" AS disinf_freq, id.\"Disinfectant Type (Chlorine-based/Peracetic Acid)\" AS disinf_type, id.\"PPE Usage\" AS ppe, id.\"Symptom Monitoring During Isolation\" AS symp_monitor, COUNT(*) AS n FROM isolation_and_disinfection AS id JOIN case_outcome AS co ON id.\"Case ID\" = co.\"Case ID\" GROUP BY grp, iso_type, disinf_freq, disinf_type, ppe, symp_monitor ORDER BY grp, n DESC",
+        "S50": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, id.\"Isolation Type (Home/Hospital/Centralized)\" AS iso_type, COUNT(*) AS n FROM isolation_and_disinfection AS id JOIN case_outcome AS co ON id.\"Case ID\" = co.\"Case ID\" GROUP BY grp, iso_type ORDER BY grp, n DESC",
+        "S51": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, id.\"PPE Usage\" AS ppe, id.\"Symptom Monitoring During Isolation\" AS monitor, COUNT(*) AS n FROM isolation_and_disinfection AS id JOIN case_outcome AS co ON id.\"Case ID\" = co.\"Case ID\" GROUP BY grp, ppe, monitor ORDER BY grp, n DESC",
+        "S52": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ROUND(AVG(id.\"Disinfection Frequency (times/day)\"), 2) AS avg_disfreq, ROUND(AVG(id.\"Disinfected Area (m²)\"), 2) AS avg_area, ROUND(AVG(id.\"Isolation Cost\"), 2) AS avg_cost FROM isolation_and_disinfection AS id JOIN case_outcome AS co ON id.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+        "S53": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cpl.\"Complication type (pneumonia/encephalitis/hepatitis)\" AS comp_type, COUNT(*) AS n FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp, comp_type ORDER BY grp, n DESC",
+        "S54": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cpl.\"Severity grading (mild/moderate/severe)\" AS severity, COUNT(*) AS n FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp, severity ORDER BY grp, n DESC",
+        "S55": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cpl.\"Management measures (observation/treatment/referral)\" AS mgmt, cpl.\"Complication outcome (recovered/sequelae)\" AS comp_outcome, COUNT(*) AS n FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp, mgmt, comp_outcome ORDER BY grp, n DESC",
+        "S56": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Initial Diagnosis (Suspected/Clinical/Confirmed)\" AS init_diag, dc.\"Case Classification (Sporadic/Outbreak/Sudden Event)\" AS case_class, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, init_diag, case_class ORDER BY grp, n DESC",
+        "S57": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ROUND(AVG(dc.\"Diagnostic Quality Score\"), 2) AS avg_quality, ROUND(AVG(dc.\"Diagnostic Criteria Compliance Rate\"), 2) AS avg_compliance, ROUND(MIN(dc.\"Diagnostic Quality Score\"), 2) AS min_quality, ROUND(MAX(dc.\"Diagnostic Quality Score\"), 2) AS max_quality FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+        "S58": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Laboratory Tests (CBC/Antibody Test)\" AS lab, cm.\"Imaging Studies (CT/X-ray)\" AS imaging, cm.\"Medication & Dosage\" AS med, cm.\"Allergic Reaction Management\" AS allergy_mgmt, cm.\"Contact Management (Yes/No)\" AS contact_mgmt, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, lab, imaging, med, allergy_mgmt, contact_mgmt ORDER BY grp, n DESC",
+        "S59": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Laboratory Tests (CBC/Antibody Test)\" AS lab, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, lab ORDER BY grp, n DESC",
+        "S60": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Imaging Studies (CT/X-ray)\" AS imaging, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, imaging ORDER BY grp, n DESC",
+        "S61": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Allergic Reaction Management\" AS allergy, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, allergy ORDER BY grp, n DESC",
+        "S62": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Contact Management (Yes/No)\" AS contact_mgmt, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, contact_mgmt ORDER BY grp, n DESC",
+        "S63": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Gender\" AS gender, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, gender ORDER BY grp, n_cases DESC",
+        "S64": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Occupation Type (Childcare/Student/Teacher)\" AS occupation, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, occupation ORDER BY grp, n_cases DESC",
+        "S65": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Reporting Method (App/Phone/Paper)\" AS report_method, b.\"Data Source (Clinical/Laboratory/Epidemiological Investigation)\" AS data_src, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, report_method, data_src ORDER BY grp, n_cases DESC",
+        "S66": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ROUND(AVG(cpl.\"Complication treatment cost\"), 2) AS avg_cost, ROUND(MIN(cpl.\"Complication treatment cost\"), 2) AS min_cost, ROUND(MAX(cpl.\"Complication treatment cost\"), 2) AS max_cost, ROUND(AVG(cpl.\"Medical Insurance Reimbursement Percentage\"), 2) AS avg_reimb, cpl.\"Complication reporting timeliness\" AS report_time, cpl.\"Complication management timeliness\" AS mgmt_time, COUNT(*) AS n FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp, report_time, mgmt_time ORDER BY grp, n DESC",
+        "S67": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ROUND(AVG(cpl.\"Complication treatment cost\"), 0) AS avg_treatment_cost, ROUND(AVG(cpl.\"Medical Insurance Reimbursement Percentage\"), 2) AS avg_reimbursement_pct, COUNT(*) AS n FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+        "S68": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ROUND(AVG(cpl.\"Medical Insurance Reimbursement Percentage\"), 2) AS avg_reimb FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+        "S69": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Vaccine Origin (Domestic/Imported)\" AS vacc_origin, ei.\"Shared Exposure History (Group Dining/Group Activity)\" AS shared_exposure, ei.\"Environmental Sample Test Result\" AS env_result, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, vacc_origin, shared_exposure, env_result ORDER BY grp, n DESC",
+        "S70": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Diagnostic Delay Analysis\" AS delay, dc.\"Differential Diagnosis (Measles/Hand, Foot, and Mouth Disease)\" AS diff_diag, dc.\"Diagnosis Review Flag\" AS review_flag, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, delay, diff_diag, review_flag ORDER BY grp, n DESC",
+        "S71": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Initial Diagnosis (Suspected/Clinical/Confirmed)\" AS init_diag, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, init_diag ORDER BY grp, n DESC",
+        "S72": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Diagnostic Delay Analysis\" AS delay, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, delay ORDER BY grp, n DESC",
+        "S73": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Vaccine Origin (Domestic/Imported)\" AS vacc_origin, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, vacc_origin ORDER BY grp, n DESC",
+        "S74": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Case Classification (Sporadic/Outbreak/Sudden Event)\" AS case_class, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, case_class ORDER BY grp, n DESC",
+        "S75": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Diagnosis Review Flag\" AS review_flag, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, review_flag ORDER BY grp, n DESC",
+        "S76": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Allergy History (Type)\" AS allergy, b.\"Past Medical History (Disease Code)\" AS past_med, b.\"Contact History (Hospital/School/Home)\" AS contact_hist, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, allergy, past_med, contact_hist ORDER BY grp, n_cases DESC",
+        "S77": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Laboratory Confirmation Basis (PCR/Antibody Test)\" AS lab_conf, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, lab_conf ORDER BY grp, n DESC",
+        "S78": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Allergy History (Type)\" AS allergy, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, allergy ORDER BY grp, n_cases DESC",
+        "S79": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Past Medical History (Disease Code)\" AS past_med, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, past_med ORDER BY grp, n_cases DESC",
+        "S80": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Contact History (Hospital/School/Home)\" AS contact_hist, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, contact_hist ORDER BY grp, n_cases DESC",
+        "S81": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, MIN(b.\"Date of Discovery\") AS min_date, MAX(b.\"Date of Discovery\") AS max_date, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+        "S82": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Emergency Response Activation Time\" AS response_time, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, response_time ORDER BY grp, n DESC",
+        "S83": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Contact Location Type (Hospital/School/Mall)\" AS loc_type, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, loc_type ORDER BY grp, n DESC",
+        "S84": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Highest Body Temperature (°C)\" AS temp FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\"",
+        "S85": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Highest Body Temperature (°C)\" AS temp FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\"",
+        "S86": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Highest Body Temperature (°C)\" AS temp FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\"",
+        "S87": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Data Completeness Score\" AS score FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\"",
+        "S88": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Highest Body Temperature (°C)\" AS temp FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\"",
+        "S89": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Data Completeness Score\" AS score FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\"",
+        "S90": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Laboratory Tests (CBC/Antibody Test)\" AS lab, COUNT(*) AS n, ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (PARTITION BY CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END), 1) AS pct FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, lab ORDER BY grp, lab",
+        "S91": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Allergic Reaction Management\" AS allergy, COUNT(*) AS n, ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (PARTITION BY CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END), 1) AS pct FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, allergy ORDER BY grp, allergy"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S33",
+      "later_reuses": 57,
+      "denominator": 89,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865811.779878,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Case ID\", MAX(CASE WHEN \"Outcome (Cured/Improved/Deceased)\" = 'Deceased' THEN 1 ELSE 0 END) AS is_deceased FROM clinical_manifestations GROUP BY \"Case ID\"",
+          "phase": "offline_validation",
+          "start_time": 1788865811.7801569,
+          "status": "execute_returned",
+          "end_time": 1788865811.7807872
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865811.7807922,
+          "status": "execute_returned",
+          "end_time": 1788865811.7808099
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865811.7808154,
+          "status": "execute_returned",
+          "end_time": 1788865811.7808287
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Complication Type (Pneumonia/Encephalitis/Skin Infection)\" AS complication, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, complication ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.7808383,
+          "status": "execute_returned",
+          "end_time": 1788865811.7811918
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Associated Symptoms (Cough/Headache/Vomiting)\" AS symptom, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, symptom ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.782703,
+          "status": "execute_returned",
+          "end_time": 1788865811.7830617
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Hospitalization (Yes/No)\" AS hosp, \"Treatment (Antiviral/Symptomatic)\" AS trt, \"Isolation Status (Yes/No)\" AS iso, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, hosp, trt, iso ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.784684,
+          "status": "execute_returned",
+          "end_time": 1788865811.7851596
+        },
+        {
+          "sequence": 7,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, COUNT(DISTINCT cm.\"Case ID\") AS n_cases, COUNT(*) AS n_records, ROUND(AVG(\"Highest Body Temperature (°C)\"), 2) AS avg_temp, ROUND(MIN(\"Highest Body Temperature (°C)\"), 2) AS min_temp, ROUND(MAX(\"Highest Body Temperature (°C)\"), 2) AS max_temp FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "phase": "offline_validation",
+          "start_time": 1788865811.7867591,
+          "status": "execute_returned",
+          "end_time": 1788865811.7871094
+        },
+        {
+          "sequence": 8,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Rash Distribution (Head & Face/Trunk/Limbs)\" AS rash_dist, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, rash_dist ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.7890582,
+          "status": "execute_returned",
+          "end_time": 1788865811.7894404
+        },
+        {
+          "sequence": 9,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Rash Morphology (Macule/Papule/Vesicle)\" AS rash_morph, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, rash_morph ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.7910044,
+          "status": "execute_returned",
+          "end_time": 1788865811.7913852
+        },
+        {
+          "sequence": 10,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"TCM Pattern Differentiation (Wind-Heat/Damp-Heat)\" AS tcm, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, tcm ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.7928104,
+          "status": "execute_returned",
+          "end_time": 1788865811.7931833
+        },
+        {
+          "sequence": 11,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Vaccination History (Doses/Date/Type)\" AS vacc, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, vacc ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.7945845,
+          "status": "execute_returned",
+          "end_time": 1788865811.7949479
+        },
+        {
+          "sequence": 12,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Contact Status (Positive/Negative/Pending)\" AS contact, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, contact ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.7968676,
+          "status": "execute_returned",
+          "end_time": 1788865811.797172
+        },
+        {
+          "sequence": 13,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Contact Location Type (Hospital/School/Mall)\" AS loc, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, loc ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.798594,
+          "status": "execute_returned",
+          "end_time": 1788865811.798895
+        },
+        {
+          "sequence": 14,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, CASE WHEN ei.\"Vaccination History (Doses/Date/Type)\" LIKE '0%' THEN '0 dose/None' WHEN ei.\"Vaccination History (Doses/Date/Type)\" LIKE '1%' THEN '1 dose' WHEN ei.\"Vaccination History (Doses/Date/Type)\" LIKE '2%' THEN '2 doses' WHEN ei.\"Vaccination History (Doses/Date/Type)\" LIKE '3%' THEN '3 doses' ELSE 'No vaccination' END AS vacc_cat, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, vacc_cat ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8002973,
+          "status": "execute_returned",
+          "end_time": 1788865811.8006442
+        },
+        {
+          "sequence": 15,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, COUNT(*) AS n_records FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8025787,
+          "status": "execute_returned",
+          "end_time": 1788865811.802822
+        },
+        {
+          "sequence": 16,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, COUNT(*) AS n_records FROM isolation_and_disinfection AS id JOIN case_outcome AS co ON id.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8041317,
+          "status": "execute_returned",
+          "end_time": 1788865811.804456
+        },
+        {
+          "sequence": 17,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, COUNT(*) AS n_records FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8057654,
+          "status": "execute_returned",
+          "end_time": 1788865811.8060317
+        },
+        {
+          "sequence": 18,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, COUNT(*) AS n_records FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "phase": "offline_validation",
+          "start_time": 1788865811.807294,
+          "status": "execute_returned",
+          "end_time": 1788865811.8076017
+        },
+        {
+          "sequence": 19,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, id.\"Isolation Type (Home/Hospital/Centralized)\" AS iso_type, id.\"Disinfection Frequency (times/day)\" AS disinf_freq, id.\"Disinfectant Type (Chlorine-based/Peracetic Acid)\" AS disinf_type, id.\"PPE Usage\" AS ppe, id.\"Symptom Monitoring During Isolation\" AS symp_monitor, COUNT(*) AS n FROM isolation_and_disinfection AS id JOIN case_outcome AS co ON id.\"Case ID\" = co.\"Case ID\" GROUP BY grp, iso_type, disinf_freq, disinf_type, ppe, symp_monitor ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8090227,
+          "status": "execute_returned",
+          "end_time": 1788865811.8094044
+        },
+        {
+          "sequence": 20,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, id.\"Isolation Type (Home/Hospital/Centralized)\" AS iso_type, COUNT(*) AS n FROM isolation_and_disinfection AS id JOIN case_outcome AS co ON id.\"Case ID\" = co.\"Case ID\" GROUP BY grp, iso_type ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8113718,
+          "status": "execute_returned",
+          "end_time": 1788865811.811643
+        },
+        {
+          "sequence": 21,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, id.\"PPE Usage\" AS ppe, id.\"Symptom Monitoring During Isolation\" AS monitor, COUNT(*) AS n FROM isolation_and_disinfection AS id JOIN case_outcome AS co ON id.\"Case ID\" = co.\"Case ID\" GROUP BY grp, ppe, monitor ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.813074,
+          "status": "execute_returned",
+          "end_time": 1788865811.813372
+        },
+        {
+          "sequence": 22,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ROUND(AVG(id.\"Disinfection Frequency (times/day)\"), 2) AS avg_disfreq, ROUND(AVG(id.\"Disinfected Area (m²)\"), 2) AS avg_area, ROUND(AVG(id.\"Isolation Cost\"), 2) AS avg_cost FROM isolation_and_disinfection AS id JOIN case_outcome AS co ON id.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8149898,
+          "status": "execute_returned",
+          "end_time": 1788865811.8152628
+        },
+        {
+          "sequence": 23,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cpl.\"Complication type (pneumonia/encephalitis/hepatitis)\" AS comp_type, COUNT(*) AS n FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp, comp_type ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.816941,
+          "status": "execute_returned",
+          "end_time": 1788865811.8172586
+        },
+        {
+          "sequence": 24,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cpl.\"Severity grading (mild/moderate/severe)\" AS severity, COUNT(*) AS n FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp, severity ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8186665,
+          "status": "execute_returned",
+          "end_time": 1788865811.8189764
+        },
+        {
+          "sequence": 25,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cpl.\"Management measures (observation/treatment/referral)\" AS mgmt, cpl.\"Complication outcome (recovered/sequelae)\" AS comp_outcome, COUNT(*) AS n FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp, mgmt, comp_outcome ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8203855,
+          "status": "execute_returned",
+          "end_time": 1788865811.8207304
+        },
+        {
+          "sequence": 26,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Initial Diagnosis (Suspected/Clinical/Confirmed)\" AS init_diag, dc.\"Case Classification (Sporadic/Outbreak/Sudden Event)\" AS case_class, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, init_diag, case_class ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.822413,
+          "status": "execute_returned",
+          "end_time": 1788865811.822804
+        },
+        {
+          "sequence": 27,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ROUND(AVG(dc.\"Diagnostic Quality Score\"), 2) AS avg_quality, ROUND(AVG(dc.\"Diagnostic Criteria Compliance Rate\"), 2) AS avg_compliance, ROUND(MIN(dc.\"Diagnostic Quality Score\"), 2) AS min_quality, ROUND(MAX(dc.\"Diagnostic Quality Score\"), 2) AS max_quality FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8243508,
+          "status": "execute_returned",
+          "end_time": 1788865811.8246639
+        },
+        {
+          "sequence": 28,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Laboratory Tests (CBC/Antibody Test)\" AS lab, cm.\"Imaging Studies (CT/X-ray)\" AS imaging, cm.\"Medication & Dosage\" AS med, cm.\"Allergic Reaction Management\" AS allergy_mgmt, cm.\"Contact Management (Yes/No)\" AS contact_mgmt, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, lab, imaging, med, allergy_mgmt, contact_mgmt ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8266232,
+          "status": "execute_returned",
+          "end_time": 1788865811.8275106
+        },
+        {
+          "sequence": 29,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Laboratory Tests (CBC/Antibody Test)\" AS lab, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, lab ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8307815,
+          "status": "execute_returned",
+          "end_time": 1788865811.8311737
+        },
+        {
+          "sequence": 30,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Imaging Studies (CT/X-ray)\" AS imaging, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, imaging ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8326516,
+          "status": "execute_returned",
+          "end_time": 1788865811.8330395
+        },
+        {
+          "sequence": 31,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Allergic Reaction Management\" AS allergy, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, allergy ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8344767,
+          "status": "execute_returned",
+          "end_time": 1788865811.8348598
+        },
+        {
+          "sequence": 32,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Contact Management (Yes/No)\" AS contact_mgmt, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, contact_mgmt ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.836281,
+          "status": "execute_returned",
+          "end_time": 1788865811.8366656
+        },
+        {
+          "sequence": 33,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Gender\" AS gender, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, gender ORDER BY grp, n_cases DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8386576,
+          "status": "execute_returned",
+          "end_time": 1788865811.8391957
+        },
+        {
+          "sequence": 34,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Occupation Type (Childcare/Student/Teacher)\" AS occupation, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, occupation ORDER BY grp, n_cases DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8406312,
+          "status": "execute_returned",
+          "end_time": 1788865811.8411856
+        },
+        {
+          "sequence": 35,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Reporting Method (App/Phone/Paper)\" AS report_method, b.\"Data Source (Clinical/Laboratory/Epidemiological Investigation)\" AS data_src, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, report_method, data_src ORDER BY grp, n_cases DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8427424,
+          "status": "execute_returned",
+          "end_time": 1788865811.8436277
+        },
+        {
+          "sequence": 36,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ROUND(AVG(cpl.\"Complication treatment cost\"), 2) AS avg_cost, ROUND(MIN(cpl.\"Complication treatment cost\"), 2) AS min_cost, ROUND(MAX(cpl.\"Complication treatment cost\"), 2) AS max_cost, ROUND(AVG(cpl.\"Medical Insurance Reimbursement Percentage\"), 2) AS avg_reimb, cpl.\"Complication reporting timeliness\" AS report_time, cpl.\"Complication management timeliness\" AS mgmt_time, COUNT(*) AS n FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp, report_time, mgmt_time ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8458073,
+          "status": "execute_returned",
+          "end_time": 1788865811.8463693
+        },
+        {
+          "sequence": 37,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ROUND(AVG(cpl.\"Complication treatment cost\"), 0) AS avg_treatment_cost, ROUND(AVG(cpl.\"Medical Insurance Reimbursement Percentage\"), 2) AS avg_reimbursement_pct, COUNT(*) AS n FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8491027,
+          "status": "execute_returned",
+          "end_time": 1788865811.8493936
+        },
+        {
+          "sequence": 38,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ROUND(AVG(cpl.\"Medical Insurance Reimbursement Percentage\"), 2) AS avg_reimb FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8510504,
+          "status": "execute_returned",
+          "end_time": 1788865811.8513288
+        },
+        {
+          "sequence": 39,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Vaccine Origin (Domestic/Imported)\" AS vacc_origin, ei.\"Shared Exposure History (Group Dining/Group Activity)\" AS shared_exposure, ei.\"Environmental Sample Test Result\" AS env_result, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, vacc_origin, shared_exposure, env_result ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8528388,
+          "status": "execute_returned",
+          "end_time": 1788865811.8532152
+        },
+        {
+          "sequence": 40,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Diagnostic Delay Analysis\" AS delay, dc.\"Differential Diagnosis (Measles/Hand, Foot, and Mouth Disease)\" AS diff_diag, dc.\"Diagnosis Review Flag\" AS review_flag, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, delay, diff_diag, review_flag ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8548334,
+          "status": "execute_returned",
+          "end_time": 1788865811.855257
+        },
+        {
+          "sequence": 41,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Initial Diagnosis (Suspected/Clinical/Confirmed)\" AS init_diag, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, init_diag ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8568816,
+          "status": "execute_returned",
+          "end_time": 1788865811.8572273
+        },
+        {
+          "sequence": 42,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Diagnostic Delay Analysis\" AS delay, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, delay ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8587906,
+          "status": "execute_returned",
+          "end_time": 1788865811.8591259
+        },
+        {
+          "sequence": 43,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Vaccine Origin (Domestic/Imported)\" AS vacc_origin, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, vacc_origin ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8605335,
+          "status": "execute_returned",
+          "end_time": 1788865811.8608317
+        },
+        {
+          "sequence": 44,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Case Classification (Sporadic/Outbreak/Sudden Event)\" AS case_class, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, case_class ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8622277,
+          "status": "execute_returned",
+          "end_time": 1788865811.8625677
+        },
+        {
+          "sequence": 45,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Diagnosis Review Flag\" AS review_flag, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, review_flag ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.863983,
+          "status": "execute_returned",
+          "end_time": 1788865811.8643181
+        },
+        {
+          "sequence": 46,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Allergy History (Type)\" AS allergy, b.\"Past Medical History (Disease Code)\" AS past_med, b.\"Contact History (Hospital/School/Home)\" AS contact_hist, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, allergy, past_med, contact_hist ORDER BY grp, n_cases DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8658767,
+          "status": "execute_returned",
+          "end_time": 1788865811.8664842
+        },
+        {
+          "sequence": 47,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Laboratory Confirmation Basis (PCR/Antibody Test)\" AS lab_conf, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, lab_conf ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8683105,
+          "status": "execute_returned",
+          "end_time": 1788865811.8686476
+        },
+        {
+          "sequence": 48,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Allergy History (Type)\" AS allergy, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, allergy ORDER BY grp, n_cases DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8700655,
+          "status": "execute_returned",
+          "end_time": 1788865811.8705404
+        },
+        {
+          "sequence": 49,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Past Medical History (Disease Code)\" AS past_med, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, past_med ORDER BY grp, n_cases DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8721294,
+          "status": "execute_returned",
+          "end_time": 1788865811.8726075
+        },
+        {
+          "sequence": 50,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Contact History (Hospital/School/Home)\" AS contact_hist, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, contact_hist ORDER BY grp, n_cases DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.874064,
+          "status": "execute_returned",
+          "end_time": 1788865811.874538
+        },
+        {
+          "sequence": 51,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, MIN(b.\"Date of Discovery\") AS min_date, MAX(b.\"Date of Discovery\") AS max_date, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8759894,
+          "status": "execute_returned",
+          "end_time": 1788865811.8763707
+        },
+        {
+          "sequence": 52,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Emergency Response Activation Time\" AS response_time, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, response_time ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8781016,
+          "status": "execute_returned",
+          "end_time": 1788865811.878481
+        },
+        {
+          "sequence": 53,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Contact Location Type (Hospital/School/Mall)\" AS loc_type, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, loc_type ORDER BY grp, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.880326,
+          "status": "execute_returned",
+          "end_time": 1788865811.8806293
+        },
+        {
+          "sequence": 54,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Highest Body Temperature (°C)\" AS temp FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\"",
+          "phase": "offline_validation",
+          "start_time": 1788865811.882057,
+          "status": "execute_returned",
+          "end_time": 1788865811.882191
+        },
+        {
+          "sequence": 55,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Highest Body Temperature (°C)\" AS temp FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\"",
+          "phase": "offline_validation",
+          "start_time": 1788865811.886676,
+          "status": "execute_returned",
+          "end_time": 1788865811.8867598
+        },
+        {
+          "sequence": 56,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Highest Body Temperature (°C)\" AS temp FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\"",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8911324,
+          "status": "execute_returned",
+          "end_time": 1788865811.8912196
+        },
+        {
+          "sequence": 57,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Data Completeness Score\" AS score FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\"",
+          "phase": "offline_validation",
+          "start_time": 1788865811.8958266,
+          "status": "execute_returned",
+          "end_time": 1788865811.8959548
+        },
+        {
+          "sequence": 58,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Highest Body Temperature (°C)\" AS temp FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\"",
+          "phase": "offline_validation",
+          "start_time": 1788865811.899626,
+          "status": "execute_returned",
+          "end_time": 1788865811.89971
+        },
+        {
+          "sequence": 59,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Data Completeness Score\" AS score FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\"",
+          "phase": "offline_validation",
+          "start_time": 1788865811.904076,
+          "status": "execute_returned",
+          "end_time": 1788865811.9041612
+        },
+        {
+          "sequence": 60,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Laboratory Tests (CBC/Antibody Test)\" AS lab, COUNT(*) AS n, ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (PARTITION BY CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END), 1) AS pct FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, lab ORDER BY grp, lab",
+          "phase": "offline_validation",
+          "start_time": 1788865811.907818,
+          "status": "execute_returned",
+          "end_time": 1788865811.9082606
+        },
+        {
+          "sequence": 61,
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Allergic Reaction Management\" AS allergy, COUNT(*) AS n, ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (PARTITION BY CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END), 1) AS pct FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, allergy ORDER BY grp, allergy",
+          "phase": "offline_validation",
+          "start_time": 1788865811.910259,
+          "status": "execute_returned",
+          "end_time": 1788865811.9106915
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Case ID\", MAX(CASE WHEN \"Outcome (Cured/Improved/Deceased)\" = 'Deceased' THEN 1 ELSE 0 END) AS is_deceased FROM clinical_manifestations GROUP BY \"Case ID\"",
+          "time": 1788865811.780523,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865811.780807,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865811.7808251,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Complication Type (Pneumonia/Encephalitis/Skin Infection)\" AS complication, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, complication ORDER BY grp, n DESC",
+          "time": 1788865811.7808843,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Associated Symptoms (Cough/Headache/Vomiting)\" AS symptom, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, symptom ORDER BY grp, n DESC",
+          "time": 1788865811.7827625,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Hospitalization (Yes/No)\" AS hosp, \"Treatment (Antiviral/Symptomatic)\" AS trt, \"Isolation Status (Yes/No)\" AS iso, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, hosp, trt, iso ORDER BY grp, n DESC",
+          "time": 1788865811.7847512,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, COUNT(DISTINCT cm.\"Case ID\") AS n_cases, COUNT(*) AS n_records, ROUND(AVG(\"Highest Body Temperature (°C)\"), 2) AS avg_temp, ROUND(MIN(\"Highest Body Temperature (°C)\"), 2) AS min_temp, ROUND(MAX(\"Highest Body Temperature (°C)\"), 2) AS max_temp FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "time": 1788865811.7868338,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Rash Distribution (Head & Face/Trunk/Limbs)\" AS rash_dist, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, rash_dist ORDER BY grp, n DESC",
+          "time": 1788865811.7891192,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Rash Morphology (Macule/Papule/Vesicle)\" AS rash_morph, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, rash_morph ORDER BY grp, n DESC",
+          "time": 1788865811.7910674,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"TCM Pattern Differentiation (Wind-Heat/Damp-Heat)\" AS tcm, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, tcm ORDER BY grp, n DESC",
+          "time": 1788865811.792874,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Vaccination History (Doses/Date/Type)\" AS vacc, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, vacc ORDER BY grp, n DESC",
+          "time": 1788865811.7946482,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Contact Status (Positive/Negative/Pending)\" AS contact, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, contact ORDER BY grp, n DESC",
+          "time": 1788865811.7969332,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Contact Location Type (Hospital/School/Mall)\" AS loc, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, loc ORDER BY grp, n DESC",
+          "time": 1788865811.7986574,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, CASE WHEN ei.\"Vaccination History (Doses/Date/Type)\" LIKE '0%' THEN '0 dose/None' WHEN ei.\"Vaccination History (Doses/Date/Type)\" LIKE '1%' THEN '1 dose' WHEN ei.\"Vaccination History (Doses/Date/Type)\" LIKE '2%' THEN '2 doses' WHEN ei.\"Vaccination History (Doses/Date/Type)\" LIKE '3%' THEN '3 doses' ELSE 'No vaccination' END AS vacc_cat, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, vacc_cat ORDER BY grp, n DESC",
+          "time": 1788865811.800395,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, COUNT(*) AS n_records FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "time": 1788865811.8026354,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, COUNT(*) AS n_records FROM isolation_and_disinfection AS id JOIN case_outcome AS co ON id.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "time": 1788865811.8042216,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, COUNT(*) AS n_records FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "time": 1788865811.8058233,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, COUNT(*) AS n_records FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "time": 1788865811.8073523,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, id.\"Isolation Type (Home/Hospital/Centralized)\" AS iso_type, id.\"Disinfection Frequency (times/day)\" AS disinf_freq, id.\"Disinfectant Type (Chlorine-based/Peracetic Acid)\" AS disinf_type, id.\"PPE Usage\" AS ppe, id.\"Symptom Monitoring During Isolation\" AS symp_monitor, COUNT(*) AS n FROM isolation_and_disinfection AS id JOIN case_outcome AS co ON id.\"Case ID\" = co.\"Case ID\" GROUP BY grp, iso_type, disinf_freq, disinf_type, ppe, symp_monitor ORDER BY grp, n DESC",
+          "time": 1788865811.8091109,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, id.\"Isolation Type (Home/Hospital/Centralized)\" AS iso_type, COUNT(*) AS n FROM isolation_and_disinfection AS id JOIN case_outcome AS co ON id.\"Case ID\" = co.\"Case ID\" GROUP BY grp, iso_type ORDER BY grp, n DESC",
+          "time": 1788865811.8114402,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, id.\"PPE Usage\" AS ppe, id.\"Symptom Monitoring During Isolation\" AS monitor, COUNT(*) AS n FROM isolation_and_disinfection AS id JOIN case_outcome AS co ON id.\"Case ID\" = co.\"Case ID\" GROUP BY grp, ppe, monitor ORDER BY grp, n DESC",
+          "time": 1788865811.8131473,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ROUND(AVG(id.\"Disinfection Frequency (times/day)\"), 2) AS avg_disfreq, ROUND(AVG(id.\"Disinfected Area (m²)\"), 2) AS avg_area, ROUND(AVG(id.\"Isolation Cost\"), 2) AS avg_cost FROM isolation_and_disinfection AS id JOIN case_outcome AS co ON id.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "time": 1788865811.815069,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cpl.\"Complication type (pneumonia/encephalitis/hepatitis)\" AS comp_type, COUNT(*) AS n FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp, comp_type ORDER BY grp, n DESC",
+          "time": 1788865811.8170097,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cpl.\"Severity grading (mild/moderate/severe)\" AS severity, COUNT(*) AS n FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp, severity ORDER BY grp, n DESC",
+          "time": 1788865811.8187325,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cpl.\"Management measures (observation/treatment/referral)\" AS mgmt, cpl.\"Complication outcome (recovered/sequelae)\" AS comp_outcome, COUNT(*) AS n FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp, mgmt, comp_outcome ORDER BY grp, n DESC",
+          "time": 1788865811.82046,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Initial Diagnosis (Suspected/Clinical/Confirmed)\" AS init_diag, dc.\"Case Classification (Sporadic/Outbreak/Sudden Event)\" AS case_class, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, init_diag, case_class ORDER BY grp, n DESC",
+          "time": 1788865811.8224866,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ROUND(AVG(dc.\"Diagnostic Quality Score\"), 2) AS avg_quality, ROUND(AVG(dc.\"Diagnostic Criteria Compliance Rate\"), 2) AS avg_compliance, ROUND(MIN(dc.\"Diagnostic Quality Score\"), 2) AS min_quality, ROUND(MAX(dc.\"Diagnostic Quality Score\"), 2) AS max_quality FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "time": 1788865811.8244314,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Laboratory Tests (CBC/Antibody Test)\" AS lab, cm.\"Imaging Studies (CT/X-ray)\" AS imaging, cm.\"Medication & Dosage\" AS med, cm.\"Allergic Reaction Management\" AS allergy_mgmt, cm.\"Contact Management (Yes/No)\" AS contact_mgmt, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, lab, imaging, med, allergy_mgmt, contact_mgmt ORDER BY grp, n DESC",
+          "time": 1788865811.8267117,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Laboratory Tests (CBC/Antibody Test)\" AS lab, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, lab ORDER BY grp, n DESC",
+          "time": 1788865811.8308532,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Imaging Studies (CT/X-ray)\" AS imaging, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, imaging ORDER BY grp, n DESC",
+          "time": 1788865811.8327286,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Allergic Reaction Management\" AS allergy, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, allergy ORDER BY grp, n DESC",
+          "time": 1788865811.8345473,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Contact Management (Yes/No)\" AS contact_mgmt, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, contact_mgmt ORDER BY grp, n DESC",
+          "time": 1788865811.8363538,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Gender\" AS gender, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, gender ORDER BY grp, n_cases DESC",
+          "time": 1788865811.838733,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Occupation Type (Childcare/Student/Teacher)\" AS occupation, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, occupation ORDER BY grp, n_cases DESC",
+          "time": 1788865811.840706,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Reporting Method (App/Phone/Paper)\" AS report_method, b.\"Data Source (Clinical/Laboratory/Epidemiological Investigation)\" AS data_src, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, report_method, data_src ORDER BY grp, n_cases DESC",
+          "time": 1788865811.8428497,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ROUND(AVG(cpl.\"Complication treatment cost\"), 2) AS avg_cost, ROUND(MIN(cpl.\"Complication treatment cost\"), 2) AS min_cost, ROUND(MAX(cpl.\"Complication treatment cost\"), 2) AS max_cost, ROUND(AVG(cpl.\"Medical Insurance Reimbursement Percentage\"), 2) AS avg_reimb, cpl.\"Complication reporting timeliness\" AS report_time, cpl.\"Complication management timeliness\" AS mgmt_time, COUNT(*) AS n FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp, report_time, mgmt_time ORDER BY grp, n DESC",
+          "time": 1788865811.8459048,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ROUND(AVG(cpl.\"Complication treatment cost\"), 0) AS avg_treatment_cost, ROUND(AVG(cpl.\"Medical Insurance Reimbursement Percentage\"), 2) AS avg_reimbursement_pct, COUNT(*) AS n FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "time": 1788865811.849181,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ROUND(AVG(cpl.\"Medical Insurance Reimbursement Percentage\"), 2) AS avg_reimb FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "time": 1788865811.8511152,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Vaccine Origin (Domestic/Imported)\" AS vacc_origin, ei.\"Shared Exposure History (Group Dining/Group Activity)\" AS shared_exposure, ei.\"Environmental Sample Test Result\" AS env_result, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, vacc_origin, shared_exposure, env_result ORDER BY grp, n DESC",
+          "time": 1788865811.852919,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Diagnostic Delay Analysis\" AS delay, dc.\"Differential Diagnosis (Measles/Hand, Foot, and Mouth Disease)\" AS diff_diag, dc.\"Diagnosis Review Flag\" AS review_flag, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, delay, diff_diag, review_flag ORDER BY grp, n DESC",
+          "time": 1788865811.8549113,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Initial Diagnosis (Suspected/Clinical/Confirmed)\" AS init_diag, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, init_diag ORDER BY grp, n DESC",
+          "time": 1788865811.8569496,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Diagnostic Delay Analysis\" AS delay, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, delay ORDER BY grp, n DESC",
+          "time": 1788865811.8588593,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Vaccine Origin (Domestic/Imported)\" AS vacc_origin, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, vacc_origin ORDER BY grp, n DESC",
+          "time": 1788865811.860605,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Case Classification (Sporadic/Outbreak/Sudden Event)\" AS case_class, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, case_class ORDER BY grp, n DESC",
+          "time": 1788865811.8622954,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Diagnosis Review Flag\" AS review_flag, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, review_flag ORDER BY grp, n DESC",
+          "time": 1788865811.8640497,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Allergy History (Type)\" AS allergy, b.\"Past Medical History (Disease Code)\" AS past_med, b.\"Contact History (Hospital/School/Home)\" AS contact_hist, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, allergy, past_med, contact_hist ORDER BY grp, n_cases DESC",
+          "time": 1788865811.8659596,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Laboratory Confirmation Basis (PCR/Antibody Test)\" AS lab_conf, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, lab_conf ORDER BY grp, n DESC",
+          "time": 1788865811.8683774,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Allergy History (Type)\" AS allergy, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, allergy ORDER BY grp, n_cases DESC",
+          "time": 1788865811.8701382,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Past Medical History (Disease Code)\" AS past_med, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, past_med ORDER BY grp, n_cases DESC",
+          "time": 1788865811.8722095,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Contact History (Hospital/School/Home)\" AS contact_hist, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, contact_hist ORDER BY grp, n_cases DESC",
+          "time": 1788865811.874135,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, MIN(b.\"Date of Discovery\") AS min_date, MAX(b.\"Date of Discovery\") AS max_date, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "time": 1788865811.8760555,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Emergency Response Activation Time\" AS response_time, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, response_time ORDER BY grp, n DESC",
+          "time": 1788865811.8781757,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Contact Location Type (Hospital/School/Mall)\" AS loc_type, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, loc_type ORDER BY grp, n DESC",
+          "time": 1788865811.880393,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Highest Body Temperature (°C)\" AS temp FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\"",
+          "time": 1788865811.8821077,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Highest Body Temperature (°C)\" AS temp FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\"",
+          "time": 1788865811.8866844,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Highest Body Temperature (°C)\" AS temp FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\"",
+          "time": 1788865811.891141,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Data Completeness Score\" AS score FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\"",
+          "time": 1788865811.8958771,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Highest Body Temperature (°C)\" AS temp FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\"",
+          "time": 1788865811.8996341,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Data Completeness Score\" AS score FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\"",
+          "time": 1788865811.9040833,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Laboratory Tests (CBC/Antibody Test)\" AS lab, COUNT(*) AS n, ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (PARTITION BY CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END), 1) AS pct FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, lab ORDER BY grp, lab",
+          "time": 1788865811.907925,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Allergic Reaction Management\" AS allergy, COUNT(*) AS n, ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (PARTITION BY CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END), 1) AS pct FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, allergy ORDER BY grp, allergy",
+          "time": 1788865811.9103625,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.6344085559248924,
+      "intermediate_rows": 211,
+      "intermediate_columns": [
+        "Case ID",
+        "is_deceased"
+      ],
+      "validation_ended_at": 1788865811.9130948,
+      "checks": [
+        {
+          "sql_id": "S33",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Complication Type (Pneumonia/Encephalitis/Skin Infection)\" AS complication, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, complication ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.860758289694786
+        },
+        {
+          "sql_id": "S34",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Associated Symptoms (Cough/Headache/Vomiting)\" AS symptom, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, symptom ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.9780602306127548
+        },
+        {
+          "sql_id": "S35",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Hospitalization (Yes/No)\" AS hosp, \"Treatment (Antiviral/Symptomatic)\" AS trt, \"Isolation Status (Yes/No)\" AS iso, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, hosp, trt, iso ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.0723380148410797
+        },
+        {
+          "sql_id": "S36",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, COUNT(DISTINCT cm.\"Case ID\") AS n_cases, COUNT(*) AS n_records, ROUND(AVG(\"Highest Body Temperature (°C)\"), 2) AS avg_temp, ROUND(MIN(\"Highest Body Temperature (°C)\"), 2) AS min_temp, ROUND(MAX(\"Highest Body Temperature (°C)\"), 2) AS max_temp FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.294088713824749
+        },
+        {
+          "sql_id": "S37",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Rash Distribution (Head & Face/Trunk/Limbs)\" AS rash_dist, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, rash_dist ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.9447430968284607
+        },
+        {
+          "sql_id": "S38",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Rash Morphology (Macule/Papule/Vesicle)\" AS rash_morph, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, rash_morph ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.8031289801001549
+        },
+        {
+          "sql_id": "S39",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"TCM Pattern Differentiation (Wind-Heat/Damp-Heat)\" AS tcm, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, tcm ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7643235623836517
+        },
+        {
+          "sql_id": "S40",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Vaccination History (Doses/Date/Type)\" AS vacc, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, vacc ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.2806040942668915
+        },
+        {
+          "sql_id": "S41",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Contact Status (Positive/Negative/Pending)\" AS contact, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, contact ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7237886786460876
+        },
+        {
+          "sql_id": "S42",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Contact Location Type (Hospital/School/Mall)\" AS loc, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, loc ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7010699957609177
+        },
+        {
+          "sql_id": "S44",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, CASE WHEN ei.\"Vaccination History (Doses/Date/Type)\" LIKE '0%' THEN '0 dose/None' WHEN ei.\"Vaccination History (Doses/Date/Type)\" LIKE '1%' THEN '1 dose' WHEN ei.\"Vaccination History (Doses/Date/Type)\" LIKE '2%' THEN '2 doses' WHEN ei.\"Vaccination History (Doses/Date/Type)\" LIKE '3%' THEN '3 doses' ELSE 'No vaccination' END AS vacc_cat, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, vacc_cat ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.2783633321523666
+        },
+        {
+          "sql_id": "S45",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, COUNT(*) AS n_records FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.5074647963047028
+        },
+        {
+          "sql_id": "S46",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, COUNT(*) AS n_records FROM isolation_and_disinfection AS id JOIN case_outcome AS co ON id.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.6377614811062813
+        },
+        {
+          "sql_id": "S47",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, COUNT(*) AS n_records FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.5260158106684685
+        },
+        {
+          "sql_id": "S48",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, COUNT(*) AS n_records FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.7260359600186348
+        },
+        {
+          "sql_id": "S49",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, id.\"Isolation Type (Home/Hospital/Centralized)\" AS iso_type, id.\"Disinfection Frequency (times/day)\" AS disinf_freq, id.\"Disinfectant Type (Chlorine-based/Peracetic Acid)\" AS disinf_type, id.\"PPE Usage\" AS ppe, id.\"Symptom Monitoring During Isolation\" AS symp_monitor, COUNT(*) AS n FROM isolation_and_disinfection AS id JOIN case_outcome AS co ON id.\"Case ID\" = co.\"Case ID\" GROUP BY grp, iso_type, disinf_freq, disinf_type, ppe, symp_monitor ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.3467112332582474
+        },
+        {
+          "sql_id": "S50",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, id.\"Isolation Type (Home/Hospital/Centralized)\" AS iso_type, COUNT(*) AS n FROM isolation_and_disinfection AS id JOIN case_outcome AS co ON id.\"Case ID\" = co.\"Case ID\" GROUP BY grp, iso_type ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.6994941979646683
+        },
+        {
+          "sql_id": "S51",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, id.\"PPE Usage\" AS ppe, id.\"Symptom Monitoring During Isolation\" AS monitor, COUNT(*) AS n FROM isolation_and_disinfection AS id JOIN case_outcome AS co ON id.\"Case ID\" = co.\"Case ID\" GROUP BY grp, ppe, monitor ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.9129496067762375
+        },
+        {
+          "sql_id": "S52",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ROUND(AVG(id.\"Disinfection Frequency (times/day)\"), 2) AS avg_disfreq, ROUND(AVG(id.\"Disinfected Area (m²)\"), 2) AS avg_area, ROUND(AVG(id.\"Isolation Cost\"), 2) AS avg_cost FROM isolation_and_disinfection AS id JOIN case_outcome AS co ON id.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.9485577940940857
+        },
+        {
+          "sql_id": "S53",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cpl.\"Complication type (pneumonia/encephalitis/hepatitis)\" AS comp_type, COUNT(*) AS n FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp, comp_type ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7231833189725876
+        },
+        {
+          "sql_id": "S54",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cpl.\"Severity grading (mild/moderate/severe)\" AS severity, COUNT(*) AS n FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp, severity ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7163464799523354
+        },
+        {
+          "sql_id": "S55",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cpl.\"Management measures (observation/treatment/referral)\" AS mgmt, cpl.\"Complication outcome (recovered/sequelae)\" AS comp_outcome, COUNT(*) AS n FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp, mgmt, comp_outcome ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.025134861469269
+        },
+        {
+          "sql_id": "S56",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Initial Diagnosis (Suspected/Clinical/Confirmed)\" AS init_diag, dc.\"Case Classification (Sporadic/Outbreak/Sudden Event)\" AS case_class, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, init_diag, case_class ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.9349390640854836
+        },
+        {
+          "sql_id": "S57",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ROUND(AVG(dc.\"Diagnostic Quality Score\"), 2) AS avg_quality, ROUND(AVG(dc.\"Diagnostic Criteria Compliance Rate\"), 2) AS avg_compliance, ROUND(MIN(dc.\"Diagnostic Quality Score\"), 2) AS min_quality, ROUND(MAX(dc.\"Diagnostic Quality Score\"), 2) AS max_quality FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.269967459142208
+        },
+        {
+          "sql_id": "S58",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Laboratory Tests (CBC/Antibody Test)\" AS lab, cm.\"Imaging Studies (CT/X-ray)\" AS imaging, cm.\"Medication & Dosage\" AS med, cm.\"Allergic Reaction Management\" AS allergy_mgmt, cm.\"Contact Management (Yes/No)\" AS contact_mgmt, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, lab, imaging, med, allergy_mgmt, contact_mgmt ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 4.1552819311618805
+        },
+        {
+          "sql_id": "S59",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Laboratory Tests (CBC/Antibody Test)\" AS lab, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, lab ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.8673129379749298
+        },
+        {
+          "sql_id": "S60",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Imaging Studies (CT/X-ray)\" AS imaging, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, imaging ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.8226243555545807
+        },
+        {
+          "sql_id": "S61",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Allergic Reaction Management\" AS allergy, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, allergy ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.8014870584011078
+        },
+        {
+          "sql_id": "S62",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Contact Management (Yes/No)\" AS contact_mgmt, COUNT(*) AS n FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, contact_mgmt ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.3735053837299347
+        },
+        {
+          "sql_id": "S63",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Gender\" AS gender, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, gender ORDER BY grp, n_cases DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.9709989428520203
+        },
+        {
+          "sql_id": "S64",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Occupation Type (Childcare/Student/Teacher)\" AS occupation, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, occupation ORDER BY grp, n_cases DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.1078456193208694
+        },
+        {
+          "sql_id": "S65",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Reporting Method (App/Phone/Paper)\" AS report_method, b.\"Data Source (Clinical/Laboratory/Epidemiological Investigation)\" AS data_src, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, report_method, data_src ORDER BY grp, n_cases DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.0620303004980087
+        },
+        {
+          "sql_id": "S66",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ROUND(AVG(cpl.\"Complication treatment cost\"), 2) AS avg_cost, ROUND(MIN(cpl.\"Complication treatment cost\"), 2) AS min_cost, ROUND(MAX(cpl.\"Complication treatment cost\"), 2) AS max_cost, ROUND(AVG(cpl.\"Medical Insurance Reimbursement Percentage\"), 2) AS avg_reimb, cpl.\"Complication reporting timeliness\" AS report_time, cpl.\"Complication management timeliness\" AS mgmt_time, COUNT(*) AS n FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp, report_time, mgmt_time ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.2926006242632866
+        },
+        {
+          "sql_id": "S67",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ROUND(AVG(cpl.\"Complication treatment cost\"), 0) AS avg_treatment_cost, ROUND(AVG(cpl.\"Medical Insurance Reimbursement Percentage\"), 2) AS avg_reimbursement_pct, COUNT(*) AS n FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.945020630955696
+        },
+        {
+          "sql_id": "S68",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ROUND(AVG(cpl.\"Medical Insurance Reimbursement Percentage\"), 2) AS avg_reimb FROM complication_management AS cpl JOIN case_outcome AS co ON cpl.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.7853034660220146
+        },
+        {
+          "sql_id": "S69",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Vaccine Origin (Domestic/Imported)\" AS vacc_origin, ei.\"Shared Exposure History (Group Dining/Group Activity)\" AS shared_exposure, ei.\"Environmental Sample Test Result\" AS env_result, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, vacc_origin, shared_exposure, env_result ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.9921613857150078
+        },
+        {
+          "sql_id": "S70",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Diagnostic Delay Analysis\" AS delay, dc.\"Differential Diagnosis (Measles/Hand, Foot, and Mouth Disease)\" AS diff_diag, dc.\"Diagnosis Review Flag\" AS review_flag, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, delay, diff_diag, review_flag ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.045626752078533
+        },
+        {
+          "sql_id": "S71",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Initial Diagnosis (Suspected/Clinical/Confirmed)\" AS init_diag, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, init_diag ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.9061202183365822
+        },
+        {
+          "sql_id": "S72",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Diagnostic Delay Analysis\" AS delay, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, delay ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.740097999572754
+        },
+        {
+          "sql_id": "S73",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Vaccine Origin (Domestic/Imported)\" AS vacc_origin, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, vacc_origin ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.6919588670134544
+        },
+        {
+          "sql_id": "S74",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Case Classification (Sporadic/Outbreak/Sudden Event)\" AS case_class, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, case_class ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7522703856229782
+        },
+        {
+          "sql_id": "S75",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Diagnosis Review Flag\" AS review_flag, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, review_flag ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.8912842497229576
+        },
+        {
+          "sql_id": "S76",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Allergy History (Type)\" AS allergy, b.\"Past Medical History (Disease Code)\" AS past_med, b.\"Contact History (Hospital/School/Home)\" AS contact_hist, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, allergy, past_med, contact_hist ORDER BY grp, n_cases DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.431033179163933
+        },
+        {
+          "sql_id": "S77",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, dc.\"Laboratory Confirmation Basis (PCR/Antibody Test)\" AS lab_conf, COUNT(*) AS n FROM diagnosis_and_classification AS dc JOIN case_outcome AS co ON dc.\"Case ID\" = co.\"Case ID\" GROUP BY grp, lab_conf ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7525069415569305
+        },
+        {
+          "sql_id": "S78",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Allergy History (Type)\" AS allergy, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, allergy ORDER BY grp, n_cases DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.061433158814907
+        },
+        {
+          "sql_id": "S79",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Past Medical History (Disease Code)\" AS past_med, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, past_med ORDER BY grp, n_cases DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.9322242587804794
+        },
+        {
+          "sql_id": "S80",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Contact History (Hospital/School/Home)\" AS contact_hist, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp, contact_hist ORDER BY grp, n_cases DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.9228821620345116
+        },
+        {
+          "sql_id": "S81",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, MIN(b.\"Date of Discovery\") AS min_date, MAX(b.\"Date of Discovery\") AS max_date, COUNT(DISTINCT b.\"Case ID\") AS n_cases FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\" GROUP BY grp",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.1095722913742065
+        },
+        {
+          "sql_id": "S82",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Emergency Response Activation Time\" AS response_time, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, response_time ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.221924252808094
+        },
+        {
+          "sql_id": "S83",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, ei.\"Contact Location Type (Hospital/School/Mall)\" AS loc_type, COUNT(*) AS n FROM epidemiological_investigation AS ei JOIN case_outcome AS co ON ei.\"Case ID\" = co.\"Case ID\" GROUP BY grp, loc_type ORDER BY grp, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7282459884881973
+        },
+        {
+          "sql_id": "S84",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Highest Body Temperature (°C)\" AS temp FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 4.616175778210163
+        },
+        {
+          "sql_id": "S85",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Highest Body Temperature (°C)\" AS temp FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 4.454457201063633
+        },
+        {
+          "sql_id": "S86",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Highest Body Temperature (°C)\" AS temp FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 4.691494628787041
+        },
+        {
+          "sql_id": "S87",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Data Completeness Score\" AS score FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 3.796742297708988
+        },
+        {
+          "sql_id": "S88",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, \"Highest Body Temperature (°C)\" AS temp FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 4.448056221008301
+        },
+        {
+          "sql_id": "S89",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, b.\"Data Completeness Score\" AS score FROM basic_medical_record_informatio AS b JOIN case_outcome AS co ON b.\"Case ID\" = co.\"Case ID\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 3.7393681704998016
+        },
+        {
+          "sql_id": "S90",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Laboratory Tests (CBC/Antibody Test)\" AS lab, COUNT(*) AS n, ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (PARTITION BY CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END), 1) AS pct FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, lab ORDER BY grp, lab",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.4386579170823097
+        },
+        {
+          "sql_id": "S91",
+          "rewritten_sql": "WITH case_outcome AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END AS grp, cm.\"Allergic Reaction Management\" AS allergy, COUNT(*) AS n, ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (PARTITION BY CASE WHEN is_deceased = 1 THEN 'Deceased' ELSE 'Recovered' END), 1) AS pct FROM clinical_manifestations AS cm JOIN case_outcome AS co ON cm.\"Case ID\" = co.\"Case ID\" GROUP BY grp, allergy ORDER BY grp, allergy",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.609478309750557
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Outcome (Cured/Improved/Deceased)\" AS __g0, \"Hospitalization (Yes/No)\" AS __g1, \"Isolation Status (Yes/No)\" AS __g2, \"Treatment (Antiviral/Symptomatic)\" AS __g3, \"Complication Type (Pneumonia/Encephalitis/Skin Infection)\" AS __g4, \"Associated Symptoms (Cough/Headache/Vomiting)\" AS __g5, \"Rash Distribution (Head & Face/Trunk/Limbs)\" AS __g6, \"Rash Morphology (Macule/Papule/Vesicle)\" AS __g7, \"TCM Pattern Differentiation (Wind-Heat/Damp-Heat)\" AS __g8, \"Isolation Type (Home/Hospital)\" AS __g9, \"Contact Management (Yes/No)\" AS __g10, COUNT(*) AS __a0 FROM \"clinical_manifestations\"  GROUP BY \"Outcome (Cured/Improved/Deceased)\", \"Hospitalization (Yes/No)\", \"Isolation Status (Yes/No)\", \"Treatment (Antiviral/Symptomatic)\", \"Complication Type (Pneumonia/Encephalitis/Skin Infection)\", \"Associated Symptoms (Cough/Headache/Vomiting)\", \"Rash Distribution (Head & Face/Trunk/Limbs)\", \"Rash Morphology (Macule/Papule/Vesicle)\", \"TCM Pattern Differentiation (Wind-Heat/Damp-Heat)\", \"Isolation Type (Home/Hospital)\", \"Contact Management (Yes/No)\"",
+      "covered": [
+        "S3",
+        "S4",
+        "S12",
+        "S13",
+        "S14",
+        "S15",
+        "S16",
+        "S17",
+        "S18",
+        "S19",
+        "S32"
+      ],
+      "rewrites": {
+        "S3": "SELECT __g0 AS outcome, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+        "S4": "SELECT SUM(__a0) AS n_cases FROM temp.reuse_candidate",
+        "S12": "SELECT __g0 AS outcome, __g1 AS hosp, __g2 AS iso, __g3 AS trt, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g1, __g2, __g3 ORDER BY outcome, n DESC",
+        "S13": "SELECT __g0 AS outcome, __g4 AS complication, __g5 AS assoc_symptoms, __g6 AS rash_dist, __g7 AS rash_morph, __g8 AS tcm, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g4, __g5, __g6, __g7, __g8 ORDER BY outcome, n DESC",
+        "S14": "SELECT __g0 AS outcome, __g4 AS complication, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g4 ORDER BY outcome, n DESC",
+        "S15": "SELECT __g0 AS outcome, __g5 AS symptom, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g5 ORDER BY outcome, n DESC",
+        "S16": "SELECT __g0 AS outcome, __g1 AS hospitalized, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY outcome, n DESC",
+        "S17": "SELECT __g0 AS outcome, __g3 AS treatment, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY outcome, n DESC",
+        "S18": "SELECT __g0 AS outcome, __g2 AS isolation, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY outcome, n DESC",
+        "S19": "SELECT __g0 AS outcome, __g9 AS iso_type, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g9 ORDER BY outcome, n DESC",
+        "S32": "SELECT __g10 AS contact_mgmt, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g10"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 10,
+      "denominator": 89,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865811.9131434,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Outcome (Cured/Improved/Deceased)\" AS __g0, \"Hospitalization (Yes/No)\" AS __g1, \"Isolation Status (Yes/No)\" AS __g2, \"Treatment (Antiviral/Symptomatic)\" AS __g3, \"Complication Type (Pneumonia/Encephalitis/Skin Infection)\" AS __g4, \"Associated Symptoms (Cough/Headache/Vomiting)\" AS __g5, \"Rash Distribution (Head & Face/Trunk/Limbs)\" AS __g6, \"Rash Morphology (Macule/Papule/Vesicle)\" AS __g7, \"TCM Pattern Differentiation (Wind-Heat/Damp-Heat)\" AS __g8, \"Isolation Type (Home/Hospital)\" AS __g9, \"Contact Management (Yes/No)\" AS __g10, COUNT(*) AS __a0 FROM \"clinical_manifestations\"  GROUP BY \"Outcome (Cured/Improved/Deceased)\", \"Hospitalization (Yes/No)\", \"Isolation Status (Yes/No)\", \"Treatment (Antiviral/Symptomatic)\", \"Complication Type (Pneumonia/Encephalitis/Skin Infection)\", \"Associated Symptoms (Cough/Headache/Vomiting)\", \"Rash Distribution (Head & Face/Trunk/Limbs)\", \"Rash Morphology (Macule/Papule/Vesicle)\", \"TCM Pattern Differentiation (Wind-Heat/Damp-Heat)\", \"Isolation Type (Home/Hospital)\", \"Contact Management (Yes/No)\"",
+          "phase": "offline_validation",
+          "start_time": 1788865811.9133449,
+          "status": "execute_returned",
+          "end_time": 1788865811.9142642
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865811.914268,
+          "status": "execute_returned",
+          "end_time": 1788865811.914283
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865811.9142869,
+          "status": "execute_returned",
+          "end_time": 1788865811.9142988
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS outcome, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788865811.9143188,
+          "status": "execute_returned",
+          "end_time": 1788865811.9143677
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT SUM(__a0) AS n_cases FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865811.9148905,
+          "status": "execute_returned",
+          "end_time": 1788865811.9149294
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS outcome, __g1 AS hosp, __g2 AS iso, __g3 AS trt, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g1, __g2, __g3 ORDER BY outcome, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.9152946,
+          "status": "execute_returned",
+          "end_time": 1788865811.9154449
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g0 AS outcome, __g4 AS complication, __g5 AS assoc_symptoms, __g6 AS rash_dist, __g7 AS rash_morph, __g8 AS tcm, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g4, __g5, __g6, __g7, __g8 ORDER BY outcome, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.9162834,
+          "status": "execute_returned",
+          "end_time": 1788865811.9165745
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g0 AS outcome, __g4 AS complication, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g4 ORDER BY outcome, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.9183881,
+          "status": "execute_returned",
+          "end_time": 1788865811.9185114
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g0 AS outcome, __g5 AS symptom, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g5 ORDER BY outcome, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.919197,
+          "status": "execute_returned",
+          "end_time": 1788865811.9193218
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g0 AS outcome, __g1 AS hospitalized, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY outcome, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.9199562,
+          "status": "execute_returned",
+          "end_time": 1788865811.9200659
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g0 AS outcome, __g3 AS treatment, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY outcome, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.9206934,
+          "status": "execute_returned",
+          "end_time": 1788865811.9208071
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT __g0 AS outcome, __g2 AS isolation, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY outcome, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.921429,
+          "status": "execute_returned",
+          "end_time": 1788865811.921541
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT __g0 AS outcome, __g9 AS iso_type, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g9 ORDER BY outcome, n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.9221532,
+          "status": "execute_returned",
+          "end_time": 1788865811.9222758
+        },
+        {
+          "sequence": 14,
+          "sql": "SELECT __g10 AS contact_mgmt, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g10",
+          "phase": "offline_validation",
+          "start_time": 1788865811.9228916,
+          "status": "execute_returned",
+          "end_time": 1788865811.9229636
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Outcome (Cured/Improved/Deceased)\" AS __g0, \"Hospitalization (Yes/No)\" AS __g1, \"Isolation Status (Yes/No)\" AS __g2, \"Treatment (Antiviral/Symptomatic)\" AS __g3, \"Complication Type (Pneumonia/Encephalitis/Skin Infection)\" AS __g4, \"Associated Symptoms (Cough/Headache/Vomiting)\" AS __g5, \"Rash Distribution (Head & Face/Trunk/Limbs)\" AS __g6, \"Rash Morphology (Macule/Papule/Vesicle)\" AS __g7, \"TCM Pattern Differentiation (Wind-Heat/Damp-Heat)\" AS __g8, \"Isolation Type (Home/Hospital)\" AS __g9, \"Contact Management (Yes/No)\" AS __g10, COUNT(*) AS __a0 FROM \"clinical_manifestations\"  GROUP BY \"Outcome (Cured/Improved/Deceased)\", \"Hospitalization (Yes/No)\", \"Isolation Status (Yes/No)\", \"Treatment (Antiviral/Symptomatic)\", \"Complication Type (Pneumonia/Encephalitis/Skin Infection)\", \"Associated Symptoms (Cough/Headache/Vomiting)\", \"Rash Distribution (Head & Face/Trunk/Limbs)\", \"Rash Morphology (Macule/Papule/Vesicle)\", \"TCM Pattern Differentiation (Wind-Heat/Damp-Heat)\", \"Isolation Type (Home/Hospital)\", \"Contact Management (Yes/No)\"",
+          "time": 1788865811.9136062,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865811.9142802,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865811.9142964,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS outcome, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788865811.914332,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n_cases FROM temp.reuse_candidate",
+          "time": 1788865811.9149113,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS outcome, __g1 AS hosp, __g2 AS iso, __g3 AS trt, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g1, __g2, __g3 ORDER BY outcome, n DESC",
+          "time": 1788865811.9153259,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS outcome, __g4 AS complication, __g5 AS assoc_symptoms, __g6 AS rash_dist, __g7 AS rash_morph, __g8 AS tcm, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g4, __g5, __g6, __g7, __g8 ORDER BY outcome, n DESC",
+          "time": 1788865811.9163244,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS outcome, __g4 AS complication, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g4 ORDER BY outcome, n DESC",
+          "time": 1788865811.9184215,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS outcome, __g5 AS symptom, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g5 ORDER BY outcome, n DESC",
+          "time": 1788865811.9192302,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS outcome, __g1 AS hospitalized, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY outcome, n DESC",
+          "time": 1788865811.919988,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS outcome, __g3 AS treatment, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY outcome, n DESC",
+          "time": 1788865811.920726,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS outcome, __g2 AS isolation, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY outcome, n DESC",
+          "time": 1788865811.9214613,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS outcome, __g9 AS iso_type, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g9 ORDER BY outcome, n DESC",
+          "time": 1788865811.9221916,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g10 AS contact_mgmt, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g10",
+          "time": 1788865811.9229167,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.9233439341187477,
+      "intermediate_rows": 171,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__g5",
+        "__g6",
+        "__g7",
+        "__g8",
+        "__g9",
+        "__g10",
+        "__a0"
+      ],
+      "validation_ended_at": 1788865811.9235344,
+      "checks": [
+        {
+          "sql_id": "S3",
+          "rewritten_sql": "SELECT __g0 AS outcome, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5693612620234489
+        },
+        {
+          "sql_id": "S4",
+          "rewritten_sql": "SELECT SUM(__a0) AS n_cases FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.40232203900814056
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT __g0 AS outcome, __g1 AS hosp, __g2 AS iso, __g3 AS trt, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g1, __g2, __g3 ORDER BY outcome, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.9861970320343971
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT __g0 AS outcome, __g4 AS complication, __g5 AS assoc_symptoms, __g6 AS rash_dist, __g7 AS rash_morph, __g8 AS tcm, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g4, __g5, __g6, __g7, __g8 ORDER BY outcome, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.1023713052272797
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT __g0 AS outcome, __g4 AS complication, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g4 ORDER BY outcome, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.8068149909377098
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "SELECT __g0 AS outcome, __g5 AS symptom, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g5 ORDER BY outcome, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7568011060357094
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "SELECT __g0 AS outcome, __g1 AS hospitalized, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY outcome, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.734708271920681
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "SELECT __g0 AS outcome, __g3 AS treatment, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g3 ORDER BY outcome, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7335664704442024
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT __g0 AS outcome, __g2 AS isolation, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g2 ORDER BY outcome, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7216371595859528
+        },
+        {
+          "sql_id": "S19",
+          "rewritten_sql": "SELECT __g0 AS outcome, __g9 AS iso_type, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g9 ORDER BY outcome, n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7362142205238342
+        },
+        {
+          "sql_id": "S32",
+          "rewritten_sql": "SELECT __g10 AS contact_mgmt, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g10",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5636941641569138
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Vaccination History (Doses/Date/Type)\" AS __g0, \"Contact Status (Positive/Negative/Pending)\" AS __g1, \"Contact Location Type (Hospital/School/Mall)\" AS __g2, \"Shared Exposure History (Group Dining/Group Activity)\" AS __g3, CASE WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '0%' THEN '0 dose/None' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '1%' THEN '1 dose' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '2%' THEN '2 doses' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '3%' THEN '3 doses' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE 'No%' OR \"Vaccination History (Doses/Date/Type)\" LIKE 'None%' THEN 'No vaccination' ELSE 'Other' END AS __g4, COUNT(*) AS __a0 FROM \"epidemiological_investigation\"  GROUP BY \"Vaccination History (Doses/Date/Type)\", \"Contact Status (Positive/Negative/Pending)\", \"Contact Location Type (Hospital/School/Mall)\", \"Shared Exposure History (Group Dining/Group Activity)\", CASE WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '0%' THEN '0 dose/None' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '1%' THEN '1 dose' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '2%' THEN '2 doses' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '3%' THEN '3 doses' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE 'No%' OR \"Vaccination History (Doses/Date/Type)\" LIKE 'None%' THEN 'No vaccination' ELSE 'Other' END",
+      "covered": [
+        "S7",
+        "S24",
+        "S25",
+        "S26",
+        "S27",
+        "S43"
+      ],
+      "rewrites": {
+        "S7": "SELECT SUM(__a0) AS n_epi FROM temp.reuse_candidate",
+        "S24": "SELECT __g0 AS vacc, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+        "S25": "SELECT __g1 AS contact, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+        "S26": "SELECT __g2 AS loc, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY n DESC",
+        "S27": "SELECT __g3 AS shared, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+        "S43": "SELECT __g4 AS vacc_cat, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S7",
+      "later_reuses": 5,
+      "denominator": 89,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865811.9235709,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Vaccination History (Doses/Date/Type)\" AS __g0, \"Contact Status (Positive/Negative/Pending)\" AS __g1, \"Contact Location Type (Hospital/School/Mall)\" AS __g2, \"Shared Exposure History (Group Dining/Group Activity)\" AS __g3, CASE WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '0%' THEN '0 dose/None' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '1%' THEN '1 dose' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '2%' THEN '2 doses' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '3%' THEN '3 doses' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE 'No%' OR \"Vaccination History (Doses/Date/Type)\" LIKE 'None%' THEN 'No vaccination' ELSE 'Other' END AS __g4, COUNT(*) AS __a0 FROM \"epidemiological_investigation\"  GROUP BY \"Vaccination History (Doses/Date/Type)\", \"Contact Status (Positive/Negative/Pending)\", \"Contact Location Type (Hospital/School/Mall)\", \"Shared Exposure History (Group Dining/Group Activity)\", CASE WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '0%' THEN '0 dose/None' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '1%' THEN '1 dose' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '2%' THEN '2 doses' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '3%' THEN '3 doses' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE 'No%' OR \"Vaccination History (Doses/Date/Type)\" LIKE 'None%' THEN 'No vaccination' ELSE 'Other' END",
+          "phase": "offline_validation",
+          "start_time": 1788865811.9237413,
+          "status": "execute_returned",
+          "end_time": 1788865811.924399
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865811.9244022,
+          "status": "execute_returned",
+          "end_time": 1788865811.9244177
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865811.9244213,
+          "status": "execute_returned",
+          "end_time": 1788865811.924431
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS n_epi FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865811.9244425,
+          "status": "execute_returned",
+          "end_time": 1788865811.924467
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS vacc, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.9248545,
+          "status": "execute_returned",
+          "end_time": 1788865811.9249835
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS contact, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.9262536,
+          "status": "execute_returned",
+          "end_time": 1788865811.9263535
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g2 AS loc, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.9268913,
+          "status": "execute_returned",
+          "end_time": 1788865811.926994
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g3 AS shared, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865811.9275193,
+          "status": "execute_returned",
+          "end_time": 1788865811.9276135
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g4 AS vacc_cat, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4",
+          "phase": "offline_validation",
+          "start_time": 1788865811.9281118,
+          "status": "execute_returned",
+          "end_time": 1788865811.928183
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Vaccination History (Doses/Date/Type)\" AS __g0, \"Contact Status (Positive/Negative/Pending)\" AS __g1, \"Contact Location Type (Hospital/School/Mall)\" AS __g2, \"Shared Exposure History (Group Dining/Group Activity)\" AS __g3, CASE WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '0%' THEN '0 dose/None' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '1%' THEN '1 dose' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '2%' THEN '2 doses' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '3%' THEN '3 doses' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE 'No%' OR \"Vaccination History (Doses/Date/Type)\" LIKE 'None%' THEN 'No vaccination' ELSE 'Other' END AS __g4, COUNT(*) AS __a0 FROM \"epidemiological_investigation\"  GROUP BY \"Vaccination History (Doses/Date/Type)\", \"Contact Status (Positive/Negative/Pending)\", \"Contact Location Type (Hospital/School/Mall)\", \"Shared Exposure History (Group Dining/Group Activity)\", CASE WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '0%' THEN '0 dose/None' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '1%' THEN '1 dose' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '2%' THEN '2 doses' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE '3%' THEN '3 doses' WHEN \"Vaccination History (Doses/Date/Type)\" LIKE 'No%' OR \"Vaccination History (Doses/Date/Type)\" LIKE 'None%' THEN 'No vaccination' ELSE 'Other' END",
+          "time": 1788865811.9240146,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865811.9244146,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865811.9244285,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n_epi FROM temp.reuse_candidate",
+          "time": 1788865811.924452,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS vacc, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "time": 1788865811.9248803,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS contact, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "time": 1788865811.926282,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS loc, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY n DESC",
+          "time": 1788865811.9269176,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS shared, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+          "time": 1788865811.9275453,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS vacc_cat, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4",
+          "time": 1788865811.9281354,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.6607705727219582,
+      "intermediate_rows": 219,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__a0"
+      ],
+      "validation_ended_at": 1788865811.9292471,
+      "checks": [
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT SUM(__a0) AS n_epi FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.40951743721961975
+        },
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "SELECT __g0 AS vacc, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.3962490484118462
+        },
+        {
+          "sql_id": "S25",
+          "rewritten_sql": "SELECT __g1 AS contact, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.635143369436264
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "SELECT __g2 AS loc, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6260061636567116
+        },
+        {
+          "sql_id": "S27",
+          "rewritten_sql": "SELECT __g3 AS shared, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.5904603749513626
+        },
+        {
+          "sql_id": "S43",
+          "rewritten_sql": "SELECT __g4 AS vacc_cat, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.0692896321415901
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Isolation Type (Home/Hospital/Centralized)\" AS __g0, \"PPE Usage\" AS __g1, \"Symptom Monitoring During Isolation\" AS __g2, COUNT(*) AS __a0 FROM \"isolation_and_disinfection\"  GROUP BY \"Isolation Type (Home/Hospital/Centralized)\", \"PPE Usage\", \"Symptom Monitoring During Isolation\"",
+      "covered": [
+        "S8",
+        "S28",
+        "S29",
+        "S30"
+      ],
+      "rewrites": {
+        "S8": "SELECT SUM(__a0) AS n_iso FROM temp.reuse_candidate",
+        "S28": "SELECT __g0 AS iso_type, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+        "S29": "SELECT __g1 AS ppe, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1 ORDER BY n DESC",
+        "S30": "SELECT __g2 AS monitor, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2 ORDER BY n DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C6",
+      "offline": true,
+      "earliest_build_before": "S8",
+      "later_reuses": 3,
+      "denominator": 89,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Initial Diagnosis (Suspected/Clinical/Confirmed)\" AS __g0, \"Diagnostic Quality Score\" AS __g1, \"Diagnostic Criteria Compliance Rate\" AS __g2, COUNT(*) AS __a0 FROM \"diagnosis_and_classification\"  GROUP BY \"Initial Diagnosis (Suspected/Clinical/Confirmed)\", \"Diagnostic Quality Score\", \"Diagnostic Criteria Compliance Rate\"",
+      "covered": [
+        "S9",
+        "S31"
+      ],
+      "rewrites": {
+        "S9": "SELECT SUM(__a0) AS n_diag FROM temp.reuse_candidate",
+        "S31": "SELECT __g0 AS init_diag, __g1 AS quality, __g2 AS compliance, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g0, __g1, __g2 ORDER BY n DESC LIMIT 20"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C7",
+      "offline": true,
+      "earliest_build_before": "S9",
+      "later_reuses": 1,
+      "denominator": 89,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

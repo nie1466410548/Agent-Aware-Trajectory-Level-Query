@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS inconsistent_gender FROM (SELECT "Customer ID", COUNT(DISTINCT gender) AS g_cnt FROM customer_information GROUP BY "Customer ID" HAVING g_cnt > 1)

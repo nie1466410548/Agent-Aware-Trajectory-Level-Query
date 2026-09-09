@@ -1,0 +1,1 @@
+SELECT DISTINCT dashboard_date FROM netsuite2_financial_dashboard ORDER BY dashboard_date

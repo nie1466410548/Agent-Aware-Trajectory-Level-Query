@@ -1,0 +1,1 @@
+SELECT DISTINCT risk_level FROM asana__project_analytics

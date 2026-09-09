@@ -1,0 +1,1 @@
+SELECT DISTINCT "Discount" FROM order_information ORDER BY "Discount"

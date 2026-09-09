@@ -1,0 +1,1 @@
+SELECT DISTINCT "Gallery Reference" FROM artifact_conservation_and_maint LIMIT 20

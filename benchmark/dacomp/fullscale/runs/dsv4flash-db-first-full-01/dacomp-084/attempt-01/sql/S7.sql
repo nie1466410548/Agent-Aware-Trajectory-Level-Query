@@ -1,0 +1,1 @@
+SELECT data_quality_flag, COUNT(*) n FROM workday__organization_overview GROUP BY data_quality_flag

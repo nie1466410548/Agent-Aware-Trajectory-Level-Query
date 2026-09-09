@@ -1,0 +1,112 @@
+{
+  "task_id": "dacomp-006",
+  "status": "database_first_partial_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "SQL performs most monthly/product/province aggregates and several window calculations. Python joins those aggregates, computes group means and covariance contributions, and repeats month-level sums. These arithmetic/grouping preparations can be expressed with SQLite joins/window aggregates; their placement outside SQL is a protocol exception/violation. Rendering is allowed.",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 135,
+          "text": "prod_month['p_mean'] = prod_month.groupby('dim')['p'].transform('mean')"
+        },
+        {
+          "line": 141,
+          "text": "merged = prod_month.merge(monthly[['month', 'profit']], on='month')"
+        },
+        {
+          "line": 142,
+          "text": "merged['p_dev'] = merged['p'] - merged.groupby('dim')['p'].transform('mean')"
+        },
+        {
+          "line": 147,
+          "text": "prod_variance_share = merged.groupby('dim')['cov_term'].mean() / var_t * 100"
+        },
+        {
+          "line": 152,
+          "text": "prov_merged = prov_month.merge(monthly[['month', 'profit']], on='month')"
+        },
+        {
+          "line": 153,
+          "text": "prov_merged['p_dev'] = prov_merged['p'] - prov_merged.groupby('province')['p'].transform('mean')"
+        },
+        {
+          "line": 156,
+          "text": "prov_variance_share = prov_merged.groupby('province')['cov_term'].mean() / var_t * 100"
+        }
+      ]
+    },
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 23,
+          "text": "merged = prod_month.merge(monthly[['month', 'profit']], on='month', how='left')"
+        },
+        {
+          "line": 25,
+          "text": "merged['p_dev'] = merged['p'] - merged.groupby('dim')['p'].transform('mean')"
+        },
+        {
+          "line": 29,
+          "text": "prod_variance_share = merged.groupby('dim')['cov_term'].mean() / var_t * 100"
+        },
+        {
+          "line": 34,
+          "text": "prov_merged = prov_month.merge(monthly[['month', 'profit']], on='month', how='left')"
+        },
+        {
+          "line": 35,
+          "text": "prov_merged['p_dev'] = prov_merged['p'] - prov_merged.groupby('province')['p'].transform('mean')"
+        },
+        {
+          "line": 38,
+          "text": "prov_variance_share = prov_merged.groupby('province')['cov_term'].mean() / var_t * 100"
+        }
+      ]
+    },
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 19,
+          "text": "merged = prod_month.merge(monthly[['month', 'profit']], on='month', how='left')"
+        },
+        {
+          "line": 20,
+          "text": "merged['p_dev'] = merged['p'] - merged.groupby('dim')['p'].transform('mean')"
+        },
+        {
+          "line": 24,
+          "text": "prod_variance_share = merged.groupby('dim')['cov_term'].mean() / var_t * 100"
+        },
+        {
+          "line": 27,
+          "text": "prov_merged = prov_month.merge(monthly[['month', 'profit']], on='month', how='left')"
+        },
+        {
+          "line": 28,
+          "text": "prov_merged['p_dev'] = prov_merged['p'] - prov_merged.groupby('province')['p'].transform('mean')"
+        },
+        {
+          "line": 31,
+          "text": "prov_variance_share = prov_merged.groupby('province')['cov_term'].mean() / var_t * 100"
+        }
+      ]
+    },
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 69,
+          "text": "    grp = sub.groupby('month')['p'].sum()"
+        },
+        {
+          "line": 75,
+          "text": "    grp = sub.groupby('month')['p'].sum()"
+        }
+      ]
+    }
+  ]
+}

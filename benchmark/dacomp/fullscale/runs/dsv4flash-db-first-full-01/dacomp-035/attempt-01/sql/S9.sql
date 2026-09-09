@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT "Login Record ID") AS cnt FROM login_records_table

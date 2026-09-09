@@ -1,0 +1,1 @@
+SELECT "Parents' education level" AS parent_edu, Gender, ROUND(AVG("Exam score"),2) AS avg_exam, COUNT(*) AS n FROM sheet1 GROUP BY "Parents' education level", Gender ORDER BY parent_edu, Gender

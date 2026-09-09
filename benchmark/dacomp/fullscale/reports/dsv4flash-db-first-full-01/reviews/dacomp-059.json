@@ -1,0 +1,98 @@
+{
+  "task_id": "dacomp-059",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 连接广告组、关键词和行业基准，对匹配类型、时段及渠道策略分组计数，计算加权预期转化率及流量评分。这些关系运算、聚合和常规评分可由 SQL 完成。文本拆词、检验与图形渲染另行评价，不作为全部迁出计算的理由。",
+  "route": "SQL 提取异常广告组及关键词 → Python 构建行业基准、意图匹配和流量评分 → 分时段与渠道诊断。",
+  "evidence": [
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 60,
+          "text": "df_kw = df_kw.merge(df_ag[['ad_group_id', 'is_problem', 'industry']], on='ad_group_id', how='left')"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 15,
+          "text": "bench = df_kw.groupby(['industry', 'keyword_text']).agg("
+        },
+        {
+          "line": 22,
+          "text": "df_kw_m = df_kw.merge(bench, on=['industry', 'keyword_text'], how='left')"
+        },
+        {
+          "line": 31,
+          "text": "ag_exp = df_kw_m.groupby('ad_group_id').apply("
+        },
+        {
+          "line": 32,
+          "text": "    lambda g: np.average(g['exp_cvr_kw'], weights=g['clicks']) if g['exp_cvr_kw'].notna().any() and g['clicks'].sum()>0 else np.nan"
+        },
+        {
+          "line": 36,
+          "text": "df_ag2 = df_ag.merge(ag_exp, on='ad_group_id', how='left')"
+        }
+      ]
+    },
+    {
+      "source": "python/P9.py",
+      "lines": [
+        {
+          "line": 21,
+          "text": "grp_kw = df_kw.groupby('ad_group_id').apply(lambda g: pd.Series({"
+        },
+        {
+          "line": 22,
+          "text": "    'mt_score': np.average([mt_score.get(m, 50) for m in g['keyword_match_type']], weights=g['clicks']) if g['clicks'].sum()>0 else 50,"
+        },
+        {
+          "line": 23,
+          "text": "    'trans_share': (g[g['has_transactional']]['clicks'].sum() / g['clicks'].sum()) if g['clicks'].sum()>0 else np.nan"
+        },
+        {
+          "line": 26,
+          "text": "df_all = df_ag2.merge(grp_kw, on='ad_group_id', how='left')"
+        }
+      ]
+    },
+    {
+      "source": "python/P11.py",
+      "lines": [
+        {
+          "line": 27,
+          "text": "eco = df_all.groupby('is_problem')[['cpc','cpa','roas','spend','clicks','conv']].mean().round(3)"
+        },
+        {
+          "line": 40,
+          "text": "ct = df_all.groupby('channel_strategy').apply("
+        },
+        {
+          "line": 41,
+          "text": "    lambda g: pd.Series({'total': len(g), 'problem': int(g['is_problem'].sum()),"
+        },
+        {
+          "line": 42,
+          "text": "                          'problem_pct': round(100.0*g['is_problem'].mean(),1)})).reset_index()"
+        }
+      ]
+    },
+    {
+      "source": "python/P16.py",
+      "lines": [
+        {
+          "line": 8,
+          "text": "mt = df_kw.groupby(['is_problem','keyword_match_type']).agg("
+        },
+        {
+          "line": 11,
+          "text": "mt['click_share_pct'] = mt.groupby('is_problem')['clicks'].apply(lambda x: 100.0*x/x.sum()).reset_index(drop=True)"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_responses, COUNT(DISTINCT survey_response_id) AS n_survey_responses, COUNT(DISTINCT recipient_email) AS n_emails, COUNT(DISTINCT user_language) AS n_langs FROM qualtrics__response

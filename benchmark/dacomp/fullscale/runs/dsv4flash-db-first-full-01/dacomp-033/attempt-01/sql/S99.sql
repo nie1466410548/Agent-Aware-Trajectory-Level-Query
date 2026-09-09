@@ -1,0 +1,1 @@
+SELECT COUNT(*) as cnt FROM customer_credit_rating_table cr JOIN (SELECT DISTINCT "Account ID" FROM transaction_history_table) t ON t."Account ID"=cr."Account ID"

@@ -1,0 +1,1 @@
+SELECT feature_id, feature_name, product_area_name, page_name, is_core_event, count_visitors, count_accounts, sum_clicks, first_click_at, last_click_at FROM pendo__feature ORDER BY count_visitors DESC LIMIT 15

@@ -1,0 +1,1 @@
+SELECT DISTINCT "Log Level" FROM system_logs_table

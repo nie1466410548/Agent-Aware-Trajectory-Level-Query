@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n FROM quickbooks__general_ledger

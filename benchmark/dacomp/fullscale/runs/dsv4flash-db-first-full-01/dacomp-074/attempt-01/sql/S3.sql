@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_rows, COUNT(DISTINCT subsidiary_id) AS n_subs, COUNT(DISTINCT accounting_period_id) AS n_periods, MIN(dashboard_date) AS min_date, MAX(dashboard_date) AS max_date FROM netsuite2_financial_dashboard

@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS total_drugs, COUNT(DISTINCT "Drug ID") AS unique_drugs FROM basic_drug_information

@@ -1,0 +1,1 @@
+SELECT SUM(headcount_total) as sum_total, SUM(headcount_hired) as sum_hired, SUM(CASE WHEN headcount_infinite=1 THEN 1 ELSE 0 END) as inf_cnt FROM lever__requisition_enhanced WHERE status='open'

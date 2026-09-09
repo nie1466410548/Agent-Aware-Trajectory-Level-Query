@@ -1,0 +1,1 @@
+SELECT DISTINCT concentration_risk FROM customer360__customer_value_analysis ORDER BY 1

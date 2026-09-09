@@ -1,0 +1,1 @@
+SELECT subsidiary_id, accounting_period_ending, account_type_name, SUM(converted_amount) AS total_amount FROM netsuite2_income_statement GROUP BY subsidiary_id, accounting_period_ending, account_type_name ORDER BY subsidiary_id, accounting_period_ending, account_type_name

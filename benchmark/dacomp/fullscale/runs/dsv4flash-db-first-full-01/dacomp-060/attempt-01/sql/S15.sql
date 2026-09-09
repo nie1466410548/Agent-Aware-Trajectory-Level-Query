@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT campaign_id) AS n_campaigns_cr, COUNT(*) AS n_rows FROM google_ads__campaign_report

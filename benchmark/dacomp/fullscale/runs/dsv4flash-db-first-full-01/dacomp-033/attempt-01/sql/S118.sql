@@ -1,0 +1,1 @@
+SELECT SUBSTR("Contact ID",1,1) as prefix, LENGTH("Contact ID") as len, COUNT(*) as cnt FROM customer_tag_table GROUP BY prefix, len

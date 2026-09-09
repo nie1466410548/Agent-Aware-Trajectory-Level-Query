@@ -1,0 +1,582 @@
+{
+  "fingerprint": "c2b347f713a58b8ddbef6ed6a3a5aeafd5b63c157cf9a33cd30b1ba34300230f",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S13",
+      "covered": [
+        "S13",
+        "S20"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S13",
+      "later_reuses": 1,
+      "denominator": 23,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT package_name AS __g0, STRFTIME('%Y-%m', date_day) AS __g1, install_trend AS __g2, revenue_trend AS __g3, install_stability AS __g4, performance_momentum AS __g5, risk_growth_profile AS __g6, anomaly_flag AS __g7, daily_performance_vs_baseline AS __g8, MIN(date_day) AS __a0, MAX(date_day) AS __a1, COUNT(*) AS __a2, SUM(quality_score) AS __a3_sum, COUNT(quality_score) AS __a3_n, SUM(crash_rate_per_1k) AS __a4_sum, COUNT(crash_rate_per_1k) AS __a4_n, SUM(anr_rate_per_1k) AS __a5_sum, COUNT(anr_rate_per_1k) AS __a5_n, SUM(revenue_per_active_device) AS __a6_sum, COUNT(revenue_per_active_device) AS __a6_n, SUM(active_devices) AS __a7_sum, COUNT(active_devices) AS __a7_n, SUM(daily_revenue) AS __a8_sum, COUNT(daily_revenue) AS __a8_n, SUM(daily_churn_rate) AS __a9_sum, COUNT(daily_churn_rate) AS __a9_n, SUM(daily_install_uninstall_ratio) AS __a10_sum, COUNT(daily_install_uninstall_ratio) AS __a10_n, MIN(quality_score) AS __a11, MAX(quality_score) AS __a12, MIN(crash_rate_per_1k) AS __a13, MAX(crash_rate_per_1k) AS __a14, MIN(revenue_per_active_device) AS __a15, MAX(revenue_per_active_device) AS __a16, SUM(ma_7d_quality) AS __a17_sum, COUNT(ma_7d_quality) AS __a17_n, SUM(ma_30d_quality) AS __a18_sum, COUNT(ma_30d_quality) AS __a18_n, SUM(wow_install_growth_rate) AS __a19_sum, COUNT(wow_install_growth_rate) AS __a19_n, SUM(wow_revenue_growth_rate) AS __a20_sum, COUNT(wow_revenue_growth_rate) AS __a20_n, SUM(install_volatility_coefficient) AS __a21_sum, COUNT(install_volatility_coefficient) AS __a21_n, SUM(revenue_volatility_coefficient) AS __a22_sum, COUNT(revenue_volatility_coefficient) AS __a22_n FROM \"google_play__time_series_trends\"  GROUP BY package_name, STRFTIME('%Y-%m', date_day), install_trend, revenue_trend, install_stability, performance_momentum, risk_growth_profile, anomaly_flag, daily_performance_vs_baseline",
+      "covered": [
+        "S3",
+        "S5",
+        "S8",
+        "S10",
+        "S13",
+        "S16",
+        "S20"
+      ],
+      "rewrites": {
+        "S3": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS n_rows FROM temp.reuse_candidate",
+        "S5": "SELECT __g0 AS \"package_name\", SUM(__a2) AS n, MIN(__a0) AS min_d, MAX(__a1) AS max_d FROM temp.reuse_candidate GROUP BY __g0",
+        "S8": "SELECT __g1 AS month, __g0 AS \"package_name\", (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS quality, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS crash, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS anr, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS rpad, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS active, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS rev, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS churn, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS iur FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY month, __g0",
+        "S10": "SELECT __g0 AS \"package_name\", SUM(__a2) AS n, ROUND(MIN(__a11), 3) AS min_q, ROUND(MAX(__a12), 3) AS max_q, ROUND(MIN(__a13), 3) AS min_c, ROUND(MAX(__a14), 3) AS max_c, ROUND(MIN(__a15), 6) AS min_rpad, ROUND(MAX(__a16), 6) AS max_rpad, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 6) AS avg_rpad FROM temp.reuse_candidate GROUP BY __g0",
+        "S13": "SELECT __g1 AS month, __g0 AS \"package_name\", (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS quality, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS crash, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS anr, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS rpad, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS active, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS ma7q, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS ma30q, (1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)) AS wow_inst, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS wow_rev, (1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)) AS inst_vol, (1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)) AS rev_vol FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY __g0, month",
+        "S16": "SELECT __g2 AS \"install_trend\", __g3 AS \"revenue_trend\", __g4 AS \"install_stability\", __g5 AS \"performance_momentum\", __g6 AS \"risk_growth_profile\", __g7 AS \"anomaly_flag\", __g8 AS \"daily_performance_vs_baseline\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g2, __g3, __g4, __g5, __g6, __g7, __g8 ORDER BY n DESC",
+        "S20": "SELECT __g1 AS month, __g0 AS \"package_name\", (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS quality, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS crash, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS anr, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS rpad, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS active, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS ma7q, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS ma30q, (1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)) AS wow_inst, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS wow_rev, (1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)) AS inst_vol, (1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)) AS rev_vol FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY __g0, month"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 6,
+      "denominator": 23,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788868242.8045793,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT package_name AS __g0, STRFTIME('%Y-%m', date_day) AS __g1, install_trend AS __g2, revenue_trend AS __g3, install_stability AS __g4, performance_momentum AS __g5, risk_growth_profile AS __g6, anomaly_flag AS __g7, daily_performance_vs_baseline AS __g8, MIN(date_day) AS __a0, MAX(date_day) AS __a1, COUNT(*) AS __a2, SUM(quality_score) AS __a3_sum, COUNT(quality_score) AS __a3_n, SUM(crash_rate_per_1k) AS __a4_sum, COUNT(crash_rate_per_1k) AS __a4_n, SUM(anr_rate_per_1k) AS __a5_sum, COUNT(anr_rate_per_1k) AS __a5_n, SUM(revenue_per_active_device) AS __a6_sum, COUNT(revenue_per_active_device) AS __a6_n, SUM(active_devices) AS __a7_sum, COUNT(active_devices) AS __a7_n, SUM(daily_revenue) AS __a8_sum, COUNT(daily_revenue) AS __a8_n, SUM(daily_churn_rate) AS __a9_sum, COUNT(daily_churn_rate) AS __a9_n, SUM(daily_install_uninstall_ratio) AS __a10_sum, COUNT(daily_install_uninstall_ratio) AS __a10_n, MIN(quality_score) AS __a11, MAX(quality_score) AS __a12, MIN(crash_rate_per_1k) AS __a13, MAX(crash_rate_per_1k) AS __a14, MIN(revenue_per_active_device) AS __a15, MAX(revenue_per_active_device) AS __a16, SUM(ma_7d_quality) AS __a17_sum, COUNT(ma_7d_quality) AS __a17_n, SUM(ma_30d_quality) AS __a18_sum, COUNT(ma_30d_quality) AS __a18_n, SUM(wow_install_growth_rate) AS __a19_sum, COUNT(wow_install_growth_rate) AS __a19_n, SUM(wow_revenue_growth_rate) AS __a20_sum, COUNT(wow_revenue_growth_rate) AS __a20_n, SUM(install_volatility_coefficient) AS __a21_sum, COUNT(install_volatility_coefficient) AS __a21_n, SUM(revenue_volatility_coefficient) AS __a22_sum, COUNT(revenue_volatility_coefficient) AS __a22_n FROM \"google_play__time_series_trends\"  GROUP BY package_name, STRFTIME('%Y-%m', date_day), install_trend, revenue_trend, install_stability, performance_momentum, risk_growth_profile, anomaly_flag, daily_performance_vs_baseline",
+          "phase": "offline_validation",
+          "start_time": 1788868242.80484,
+          "status": "execute_returned",
+          "end_time": 1788868242.8142128
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788868242.8142188,
+          "status": "execute_returned",
+          "end_time": 1788868242.8142467
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788868242.8142529,
+          "status": "execute_returned",
+          "end_time": 1788868242.8142712
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS n_rows FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788868242.814326,
+          "status": "execute_returned",
+          "end_time": 1788868242.8145406
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"package_name\", SUM(__a2) AS n, MIN(__a0) AS min_d, MAX(__a1) AS max_d FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788868242.8153098,
+          "status": "execute_returned",
+          "end_time": 1788868242.815631
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS month, __g0 AS \"package_name\", (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS quality, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS crash, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS anr, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS rpad, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS active, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS rev, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS churn, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS iur FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY month, __g0",
+          "phase": "offline_validation",
+          "start_time": 1788868242.8165934,
+          "status": "execute_returned",
+          "end_time": 1788868242.817563
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g0 AS \"package_name\", SUM(__a2) AS n, ROUND(MIN(__a11), 3) AS min_q, ROUND(MAX(__a12), 3) AS max_q, ROUND(MIN(__a13), 3) AS min_c, ROUND(MAX(__a14), 3) AS max_c, ROUND(MIN(__a15), 6) AS min_rpad, ROUND(MAX(__a16), 6) AS max_rpad, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 6) AS avg_rpad FROM temp.reuse_candidate GROUP BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788868242.8201509,
+          "status": "execute_returned",
+          "end_time": 1788868242.8207304
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g1 AS month, __g0 AS \"package_name\", (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS quality, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS crash, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS anr, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS rpad, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS active, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS ma7q, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS ma30q, (1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)) AS wow_inst, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS wow_rev, (1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)) AS inst_vol, (1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)) AS rev_vol FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY __g0, month",
+          "phase": "offline_validation",
+          "start_time": 1788868242.8229454,
+          "status": "execute_returned",
+          "end_time": 1788868242.8252041
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g2 AS \"install_trend\", __g3 AS \"revenue_trend\", __g4 AS \"install_stability\", __g5 AS \"performance_momentum\", __g6 AS \"risk_growth_profile\", __g7 AS \"anomaly_flag\", __g8 AS \"daily_performance_vs_baseline\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g2, __g3, __g4, __g5, __g6, __g7, __g8 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868242.8275032,
+          "status": "execute_returned",
+          "end_time": 1788868242.8295376
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g1 AS month, __g0 AS \"package_name\", (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS quality, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS crash, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS anr, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS rpad, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS active, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS ma7q, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS ma30q, (1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)) AS wow_inst, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS wow_rev, (1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)) AS inst_vol, (1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)) AS rev_vol FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY __g0, month",
+          "phase": "offline_validation",
+          "start_time": 1788868242.831994,
+          "status": "execute_returned",
+          "end_time": 1788868242.83412
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT package_name AS __g0, STRFTIME('%Y-%m', date_day) AS __g1, install_trend AS __g2, revenue_trend AS __g3, install_stability AS __g4, performance_momentum AS __g5, risk_growth_profile AS __g6, anomaly_flag AS __g7, daily_performance_vs_baseline AS __g8, MIN(date_day) AS __a0, MAX(date_day) AS __a1, COUNT(*) AS __a2, SUM(quality_score) AS __a3_sum, COUNT(quality_score) AS __a3_n, SUM(crash_rate_per_1k) AS __a4_sum, COUNT(crash_rate_per_1k) AS __a4_n, SUM(anr_rate_per_1k) AS __a5_sum, COUNT(anr_rate_per_1k) AS __a5_n, SUM(revenue_per_active_device) AS __a6_sum, COUNT(revenue_per_active_device) AS __a6_n, SUM(active_devices) AS __a7_sum, COUNT(active_devices) AS __a7_n, SUM(daily_revenue) AS __a8_sum, COUNT(daily_revenue) AS __a8_n, SUM(daily_churn_rate) AS __a9_sum, COUNT(daily_churn_rate) AS __a9_n, SUM(daily_install_uninstall_ratio) AS __a10_sum, COUNT(daily_install_uninstall_ratio) AS __a10_n, MIN(quality_score) AS __a11, MAX(quality_score) AS __a12, MIN(crash_rate_per_1k) AS __a13, MAX(crash_rate_per_1k) AS __a14, MIN(revenue_per_active_device) AS __a15, MAX(revenue_per_active_device) AS __a16, SUM(ma_7d_quality) AS __a17_sum, COUNT(ma_7d_quality) AS __a17_n, SUM(ma_30d_quality) AS __a18_sum, COUNT(ma_30d_quality) AS __a18_n, SUM(wow_install_growth_rate) AS __a19_sum, COUNT(wow_install_growth_rate) AS __a19_n, SUM(wow_revenue_growth_rate) AS __a20_sum, COUNT(wow_revenue_growth_rate) AS __a20_n, SUM(install_volatility_coefficient) AS __a21_sum, COUNT(install_volatility_coefficient) AS __a21_n, SUM(revenue_volatility_coefficient) AS __a22_sum, COUNT(revenue_volatility_coefficient) AS __a22_n FROM \"google_play__time_series_trends\"  GROUP BY package_name, STRFTIME('%Y-%m', date_day), install_trend, revenue_trend, install_stability, performance_momentum, risk_growth_profile, anomaly_flag, daily_performance_vs_baseline",
+          "time": 1788868242.8052855,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788868242.8142374,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788868242.8142679,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS n_rows FROM temp.reuse_candidate",
+          "time": 1788868242.814348,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"package_name\", SUM(__a2) AS n, MIN(__a0) AS min_d, MAX(__a1) AS max_d FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788868242.8153539,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS month, __g0 AS \"package_name\", (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS quality, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS crash, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS anr, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS rpad, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS active, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS rev, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS churn, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS iur FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY month, __g0",
+          "time": 1788868242.816697,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"package_name\", SUM(__a2) AS n, ROUND(MIN(__a11), 3) AS min_q, ROUND(MAX(__a12), 3) AS max_q, ROUND(MIN(__a13), 3) AS min_c, ROUND(MAX(__a14), 3) AS max_c, ROUND(MIN(__a15), 6) AS min_rpad, ROUND(MAX(__a16), 6) AS max_rpad, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 6) AS avg_rpad FROM temp.reuse_candidate GROUP BY __g0",
+          "time": 1788868242.8202345,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS month, __g0 AS \"package_name\", (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS quality, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS crash, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS anr, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS rpad, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS active, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS ma7q, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS ma30q, (1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)) AS wow_inst, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS wow_rev, (1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)) AS inst_vol, (1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)) AS rev_vol FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY __g0, month",
+          "time": 1788868242.8230739,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"install_trend\", __g3 AS \"revenue_trend\", __g4 AS \"install_stability\", __g5 AS \"performance_momentum\", __g6 AS \"risk_growth_profile\", __g7 AS \"anomaly_flag\", __g8 AS \"daily_performance_vs_baseline\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g2, __g3, __g4, __g5, __g6, __g7, __g8 ORDER BY n DESC",
+          "time": 1788868242.8275611,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS month, __g0 AS \"package_name\", (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS quality, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS crash, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS anr, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS rpad, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS active, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS ma7q, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS ma30q, (1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)) AS wow_inst, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS wow_rev, (1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)) AS inst_vol, (1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)) AS rev_vol FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY __g0, month",
+          "time": 1788868242.8320022,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 9.377692826092243,
+      "intermediate_rows": 1128,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__g5",
+        "__g6",
+        "__g7",
+        "__g8",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3_sum",
+        "__a3_n",
+        "__a4_sum",
+        "__a4_n",
+        "__a5_sum",
+        "__a5_n",
+        "__a6_sum",
+        "__a6_n",
+        "__a7_sum",
+        "__a7_n",
+        "__a8_sum",
+        "__a8_n",
+        "__a9_sum",
+        "__a9_n",
+        "__a10_sum",
+        "__a10_n",
+        "__a11",
+        "__a12",
+        "__a13",
+        "__a14",
+        "__a15",
+        "__a16",
+        "__a17_sum",
+        "__a17_n",
+        "__a18_sum",
+        "__a18_n",
+        "__a19_sum",
+        "__a19_n",
+        "__a20_sum",
+        "__a20_n",
+        "__a21_sum",
+        "__a21_n",
+        "__a22_sum",
+        "__a22_n"
+      ],
+      "validation_ended_at": 1788868242.8364987,
+      "checks": [
+        {
+          "sql_id": "S3",
+          "rewritten_sql": "SELECT MIN(__a0) AS min_date, MAX(__a1) AS max_date, SUM(__a2) AS n_rows FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.9808586910367012
+        },
+        {
+          "sql_id": "S5",
+          "rewritten_sql": "SELECT __g0 AS \"package_name\", SUM(__a2) AS n, MIN(__a0) AS min_d, MAX(__a1) AS max_d FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.281270757317543
+        },
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT __g1 AS month, __g0 AS \"package_name\", (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS quality, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS crash, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS anr, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS rpad, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS active, (1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)) AS rev, (1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)) AS churn, (1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)) AS iur FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY month, __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.5542799159884453
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT __g0 AS \"package_name\", SUM(__a2) AS n, ROUND(MIN(__a11), 3) AS min_q, ROUND(MAX(__a12), 3) AS max_q, ROUND(MIN(__a13), 3) AS min_c, ROUND(MAX(__a14), 3) AS max_c, ROUND(MIN(__a15), 6) AS min_rpad, ROUND(MAX(__a16), 6) AS max_rpad, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 6) AS avg_rpad FROM temp.reuse_candidate GROUP BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.7896221727132797
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT __g1 AS month, __g0 AS \"package_name\", (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS quality, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS crash, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS anr, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS rpad, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS active, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS ma7q, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS ma30q, (1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)) AS wow_inst, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS wow_rev, (1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)) AS inst_vol, (1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)) AS rev_vol FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY __g0, month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 4.556536674499512
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "SELECT __g2 AS \"install_trend\", __g3 AS \"revenue_trend\", __g4 AS \"install_stability\", __g5 AS \"performance_momentum\", __g6 AS \"risk_growth_profile\", __g7 AS \"anomaly_flag\", __g8 AS \"daily_performance_vs_baseline\", SUM(__a2) AS n FROM temp.reuse_candidate GROUP BY __g2, __g3, __g4, __g5, __g6, __g7, __g8 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 4.488174803555012
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "SELECT __g1 AS month, __g0 AS \"package_name\", (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS quality, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS crash, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS anr, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS rpad, (1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) AS active, (1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)) AS ma7q, (1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)) AS ma30q, (1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)) AS wow_inst, (1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)) AS wow_rev, (1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)) AS inst_vol, (1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)) AS rev_vol FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY __g0, month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 4.37479093670845
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT STRFTIME('%Y-%m', date_day) AS __g0, region AS __g1, COUNT(*) AS __a0, SUM(store_listing_visitors) AS __a1, SUM(store_listing_acquisitions) AS __a2, SUM(device_installs) AS __a3, SUM(device_uninstalls) AS __a4, SUM(update_events) AS __a5, SUM(active_devices_last_30_days) AS __a6, SUM(device_upgrades) AS __a7, SUM(rolling_total_average_rating) AS __a8_sum, COUNT(rolling_total_average_rating) AS __a8_n FROM \"google_play__country_report\"  GROUP BY STRFTIME('%Y-%m', date_day), region",
+      "covered": [
+        "S7",
+        "S9",
+        "S12"
+      ],
+      "rewrites": {
+        "S7": "SELECT __g0 AS month, __g1 AS \"region\", SUM(__a0) AS n, SUM(__a1) AS visitors, SUM(__a2) AS acquisitions, ROUND(100.0 * SUM(__a2) / NULLIF(SUM(__a1), 0), 3) AS conv, SUM(__a3) AS installs, SUM(__a4) AS uninstalls, SUM(__a5) AS updates, SUM(__a6) AS actives FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY month, __g1",
+        "S9": "SELECT __g0 AS month, __g1 AS \"region\", ROUND(100.0 * SUM(__a2) / NULLIF(SUM(__a1), 0), 3) AS conv, ROUND(1.0 * SUM(__a1) / NULLIF(SUM(__a2), 0), 1) AS visits_per_acq, SUM(__a7) AS upgrades, SUM(__a5) AS updates FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY month, __g1",
+        "S12": "SELECT __g0 AS month, __g1 AS \"region\", ROUND(100.0 * SUM(__a2) / NULLIF(SUM(__a1), 0), 3) AS conv_rate, ROUND(1.0 * SUM(__a1) / NULLIF(SUM(__a2), 0), 2) AS cost_per_acq_visitors, ROUND(1.0 * SUM(__a3) / NULLIF(SUM(__a2), 0), 3) AS installs_per_acq, SUM(__a5) AS updates, SUM(__a6) AS actives, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 3) AS avg_rating FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g1, month"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S7",
+      "later_reuses": 2,
+      "denominator": 23,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788868242.836533,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT STRFTIME('%Y-%m', date_day) AS __g0, region AS __g1, COUNT(*) AS __a0, SUM(store_listing_visitors) AS __a1, SUM(store_listing_acquisitions) AS __a2, SUM(device_installs) AS __a3, SUM(device_uninstalls) AS __a4, SUM(update_events) AS __a5, SUM(active_devices_last_30_days) AS __a6, SUM(device_upgrades) AS __a7, SUM(rolling_total_average_rating) AS __a8_sum, COUNT(rolling_total_average_rating) AS __a8_n FROM \"google_play__country_report\"  GROUP BY STRFTIME('%Y-%m', date_day), region",
+          "phase": "offline_validation",
+          "start_time": 1788868242.8367374,
+          "status": "execute_returned",
+          "end_time": 1788868242.8572307
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788868242.857237,
+          "status": "execute_returned",
+          "end_time": 1788868242.8572598
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788868242.8572657,
+          "status": "execute_returned",
+          "end_time": 1788868242.8572822
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS month, __g1 AS \"region\", SUM(__a0) AS n, SUM(__a1) AS visitors, SUM(__a2) AS acquisitions, ROUND(100.0 * SUM(__a2) / NULLIF(SUM(__a1), 0), 3) AS conv, SUM(__a3) AS installs, SUM(__a4) AS uninstalls, SUM(__a5) AS updates, SUM(__a6) AS actives FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY month, __g1",
+          "phase": "offline_validation",
+          "start_time": 1788868242.857301,
+          "status": "execute_returned",
+          "end_time": 1788868242.857362
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS month, __g1 AS \"region\", ROUND(100.0 * SUM(__a2) / NULLIF(SUM(__a1), 0), 3) AS conv, ROUND(1.0 * SUM(__a1) / NULLIF(SUM(__a2), 0), 1) AS visits_per_acq, SUM(__a7) AS upgrades, SUM(__a5) AS updates FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY month, __g1",
+          "phase": "offline_validation",
+          "start_time": 1788868242.8589907,
+          "status": "execute_returned",
+          "end_time": 1788868242.8590624
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS month, __g1 AS \"region\", ROUND(100.0 * SUM(__a2) / NULLIF(SUM(__a1), 0), 3) AS conv_rate, ROUND(1.0 * SUM(__a1) / NULLIF(SUM(__a2), 0), 2) AS cost_per_acq_visitors, ROUND(1.0 * SUM(__a3) / NULLIF(SUM(__a2), 0), 3) AS installs_per_acq, SUM(__a5) AS updates, SUM(__a6) AS actives, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 3) AS avg_rating FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g1, month",
+          "phase": "offline_validation",
+          "start_time": 1788868242.8605466,
+          "status": "execute_returned",
+          "end_time": 1788868242.8607001
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT STRFTIME('%Y-%m', date_day) AS __g0, region AS __g1, COUNT(*) AS __a0, SUM(store_listing_visitors) AS __a1, SUM(store_listing_acquisitions) AS __a2, SUM(device_installs) AS __a3, SUM(device_uninstalls) AS __a4, SUM(update_events) AS __a5, SUM(active_devices_last_30_days) AS __a6, SUM(device_upgrades) AS __a7, SUM(rolling_total_average_rating) AS __a8_sum, COUNT(rolling_total_average_rating) AS __a8_n FROM \"google_play__country_report\"  GROUP BY STRFTIME('%Y-%m', date_day), region",
+          "time": 1788868242.8369408,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788868242.8572557,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788868242.8572793,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS month, __g1 AS \"region\", SUM(__a0) AS n, SUM(__a1) AS visitors, SUM(__a2) AS acquisitions, ROUND(100.0 * SUM(__a2) / NULLIF(SUM(__a1), 0), 3) AS conv, SUM(__a3) AS installs, SUM(__a4) AS uninstalls, SUM(__a5) AS updates, SUM(__a6) AS actives FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY month, __g1",
+          "time": 1788868242.8573415,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS month, __g1 AS \"region\", ROUND(100.0 * SUM(__a2) / NULLIF(SUM(__a1), 0), 3) AS conv, ROUND(1.0 * SUM(__a1) / NULLIF(SUM(__a2), 0), 1) AS visits_per_acq, SUM(__a7) AS upgrades, SUM(__a5) AS updates FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY month, __g1",
+          "time": 1788868242.8590415,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS month, __g1 AS \"region\", ROUND(100.0 * SUM(__a2) / NULLIF(SUM(__a1), 0), 3) AS conv_rate, ROUND(1.0 * SUM(__a1) / NULLIF(SUM(__a2), 0), 2) AS cost_per_acq_visitors, ROUND(1.0 * SUM(__a3) / NULLIF(SUM(__a2), 0), 3) AS installs_per_acq, SUM(__a5) AS updates, SUM(__a6) AS actives, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 3) AS avg_rating FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g1, month",
+          "time": 1788868242.8606186,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 20.498210564255714,
+      "intermediate_rows": 28,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4",
+        "__a5",
+        "__a6",
+        "__a7",
+        "__a8_sum",
+        "__a8_n"
+      ],
+      "validation_ended_at": 1788868242.862812,
+      "checks": [
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT __g0 AS month, __g1 AS \"region\", SUM(__a0) AS n, SUM(__a1) AS visitors, SUM(__a2) AS acquisitions, ROUND(100.0 * SUM(__a2) / NULLIF(SUM(__a1), 0), 3) AS conv, SUM(__a3) AS installs, SUM(__a4) AS uninstalls, SUM(__a5) AS updates, SUM(__a6) AS actives FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY month, __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.6867900267243385
+        },
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT __g0 AS month, __g1 AS \"region\", ROUND(100.0 * SUM(__a2) / NULLIF(SUM(__a1), 0), 3) AS conv, ROUND(1.0 * SUM(__a1) / NULLIF(SUM(__a2), 0), 1) AS visits_per_acq, SUM(__a7) AS upgrades, SUM(__a5) AS updates FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY month, __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.5538102015852928
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT __g0 AS month, __g1 AS \"region\", ROUND(100.0 * SUM(__a2) / NULLIF(SUM(__a1), 0), 3) AS conv_rate, ROUND(1.0 * SUM(__a1) / NULLIF(SUM(__a2), 0), 2) AS cost_per_acq_visitors, ROUND(1.0 * SUM(__a3) / NULLIF(SUM(__a2), 0), 3) AS installs_per_acq, SUM(__a5) AS updates, SUM(__a6) AS actives, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 3) AS avg_rating FROM temp.reuse_candidate GROUP BY __g0, __g1 ORDER BY __g1, month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.161361277103424
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT device AS __g0, STRFTIME('%Y-%m', date_day) AS __g1, COUNT(*) AS __a0, MIN(date_day) AS __a1, MAX(date_day) AS __a2, SUM(update_events) AS __a3, SUM(device_installs) AS __a4, SUM(device_uninstalls) AS __a5, SUM(active_devices_last_30_days) AS __a6, SUM(rolling_total_average_rating) AS __a7_sum, COUNT(rolling_total_average_rating) AS __a7_n FROM \"google_play__device_report\"  GROUP BY device, STRFTIME('%Y-%m', date_day)",
+      "covered": [
+        "S6",
+        "S11"
+      ],
+      "rewrites": {
+        "S6": "SELECT __g0 AS \"device\", SUM(__a0) AS n, MIN(__a1) AS min_d, MAX(__a2) AS max_d FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+        "S11": "SELECT __g1 AS month, __g0 AS \"device\", SUM(__a3) AS updates, SUM(__a4) AS installs, SUM(__a5) AS uninstalls, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 3) AS avg_rating, SUM(__a6) AS actives FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY month, __g0"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S6",
+      "later_reuses": 1,
+      "denominator": 23,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788868242.8628333,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT device AS __g0, STRFTIME('%Y-%m', date_day) AS __g1, COUNT(*) AS __a0, MIN(date_day) AS __a1, MAX(date_day) AS __a2, SUM(update_events) AS __a3, SUM(device_installs) AS __a4, SUM(device_uninstalls) AS __a5, SUM(active_devices_last_30_days) AS __a6, SUM(rolling_total_average_rating) AS __a7_sum, COUNT(rolling_total_average_rating) AS __a7_n FROM \"google_play__device_report\"  GROUP BY device, STRFTIME('%Y-%m', date_day)",
+          "phase": "offline_validation",
+          "start_time": 1788868242.8630142,
+          "status": "execute_returned",
+          "end_time": 1788868242.885987
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788868242.8859909,
+          "status": "execute_returned",
+          "end_time": 1788868242.8860083
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788868242.8860118,
+          "status": "execute_returned",
+          "end_time": 1788868242.8860228
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT __g0 AS \"device\", SUM(__a0) AS n, MIN(__a1) AS min_d, MAX(__a2) AS max_d FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "phase": "offline_validation",
+          "start_time": 1788868242.8860395,
+          "status": "execute_returned",
+          "end_time": 1788868242.886107
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g1 AS month, __g0 AS \"device\", SUM(__a3) AS updates, SUM(__a4) AS installs, SUM(__a5) AS uninstalls, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 3) AS avg_rating, SUM(__a6) AS actives FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY month, __g0",
+          "phase": "offline_validation",
+          "start_time": 1788868242.8868349,
+          "status": "execute_returned",
+          "end_time": 1788868242.886924
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT device AS __g0, STRFTIME('%Y-%m', date_day) AS __g1, COUNT(*) AS __a0, MIN(date_day) AS __a1, MAX(date_day) AS __a2, SUM(update_events) AS __a3, SUM(device_installs) AS __a4, SUM(device_uninstalls) AS __a5, SUM(active_devices_last_30_days) AS __a6, SUM(rolling_total_average_rating) AS __a7_sum, COUNT(rolling_total_average_rating) AS __a7_n FROM \"google_play__device_report\"  GROUP BY device, STRFTIME('%Y-%m', date_day)",
+          "time": 1788868242.8632143,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788868242.8860052,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788868242.8860207,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"device\", SUM(__a0) AS n, MIN(__a1) AS min_d, MAX(__a2) AS max_d FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "time": 1788868242.886059,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS month, __g0 AS \"device\", SUM(__a3) AS updates, SUM(__a4) AS installs, SUM(__a5) AS uninstalls, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 3) AS avg_rating, SUM(__a6) AS actives FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY month, __g0",
+          "time": 1788868242.886881,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 22.975881583988667,
+      "intermediate_rows": 84,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4",
+        "__a5",
+        "__a6",
+        "__a7_sum",
+        "__a7_n"
+      ],
+      "validation_ended_at": 1788868242.888589,
+      "checks": [
+        {
+          "sql_id": "S6",
+          "rewritten_sql": "SELECT __g0 AS \"device\", SUM(__a0) AS n, MIN(__a1) AS min_d, MAX(__a2) AS max_d FROM temp.reuse_candidate GROUP BY __g0 ORDER BY n DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.7927557453513145
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT __g1 AS month, __g0 AS \"device\", SUM(__a3) AS updates, SUM(__a4) AS installs, SUM(__a5) AS uninstalls, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 3) AS avg_rating, SUM(__a6) AS actives FROM temp.reuse_candidate GROUP BY __g1, __g0 ORDER BY month, __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.6613826155662537
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

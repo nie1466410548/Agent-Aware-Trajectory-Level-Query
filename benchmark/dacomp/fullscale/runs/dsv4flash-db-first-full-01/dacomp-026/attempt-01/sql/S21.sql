@@ -1,0 +1,1 @@
+SELECT "Material ID", json_extract("Inventory resources", '$.power.generators') AS gen, json_extract("Inventory resources", '$.essentials.food_tons') AS food FROM supplies1 LIMIT 3

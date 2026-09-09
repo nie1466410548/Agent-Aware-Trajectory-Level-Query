@@ -1,0 +1,1 @@
+SELECT DISTINCT question_description FROM qualtrics__response WHERE question_description IS NOT NULL AND question_description != '' LIMIT 30

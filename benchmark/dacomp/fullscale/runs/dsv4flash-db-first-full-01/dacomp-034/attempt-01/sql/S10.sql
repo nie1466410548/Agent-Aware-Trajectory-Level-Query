@@ -1,0 +1,1 @@
+SELECT state, COUNT(*) AS cnt FROM attachment_3 GROUP BY state ORDER BY cnt DESC

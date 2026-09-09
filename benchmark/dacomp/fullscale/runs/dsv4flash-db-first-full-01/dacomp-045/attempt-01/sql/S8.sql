@@ -1,0 +1,1 @@
+SELECT DISTINCT "Brand Name" FROM product_basic_information_table ORDER BY "Brand Name"

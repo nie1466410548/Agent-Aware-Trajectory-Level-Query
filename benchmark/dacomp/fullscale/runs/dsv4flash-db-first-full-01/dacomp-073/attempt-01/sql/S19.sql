@@ -1,0 +1,1 @@
+SELECT categories_department, COUNT(DISTINCT posting_hiring_manager_name) as num_hiring_managers FROM lever__posting_enhanced GROUP BY categories_department ORDER BY categories_department

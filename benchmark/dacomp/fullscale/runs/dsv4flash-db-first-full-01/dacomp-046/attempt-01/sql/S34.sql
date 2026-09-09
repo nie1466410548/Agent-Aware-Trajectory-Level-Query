@@ -1,0 +1,1 @@
+SELECT "Occupation", COUNT(*) cnt FROM user_basic_information_table_1 GROUP BY "Occupation" ORDER BY cnt DESC

@@ -1,0 +1,1 @@
+SELECT DISTINCT industry_normalized, COUNT(*) as cnt FROM salesforce__customer_360_view GROUP BY industry_normalized ORDER BY cnt DESC LIMIT 20

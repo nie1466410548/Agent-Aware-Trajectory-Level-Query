@@ -1,0 +1,1 @@
+SELECT issue_type, COUNT(*) as cnt FROM jira__issue_intelligence_analytics GROUP BY issue_type ORDER BY cnt DESC

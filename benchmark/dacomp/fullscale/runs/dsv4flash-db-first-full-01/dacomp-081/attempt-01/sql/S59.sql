@@ -1,0 +1,1 @@
+SELECT DISTINCT survey_name FROM qualtrics__survey WHERE survey_name LIKE '%Photo%' OR survey_name LIKE '%photo%' OR survey_name LIKE '%Editor%' OR survey_name LIKE '%editor%'

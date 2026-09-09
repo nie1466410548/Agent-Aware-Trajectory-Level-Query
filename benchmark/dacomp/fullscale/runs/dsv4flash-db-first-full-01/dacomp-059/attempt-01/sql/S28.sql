@@ -1,0 +1,1 @@
+SELECT ad_group_id, COUNT(*) AS n, SUM(clicks) AS clicks, SUM(impressions) AS imp, SUM(conversions) AS conv, SUM(spend) AS spend FROM google_ads__ad_group_report GROUP BY ad_group_id HAVING clicks > 0 AND imp > 0 ORDER BY clicks DESC LIMIT 30

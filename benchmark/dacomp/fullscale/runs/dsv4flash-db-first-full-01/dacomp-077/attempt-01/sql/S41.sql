@@ -1,0 +1,1 @@
+SELECT feature_id, product_area_name, page_name, is_core_event FROM pendo__feature

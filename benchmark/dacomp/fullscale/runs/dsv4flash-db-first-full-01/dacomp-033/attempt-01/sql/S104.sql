@@ -1,0 +1,1 @@
+SELECT AVG("Receivable Amount") as avg_recvbl_all, AVG("Amount Received") as avg_recvd_all, AVG("Outstanding Amount") as avg_out_all, AVG("Tax Amount") as avg_tax_all FROM financials_table

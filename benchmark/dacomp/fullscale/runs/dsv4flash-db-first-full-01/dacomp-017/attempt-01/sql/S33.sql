@@ -1,0 +1,1 @@
+SELECT DISTINCT Sales FROM order_information WHERE "Product Category"='Home & Furniture' AND "Product"='Beds'

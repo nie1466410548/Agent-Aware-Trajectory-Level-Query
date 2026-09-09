@@ -1,0 +1,1 @@
+SELECT "Season label", COUNT(*) AS n FROM market_and_quality_feedback_inf GROUP BY "Season label" ORDER BY n DESC

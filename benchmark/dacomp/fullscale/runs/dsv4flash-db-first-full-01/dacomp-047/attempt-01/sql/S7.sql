@@ -1,0 +1,1 @@
+SELECT MIN(Date) AS min_date, MAX(Date) AS max_date, COUNT(*) AS n_rows, COUNT(DISTINCT "Item Code") AS n_items FROM purchase_price

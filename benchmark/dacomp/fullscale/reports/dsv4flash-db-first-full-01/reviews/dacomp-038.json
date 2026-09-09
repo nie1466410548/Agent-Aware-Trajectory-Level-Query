@@ -1,0 +1,72 @@
+{
+  "task_id": "dacomp-038",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "route": "分别查询两张策略报表 → Python 按日期和推广类别合并 → 按策略家族/版本/前后期计算流量与订单指标 → 比较新旧变化并做检验、绘图。",
+  "conclusion": "Python 连续合并两个来源结果，按策略版本和前后期汇总曝光、点击、花费、订单和交易额，并计算 CTR/CPC/CPM 与变化量。这些可在 SQLite 中合理完成。Mann-Whitney、t 检验和绘图本身是允许的补充；没有 SQL Join 不意味着实际分析没有连接，因为连接发生在 Python。",
+  "evidence": [
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 13,
+          "text": "df = s1.merge(s2, on=['dt', 'Promotion Tertiary Category'], suffixes=('', '_s2'), how='left')"
+        },
+        {
+          "line": 37,
+          "text": "    imp = rows['Impressions'].sum()"
+        },
+        {
+          "line": 38,
+          "text": "    clk = rows['Clicks'].sum()"
+        },
+        {
+          "line": 39,
+          "text": "    spd = rows['Spend (Yuan)'].sum()"
+        },
+        {
+          "line": 104,
+          "text": "            stat, p = stats.mannwhitneyu(new_delta, old_delta, alternative='two-sided')"
+        },
+        {
+          "line": 105,
+          "text": "            t_stat, t_p = stats.ttest_ind(new_delta, old_delta, equal_var=False)"
+        }
+      ]
+    },
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 15,
+          "text": "df = s1.merge(s2, on=['dt', 'Promotion Tertiary Category'], how='left', suffixes=('', '_s2'))"
+        },
+        {
+          "line": 36,
+          "text": "for (fam, ver, per), g in df.groupby(['family','version','period']):"
+        },
+        {
+          "line": 75,
+          "text": "print(df.groupby('period')['Delivery Status'].value_counts())"
+        },
+        {
+          "line": 80,
+          "text": "daily = df.groupby(['family','version','day']).apply(lambda g: pd.Series({"
+        }
+      ]
+    },
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 13,
+          "text": "df = s1.merge(s2, on=['dt', 'Promotion Tertiary Category'], how='left', suffixes=('', '_s2'))"
+        },
+        {
+          "line": 73,
+          "text": "daily2 = s2.groupby('dt').agg(orders=('T+0 strategy-guided order count', 'sum'), tx_amt=('T+0 strategy-guided transaction amount', 'sum')).reset_index()"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+SELECT "GSP Certification Status" AS gsp, COUNT(*) AS cnt FROM basic_drug_information GROUP BY 1

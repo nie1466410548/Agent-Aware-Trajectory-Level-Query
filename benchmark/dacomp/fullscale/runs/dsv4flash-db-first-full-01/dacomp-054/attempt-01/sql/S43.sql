@@ -1,0 +1,1 @@
+SELECT DISTINCT customer360_id FROM customer360__address LIMIT 10

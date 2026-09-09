@@ -1,0 +1,1 @@
+SELECT DISTINCT "Product Name", "Product Category", "Product Code" FROM agricultural_product_price_tren ORDER BY "Product Category", "Product Name"

@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS rows_total, COUNT(DISTINCT ad_group_id || '|' || criterion_id || '|' || date_day) AS uniq FROM google_ads__keyword_report

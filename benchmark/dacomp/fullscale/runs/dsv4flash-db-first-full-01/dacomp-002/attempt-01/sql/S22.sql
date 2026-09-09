@@ -1,0 +1,1 @@
+SELECT "Sales Date", COUNT(*) AS n FROM sheet1 WHERE CAST(SUBSTR(CAST("Sales Date" AS TEXT), 7, 2) AS INTEGER) > 31 GROUP BY "Sales Date" ORDER BY "Sales Date" LIMIT 5

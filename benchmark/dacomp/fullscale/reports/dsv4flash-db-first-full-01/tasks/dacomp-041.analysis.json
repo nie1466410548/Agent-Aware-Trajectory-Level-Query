@@ -1,0 +1,200 @@
+{
+  "fingerprint": "15133818eb6f41e9868dd73532661240aeaf5c9241479f466523ec91d52f5713",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S24",
+      "covered": [
+        "S24",
+        "S28"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S24",
+      "later_reuses": 1,
+      "denominator": 31,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865973.3138583,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 1,
+      "validation_ended_at": 1788865973.3142192,
+      "checks": [
+        {
+          "sql_id": "S28",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S25",
+      "covered": [
+        "S25",
+        "S29"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S25",
+      "later_reuses": 1,
+      "denominator": 31,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865973.3134215,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 1,
+      "validation_ended_at": 1788865973.3138478,
+      "checks": [
+        {
+          "sql_id": "S29",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"gallery_information\" WHERE \"Daily Visitor Count\" > 900",
+      "covered": [
+        "S4",
+        "S22"
+      ],
+      "rewrites": {
+        "S4": "SELECT \"Exhibition Hall Record ID\", \"Daily Visitor Count\" FROM temp.reuse_candidate AS gallery_information WHERE \"Daily Visitor Count\" > 900 ORDER BY \"Daily Visitor Count\" DESC",
+        "S22": "SELECT TRIM(gi.\"Exhibition Hall Record ID\") AS hall_id, gi.\"Daily Visitor Count\" FROM temp.reuse_candidate AS gi WHERE gi.\"Daily Visitor Count\" > 900 ORDER BY gi.\"Daily Visitor Count\" DESC"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S4",
+      "later_reuses": 1,
+      "denominator": 31,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788865973.3105485,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"gallery_information\" WHERE \"Daily Visitor Count\" > 900",
+          "phase": "offline_validation",
+          "start_time": 1788865973.310812,
+          "status": "execute_returned",
+          "end_time": 1788865973.311368
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788865973.3113735,
+          "status": "execute_returned",
+          "end_time": 1788865973.3113925
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788865973.3113985,
+          "status": "execute_returned",
+          "end_time": 1788865973.3114107
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT \"Exhibition Hall Record ID\", \"Daily Visitor Count\" FROM temp.reuse_candidate AS gallery_information WHERE \"Daily Visitor Count\" > 900 ORDER BY \"Daily Visitor Count\" DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865973.3114283,
+          "status": "execute_returned",
+          "end_time": 1788865973.3114793
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT TRIM(gi.\"Exhibition Hall Record ID\") AS hall_id, gi.\"Daily Visitor Count\" FROM temp.reuse_candidate AS gi WHERE gi.\"Daily Visitor Count\" > 900 ORDER BY gi.\"Daily Visitor Count\" DESC",
+          "phase": "offline_validation",
+          "start_time": 1788865973.3123176,
+          "status": "execute_returned",
+          "end_time": 1788865973.3123927
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"gallery_information\" WHERE \"Daily Visitor Count\" > 900",
+          "time": 1788865973.3111682,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788865973.3113892,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788865973.3114078,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Exhibition Hall Record ID\", \"Daily Visitor Count\" FROM temp.reuse_candidate AS gallery_information WHERE \"Daily Visitor Count\" > 900 ORDER BY \"Daily Visitor Count\" DESC",
+          "time": 1788865973.3114429,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT TRIM(gi.\"Exhibition Hall Record ID\") AS hall_id, gi.\"Daily Visitor Count\" FROM temp.reuse_candidate AS gi WHERE gi.\"Daily Visitor Count\" > 900 ORDER BY gi.\"Daily Visitor Count\" DESC",
+          "time": 1788865973.312348,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.560590997338295,
+      "intermediate_rows": 104,
+      "intermediate_columns": [
+        "Exhibition Hall Record ID",
+        "Surveillance Coverage Status",
+        "Motion Detection Status",
+        "Alarm System Status",
+        "Access Control Status",
+        "Daily Visitor Count",
+        "Visitor Traffic",
+        "Average Dwell Time (minutes)",
+        "Visitor Behavior Records"
+      ],
+      "validation_ended_at": 1788865973.3133957,
+      "checks": [
+        {
+          "sql_id": "S4",
+          "rewritten_sql": "SELECT \"Exhibition Hall Record ID\", \"Daily Visitor Count\" FROM temp.reuse_candidate AS gallery_information WHERE \"Daily Visitor Count\" > 900 ORDER BY \"Daily Visitor Count\" DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.8859289810061455
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "SELECT TRIM(gi.\"Exhibition Hall Record ID\") AS hall_id, gi.\"Daily Visitor Count\" FROM temp.reuse_candidate AS gi WHERE gi.\"Daily Visitor Count\" > 900 ORDER BY gi.\"Daily Visitor Count\" DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.9919721633195877
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

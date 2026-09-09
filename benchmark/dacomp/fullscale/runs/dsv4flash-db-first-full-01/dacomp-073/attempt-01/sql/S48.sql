@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT r.owner_name) as req_owner_cnt, COUNT(DISTINCT r.creator_name) as req_creator_cnt FROM lever__requisition_enhanced

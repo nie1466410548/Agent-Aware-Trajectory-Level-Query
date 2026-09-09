@@ -1,0 +1,668 @@
+{
+  "fingerprint": "7129af5e6de09d293b60ca5365a8f9bb7493a031378651f30ccacb0d8d395ce7",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S30",
+      "covered": [
+        "S30",
+        "S31",
+        "S32"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S30",
+      "later_reuses": 2,
+      "denominator": 28,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867571.5757277,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 200,
+      "validation_ended_at": 1788867571.5888379,
+      "checks": [
+        {
+          "sql_id": "S31",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S32",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT risk_category AS __g0, trajectory_status AS __g1, CASE WHEN complexity_risk_score <= 25 THEN 'low_complexity_(<=25)' WHEN complexity_risk_score <= 50 THEN 'medium_complexity_(26-50)' WHEN complexity_risk_score <= 75 THEN 'high_complexity_(51-75)' ELSE 'very_high_complexity_(>75)' END AS __g2, primary_risk_factor AS __g3, primary_risk_driver AS __g4, success_probability AS __g5, CASE WHEN team_stability_percentage < 60 THEN 'low_stability_(<60)' WHEN team_stability_percentage < 75 THEN 'medium_stability_(60-75)' ELSE 'high_stability_(>=75)' END AS __g6, CASE WHEN sprint_adoption_rate < 0.5 THEN 'low_sprint_adoption' WHEN sprint_adoption_rate < 0.8 THEN 'medium_sprint_adoption' ELSE 'high_sprint_adoption' END AS __g7, COUNT(*) AS __a0, SUM(complexity_risk_score) AS __a1_sum, COUNT(complexity_risk_score) AS __a1_n, SUM(success_probability) AS __a2_sum, COUNT(success_probability) AS __a2_n, SUM(total_risk_score) AS __a3_sum, COUNT(total_risk_score) AS __a3_n, SUM(overall_health_score) AS __a4_sum, COUNT(overall_health_score) AS __a4_n, SUM(delivered_value_points) AS __a5_sum, COUNT(delivered_value_points) AS __a5_n, SUM(value_delivery_percentage) AS __a6_sum, COUNT(value_delivery_percentage) AS __a6_n, SUM(team_stability_percentage) AS __a7_sum, COUNT(team_stability_percentage) AS __a7_n, SUM(health_risk_score) AS __a8_sum, COUNT(health_risk_score) AS __a8_n, SUM(schedule_risk_score) AS __a9_sum, COUNT(schedule_risk_score) AS __a9_n, SUM(resource_risk_score) AS __a10_sum, COUNT(resource_risk_score) AS __a10_n, SUM(scope_risk_score) AS __a11_sum, COUNT(scope_risk_score) AS __a11_n, SUM(sprint_adoption_rate) AS __a12_sum, COUNT(sprint_adoption_rate) AS __a12_n FROM \"jira__project_risk_assessment\"  GROUP BY risk_category, trajectory_status, CASE WHEN complexity_risk_score <= 25 THEN 'low_complexity_(<=25)' WHEN complexity_risk_score <= 50 THEN 'medium_complexity_(26-50)' WHEN complexity_risk_score <= 75 THEN 'high_complexity_(51-75)' ELSE 'very_high_complexity_(>75)' END, primary_risk_factor, primary_risk_driver, success_probability, CASE WHEN team_stability_percentage < 60 THEN 'low_stability_(<60)' WHEN team_stability_percentage < 75 THEN 'medium_stability_(60-75)' ELSE 'high_stability_(>=75)' END, CASE WHEN sprint_adoption_rate < 0.5 THEN 'low_sprint_adoption' WHEN sprint_adoption_rate < 0.8 THEN 'medium_sprint_adoption' ELSE 'high_sprint_adoption' END",
+      "covered": [
+        "S6",
+        "S12",
+        "S13",
+        "S15",
+        "S18",
+        "S19",
+        "S23",
+        "S24",
+        "S28",
+        "S29"
+      ],
+      "rewrites": {
+        "S6": "SELECT SUM(__a0) AS n_projects FROM temp.reuse_candidate",
+        "S12": "SELECT __g0 AS \"risk_category\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_complexity, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_success, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_total_risk, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_health FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_success ASC",
+        "S13": "SELECT __g1 AS \"trajectory_status\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_complexity, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_success, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_delivered, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_vdp FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_success ASC",
+        "S15": "SELECT __g2 AS comp_bucket, SUM(__a0) AS n, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_health, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_vdp, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_total_risk, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_team_stability FROM temp.reuse_candidate GROUP BY __g2 ORDER BY comp_bucket",
+        "S18": "SELECT __g3 AS \"primary_risk_factor\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_health FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_success ASC",
+        "S19": "SELECT __g4 AS \"primary_risk_driver\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_health FROM temp.reuse_candidate GROUP BY __g4 ORDER BY avg_success ASC",
+        "S23": "SELECT __g5 AS \"success_probability\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5 ORDER BY __g5",
+        "S24": "SELECT __g1 AS \"trajectory_status\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_total_risk, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 2) AS avg_health_risk, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 2) AS avg_schedule_risk, ROUND((1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)), 2) AS avg_resource_risk, ROUND((1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)), 2) AS avg_scope_risk FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_total_risk DESC",
+        "S28": "SELECT __g6 AS stability_bucket, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_stability, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_vdp, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_total_risk FROM temp.reuse_candidate GROUP BY __g6 ORDER BY stability_bucket",
+        "S29": "SELECT __g7 AS sprint_bucket, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 2) AS avg_sprint, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_vdp, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_total_risk FROM temp.reuse_candidate GROUP BY __g7 ORDER BY sprint_bucket"
+      },
+      "status": "rejected_result_mismatch",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S6",
+      "later_reuses": 9,
+      "denominator": 28,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867571.5255783,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT risk_category AS __g0, trajectory_status AS __g1, CASE WHEN complexity_risk_score <= 25 THEN 'low_complexity_(<=25)' WHEN complexity_risk_score <= 50 THEN 'medium_complexity_(26-50)' WHEN complexity_risk_score <= 75 THEN 'high_complexity_(51-75)' ELSE 'very_high_complexity_(>75)' END AS __g2, primary_risk_factor AS __g3, primary_risk_driver AS __g4, success_probability AS __g5, CASE WHEN team_stability_percentage < 60 THEN 'low_stability_(<60)' WHEN team_stability_percentage < 75 THEN 'medium_stability_(60-75)' ELSE 'high_stability_(>=75)' END AS __g6, CASE WHEN sprint_adoption_rate < 0.5 THEN 'low_sprint_adoption' WHEN sprint_adoption_rate < 0.8 THEN 'medium_sprint_adoption' ELSE 'high_sprint_adoption' END AS __g7, COUNT(*) AS __a0, SUM(complexity_risk_score) AS __a1_sum, COUNT(complexity_risk_score) AS __a1_n, SUM(success_probability) AS __a2_sum, COUNT(success_probability) AS __a2_n, SUM(total_risk_score) AS __a3_sum, COUNT(total_risk_score) AS __a3_n, SUM(overall_health_score) AS __a4_sum, COUNT(overall_health_score) AS __a4_n, SUM(delivered_value_points) AS __a5_sum, COUNT(delivered_value_points) AS __a5_n, SUM(value_delivery_percentage) AS __a6_sum, COUNT(value_delivery_percentage) AS __a6_n, SUM(team_stability_percentage) AS __a7_sum, COUNT(team_stability_percentage) AS __a7_n, SUM(health_risk_score) AS __a8_sum, COUNT(health_risk_score) AS __a8_n, SUM(schedule_risk_score) AS __a9_sum, COUNT(schedule_risk_score) AS __a9_n, SUM(resource_risk_score) AS __a10_sum, COUNT(resource_risk_score) AS __a10_n, SUM(scope_risk_score) AS __a11_sum, COUNT(scope_risk_score) AS __a11_n, SUM(sprint_adoption_rate) AS __a12_sum, COUNT(sprint_adoption_rate) AS __a12_n FROM \"jira__project_risk_assessment\"  GROUP BY risk_category, trajectory_status, CASE WHEN complexity_risk_score <= 25 THEN 'low_complexity_(<=25)' WHEN complexity_risk_score <= 50 THEN 'medium_complexity_(26-50)' WHEN complexity_risk_score <= 75 THEN 'high_complexity_(51-75)' ELSE 'very_high_complexity_(>75)' END, primary_risk_factor, primary_risk_driver, success_probability, CASE WHEN team_stability_percentage < 60 THEN 'low_stability_(<60)' WHEN team_stability_percentage < 75 THEN 'medium_stability_(60-75)' ELSE 'high_stability_(>=75)' END, CASE WHEN sprint_adoption_rate < 0.5 THEN 'low_sprint_adoption' WHEN sprint_adoption_rate < 0.8 THEN 'medium_sprint_adoption' ELSE 'high_sprint_adoption' END",
+          "phase": "offline_validation",
+          "start_time": 1788867571.5258641,
+          "status": "execute_returned",
+          "end_time": 1788867571.5272148
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867571.5272202,
+          "status": "execute_returned",
+          "end_time": 1788867571.527239
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788867571.5272448,
+          "status": "execute_returned",
+          "end_time": 1788867571.52727
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS n_projects FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867571.5273113,
+          "status": "execute_returned",
+          "end_time": 1788867571.5273397
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"risk_category\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_complexity, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_success, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_total_risk, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_health FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_success ASC",
+          "phase": "offline_validation",
+          "start_time": 1788867571.5277972,
+          "status": "execute_returned",
+          "end_time": 1788867571.5280526
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS \"trajectory_status\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_complexity, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_success, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_delivered, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_vdp FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_success ASC",
+          "phase": "offline_validation",
+          "start_time": 1788867571.528961,
+          "status": "execute_returned",
+          "end_time": 1788867571.529209
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g2 AS comp_bucket, SUM(__a0) AS n, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_health, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_vdp, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_total_risk, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_team_stability FROM temp.reuse_candidate GROUP BY __g2 ORDER BY comp_bucket",
+          "phase": "offline_validation",
+          "start_time": 1788867571.530087,
+          "status": "execute_returned",
+          "end_time": 1788867571.5303335
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g3 AS \"primary_risk_factor\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_health FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_success ASC",
+          "phase": "offline_validation",
+          "start_time": 1788867571.5320845,
+          "status": "execute_returned",
+          "end_time": 1788867571.5323281
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g4 AS \"primary_risk_driver\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_health FROM temp.reuse_candidate GROUP BY __g4 ORDER BY avg_success ASC",
+          "phase": "offline_validation",
+          "start_time": 1788867571.5332944,
+          "status": "execute_returned",
+          "end_time": 1788867571.5335333
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g5 AS \"success_probability\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5 ORDER BY __g5",
+          "phase": "offline_validation",
+          "start_time": 1788867571.534927,
+          "status": "execute_returned",
+          "end_time": 1788867571.53508
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g1 AS \"trajectory_status\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_total_risk, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 2) AS avg_health_risk, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 2) AS avg_schedule_risk, ROUND((1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)), 2) AS avg_resource_risk, ROUND((1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)), 2) AS avg_scope_risk FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_total_risk DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867571.5361261,
+          "status": "execute_returned",
+          "end_time": 1788867571.536509
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT __g6 AS stability_bucket, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_stability, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_vdp, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_total_risk FROM temp.reuse_candidate GROUP BY __g6 ORDER BY stability_bucket",
+          "phase": "offline_validation",
+          "start_time": 1788867571.5379417,
+          "status": "execute_returned",
+          "end_time": 1788867571.5381896
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT __g7 AS sprint_bucket, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 2) AS avg_sprint, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_vdp, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_total_risk FROM temp.reuse_candidate GROUP BY __g7 ORDER BY sprint_bucket",
+          "phase": "offline_validation",
+          "start_time": 1788867571.5398452,
+          "status": "execute_returned",
+          "end_time": 1788867571.5400772
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT risk_category AS __g0, trajectory_status AS __g1, CASE WHEN complexity_risk_score <= 25 THEN 'low_complexity_(<=25)' WHEN complexity_risk_score <= 50 THEN 'medium_complexity_(26-50)' WHEN complexity_risk_score <= 75 THEN 'high_complexity_(51-75)' ELSE 'very_high_complexity_(>75)' END AS __g2, primary_risk_factor AS __g3, primary_risk_driver AS __g4, success_probability AS __g5, CASE WHEN team_stability_percentage < 60 THEN 'low_stability_(<60)' WHEN team_stability_percentage < 75 THEN 'medium_stability_(60-75)' ELSE 'high_stability_(>=75)' END AS __g6, CASE WHEN sprint_adoption_rate < 0.5 THEN 'low_sprint_adoption' WHEN sprint_adoption_rate < 0.8 THEN 'medium_sprint_adoption' ELSE 'high_sprint_adoption' END AS __g7, COUNT(*) AS __a0, SUM(complexity_risk_score) AS __a1_sum, COUNT(complexity_risk_score) AS __a1_n, SUM(success_probability) AS __a2_sum, COUNT(success_probability) AS __a2_n, SUM(total_risk_score) AS __a3_sum, COUNT(total_risk_score) AS __a3_n, SUM(overall_health_score) AS __a4_sum, COUNT(overall_health_score) AS __a4_n, SUM(delivered_value_points) AS __a5_sum, COUNT(delivered_value_points) AS __a5_n, SUM(value_delivery_percentage) AS __a6_sum, COUNT(value_delivery_percentage) AS __a6_n, SUM(team_stability_percentage) AS __a7_sum, COUNT(team_stability_percentage) AS __a7_n, SUM(health_risk_score) AS __a8_sum, COUNT(health_risk_score) AS __a8_n, SUM(schedule_risk_score) AS __a9_sum, COUNT(schedule_risk_score) AS __a9_n, SUM(resource_risk_score) AS __a10_sum, COUNT(resource_risk_score) AS __a10_n, SUM(scope_risk_score) AS __a11_sum, COUNT(scope_risk_score) AS __a11_n, SUM(sprint_adoption_rate) AS __a12_sum, COUNT(sprint_adoption_rate) AS __a12_n FROM \"jira__project_risk_assessment\"  GROUP BY risk_category, trajectory_status, CASE WHEN complexity_risk_score <= 25 THEN 'low_complexity_(<=25)' WHEN complexity_risk_score <= 50 THEN 'medium_complexity_(26-50)' WHEN complexity_risk_score <= 75 THEN 'high_complexity_(51-75)' ELSE 'very_high_complexity_(>75)' END, primary_risk_factor, primary_risk_driver, success_probability, CASE WHEN team_stability_percentage < 60 THEN 'low_stability_(<60)' WHEN team_stability_percentage < 75 THEN 'medium_stability_(60-75)' ELSE 'high_stability_(>=75)' END, CASE WHEN sprint_adoption_rate < 0.5 THEN 'low_sprint_adoption' WHEN sprint_adoption_rate < 0.8 THEN 'medium_sprint_adoption' ELSE 'high_sprint_adoption' END",
+          "time": 1788867571.5262663,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788867571.5272355,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788867571.5272667,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n_projects FROM temp.reuse_candidate",
+          "time": 1788867571.5273225,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"risk_category\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_complexity, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_success, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_total_risk, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_health FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_success ASC",
+          "time": 1788867571.5278757,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"trajectory_status\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_complexity, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_success, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_delivered, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_vdp FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_success ASC",
+          "time": 1788867571.529034,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS comp_bucket, SUM(__a0) AS n, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_health, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_vdp, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_total_risk, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_team_stability FROM temp.reuse_candidate GROUP BY __g2 ORDER BY comp_bucket",
+          "time": 1788867571.5301807,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS \"primary_risk_factor\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_health FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_success ASC",
+          "time": 1788867571.5321567,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS \"primary_risk_driver\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_health FROM temp.reuse_candidate GROUP BY __g4 ORDER BY avg_success ASC",
+          "time": 1788867571.533363,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g5 AS \"success_probability\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5 ORDER BY __g5",
+          "time": 1788867571.5349715,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"trajectory_status\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_total_risk, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 2) AS avg_health_risk, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 2) AS avg_schedule_risk, ROUND((1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)), 2) AS avg_resource_risk, ROUND((1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)), 2) AS avg_scope_risk FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_total_risk DESC",
+          "time": 1788867571.5362368,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g6 AS stability_bucket, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_stability, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_vdp, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_total_risk FROM temp.reuse_candidate GROUP BY __g6 ORDER BY stability_bucket",
+          "time": 1788867571.5380278,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g7 AS sprint_bucket, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 2) AS avg_sprint, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_vdp, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_total_risk FROM temp.reuse_candidate GROUP BY __g7 ORDER BY sprint_bucket",
+          "time": 1788867571.539928,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 1.356644555926323,
+      "intermediate_rows": 200,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__g5",
+        "__g6",
+        "__g7",
+        "__a0",
+        "__a1_sum",
+        "__a1_n",
+        "__a2_sum",
+        "__a2_n",
+        "__a3_sum",
+        "__a3_n",
+        "__a4_sum",
+        "__a4_n",
+        "__a5_sum",
+        "__a5_n",
+        "__a6_sum",
+        "__a6_n",
+        "__a7_sum",
+        "__a7_n",
+        "__a8_sum",
+        "__a8_n",
+        "__a9_sum",
+        "__a9_n",
+        "__a10_sum",
+        "__a10_n",
+        "__a11_sum",
+        "__a11_n",
+        "__a12_sum",
+        "__a12_n"
+      ],
+      "validation_ended_at": 1788867571.5417047,
+      "checks": [
+        {
+          "sql_id": "S6",
+          "rewritten_sql": "SELECT SUM(__a0) AS n_projects FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.48235058784484863
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT __g0 AS \"risk_category\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_complexity, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_success, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_total_risk, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_health FROM temp.reuse_candidate GROUP BY __g0 ORDER BY avg_success ASC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.1611692607402802
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT __g1 AS \"trajectory_status\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_complexity, (1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)) AS avg_success, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_delivered, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_vdp FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_success ASC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.122984103858471
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "SELECT __g2 AS comp_bucket, SUM(__a0) AS n, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_health, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_vdp, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_total_risk, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_team_stability FROM temp.reuse_candidate GROUP BY __g2 ORDER BY comp_bucket",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.9932575523853302
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "SELECT __g3 AS \"primary_risk_factor\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_health FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_success ASC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.2088706716895103
+        },
+        {
+          "sql_id": "S19",
+          "rewritten_sql": "SELECT __g4 AS \"primary_risk_driver\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_health FROM temp.reuse_candidate GROUP BY __g4 ORDER BY avg_success ASC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.6281874850392342
+        },
+        {
+          "sql_id": "S23",
+          "rewritten_sql": "SELECT __g5 AS \"success_probability\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5 ORDER BY __g5",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.1882642284035683
+        },
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "SELECT __g1 AS \"trajectory_status\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_total_risk, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 2) AS avg_health_risk, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 2) AS avg_schedule_risk, ROUND((1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)), 2) AS avg_resource_risk, ROUND((1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)), 2) AS avg_scope_risk FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_total_risk DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.8134433776140213
+        },
+        {
+          "sql_id": "S28",
+          "rewritten_sql": "SELECT __g6 AS stability_bucket, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_stability, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_vdp, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_total_risk FROM temp.reuse_candidate GROUP BY __g6 ORDER BY stability_bucket",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.9009746611118317
+        },
+        {
+          "sql_id": "S29",
+          "rewritten_sql": "SELECT __g7 AS sprint_bucket, SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 3) AS avg_success, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 2) AS avg_sprint, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_vdp, ROUND((1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)), 2) AS avg_total_risk FROM temp.reuse_candidate GROUP BY __g7 ORDER BY sprint_bucket",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7472468316555023
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT total_projects_involved AS __g0, influence_level AS __g1, CASE WHEN direct_network_connections <= 5 THEN '1_low_(<=5)' WHEN direct_network_connections <= 10 THEN '2_mid_low_(6-10)' WHEN direct_network_connections <= 20 THEN '3_mid_(11-20)' WHEN direct_network_connections <= 35 THEN '4_high_(21-35)' ELSE '5_very_high_(>35)' END AS __g2, stakeholder_archetype AS __g3, response_pattern_type AS __g4, CASE WHEN direct_network_connections <= 5 THEN 'low_(<=5)' WHEN direct_network_connections <= 20 THEN 'mid_(6-20)' ELSE 'high_(>20)' END AS __g5, engagement_risk_status AS __g6, COUNT(*) AS __a0, SUM(direct_network_connections) AS __a1_sum, COUNT(direct_network_connections) AS __a1_n, MIN(direct_network_connections) AS __a2, MAX(direct_network_connections) AS __a3, SUM(cross_functional_projects) AS __a4_sum, COUNT(cross_functional_projects) AS __a4_n, SUM(total_engagement_score) AS __a5_sum, COUNT(total_engagement_score) AS __a5_n, SUM(total_projects_involved) AS __a6_sum, COUNT(total_projects_involved) AS __a6_n, SUM(total_inbound_influence) AS __a7_sum, COUNT(total_inbound_influence) AS __a7_n, SUM(total_outbound_influence) AS __a8_sum, COUNT(total_outbound_influence) AS __a8_n, SUM(engagement_quality_score) AS __a9_sum, COUNT(engagement_quality_score) AS __a9_n, SUM(engagement_impact_score) AS __a10_sum, COUNT(engagement_impact_score) AS __a10_n, SUM(avg_outbound_influence_strength) AS __a11_sum, COUNT(avg_outbound_influence_strength) AS __a11_n, SUM(CASE WHEN stakeholder_id LIKE '%PRO%' THEN 1 ELSE 0 END) AS __a12, SUM(CASE WHEN user_display_name LIKE '%PRO%' THEN 1 ELSE 0 END) AS __a13, SUM(CASE WHEN stakeholder_archetype LIKE '%PRO%' THEN 1 ELSE 0 END) AS __a14, SUM(CASE WHEN recommended_engagement_strategy LIKE '%PRO%' THEN 1 ELSE 0 END) AS __a15, SUM(CASE WHEN development_opportunity LIKE '%PRO%' THEN 1 ELSE 0 END) AS __a16 FROM \"jira__stakeholder_engagement_insights\"  GROUP BY total_projects_involved, influence_level, CASE WHEN direct_network_connections <= 5 THEN '1_low_(<=5)' WHEN direct_network_connections <= 10 THEN '2_mid_low_(6-10)' WHEN direct_network_connections <= 20 THEN '3_mid_(11-20)' WHEN direct_network_connections <= 35 THEN '4_high_(21-35)' ELSE '5_very_high_(>35)' END, stakeholder_archetype, response_pattern_type, CASE WHEN direct_network_connections <= 5 THEN 'low_(<=5)' WHEN direct_network_connections <= 20 THEN 'mid_(6-20)' ELSE 'high_(>20)' END, engagement_risk_status",
+      "covered": [
+        "S7",
+        "S10",
+        "S11",
+        "S14",
+        "S16",
+        "S17",
+        "S22",
+        "S26"
+      ],
+      "rewrites": {
+        "S7": "SELECT SUM(__a0) AS n_stakeholders FROM temp.reuse_candidate",
+        "S10": "SELECT __g0 AS \"total_projects_involved\", (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_connections, SUM(__a0) AS n_stakeholders FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+        "S11": "SELECT __g1 AS \"influence_level\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_conn, MIN(__a2) AS min_conn, MAX(__a3) AS max_conn, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_cross_func, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_engagement FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_conn DESC",
+        "S14": "SELECT __g2 AS conn_bucket, SUM(__a0) AS n, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_projects, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_cross_func, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_engagement, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_inbound, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 2) AS avg_outbound FROM temp.reuse_candidate GROUP BY __g2 ORDER BY conn_bucket",
+        "S16": "SELECT __g3 AS \"stakeholder_archetype\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_conn, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_cross_func, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_engagement, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 2) AS avg_quality, ROUND((1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)), 2) AS avg_impact FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_conn DESC",
+        "S17": "SELECT __g4 AS \"response_pattern_type\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_conn, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_engagement, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 2) AS avg_quality, ROUND((1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)), 3) AS avg_influence_strength FROM temp.reuse_candidate GROUP BY __g4 ORDER BY avg_conn DESC",
+        "S22": "SELECT __g5 AS conn_group, __g6 AS \"engagement_risk_status\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_engagement FROM temp.reuse_candidate GROUP BY __g5, __g6 ORDER BY conn_group, __g6",
+        "S26": "SELECT SUM(__a0) AS total, SUM(__a12) AS id_has_pro, SUM(__a13) AS name_has_pro, SUM(__a14) AS archetype_has_pro, SUM(__a15) AS strategy_has_pro, SUM(__a16) AS dev_has_pro FROM temp.reuse_candidate"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S7",
+      "later_reuses": 7,
+      "denominator": 28,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788867571.5417235,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT total_projects_involved AS __g0, influence_level AS __g1, CASE WHEN direct_network_connections <= 5 THEN '1_low_(<=5)' WHEN direct_network_connections <= 10 THEN '2_mid_low_(6-10)' WHEN direct_network_connections <= 20 THEN '3_mid_(11-20)' WHEN direct_network_connections <= 35 THEN '4_high_(21-35)' ELSE '5_very_high_(>35)' END AS __g2, stakeholder_archetype AS __g3, response_pattern_type AS __g4, CASE WHEN direct_network_connections <= 5 THEN 'low_(<=5)' WHEN direct_network_connections <= 20 THEN 'mid_(6-20)' ELSE 'high_(>20)' END AS __g5, engagement_risk_status AS __g6, COUNT(*) AS __a0, SUM(direct_network_connections) AS __a1_sum, COUNT(direct_network_connections) AS __a1_n, MIN(direct_network_connections) AS __a2, MAX(direct_network_connections) AS __a3, SUM(cross_functional_projects) AS __a4_sum, COUNT(cross_functional_projects) AS __a4_n, SUM(total_engagement_score) AS __a5_sum, COUNT(total_engagement_score) AS __a5_n, SUM(total_projects_involved) AS __a6_sum, COUNT(total_projects_involved) AS __a6_n, SUM(total_inbound_influence) AS __a7_sum, COUNT(total_inbound_influence) AS __a7_n, SUM(total_outbound_influence) AS __a8_sum, COUNT(total_outbound_influence) AS __a8_n, SUM(engagement_quality_score) AS __a9_sum, COUNT(engagement_quality_score) AS __a9_n, SUM(engagement_impact_score) AS __a10_sum, COUNT(engagement_impact_score) AS __a10_n, SUM(avg_outbound_influence_strength) AS __a11_sum, COUNT(avg_outbound_influence_strength) AS __a11_n, SUM(CASE WHEN stakeholder_id LIKE '%PRO%' THEN 1 ELSE 0 END) AS __a12, SUM(CASE WHEN user_display_name LIKE '%PRO%' THEN 1 ELSE 0 END) AS __a13, SUM(CASE WHEN stakeholder_archetype LIKE '%PRO%' THEN 1 ELSE 0 END) AS __a14, SUM(CASE WHEN recommended_engagement_strategy LIKE '%PRO%' THEN 1 ELSE 0 END) AS __a15, SUM(CASE WHEN development_opportunity LIKE '%PRO%' THEN 1 ELSE 0 END) AS __a16 FROM \"jira__stakeholder_engagement_insights\"  GROUP BY total_projects_involved, influence_level, CASE WHEN direct_network_connections <= 5 THEN '1_low_(<=5)' WHEN direct_network_connections <= 10 THEN '2_mid_low_(6-10)' WHEN direct_network_connections <= 20 THEN '3_mid_(11-20)' WHEN direct_network_connections <= 35 THEN '4_high_(21-35)' ELSE '5_very_high_(>35)' END, stakeholder_archetype, response_pattern_type, CASE WHEN direct_network_connections <= 5 THEN 'low_(<=5)' WHEN direct_network_connections <= 20 THEN 'mid_(6-20)' ELSE 'high_(>20)' END, engagement_risk_status",
+          "phase": "offline_validation",
+          "start_time": 1788867571.5419157,
+          "status": "execute_returned",
+          "end_time": 1788867571.5582397
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867571.5582447,
+          "status": "execute_returned",
+          "end_time": 1788867571.5582662
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788867571.5582707,
+          "status": "execute_returned",
+          "end_time": 1788867571.5582867
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS n_stakeholders FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867571.5583293,
+          "status": "execute_returned",
+          "end_time": 1788867571.5584557
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"total_projects_involved\", (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_connections, SUM(__a0) AS n_stakeholders FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788867571.5588534,
+          "status": "execute_returned",
+          "end_time": 1788867571.5591843
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g1 AS \"influence_level\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_conn, MIN(__a2) AS min_conn, MAX(__a3) AS max_conn, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_cross_func, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_engagement FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_conn DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867571.5600762,
+          "status": "execute_returned",
+          "end_time": 1788867571.5613897
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g2 AS conn_bucket, SUM(__a0) AS n, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_projects, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_cross_func, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_engagement, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_inbound, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 2) AS avg_outbound FROM temp.reuse_candidate GROUP BY __g2 ORDER BY conn_bucket",
+          "phase": "offline_validation",
+          "start_time": 1788867571.5623834,
+          "status": "execute_returned",
+          "end_time": 1788867571.5633743
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g3 AS \"stakeholder_archetype\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_conn, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_cross_func, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_engagement, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 2) AS avg_quality, ROUND((1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)), 2) AS avg_impact FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_conn DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867571.5658429,
+          "status": "execute_returned",
+          "end_time": 1788867571.5676208
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g4 AS \"response_pattern_type\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_conn, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_engagement, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 2) AS avg_quality, ROUND((1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)), 3) AS avg_influence_strength FROM temp.reuse_candidate GROUP BY __g4 ORDER BY avg_conn DESC",
+          "phase": "offline_validation",
+          "start_time": 1788867571.5689049,
+          "status": "execute_returned",
+          "end_time": 1788867571.5703485
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g5 AS conn_group, __g6 AS \"engagement_risk_status\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_engagement FROM temp.reuse_candidate GROUP BY __g5, __g6 ORDER BY conn_group, __g6",
+          "phase": "offline_validation",
+          "start_time": 1788867571.5714386,
+          "status": "execute_returned",
+          "end_time": 1788867571.5722637
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT SUM(__a0) AS total, SUM(__a12) AS id_has_pro, SUM(__a13) AS name_has_pro, SUM(__a14) AS archetype_has_pro, SUM(__a15) AS strategy_has_pro, SUM(__a16) AS dev_has_pro FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788867571.5735328,
+          "status": "execute_returned",
+          "end_time": 1788867571.5739985
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT total_projects_involved AS __g0, influence_level AS __g1, CASE WHEN direct_network_connections <= 5 THEN '1_low_(<=5)' WHEN direct_network_connections <= 10 THEN '2_mid_low_(6-10)' WHEN direct_network_connections <= 20 THEN '3_mid_(11-20)' WHEN direct_network_connections <= 35 THEN '4_high_(21-35)' ELSE '5_very_high_(>35)' END AS __g2, stakeholder_archetype AS __g3, response_pattern_type AS __g4, CASE WHEN direct_network_connections <= 5 THEN 'low_(<=5)' WHEN direct_network_connections <= 20 THEN 'mid_(6-20)' ELSE 'high_(>20)' END AS __g5, engagement_risk_status AS __g6, COUNT(*) AS __a0, SUM(direct_network_connections) AS __a1_sum, COUNT(direct_network_connections) AS __a1_n, MIN(direct_network_connections) AS __a2, MAX(direct_network_connections) AS __a3, SUM(cross_functional_projects) AS __a4_sum, COUNT(cross_functional_projects) AS __a4_n, SUM(total_engagement_score) AS __a5_sum, COUNT(total_engagement_score) AS __a5_n, SUM(total_projects_involved) AS __a6_sum, COUNT(total_projects_involved) AS __a6_n, SUM(total_inbound_influence) AS __a7_sum, COUNT(total_inbound_influence) AS __a7_n, SUM(total_outbound_influence) AS __a8_sum, COUNT(total_outbound_influence) AS __a8_n, SUM(engagement_quality_score) AS __a9_sum, COUNT(engagement_quality_score) AS __a9_n, SUM(engagement_impact_score) AS __a10_sum, COUNT(engagement_impact_score) AS __a10_n, SUM(avg_outbound_influence_strength) AS __a11_sum, COUNT(avg_outbound_influence_strength) AS __a11_n, SUM(CASE WHEN stakeholder_id LIKE '%PRO%' THEN 1 ELSE 0 END) AS __a12, SUM(CASE WHEN user_display_name LIKE '%PRO%' THEN 1 ELSE 0 END) AS __a13, SUM(CASE WHEN stakeholder_archetype LIKE '%PRO%' THEN 1 ELSE 0 END) AS __a14, SUM(CASE WHEN recommended_engagement_strategy LIKE '%PRO%' THEN 1 ELSE 0 END) AS __a15, SUM(CASE WHEN development_opportunity LIKE '%PRO%' THEN 1 ELSE 0 END) AS __a16 FROM \"jira__stakeholder_engagement_insights\"  GROUP BY total_projects_involved, influence_level, CASE WHEN direct_network_connections <= 5 THEN '1_low_(<=5)' WHEN direct_network_connections <= 10 THEN '2_mid_low_(6-10)' WHEN direct_network_connections <= 20 THEN '3_mid_(11-20)' WHEN direct_network_connections <= 35 THEN '4_high_(21-35)' ELSE '5_very_high_(>35)' END, stakeholder_archetype, response_pattern_type, CASE WHEN direct_network_connections <= 5 THEN 'low_(<=5)' WHEN direct_network_connections <= 20 THEN 'mid_(6-20)' ELSE 'high_(>20)' END, engagement_risk_status",
+          "time": 1788867571.5422049,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788867571.5582588,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788867571.558284,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n_stakeholders FROM temp.reuse_candidate",
+          "time": 1788867571.55834,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"total_projects_involved\", (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_connections, SUM(__a0) AS n_stakeholders FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "time": 1788867571.5588932,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"influence_level\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_conn, MIN(__a2) AS min_conn, MAX(__a3) AS max_conn, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_cross_func, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_engagement FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_conn DESC",
+          "time": 1788867571.5601418,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS conn_bucket, SUM(__a0) AS n, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_projects, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_cross_func, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_engagement, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_inbound, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 2) AS avg_outbound FROM temp.reuse_candidate GROUP BY __g2 ORDER BY conn_bucket",
+          "time": 1788867571.5624647,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS \"stakeholder_archetype\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_conn, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_cross_func, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_engagement, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 2) AS avg_quality, ROUND((1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)), 2) AS avg_impact FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_conn DESC",
+          "time": 1788867571.5659285,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS \"response_pattern_type\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_conn, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_engagement, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 2) AS avg_quality, ROUND((1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)), 3) AS avg_influence_strength FROM temp.reuse_candidate GROUP BY __g4 ORDER BY avg_conn DESC",
+          "time": 1788867571.5689838,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g5 AS conn_group, __g6 AS \"engagement_risk_status\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_engagement FROM temp.reuse_candidate GROUP BY __g5, __g6 ORDER BY conn_group, __g6",
+          "time": 1788867571.5714886,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total, SUM(__a12) AS id_has_pro, SUM(__a13) AS name_has_pro, SUM(__a14) AS archetype_has_pro, SUM(__a15) AS strategy_has_pro, SUM(__a16) AS dev_has_pro FROM temp.reuse_candidate",
+          "time": 1788867571.5735705,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 16.32827240973711,
+      "intermediate_rows": 1555,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__g5",
+        "__g6",
+        "__a0",
+        "__a1_sum",
+        "__a1_n",
+        "__a2",
+        "__a3",
+        "__a4_sum",
+        "__a4_n",
+        "__a5_sum",
+        "__a5_n",
+        "__a6_sum",
+        "__a6_n",
+        "__a7_sum",
+        "__a7_n",
+        "__a8_sum",
+        "__a8_n",
+        "__a9_sum",
+        "__a9_n",
+        "__a10_sum",
+        "__a10_n",
+        "__a11_sum",
+        "__a11_n",
+        "__a12",
+        "__a13",
+        "__a14",
+        "__a15",
+        "__a16"
+      ],
+      "validation_ended_at": 1788867571.5757108,
+      "checks": [
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT SUM(__a0) AS n_stakeholders FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5220230668783188
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT __g0 AS \"total_projects_involved\", (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_connections, SUM(__a0) AS n_stakeholders FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.2209201231598854
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT __g1 AS \"influence_level\", SUM(__a0) AS n, (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_conn, MIN(__a2) AS min_conn, MAX(__a3) AS max_conn, (1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)) AS avg_cross_func, (1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)) AS avg_engagement FROM temp.reuse_candidate GROUP BY __g1 ORDER BY avg_conn DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.304990775883198
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT __g2 AS conn_bucket, SUM(__a0) AS n, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_projects, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_cross_func, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_engagement, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_inbound, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 2) AS avg_outbound FROM temp.reuse_candidate GROUP BY __g2 ORDER BY conn_bucket",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.457428887486458
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "SELECT __g3 AS \"stakeholder_archetype\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_conn, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_cross_func, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_engagement, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 2) AS avg_quality, ROUND((1.0 * SUM(__a10_sum) / NULLIF(SUM(__a10_n), 0)), 2) AS avg_impact FROM temp.reuse_candidate GROUP BY __g3 ORDER BY avg_conn DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.059845417737961
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "SELECT __g4 AS \"response_pattern_type\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_conn, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_engagement, ROUND((1.0 * SUM(__a9_sum) / NULLIF(SUM(__a9_n), 0)), 2) AS avg_quality, ROUND((1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)), 3) AS avg_influence_strength FROM temp.reuse_candidate GROUP BY __g4 ORDER BY avg_conn DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.531757578253746
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "SELECT __g5 AS conn_group, __g6 AS \"engagement_risk_status\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_engagement FROM temp.reuse_candidate GROUP BY __g5, __g6 ORDER BY conn_group, __g6",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.092380076646805
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "SELECT SUM(__a0) AS total, SUM(__a12) AS id_has_pro, SUM(__a13) AS name_has_pro, SUM(__a14) AS archetype_has_pro, SUM(__a15) AS strategy_has_pro, SUM(__a16) AS dev_has_pro FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.0500998944044113
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

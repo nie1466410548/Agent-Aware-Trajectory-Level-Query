@@ -1,0 +1,1 @@
+SELECT account_type_name, COUNT(*) AS n, SUM(converted_amount) AS total FROM netsuite2_income_statement GROUP BY account_type_name

@@ -1,0 +1,1 @@
+SELECT DISTINCT keyword_match_type FROM google_ads__keyword_report

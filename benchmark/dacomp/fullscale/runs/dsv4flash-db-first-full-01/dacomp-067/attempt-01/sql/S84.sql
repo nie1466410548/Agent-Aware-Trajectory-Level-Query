@@ -1,0 +1,1 @@
+SELECT AVG(avg_job_rating) as avg FROM greenhouse__job_enhanced WHERE avg_job_rating IS NOT NULL

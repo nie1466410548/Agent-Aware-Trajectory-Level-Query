@@ -1,0 +1,1 @@
+SELECT DISTINCT project_id FROM jira__team_performance_dashboard ORDER BY project_id LIMIT 10

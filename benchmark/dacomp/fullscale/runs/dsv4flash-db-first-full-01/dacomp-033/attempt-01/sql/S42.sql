@@ -1,0 +1,1 @@
+SELECT COUNT(*) as matched, (SELECT COUNT(*) FROM customer_credit_rating_table) as total FROM customer_credit_rating_table cr JOIN customer_account_table a ON cr."Account ID"=a."Account ID"

@@ -1,0 +1,1 @@
+SELECT DISTINCT survey_name FROM qualtrics__survey WHERE survey_name LIKE '%App%' OR survey_name LIKE '%app%' OR survey_name LIKE '%Mobile%' OR survey_name LIKE '%mobile%' OR survey_name LIKE '%Dev%' OR survey_name LIKE '%dev%'

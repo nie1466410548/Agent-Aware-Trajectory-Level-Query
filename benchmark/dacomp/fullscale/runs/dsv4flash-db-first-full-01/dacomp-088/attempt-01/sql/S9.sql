@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n, COUNT(DISTINCT opportunity_id) AS n_opps, COUNT(DISTINCT account_id) AS n_accounts FROM salesforce__opportunity_enhanced

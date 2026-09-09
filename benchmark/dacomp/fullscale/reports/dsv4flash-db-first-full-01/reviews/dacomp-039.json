@@ -1,0 +1,60 @@
+{
+  "task_id": "dacomp-039",
+  "status": "partial_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "SQL 筛选 2024 年关卡并汇总部分难度/类型指标。Python 回归、t 检验及方差分解属于统计程序；P8 和其他绘图调用另外用 pandas 重算难度×类型的计数/平均流失率/评分，P9 做难度均值，这些是可在 SQL 完成的绘图前准备，需标为偏离。",
+  "route": "筛选 2024 年上线关卡 → 按难度与类型比较流失和评分 → Python 方差分解、回归与检验 → 绘制组合摘要和分布。",
+  "evidence": [
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 17,
+          "text": "grp = df.groupby(['Difficulty Level', 'Level Type']).agg("
+        },
+        {
+          "line": 18,
+          "text": "    level_count=('Level ID', 'count'),"
+        },
+        {
+          "line": 19,
+          "text": "    avg_churn=('Churn Rate', 'mean'),"
+        },
+        {
+          "line": 20,
+          "text": "    avg_rating=('Level Rating', 'mean')"
+        }
+      ]
+    },
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 16,
+          "text": "    beta, _, _, _ = np.linalg.lstsq(X, y, rcond=None)"
+        },
+        {
+          "line": 49,
+          "text": "    t, p = stats.ttest_ind(x, z, equal_var=False)"
+        },
+        {
+          "line": 60,
+          "text": "    t, p = stats.ttest_ind(x, z, equal_var=False)"
+        }
+      ]
+    },
+    {
+      "source": "python/P9.py",
+      "lines": [
+        {
+          "line": 12,
+          "text": "m = df.groupby('Difficulty Level')[['Churn Rate', 'Level Rating']].mean().reindex(order)"
+        },
+        {
+          "line": 35,
+          "text": "print(df.groupby('Difficulty Level')['Number of Participating Players'].mean().reindex(order).round(0))"
+        }
+      ]
+    }
+  ]
+}

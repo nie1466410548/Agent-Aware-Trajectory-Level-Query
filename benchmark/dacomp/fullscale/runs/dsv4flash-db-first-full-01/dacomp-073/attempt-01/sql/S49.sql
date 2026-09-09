@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT p.posting_hiring_manager_name) as posting_hm_cnt FROM lever__posting_enhanced

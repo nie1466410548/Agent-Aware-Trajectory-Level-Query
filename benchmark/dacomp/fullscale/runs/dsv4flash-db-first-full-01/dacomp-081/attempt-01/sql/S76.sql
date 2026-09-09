@@ -1,0 +1,1 @@
+SELECT r.survey_id, s.survey_name, COUNT(*) AS n, AVG(r.value) AS avg_v, AVG(r.value)*10 AS score FROM qualtrics__response r JOIN qualtrics__survey s ON r.survey_id=s.survey_id GROUP BY r.survey_id HAVING n >= 30 ORDER BY avg_v DESC LIMIT 40

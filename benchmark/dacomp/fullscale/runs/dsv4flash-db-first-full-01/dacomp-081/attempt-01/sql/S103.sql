@@ -1,0 +1,1 @@
+SELECT question_option_key, COUNT(*) AS n, AVG(value) AS avg_v FROM qualtrics__response GROUP BY question_option_key ORDER BY n DESC LIMIT 30

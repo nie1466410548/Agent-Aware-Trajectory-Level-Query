@@ -1,0 +1,457 @@
+{
+  "fingerprint": "1287f803d3818eb56c0ca871e8ff5c1b033b25e1571b226a986b71e38b4085d8",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S32",
+      "covered": [
+        "S32",
+        "S33"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S32",
+      "later_reuses": 1,
+      "denominator": 36,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S34",
+      "covered": [
+        "S34",
+        "S38"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S34",
+      "later_reuses": 1,
+      "denominator": 36,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT *, CASE WHEN \"Profit Margin\" < 0.5 * (SELECT AVG(\"Profit Margin\") FROM sheet1) THEN 1 ELSE 0 END AS is_low FROM sheet1",
+      "covered": [
+        "S8",
+        "S9",
+        "S10",
+        "S11",
+        "S12",
+        "S13",
+        "S14",
+        "S15",
+        "S16",
+        "S17",
+        "S18",
+        "S19",
+        "S20",
+        "S21",
+        "S22",
+        "S23",
+        "S24",
+        "S26",
+        "S27",
+        "S28",
+        "S29",
+        "S30",
+        "S31"
+      ],
+      "rewrites": {
+        "S8": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT is_low, COUNT(*) AS n, ROUND(AVG(\"Sales Quantity\"), 2) AS avg_sales_qty, ROUND(AVG(\"Logistics Unit Price\"), 2) AS avg_unit_price, ROUND(AVG(\"List Price Revenue\"), 2) AS avg_list_price_rev, ROUND(AVG(\"Logistics Value-Added Service Revenue\"), 2) AS avg_vas_rev, ROUND(AVG(\"Discount Amount\"), 2) AS avg_discount, ROUND(AVG(\"Discount Amount\") / AVG(\"List Price Revenue\") * 100, 2) AS discount_pct_of_list, ROUND(AVG(\"Total Logistics Revenue\"), 2) AS avg_total_rev, ROUND(AVG(\"Freight Cost\"), 2) AS avg_freight, ROUND(AVG(\"Warehousing Cost\"), 2) AS avg_warehousing, ROUND(AVG(\"Other Operating Costs\"), 2) AS avg_other_op, ROUND(AVG(\"Total Logistics Cost\"), 2) AS avg_total_cost, ROUND(AVG(\"Profit\"), 2) AS avg_profit, ROUND(AVG(\"Profit Margin\"), 4) AS avg_profit_margin FROM lm GROUP BY is_low",
+        "S9": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT is_low, ROUND(AVG(\"Freight Cost\") / NULLIF(AVG(\"Total Logistics Revenue\"), 0) * 100, 2) AS freight_pct_of_rev, ROUND(AVG(\"Warehousing Cost\") / NULLIF(AVG(\"Total Logistics Revenue\"), 0) * 100, 2) AS warehousing_pct_of_rev, ROUND(AVG(\"Other Operating Costs\") / NULLIF(AVG(\"Total Logistics Revenue\"), 0) * 100, 2) AS other_op_pct_of_rev, ROUND(AVG(\"Total Logistics Cost\") / NULLIF(AVG(\"Total Logistics Revenue\"), 0) * 100, 2) AS cost_pct_of_rev, ROUND(AVG(\"Total Logistics Revenue\") / NULLIF(AVG(\"Sales Quantity\"), 0), 2) AS revenue_per_unit, ROUND(AVG(\"Total Logistics Cost\") / NULLIF(AVG(\"Sales Quantity\"), 0), 2) AS cost_per_unit FROM lm GROUP BY is_low",
+        "S10": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Destination\", SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) AS low_margin_count, SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END) AS normal_count, ROUND(100.0 * SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) + SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END), 0), 2) AS low_margin_pct, ROUND(AVG(CASE WHEN is_low = 1 THEN \"Freight Cost\" END), 2) AS lm_avg_freight, ROUND(AVG(CASE WHEN is_low = 0 THEN \"Freight Cost\" END), 2) AS normal_avg_freight FROM lm GROUP BY \"Destination\" ORDER BY low_margin_count DESC LIMIT 20",
+        "S11": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Consigned Product\", SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) AS low_margin_count, SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END) AS normal_count, ROUND(100.0 * SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) + SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END), 0), 2) AS low_margin_pct, ROUND(AVG(CASE WHEN is_low = 1 THEN \"Sales Quantity\" END), 2) AS lm_avg_qty, ROUND(AVG(CASE WHEN is_low = 0 THEN \"Sales Quantity\" END), 2) AS normal_avg_qty FROM lm GROUP BY \"Consigned Product\" ORDER BY low_margin_count DESC LIMIT 20",
+        "S12": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Customer Gender\", SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) AS low_margin_count, SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END) AS normal_count, ROUND(100.0 * SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) + SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END), 0), 2) AS low_margin_pct FROM lm GROUP BY \"Customer Gender\"",
+        "S13": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Age Range\", SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) AS low_margin_count, SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END) AS normal_count, ROUND(100.0 * SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) + SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END), 0), 2) AS low_margin_pct, ROUND(AVG(CASE WHEN is_low = 1 THEN \"Customer Age\" END), 1) AS lm_avg_age, ROUND(AVG(CASE WHEN is_low = 0 THEN \"Customer Age\" END), 1) AS normal_avg_age FROM lm GROUP BY \"Age Range\" ORDER BY \"Age Range\"",
+        "S14": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT STRFTIME('%Y-%m', \"Date\") AS month, SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) AS low_margin_count, SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END) AS normal_count, ROUND(100.0 * SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) + SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END), 0), 2) AS low_margin_pct FROM lm GROUP BY month ORDER BY month",
+        "S15": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT is_low, ROUND(AVG(\"Discount Amount\"), 2) AS avg_discount_abs, ROUND(AVG(\"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) * 100), 2) AS avg_discount_rate_pct, COUNT(CASE WHEN \"Discount Amount\" > 0 THEN 1 END) AS orders_with_discount, ROUND(100.0 * COUNT(CASE WHEN \"Discount Amount\" > 0 THEN 1 END) / COUNT(*), 2) AS pct_with_discount FROM lm GROUP BY is_low",
+        "S16": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Sales Quantity\", is_low, COUNT(*) AS n, ROUND(AVG(\"Total Logistics Revenue\"), 2) AS avg_rev, ROUND(AVG(\"Total Logistics Cost\"), 2) AS avg_cost, ROUND(AVG(\"Profit\"), 2) AS avg_profit, ROUND(AVG(\"Profit Margin\"), 4) AS avg_pm FROM lm GROUP BY \"Sales Quantity\", is_low ORDER BY \"Sales Quantity\", is_low LIMIT 30",
+        "S17": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Sales Quantity\" <= 5 THEN 'Qty<=5' WHEN \"Sales Quantity\" <= 10 THEN '6-10' WHEN \"Sales Quantity\" <= 20 THEN '11-20' WHEN \"Sales Quantity\" <= 40 THEN '21-40' ELSE '41+' END AS qty_band, is_low, COUNT(*) AS n, ROUND(AVG(\"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) * 100), 2) AS avg_disc_rate, ROUND(AVG(\"Total Logistics Revenue\"), 2) AS avg_rev, ROUND(AVG(\"Total Logistics Cost\"), 2) AS avg_cost, ROUND(AVG(\"Freight Cost\"), 2) AS avg_freight, ROUND(AVG(\"Warehousing Cost\"), 2) AS avg_wh, ROUND(AVG(\"Other Operating Costs\"), 2) AS avg_other, ROUND(AVG(\"Profit\"), 2) AS avg_profit FROM lm GROUP BY qty_band, is_low ORDER BY qty_band, is_low",
+        "S18": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT is_low, MIN(\"Sales Quantity\") AS min_qty, ROUND(AVG(\"Sales Quantity\"), 2) AS avg_qty, MAX(\"Sales Quantity\") AS max_qty, COUNT(CASE WHEN \"Sales Quantity\" <= 6 THEN 1 END) AS qty_le_6, ROUND(100.0 * COUNT(CASE WHEN \"Sales Quantity\" <= 6 THEN 1 END) / COUNT(*), 2) AS pct_qty_le_6 FROM lm GROUP BY is_low",
+        "S19": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Destination\", COUNT(*) AS total, SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) AS low_cnt, ROUND(100.0 * SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) / COUNT(*), 2) AS low_pct, ROUND(AVG(\"Sales Quantity\"), 2) AS avg_qty, ROUND(AVG(\"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) * 100), 2) AS avg_disc_rate FROM lm GROUP BY \"Destination\" HAVING total >= 30 ORDER BY low_pct DESC LIMIT 20",
+        "S20": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT SUBSTRING(\"Destination\", 1, INSTR(\"Destination\", '-') - 1) AS region, SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) AS low_cnt, SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END) AS normal_cnt, ROUND(100.0 * SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) / COUNT(*), 2) AS low_pct, ROUND(AVG(CASE WHEN is_low = 1 THEN \"Freight Cost\" END), 2) AS lm_avg_freight, ROUND(AVG(CASE WHEN is_low = 0 THEN \"Freight Cost\" END), 2) AS normal_avg_freight FROM lm GROUP BY region ORDER BY low_pct DESC",
+        "S21": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT is_low, ROUND(AVG(\"Freight Cost\" / NULLIF(\"Sales Quantity\", 0)), 3) AS freight_per_unit, ROUND(AVG(\"Warehousing Cost\" / NULLIF(\"Sales Quantity\", 0)), 3) AS warehousing_per_unit, ROUND(AVG(\"Other Operating Costs\" / NULLIF(\"Sales Quantity\", 0)), 3) AS other_per_unit, ROUND(AVG(\"Total Logistics Cost\" / NULLIF(\"Sales Quantity\", 0)), 3) AS total_cost_per_unit, ROUND(AVG(\"Total Logistics Revenue\" / NULLIF(\"Sales Quantity\", 0)), 3) AS rev_per_unit, ROUND(AVG(\"Logistics Unit Price\"), 3) AS unit_price FROM lm GROUP BY is_low",
+        "S22": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT ROUND(AVG(\"Freight Cost\"), 2) AS lm_freight, ROUND(AVG(\"Warehousing Cost\"), 2) AS lm_warehousing, ROUND(AVG(\"Other Operating Costs\"), 2) AS lm_other, ROUND(AVG(\"Logistics Unit Price\"), 2) AS lm_unit_price, ROUND(AVG(\"Logistics Value-Added Service Revenue\"), 2) AS lm_vas FROM lm WHERE is_low = 1",
+        "S23": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Logistics Unit Price\", is_low, COUNT(*) AS n, ROUND(AVG(\"Total Logistics Revenue\"), 2) AS avg_rev, ROUND(AVG(\"Freight Cost\"), 2) AS avg_freight, ROUND(AVG(\"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) * 100), 2) AS avg_disc FROM lm GROUP BY \"Logistics Unit Price\", is_low ORDER BY \"Logistics Unit Price\", is_low LIMIT 40",
+        "S24": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT ROUND(\"Freight Cost\", -1) AS freight_bucket, is_low, COUNT(*) AS n, ROUND(AVG(\"Sales Quantity\"), 2) AS avg_qty, ROUND(AVG(\"Total Logistics Revenue\"), 2) AS avg_rev, ROUND(AVG(\"Profit\"), 2) AS avg_profit FROM lm GROUP BY freight_bucket, is_low ORDER BY freight_bucket, is_low LIMIT 30",
+        "S26": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT is_low, ROUND(AVG(\"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) * 100), 2) AS avg_discount_rate, ROUND(AVG(\"List Price Revenue\"), 2) AS avg_list_price, ROUND(AVG(\"Total Logistics Revenue\"), 2) AS avg_logistics_rev, ROUND(AVG(\"List Price Revenue\" - \"Total Logistics Revenue\"), 2) AS avg_revenue_leakage, ROUND(100.0 * AVG(\"List Price Revenue\" - \"Total Logistics Revenue\") / NULLIF(AVG(\"List Price Revenue\"), 0), 2) AS pct_revenue_leakage FROM lm GROUP BY is_low",
+        "S27": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT SUBSTRING(\"Destination\", 1, INSTR(\"Destination\", '-') - 1) AS region, SUBSTRING(\"Destination\", INSTR(\"Destination\", '-') + 1, INSTR(SUBSTRING(\"Destination\", INSTR(\"Destination\", '-') + 1), '-') - 1) AS province, is_low, COUNT(*) AS n, ROUND(AVG(\"Freight Cost\"), 2) AS avg_freight, ROUND(AVG(\"Sales Quantity\"), 2) AS avg_qty, ROUND(AVG(\"Freight Cost\" / NULLIF(\"Sales Quantity\", 0)), 2) AS freight_per_unit FROM lm WHERE is_low = 1 GROUP BY region, province ORDER BY avg_freight DESC LIMIT 15",
+        "S28": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Discount Amount\" = 0 THEN '0%' WHEN \"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) < 0.05 THEN '0-5%' WHEN \"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) < 0.10 THEN '5-10%' WHEN \"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) < 0.20 THEN '10-20%' WHEN \"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) < 0.30 THEN '20-30%' ELSE '30%+' END AS discount_band, COUNT(*) AS total, SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) AS low_cnt, ROUND(100.0 * SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 2) AS low_pct_in_band, ROUND(100.0 * SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) / 1243, 2) AS pct_of_all_low FROM lm GROUP BY discount_band ORDER BY discount_band",
+        "S29": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Logistics Value-Added Service Revenue\", is_low, COUNT(*) AS n, ROUND(AVG(\"Total Logistics Revenue\"), 2) AS avg_rev, ROUND(AVG(\"Profit\"), 2) AS avg_profit FROM lm GROUP BY \"Logistics Value-Added Service Revenue\", is_low ORDER BY \"Logistics Value-Added Service Revenue\", is_low LIMIT 30",
+        "S30": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT is_low, ROUND(AVG(\"Logistics Value-Added Service Revenue\"), 2) AS avg_vas, ROUND(AVG(\"Logistics Value-Added Service Revenue\") / NULLIF(AVG(\"Total Logistics Revenue\"), 0) * 100, 2) AS vas_pct_of_rev, COUNT(CASE WHEN \"Logistics Value-Added Service Revenue\" > 0 THEN 1 END) AS vas_orders, ROUND(100.0 * COUNT(CASE WHEN \"Logistics Value-Added Service Revenue\" > 0 THEN 1 END) / COUNT(*), 2) AS pct_vas_orders FROM lm GROUP BY is_low",
+        "S31": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Consigned Product\", ROUND(AVG(CASE WHEN is_low = 1 THEN \"Freight Cost\" / NULLIF(\"Sales Quantity\", 0) END), 2) AS lm_freight_per_unit, ROUND(AVG(CASE WHEN is_low = 0 THEN \"Freight Cost\" / NULLIF(\"Sales Quantity\", 0) END), 2) AS normal_freight_per_unit, ROUND(AVG(CASE WHEN is_low = 1 THEN \"Total Logistics Cost\" / NULLIF(\"Sales Quantity\", 0) END), 2) AS lm_cost_per_unit, ROUND(AVG(CASE WHEN is_low = 0 THEN \"Total Logistics Cost\" / NULLIF(\"Sales Quantity\", 0) END), 2) AS normal_cost_per_unit, ROUND(AVG(CASE WHEN is_low = 1 THEN \"Total Logistics Revenue\" / NULLIF(\"Sales Quantity\", 0) END), 2) AS lm_rev_per_unit, ROUND(AVG(CASE WHEN is_low = 0 THEN \"Total Logistics Revenue\" / NULLIF(\"Sales Quantity\", 0) END), 2) AS normal_rev_per_unit FROM lm GROUP BY \"Consigned Product\" ORDER BY lm_cost_per_unit DESC"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S8",
+      "later_reuses": 22,
+      "denominator": 36,
+      "coverage_includes_trigger": true,
+      "build_ms": 25.680292397737503,
+      "intermediate_rows": 18250,
+      "intermediate_columns": [
+        "Date",
+        "Waybill Number",
+        "Postal Code",
+        "Destination",
+        "Consignee",
+        "Customer Gender",
+        "Customer Age",
+        "Age Range",
+        "Consigned Product",
+        "Sales Quantity",
+        "Logistics Unit Price",
+        "List Price Revenue",
+        "Logistics Value-Added Service Revenue",
+        "Discount Amount",
+        "Total Logistics Revenue",
+        "Freight Cost",
+        "Warehousing Cost",
+        "Other Operating Costs",
+        "Total Logistics Cost",
+        "Profit",
+        "Profit Margin",
+        "is_low"
+      ],
+      "checks": [
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT is_low, COUNT(*) AS n, ROUND(AVG(\"Sales Quantity\"), 2) AS avg_sales_qty, ROUND(AVG(\"Logistics Unit Price\"), 2) AS avg_unit_price, ROUND(AVG(\"List Price Revenue\"), 2) AS avg_list_price_rev, ROUND(AVG(\"Logistics Value-Added Service Revenue\"), 2) AS avg_vas_rev, ROUND(AVG(\"Discount Amount\"), 2) AS avg_discount, ROUND(AVG(\"Discount Amount\") / AVG(\"List Price Revenue\") * 100, 2) AS discount_pct_of_list, ROUND(AVG(\"Total Logistics Revenue\"), 2) AS avg_total_rev, ROUND(AVG(\"Freight Cost\"), 2) AS avg_freight, ROUND(AVG(\"Warehousing Cost\"), 2) AS avg_warehousing, ROUND(AVG(\"Other Operating Costs\"), 2) AS avg_other_op, ROUND(AVG(\"Total Logistics Cost\"), 2) AS avg_total_cost, ROUND(AVG(\"Profit\"), 2) AS avg_profit, ROUND(AVG(\"Profit Margin\"), 4) AS avg_profit_margin FROM lm GROUP BY is_low",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 27.966536581516266
+        },
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT is_low, ROUND(AVG(\"Freight Cost\") / NULLIF(AVG(\"Total Logistics Revenue\"), 0) * 100, 2) AS freight_pct_of_rev, ROUND(AVG(\"Warehousing Cost\") / NULLIF(AVG(\"Total Logistics Revenue\"), 0) * 100, 2) AS warehousing_pct_of_rev, ROUND(AVG(\"Other Operating Costs\") / NULLIF(AVG(\"Total Logistics Revenue\"), 0) * 100, 2) AS other_op_pct_of_rev, ROUND(AVG(\"Total Logistics Cost\") / NULLIF(AVG(\"Total Logistics Revenue\"), 0) * 100, 2) AS cost_pct_of_rev, ROUND(AVG(\"Total Logistics Revenue\") / NULLIF(AVG(\"Sales Quantity\"), 0), 2) AS revenue_per_unit, ROUND(AVG(\"Total Logistics Cost\") / NULLIF(AVG(\"Sales Quantity\"), 0), 2) AS cost_per_unit FROM lm GROUP BY is_low",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 13.750358484685421
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Destination\", SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) AS low_margin_count, SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END) AS normal_count, ROUND(100.0 * SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) + SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END), 0), 2) AS low_margin_pct, ROUND(AVG(CASE WHEN is_low = 1 THEN \"Freight Cost\" END), 2) AS lm_avg_freight, ROUND(AVG(CASE WHEN is_low = 0 THEN \"Freight Cost\" END), 2) AS normal_avg_freight FROM lm GROUP BY \"Destination\" ORDER BY low_margin_count DESC LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 15.264147892594337
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Consigned Product\", SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) AS low_margin_count, SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END) AS normal_count, ROUND(100.0 * SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) + SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END), 0), 2) AS low_margin_pct, ROUND(AVG(CASE WHEN is_low = 1 THEN \"Sales Quantity\" END), 2) AS lm_avg_qty, ROUND(AVG(CASE WHEN is_low = 0 THEN \"Sales Quantity\" END), 2) AS normal_avg_qty FROM lm GROUP BY \"Consigned Product\" ORDER BY low_margin_count DESC LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 13.228586874902248
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Customer Gender\", SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) AS low_margin_count, SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END) AS normal_count, ROUND(100.0 * SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) + SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END), 0), 2) AS low_margin_pct FROM lm GROUP BY \"Customer Gender\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 10.029866360127926
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Age Range\", SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) AS low_margin_count, SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END) AS normal_count, ROUND(100.0 * SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) + SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END), 0), 2) AS low_margin_pct, ROUND(AVG(CASE WHEN is_low = 1 THEN \"Customer Age\" END), 1) AS lm_avg_age, ROUND(AVG(CASE WHEN is_low = 0 THEN \"Customer Age\" END), 1) AS normal_avg_age FROM lm GROUP BY \"Age Range\" ORDER BY \"Age Range\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 12.788085266947746
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT STRFTIME('%Y-%m', \"Date\") AS month, SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) AS low_margin_count, SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END) AS normal_count, ROUND(100.0 * SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) + SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END), 0), 2) AS low_margin_pct FROM lm GROUP BY month ORDER BY month",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 14.891705475747585
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT is_low, ROUND(AVG(\"Discount Amount\"), 2) AS avg_discount_abs, ROUND(AVG(\"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) * 100), 2) AS avg_discount_rate_pct, COUNT(CASE WHEN \"Discount Amount\" > 0 THEN 1 END) AS orders_with_discount, ROUND(100.0 * COUNT(CASE WHEN \"Discount Amount\" > 0 THEN 1 END) / COUNT(*), 2) AS pct_with_discount FROM lm GROUP BY is_low",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 10.677251033484936
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Sales Quantity\", is_low, COUNT(*) AS n, ROUND(AVG(\"Total Logistics Revenue\"), 2) AS avg_rev, ROUND(AVG(\"Total Logistics Cost\"), 2) AS avg_cost, ROUND(AVG(\"Profit\"), 2) AS avg_profit, ROUND(AVG(\"Profit Margin\"), 4) AS avg_pm FROM lm GROUP BY \"Sales Quantity\", is_low ORDER BY \"Sales Quantity\", is_low LIMIT 30",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 10.740906000137329
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Sales Quantity\" <= 5 THEN 'Qty<=5' WHEN \"Sales Quantity\" <= 10 THEN '6-10' WHEN \"Sales Quantity\" <= 20 THEN '11-20' WHEN \"Sales Quantity\" <= 40 THEN '21-40' ELSE '41+' END AS qty_band, is_low, COUNT(*) AS n, ROUND(AVG(\"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) * 100), 2) AS avg_disc_rate, ROUND(AVG(\"Total Logistics Revenue\"), 2) AS avg_rev, ROUND(AVG(\"Total Logistics Cost\"), 2) AS avg_cost, ROUND(AVG(\"Freight Cost\"), 2) AS avg_freight, ROUND(AVG(\"Warehousing Cost\"), 2) AS avg_wh, ROUND(AVG(\"Other Operating Costs\"), 2) AS avg_other, ROUND(AVG(\"Profit\"), 2) AS avg_profit FROM lm GROUP BY qty_band, is_low ORDER BY qty_band, is_low",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 25.448604486882687
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT is_low, MIN(\"Sales Quantity\") AS min_qty, ROUND(AVG(\"Sales Quantity\"), 2) AS avg_qty, MAX(\"Sales Quantity\") AS max_qty, COUNT(CASE WHEN \"Sales Quantity\" <= 6 THEN 1 END) AS qty_le_6, ROUND(100.0 * COUNT(CASE WHEN \"Sales Quantity\" <= 6 THEN 1 END) / COUNT(*), 2) AS pct_qty_le_6 FROM lm GROUP BY is_low",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 9.11341980099678
+        },
+        {
+          "sql_id": "S19",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Destination\", COUNT(*) AS total, SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) AS low_cnt, ROUND(100.0 * SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) / COUNT(*), 2) AS low_pct, ROUND(AVG(\"Sales Quantity\"), 2) AS avg_qty, ROUND(AVG(\"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) * 100), 2) AS avg_disc_rate FROM lm GROUP BY \"Destination\" HAVING total >= 30 ORDER BY low_pct DESC LIMIT 20",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 16.035872511565685
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT SUBSTRING(\"Destination\", 1, INSTR(\"Destination\", '-') - 1) AS region, SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) AS low_cnt, SUM(CASE WHEN is_low = 0 THEN 1 ELSE 0 END) AS normal_cnt, ROUND(100.0 * SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) / COUNT(*), 2) AS low_pct, ROUND(AVG(CASE WHEN is_low = 1 THEN \"Freight Cost\" END), 2) AS lm_avg_freight, ROUND(AVG(CASE WHEN is_low = 0 THEN \"Freight Cost\" END), 2) AS normal_avg_freight FROM lm GROUP BY region ORDER BY low_pct DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 15.631980262696743
+        },
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT is_low, ROUND(AVG(\"Freight Cost\" / NULLIF(\"Sales Quantity\", 0)), 3) AS freight_per_unit, ROUND(AVG(\"Warehousing Cost\" / NULLIF(\"Sales Quantity\", 0)), 3) AS warehousing_per_unit, ROUND(AVG(\"Other Operating Costs\" / NULLIF(\"Sales Quantity\", 0)), 3) AS other_per_unit, ROUND(AVG(\"Total Logistics Cost\" / NULLIF(\"Sales Quantity\", 0)), 3) AS total_cost_per_unit, ROUND(AVG(\"Total Logistics Revenue\" / NULLIF(\"Sales Quantity\", 0)), 3) AS rev_per_unit, ROUND(AVG(\"Logistics Unit Price\"), 3) AS unit_price FROM lm GROUP BY is_low",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 16.598768532276154
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT ROUND(AVG(\"Freight Cost\"), 2) AS lm_freight, ROUND(AVG(\"Warehousing Cost\"), 2) AS lm_warehousing, ROUND(AVG(\"Other Operating Costs\"), 2) AS lm_other, ROUND(AVG(\"Logistics Unit Price\"), 2) AS lm_unit_price, ROUND(AVG(\"Logistics Value-Added Service Revenue\"), 2) AS lm_vas FROM lm WHERE is_low = 1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 3.950885497033596
+        },
+        {
+          "sql_id": "S23",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Logistics Unit Price\", is_low, COUNT(*) AS n, ROUND(AVG(\"Total Logistics Revenue\"), 2) AS avg_rev, ROUND(AVG(\"Freight Cost\"), 2) AS avg_freight, ROUND(AVG(\"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) * 100), 2) AS avg_disc FROM lm GROUP BY \"Logistics Unit Price\", is_low ORDER BY \"Logistics Unit Price\", is_low LIMIT 40",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 13.942843303084373
+        },
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT ROUND(\"Freight Cost\", -1) AS freight_bucket, is_low, COUNT(*) AS n, ROUND(AVG(\"Sales Quantity\"), 2) AS avg_qty, ROUND(AVG(\"Total Logistics Revenue\"), 2) AS avg_rev, ROUND(AVG(\"Profit\"), 2) AS avg_profit FROM lm GROUP BY freight_bucket, is_low ORDER BY freight_bucket, is_low LIMIT 30",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 14.559824950993061
+        },
+        {
+          "sql_id": "S26",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT is_low, ROUND(AVG(\"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) * 100), 2) AS avg_discount_rate, ROUND(AVG(\"List Price Revenue\"), 2) AS avg_list_price, ROUND(AVG(\"Total Logistics Revenue\"), 2) AS avg_logistics_rev, ROUND(AVG(\"List Price Revenue\" - \"Total Logistics Revenue\"), 2) AS avg_revenue_leakage, ROUND(100.0 * AVG(\"List Price Revenue\" - \"Total Logistics Revenue\") / NULLIF(AVG(\"List Price Revenue\"), 0), 2) AS pct_revenue_leakage FROM lm GROUP BY is_low",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 11.909476481378078
+        },
+        {
+          "sql_id": "S27",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT SUBSTRING(\"Destination\", 1, INSTR(\"Destination\", '-') - 1) AS region, SUBSTRING(\"Destination\", INSTR(\"Destination\", '-') + 1, INSTR(SUBSTRING(\"Destination\", INSTR(\"Destination\", '-') + 1), '-') - 1) AS province, is_low, COUNT(*) AS n, ROUND(AVG(\"Freight Cost\"), 2) AS avg_freight, ROUND(AVG(\"Sales Quantity\"), 2) AS avg_qty, ROUND(AVG(\"Freight Cost\" / NULLIF(\"Sales Quantity\", 0)), 2) AS freight_per_unit FROM lm WHERE is_low = 1 GROUP BY region, province ORDER BY avg_freight DESC LIMIT 15",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 7.170013152062893
+        },
+        {
+          "sql_id": "S28",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT CASE WHEN \"Discount Amount\" = 0 THEN '0%' WHEN \"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) < 0.05 THEN '0-5%' WHEN \"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) < 0.10 THEN '5-10%' WHEN \"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) < 0.20 THEN '10-20%' WHEN \"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) < 0.30 THEN '20-30%' ELSE '30%+' END AS discount_band, COUNT(*) AS total, SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) AS low_cnt, ROUND(100.0 * SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 2) AS low_pct_in_band, ROUND(100.0 * SUM(CASE WHEN is_low = 1 THEN 1 ELSE 0 END) / 1243, 2) AS pct_of_all_low FROM lm GROUP BY discount_band ORDER BY discount_band",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 13.02553154528141
+        },
+        {
+          "sql_id": "S29",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Logistics Value-Added Service Revenue\", is_low, COUNT(*) AS n, ROUND(AVG(\"Total Logistics Revenue\"), 2) AS avg_rev, ROUND(AVG(\"Profit\"), 2) AS avg_profit FROM lm GROUP BY \"Logistics Value-Added Service Revenue\", is_low ORDER BY \"Logistics Value-Added Service Revenue\", is_low LIMIT 30",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 12.686275877058506
+        },
+        {
+          "sql_id": "S30",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT is_low, ROUND(AVG(\"Logistics Value-Added Service Revenue\"), 2) AS avg_vas, ROUND(AVG(\"Logistics Value-Added Service Revenue\") / NULLIF(AVG(\"Total Logistics Revenue\"), 0) * 100, 2) AS vas_pct_of_rev, COUNT(CASE WHEN \"Logistics Value-Added Service Revenue\" > 0 THEN 1 END) AS vas_orders, ROUND(100.0 * COUNT(CASE WHEN \"Logistics Value-Added Service Revenue\" > 0 THEN 1 END) / COUNT(*), 2) AS pct_vas_orders FROM lm GROUP BY is_low",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 9.594880044460297
+        },
+        {
+          "sql_id": "S31",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Consigned Product\", ROUND(AVG(CASE WHEN is_low = 1 THEN \"Freight Cost\" / NULLIF(\"Sales Quantity\", 0) END), 2) AS lm_freight_per_unit, ROUND(AVG(CASE WHEN is_low = 0 THEN \"Freight Cost\" / NULLIF(\"Sales Quantity\", 0) END), 2) AS normal_freight_per_unit, ROUND(AVG(CASE WHEN is_low = 1 THEN \"Total Logistics Cost\" / NULLIF(\"Sales Quantity\", 0) END), 2) AS lm_cost_per_unit, ROUND(AVG(CASE WHEN is_low = 0 THEN \"Total Logistics Cost\" / NULLIF(\"Sales Quantity\", 0) END), 2) AS normal_cost_per_unit, ROUND(AVG(CASE WHEN is_low = 1 THEN \"Total Logistics Revenue\" / NULLIF(\"Sales Quantity\", 0) END), 2) AS lm_rev_per_unit, ROUND(AVG(CASE WHEN is_low = 0 THEN \"Total Logistics Revenue\" / NULLIF(\"Sales Quantity\", 0) END), 2) AS normal_rev_per_unit FROM lm GROUP BY \"Consigned Product\" ORDER BY lm_cost_per_unit DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 19.33407410979271
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT *, CASE WHEN \"Profit Margin\" < 0.5 * (SELECT AVG(\"Profit Margin\") FROM sheet1) THEN 1 ELSE 0 END AS is_low FROM sheet1 WHERE \"Profit Margin\" < 0.5 * (SELECT AVG(\"Profit Margin\") FROM sheet1)",
+      "covered": [
+        "S35",
+        "S36",
+        "S37"
+      ],
+      "rewrites": {
+        "S35": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Sales Quantity\", COUNT(*) AS n, ROUND(AVG(\"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) * 100), 2) AS avg_disc_rate, ROUND(AVG(\"Total Logistics Revenue\"), 2) AS avg_rev, ROUND(AVG(\"Total Logistics Cost\"), 2) AS avg_cost, ROUND(AVG(\"Freight Cost\"), 2) AS avg_freight, ROUND(AVG(\"Warehousing Cost\"), 2) AS avg_wh, ROUND(AVG(\"Profit\"), 2) AS avg_profit, ROUND(SUM(\"Profit\"), 2) AS total_profit FROM lm GROUP BY \"Sales Quantity\" ORDER BY \"Sales Quantity\"",
+        "S36": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Destination\", COUNT(*) AS n, ROUND(AVG(\"Freight Cost\" / NULLIF(\"Sales Quantity\", 0)), 2) AS avg_freight_per_unit, ROUND(AVG(\"Total Logistics Cost\" / NULLIF(\"Sales Quantity\", 0)), 2) AS avg_cost_per_unit, ROUND(AVG(\"Total Logistics Revenue\" / NULLIF(\"Sales Quantity\", 0)), 2) AS avg_rev_per_unit, ROUND(SUM(\"Profit\"), 2) AS total_profit_loss FROM lm GROUP BY \"Destination\" ORDER BY total_profit_loss ASC LIMIT 10",
+        "S37": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Consigned Product\", \"Sales Quantity\", COUNT(*) AS n, ROUND(AVG(\"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) * 100), 2) AS avg_disc_rate, ROUND(AVG(\"Total Logistics Cost\" / NULLIF(\"Sales Quantity\", 0)), 2) AS avg_cost_per_unit, ROUND(AVG(\"Total Logistics Revenue\" / NULLIF(\"Sales Quantity\", 0)), 2) AS avg_rev_per_unit, ROUND(AVG(\"Profit\"), 2) AS avg_profit FROM lm GROUP BY \"Consigned Product\", \"Sales Quantity\" HAVING n >= 5 ORDER BY \"Consigned Product\", \"Sales Quantity\""
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S35",
+      "later_reuses": 2,
+      "denominator": 36,
+      "coverage_includes_trigger": true,
+      "build_ms": 9.99528169631958,
+      "intermediate_rows": 1243,
+      "intermediate_columns": [
+        "Date",
+        "Waybill Number",
+        "Postal Code",
+        "Destination",
+        "Consignee",
+        "Customer Gender",
+        "Customer Age",
+        "Age Range",
+        "Consigned Product",
+        "Sales Quantity",
+        "Logistics Unit Price",
+        "List Price Revenue",
+        "Logistics Value-Added Service Revenue",
+        "Discount Amount",
+        "Total Logistics Revenue",
+        "Freight Cost",
+        "Warehousing Cost",
+        "Other Operating Costs",
+        "Total Logistics Cost",
+        "Profit",
+        "Profit Margin",
+        "is_low"
+      ],
+      "checks": [
+        {
+          "sql_id": "S35",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Sales Quantity\", COUNT(*) AS n, ROUND(AVG(\"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) * 100), 2) AS avg_disc_rate, ROUND(AVG(\"Total Logistics Revenue\"), 2) AS avg_rev, ROUND(AVG(\"Total Logistics Cost\"), 2) AS avg_cost, ROUND(AVG(\"Freight Cost\"), 2) AS avg_freight, ROUND(AVG(\"Warehousing Cost\"), 2) AS avg_wh, ROUND(AVG(\"Profit\"), 2) AS avg_profit, ROUND(SUM(\"Profit\"), 2) AS total_profit FROM lm GROUP BY \"Sales Quantity\" ORDER BY \"Sales Quantity\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.6859121173620224
+        },
+        {
+          "sql_id": "S36",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Destination\", COUNT(*) AS n, ROUND(AVG(\"Freight Cost\" / NULLIF(\"Sales Quantity\", 0)), 2) AS avg_freight_per_unit, ROUND(AVG(\"Total Logistics Cost\" / NULLIF(\"Sales Quantity\", 0)), 2) AS avg_cost_per_unit, ROUND(AVG(\"Total Logistics Revenue\" / NULLIF(\"Sales Quantity\", 0)), 2) AS avg_rev_per_unit, ROUND(SUM(\"Profit\"), 2) AS total_profit_loss FROM lm GROUP BY \"Destination\" ORDER BY total_profit_loss ASC LIMIT 10",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.586067818105221
+        },
+        {
+          "sql_id": "S37",
+          "rewritten_sql": "WITH lm AS (SELECT * FROM temp.reuse_candidate) SELECT \"Consigned Product\", \"Sales Quantity\", COUNT(*) AS n, ROUND(AVG(\"Discount Amount\" / NULLIF(\"List Price Revenue\", 0) * 100), 2) AS avg_disc_rate, ROUND(AVG(\"Total Logistics Cost\" / NULLIF(\"Sales Quantity\", 0)), 2) AS avg_cost_per_unit, ROUND(AVG(\"Total Logistics Revenue\" / NULLIF(\"Sales Quantity\", 0)), 2) AS avg_rev_per_unit, ROUND(AVG(\"Profit\"), 2) AS avg_profit FROM lm GROUP BY \"Consigned Product\", \"Sales Quantity\" HAVING n >= 5 ORDER BY \"Consigned Product\", \"Sales Quantity\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 4.012025892734528
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT COUNT(*) AS __a0, SUM(\"Profit Margin\") AS __a1_sum, COUNT(\"Profit Margin\") AS __a1_n, MIN(\"Profit Margin\") AS __a2, MAX(\"Profit Margin\") AS __a3 FROM \"sheet1\" ",
+      "covered": [
+        "S3",
+        "S4",
+        "S6"
+      ],
+      "rewrites": {
+        "S3": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+        "S4": "SELECT (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_profit_margin, MIN(__a2) AS min_profit_margin, MAX(__a3) AS max_profit_margin FROM temp.reuse_candidate",
+        "S6": "SELECT 0.5 * (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS low_margin_threshold FROM temp.reuse_candidate"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 2,
+      "denominator": 36,
+      "coverage_includes_trigger": true,
+      "build_ms": 4.526928998529911,
+      "intermediate_rows": 1,
+      "intermediate_columns": [
+        "__a0",
+        "__a1_sum",
+        "__a1_n",
+        "__a2",
+        "__a3"
+      ],
+      "checks": [
+        {
+          "sql_id": "S3",
+          "rewritten_sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.3993287682533264
+        },
+        {
+          "sql_id": "S4",
+          "rewritten_sql": "SELECT (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS avg_profit_margin, MIN(__a2) AS min_profit_margin, MAX(__a3) AS max_profit_margin FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5837623029947281
+        },
+        {
+          "sql_id": "S6",
+          "rewritten_sql": "SELECT 0.5 * (1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)) AS low_margin_threshold FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.40649715811014175
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

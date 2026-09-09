@@ -1,0 +1,807 @@
+{
+  "fingerprint": "2d8268780aa8eb317809080d03beb94c4ffbb75307db40919e380014ba0f191c",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S36",
+      "covered": [
+        "S36",
+        "S49"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S36",
+      "later_reuses": 1,
+      "denominator": 48,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S39",
+      "covered": [
+        "S39",
+        "S40",
+        "S50"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S39",
+      "later_reuses": 2,
+      "denominator": 48,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866699.026437,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 500,
+      "validation_ended_at": 1788866699.0722895,
+      "checks": [
+        {
+          "sql_id": "S40",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        },
+        {
+          "sql_id": "S50",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT *, CASE WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio >= 0.5 THEN 'HH_HV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio > 0.3 THEN 'LHHV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio < 0.1 THEN 'LH_LV' ELSE 'Other' END AS grp FROM asana__project_analytics",
+      "covered": [
+        "S34",
+        "S35"
+      ],
+      "rewrites": {
+        "S34": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, COUNT(*) AS n, ROUND(AVG(overall_health_score), 1) AS avg_health, ROUND(AVG(roi_efficiency_ratio), 4) AS avg_roi, ROUND(AVG(completion_percentage), 1) AS avg_comp, ROUND(AVG(efficiency_score), 1) AS avg_eff, ROUND(AVG(time_management_score), 1) AS avg_time, ROUND(AVG(collaboration_score), 1) AS avg_collab, ROUND(AVG(complexity_factor), 2) AS avg_complexity, ROUND(AVG(elapsed_days * 1.0 / planned_duration_days), 2) AS avg_elapsed_ratio, ROUND(100.0 * SUM(CASE WHEN schedule_forecast = 'ahead_of_schedule' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_ahead, ROUND(100.0 * SUM(CASE WHEN schedule_forecast = 'behind_schedule' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_behind, ROUND(100.0 * SUM(CASE WHEN management_priority = 'low' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_low_priority, ROUND(100.0 * SUM(CASE WHEN risk_level = 'minimal_risk' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_minimal_risk FROM grp GROUP BY grp ORDER BY grp",
+        "S35": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, COUNT(*) AS n, ROUND(100.0 * SUM(CASE WHEN team_size_category = 'small_team' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_small_team, ROUND(100.0 * SUM(CASE WHEN team_size_category = 'medium_team' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_medium_team, ROUND(100.0 * SUM(CASE WHEN team_size_category = 'large_team' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_large_team, ROUND(100.0 * SUM(CASE WHEN project_size_category = 'small' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_small_proj, ROUND(100.0 * SUM(CASE WHEN project_size_category = 'medium' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_medium_proj, ROUND(100.0 * SUM(CASE WHEN project_size_category = 'large' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_large_proj, ROUND(100.0 * SUM(CASE WHEN management_priority = 'high' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_high_priority, ROUND(100.0 * SUM(CASE WHEN management_priority = 'medium' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_medium_priority, ROUND(100.0 * SUM(CASE WHEN management_priority = 'low' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_low_priority, ROUND(100.0 * SUM(CASE WHEN project_maturity_phase = 'execution' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_execution, ROUND(100.0 * SUM(CASE WHEN risk_level = 'minimal_risk' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_minimal_risk, ROUND(100.0 * SUM(CASE WHEN risk_level = 'low_risk' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_low_risk, ROUND(100.0 * SUM(CASE WHEN risk_level = 'medium_risk' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_medium_risk, ROUND(100.0 * SUM(CASE WHEN risk_level = 'high_risk' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_high_risk FROM grp GROUP BY grp ORDER BY grp"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S34",
+      "later_reuses": 1,
+      "denominator": 48,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866699.0727422,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT *, CASE WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio >= 0.5 THEN 'HH_HV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio > 0.3 THEN 'LHHV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio < 0.1 THEN 'LH_LV' ELSE 'Other' END AS grp FROM asana__project_analytics",
+          "phase": "offline_validation",
+          "start_time": 1788866699.0729828,
+          "status": "execute_returned",
+          "end_time": 1788866699.0744581
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866699.0744636,
+          "status": "execute_returned",
+          "end_time": 1788866699.074485
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788866699.0744896,
+          "status": "execute_returned",
+          "end_time": 1788866699.0745065
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, COUNT(*) AS n, ROUND(AVG(overall_health_score), 1) AS avg_health, ROUND(AVG(roi_efficiency_ratio), 4) AS avg_roi, ROUND(AVG(completion_percentage), 1) AS avg_comp, ROUND(AVG(efficiency_score), 1) AS avg_eff, ROUND(AVG(time_management_score), 1) AS avg_time, ROUND(AVG(collaboration_score), 1) AS avg_collab, ROUND(AVG(complexity_factor), 2) AS avg_complexity, ROUND(AVG(elapsed_days * 1.0 / planned_duration_days), 2) AS avg_elapsed_ratio, ROUND(100.0 * SUM(CASE WHEN schedule_forecast = 'ahead_of_schedule' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_ahead, ROUND(100.0 * SUM(CASE WHEN schedule_forecast = 'behind_schedule' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_behind, ROUND(100.0 * SUM(CASE WHEN management_priority = 'low' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_low_priority, ROUND(100.0 * SUM(CASE WHEN risk_level = 'minimal_risk' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_minimal_risk FROM grp GROUP BY grp ORDER BY grp",
+          "phase": "offline_validation",
+          "start_time": 1788866699.0745645,
+          "status": "execute_returned",
+          "end_time": 1788866699.0750873
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, COUNT(*) AS n, ROUND(100.0 * SUM(CASE WHEN team_size_category = 'small_team' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_small_team, ROUND(100.0 * SUM(CASE WHEN team_size_category = 'medium_team' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_medium_team, ROUND(100.0 * SUM(CASE WHEN team_size_category = 'large_team' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_large_team, ROUND(100.0 * SUM(CASE WHEN project_size_category = 'small' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_small_proj, ROUND(100.0 * SUM(CASE WHEN project_size_category = 'medium' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_medium_proj, ROUND(100.0 * SUM(CASE WHEN project_size_category = 'large' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_large_proj, ROUND(100.0 * SUM(CASE WHEN management_priority = 'high' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_high_priority, ROUND(100.0 * SUM(CASE WHEN management_priority = 'medium' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_medium_priority, ROUND(100.0 * SUM(CASE WHEN management_priority = 'low' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_low_priority, ROUND(100.0 * SUM(CASE WHEN project_maturity_phase = 'execution' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_execution, ROUND(100.0 * SUM(CASE WHEN risk_level = 'minimal_risk' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_minimal_risk, ROUND(100.0 * SUM(CASE WHEN risk_level = 'low_risk' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_low_risk, ROUND(100.0 * SUM(CASE WHEN risk_level = 'medium_risk' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_medium_risk, ROUND(100.0 * SUM(CASE WHEN risk_level = 'high_risk' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_high_risk FROM grp GROUP BY grp ORDER BY grp",
+          "phase": "offline_validation",
+          "start_time": 1788866699.079878,
+          "status": "execute_returned",
+          "end_time": 1788866699.0803356
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT *, CASE WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio >= 0.5 THEN 'HH_HV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio > 0.3 THEN 'LHHV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio < 0.1 THEN 'LH_LV' ELSE 'Other' END AS grp FROM asana__project_analytics",
+          "time": 1788866699.0732734,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788866699.0744789,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788866699.0745034,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, COUNT(*) AS n, ROUND(AVG(overall_health_score), 1) AS avg_health, ROUND(AVG(roi_efficiency_ratio), 4) AS avg_roi, ROUND(AVG(completion_percentage), 1) AS avg_comp, ROUND(AVG(efficiency_score), 1) AS avg_eff, ROUND(AVG(time_management_score), 1) AS avg_time, ROUND(AVG(collaboration_score), 1) AS avg_collab, ROUND(AVG(complexity_factor), 2) AS avg_complexity, ROUND(AVG(elapsed_days * 1.0 / planned_duration_days), 2) AS avg_elapsed_ratio, ROUND(100.0 * SUM(CASE WHEN schedule_forecast = 'ahead_of_schedule' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_ahead, ROUND(100.0 * SUM(CASE WHEN schedule_forecast = 'behind_schedule' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_behind, ROUND(100.0 * SUM(CASE WHEN management_priority = 'low' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_low_priority, ROUND(100.0 * SUM(CASE WHEN risk_level = 'minimal_risk' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_minimal_risk FROM grp GROUP BY grp ORDER BY grp",
+          "time": 1788866699.0747366,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, COUNT(*) AS n, ROUND(100.0 * SUM(CASE WHEN team_size_category = 'small_team' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_small_team, ROUND(100.0 * SUM(CASE WHEN team_size_category = 'medium_team' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_medium_team, ROUND(100.0 * SUM(CASE WHEN team_size_category = 'large_team' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_large_team, ROUND(100.0 * SUM(CASE WHEN project_size_category = 'small' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_small_proj, ROUND(100.0 * SUM(CASE WHEN project_size_category = 'medium' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_medium_proj, ROUND(100.0 * SUM(CASE WHEN project_size_category = 'large' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_large_proj, ROUND(100.0 * SUM(CASE WHEN management_priority = 'high' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_high_priority, ROUND(100.0 * SUM(CASE WHEN management_priority = 'medium' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_medium_priority, ROUND(100.0 * SUM(CASE WHEN management_priority = 'low' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_low_priority, ROUND(100.0 * SUM(CASE WHEN project_maturity_phase = 'execution' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_execution, ROUND(100.0 * SUM(CASE WHEN risk_level = 'minimal_risk' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_minimal_risk, ROUND(100.0 * SUM(CASE WHEN risk_level = 'low_risk' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_low_risk, ROUND(100.0 * SUM(CASE WHEN risk_level = 'medium_risk' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_medium_risk, ROUND(100.0 * SUM(CASE WHEN risk_level = 'high_risk' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_high_risk FROM grp GROUP BY grp ORDER BY grp",
+          "time": 1788866699.0801144,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 1.4802236109972,
+      "intermediate_rows": 500,
+      "intermediate_columns": [
+        "project_id",
+        "project_name",
+        "team_id",
+        "team_name",
+        "project_owner",
+        "project_status",
+        "project_start_date",
+        "project_deadline",
+        "total_tasks",
+        "completed_tasks",
+        "active_tasks",
+        "overdue_tasks",
+        "unique_assignees",
+        "completion_percentage",
+        "quality_percentage",
+        "risk_percentage",
+        "overall_health_score",
+        "health_grade",
+        "risk_level",
+        "project_forecast",
+        "focus_areas",
+        "planned_duration_days",
+        "elapsed_days",
+        "remaining_days",
+        "completion_rate_per_day",
+        "avg_tasks_per_assignee",
+        "team_size_category",
+        "project_size_category",
+        "estimated_days_to_completion",
+        "schedule_forecast",
+        "efficiency_score",
+        "time_management_score",
+        "collaboration_score",
+        "complexity_factor",
+        "comprehensive_project_score",
+        "roi_efficiency_ratio",
+        "project_maturity_phase",
+        "success_factors",
+        "improvement_opportunities",
+        "management_priority",
+        "is_valid_record",
+        "overall_performance_rank",
+        "health_rank",
+        "progress_rank",
+        "efficiency_rank",
+        "grp"
+      ],
+      "validation_ended_at": 1788866699.0886467,
+      "checks": [
+        {
+          "sql_id": "S34",
+          "rewritten_sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, COUNT(*) AS n, ROUND(AVG(overall_health_score), 1) AS avg_health, ROUND(AVG(roi_efficiency_ratio), 4) AS avg_roi, ROUND(AVG(completion_percentage), 1) AS avg_comp, ROUND(AVG(efficiency_score), 1) AS avg_eff, ROUND(AVG(time_management_score), 1) AS avg_time, ROUND(AVG(collaboration_score), 1) AS avg_collab, ROUND(AVG(complexity_factor), 2) AS avg_complexity, ROUND(AVG(elapsed_days * 1.0 / planned_duration_days), 2) AS avg_elapsed_ratio, ROUND(100.0 * SUM(CASE WHEN schedule_forecast = 'ahead_of_schedule' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_ahead, ROUND(100.0 * SUM(CASE WHEN schedule_forecast = 'behind_schedule' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_behind, ROUND(100.0 * SUM(CASE WHEN management_priority = 'low' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_low_priority, ROUND(100.0 * SUM(CASE WHEN risk_level = 'minimal_risk' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_minimal_risk FROM grp GROUP BY grp ORDER BY grp",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 5.310662090778351
+        },
+        {
+          "sql_id": "S35",
+          "rewritten_sql": "WITH grp AS (SELECT * FROM temp.reuse_candidate) SELECT grp, COUNT(*) AS n, ROUND(100.0 * SUM(CASE WHEN team_size_category = 'small_team' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_small_team, ROUND(100.0 * SUM(CASE WHEN team_size_category = 'medium_team' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_medium_team, ROUND(100.0 * SUM(CASE WHEN team_size_category = 'large_team' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_large_team, ROUND(100.0 * SUM(CASE WHEN project_size_category = 'small' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_small_proj, ROUND(100.0 * SUM(CASE WHEN project_size_category = 'medium' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_medium_proj, ROUND(100.0 * SUM(CASE WHEN project_size_category = 'large' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_large_proj, ROUND(100.0 * SUM(CASE WHEN management_priority = 'high' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_high_priority, ROUND(100.0 * SUM(CASE WHEN management_priority = 'medium' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_medium_priority, ROUND(100.0 * SUM(CASE WHEN management_priority = 'low' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_low_priority, ROUND(100.0 * SUM(CASE WHEN project_maturity_phase = 'execution' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_execution, ROUND(100.0 * SUM(CASE WHEN risk_level = 'minimal_risk' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_minimal_risk, ROUND(100.0 * SUM(CASE WHEN risk_level = 'low_risk' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_low_risk, ROUND(100.0 * SUM(CASE WHEN risk_level = 'medium_risk' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_medium_risk, ROUND(100.0 * SUM(CASE WHEN risk_level = 'high_risk' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_high_risk FROM grp GROUP BY grp ORDER BY grp",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 8.689388632774353
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT health_grade AS __g0, CASE WHEN overall_health_score > 80 AND roi_efficiency_ratio < 0.3 THEN 'HHLV' WHEN overall_health_score <= 60 AND roi_efficiency_ratio > 0.5 THEN 'LHHV' ELSE 'Other' END AS __g1, schedule_forecast AS __g2, CASE WHEN overall_health_score > 75 AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN overall_health_score <= 64 AND roi_efficiency_ratio > 0.5 THEN 'LHHV' ELSE 'Normal' END AS __g3, CASE WHEN overall_health_score > 75 AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN overall_health_score <= 64 AND roi_efficiency_ratio > 0.3 THEN 'LHHV' ELSE 'Normal' END AS __g4, CASE WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio >= 0.5 THEN 'HH_HV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio > 0.5 THEN 'LHHV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio < 0.1 THEN 'LH_LV' ELSE 'Other' END AS __g5, CASE WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio >= 0.5 THEN 'HH_HV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio > 0.3 THEN 'LHHV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio < 0.1 THEN 'LH_LV' ELSE 'Other' END AS __g6, management_priority AS __g7, team_size_category AS __g8, project_size_category AS __g9, COUNT(*) AS __a0, SUM(roi_efficiency_ratio) AS __a1_sum, COUNT(roi_efficiency_ratio) AS __a1_n, SUM(completion_percentage) AS __a2_sum, COUNT(completion_percentage) AS __a2_n, SUM(CASE WHEN elapsed_days > planned_duration_days * 1.2 THEN 1 ELSE 0 END) AS __a3, SUM(overall_health_score) AS __a4_sum, COUNT(overall_health_score) AS __a4_n, SUM(team_size_category) AS __a5_sum, COUNT(team_size_category) AS __a5_n, SUM(complexity_factor) AS __a6_sum, COUNT(complexity_factor) AS __a6_n, SUM(collaboration_score) AS __a7_sum, COUNT(collaboration_score) AS __a7_n, SUM(management_priority) AS __a8_sum, COUNT(management_priority) AS __a8_n, MIN(roi_efficiency_ratio) AS __a9, MAX(roi_efficiency_ratio) AS __a10, SUM(comprehensive_project_score) AS __a11_sum, COUNT(comprehensive_project_score) AS __a11_n, SUM(efficiency_score) AS __a12_sum, COUNT(efficiency_score) AS __a12_n, SUM(time_management_score) AS __a13_sum, COUNT(time_management_score) AS __a13_n, MIN(overall_health_score) AS __a14, MAX(overall_health_score) AS __a15, SUM(CASE WHEN roi_efficiency_ratio >= 0.5 THEN 1 ELSE 0 END) AS __a16, SUM(CASE WHEN roi_efficiency_ratio >= 0.8 THEN 1 ELSE 0 END) AS __a17, SUM(CASE WHEN roi_efficiency_ratio >= 1.0 THEN 1 ELSE 0 END) AS __a18, SUM(CASE WHEN roi_efficiency_ratio < 0.1 THEN 1 ELSE 0 END) AS __a19, SUM(CASE WHEN roi_efficiency_ratio < 0.3 THEN 1 ELSE 0 END) AS __a20, SUM(CASE WHEN roi_efficiency_ratio < 0.5 THEN 1 ELSE 0 END) AS __a21, SUM(CASE WHEN roi_efficiency_ratio > 0.8 THEN 1 ELSE 0 END) AS __a22, SUM(CASE WHEN roi_efficiency_ratio > 1.0 THEN 1 ELSE 0 END) AS __a23, SUM(elapsed_days * 1.0 / planned_duration_days) AS __a24_sum, COUNT(elapsed_days * 1.0 / planned_duration_days) AS __a24_n, SUM(CASE WHEN schedule_forecast = 'behind_schedule' THEN 1 ELSE 0 END) AS __a25 FROM \"asana__project_analytics\"  GROUP BY health_grade, CASE WHEN overall_health_score > 80 AND roi_efficiency_ratio < 0.3 THEN 'HHLV' WHEN overall_health_score <= 60 AND roi_efficiency_ratio > 0.5 THEN 'LHHV' ELSE 'Other' END, schedule_forecast, CASE WHEN overall_health_score > 75 AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN overall_health_score <= 64 AND roi_efficiency_ratio > 0.5 THEN 'LHHV' ELSE 'Normal' END, CASE WHEN overall_health_score > 75 AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN overall_health_score <= 64 AND roi_efficiency_ratio > 0.3 THEN 'LHHV' ELSE 'Normal' END, CASE WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio >= 0.5 THEN 'HH_HV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio > 0.5 THEN 'LHHV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio < 0.1 THEN 'LH_LV' ELSE 'Other' END, CASE WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio >= 0.5 THEN 'HH_HV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio > 0.3 THEN 'LHHV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio < 0.1 THEN 'LH_LV' ELSE 'Other' END, management_priority, team_size_category, project_size_category",
+      "covered": [
+        "S3",
+        "S7",
+        "S8",
+        "S12",
+        "S19",
+        "S20",
+        "S21",
+        "S22",
+        "S24",
+        "S27",
+        "S28",
+        "S30",
+        "S31",
+        "S32",
+        "S33",
+        "S37",
+        "S43",
+        "S44",
+        "S45",
+        "S46"
+      ],
+      "rewrites": {
+        "S3": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+        "S7": "SELECT __g0 AS \"health_grade\", SUM(__a0) AS n_projects, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_completion, ROUND(100.0 * SUM(__a3) / SUM(__a0), 2) AS pct_exceed_duration_20pct FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+        "S8": "SELECT __g0 AS \"health_grade\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_comp FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+        "S12": "SELECT __g0 AS \"health_grade\", ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_team_size, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 4) AS avg_complexity, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_collab, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 2) AS avg_priority FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+        "S19": "SELECT __g0 AS \"health_grade\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND(MIN(__a9), 4) AS min_roi, ROUND(MAX(__a10), 4) AS max_roi, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)), 2) AS avg_cps, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 1) AS avg_eff, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 1) AS avg_collab, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 1) AS avg_time FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+        "S20": "SELECT __g1 AS inversion_type, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1",
+        "S21": "SELECT __g0 AS \"health_grade\", ROUND(MIN(__a14), 0) AS min_h, ROUND(MAX(__a15), 0) AS max_h, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_h FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+        "S22": "SELECT __g0 AS \"health_grade\", SUM(__a16) AS roi_ge_05, SUM(__a17) AS roi_ge_08, SUM(__a18) AS roi_ge_10 FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+        "S24": "SELECT __g0 AS \"health_grade\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_completion, ROUND(100.0 * SUM(__a3) / SUM(__a0), 2) AS pct_exceed_duration_20pct FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+        "S27": "SELECT __g2 AS \"schedule_forecast\", __g0 AS \"health_grade\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY __g2, __g0",
+        "S28": "SELECT ROUND(SUM(__a19) * 100.0 / 500, 1) AS pct_lt_01, ROUND(SUM(__a20) * 100.0 / 500, 1) AS pct_lt_03, ROUND(SUM(__a21) * 100.0 / 500, 1) AS pct_lt_05, ROUND(SUM(__a22) * 100.0 / 500, 1) AS pct_gt_08, ROUND(SUM(__a23) * 100.0 / 500, 1) AS pct_gt_10 FROM temp.reuse_candidate",
+        "S30": "SELECT __g3 AS group_label, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3",
+        "S31": "SELECT __g4 AS group_label, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4",
+        "S32": "SELECT __g5 AS grp, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5",
+        "S33": "SELECT __g6 AS grp, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6",
+        "S37": "SELECT __g2 AS \"schedule_forecast\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_comp, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 1) AS avg_eff, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 1) AS avg_time, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 1) AS avg_collab, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)), 2) AS avg_elapsed_ratio FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_roi DESC",
+        "S43": "SELECT __g7 AS \"management_priority\", __g0 AS \"health_grade\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi FROM temp.reuse_candidate GROUP BY __g7, __g0 ORDER BY __g7, __g0",
+        "S44": "SELECT __g7 AS \"management_priority\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_comp, ROUND((1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)), 2) AS avg_elapsed_ratio, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 1) AS avg_time FROM temp.reuse_candidate GROUP BY __g7 ORDER BY __g7",
+        "S45": "SELECT __g8 AS \"team_size_category\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_comp, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 1) AS avg_eff, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 1) AS avg_time, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 1) AS avg_collab, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)), 2) AS avg_elapsed_ratio, ROUND(100.0 * SUM(__a25) / SUM(__a0), 1) AS pct_behind FROM temp.reuse_candidate GROUP BY __g8 ORDER BY avg_roi DESC",
+        "S46": "SELECT __g9 AS \"project_size_category\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_comp, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 1) AS avg_eff, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 1) AS avg_time, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)), 2) AS avg_elapsed_ratio FROM temp.reuse_candidate GROUP BY __g9 ORDER BY avg_roi DESC"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 19,
+      "denominator": 48,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788866698.9950933,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT health_grade AS __g0, CASE WHEN overall_health_score > 80 AND roi_efficiency_ratio < 0.3 THEN 'HHLV' WHEN overall_health_score <= 60 AND roi_efficiency_ratio > 0.5 THEN 'LHHV' ELSE 'Other' END AS __g1, schedule_forecast AS __g2, CASE WHEN overall_health_score > 75 AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN overall_health_score <= 64 AND roi_efficiency_ratio > 0.5 THEN 'LHHV' ELSE 'Normal' END AS __g3, CASE WHEN overall_health_score > 75 AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN overall_health_score <= 64 AND roi_efficiency_ratio > 0.3 THEN 'LHHV' ELSE 'Normal' END AS __g4, CASE WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio >= 0.5 THEN 'HH_HV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio > 0.5 THEN 'LHHV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio < 0.1 THEN 'LH_LV' ELSE 'Other' END AS __g5, CASE WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio >= 0.5 THEN 'HH_HV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio > 0.3 THEN 'LHHV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio < 0.1 THEN 'LH_LV' ELSE 'Other' END AS __g6, management_priority AS __g7, team_size_category AS __g8, project_size_category AS __g9, COUNT(*) AS __a0, SUM(roi_efficiency_ratio) AS __a1_sum, COUNT(roi_efficiency_ratio) AS __a1_n, SUM(completion_percentage) AS __a2_sum, COUNT(completion_percentage) AS __a2_n, SUM(CASE WHEN elapsed_days > planned_duration_days * 1.2 THEN 1 ELSE 0 END) AS __a3, SUM(overall_health_score) AS __a4_sum, COUNT(overall_health_score) AS __a4_n, SUM(team_size_category) AS __a5_sum, COUNT(team_size_category) AS __a5_n, SUM(complexity_factor) AS __a6_sum, COUNT(complexity_factor) AS __a6_n, SUM(collaboration_score) AS __a7_sum, COUNT(collaboration_score) AS __a7_n, SUM(management_priority) AS __a8_sum, COUNT(management_priority) AS __a8_n, MIN(roi_efficiency_ratio) AS __a9, MAX(roi_efficiency_ratio) AS __a10, SUM(comprehensive_project_score) AS __a11_sum, COUNT(comprehensive_project_score) AS __a11_n, SUM(efficiency_score) AS __a12_sum, COUNT(efficiency_score) AS __a12_n, SUM(time_management_score) AS __a13_sum, COUNT(time_management_score) AS __a13_n, MIN(overall_health_score) AS __a14, MAX(overall_health_score) AS __a15, SUM(CASE WHEN roi_efficiency_ratio >= 0.5 THEN 1 ELSE 0 END) AS __a16, SUM(CASE WHEN roi_efficiency_ratio >= 0.8 THEN 1 ELSE 0 END) AS __a17, SUM(CASE WHEN roi_efficiency_ratio >= 1.0 THEN 1 ELSE 0 END) AS __a18, SUM(CASE WHEN roi_efficiency_ratio < 0.1 THEN 1 ELSE 0 END) AS __a19, SUM(CASE WHEN roi_efficiency_ratio < 0.3 THEN 1 ELSE 0 END) AS __a20, SUM(CASE WHEN roi_efficiency_ratio < 0.5 THEN 1 ELSE 0 END) AS __a21, SUM(CASE WHEN roi_efficiency_ratio > 0.8 THEN 1 ELSE 0 END) AS __a22, SUM(CASE WHEN roi_efficiency_ratio > 1.0 THEN 1 ELSE 0 END) AS __a23, SUM(elapsed_days * 1.0 / planned_duration_days) AS __a24_sum, COUNT(elapsed_days * 1.0 / planned_duration_days) AS __a24_n, SUM(CASE WHEN schedule_forecast = 'behind_schedule' THEN 1 ELSE 0 END) AS __a25 FROM \"asana__project_analytics\"  GROUP BY health_grade, CASE WHEN overall_health_score > 80 AND roi_efficiency_ratio < 0.3 THEN 'HHLV' WHEN overall_health_score <= 60 AND roi_efficiency_ratio > 0.5 THEN 'LHHV' ELSE 'Other' END, schedule_forecast, CASE WHEN overall_health_score > 75 AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN overall_health_score <= 64 AND roi_efficiency_ratio > 0.5 THEN 'LHHV' ELSE 'Normal' END, CASE WHEN overall_health_score > 75 AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN overall_health_score <= 64 AND roi_efficiency_ratio > 0.3 THEN 'LHHV' ELSE 'Normal' END, CASE WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio >= 0.5 THEN 'HH_HV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio > 0.5 THEN 'LHHV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio < 0.1 THEN 'LH_LV' ELSE 'Other' END, CASE WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio >= 0.5 THEN 'HH_HV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio > 0.3 THEN 'LHHV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio < 0.1 THEN 'LH_LV' ELSE 'Other' END, management_priority, team_size_category, project_size_category",
+          "phase": "offline_validation",
+          "start_time": 1788866698.9953783,
+          "status": "execute_returned",
+          "end_time": 1788866698.9986525
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866698.9986584,
+          "status": "execute_returned",
+          "end_time": 1788866698.9986782
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788866698.998684,
+          "status": "execute_returned",
+          "end_time": 1788866698.9987037
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866698.998763,
+          "status": "execute_returned",
+          "end_time": 1788866698.9987893
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT __g0 AS \"health_grade\", SUM(__a0) AS n_projects, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_completion, ROUND(100.0 * SUM(__a3) / SUM(__a0), 2) AS pct_exceed_duration_20pct FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788866698.999247,
+          "status": "execute_returned",
+          "end_time": 1788866698.9993784
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS \"health_grade\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_comp FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788866699.0007267,
+          "status": "execute_returned",
+          "end_time": 1788866699.0008528
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g0 AS \"health_grade\", ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_team_size, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 4) AS avg_complexity, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_collab, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 2) AS avg_priority FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788866699.0019932,
+          "status": "execute_returned",
+          "end_time": 1788866699.0021396
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g0 AS \"health_grade\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND(MIN(__a9), 4) AS min_roi, ROUND(MAX(__a10), 4) AS max_roi, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)), 2) AS avg_cps, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 1) AS avg_eff, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 1) AS avg_collab, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 1) AS avg_time FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788866699.0031838,
+          "status": "execute_returned",
+          "end_time": 1788866699.0033977
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g1 AS inversion_type, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1",
+          "phase": "offline_validation",
+          "start_time": 1788866699.0050745,
+          "status": "execute_returned",
+          "end_time": 1788866699.0051494
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g0 AS \"health_grade\", ROUND(MIN(__a14), 0) AS min_h, ROUND(MAX(__a15), 0) AS max_h, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_h FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788866699.0059645,
+          "status": "execute_returned",
+          "end_time": 1788866699.00607
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g0 AS \"health_grade\", SUM(__a16) AS roi_ge_05, SUM(__a17) AS roi_ge_08, SUM(__a18) AS roi_ge_10 FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788866699.0069396,
+          "status": "execute_returned",
+          "end_time": 1788866699.0070238
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT __g0 AS \"health_grade\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_completion, ROUND(100.0 * SUM(__a3) / SUM(__a0), 2) AS pct_exceed_duration_20pct FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "phase": "offline_validation",
+          "start_time": 1788866699.0083082,
+          "status": "execute_returned",
+          "end_time": 1788866699.0084326
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT __g2 AS \"schedule_forecast\", __g0 AS \"health_grade\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY __g2, __g0",
+          "phase": "offline_validation",
+          "start_time": 1788866699.0096552,
+          "status": "execute_returned",
+          "end_time": 1788866699.0097666
+        },
+        {
+          "sequence": 14,
+          "sql": "SELECT ROUND(SUM(__a19) * 100.0 / 500, 1) AS pct_lt_01, ROUND(SUM(__a20) * 100.0 / 500, 1) AS pct_lt_03, ROUND(SUM(__a21) * 100.0 / 500, 1) AS pct_lt_05, ROUND(SUM(__a22) * 100.0 / 500, 1) AS pct_gt_08, ROUND(SUM(__a23) * 100.0 / 500, 1) AS pct_gt_10 FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788866699.0105808,
+          "status": "execute_returned",
+          "end_time": 1788866699.010676
+        },
+        {
+          "sequence": 15,
+          "sql": "SELECT __g3 AS group_label, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3",
+          "phase": "offline_validation",
+          "start_time": 1788866699.0128186,
+          "status": "execute_returned",
+          "end_time": 1788866699.0128832
+        },
+        {
+          "sequence": 16,
+          "sql": "SELECT __g4 AS group_label, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4",
+          "phase": "offline_validation",
+          "start_time": 1788866699.013729,
+          "status": "execute_returned",
+          "end_time": 1788866699.0137901
+        },
+        {
+          "sequence": 17,
+          "sql": "SELECT __g5 AS grp, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5",
+          "phase": "offline_validation",
+          "start_time": 1788866699.0146234,
+          "status": "execute_returned",
+          "end_time": 1788866699.014686
+        },
+        {
+          "sequence": 18,
+          "sql": "SELECT __g6 AS grp, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6",
+          "phase": "offline_validation",
+          "start_time": 1788866699.016097,
+          "status": "execute_returned",
+          "end_time": 1788866699.0161788
+        },
+        {
+          "sequence": 19,
+          "sql": "SELECT __g2 AS \"schedule_forecast\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_comp, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 1) AS avg_eff, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 1) AS avg_time, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 1) AS avg_collab, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)), 2) AS avg_elapsed_ratio FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_roi DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866699.0174415,
+          "status": "execute_returned",
+          "end_time": 1788866699.0177636
+        },
+        {
+          "sequence": 20,
+          "sql": "SELECT __g7 AS \"management_priority\", __g0 AS \"health_grade\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi FROM temp.reuse_candidate GROUP BY __g7, __g0 ORDER BY __g7, __g0",
+          "phase": "offline_validation",
+          "start_time": 1788866699.0193253,
+          "status": "execute_returned",
+          "end_time": 1788866699.0194404
+        },
+        {
+          "sequence": 21,
+          "sql": "SELECT __g7 AS \"management_priority\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_comp, ROUND((1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)), 2) AS avg_elapsed_ratio, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 1) AS avg_time FROM temp.reuse_candidate GROUP BY __g7 ORDER BY __g7",
+          "phase": "offline_validation",
+          "start_time": 1788866699.0202143,
+          "status": "execute_returned",
+          "end_time": 1788866699.0204186
+        },
+        {
+          "sequence": 22,
+          "sql": "SELECT __g8 AS \"team_size_category\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_comp, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 1) AS avg_eff, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 1) AS avg_time, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 1) AS avg_collab, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)), 2) AS avg_elapsed_ratio, ROUND(100.0 * SUM(__a25) / SUM(__a0), 1) AS pct_behind FROM temp.reuse_candidate GROUP BY __g8 ORDER BY avg_roi DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866699.0220025,
+          "status": "execute_returned",
+          "end_time": 1788866699.02235
+        },
+        {
+          "sequence": 23,
+          "sql": "SELECT __g9 AS \"project_size_category\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_comp, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 1) AS avg_eff, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 1) AS avg_time, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)), 2) AS avg_elapsed_ratio FROM temp.reuse_candidate GROUP BY __g9 ORDER BY avg_roi DESC",
+          "phase": "offline_validation",
+          "start_time": 1788866699.0244281,
+          "status": "execute_returned",
+          "end_time": 1788866699.0247242
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT health_grade AS __g0, CASE WHEN overall_health_score > 80 AND roi_efficiency_ratio < 0.3 THEN 'HHLV' WHEN overall_health_score <= 60 AND roi_efficiency_ratio > 0.5 THEN 'LHHV' ELSE 'Other' END AS __g1, schedule_forecast AS __g2, CASE WHEN overall_health_score > 75 AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN overall_health_score <= 64 AND roi_efficiency_ratio > 0.5 THEN 'LHHV' ELSE 'Normal' END AS __g3, CASE WHEN overall_health_score > 75 AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN overall_health_score <= 64 AND roi_efficiency_ratio > 0.3 THEN 'LHHV' ELSE 'Normal' END AS __g4, CASE WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio >= 0.5 THEN 'HH_HV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio > 0.5 THEN 'LHHV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio < 0.1 THEN 'LH_LV' ELSE 'Other' END AS __g5, CASE WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio >= 0.5 THEN 'HH_HV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio > 0.3 THEN 'LHHV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio < 0.1 THEN 'LH_LV' ELSE 'Other' END AS __g6, management_priority AS __g7, team_size_category AS __g8, project_size_category AS __g9, COUNT(*) AS __a0, SUM(roi_efficiency_ratio) AS __a1_sum, COUNT(roi_efficiency_ratio) AS __a1_n, SUM(completion_percentage) AS __a2_sum, COUNT(completion_percentage) AS __a2_n, SUM(CASE WHEN elapsed_days > planned_duration_days * 1.2 THEN 1 ELSE 0 END) AS __a3, SUM(overall_health_score) AS __a4_sum, COUNT(overall_health_score) AS __a4_n, SUM(team_size_category) AS __a5_sum, COUNT(team_size_category) AS __a5_n, SUM(complexity_factor) AS __a6_sum, COUNT(complexity_factor) AS __a6_n, SUM(collaboration_score) AS __a7_sum, COUNT(collaboration_score) AS __a7_n, SUM(management_priority) AS __a8_sum, COUNT(management_priority) AS __a8_n, MIN(roi_efficiency_ratio) AS __a9, MAX(roi_efficiency_ratio) AS __a10, SUM(comprehensive_project_score) AS __a11_sum, COUNT(comprehensive_project_score) AS __a11_n, SUM(efficiency_score) AS __a12_sum, COUNT(efficiency_score) AS __a12_n, SUM(time_management_score) AS __a13_sum, COUNT(time_management_score) AS __a13_n, MIN(overall_health_score) AS __a14, MAX(overall_health_score) AS __a15, SUM(CASE WHEN roi_efficiency_ratio >= 0.5 THEN 1 ELSE 0 END) AS __a16, SUM(CASE WHEN roi_efficiency_ratio >= 0.8 THEN 1 ELSE 0 END) AS __a17, SUM(CASE WHEN roi_efficiency_ratio >= 1.0 THEN 1 ELSE 0 END) AS __a18, SUM(CASE WHEN roi_efficiency_ratio < 0.1 THEN 1 ELSE 0 END) AS __a19, SUM(CASE WHEN roi_efficiency_ratio < 0.3 THEN 1 ELSE 0 END) AS __a20, SUM(CASE WHEN roi_efficiency_ratio < 0.5 THEN 1 ELSE 0 END) AS __a21, SUM(CASE WHEN roi_efficiency_ratio > 0.8 THEN 1 ELSE 0 END) AS __a22, SUM(CASE WHEN roi_efficiency_ratio > 1.0 THEN 1 ELSE 0 END) AS __a23, SUM(elapsed_days * 1.0 / planned_duration_days) AS __a24_sum, COUNT(elapsed_days * 1.0 / planned_duration_days) AS __a24_n, SUM(CASE WHEN schedule_forecast = 'behind_schedule' THEN 1 ELSE 0 END) AS __a25 FROM \"asana__project_analytics\"  GROUP BY health_grade, CASE WHEN overall_health_score > 80 AND roi_efficiency_ratio < 0.3 THEN 'HHLV' WHEN overall_health_score <= 60 AND roi_efficiency_ratio > 0.5 THEN 'LHHV' ELSE 'Other' END, schedule_forecast, CASE WHEN overall_health_score > 75 AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN overall_health_score <= 64 AND roi_efficiency_ratio > 0.5 THEN 'LHHV' ELSE 'Normal' END, CASE WHEN overall_health_score > 75 AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN overall_health_score <= 64 AND roi_efficiency_ratio > 0.3 THEN 'LHHV' ELSE 'Normal' END, CASE WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio >= 0.5 THEN 'HH_HV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio > 0.5 THEN 'LHHV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio < 0.1 THEN 'LH_LV' ELSE 'Other' END, CASE WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio < 0.5 THEN 'HHLV' WHEN health_grade IN ('A', 'B') AND roi_efficiency_ratio >= 0.5 THEN 'HH_HV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio > 0.3 THEN 'LHHV' WHEN health_grade IN ('D', 'F') AND roi_efficiency_ratio < 0.1 THEN 'LH_LV' ELSE 'Other' END, management_priority, team_size_category, project_size_category",
+          "time": 1788866698.9959846,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788866698.9986744,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788866698.9986997,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "time": 1788866698.9987764,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"health_grade\", SUM(__a0) AS n_projects, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_completion, ROUND(100.0 * SUM(__a3) / SUM(__a0), 2) AS pct_exceed_duration_20pct FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "time": 1788866698.9993165,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"health_grade\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_comp FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "time": 1788866699.0007956,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"health_grade\", ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_team_size, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 4) AS avg_complexity, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_collab, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 2) AS avg_priority FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "time": 1788866699.002069,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"health_grade\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND(MIN(__a9), 4) AS min_roi, ROUND(MAX(__a10), 4) AS max_roi, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)), 2) AS avg_cps, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 1) AS avg_eff, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 1) AS avg_collab, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 1) AS avg_time FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "time": 1788866699.0032873,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS inversion_type, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1",
+          "time": 1788866699.0051067,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"health_grade\", ROUND(MIN(__a14), 0) AS min_h, ROUND(MAX(__a15), 0) AS max_h, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_h FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "time": 1788866699.0060203,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"health_grade\", SUM(__a16) AS roi_ge_05, SUM(__a17) AS roi_ge_08, SUM(__a18) AS roi_ge_10 FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "time": 1788866699.0069788,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS \"health_grade\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_completion, ROUND(100.0 * SUM(__a3) / SUM(__a0), 2) AS pct_exceed_duration_20pct FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "time": 1788866699.0083723,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"schedule_forecast\", __g0 AS \"health_grade\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY __g2, __g0",
+          "time": 1788866699.009707,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT ROUND(SUM(__a19) * 100.0 / 500, 1) AS pct_lt_01, ROUND(SUM(__a20) * 100.0 / 500, 1) AS pct_lt_03, ROUND(SUM(__a21) * 100.0 / 500, 1) AS pct_lt_05, ROUND(SUM(__a22) * 100.0 / 500, 1) AS pct_gt_08, ROUND(SUM(__a23) * 100.0 / 500, 1) AS pct_gt_10 FROM temp.reuse_candidate",
+          "time": 1788866699.0106308,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS group_label, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3",
+          "time": 1788866699.0128496,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS group_label, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4",
+          "time": 1788866699.0137577,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g5 AS grp, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5",
+          "time": 1788866699.0146513,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g6 AS grp, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6",
+          "time": 1788866699.0161283,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"schedule_forecast\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_comp, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 1) AS avg_eff, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 1) AS avg_time, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 1) AS avg_collab, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)), 2) AS avg_elapsed_ratio FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_roi DESC",
+          "time": 1788866699.0175514,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g7 AS \"management_priority\", __g0 AS \"health_grade\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi FROM temp.reuse_candidate GROUP BY __g7, __g0 ORDER BY __g7, __g0",
+          "time": 1788866699.0193768,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g7 AS \"management_priority\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_comp, ROUND((1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)), 2) AS avg_elapsed_ratio, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 1) AS avg_time FROM temp.reuse_candidate GROUP BY __g7 ORDER BY __g7",
+          "time": 1788866699.0203009,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g8 AS \"team_size_category\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_comp, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 1) AS avg_eff, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 1) AS avg_time, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 1) AS avg_collab, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)), 2) AS avg_elapsed_ratio, ROUND(100.0 * SUM(__a25) / SUM(__a0), 1) AS pct_behind FROM temp.reuse_candidate GROUP BY __g8 ORDER BY avg_roi DESC",
+          "time": 1788866699.0221136,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g9 AS \"project_size_category\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_comp, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 1) AS avg_eff, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 1) AS avg_time, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)), 2) AS avg_elapsed_ratio FROM temp.reuse_candidate GROUP BY __g9 ORDER BY avg_roi DESC",
+          "time": 1788866699.0245242,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 3.2804934307932854,
+      "intermediate_rows": 132,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__g5",
+        "__g6",
+        "__g7",
+        "__g8",
+        "__g9",
+        "__a0",
+        "__a1_sum",
+        "__a1_n",
+        "__a2_sum",
+        "__a2_n",
+        "__a3",
+        "__a4_sum",
+        "__a4_n",
+        "__a5_sum",
+        "__a5_n",
+        "__a6_sum",
+        "__a6_n",
+        "__a7_sum",
+        "__a7_n",
+        "__a8_sum",
+        "__a8_n",
+        "__a9",
+        "__a10",
+        "__a11_sum",
+        "__a11_n",
+        "__a12_sum",
+        "__a12_n",
+        "__a13_sum",
+        "__a13_n",
+        "__a14",
+        "__a15",
+        "__a16",
+        "__a17",
+        "__a18",
+        "__a19",
+        "__a20",
+        "__a21",
+        "__a22",
+        "__a23",
+        "__a24_sum",
+        "__a24_n",
+        "__a25"
+      ],
+      "validation_ended_at": 1788866699.0263958,
+      "checks": [
+        {
+          "sql_id": "S3",
+          "rewritten_sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.4809936508536339
+        },
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT __g0 AS \"health_grade\", SUM(__a0) AS n_projects, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_completion, ROUND(100.0 * SUM(__a3) / SUM(__a0), 2) AS pct_exceed_duration_20pct FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.476464793086052
+        },
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT __g0 AS \"health_grade\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_comp FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.2637358158826828
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT __g0 AS \"health_grade\", ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_team_size, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 4) AS avg_complexity, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_collab, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 2) AS avg_priority FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.1858772486448288
+        },
+        {
+          "sql_id": "S19",
+          "rewritten_sql": "SELECT __g0 AS \"health_grade\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND(MIN(__a9), 4) AS min_roi, ROUND(MAX(__a10), 4) AS max_roi, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a11_sum) / NULLIF(SUM(__a11_n), 0)), 2) AS avg_cps, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 1) AS avg_eff, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 1) AS avg_collab, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 1) AS avg_time FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.889832317829132
+        },
+        {
+          "sql_id": "S20",
+          "rewritten_sql": "SELECT __g1 AS inversion_type, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.8878260850906372
+        },
+        {
+          "sql_id": "S21",
+          "rewritten_sql": "SELECT __g0 AS \"health_grade\", ROUND(MIN(__a14), 0) AS min_h, ROUND(MAX(__a15), 0) AS max_h, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_h FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.965949147939682
+        },
+        {
+          "sql_id": "S22",
+          "rewritten_sql": "SELECT __g0 AS \"health_grade\", SUM(__a16) AS roi_ge_05, SUM(__a17) AS roi_ge_08, SUM(__a18) AS roi_ge_10 FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.3660416007041931
+        },
+        {
+          "sql_id": "S24",
+          "rewritten_sql": "SELECT __g0 AS \"health_grade\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_completion, ROUND(100.0 * SUM(__a3) / SUM(__a0), 2) AS pct_exceed_duration_20pct FROM temp.reuse_candidate GROUP BY __g0 ORDER BY __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.3446230441331863
+        },
+        {
+          "sql_id": "S27",
+          "rewritten_sql": "SELECT __g2 AS \"schedule_forecast\", __g0 AS \"health_grade\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi FROM temp.reuse_candidate GROUP BY __g2, __g0 ORDER BY __g2, __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.9235311299562454
+        },
+        {
+          "sql_id": "S28",
+          "rewritten_sql": "SELECT ROUND(SUM(__a19) * 100.0 / 500, 1) AS pct_lt_01, ROUND(SUM(__a20) * 100.0 / 500, 1) AS pct_lt_03, ROUND(SUM(__a21) * 100.0 / 500, 1) AS pct_lt_05, ROUND(SUM(__a22) * 100.0 / 500, 1) AS pct_gt_08, ROUND(SUM(__a23) * 100.0 / 500, 1) AS pct_gt_10 FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.23564263433218
+        },
+        {
+          "sql_id": "S30",
+          "rewritten_sql": "SELECT __g3 AS group_label, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.9081698954105377
+        },
+        {
+          "sql_id": "S31",
+          "rewritten_sql": "SELECT __g4 AS group_label, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.8927518501877785
+        },
+        {
+          "sql_id": "S32",
+          "rewritten_sql": "SELECT __g5 AS grp, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.4714999124407768
+        },
+        {
+          "sql_id": "S33",
+          "rewritten_sql": "SELECT __g6 AS grp, SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.342575065791607
+        },
+        {
+          "sql_id": "S37",
+          "rewritten_sql": "SELECT __g2 AS \"schedule_forecast\", ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_comp, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 1) AS avg_eff, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 1) AS avg_time, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 1) AS avg_collab, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)), 2) AS avg_elapsed_ratio FROM temp.reuse_candidate GROUP BY __g2 ORDER BY avg_roi DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.8814271315932274
+        },
+        {
+          "sql_id": "S43",
+          "rewritten_sql": "SELECT __g7 AS \"management_priority\", __g0 AS \"health_grade\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi FROM temp.reuse_candidate GROUP BY __g7, __g0 ORDER BY __g7, __g0",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.8867215365171432
+        },
+        {
+          "sql_id": "S44",
+          "rewritten_sql": "SELECT __g7 AS \"management_priority\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_comp, ROUND((1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)), 2) AS avg_elapsed_ratio, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 1) AS avg_time FROM temp.reuse_candidate GROUP BY __g7 ORDER BY __g7",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.7852475866675377
+        },
+        {
+          "sql_id": "S45",
+          "rewritten_sql": "SELECT __g8 AS \"team_size_category\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_comp, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 1) AS avg_eff, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 1) AS avg_time, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 1) AS avg_collab, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)), 2) AS avg_elapsed_ratio, ROUND(100.0 * SUM(__a25) / SUM(__a0), 1) AS pct_behind FROM temp.reuse_candidate GROUP BY __g8 ORDER BY avg_roi DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 2.423360012471676
+        },
+        {
+          "sql_id": "S46",
+          "rewritten_sql": "SELECT __g9 AS \"project_size_category\", SUM(__a0) AS n, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 1) AS avg_health, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 4) AS avg_roi, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 1) AS avg_comp, ROUND((1.0 * SUM(__a12_sum) / NULLIF(SUM(__a12_n), 0)), 1) AS avg_eff, ROUND((1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)), 1) AS avg_time, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 2) AS avg_complexity, ROUND((1.0 * SUM(__a24_sum) / NULLIF(SUM(__a24_n), 0)), 2) AS avg_elapsed_ratio FROM temp.reuse_candidate GROUP BY __g9 ORDER BY avg_roi DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.808416098356247
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

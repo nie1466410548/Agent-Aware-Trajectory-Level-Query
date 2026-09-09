@@ -1,0 +1,1 @@
+SELECT DISTINCT keyword_text FROM google_ads__keyword_report WHERE keyword_text NOT LIKE '% %' ORDER BY keyword_text

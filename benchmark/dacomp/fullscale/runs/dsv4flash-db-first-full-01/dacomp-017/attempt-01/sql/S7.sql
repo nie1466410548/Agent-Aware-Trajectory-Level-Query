@@ -1,0 +1,1 @@
+SELECT DISTINCT "Product Category" FROM order_information

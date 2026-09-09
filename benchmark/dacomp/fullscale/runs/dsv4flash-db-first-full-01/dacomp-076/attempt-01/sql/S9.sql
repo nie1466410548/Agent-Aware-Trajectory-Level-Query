@@ -1,0 +1,1 @@
+SELECT DISTINCT transaction_consistency FROM netsuite2_customer_analytics ORDER BY transaction_consistency

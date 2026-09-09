@@ -1,0 +1,1 @@
+SELECT MIN(clicks) AS min_clk, MAX(clicks) AS max_clk, MIN(impressions) AS min_imp, MAX(impressions) AS max_imp, MIN(conversions) AS min_conv, MAX(conversions) AS max_conv, MIN(spend) AS min_spend, MAX(spend) AS max_spend FROM google_ads__ad_group_report

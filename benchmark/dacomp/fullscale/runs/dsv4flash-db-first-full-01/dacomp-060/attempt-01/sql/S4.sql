@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS n_rows, COUNT(DISTINCT ad_group_id) AS n_adgroups, COUNT(DISTINCT keyword_text) AS n_keywords FROM google_ads__keyword_report

@@ -1,0 +1,63 @@
+{
+  "task_id": "dacomp-052",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python 对团队级记录反复计算完成率、规模结构与工作负荷的跨团队均值，并比较目标组与其他团队；这些筛选和聚合可以在 SQL 内执行。绘图的样式和坐标转换单独保留。",
+  "route": "SQL 筛选高评分低完成率团队并比较特征 → Python 重新计算组均值与归一化图表 → 团队管理建议。",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 37,
+          "text": "print(f\"\\nAvg completion rate: {df['avg_completion_rate'].mean():.1f}% (range: {df['avg_completion_rate'].min():.1f}% - {df['avg_completion_rate'].max():.1f}%)\")"
+        },
+        {
+          "line": 38,
+          "text": "print(f\"Avg % large/enterprise projects: {df['pct_large_enterprise'].mean():.1f}%\")"
+        },
+        {
+          "line": 40,
+          "text": "print(f\"Avg % high workload members: {df['pct_high_workload'].mean():.1f}%\")"
+        },
+        {
+          "line": 90,
+          "text": "avg_ent = df['enterprise_projects'].mean()"
+        },
+        {
+          "line": 136,
+          "text": "task_pcts = [df['pct_completed_tasks'].mean(), df['pct_active_tasks'].mean(), df['pct_overdue_tasks'].mean()]"
+        }
+      ]
+    },
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 30,
+          "text": "target_means = [target[c].mean() for c in rank_cols]"
+        },
+        {
+          "line": 31,
+          "text": "other_means = [other[c].mean() for c in rank_cols]"
+        },
+        {
+          "line": 57,
+          "text": "target_means = [target[c].mean() for c in size_cols]"
+        },
+        {
+          "line": 58,
+          "text": "other_means = [other[c].mean() for c in size_cols]"
+        },
+        {
+          "line": 99,
+          "text": "target_norm = [target[m].mean() / max_vals[m] * 100 for m in metrics]"
+        },
+        {
+          "line": 100,
+          "text": "other_norm = [other[m].mean() / max_vals[m] * 100 for m in metrics]"
+        }
+      ]
+    }
+  ]
+}

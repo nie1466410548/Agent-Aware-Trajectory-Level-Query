@@ -1,0 +1,3 @@
+SELECT forecast_month, forecasted_inflows, forecasted_outflows, forecasted_net_cash_flow, risk_adjusted_inflows, blended_forecast, cumulative_forecast_cash_flow, next_3_months_cash_flow, worst_case_3_months, liquidity_status, cash_flow_health_score, liquidity_risk_level, management_recommendation, forecast_reliability
+FROM quickbooks__cashflow_forecast
+ORDER BY forecast_month

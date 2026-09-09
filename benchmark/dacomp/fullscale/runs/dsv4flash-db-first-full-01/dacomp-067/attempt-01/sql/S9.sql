@@ -1,0 +1,1 @@
+SELECT DISTINCT overall_recommendation FROM greenhouse__interview_enhanced

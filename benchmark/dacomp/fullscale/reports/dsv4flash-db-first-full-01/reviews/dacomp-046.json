@@ -1,0 +1,44 @@
+{
+  "task_id": "dacomp-046",
+  "status": "reviewed_SQL_dominant_with_chart_preparation_exceptions",
+  "reviewer": "experiment analyst",
+  "conclusion": "主要分年龄连接、计数和均值在 SQL 内完成。Python 绘图时计算百分比、按年龄截取前 3，并对已经按相同键汇总的结果再求和；这些操作可由 SQL 完成，应作为有限的协议例外记录。后者并不是对原始明细的首次聚合。",
+  "route": "SQL 比较年龄组的流失、分享、反馈及产品偏好 → Python 图表整理与占比转换 → 分年龄营销建议。",
+  "evidence": [
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 46,
+          "text": "top = top.groupby(\"age\").head(3)"
+        }
+      ]
+    },
+    {
+      "source": "python/P6.py",
+      "lines": [
+        {
+          "line": 20,
+          "text": "pivot_pct = pivot.div(pivot.sum(axis=0), axis=1)*100"
+        },
+        {
+          "line": 51,
+          "text": "pp_pct = pp.div(pp.sum(axis=0), axis=1)*100"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 69,
+          "text": "GROUP BY u.\"Age group\", t.\"Is High-Value User\", t.\"Is Potential Conversion User\""
+        },
+        {
+          "line": 72,
+          "text": "hpc_pivot = hpc.groupby([\"age\",\"hv\",\"pc\"])[\"cnt\"].sum().reset_index()"
+        }
+      ]
+    }
+  ]
+}

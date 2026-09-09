@@ -1,0 +1,1 @@
+SELECT DISTINCT departments FROM greenhouse__job_enhanced ORDER BY departments

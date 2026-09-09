@@ -1,0 +1,1 @@
+SELECT DISTINCT "VPN Status" FROM network_connections_table

@@ -1,0 +1,1 @@
+SELECT "Favorites Folder Name", COUNT(*) AS cnt FROM product_favorites_table GROUP BY "Favorites Folder Name" ORDER BY cnt DESC LIMIT 30

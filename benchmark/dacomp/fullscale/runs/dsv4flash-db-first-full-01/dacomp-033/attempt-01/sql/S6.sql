@@ -1,0 +1,1 @@
+SELECT COUNT(*) as total_customers, COUNT(DISTINCT "Customer ID") as unique_customers FROM transaction_history_table

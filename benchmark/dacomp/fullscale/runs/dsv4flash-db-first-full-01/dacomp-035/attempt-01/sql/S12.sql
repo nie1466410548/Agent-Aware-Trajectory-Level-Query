@@ -1,0 +1,1 @@
+SELECT Department, COUNT(*) AS user_count FROM user_information_table GROUP BY Department ORDER BY Department

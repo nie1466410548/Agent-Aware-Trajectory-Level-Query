@@ -1,0 +1,1 @@
+SELECT DISTINCT "Authentication Method Name" FROM authentication_methods_table

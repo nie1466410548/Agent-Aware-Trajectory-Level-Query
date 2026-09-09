@@ -1,0 +1,378 @@
+{
+  "fingerprint": "96969c0a0751b5108c5633b2986b2209453f0546af4c8679b1c718fd2c032638",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S17",
+      "covered": [
+        "S17",
+        "S18"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S17",
+      "later_reuses": 1,
+      "denominator": 22,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788863999.614236,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 36,
+      "validation_ended_at": 1788863999.6167386,
+      "checks": [
+        {
+          "sql_id": "S18",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT s1.Region, s1.Segment, SUBSTRING(s1.\"Order Date\", -4, 4) AS year, s1.\"Order ID\", s1.\"Customer ID\", s2.Quantity, s2.Quantity * s2.\"Sales per Unit\" AS sales, s2.Quantity * s2.\"Profit per Unit\" AS profit FROM sheet1 AS s1 JOIN sheet2 AS s2 ON s1.\"Order ID\" = s2.\"Order ID\" WHERE SUBSTRING(s1.\"Order Date\", -4, 4) IN ('2015', '2016', '2017')",
+      "covered": [
+        "S7",
+        "S12"
+      ],
+      "rewrites": {
+        "S7": "WITH base AS (SELECT * FROM temp.reuse_candidate), agg AS (SELECT Region, Segment, COUNT(DISTINCT \"Order ID\") AS orders, COUNT(DISTINCT \"Customer ID\") AS customers, SUM(sales) AS sales, SUM(profit) AS profit FROM base GROUP BY Region, Segment) SELECT Region, Segment, orders, customers, ROUND(sales, 0) AS sales, ROUND(profit, 0) AS profit, ROUND(100.0 * profit / sales, 2) AS profit_margin_pct, ROUND(100.0 * sales / SUM(sales) OVER (), 2) AS sales_share_pct, ROUND(100.0 * customers / SUM(customers) OVER (), 2) AS customer_share_pct, ROUND(sales / orders, 2) AS avg_order_value FROM agg ORDER BY sales DESC",
+        "S12": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT Region, Segment, year, COUNT(DISTINCT \"Order ID\") AS orders, COUNT(DISTINCT \"Customer ID\") AS customers, ROUND(SUM(sales), 2) AS sales, ROUND(SUM(profit), 2) AS profit, ROUND(100.0 * SUM(profit) / SUM(sales), 2) AS margin_pct FROM base GROUP BY Region, Segment, year ORDER BY Region, Segment, year"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S7",
+      "later_reuses": 1,
+      "denominator": 22,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788863999.6167634,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT s1.Region, s1.Segment, SUBSTRING(s1.\"Order Date\", -4, 4) AS year, s1.\"Order ID\", s1.\"Customer ID\", s2.Quantity, s2.Quantity * s2.\"Sales per Unit\" AS sales, s2.Quantity * s2.\"Profit per Unit\" AS profit FROM sheet1 AS s1 JOIN sheet2 AS s2 ON s1.\"Order ID\" = s2.\"Order ID\" WHERE SUBSTRING(s1.\"Order Date\", -4, 4) IN ('2015', '2016', '2017')",
+          "phase": "offline_validation",
+          "start_time": 1788863999.6169744,
+          "status": "execute_returned",
+          "end_time": 1788863999.6458044
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788863999.6458094,
+          "status": "execute_returned",
+          "end_time": 1788863999.6458616
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788863999.6458664,
+          "status": "execute_returned",
+          "end_time": 1788863999.6458805
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), agg AS (SELECT Region, Segment, COUNT(DISTINCT \"Order ID\") AS orders, COUNT(DISTINCT \"Customer ID\") AS customers, SUM(sales) AS sales, SUM(profit) AS profit FROM base GROUP BY Region, Segment) SELECT Region, Segment, orders, customers, ROUND(sales, 0) AS sales, ROUND(profit, 0) AS profit, ROUND(100.0 * profit / sales, 2) AS profit_margin_pct, ROUND(100.0 * sales / SUM(sales) OVER (), 2) AS sales_share_pct, ROUND(100.0 * customers / SUM(customers) OVER (), 2) AS customer_share_pct, ROUND(sales / orders, 2) AS avg_order_value FROM agg ORDER BY sales DESC",
+          "phase": "offline_validation",
+          "start_time": 1788863999.6458957,
+          "status": "execute_returned",
+          "end_time": 1788863999.6731975
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT Region, Segment, year, COUNT(DISTINCT \"Order ID\") AS orders, COUNT(DISTINCT \"Customer ID\") AS customers, ROUND(SUM(sales), 2) AS sales, ROUND(SUM(profit), 2) AS profit, ROUND(100.0 * SUM(profit) / SUM(sales), 2) AS margin_pct FROM base GROUP BY Region, Segment, year ORDER BY Region, Segment, year",
+          "phase": "offline_validation",
+          "start_time": 1788863999.6764238,
+          "status": "execute_returned",
+          "end_time": 1788863999.6940343
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT s1.Region, s1.Segment, SUBSTRING(s1.\"Order Date\", -4, 4) AS year, s1.\"Order ID\", s1.\"Customer ID\", s2.Quantity, s2.Quantity * s2.\"Sales per Unit\" AS sales, s2.Quantity * s2.\"Profit per Unit\" AS profit FROM sheet1 AS s1 JOIN sheet2 AS s2 ON s1.\"Order ID\" = s2.\"Order ID\" WHERE SUBSTRING(s1.\"Order Date\", -4, 4) IN ('2015', '2016', '2017')",
+          "time": 1788863999.617135,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788863999.6458256,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788863999.645878,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), agg AS (SELECT Region, Segment, COUNT(DISTINCT \"Order ID\") AS orders, COUNT(DISTINCT \"Customer ID\") AS customers, SUM(sales) AS sales, SUM(profit) AS profit FROM base GROUP BY Region, Segment) SELECT Region, Segment, orders, customers, ROUND(sales, 0) AS sales, ROUND(profit, 0) AS profit, ROUND(100.0 * profit / sales, 2) AS profit_margin_pct, ROUND(100.0 * sales / SUM(sales) OVER (), 2) AS sales_share_pct, ROUND(100.0 * customers / SUM(customers) OVER (), 2) AS customer_share_pct, ROUND(sales / orders, 2) AS avg_order_value FROM agg ORDER BY sales DESC",
+          "time": 1788863999.6460035,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT Region, Segment, year, COUNT(DISTINCT \"Order ID\") AS orders, COUNT(DISTINCT \"Customer ID\") AS customers, ROUND(SUM(sales), 2) AS sales, ROUND(SUM(profit), 2) AS profit, ROUND(100.0 * SUM(profit) / SUM(sales), 2) AS margin_pct FROM base GROUP BY Region, Segment, year ORDER BY Region, Segment, year",
+          "time": 1788863999.6764889,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 28.835241682827473,
+      "intermediate_rows": 23897,
+      "intermediate_columns": [
+        "Region",
+        "Segment",
+        "year",
+        "Order ID",
+        "Customer ID",
+        "Quantity",
+        "sales",
+        "profit"
+      ],
+      "validation_ended_at": 1788863999.7092981,
+      "checks": [
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), agg AS (SELECT Region, Segment, COUNT(DISTINCT \"Order ID\") AS orders, COUNT(DISTINCT \"Customer ID\") AS customers, SUM(sales) AS sales, SUM(profit) AS profit FROM base GROUP BY Region, Segment) SELECT Region, Segment, orders, customers, ROUND(sales, 0) AS sales, ROUND(profit, 0) AS profit, ROUND(100.0 * profit / sales, 2) AS profit_margin_pct, ROUND(100.0 * sales / SUM(sales) OVER (), 2) AS sales_share_pct, ROUND(100.0 * customers / SUM(customers) OVER (), 2) AS customer_share_pct, ROUND(sales / orders, 2) AS avg_order_value FROM agg ORDER BY sales DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 30.524958856403828
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT Region, Segment, year, COUNT(DISTINCT \"Order ID\") AS orders, COUNT(DISTINCT \"Customer ID\") AS customers, ROUND(SUM(sales), 2) AS sales, ROUND(SUM(profit), 2) AS profit, ROUND(100.0 * SUM(profit) / SUM(sales), 2) AS margin_pct FROM base GROUP BY Region, Segment, year ORDER BY Region, Segment, year",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 32.347043976187706
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT s1.Region, s1.Segment, SUBSTRING(s1.\"Order Date\", -4, 4) AS year, s2.Quantity, s2.Quantity * s2.\"Sales per Unit\" AS sales, s2.Quantity * s2.\"Profit per Unit\" AS profit FROM sheet1 AS s1 JOIN sheet2 AS s2 ON s1.\"Order ID\" = s2.\"Order ID\" WHERE SUBSTRING(s1.\"Order Date\", -4, 4) IN ('2015', '2016', '2017')",
+      "covered": [
+        "S11",
+        "S13"
+      ],
+      "rewrites": {
+        "S11": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT Region, Segment, year, ROUND(SUM(sales), 0) AS sales, ROUND(SUM(profit), 0) AS profit, ROUND(100.0 * SUM(profit) / SUM(sales), 2) AS margin_pct FROM base GROUP BY Region, Segment, year ORDER BY Region, Segment, year",
+        "S13": "WITH base AS (SELECT * FROM temp.reuse_candidate), agg AS (SELECT Region, Segment, year, SUM(sales) AS sales, SUM(profit) AS profit, COUNT(DISTINCT \"Customer ID\") AS customers FROM base GROUP BY Region, Segment, year) SELECT Region, Segment, year, sales, profit, customers, ROUND(100.0 * (sales - LAG(sales) OVER (PARTITION BY Region, Segment ORDER BY year)) / LAG(sales) OVER (PARTITION BY Region, Segment ORDER BY year), 1) AS sales_yoy_pct, ROUND(100.0 * (profit - LAG(profit) OVER (PARTITION BY Region, Segment ORDER BY year)) / NULLIF(LAG(profit) OVER (PARTITION BY Region, Segment ORDER BY year), 0), 1) AS profit_yoy_pct FROM agg ORDER BY Region, Segment, year"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S11",
+      "later_reuses": 1,
+      "denominator": 22,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT s1.Region, s1.Segment, SUBSTRING(s1.\"Order Date\", -4, 4) AS year, s1.\"Customer ID\" AS cid, s1.\"Order ID\" AS oid, s2.Quantity * s2.\"Sales per Unit\" AS sales, s2.Quantity * s2.\"Profit per Unit\" AS profit FROM sheet1 AS s1 JOIN sheet2 AS s2 ON s1.\"Order ID\" = s2.\"Order ID\" WHERE SUBSTRING(s1.\"Order Date\", -4, 4) IN ('2015', '2016', '2017')",
+      "covered": [
+        "S15",
+        "S17",
+        "S18",
+        "S23"
+      ],
+      "rewrites": {
+        "S15": "WITH base AS (SELECT * FROM temp.reuse_candidate), agg AS (SELECT Region, Segment, year, SUM(sales) AS sales, SUM(profit) AS profit, COUNT(DISTINCT cid) AS customers, COUNT(DISTINCT oid) AS orders FROM base GROUP BY Region, Segment, year) SELECT Region, Segment, year, ROUND(sales, 0) AS sales, ROUND(profit, 0) AS profit, customers, orders, ROUND(100.0 * sales / SUM(sales) OVER (PARTITION BY year), 1) AS pct_of_year_sales, ROUND(100.0 * customers / SUM(customers) OVER (PARTITION BY year), 1) AS pct_of_year_customers, ROUND(100.0 * profit / sales, 2) AS margin_pct, ROUND(profit / customers, 2) AS profit_per_customer, ROUND(sales / orders, 2) AS avg_order_value FROM agg ORDER BY year, sales DESC",
+        "S17": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT Region, Segment, year, SUM(sales) AS sales, SUM(profit) AS profit, COUNT(DISTINCT cid) AS customers, COUNT(DISTINCT oid) AS orders FROM base GROUP BY Region, Segment, year ORDER BY year, Region, Segment",
+        "S18": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT Region, Segment, year, SUM(sales) AS sales, SUM(profit) AS profit, COUNT(DISTINCT cid) AS customers, COUNT(DISTINCT oid) AS orders FROM base GROUP BY Region, Segment, year ORDER BY year, Region, Segment",
+        "S23": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT Region, Segment, year, SUM(sales) AS sales, SUM(profit) AS profit, COUNT(DISTINCT cid) AS customers FROM base GROUP BY Region, Segment, year"
+      },
+      "status": "verified",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S15",
+      "later_reuses": 3,
+      "denominator": 22,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788863999.4603298,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT s1.Region, s1.Segment, SUBSTRING(s1.\"Order Date\", -4, 4) AS year, s1.\"Customer ID\" AS cid, s1.\"Order ID\" AS oid, s2.Quantity * s2.\"Sales per Unit\" AS sales, s2.Quantity * s2.\"Profit per Unit\" AS profit FROM sheet1 AS s1 JOIN sheet2 AS s2 ON s1.\"Order ID\" = s2.\"Order ID\" WHERE SUBSTRING(s1.\"Order Date\", -4, 4) IN ('2015', '2016', '2017')",
+          "phase": "offline_validation",
+          "start_time": 1788863999.4605956,
+          "status": "execute_returned",
+          "end_time": 1788863999.4890893
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788863999.4890974,
+          "status": "execute_returned",
+          "end_time": 1788863999.4891765
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788863999.489184,
+          "status": "execute_returned",
+          "end_time": 1788863999.489208
+        },
+        {
+          "sequence": 4,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), agg AS (SELECT Region, Segment, year, SUM(sales) AS sales, SUM(profit) AS profit, COUNT(DISTINCT cid) AS customers, COUNT(DISTINCT oid) AS orders FROM base GROUP BY Region, Segment, year) SELECT Region, Segment, year, ROUND(sales, 0) AS sales, ROUND(profit, 0) AS profit, customers, orders, ROUND(100.0 * sales / SUM(sales) OVER (PARTITION BY year), 1) AS pct_of_year_sales, ROUND(100.0 * customers / SUM(customers) OVER (PARTITION BY year), 1) AS pct_of_year_customers, ROUND(100.0 * profit / sales, 2) AS margin_pct, ROUND(profit / customers, 2) AS profit_per_customer, ROUND(sales / orders, 2) AS avg_order_value FROM agg ORDER BY year, sales DESC",
+          "phase": "offline_validation",
+          "start_time": 1788863999.4892247,
+          "status": "execute_returned",
+          "end_time": 1788863999.5198762
+        },
+        {
+          "sequence": 5,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT Region, Segment, year, SUM(sales) AS sales, SUM(profit) AS profit, COUNT(DISTINCT cid) AS customers, COUNT(DISTINCT oid) AS orders FROM base GROUP BY Region, Segment, year ORDER BY year, Region, Segment",
+          "phase": "offline_validation",
+          "start_time": 1788863999.523897,
+          "status": "execute_returned",
+          "end_time": 1788863999.5531254
+        },
+        {
+          "sequence": 6,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT Region, Segment, year, SUM(sales) AS sales, SUM(profit) AS profit, COUNT(DISTINCT cid) AS customers, COUNT(DISTINCT oid) AS orders FROM base GROUP BY Region, Segment, year ORDER BY year, Region, Segment",
+          "phase": "offline_validation",
+          "start_time": 1788863999.5555713,
+          "status": "execute_returned",
+          "end_time": 1788863999.5843322
+        },
+        {
+          "sequence": 7,
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT Region, Segment, year, SUM(sales) AS sales, SUM(profit) AS profit, COUNT(DISTINCT cid) AS customers FROM base GROUP BY Region, Segment, year",
+          "phase": "offline_validation",
+          "start_time": 1788863999.586812,
+          "status": "execute_returned",
+          "end_time": 1788863999.6034887
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT s1.Region, s1.Segment, SUBSTRING(s1.\"Order Date\", -4, 4) AS year, s1.\"Customer ID\" AS cid, s1.\"Order ID\" AS oid, s2.Quantity * s2.\"Sales per Unit\" AS sales, s2.Quantity * s2.\"Profit per Unit\" AS profit FROM sheet1 AS s1 JOIN sheet2 AS s2 ON s1.\"Order ID\" = s2.\"Order ID\" WHERE SUBSTRING(s1.\"Order Date\", -4, 4) IN ('2015', '2016', '2017')",
+          "time": 1788863999.460823,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788863999.4891217,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788863999.4892044,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), agg AS (SELECT Region, Segment, year, SUM(sales) AS sales, SUM(profit) AS profit, COUNT(DISTINCT cid) AS customers, COUNT(DISTINCT oid) AS orders FROM base GROUP BY Region, Segment, year) SELECT Region, Segment, year, ROUND(sales, 0) AS sales, ROUND(profit, 0) AS profit, customers, orders, ROUND(100.0 * sales / SUM(sales) OVER (PARTITION BY year), 1) AS pct_of_year_sales, ROUND(100.0 * customers / SUM(customers) OVER (PARTITION BY year), 1) AS pct_of_year_customers, ROUND(100.0 * profit / sales, 2) AS margin_pct, ROUND(profit / customers, 2) AS profit_per_customer, ROUND(sales / orders, 2) AS avg_order_value FROM agg ORDER BY year, sales DESC",
+          "time": 1788863999.4893653,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT Region, Segment, year, SUM(sales) AS sales, SUM(profit) AS profit, COUNT(DISTINCT cid) AS customers, COUNT(DISTINCT oid) AS orders FROM base GROUP BY Region, Segment, year ORDER BY year, Region, Segment",
+          "time": 1788863999.5239663,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT Region, Segment, year, SUM(sales) AS sales, SUM(profit) AS profit, COUNT(DISTINCT cid) AS customers, COUNT(DISTINCT oid) AS orders FROM base GROUP BY Region, Segment, year ORDER BY year, Region, Segment",
+          "time": 1788863999.5555806,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT Region, Segment, year, SUM(sales) AS sales, SUM(profit) AS profit, COUNT(DISTINCT cid) AS customers FROM base GROUP BY Region, Segment, year",
+          "time": 1788863999.5868723,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 28.498755767941475,
+      "intermediate_rows": 23897,
+      "intermediate_columns": [
+        "Region",
+        "Segment",
+        "year",
+        "cid",
+        "oid",
+        "sales",
+        "profit"
+      ],
+      "validation_ended_at": 1788863999.6142085,
+      "checks": [
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate), agg AS (SELECT Region, Segment, year, SUM(sales) AS sales, SUM(profit) AS profit, COUNT(DISTINCT cid) AS customers, COUNT(DISTINCT oid) AS orders FROM base GROUP BY Region, Segment, year) SELECT Region, Segment, year, ROUND(sales, 0) AS sales, ROUND(profit, 0) AS profit, customers, orders, ROUND(100.0 * sales / SUM(sales) OVER (PARTITION BY year), 1) AS pct_of_year_sales, ROUND(100.0 * customers / SUM(customers) OVER (PARTITION BY year), 1) AS pct_of_year_customers, ROUND(100.0 * profit / sales, 2) AS margin_pct, ROUND(profit / customers, 2) AS profit_per_customer, ROUND(sales / orders, 2) AS avg_order_value FROM agg ORDER BY year, sales DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 34.66855175793171
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT Region, Segment, year, SUM(sales) AS sales, SUM(profit) AS profit, COUNT(DISTINCT cid) AS customers, COUNT(DISTINCT oid) AS orders FROM base GROUP BY Region, Segment, year ORDER BY year, Region, Segment",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 31.670558266341686
+        },
+        {
+          "sql_id": "S18",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT Region, Segment, year, SUM(sales) AS sales, SUM(profit) AS profit, COUNT(DISTINCT cid) AS customers, COUNT(DISTINCT oid) AS orders FROM base GROUP BY Region, Segment, year ORDER BY year, Region, Segment",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 31.237532384693623
+        },
+        {
+          "sql_id": "S23",
+          "rewritten_sql": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT Region, Segment, year, SUM(sales) AS sales, SUM(profit) AS profit, COUNT(DISTINCT cid) AS customers FROM base GROUP BY Region, Segment, year",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 26.785108260810375
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common subexpression",
+      "existing_result": false,
+      "build_sql": "SELECT s1.Region, s1.Segment, SUBSTRING(s1.\"Order Date\", -4, 4) AS year, s1.\"Customer ID\" AS cid FROM sheet1 AS s1 WHERE SUBSTRING(s1.\"Order Date\", -4, 4) IN ('2015', '2016', '2017')",
+      "covered": [
+        "S20",
+        "S24"
+      ],
+      "rewrites": {
+        "S20": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT Segment, year, COUNT(DISTINCT cid) AS customers, ROUND(100.0 * COUNT(DISTINCT cid) / SUM(COUNT(DISTINCT cid)) OVER (PARTITION BY year), 1) AS segment_customer_share_pct FROM base GROUP BY Segment, year ORDER BY Segment, year",
+        "S24": "WITH base AS (SELECT * FROM temp.reuse_candidate) SELECT Region, year, COUNT(DISTINCT cid) AS customers, ROUND(100.0 * COUNT(DISTINCT cid) / SUM(COUNT(DISTINCT cid)) OVER (PARTITION BY year), 1) AS customer_share_pct FROM base GROUP BY Region, year ORDER BY year, customers DESC"
+      },
+      "status": "not_verified_cap",
+      "reason": "Identical self-contained CTE body across queries.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S20",
+      "later_reuses": 1,
+      "denominator": 22,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    }
+  ]
+}

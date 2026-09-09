@@ -1,0 +1,1 @@
+SELECT DISTINCT "Priority" FROM sheet1

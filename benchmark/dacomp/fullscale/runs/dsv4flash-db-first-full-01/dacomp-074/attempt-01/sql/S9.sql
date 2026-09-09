@@ -1,0 +1,1 @@
+SELECT subsidiary_id, COUNT(*) AS n, MIN(dashboard_date) AS min_d, MAX(dashboard_date) AS max_d FROM netsuite2_financial_dashboard GROUP BY subsidiary_id

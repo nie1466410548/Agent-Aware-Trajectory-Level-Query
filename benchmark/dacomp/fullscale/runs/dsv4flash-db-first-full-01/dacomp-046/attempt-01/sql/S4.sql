@@ -1,0 +1,1 @@
+SELECT COUNT(*) as total_users FROM user_basic_information_table_1

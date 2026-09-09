@@ -1,0 +1,247 @@
+{
+  "task_id": "dacomp-001",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "conclusion": "Python performs joins/groupby, weighted scoring, conditional allocation and element-wise portfolio arithmetic supported by SQLite. Reasons cite verbosity or convenience rather than unavailable SQL functionality. Plot rendering is allowed, but these preprocessing/scenario steps violate database_first_v1. Failed Python fixes belong to this same primary attempt, not whole-task reruns.",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 55,
+          "text": "df_y = yr.merge(df[['code']], on='code')"
+        },
+        {
+          "line": 56,
+          "text": "st = df_y.groupby('code')['rev'].agg(['mean','std','count']).rename(columns={'count':'n_years'})"
+        },
+        {
+          "line": 59,
+          "text": "df = df.merge(st[['n_years','cv']], left_on='code', right_index=True, how='left')"
+        },
+        {
+          "line": 66,
+          "text": "print(df.groupby('rating')[['defaulted_flag','total_revenue','margin','top1_buyer','top1_supplier','cv']].agg(['mean','median']))"
+        }
+      ]
+    },
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 64,
+          "text": "print(df.groupby('defaulted')['risk_score'].describe())"
+        },
+        {
+          "line": 70,
+          "text": "print(df.groupby('risk_tier', observed=False).agg({"
+        },
+        {
+          "line": 86,
+          "text": "df['credit_limit'] = total_credit * df['credit_weight'] / total_weight"
+        },
+        {
+          "line": 89,
+          "text": "print(df.groupby('risk_tier', observed=False)['credit_limit'].agg(['sum','mean','count']))"
+        },
+        {
+          "line": 104,
+          "text": "    churn[f'expected_return_{r}'] = churn['Annual Loan Interest Rate'] * (1 - churn[churn_cols[r]])"
+        },
+        {
+          "line": 109,
+          "text": "    best_idx = churn[f'expected_return_{r}'].idxmax()"
+        },
+        {
+          "line": 111,
+          "text": "    best_exp_return = churn.loc[best_idx, f'expected_return_{r}']"
+        },
+        {
+          "line": 118,
+          "text": "    best_idx = churn[f'expected_return_{r}'].idxmax()"
+        },
+        {
+          "line": 133,
+          "text": "print(df.groupby('risk_tier', observed=False)['interest_rate'].agg(['mean','min','max']))"
+        },
+        {
+          "line": 152,
+          "text": "    axes[0,1].hist(sub['credit_limit']/1e4, alpha=0.6, label=f'Rating {r} (n={len(sub)})', color=colors[r], bins=15)"
+        },
+        {
+          "line": 160,
+          "text": "    axes[1,0].plot(churn['Annual Loan Interest Rate'], churn[f'expected_return_{r}'], "
+        },
+        {
+          "line": 170,
+          "text": "total_by_rating = df.groupby('rating')['credit_limit'].sum()"
+        }
+      ]
+    },
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 42,
+          "text": "print(df.groupby('defaulted')['risk_score'].describe())"
+        },
+        {
+          "line": 49,
+          "text": "print(df.groupby('risk_tier')['risk_score'].agg(['count','min','max']))"
+        },
+        {
+          "line": 56,
+          "text": "df['credit_limit'] = total_credit * df['credit_weight'] / total_w"
+        },
+        {
+          "line": 59,
+          "text": "print(df.groupby('rating')['credit_limit'].agg(['sum','mean','count']))"
+        },
+        {
+          "line": 60,
+          "text": "print(\"\\nTotal allocated:\", df['credit_limit'].sum())"
+        },
+        {
+          "line": 76,
+          "text": "    print(f\"  Rating {r}: rate={best_rates[r]:.4f}, expected_return={churn.loc[idx, f'exp_ret_{r}']:.4f}, churn={churn.loc[idx, churn_cols[r]]:.4f}\")"
+        },
+        {
+          "line": 91,
+          "text": "print(df.groupby('risk_tier')['interest_rate'].agg(['mean','min','max']))"
+        },
+        {
+          "line": 107,
+          "text": "    axes[0,1].hist(sub['credit_limit']/1e4, alpha=0.6, label=f'Rating {r} (n={len(sub)})', color=colors[r], bins=15)"
+        },
+        {
+          "line": 124,
+          "text": "total_by_rating = df.groupby('rating')['credit_limit'].sum()"
+        },
+        {
+          "line": 140,
+          "text": "print(df.groupby(['rating','risk_tier']).agg("
+        },
+        {
+          "line": 142,
+          "text": "    total_credit=('credit_limit','sum'),"
+        },
+        {
+          "line": 143,
+          "text": "    avg_credit=('credit_limit','mean'),"
+        }
+      ]
+    },
+    {
+      "source": "python/P4.py",
+      "lines": [
+        {
+          "line": 23,
+          "text": "df['expected_interest_income'] = df['credit_limit'] * df['interest_rate'] * (1 - df['churn_rate'])"
+        },
+        {
+          "line": 24,
+          "text": "df['expected_loss'] = df['credit_limit'] * df['defaulted_flag']  # if defaulted, loss = full credit"
+        },
+        {
+          "line": 32,
+          "text": "print(f\"Total credit allocated: {df['credit_limit'].sum():,.0f} RMB\")"
+        },
+        {
+          "line": 36,
+          "text": "print(f\"Expected return rate: {net_expected/df['credit_limit'].sum()*100:.2f}%\")"
+        },
+        {
+          "line": 43,
+          "text": "    print(f\"  Total credit: {sub['credit_limit'].sum():,.0f}\")"
+        },
+        {
+          "line": 54,
+          "text": "    print(f\"  Total credit: {sub['credit_limit'].sum():,.0f}\")"
+        }
+      ]
+    },
+    {
+      "source": "python/P5.py",
+      "lines": [
+        {
+          "line": 11,
+          "text": "df_rev['credit_limit'] = total_credit * df_rev['credit_weight'] / w"
+        },
+        {
+          "line": 28,
+          "text": "df_rev['expected_income'] = df_rev['credit_limit'] * df_rev['interest_rate'] * (1 - df_rev['churn_rate'])"
+        },
+        {
+          "line": 29,
+          "text": "df_rev['expected_loss'] = df_rev['credit_limit'] * df_rev['defaulted_flag']"
+        },
+        {
+          "line": 36,
+          "text": "print(f\"Total credit: {df_rev['credit_limit'].sum():,.0f}\")"
+        },
+        {
+          "line": 45,
+          "text": "    print(f\"Rating {r}: credit={sub['credit_limit'].sum():,.0f}, income={sub['expected_income'].sum():,.0f}, \""
+        },
+        {
+          "line": 49,
+          "text": "tier_sum = df_rev.groupby('risk_tier').agg("
+        },
+        {
+          "line": 50,
+          "text": "    credit=('credit_limit','sum'), income=('expected_income','sum'),"
+        },
+        {
+          "line": 57,
+          "text": "df_rev['limit_to_revenue'] = df_rev['credit_limit'] / df_rev['total_revenue'].replace(0, np.nan)"
+        },
+        {
+          "line": 59,
+          "text": "print(df_rev.groupby('rating')['limit_to_revenue'].agg(['mean','median','max']).round(4))"
+        }
+      ]
+    },
+    {
+      "source": "python/P7.py",
+      "lines": [
+        {
+          "line": 10,
+          "text": "prof = df.groupby('rating').agg("
+        },
+        {
+          "line": 25,
+          "text": "tier_def = df.groupby('risk_tier').agg(n=('code','count'), defaults=('defaulted_flag','sum'))"
+        },
+        {
+          "line": 31,
+          "text": "top = df.nlargest(10, 'credit_limit')[['code','rating','risk_tier','total_revenue','credit_limit','interest_rate']].copy()"
+        },
+        {
+          "line": 32,
+          "text": "top['credit_limit'] = top['credit_limit'].round(0)"
+        },
+        {
+          "line": 39,
+          "text": "d = df[df['rating']=='D'].sort_values('credit_limit', ascending=False).head(5)[['code','total_revenue','margin','cv','risk_score','credit_limit']].round(2)"
+        }
+      ]
+    },
+    {
+      "source": "python/P8.py",
+      "lines": [
+        {
+          "line": 24,
+          "text": "final_tbl = rev.groupby(['rating','risk_tier']).agg("
+        },
+        {
+          "line": 26,
+          "text": "    total_credit_wan=('credit_limit', lambda x: round(x.sum()/1e4, 1)),"
+        },
+        {
+          "line": 27,
+          "text": "    avg_credit_wan=('credit_limit', lambda x: round(x.mean()/1e4, 1)),"
+        }
+      ]
+    }
+  ]
+}

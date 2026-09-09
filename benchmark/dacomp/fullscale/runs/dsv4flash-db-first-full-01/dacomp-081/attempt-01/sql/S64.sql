@@ -1,0 +1,1 @@
+SELECT DISTINCT sub_question_text FROM qualtrics__response WHERE sub_question_text IS NOT NULL LIMIT 20

@@ -1,0 +1,1 @@
+SELECT MIN(value), MAX(value), AVG(value), COUNT(*) FROM qualtrics__response

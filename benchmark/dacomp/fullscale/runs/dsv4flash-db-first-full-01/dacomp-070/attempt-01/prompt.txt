@@ -1,0 +1,125 @@
+You are a data analysis agent. Complete the supplied task independently with the supplied SQLite database. Do not delegate or ask questions. Base conclusions on executed analysis. Work within 30 minutes and at most 120 SQL query attempts. Submit the best supported report if you approach a limit.
+
+LOCAL EXECUTION PROTOCOL (database_first_v1):
+Perform filtering, projection, joins, grouping, aggregation, ranking, window calculations, and arithmetic or conditional scenario calculations inside the supplied database whenever its SQL capabilities reasonably support them.
+Use Python primarily for visualization and statistical procedures that are not reasonably supported by SQLite. Retrieve only the columns and rows needed for those steps. Do not export the full table merely to reproduce SQL-capable filtering, joins, or groupby operations in pandas.
+Before a Python analysis call, briefly state its purpose and why that part is being performed outside the database, also providing this explanation in the tool's reason argument. This is an execution-location explanation, not a prediction of future queries.
+Choose queries based on the task and observed results. Do not target a query count, split queries to increase trajectory length, or perform analyses solely for this experiment. CTEs, subqueries, and window functions may be used naturally.
+All database access, including from Python, must use the logged interface. Python provides db.query(sql, parameters=[]), db.executemany(sql, parameter_sets), db.executescript(sql), db.rows(result), db.frame(result). query returns {executions: [...]}; each execution includes columns, result_file, row_count and result_complete. Complete row arrays are JSON Lines under /results/S<number>.rows.jsonl in Python. Work in /work, save figures with relative filenames, and reference those filenames in the Markdown report. Use the file tool for local files if needed.
+Never bypass SQL recording. Do not access reference answers, evaluation materials, other tasks, previous trajectories, credentials, external websites or tool implementation. Only supplied data and files you create are available. No additional packages can be installed.
+When finished, submit a Markdown report with findings and limitations through the answer tool and stop. A final text message without answer submission is not a submitted report.
+
+ORIGINAL TASK:
+Analyze the decay patterns of user acquisition cost-efficiency for each region and device type combination over the past 6 months. Identify the non-linear relationship between `store_listing_conversion_rate` and `quality_score`/`crash_rate_per_1k`. By constructing a multi-dimensional user value decay model, predict optimization strategies for `revenue_per_active_device` under different market maturities. Additionally, quantify the interaction effect of app update frequency on `active_devices_last_30_days` and `rolling_total_average_rating`. Provide data-driven recommendations for formulating differentiated product iteration and market investment strategies.
+
+DATABASE SCHEMA:
+CREATE TABLE "google_play__country_report" (
+"date_day" TIMESTAMP,
+  "country_short" TEXT,
+  "country_long" TEXT,
+  "region" TEXT,
+  "sub_region" TEXT,
+  "package_name" TEXT,
+  "device_installs" INTEGER,
+  "device_uninstalls" INTEGER,
+  "device_upgrades" INTEGER,
+  "user_installs" INTEGER,
+  "user_uninstalls" INTEGER,
+  "install_events" INTEGER,
+  "uninstall_events" INTEGER,
+  "update_events" INTEGER,
+  "store_listing_acquisitions" INTEGER,
+  "store_listing_visitors" INTEGER,
+  "store_listing_conversion_rate" REAL,
+  "active_devices_last_30_days" INTEGER,
+  "average_rating" REAL,
+  "rolling_total_average_rating" REAL,
+  "total_device_installs" REAL,
+  "total_device_uninstalls" REAL,
+  "total_store_acquisitions" REAL,
+  "total_store_visitors" REAL,
+  "rolling_store_conversion_rate" REAL,
+  "net_device_installs" REAL
+)
+CREATE TABLE "google_play__device_report" (
+"date_day" TIMESTAMP,
+  "device" TEXT,
+  "package_name" TEXT,
+  "device_installs" INTEGER,
+  "device_uninstalls" INTEGER,
+  "device_upgrades" INTEGER,
+  "user_installs" INTEGER,
+  "user_uninstalls" INTEGER,
+  "install_events" INTEGER,
+  "uninstall_events" INTEGER,
+  "update_events" INTEGER,
+  "active_devices_last_30_days" INTEGER,
+  "average_rating" REAL,
+  "rolling_total_average_rating" REAL,
+  "total_device_installs" REAL,
+  "total_device_uninstalls" REAL,
+  "net_device_installs" REAL
+)
+CREATE TABLE "google_play__os_version_report" (
+"date_day" TIMESTAMP,
+  "android_os_version" TEXT,
+  "package_name" TEXT,
+  "device_installs" INTEGER,
+  "device_uninstalls" INTEGER,
+  "device_upgrades" INTEGER,
+  "user_installs" INTEGER,
+  "user_uninstalls" INTEGER,
+  "install_events" INTEGER,
+  "uninstall_events" INTEGER,
+  "update_events" INTEGER,
+  "crashes" INTEGER,
+  "anrs" INTEGER,
+  "active_devices_last_30_days" INTEGER,
+  "average_rating" REAL,
+  "rolling_total_average_rating" REAL,
+  "total_device_installs" REAL,
+  "total_device_uninstalls" REAL,
+  "net_device_installs" REAL
+)
+CREATE TABLE "google_play__time_series_trends" (
+"date_day" TIMESTAMP,
+  "package_name" TEXT,
+  "day_name" TEXT,
+  "month_name" TEXT,
+  "week_of_year" INTEGER,
+  "daily_installs" REAL,
+  "daily_uninstalls" REAL,
+  "active_devices" REAL,
+  "daily_churn_rate" REAL,
+  "active_countries" INTEGER,
+  "daily_revenue" REAL,
+  "daily_transactions" REAL,
+  "avg_transaction_value" REAL,
+  "new_subscriptions" REAL,
+  "active_subscriptions" REAL,
+  "quality_score" REAL,
+  "crash_rate_per_1k" REAL,
+  "anr_rate_per_1k" REAL,
+  "ma_7d_installs" REAL,
+  "ma_30d_installs" REAL,
+  "ma_7d_revenue" REAL,
+  "ma_30d_revenue" REAL,
+  "ma_7d_quality" REAL,
+  "ma_30d_quality" REAL,
+  "ma_7d_churn" REAL,
+  "wow_install_growth_rate" REAL,
+  "wow_revenue_growth_rate" REAL,
+  "install_trend" TEXT,
+  "revenue_trend" TEXT,
+  "install_volatility_coefficient" REAL,
+  "revenue_volatility_coefficient" REAL,
+  "install_stability" TEXT,
+  "performance_momentum" TEXT,
+  "install_anomaly_score" REAL,
+  "revenue_anomaly_score" REAL,
+  "anomaly_flag" TEXT,
+  "daily_performance_vs_baseline" TEXT,
+  "risk_growth_profile" TEXT,
+  "daily_install_uninstall_ratio" REAL,
+  "revenue_per_active_device" REAL
+)

@@ -1,0 +1,1 @@
+SELECT "Contract Type", COUNT(*) as all_cust FROM contracts_table GROUP BY "Contract Type" ORDER BY all_cust DESC

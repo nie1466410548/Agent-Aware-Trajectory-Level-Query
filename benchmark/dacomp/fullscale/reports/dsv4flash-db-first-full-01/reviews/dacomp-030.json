@@ -1,0 +1,104 @@
+{
+  "task_id": "dacomp-030",
+  "status": "database_first_violation",
+  "reviewer": "experiment analyst",
+  "route": "SQL 汇总终端类型的达标、销售、投诉与合同指标 → Python 将手工转录的汇总值转为百分位评分 → 计算增减签约建议及合同效率 → 绘图。",
+  "conclusion": "Python scores outlet types using percentile ranks, weighted arithmetic, threshold classification and contract-efficiency ratios. These SQL-capable calculations deviate from database-first, even though the input is a small summary. P1/P2 explicitly label their literal arrays as data from S33; literal transcription is retained in code, not automatically treated as a proven exact result-dependency edge. Figure rendering is allowed. The only generated MV candidate failed comparison and contributes zero verified coverage.",
+  "evidence": [
+    {
+      "source": "python/P1.py",
+      "lines": [
+        {
+          "line": 8,
+          "text": "# Data from S33 (per-outlet-type consolidated metrics)"
+        },
+        {
+          "line": 29,
+          "text": "    return 100 * (s.rank(pct=True))"
+        },
+        {
+          "line": 32,
+          "text": "df[\"perf_pillar\"] = zscore_pct(df[\"avg_tar\"])*0.35 + zscore_pct(df[\"pos_target_ach\"])*0.25 + zscore_pct(df[\"avg_yoy\"])*0.20 + zscore_pct(df[\"avg_sales_value\"])*0.20"
+        },
+        {
+          "line": 34,
+          "text": "df[\"risk_pillar\"] = zscore_pct(df[\"complaint_ratio\"])*0.40 + zscore_pct(df[\"quality_ratio\"])*0.25 + zscore_pct(df[\"appeals_per_outlet\"])*0.20 + (100 - zscore_pct(df[\"renewal_ratio\"]))*0.15"
+        },
+        {
+          "line": 38,
+          "text": "df = df.sort_values(\"perf_pillar\", ascending=False).reset_index(drop=True)"
+        },
+        {
+          "line": 40,
+          "text": "print(df[[\"Outlet Type\",\"perf_pillar\",\"avg_tar\",\"pos_target_ach\",\"avg_yoy\",\"avg_sales_value\"]].round(2).to_string(index=False))"
+        },
+        {
+          "line": 43,
+          "text": "print(df.sort_values(\"risk_pillar\", ascending=False)[[\"Outlet Type\",\"risk_pillar\",\"complaint_ratio\",\"quality_ratio\",\"appeals_per_outlet\",\"renewal_ratio\"]].round(2).to_string(index=False))"
+        }
+      ]
+    },
+    {
+      "source": "python/P2.py",
+      "lines": [
+        {
+          "line": 29,
+          "text": "    return 100 * (s.rank(pct=True))"
+        },
+        {
+          "line": 39,
+          "text": "# net_score = perf_score - risk_score (higher = better candidate for increase)"
+        },
+        {
+          "line": 40,
+          "text": "df[\"net_score\"] = df[\"perf_score\"] - df[\"risk_score\"]"
+        },
+        {
+          "line": 41,
+          "text": "df[\"recommendation\"] = pd.cut(df[\"net_score\"], bins=[-float('inf'), -15, 15, float('inf')], "
+        },
+        {
+          "line": 45,
+          "text": "df = df.sort_values(\"net_score\", ascending=False)"
+        },
+        {
+          "line": 48,
+          "text": "print(df[[\"Outlet Type\",\"perf_score\",\"risk_score\",\"health_score\",\"net_score\",\"recommendation\"]].round(1).to_string(index=False))"
+        }
+      ]
+    },
+    {
+      "source": "python/P3.py",
+      "lines": [
+        {
+          "line": 26,
+          "text": "df[\"sales_per_signing_cny\"] = df[\"total_sales_value\"] / df[\"total_signing_amount\"]"
+        },
+        {
+          "line": 28,
+          "text": "df = df.sort_values(\"sales_per_signing_cny\", ascending=False)"
+        },
+        {
+          "line": 31,
+          "text": "colors = [\"#2ecc71\" if x > df[\"sales_per_signing_cny\"].median() else \"#e74c3c\" for x in df[\"sales_per_signing_cny\"]]"
+        },
+        {
+          "line": 32,
+          "text": "bars = ax.bar(df[\"Outlet Type\"], df[\"sales_per_signing_cny\"], color=colors, alpha=0.85, edgecolor='black', linewidth=0.5)"
+        },
+        {
+          "line": 33,
+          "text": "for b, v in zip(bars, df[\"sales_per_signing_cny\"]):"
+        },
+        {
+          "line": 35,
+          "text": "ax.axhline(df[\"sales_per_signing_cny\"].median(), color='gray', linestyle='--', alpha=0.6, label=f'Median = {df[\"sales_per_signing_cny\"].median():.2f}')"
+        },
+        {
+          "line": 46,
+          "text": "print(df[[\"Outlet Type\", \"total_sales_value\", \"total_signing_amount\", \"sales_per_signing_cny\"]].round(2).to_string(index=False))"
+        }
+      ]
+    }
+  ]
+}

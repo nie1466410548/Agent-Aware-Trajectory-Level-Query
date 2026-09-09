@@ -1,0 +1,1 @@
+SELECT SUBSTR(_id, 1, 4) as id_prefix, COUNT(*) as cnt FROM sheet1 GROUP BY SUBSTR(_id, 1, 4) ORDER BY cnt DESC

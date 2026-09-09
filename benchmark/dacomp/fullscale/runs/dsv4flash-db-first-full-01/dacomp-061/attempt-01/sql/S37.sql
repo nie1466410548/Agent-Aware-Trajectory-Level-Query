@@ -1,0 +1,1 @@
+SELECT project_id, project_name, avg_close_time_days, median_close_time_days, count_closed_issues, count_open_issues FROM jira__project_enhanced WHERE project_name IN ('Data Analytics Delta', 'Mobile App Delta') ORDER BY project_name, avg_close_time_days

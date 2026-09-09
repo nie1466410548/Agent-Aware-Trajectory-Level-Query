@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT ip_address) FROM qualtrics__response

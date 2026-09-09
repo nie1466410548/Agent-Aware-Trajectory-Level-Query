@@ -1,0 +1,620 @@
+{
+  "fingerprint": "0ae6503a7bfafa7aca18d26044d975343f1afa5b091a536671d7ea1602cc4098",
+  "analysis_source_version": "867ba405ab48ea21b078d8a7f52b7c2223521ad433a809bc2b6c5fd882feb747",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S38",
+      "covered": [
+        "S38",
+        "S45"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "not_verified_cap",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S38",
+      "later_reuses": 1,
+      "denominator": 43,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT COUNT(*) AS __a0, SUM(payment_rate_percentage) AS __a1_sum, COUNT(payment_rate_percentage) AS __a1_n, SUM(outstanding_balance) AS __a2_sum, COUNT(outstanding_balance) AS __a2_n, SUM(outstanding_balance) AS __a3 FROM \"quickbooks__customer_analytics\" ",
+      "covered": [
+        "S3",
+        "S15"
+      ],
+      "rewrites": {
+        "S3": "SELECT SUM(__a0) AS n_customers FROM temp.reuse_candidate",
+        "S15": "SELECT ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_payment_rate_all, ROUND((1.0 * SUM(__a2_sum) / NULLIF(SUM(__a2_n), 0)), 2) AS avg_outstanding_all, ROUND(SUM(__a3), 2) AS total_outstanding_all, SUM(__a0) AS n_all FROM temp.reuse_candidate"
+      },
+      "status": "not_verified_cap",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S3",
+      "later_reuses": 1,
+      "denominator": 43,
+      "coverage_includes_trigger": true,
+      "cost_conclusion": "Not tested"
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT COUNT(*) AS __a0, SUM(gross_profit) AS __a1, SUM(invoice_total) AS __a2 FROM \"quickbooks__profitability_analysis\" ",
+      "covered": [
+        "S4",
+        "S17"
+      ],
+      "rewrites": {
+        "S4": "SELECT SUM(__a0) AS n_rows FROM temp.reuse_candidate",
+        "S17": "SELECT ROUND(SUM(__a1), 2) AS total_gross_profit_all, ROUND(SUM(__a2), 2) AS total_invoice_all FROM temp.reuse_candidate"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C3",
+      "offline": true,
+      "earliest_build_before": "S4",
+      "later_reuses": 1,
+      "denominator": 43,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788870186.6543517,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT COUNT(*) AS __a0, SUM(gross_profit) AS __a1, SUM(invoice_total) AS __a2 FROM \"quickbooks__profitability_analysis\" ",
+          "phase": "offline_validation",
+          "start_time": 1788870186.6545162,
+          "status": "execute_returned",
+          "end_time": 1788870186.6567507
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870186.6567543,
+          "status": "execute_returned",
+          "end_time": 1788870186.6567705
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788870186.656774,
+          "status": "execute_returned",
+          "end_time": 1788870186.656783
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS n_rows FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870186.6567912,
+          "status": "execute_returned",
+          "end_time": 1788870186.6568034
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT ROUND(SUM(__a1), 2) AS total_gross_profit_all, ROUND(SUM(__a2), 2) AS total_invoice_all FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870186.6572022,
+          "status": "execute_returned",
+          "end_time": 1788870186.6572325
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT COUNT(*) AS __a0, SUM(gross_profit) AS __a1, SUM(invoice_total) AS __a2 FROM \"quickbooks__profitability_analysis\" ",
+          "time": 1788870186.6547086,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788870186.6567676,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788870186.6567805,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n_rows FROM temp.reuse_candidate",
+          "time": 1788870186.6568007,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT ROUND(SUM(__a1), 2) AS total_gross_profit_all, ROUND(SUM(__a2), 2) AS total_invoice_all FROM temp.reuse_candidate",
+          "time": 1788870186.6572254,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 2.2373180836439133,
+      "intermediate_rows": 1,
+      "intermediate_columns": [
+        "__a0",
+        "__a1",
+        "__a2"
+      ],
+      "validation_ended_at": 1788870186.657886,
+      "checks": [
+        {
+          "sql_id": "S4",
+          "rewritten_sql": "SELECT SUM(__a0) AS n_rows FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.4087937995791435
+        },
+        {
+          "sql_id": "S17",
+          "rewritten_sql": "SELECT ROUND(SUM(__a1), 2) AS total_gross_profit_all, ROUND(SUM(__a2), 2) AS total_invoice_all FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6031123921275139
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"quickbooks__customer_analytics\" WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+      "covered": [
+        "S12",
+        "S13",
+        "S14",
+        "S30",
+        "S33",
+        "S36",
+        "S43"
+      ],
+      "rewrites": {
+        "S12": "SELECT COUNT(*) AS high_risk_count FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+        "S13": "SELECT customer_id, customer_name, company_name, payment_rate_percentage, outstanding_balance, credit_score, business_stability_score, total_invoices, total_invoice_amount, avg_invoice_amount, customer_lifespan_days, payment_behavior, credit_grade, activity_status, lifecycle_stage, customer_value_segment FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000 ORDER BY outstanding_balance DESC",
+        "S14": "SELECT COUNT(*) AS n, ROUND(AVG((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2), 3) AS avg_risk_score, ROUND(MIN((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2), 3) AS min_risk_score, ROUND(MAX((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2), 3) AS max_risk_score, ROUND(AVG(payment_rate_percentage), 2) AS avg_payment_rate, ROUND(AVG(outstanding_balance), 2) AS avg_outstanding_balance, ROUND(SUM(outstanding_balance), 2) AS total_outstanding_balance, ROUND(AVG(credit_score), 2) AS avg_credit_score, ROUND(AVG(business_stability_score), 2) AS avg_stability_score FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+        "S30": "SELECT customer_id, ROUND((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2, 2) AS risk_score, payment_rate_percentage, outstanding_balance, credit_score, business_stability_score, overdue_count_12m, avg_payment_days_12m FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000 ORDER BY risk_score DESC",
+        "S33": "SELECT ROUND(SUM(outstanding_balance), 2) AS total_outstanding, ROUND(SUM(outstanding_balance * ((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2) / 100.0), 2) AS expected_loss_risk_weighted, ROUND(AVG((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2), 2) AS avg_risk_score FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+        "S36": "SELECT customer_id, outstanding_balance, (100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2 AS risk_score FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+        "S43": "SELECT customer_id, outstanding_balance, payment_rate_percentage, credit_score, business_stability_score, overdue_count_12m, avg_payment_days_12m, (100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2 AS risk_score FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000"
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C4",
+      "offline": true,
+      "earliest_build_before": "S12",
+      "later_reuses": 6,
+      "denominator": 43,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788870186.6124625,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"quickbooks__customer_analytics\" WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+          "phase": "offline_validation",
+          "start_time": 1788870186.6127362,
+          "status": "execute_returned",
+          "end_time": 1788870186.6153433
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870186.6153495,
+          "status": "execute_returned",
+          "end_time": 1788870186.6153765
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788870186.615382,
+          "status": "execute_returned",
+          "end_time": 1788870186.6154087
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT COUNT(*) AS high_risk_count FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+          "phase": "offline_validation",
+          "start_time": 1788870186.6154919,
+          "status": "execute_returned",
+          "end_time": 1788870186.615568
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT customer_id, customer_name, company_name, payment_rate_percentage, outstanding_balance, credit_score, business_stability_score, total_invoices, total_invoice_amount, avg_invoice_amount, customer_lifespan_days, payment_behavior, credit_grade, activity_status, lifecycle_stage, customer_value_segment FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000 ORDER BY outstanding_balance DESC",
+          "phase": "offline_validation",
+          "start_time": 1788870186.61612,
+          "status": "execute_returned",
+          "end_time": 1788870186.6165602
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT COUNT(*) AS n, ROUND(AVG((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2), 3) AS avg_risk_score, ROUND(MIN((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2), 3) AS min_risk_score, ROUND(MAX((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2), 3) AS max_risk_score, ROUND(AVG(payment_rate_percentage), 2) AS avg_payment_rate, ROUND(AVG(outstanding_balance), 2) AS avg_outstanding_balance, ROUND(SUM(outstanding_balance), 2) AS total_outstanding_balance, ROUND(AVG(credit_score), 2) AS avg_credit_score, ROUND(AVG(business_stability_score), 2) AS avg_stability_score FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+          "phase": "offline_validation",
+          "start_time": 1788870186.621367,
+          "status": "execute_returned",
+          "end_time": 1788870186.621799
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT customer_id, ROUND((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2, 2) AS risk_score, payment_rate_percentage, outstanding_balance, credit_score, business_stability_score, overdue_count_12m, avg_payment_days_12m FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000 ORDER BY risk_score DESC",
+          "phase": "offline_validation",
+          "start_time": 1788870186.6249194,
+          "status": "execute_returned",
+          "end_time": 1788870186.6253738
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT ROUND(SUM(outstanding_balance), 2) AS total_outstanding, ROUND(SUM(outstanding_balance * ((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2) / 100.0), 2) AS expected_loss_risk_weighted, ROUND(AVG((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2), 2) AS avg_risk_score FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+          "phase": "offline_validation",
+          "start_time": 1788870186.628704,
+          "status": "execute_returned",
+          "end_time": 1788870186.628997
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT customer_id, outstanding_balance, (100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2 AS risk_score FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+          "phase": "offline_validation",
+          "start_time": 1788870186.630855,
+          "status": "execute_returned",
+          "end_time": 1788870186.6309056
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT customer_id, outstanding_balance, payment_rate_percentage, credit_score, business_stability_score, overdue_count_12m, avg_payment_days_12m, (100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2 AS risk_score FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+          "phase": "offline_validation",
+          "start_time": 1788870186.6377943,
+          "status": "execute_returned",
+          "end_time": 1788870186.637925
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"quickbooks__customer_analytics\" WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+          "time": 1788870186.6131797,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788870186.615368,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788870186.6154056,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) AS high_risk_count FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+          "time": 1788870186.6155102,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT customer_id, customer_name, company_name, payment_rate_percentage, outstanding_balance, credit_score, business_stability_score, total_invoices, total_invoice_amount, avg_invoice_amount, customer_lifespan_days, payment_behavior, credit_grade, activity_status, lifecycle_stage, customer_value_segment FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000 ORDER BY outstanding_balance DESC",
+          "time": 1788870186.616188,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) AS n, ROUND(AVG((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2), 3) AS avg_risk_score, ROUND(MIN((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2), 3) AS min_risk_score, ROUND(MAX((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2), 3) AS max_risk_score, ROUND(AVG(payment_rate_percentage), 2) AS avg_payment_rate, ROUND(AVG(outstanding_balance), 2) AS avg_outstanding_balance, ROUND(SUM(outstanding_balance), 2) AS total_outstanding_balance, ROUND(AVG(credit_score), 2) AS avg_credit_score, ROUND(AVG(business_stability_score), 2) AS avg_stability_score FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+          "time": 1788870186.6214762,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT customer_id, ROUND((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2, 2) AS risk_score, payment_rate_percentage, outstanding_balance, credit_score, business_stability_score, overdue_count_12m, avg_payment_days_12m FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000 ORDER BY risk_score DESC",
+          "time": 1788870186.6249895,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT ROUND(SUM(outstanding_balance), 2) AS total_outstanding, ROUND(SUM(outstanding_balance * ((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2) / 100.0), 2) AS expected_loss_risk_weighted, ROUND(AVG((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2), 2) AS avg_risk_score FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+          "time": 1788870186.6287768,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT customer_id, outstanding_balance, (100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2 AS risk_score FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+          "time": 1788870186.6308997,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT customer_id, outstanding_balance, payment_rate_percentage, credit_score, business_stability_score, overdue_count_12m, avg_payment_days_12m, (100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2 AS risk_score FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+          "time": 1788870186.6379094,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 2.6120245456695557,
+      "intermediate_rows": 399,
+      "intermediate_columns": [
+        "customer_id",
+        "source_relation",
+        "customer_name",
+        "company_name",
+        "display_name",
+        "customer_is_active",
+        "customer_created_at",
+        "total_invoices",
+        "total_invoice_amount",
+        "outstanding_balance",
+        "first_invoice_date",
+        "last_invoice_date",
+        "avg_invoice_amount",
+        "total_payments",
+        "total_payment_amount",
+        "payment_rate_percentage",
+        "unique_products_purchased",
+        "total_quantity_purchased",
+        "customer_lifespan_days",
+        "monthly_revenue_avg",
+        "days_since_last_invoice",
+        "activity_status",
+        "lifecycle_stage",
+        "customer_value_segment",
+        "payment_behavior",
+        "customer_maturity_stage",
+        "acquisition_season",
+        "annual_transaction_frequency",
+        "revenue_last_3_months",
+        "revenue_prev_3_months",
+        "revenue_growth_3m_pct",
+        "revenue_current_quarter",
+        "revenue_prev_quarter",
+        "revenue_growth_qoq_pct",
+        "revenue_current_year",
+        "revenue_prev_year",
+        "revenue_growth_yoy_pct",
+        "active_months",
+        "active_months_last_12",
+        "revenue_volatility",
+        "avg_monthly_revenue",
+        "revenue_trend_correlation",
+        "recency_score",
+        "frequency_score",
+        "monetary_score",
+        "growth_score",
+        "payment_score",
+        "overall_customer_score",
+        "rfm_segment",
+        "recommended_action",
+        "risk_assessment",
+        "credit_score",
+        "credit_grade",
+        "payment_timeliness_score",
+        "business_stability_score",
+        "transaction_volume_score",
+        "data_completeness_score",
+        "data_quality_grade",
+        "is_estimated",
+        "avg_payment_days_12m",
+        "overdue_count_12m",
+        "revenue_growth_rate_12m",
+        "dq_completeness_score",
+        "dq_grade",
+        "dq_needs_improvement",
+        "dq_has_issues",
+        "data_quality_flag"
+      ],
+      "validation_ended_at": 1788870186.6468852,
+      "checks": [
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT COUNT(*) AS high_risk_count FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6247889250516891
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT customer_id, customer_name, company_name, payment_rate_percentage, outstanding_balance, credit_score, business_stability_score, total_invoices, total_invoice_amount, avg_invoice_amount, customer_lifespan_days, payment_behavior, credit_grade, activity_status, lifecycle_stage, customer_value_segment FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000 ORDER BY outstanding_balance DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 5.2435873076319695
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT COUNT(*) AS n, ROUND(AVG((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2), 3) AS avg_risk_score, ROUND(MIN((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2), 3) AS min_risk_score, ROUND(MAX((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2), 3) AS max_risk_score, ROUND(AVG(payment_rate_percentage), 2) AS avg_payment_rate, ROUND(AVG(outstanding_balance), 2) AS avg_outstanding_balance, ROUND(SUM(outstanding_balance), 2) AS total_outstanding_balance, ROUND(AVG(credit_score), 2) AS avg_credit_score, ROUND(AVG(business_stability_score), 2) AS avg_stability_score FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 3.5495664924383163
+        },
+        {
+          "sql_id": "S30",
+          "rewritten_sql": "SELECT customer_id, ROUND((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2, 2) AS risk_score, payment_rate_percentage, outstanding_balance, credit_score, business_stability_score, overdue_count_12m, avg_payment_days_12m FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000 ORDER BY risk_score DESC",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 3.7800204008817673
+        },
+        {
+          "sql_id": "S33",
+          "rewritten_sql": "SELECT ROUND(SUM(outstanding_balance), 2) AS total_outstanding, ROUND(SUM(outstanding_balance * ((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2) / 100.0), 2) AS expected_loss_risk_weighted, ROUND(AVG((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2), 2) AS avg_risk_score FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.1497150883078575
+        },
+        {
+          "sql_id": "S36",
+          "rewritten_sql": "SELECT customer_id, outstanding_balance, (100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2 AS risk_score FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 6.93319458514452
+        },
+        {
+          "sql_id": "S43",
+          "rewritten_sql": "SELECT customer_id, outstanding_balance, payment_rate_percentage, credit_score, business_stability_score, overdue_count_12m, avg_payment_days_12m, (100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2 AS risk_score FROM temp.reuse_candidate AS quickbooks__customer_analytics WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 8.86767078191042
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT COUNT(*) AS __a0, SUM((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2) AS __a1_sum, COUNT((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2) AS __a1_n, MIN((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2) AS __a2, MAX((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2) AS __a3, SUM(payment_rate_percentage) AS __a4_sum, COUNT(payment_rate_percentage) AS __a4_n, SUM(outstanding_balance) AS __a5_sum, COUNT(outstanding_balance) AS __a5_n, SUM(outstanding_balance) AS __a6, SUM(credit_score) AS __a7_sum, COUNT(credit_score) AS __a7_n, SUM(business_stability_score) AS __a8_sum, COUNT(business_stability_score) AS __a8_n, SUM(outstanding_balance * ((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2) / 100.0) AS __a9 FROM \"quickbooks__customer_analytics\" WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+      "covered": [
+        "S12",
+        "S14",
+        "S33"
+      ],
+      "rewrites": {
+        "S12": "SELECT SUM(__a0) AS high_risk_count FROM temp.reuse_candidate",
+        "S14": "SELECT SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 3) AS avg_risk_score, ROUND(MIN(__a2), 3) AS min_risk_score, ROUND(MAX(__a3), 3) AS max_risk_score, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_payment_rate, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_outstanding_balance, ROUND(SUM(__a6), 2) AS total_outstanding_balance, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_credit_score, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 2) AS avg_stability_score FROM temp.reuse_candidate",
+        "S33": "SELECT ROUND(SUM(__a6), 2) AS total_outstanding, ROUND(SUM(__a9), 2) AS expected_loss_risk_weighted, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_risk_score FROM temp.reuse_candidate"
+      },
+      "status": "verified",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C5",
+      "offline": true,
+      "earliest_build_before": "S12",
+      "later_reuses": 2,
+      "denominator": 43,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788870186.6470153,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT COUNT(*) AS __a0, SUM((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2) AS __a1_sum, COUNT((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2) AS __a1_n, MIN((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2) AS __a2, MAX((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2) AS __a3, SUM(payment_rate_percentage) AS __a4_sum, COUNT(payment_rate_percentage) AS __a4_n, SUM(outstanding_balance) AS __a5_sum, COUNT(outstanding_balance) AS __a5_n, SUM(outstanding_balance) AS __a6, SUM(credit_score) AS __a7_sum, COUNT(credit_score) AS __a7_n, SUM(business_stability_score) AS __a8_sum, COUNT(business_stability_score) AS __a8_n, SUM(outstanding_balance * ((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2) / 100.0) AS __a9 FROM \"quickbooks__customer_analytics\" WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+          "phase": "offline_validation",
+          "start_time": 1788870186.6472352,
+          "status": "execute_returned",
+          "end_time": 1788870186.648805
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870186.6488092,
+          "status": "execute_returned",
+          "end_time": 1788870186.6488252
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788870186.6488292,
+          "status": "execute_returned",
+          "end_time": 1788870186.648842
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS high_risk_count FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870186.6488643,
+          "status": "execute_returned",
+          "end_time": 1788870186.6488764
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 3) AS avg_risk_score, ROUND(MIN(__a2), 3) AS min_risk_score, ROUND(MAX(__a3), 3) AS max_risk_score, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_payment_rate, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_outstanding_balance, ROUND(SUM(__a6), 2) AS total_outstanding_balance, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_credit_score, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 2) AS avg_stability_score FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870186.6494157,
+          "status": "execute_returned",
+          "end_time": 1788870186.6495008
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT ROUND(SUM(__a6), 2) AS total_outstanding, ROUND(SUM(__a9), 2) AS expected_loss_risk_weighted, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_risk_score FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788870186.6524394,
+          "status": "execute_returned",
+          "end_time": 1788870186.652482
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT COUNT(*) AS __a0, SUM((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2) AS __a1_sum, COUNT((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2) AS __a1_n, MIN((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2) AS __a2, MAX((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2) AS __a3, SUM(payment_rate_percentage) AS __a4_sum, COUNT(payment_rate_percentage) AS __a4_n, SUM(outstanding_balance) AS __a5_sum, COUNT(outstanding_balance) AS __a5_n, SUM(outstanding_balance) AS __a6, SUM(credit_score) AS __a7_sum, COUNT(credit_score) AS __a7_n, SUM(business_stability_score) AS __a8_sum, COUNT(business_stability_score) AS __a8_n, SUM(outstanding_balance * ((100 - payment_rate_percentage) * 0.4 + (850 - credit_score) / 850.0 * 100 * 0.4 + (100 - business_stability_score) * 0.2) / 100.0) AS __a9 FROM \"quickbooks__customer_analytics\" WHERE payment_rate_percentage < 75 AND outstanding_balance > 15000",
+          "time": 1788870186.6475496,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788870186.6488225,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788870186.6488397,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS high_risk_count FROM temp.reuse_candidate",
+          "time": 1788870186.6488743,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 3) AS avg_risk_score, ROUND(MIN(__a2), 3) AS min_risk_score, ROUND(MAX(__a3), 3) AS max_risk_score, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_payment_rate, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_outstanding_balance, ROUND(SUM(__a6), 2) AS total_outstanding_balance, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_credit_score, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 2) AS avg_stability_score FROM temp.reuse_candidate",
+          "time": 1788870186.6494882,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT ROUND(SUM(__a6), 2) AS total_outstanding, ROUND(SUM(__a9), 2) AS expected_loss_risk_weighted, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_risk_score FROM temp.reuse_candidate",
+          "time": 1788870186.6524734,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 1.573692075908184,
+      "intermediate_rows": 1,
+      "intermediate_columns": [
+        "__a0",
+        "__a1_sum",
+        "__a1_n",
+        "__a2",
+        "__a3",
+        "__a4_sum",
+        "__a4_n",
+        "__a5_sum",
+        "__a5_n",
+        "__a6",
+        "__a7_sum",
+        "__a7_n",
+        "__a8_sum",
+        "__a8_n",
+        "__a9"
+      ],
+      "validation_ended_at": 1788870186.6543324,
+      "checks": [
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT SUM(__a0) AS high_risk_count FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.5491869524121284
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT SUM(__a0) AS n, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 3) AS avg_risk_score, ROUND(MIN(__a2), 3) AS min_risk_score, ROUND(MAX(__a3), 3) AS max_risk_score, ROUND((1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)), 2) AS avg_payment_rate, ROUND((1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)), 2) AS avg_outstanding_balance, ROUND(SUM(__a6), 2) AS total_outstanding_balance, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)), 2) AS avg_credit_score, ROUND((1.0 * SUM(__a8_sum) / NULLIF(SUM(__a8_n), 0)), 2) AS avg_stability_score FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 3.0217450112104416
+        },
+        {
+          "sql_id": "S33",
+          "rewritten_sql": "SELECT ROUND(SUM(__a6), 2) AS total_outstanding, ROUND(SUM(__a9), 2) AS expected_loss_risk_weighted, ROUND((1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)), 2) AS avg_risk_score FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.8133511766791344
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+SELECT user_display_name, COUNT(*) as cnt FROM jira__team_performance_dashboard GROUP BY user_display_name HAVING cnt > 1 LIMIT 5
