@@ -1,0 +1,416 @@
+{
+  "id": "C5",
+  "type": "aggregate MV",
+  "source_status": "rejected_result_mismatch",
+  "source_candidates": [
+    "C5"
+  ],
+  "description": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+  "table": "temp.\"reuse_017_c5\"",
+  "build": "CREATE TEMP TABLE \"reuse_017_c5\" AS\nSELECT \"Discount\" AS __g0, \"Shipping Method\" AS __g1, SUBSTRING(\"Order Date\", 1, 4) AS __g2, \"Product\" AS __g3, \"Quantity\" AS __g4, \"Order Priority\" AS __g5, \"Customer ID\" AS __g6, COUNT(*) AS __a0, SUM(profit * 1.0 / sales) AS __a1_sum, COUNT(profit * 1.0 / sales) AS __a1_n, SUM(profit) AS __a2, SUM(sales) AS __a3, SUM(profit) AS __a4_sum, COUNT(profit) AS __a4_n, SUM(sales) AS __a5_sum, COUNT(sales) AS __a5_n FROM \"order_information\" WHERE \"Product Category\" = 'Home & Furniture' GROUP BY \"Discount\", \"Shipping Method\", SUBSTRING(\"Order Date\", 1, 4), \"Product\", \"Quantity\", \"Order Priority\", \"Customer ID\"",
+  "indexes": [],
+  "covered": [
+    "S17",
+    "S18",
+    "S19",
+    "S20",
+    "S21",
+    "S23",
+    "S29",
+    "S30",
+    "S31",
+    "S58",
+    "S61",
+    "S69",
+    "S70"
+  ],
+  "rewrites": {
+    "S17": "SELECT\n  __g0 AS \"Discount\",\n  SUM(__a0) AS \"n\",\n  ROUND((\n    1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)\n  ), 4) AS \"avg_margin\"\nFROM temp.\"reuse_017_c5\"\nGROUP BY\n  __g0\nORDER BY\n  __g0",
+    "S18": "SELECT\n  __g1 AS \"Shipping Method\",\n  SUM(__a0) AS \"n\",\n  SUM(__a2) AS \"total_profit\",\n  SUM(__a3) AS \"total_sales\",\n  ROUND(SUM(__a2) * 1.0 / SUM(__a3), 4) AS \"margin\"\nFROM temp.\"reuse_017_c5\"\nGROUP BY\n  __g1\nORDER BY\n  __g1",
+    "S19": "SELECT\n  __g0 AS \"Discount\",\n  __g2 AS \"yr\",\n  SUM(__a0) AS \"n\",\n  (\n    1.0 * SUM(__a1_sum) / NULLIF(SUM(__a1_n), 0)\n  ) AS \"avg_margin\",\n  (\n    1.0 * SUM(__a4_sum) / NULLIF(SUM(__a4_n), 0)\n  ) AS \"avg_profit\",\n  (\n    1.0 * SUM(__a5_sum) / NULLIF(SUM(__a5_n), 0)\n  ) AS \"avg_sales\"\nFROM temp.\"reuse_017_c5\"\nGROUP BY\n  __g0,\n  __g2\nORDER BY\n  __g0,\n  yr",
+    "S20": "SELECT\n  __g2 AS \"yr\",\n  __g0 AS \"Discount\",\n  SUM(__a0) AS \"n\",\n  ROUND(SUM(__a2), 1) AS \"total_profit\",\n  ROUND(SUM(__a3), 1) AS \"total_sales\",\n  ROUND(SUM(__a2) * 1.0 / SUM(__a3), 6) AS \"margin\"\nFROM temp.\"reuse_017_c5\"\nGROUP BY\n  __g2,\n  __g0\nORDER BY\n  yr,\n  __g0",
+    "S21": "SELECT\n  __g3 AS \"Product\",\n  SUM(__a0) AS \"n\",\n  SUM(__a3) AS \"total_sales\",\n  SUM(__a2) AS \"total_profit\",\n  ROUND(SUM(__a2) * 1.0 / SUM(__a3), 6) AS \"margin\"\nFROM temp.\"reuse_017_c5\"\nGROUP BY\n  __g3\nORDER BY\n  margin",
+    "S23": "SELECT\n  __g3 AS \"Product\",\n  __g2 AS \"yr\",\n  SUM(__a0) AS \"n\",\n  ROUND(SUM(__a3), 0) AS \"total_sales\",\n  ROUND(SUM(__a2), 1) AS \"total_profit\",\n  ROUND(SUM(__a2) * 1.0 / SUM(__a3), 4) AS \"margin\"\nFROM temp.\"reuse_017_c5\"\nGROUP BY\n  __g3,\n  __g2\nORDER BY\n  __g3,\n  yr",
+    "S29": "SELECT\n  __g2 AS \"yr\",\n  __g0 AS \"Discount\",\n  SUM(__a0) AS \"n\"\nFROM temp.\"reuse_017_c5\"\nGROUP BY\n  __g2,\n  __g0\nORDER BY\n  yr,\n  __g0",
+    "S30": "SELECT\n  __g2 AS \"yr\",\n  __g4 AS \"Quantity\",\n  SUM(__a0) AS \"n\"\nFROM temp.\"reuse_017_c5\"\nGROUP BY\n  __g2,\n  __g4\nORDER BY\n  yr,\n  __g4",
+    "S31": "SELECT\n  __g2 AS \"yr\",\n  __g5 AS \"Order Priority\",\n  SUM(__a0) AS \"n\"\nFROM temp.\"reuse_017_c5\"\nGROUP BY\n  __g2,\n  __g5\nORDER BY\n  yr,\n  __g5",
+    "S58": "SELECT\n  __g3 AS \"Product\",\n  __g2 AS \"yr\",\n  SUM(__a2) * 1.0 / SUM(__a3) AS \"margin\"\nFROM temp.\"reuse_017_c5\"\nGROUP BY\n  __g3,\n  __g2\nORDER BY\n  __g3,\n  yr",
+    "S61": "SELECT\n  __g3 AS \"Product\",\n  __g2 AS \"yr\",\n  SUM(__a3) AS \"sales\"\nFROM temp.\"reuse_017_c5\"\nGROUP BY\n  __g3,\n  __g2\nORDER BY\n  yr,\n  sales DESC",
+    "S69": "SELECT\n  __g6 AS \"Customer ID\",\n  SUM(__a2) AS \"profit\",\n  SUM(__a3) AS \"sales\"\nFROM temp.\"reuse_017_c5\"\nGROUP BY\n  __g6",
+    "S70": "SELECT\n  SUM(__a0) AS \"n\",\n  SUM(__a3) AS \"sales\",\n  SUM(__a2) AS \"profit\"\nFROM temp.\"reuse_017_c5\""
+  },
+  "existing_result": false,
+  "checks": [
+    {
+      "sql": "S17",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 4.458393901586533
+    },
+    {
+      "sql": "S18",
+      "columns_equal": true,
+      "ok": true,
+      "exact": false,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": true,
+      "replay_ms": 4.435082897543907
+    },
+    {
+      "sql": "S19",
+      "columns_equal": true,
+      "ok": true,
+      "exact": false,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": true,
+      "replay_ms": 8.37070494890213
+    },
+    {
+      "sql": "S20",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 6.224513053894043
+    },
+    {
+      "sql": "S21",
+      "columns_equal": true,
+      "ok": true,
+      "exact": false,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": true,
+      "replay_ms": 4.668977111577988
+    },
+    {
+      "sql": "S23",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 6.538567133247852
+    },
+    {
+      "sql": "S29",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 5.0636352971196175
+    },
+    {
+      "sql": "S30",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 6.341895088553429
+    },
+    {
+      "sql": "S31",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 6.2590474262833595
+    },
+    {
+      "sql": "S58",
+      "columns_equal": true,
+      "ok": true,
+      "exact": false,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": true,
+      "replay_ms": 6.304191425442696
+    },
+    {
+      "sql": "S61",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 5.585971288383007
+    },
+    {
+      "sql": "S69",
+      "columns_equal": true,
+      "ok": false,
+      "exact": false,
+      "comparison": "exact_multiset",
+      "aligned_numeric_tolerance_only": true,
+      "first_difference": {
+        "original": [
+          "AB-00363",
+          816.6000000000001,
+          1789
+        ],
+        "rewrite": [
+          "AB-00363",
+          816.5999999999999,
+          1789
+        ]
+      },
+      "replay_ms": 6.330184638500214
+    },
+    {
+      "sql": "S70",
+      "columns_equal": true,
+      "ok": false,
+      "exact": false,
+      "comparison": "exact_multiset",
+      "aligned_numeric_tolerance_only": true,
+      "first_difference": {
+        "original": [
+          10309,
+          1319407,
+          587614.2999999959
+        ],
+        "rewrite": [
+          10309,
+          1319407,
+          587614.2999999985
+        ]
+      },
+      "replay_ms": 1.2467065826058388
+    }
+  ],
+  "build_ms_validation": 49.7388020157814,
+  "rows": 10259,
+  "columns": [
+    "__g0",
+    "__g1",
+    "__g2",
+    "__g3",
+    "__g4",
+    "__g5",
+    "__g6",
+    "__a0",
+    "__a1_sum",
+    "__a1_n",
+    "__a2",
+    "__a3",
+    "__a4_sum",
+    "__a4_n",
+    "__a5_sum",
+    "__a5_n"
+  ],
+  "safe": [
+    "S17",
+    "S18",
+    "S19",
+    "S20",
+    "S21",
+    "S23",
+    "S29",
+    "S30",
+    "S31",
+    "S58",
+    "S61"
+  ],
+  "excluded": [
+    "S69",
+    "S70"
+  ],
+  "status": "partial",
+  "performance": {
+    "repeats": 5,
+    "samples": [
+      {
+        "build_ms": 44.909968972206116,
+        "original_ms": 122.6430544629693,
+        "rewrite_ms": 64.6097119897604,
+        "original_by_sql": {
+          "S17": 8.871654979884624,
+          "S18": 8.080637082457542,
+          "S19": 13.163602910935879,
+          "S20": 12.981238774955273,
+          "S21": 9.031209163367748,
+          "S23": 12.37322948873043,
+          "S29": 11.507640592753887,
+          "S30": 11.690983548760414,
+          "S31": 11.076528578996658,
+          "S58": 12.296988628804684,
+          "S61": 11.569340713322163
+        },
+        "rewrite_by_sql": {
+          "S17": 4.4831568375229836,
+          "S18": 4.399115219712257,
+          "S19": 8.374257944524288,
+          "S20": 6.225262768566608,
+          "S21": 4.8878854140639305,
+          "S23": 6.685094907879829,
+          "S29": 5.003665573894978,
+          "S30": 6.265702657401562,
+          "S31": 6.214099936187267,
+          "S58": 6.320735439658165,
+          "S61": 5.75073529034853
+        }
+      },
+      {
+        "build_ms": 50.20560510456562,
+        "original_ms": 122.76008445769548,
+        "rewrite_ms": 64.41830843687057,
+        "original_by_sql": {
+          "S17": 8.77633411437273,
+          "S18": 7.900469936430454,
+          "S19": 13.293073512613773,
+          "S20": 13.00718542188406,
+          "S21": 8.732772432267666,
+          "S23": 12.476389296352863,
+          "S29": 11.550306342542171,
+          "S30": 11.70408446341753,
+          "S31": 11.279231868684292,
+          "S58": 12.379636988043785,
+          "S61": 11.660600081086159
+        },
+        "rewrite_by_sql": {
+          "S17": 4.492137581110001,
+          "S18": 4.387662746012211,
+          "S19": 8.343745954334736,
+          "S20": 6.164588034152985,
+          "S21": 4.822936840355396,
+          "S23": 6.670036353170872,
+          "S29": 5.012561567127705,
+          "S30": 6.2730275094509125,
+          "S31": 6.194287911057472,
+          "S58": 6.2874481081962585,
+          "S61": 5.769875831902027
+        }
+      },
+      {
+        "build_ms": 50.127643160521984,
+        "original_ms": 122.55936674773693,
+        "rewrite_ms": 64.06277325004339,
+        "original_by_sql": {
+          "S17": 8.913515135645866,
+          "S18": 8.103892207145691,
+          "S19": 13.155181892216206,
+          "S20": 12.952511198818684,
+          "S21": 8.895080536603928,
+          "S23": 12.37808633595705,
+          "S29": 11.513479053974152,
+          "S30": 11.571717448532581,
+          "S31": 11.263229884207249,
+          "S58": 12.282297015190125,
+          "S61": 11.5303760394454
+        },
+        "rewrite_by_sql": {
+          "S17": 4.4758515432477,
+          "S18": 4.40252386033535,
+          "S19": 8.356411941349506,
+          "S20": 6.196686998009682,
+          "S21": 4.839582368731499,
+          "S23": 6.570178084075451,
+          "S29": 5.0544124096632,
+          "S30": 6.281297653913498,
+          "S31": 6.220942363142967,
+          "S58": 6.054996512830257,
+          "S61": 5.609889514744282
+        }
+      },
+      {
+        "build_ms": 50.67114531993866,
+        "original_ms": 122.59619869291782,
+        "rewrite_ms": 64.44468442350626,
+        "original_by_sql": {
+          "S17": 8.811432868242264,
+          "S18": 7.899400778114796,
+          "S19": 13.303329236805439,
+          "S20": 12.94441893696785,
+          "S21": 8.73468816280365,
+          "S23": 12.463104911148548,
+          "S29": 11.538557708263397,
+          "S30": 11.544016189873219,
+          "S31": 11.434754356741905,
+          "S58": 12.331394478678703,
+          "S61": 11.591101065278053
+        },
+        "rewrite_by_sql": {
+          "S17": 4.487248137593269,
+          "S18": 4.401032812893391,
+          "S19": 8.349432609975338,
+          "S20": 6.177656352519989,
+          "S21": 4.893927834928036,
+          "S23": 6.6710468381643295,
+          "S29": 5.01147098839283,
+          "S30": 6.260750815272331,
+          "S31": 6.215792149305344,
+          "S58": 6.253071129322052,
+          "S61": 5.723254755139351
+        }
+      },
+      {
+        "build_ms": 49.915242940187454,
+        "original_ms": 123.14078118652105,
+        "rewrite_ms": 64.16611652821302,
+        "original_by_sql": {
+          "S17": 8.931800723075867,
+          "S18": 8.279461413621902,
+          "S19": 13.295197859406471,
+          "S20": 13.072391971945763,
+          "S21": 8.933031000196934,
+          "S23": 12.435710988938808,
+          "S29": 11.505819857120514,
+          "S30": 11.63996197283268,
+          "S31": 11.096461676061153,
+          "S58": 12.343967333436012,
+          "S61": 11.606976389884949
+        },
+        "rewrite_by_sql": {
+          "S17": 4.48759738355875,
+          "S18": 4.430500790476799,
+          "S19": 8.355497382581234,
+          "S20": 6.212024018168449,
+          "S21": 4.883738234639168,
+          "S23": 6.67527224868536,
+          "S29": 5.010709166526794,
+          "S30": 6.288928911089897,
+          "S31": 6.20891060680151,
+          "S58": 6.046891212463379,
+          "S61": 5.5660465732216835
+        }
+      }
+    ],
+    "baseline_ms": 122.6430544629693,
+    "build_ms": 50.127643160521984,
+    "reads_ms": 64.41830843687057,
+    "total_ms": 114.19041641056538,
+    "saved_ms": 8.452638052403927,
+    "speedup": 1.0740223069334727,
+    "original_by_sql": {
+      "S17": 8.871654979884624,
+      "S18": 8.080637082457542,
+      "S19": 13.293073512613773,
+      "S20": 12.981238774955273,
+      "S21": 8.895080536603928,
+      "S23": 12.435710988938808,
+      "S29": 11.513479053974152,
+      "S30": 11.63996197283268,
+      "S31": 11.263229884207249,
+      "S58": 12.331394478678703,
+      "S61": 11.591101065278053
+    },
+    "rewrite_by_sql": {
+      "S17": 4.487248137593269,
+      "S18": 4.401032812893391,
+      "S19": 8.355497382581234,
+      "S20": 6.196686998009682,
+      "S21": 4.883738234639168,
+      "S23": 6.6710468381643295,
+      "S29": 5.01147098839283,
+      "S30": 6.2730275094509125,
+      "S31": 6.214099936187267,
+      "S58": 6.253071129322052,
+      "S61": 5.723254755139351
+    }
+  }
+}

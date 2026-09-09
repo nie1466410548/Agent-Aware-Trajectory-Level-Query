@@ -1,0 +1,149 @@
+{
+  "id": "C2",
+  "type": "exact-result reuse",
+  "source_status": "verified",
+  "source_candidates": [
+    "C2"
+  ],
+  "description": "Identical normalized SQL and parameters; archive equality checked.",
+  "table": "temp.\"reuse_013_c2\"",
+  "build": "CREATE TEMP TABLE \"reuse_013_c2\" AS\nWITH t AS (\n  SELECT\n    \"Task Owner\", \"Task Type\", \"Task Status\", \"Priority\",\n    CASE WHEN \"Task Status\" = 'Completed' THEN 1 ELSE 0 END AS completed,\n    CASE WHEN \"Task Status\" = 'Completed' AND \"Actual Completion Time\" != '-'\n              AND \"Planned Deadline\" != '-'\n              AND julianday(\"Actual Completion Time\") <= julianday(\"Planned Deadline\")\n         THEN 1 ELSE 0 END AS on_time,\n    CASE WHEN \"Task Status\" = 'Completed' AND \"Completion Quality Score\" != '-'\n         THEN CAST(\"Completion Quality Score\" AS REAL) END AS quality,\n    CASE WHEN \"Task Status\" = 'Completed' AND \"Actual Work Hours\" != '-'\n              AND \"Planned Work Hours\" > 0\n         THEN MIN((\"Planned Work Hours\" * 1.0) / CAST(\"Actual Work Hours\" AS REAL), 1.5) END AS eff,\n    CASE WHEN \"Task Status\" = 'Completed' AND \"Rework Count\" != '-'\n         THEN CAST(\"Rework Count\" AS INTEGER) END AS rework,\n    \"Task Difficulty Coefficient\"\n  FROM sheet1\n)\nSELECT\n  \"Task Owner\",\n  MAX(\"Task Type\") AS task_type,\n  COUNT(*) AS total_tasks,\n  SUM(completed) AS completed_tasks,\n  1.0*SUM(completed)/COUNT(*) AS completion_rate,\n  1.0*SUM(on_time)/NULLIF(SUM(completed),0) AS on_time_rate,\n  AVG(quality)/10.0 AS quality_norm,\n  1.0*SUM(CASE WHEN \"Priority\"='Urgent' THEN 4 WHEN \"Priority\"='High' THEN 3\n         WHEN \"Priority\"='Medium' THEN 2 WHEN \"Priority\"='Low' THEN 1 END * completed)\n    /NULLIF(SUM(CASE WHEN \"Priority\"='Urgent' THEN 4 WHEN \"Priority\"='High' THEN 3\n         WHEN \"Priority\"='Medium' THEN 2 WHEN \"Priority\"='Low' THEN 1 END),0) AS priority_weighted_completion,\n  AVG(eff) AS hours_efficiency,\n  AVG(CASE WHEN rework IS NOT NULL THEN 1 - rework/3.0 END) AS rework_avoidance,\n  SUM(CASE WHEN \"Priority\" IN ('Urgent','High') THEN 1 ELSE 0 END) AS hp_total,\n  SUM(CASE WHEN \"Priority\" IN ('Urgent','High') AND completed=1 THEN 1 ELSE 0 END) AS hp_completed,\n  SUM(CASE WHEN \"Priority\" IN ('Urgent','High') AND on_time=1 THEN 1 ELSE 0 END) AS hp_on_time,\n  ROUND(AVG(\"Task Difficulty Coefficient\"),3) AS avg_diff\nFROM t\nGROUP BY \"Task Owner\"",
+  "indexes": [],
+  "covered": [
+    "S33",
+    "S34"
+  ],
+  "rewrites": {
+    "S33": "SELECT \"Task Owner\", \"task_type\", \"total_tasks\", \"completed_tasks\", \"completion_rate\", \"on_time_rate\", \"quality_norm\", \"priority_weighted_completion\", \"hours_efficiency\", \"rework_avoidance\", \"hp_total\", \"hp_completed\", \"hp_on_time\", \"avg_diff\" FROM temp.\"reuse_013_c2\"",
+    "S34": "SELECT \"Task Owner\", \"task_type\", \"total_tasks\", \"completed_tasks\", \"completion_rate\", \"on_time_rate\", \"quality_norm\", \"priority_weighted_completion\", \"hours_efficiency\", \"rework_avoidance\", \"hp_total\", \"hp_completed\", \"hp_on_time\", \"avg_diff\" FROM temp.\"reuse_013_c2\""
+  },
+  "existing_result": true,
+  "checks": [
+    {
+      "sql": "S33",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "exact_multiset",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 0.6745103746652603
+    },
+    {
+      "sql": "S34",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "exact_multiset",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 0.6580939516425133
+    }
+  ],
+  "build_ms_validation": 2.934493124485016,
+  "rows": 289,
+  "columns": [
+    "Task Owner",
+    "task_type",
+    "total_tasks",
+    "completed_tasks",
+    "completion_rate",
+    "on_time_rate",
+    "quality_norm",
+    "priority_weighted_completion",
+    "hours_efficiency",
+    "rework_avoidance",
+    "hp_total",
+    "hp_completed",
+    "hp_on_time",
+    "avg_diff"
+  ],
+  "safe": [
+    "S33",
+    "S34"
+  ],
+  "excluded": [],
+  "status": "verified",
+  "performance": {
+    "repeats": 5,
+    "samples": [
+      {
+        "build_ms": 2.843325026333332,
+        "original_ms": 6.249912083148956,
+        "rewrite_ms": 1.2882398441433907,
+        "original_by_sql": {
+          "S33": 3.2441439107060432,
+          "S34": 3.005768172442913
+        },
+        "rewrite_by_sql": {
+          "S33": 0.661160796880722,
+          "S34": 0.6270790472626686
+        }
+      },
+      {
+        "build_ms": 2.8424467891454697,
+        "original_ms": 6.006499752402306,
+        "rewrite_ms": 1.289810985326767,
+        "original_by_sql": {
+          "S33": 3.005051054060459,
+          "S34": 3.0014486983418465
+        },
+        "rewrite_by_sql": {
+          "S33": 0.6667980924248695,
+          "S34": 0.6230128929018974
+        }
+      },
+      {
+        "build_ms": 2.8415555134415627,
+        "original_ms": 6.374077871441841,
+        "rewrite_ms": 1.2894282117486,
+        "original_by_sql": {
+          "S33": 3.2848110422492027,
+          "S34": 3.0892668291926384
+        },
+        "rewrite_by_sql": {
+          "S33": 0.660998746752739,
+          "S34": 0.628429464995861
+        }
+      },
+      {
+        "build_ms": 2.842969261109829,
+        "original_ms": 6.16696011275053,
+        "rewrite_ms": 1.2916149571537971,
+        "original_by_sql": {
+          "S33": 3.1075021252036095,
+          "S34": 3.0594579875469208
+        },
+        "rewrite_by_sql": {
+          "S33": 0.663265585899353,
+          "S34": 0.6283493712544441
+        }
+      },
+      {
+        "build_ms": 2.8140954673290253,
+        "original_ms": 6.334035657346249,
+        "rewrite_ms": 1.2827068567276,
+        "original_by_sql": {
+          "S33": 3.290727734565735,
+          "S34": 3.0433079227805138
+        },
+        "rewrite_by_sql": {
+          "S33": 0.6569633260369301,
+          "S34": 0.62574353069067
+        }
+      }
+    ],
+    "baseline_ms": 6.249912083148956,
+    "build_ms": 2.8424467891454697,
+    "reads_ms": 1.2894282117486,
+    "total_ms": 4.131564870476723,
+    "saved_ms": 2.1183472126722336,
+    "speedup": 1.5127227283321845,
+    "original_by_sql": {
+      "S33": 3.2441439107060432,
+      "S34": 3.0433079227805138
+    },
+    "rewrite_by_sql": {
+      "S33": 0.661160796880722,
+      "S34": 0.6270790472626686
+    }
+  }
+}

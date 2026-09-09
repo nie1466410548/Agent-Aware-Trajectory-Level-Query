@@ -1,0 +1,2181 @@
+{
+  "task": "dacomp-012",
+  "database": "/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/dacomp/upstream/dacomp-012/dacomp-012.sqlite",
+  "database_sha256": "f7620ad6681e8056fa95ee3107bd5e09adca5a888a5e35177f7d205a0e46eccb",
+  "database_unchanged": true,
+  "sqlite_version": "3.42.0",
+  "sqlglot_version": "30.18.0",
+  "temp_store": "MEMORY",
+  "successful_data_sql": 18,
+  "source_analysis_sha256": "4dbdc3f34130a6255694b233c103ed0050caa7f08856ae5687b608d332238e57",
+  "created_utc": "2026-09-09T01:52:18Z",
+  "baseline_checks": [
+    {
+      "sql": "S3",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "exact_multiset",
+      "aligned_numeric_tolerance_only": false
+    },
+    {
+      "sql": "S4",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "exact_multiset",
+      "aligned_numeric_tolerance_only": false
+    },
+    {
+      "sql": "S5",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false
+    },
+    {
+      "sql": "S6",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false
+    },
+    {
+      "sql": "S7",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false
+    },
+    {
+      "sql": "S9",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false
+    },
+    {
+      "sql": "S10",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false
+    },
+    {
+      "sql": "S11",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "exact_multiset",
+      "aligned_numeric_tolerance_only": false
+    },
+    {
+      "sql": "S13",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false
+    },
+    {
+      "sql": "S14",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false
+    },
+    {
+      "sql": "S15",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false
+    },
+    {
+      "sql": "S16",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false
+    },
+    {
+      "sql": "S17",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false
+    },
+    {
+      "sql": "S18",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false
+    },
+    {
+      "sql": "S19",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "exact_multiset",
+      "aligned_numeric_tolerance_only": false
+    },
+    {
+      "sql": "S20",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "exact_multiset",
+      "aligned_numeric_tolerance_only": false
+    },
+    {
+      "sql": "S21",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "exact_multiset",
+      "aligned_numeric_tolerance_only": false
+    },
+    {
+      "sql": "S22",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "exact_multiset",
+      "aligned_numeric_tolerance_only": false
+    }
+  ],
+  "candidates": [
+    {
+      "id": "C1",
+      "type": "common subexpression",
+      "source_status": "verified",
+      "source_candidates": [
+        "C1"
+      ],
+      "description": "Identical self-contained CTE body across queries.",
+      "table": "temp.\"reuse_012_c1\"",
+      "build": "CREATE TEMP TABLE \"reuse_012_c1\" AS\nSELECT \"Price (USD)\" AS price, \"Carat (diamond weight)\" AS carat, CASE WHEN \"Carat (diamond weight)\" <= 0.5 THEN 'A: <=0.5 ct' WHEN \"Carat (diamond weight)\" <= 1.0 THEN 'B: 0.51-1.0 ct' WHEN \"Carat (diamond weight)\" <= 1.5 THEN 'C: 1.01-1.5 ct' ELSE 'D: >1.5 ct' END AS interval FROM sheet1",
+      "indexes": [],
+      "covered": [
+        "S9",
+        "S10"
+      ],
+      "rewrites": {
+        "S9": "WITH buckets AS (\n  SELECT\n    *\n  FROM temp.\"reuse_012_c1\"\n)\nSELECT\n  interval AS \"interval\",\n  carat AS \"q\",\n  price_per_carat AS \"price_per_carat\"\nFROM (\n  SELECT\n    interval,\n    carat,\n    price / carat AS price_per_carat,\n    ROW_NUMBER() OVER (PARTITION BY interval ORDER BY price / carat) AS rn,\n    COUNT(*) OVER (PARTITION BY interval) AS cnt\n  FROM buckets\n)\nWHERE\n  rn IN ((\n      cnt + 1\n    ) / 2, (\n      cnt + 2\n  ) / 2)\nORDER BY\n  interval,\n  q",
+        "S10": "WITH buckets AS (\n  SELECT\n    *\n  FROM temp.\"reuse_012_c1\"\n)\nSELECT\n  interval AS \"interval\",\n  COUNT(*) AS \"n\",\n  ROUND(AVG(carat), 3) AS \"avg_carat\",\n  ROUND(AVG(price), 2) AS \"avg_price\",\n  ROUND(AVG(price / carat), 2) AS \"avg_ppc\",\n  ROUND(MIN(price / carat), 2) AS \"min_ppc\",\n  ROUND(MAX(price / carat), 2) AS \"max_ppc\",\n  ROUND(\n    SQRT(\n      AVG((\n        price / carat\n      ) * (\n        price / carat\n      )) - AVG(price / carat) * AVG(price / carat)\n    ),\n    2\n  ) AS \"sd_ppc\",\n  ROUND(\n    AVG(price / carat) / SQRT(\n      AVG((\n        price / carat\n      ) * (\n        price / carat\n      )) - AVG(price / carat) * AVG(price / carat)\n    ),\n    2\n  ) AS \"cv\"\nFROM buckets\nGROUP BY\n  interval\nORDER BY\n  interval"
+      },
+      "existing_result": false,
+      "checks": [
+        {
+          "sql": "S9",
+          "columns_equal": true,
+          "ok": true,
+          "exact": true,
+          "comparison": "ordered_rel1e-12_abs1e-9",
+          "aligned_numeric_tolerance_only": false,
+          "replay_ms": 160.62672715634108
+        },
+        {
+          "sql": "S10",
+          "columns_equal": true,
+          "ok": true,
+          "exact": true,
+          "comparison": "ordered_rel1e-12_abs1e-9",
+          "aligned_numeric_tolerance_only": false,
+          "replay_ms": 39.310768246650696
+        }
+      ],
+      "build_ms_validation": 14.943383634090424,
+      "rows": 53595,
+      "columns": [
+        "price",
+        "carat",
+        "interval"
+      ],
+      "safe": [
+        "S9",
+        "S10"
+      ],
+      "excluded": [],
+      "status": "verified",
+      "performance": {
+        "repeats": 5,
+        "samples": [
+          {
+            "build_ms": 14.338700100779533,
+            "original_ms": 210.87350230664015,
+            "rewrite_ms": 197.71096296608448,
+            "original_by_sql": {
+              "S9": 166.9698767364025,
+              "S10": 43.90362557023764
+            },
+            "rewrite_by_sql": {
+              "S9": 158.35454128682613,
+              "S10": 39.35642167925835
+            }
+          },
+          {
+            "build_ms": 15.317626297473907,
+            "original_ms": 208.35349056869745,
+            "rewrite_ms": 197.26952072232962,
+            "original_by_sql": {
+              "S9": 164.5609037950635,
+              "S10": 43.79258677363396
+            },
+            "rewrite_by_sql": {
+              "S9": 158.0552514642477,
+              "S10": 39.21426925808191
+            }
+          },
+          {
+            "build_ms": 14.247228391468525,
+            "original_ms": 211.13679558038712,
+            "rewrite_ms": 196.85842841863632,
+            "original_by_sql": {
+              "S9": 167.233114130795,
+              "S10": 43.90368144959211
+            },
+            "rewrite_by_sql": {
+              "S9": 157.44453947991133,
+              "S10": 39.413888938724995
+            }
+          },
+          {
+            "build_ms": 15.261960215866566,
+            "original_ms": 210.76522022485733,
+            "rewrite_ms": 197.39064574241638,
+            "original_by_sql": {
+              "S9": 166.99348855763674,
+              "S10": 43.77173166722059
+            },
+            "rewrite_by_sql": {
+              "S9": 158.23811665177345,
+              "S10": 39.15252909064293
+            }
+          },
+          {
+            "build_ms": 14.27952479571104,
+            "original_ms": 209.01521295309067,
+            "rewrite_ms": 196.74861803650856,
+            "original_by_sql": {
+              "S9": 165.30026495456696,
+              "S10": 43.71494799852371
+            },
+            "rewrite_by_sql": {
+              "S9": 157.30204340070486,
+              "S10": 39.4465746358037
+            }
+          }
+        ],
+        "baseline_ms": 210.76522022485733,
+        "build_ms": 14.338700100779533,
+        "reads_ms": 197.26952072232962,
+        "total_ms": 212.049663066864,
+        "saved_ms": -1.2844428420066833,
+        "speedup": 0.9939427263244381,
+        "original_by_sql": {
+          "S9": 166.9698767364025,
+          "S10": 43.79258677363396
+        },
+        "rewrite_by_sql": {
+          "S9": 158.0552514642477,
+          "S10": 39.35642167925835
+        }
+      }
+    },
+    {
+      "id": "C2",
+      "type": "common subexpression",
+      "source_status": "verified",
+      "source_candidates": [
+        "C2"
+      ],
+      "description": "Identical self-contained CTE body across queries.",
+      "table": "temp.\"reuse_012_c2\"",
+      "build": "CREATE TEMP TABLE \"reuse_012_c2\" AS\nSELECT \"Price (USD)\" AS price, \"Carat (diamond weight)\" AS carat, \"Cut (quality)\" AS cut, \"Color\" AS color, \"Clarity\" AS clarity, CASE WHEN \"Carat (diamond weight)\" <= 0.5 THEN '<=0.5' WHEN \"Carat (diamond weight)\" <= 1.0 THEN '0.51-1.0' WHEN \"Carat (diamond weight)\" <= 1.5 THEN '1.01-1.5' ELSE '>1.5' END AS interval FROM sheet1",
+      "indexes": [],
+      "covered": [
+        "S16",
+        "S17",
+        "S18"
+      ],
+      "rewrites": {
+        "S16": "WITH b AS (\n  SELECT\n    *\n  FROM temp.\"reuse_012_c2\"\n)\nSELECT\n  interval AS \"interval\",\n  cut AS \"cut\",\n  COUNT(*) AS \"n\",\n  ROUND(AVG(price / carat), 2) AS \"avg_ppc\"\nFROM b\nGROUP BY\n  interval,\n  cut\nORDER BY\n  interval,\n  avg_ppc DESC",
+        "S17": "WITH b AS (\n  SELECT\n    *\n  FROM temp.\"reuse_012_c2\"\n)\nSELECT\n  interval AS \"interval\",\n  color AS \"color\",\n  COUNT(*) AS \"n\",\n  ROUND(AVG(price / carat), 2) AS \"avg_ppc\"\nFROM b\nGROUP BY\n  interval,\n  color\nORDER BY\n  interval,\n  color",
+        "S18": "WITH b AS (\n  SELECT\n    *\n  FROM temp.\"reuse_012_c2\"\n)\nSELECT\n  interval AS \"interval\",\n  clarity AS \"clarity\",\n  COUNT(*) AS \"n\",\n  ROUND(AVG(price / carat), 2) AS \"avg_ppc\"\nFROM b\nGROUP BY\n  interval,\n  clarity\nORDER BY\n  interval,\n  clarity"
+      },
+      "existing_result": false,
+      "checks": [
+        {
+          "sql": "S16",
+          "columns_equal": true,
+          "ok": true,
+          "exact": true,
+          "comparison": "ordered_rel1e-12_abs1e-9",
+          "aligned_numeric_tolerance_only": false,
+          "replay_ms": 46.807561069726944
+        },
+        {
+          "sql": "S17",
+          "columns_equal": true,
+          "ok": true,
+          "exact": true,
+          "comparison": "ordered_rel1e-12_abs1e-9",
+          "aligned_numeric_tolerance_only": false,
+          "replay_ms": 48.545606434345245
+        },
+        {
+          "sql": "S18",
+          "columns_equal": true,
+          "ok": true,
+          "exact": true,
+          "comparison": "ordered_rel1e-12_abs1e-9",
+          "aligned_numeric_tolerance_only": false,
+          "replay_ms": 47.017346136271954
+        }
+      ],
+      "build_ms_validation": 18.469741567969322,
+      "rows": 53595,
+      "columns": [
+        "price",
+        "carat",
+        "cut",
+        "color",
+        "clarity",
+        "interval"
+      ],
+      "safe": [
+        "S16",
+        "S17",
+        "S18"
+      ],
+      "excluded": [],
+      "status": "verified",
+      "performance": {
+        "repeats": 5,
+        "samples": [
+          {
+            "build_ms": 18.49560346454382,
+            "original_ms": 156.45540412515402,
+            "rewrite_ms": 143.56032013893127,
+            "original_by_sql": {
+              "S16": 51.047489047050476,
+              "S17": 52.68387123942375,
+              "S18": 52.72404383867979
+            },
+            "rewrite_by_sql": {
+              "S16": 46.65984306484461,
+              "S17": 48.451559618115425,
+              "S18": 48.44891745597124
+            }
+          },
+          {
+            "build_ms": 20.172743126749992,
+            "original_ms": 161.80963907390833,
+            "rewrite_ms": 143.64557899534702,
+            "original_by_sql": {
+              "S16": 53.817045874893665,
+              "S17": 54.030006751418114,
+              "S18": 53.96258644759655
+            },
+            "rewrite_by_sql": {
+              "S16": 46.593135222792625,
+              "S17": 48.47757797688246,
+              "S18": 48.57486579567194
+            }
+          },
+          {
+            "build_ms": 18.48791167140007,
+            "original_ms": 156.10441099852324,
+            "rewrite_ms": 143.6202023178339,
+            "original_by_sql": {
+              "S16": 50.852786749601364,
+              "S17": 52.61151399463415,
+              "S18": 52.64011025428772
+            },
+            "rewrite_by_sql": {
+              "S16": 46.60480469465256,
+              "S17": 48.437424935400486,
+              "S18": 48.57797268778086
+            }
+          },
+          {
+            "build_ms": 20.146274007856846,
+            "original_ms": 161.69799771159887,
+            "rewrite_ms": 143.28021183609962,
+            "original_by_sql": {
+              "S16": 53.76039259135723,
+              "S17": 53.9455097168684,
+              "S18": 53.99209540337324
+            },
+            "rewrite_by_sql": {
+              "S16": 46.43340315669775,
+              "S17": 48.38163033127785,
+              "S18": 48.46517834812403
+            }
+          },
+          {
+            "build_ms": 18.73989589512348,
+            "original_ms": 155.9476377442479,
+            "rewrite_ms": 143.57135817408562,
+            "original_by_sql": {
+              "S16": 50.70895608514547,
+              "S17": 52.6033379137516,
+              "S18": 52.63534374535084
+            },
+            "rewrite_by_sql": {
+              "S16": 46.83278128504753,
+              "S17": 48.272524029016495,
+              "S18": 48.46605286002159
+            }
+          }
+        ],
+        "baseline_ms": 156.45540412515402,
+        "build_ms": 18.73989589512348,
+        "reads_ms": 143.57135817408562,
+        "total_ms": 162.3112540692091,
+        "saved_ms": -5.85584994405508,
+        "speedup": 0.9639220953738786,
+        "original_by_sql": {
+          "S16": 51.047489047050476,
+          "S17": 52.68387123942375,
+          "S18": 52.72404383867979
+        },
+        "rewrite_by_sql": {
+          "S16": 46.60480469465256,
+          "S17": 48.437424935400486,
+          "S18": 48.46605286002159
+        }
+      }
+    },
+    {
+      "id": "C3",
+      "type": "aggregate MV",
+      "source_status": "verified",
+      "source_candidates": [
+        "C3"
+      ],
+      "description": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "table": "temp.\"reuse_012_c3\"",
+      "build": "CREATE TEMP TABLE \"reuse_012_c3\" AS\nSELECT \"Cut (quality)\" AS __g0, color AS __g1, clarity AS __g2, COUNT(*) AS __a0, SUM(CASE WHEN \"Carat (diamond weight)\" IS NULL THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN \"Cut (quality)\" IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN \"Color\" IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN \"Clarity\" IS NULL THEN 1 ELSE 0 END) AS __a4, SUM(CASE WHEN \"Depth percentage\" IS NULL THEN 1 ELSE 0 END) AS __a5, SUM(CASE WHEN \"Table percentage\" IS NULL THEN 1 ELSE 0 END) AS __a6, SUM(CASE WHEN \"X-axis length (mm)\" IS NULL THEN 1 ELSE 0 END) AS __a7, SUM(CASE WHEN \"Y-axis width (mm)\" IS NULL THEN 1 ELSE 0 END) AS __a8, SUM(CASE WHEN \"Z-axis depth (mm)\" IS NULL THEN 1 ELSE 0 END) AS __a9, SUM(CASE WHEN \"Price (USD)\" IS NULL THEN 1 ELSE 0 END) AS __a10, MIN(\"Price (USD)\") AS __a11, MAX(\"Price (USD)\") AS __a12, SUM(\"Price (USD)\") AS __a13_sum, COUNT(\"Price (USD)\") AS __a13_n, MIN(\"Carat (diamond weight)\") AS __a14, MAX(\"Carat (diamond weight)\") AS __a15, SUM(\"Carat (diamond weight)\") AS __a16_sum, COUNT(\"Carat (diamond weight)\") AS __a16_n, SUM(\"Price (USD)\" / \"Carat (diamond weight)\") AS __a17_sum, COUNT(\"Price (USD)\" / \"Carat (diamond weight)\") AS __a17_n, SUM(\"Depth percentage\") AS __a18_sum, COUNT(\"Depth percentage\") AS __a18_n, SUM(\"Table percentage\") AS __a19_sum, COUNT(\"Table percentage\") AS __a19_n, SUM(\"Carat (diamond weight)\" * \"Price (USD)\") AS __a20_sum, COUNT(\"Carat (diamond weight)\" * \"Price (USD)\") AS __a20_n, SUM(\"Carat (diamond weight)\" * \"Carat (diamond weight)\") AS __a21_sum, COUNT(\"Carat (diamond weight)\" * \"Carat (diamond weight)\") AS __a21_n, SUM(\"Price (USD)\" * \"Price (USD)\") AS __a22_sum, COUNT(\"Price (USD)\" * \"Price (USD)\") AS __a22_n FROM \"sheet1\"  GROUP BY \"Cut (quality)\", color, clarity",
+      "indexes": [],
+      "covered": [
+        "S3",
+        "S4",
+        "S5",
+        "S6",
+        "S7",
+        "S11",
+        "S13",
+        "S14",
+        "S15",
+        "S20"
+      ],
+      "rewrites": {
+        "S3": "SELECT\n  SUM(__a0) AS \"total_rows\"\nFROM temp.\"reuse_012_c3\"",
+        "S4": "SELECT\n  SUM(__a0) AS \"total\",\n  SUM(__a1) AS \"null_carat\",\n  SUM(__a2) AS \"null_cut\",\n  SUM(__a3) AS \"null_color\",\n  SUM(__a4) AS \"null_clarity\",\n  SUM(__a5) AS \"null_depth\",\n  SUM(__a6) AS \"null_table\",\n  SUM(__a7) AS \"null_x\",\n  SUM(__a8) AS \"null_y\",\n  SUM(__a9) AS \"null_z\",\n  SUM(__a10) AS \"null_price\"\nFROM temp.\"reuse_012_c3\"",
+        "S5": "SELECT\n  __g0 AS \"cut\",\n  SUM(__a0) AS \"n\",\n  MIN(__a11) AS \"min_price\",\n  MAX(__a12) AS \"max_price\",\n  (\n    1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)\n  ) AS \"avg_price\"\nFROM temp.\"reuse_012_c3\"\nGROUP BY\n  __g0\nORDER BY\n  n DESC",
+        "S6": "SELECT\n  __g1 AS \"Color\",\n  SUM(__a0) AS \"n\"\nFROM temp.\"reuse_012_c3\"\nGROUP BY\n  __g1\nORDER BY\n  __g1",
+        "S7": "SELECT\n  __g2 AS \"Clarity\",\n  SUM(__a0) AS \"n\"\nFROM temp.\"reuse_012_c3\"\nGROUP BY\n  __g2\nORDER BY\n  __g2",
+        "S11": "SELECT\n  MIN(__a14) AS \"min_carat\",\n  MAX(__a15) AS \"max_carat\",\n  MIN(__a11) AS \"min_price\",\n  MAX(__a12) AS \"max_price\",\n  ROUND((\n    1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n  ), 3) AS \"avg_carat\",\n  ROUND((\n    1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)\n  ), 2) AS \"avg_price\",\n  ROUND((\n    1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)\n  ), 2) AS \"avg_ppc\",\n  ROUND((\n    1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)\n  ), 2) AS \"avg_depth\",\n  ROUND((\n    1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)\n  ), 2) AS \"avg_table\"\nFROM temp.\"reuse_012_c3\"",
+        "S13": "SELECT\n  __g0 AS \"cut\",\n  SUM(__a0) AS \"n\",\n  ROUND((\n    1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)\n  ), 2) AS \"avg_ppc\",\n  ROUND((\n    1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n  ), 3) AS \"avg_carat\"\nFROM temp.\"reuse_012_c3\"\nGROUP BY\n  __g0\nORDER BY\n  avg_ppc DESC",
+        "S14": "SELECT\n  __g1 AS \"Color\",\n  SUM(__a0) AS \"n\",\n  ROUND((\n    1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)\n  ), 2) AS \"avg_ppc\",\n  ROUND((\n    1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n  ), 3) AS \"avg_carat\"\nFROM temp.\"reuse_012_c3\"\nGROUP BY\n  __g1\nORDER BY\n  __g1",
+        "S15": "SELECT\n  __g2 AS \"Clarity\",\n  SUM(__a0) AS \"n\",\n  ROUND((\n    1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)\n  ), 2) AS \"avg_ppc\",\n  ROUND((\n    1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n  ), 3) AS \"avg_carat\"\nFROM temp.\"reuse_012_c3\"\nGROUP BY\n  __g2\nORDER BY\n  __g2",
+        "S20": "SELECT\n  ROUND(\n    (\n      1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)\n    ) - (\n      1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n    ) * (\n      1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)\n    ),\n    4\n  ) AS \"carat_price_cov\",\n  ROUND(\n    (\n      (\n        1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)\n      ) - (\n        1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n      ) * (\n        1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)\n      )\n    ) / (\n      SQRT(\n        (\n          1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)\n        ) - (\n          1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n        ) * (\n          1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n        )\n      ) * SQRT(\n        (\n          1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)\n        ) - (\n          1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)\n        ) * (\n          1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)\n        )\n      )\n    ),\n    4\n  ) AS \"corr_carat_price\"\nFROM temp.\"reuse_012_c3\""
+      },
+      "existing_result": false,
+      "checks": [
+        {
+          "sql": "S3",
+          "columns_equal": true,
+          "ok": true,
+          "exact": true,
+          "comparison": "exact_multiset",
+          "aligned_numeric_tolerance_only": false,
+          "replay_ms": 0.04102382808923721
+        },
+        {
+          "sql": "S4",
+          "columns_equal": true,
+          "ok": true,
+          "exact": true,
+          "comparison": "exact_multiset",
+          "aligned_numeric_tolerance_only": false,
+          "replay_ms": 0.16540195792913437
+        },
+        {
+          "sql": "S5",
+          "columns_equal": true,
+          "ok": true,
+          "exact": true,
+          "comparison": "ordered_rel1e-12_abs1e-9",
+          "aligned_numeric_tolerance_only": false,
+          "replay_ms": 0.2558548003435135
+        },
+        {
+          "sql": "S6",
+          "columns_equal": true,
+          "ok": true,
+          "exact": true,
+          "comparison": "ordered_rel1e-12_abs1e-9",
+          "aligned_numeric_tolerance_only": false,
+          "replay_ms": 0.15421118587255478
+        },
+        {
+          "sql": "S7",
+          "columns_equal": true,
+          "ok": true,
+          "exact": true,
+          "comparison": "ordered_rel1e-12_abs1e-9",
+          "aligned_numeric_tolerance_only": false,
+          "replay_ms": 0.151059590280056
+        },
+        {
+          "sql": "S11",
+          "columns_equal": true,
+          "ok": true,
+          "exact": true,
+          "comparison": "exact_multiset",
+          "aligned_numeric_tolerance_only": false,
+          "replay_ms": 0.23625046014785767
+        },
+        {
+          "sql": "S13",
+          "columns_equal": true,
+          "ok": true,
+          "exact": true,
+          "comparison": "ordered_rel1e-12_abs1e-9",
+          "aligned_numeric_tolerance_only": false,
+          "replay_ms": 0.24594739079475403
+        },
+        {
+          "sql": "S14",
+          "columns_equal": true,
+          "ok": true,
+          "exact": true,
+          "comparison": "ordered_rel1e-12_abs1e-9",
+          "aligned_numeric_tolerance_only": false,
+          "replay_ms": 0.2477439120411873
+        },
+        {
+          "sql": "S15",
+          "columns_equal": true,
+          "ok": true,
+          "exact": true,
+          "comparison": "ordered_rel1e-12_abs1e-9",
+          "aligned_numeric_tolerance_only": false,
+          "replay_ms": 0.2534594386816025
+        },
+        {
+          "sql": "S20",
+          "columns_equal": true,
+          "ok": true,
+          "exact": true,
+          "comparison": "exact_multiset",
+          "aligned_numeric_tolerance_only": false,
+          "replay_ms": 0.2348683774471283
+        }
+      ],
+      "build_ms_validation": 151.13481041043997,
+      "rows": 276,
+      "columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3",
+        "__a4",
+        "__a5",
+        "__a6",
+        "__a7",
+        "__a8",
+        "__a9",
+        "__a10",
+        "__a11",
+        "__a12",
+        "__a13_sum",
+        "__a13_n",
+        "__a14",
+        "__a15",
+        "__a16_sum",
+        "__a16_n",
+        "__a17_sum",
+        "__a17_n",
+        "__a18_sum",
+        "__a18_n",
+        "__a19_sum",
+        "__a19_n",
+        "__a20_sum",
+        "__a20_n",
+        "__a21_sum",
+        "__a21_n",
+        "__a22_sum",
+        "__a22_n"
+      ],
+      "safe": [
+        "S3",
+        "S4",
+        "S5",
+        "S6",
+        "S7",
+        "S11",
+        "S13",
+        "S14",
+        "S15",
+        "S20"
+      ],
+      "excluded": [],
+      "status": "verified",
+      "performance": {
+        "repeats": 5,
+        "samples": [
+          {
+            "build_ms": 148.6473958939314,
+            "original_ms": 219.34961155056953,
+            "rewrite_ms": 1.7263730987906456,
+            "original_by_sql": {
+              "S3": 0.8385879918932915,
+              "S4": 25.200591422617435,
+              "S5": 26.871582493185997,
+              "S6": 22.02864270657301,
+              "S7": 22.12731260806322,
+              "S11": 18.761438317596912,
+              "S13": 27.924083173274994,
+              "S14": 29.582702554762363,
+              "S15": 29.904043301939964,
+              "S20": 16.110626980662346
+            },
+            "rewrite_by_sql": {
+              "S3": 0.041124410927295685,
+              "S4": 0.13428181409835815,
+              "S5": 0.21922215819358826,
+              "S6": 0.12212153524160385,
+              "S7": 0.1377025619149208,
+              "S11": 0.20885467529296875,
+              "S13": 0.21617207676172256,
+              "S14": 0.2163611352443695,
+              "S15": 0.22506434470415115,
+              "S20": 0.20546838641166687
+            }
+          },
+          {
+            "build_ms": 152.2616120055318,
+            "original_ms": 223.3261177316308,
+            "rewrite_ms": 1.7150770872831345,
+            "original_by_sql": {
+              "S3": 0.77084731310606,
+              "S4": 25.051556527614594,
+              "S5": 26.855298317968845,
+              "S6": 22.53463678061962,
+              "S7": 23.929656483232975,
+              "S11": 17.598526552319527,
+              "S13": 28.186428360641003,
+              "S14": 32.02410228550434,
+              "S15": 31.448465771973133,
+              "S20": 14.926599338650703
+            },
+            "rewrite_by_sql": {
+              "S3": 0.03946758806705475,
+              "S4": 0.13538170605897903,
+              "S5": 0.21722912788391113,
+              "S6": 0.12329407036304474,
+              "S7": 0.13055745512247086,
+              "S11": 0.21236296743154526,
+              "S13": 0.21757464855909348,
+              "S14": 0.21623168140649796,
+              "S15": 0.22394023835659027,
+              "S20": 0.199037604033947
+            }
+          },
+          {
+            "build_ms": 148.69609009474516,
+            "original_ms": 220.73812782764435,
+            "rewrite_ms": 1.7196331173181534,
+            "original_by_sql": {
+              "S3": 0.7908092811703682,
+              "S4": 25.46760533004999,
+              "S5": 26.879807934165,
+              "S6": 22.009392268955708,
+              "S7": 22.072809748351574,
+              "S11": 18.776155076920986,
+              "S13": 28.060310520231724,
+              "S14": 29.559417627751827,
+              "S15": 31.016758643090725,
+              "S20": 16.105061396956444
+            },
+            "rewrite_by_sql": {
+              "S3": 0.04045199602842331,
+              "S4": 0.1345546916127205,
+              "S5": 0.22361241281032562,
+              "S6": 0.12283399701118469,
+              "S7": 0.12981798499822617,
+              "S11": 0.20748283714056015,
+              "S13": 0.21649524569511414,
+              "S14": 0.22273696959018707,
+              "S15": 0.22447481751441956,
+              "S20": 0.1971721649169922
+            }
+          },
+          {
+            "build_ms": 152.18276809901,
+            "original_ms": 223.51231053471565,
+            "rewrite_ms": 1.7145974561572075,
+            "original_by_sql": {
+              "S3": 0.7699457928538322,
+              "S4": 24.97821021825075,
+              "S5": 26.873278431594372,
+              "S6": 22.613070905208588,
+              "S7": 23.961927741765976,
+              "S11": 17.592880874872208,
+              "S13": 28.214692138135433,
+              "S14": 32.02999383211136,
+              "S15": 31.636071391403675,
+              "S20": 14.842239208519459
+            },
+            "rewrite_by_sql": {
+              "S3": 0.04194676876068115,
+              "S4": 0.13505667448043823,
+              "S5": 0.21712761372327805,
+              "S6": 0.12227240949869156,
+              "S7": 0.12950319796800613,
+              "S11": 0.20773708820343018,
+              "S13": 0.22223778069019318,
+              "S14": 0.2164570614695549,
+              "S15": 0.2231951802968979,
+              "S20": 0.19906368106603622
+            }
+          },
+          {
+            "build_ms": 148.77241477370262,
+            "original_ms": 219.17689312249422,
+            "rewrite_ms": 1.7134882509708405,
+            "original_by_sql": {
+              "S3": 0.7903920486569405,
+              "S4": 25.164698250591755,
+              "S5": 26.911956258118153,
+              "S6": 22.061940282583237,
+              "S7": 22.154493257403374,
+              "S11": 18.74767057597637,
+              "S13": 27.891164645552635,
+              "S14": 29.498109593987465,
+              "S15": 29.860506765544415,
+              "S20": 16.095961444079876
+            },
+            "rewrite_by_sql": {
+              "S3": 0.04050321877002716,
+              "S4": 0.13443175703287125,
+              "S5": 0.22474490106105804,
+              "S6": 0.12267474085092545,
+              "S7": 0.12871529906988144,
+              "S11": 0.20708609372377396,
+              "S13": 0.21649058908224106,
+              "S14": 0.21587777882814407,
+              "S15": 0.22820569574832916,
+              "S20": 0.19475817680358887
+            }
+          }
+        ],
+        "baseline_ms": 220.73812782764435,
+        "build_ms": 148.77241477370262,
+        "reads_ms": 1.7150770872831345,
+        "total_ms": 150.48590302467346,
+        "saved_ms": 70.25222480297089,
+        "speedup": 1.4668359187867082,
+        "original_by_sql": {
+          "S3": 0.7903920486569405,
+          "S4": 25.164698250591755,
+          "S5": 26.873278431594372,
+          "S6": 22.061940282583237,
+          "S7": 22.154493257403374,
+          "S11": 18.74767057597637,
+          "S13": 28.060310520231724,
+          "S14": 29.582702554762363,
+          "S15": 31.016758643090725,
+          "S20": 16.095961444079876
+        },
+        "rewrite_by_sql": {
+          "S3": 0.04050321877002716,
+          "S4": 0.1345546916127205,
+          "S5": 0.21922215819358826,
+          "S6": 0.12267474085092545,
+          "S7": 0.12981798499822617,
+          "S11": 0.20773708820343018,
+          "S13": 0.21649524569511414,
+          "S14": 0.2163611352443695,
+          "S15": 0.22447481751441956,
+          "S20": 0.199037604033947
+        }
+      }
+    }
+  ],
+  "combined": {
+    "selected": [
+      "C3"
+    ],
+    "assignment": {
+      "S3": "C3",
+      "S4": "C3",
+      "S5": "C3",
+      "S6": "C3",
+      "S7": "C3",
+      "S11": "C3",
+      "S13": "C3",
+      "S14": "C3",
+      "S15": "C3",
+      "S20": "C3"
+    },
+    "queries": {
+      "S3": "SELECT\n  SUM(__a0) AS \"total_rows\"\nFROM temp.\"reuse_012_c3\"",
+      "S4": "SELECT\n  SUM(__a0) AS \"total\",\n  SUM(__a1) AS \"null_carat\",\n  SUM(__a2) AS \"null_cut\",\n  SUM(__a3) AS \"null_color\",\n  SUM(__a4) AS \"null_clarity\",\n  SUM(__a5) AS \"null_depth\",\n  SUM(__a6) AS \"null_table\",\n  SUM(__a7) AS \"null_x\",\n  SUM(__a8) AS \"null_y\",\n  SUM(__a9) AS \"null_z\",\n  SUM(__a10) AS \"null_price\"\nFROM temp.\"reuse_012_c3\"",
+      "S5": "SELECT\n  __g0 AS \"cut\",\n  SUM(__a0) AS \"n\",\n  MIN(__a11) AS \"min_price\",\n  MAX(__a12) AS \"max_price\",\n  (\n    1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)\n  ) AS \"avg_price\"\nFROM temp.\"reuse_012_c3\"\nGROUP BY\n  __g0\nORDER BY\n  n DESC",
+      "S6": "SELECT\n  __g1 AS \"Color\",\n  SUM(__a0) AS \"n\"\nFROM temp.\"reuse_012_c3\"\nGROUP BY\n  __g1\nORDER BY\n  __g1",
+      "S7": "SELECT\n  __g2 AS \"Clarity\",\n  SUM(__a0) AS \"n\"\nFROM temp.\"reuse_012_c3\"\nGROUP BY\n  __g2\nORDER BY\n  __g2",
+      "S9": "WITH buckets AS (\n  SELECT \n    \"Price (USD)\" AS price,\n    \"Carat (diamond weight)\" AS carat,\n    CASE \n      WHEN \"Carat (diamond weight)\" <= 0.5 THEN 'A: <=0.5 ct'\n      WHEN \"Carat (diamond weight)\" <= 1.0 THEN 'B: 0.51-1.0 ct'\n      WHEN \"Carat (diamond weight)\" <= 1.5 THEN 'C: 1.01-1.5 ct'\n      ELSE 'D: >1.5 ct'\n    END AS interval\n  FROM sheet1\n)\nSELECT interval, carat AS q, price_per_carat\nFROM (\n  SELECT interval, carat, price/carat AS price_per_carat,\n    ROW_NUMBER() OVER (PARTITION BY interval ORDER BY price/carat) AS rn,\n    COUNT(*) OVER (PARTITION BY interval) AS cnt\n  FROM buckets\n)\nWHERE rn IN ((cnt+1)/2, (cnt+2)/2)\nORDER BY interval, q",
+      "S10": "WITH buckets AS (\n  SELECT \n    \"Price (USD)\" AS price,\n    \"Carat (diamond weight)\" AS carat,\n    CASE \n      WHEN \"Carat (diamond weight)\" <= 0.5 THEN 'A: <=0.5 ct'\n      WHEN \"Carat (diamond weight)\" <= 1.0 THEN 'B: 0.51-1.0 ct'\n      WHEN \"Carat (diamond weight)\" <= 1.5 THEN 'C: 1.01-1.5 ct'\n      ELSE 'D: >1.5 ct'\n    END AS interval\n  FROM sheet1\n)\nSELECT \n  interval,\n  COUNT(*) AS n,\n  ROUND(AVG(carat),3) AS avg_carat,\n  ROUND(AVG(price),2) AS avg_price,\n  ROUND(AVG(price/carat),2) AS avg_ppc,\n  ROUND(MIN(price/carat),2) AS min_ppc,\n  ROUND(MAX(price/carat),2) AS max_ppc,\n  ROUND(sqrt(AVG((price/carat)*(price/carat)) - AVG(price/carat)*AVG(price/carat)),2) AS sd_ppc,\n  ROUND(AVG(price/carat)/sqrt(AVG((price/carat)*(price/carat)) - AVG(price/carat)*AVG(price/carat)),2) AS cv\nFROM buckets\nGROUP BY interval\nORDER BY interval",
+      "S11": "SELECT\n  MIN(__a14) AS \"min_carat\",\n  MAX(__a15) AS \"max_carat\",\n  MIN(__a11) AS \"min_price\",\n  MAX(__a12) AS \"max_price\",\n  ROUND((\n    1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n  ), 3) AS \"avg_carat\",\n  ROUND((\n    1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)\n  ), 2) AS \"avg_price\",\n  ROUND((\n    1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)\n  ), 2) AS \"avg_ppc\",\n  ROUND((\n    1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)\n  ), 2) AS \"avg_depth\",\n  ROUND((\n    1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)\n  ), 2) AS \"avg_table\"\nFROM temp.\"reuse_012_c3\"",
+      "S13": "SELECT\n  __g0 AS \"cut\",\n  SUM(__a0) AS \"n\",\n  ROUND((\n    1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)\n  ), 2) AS \"avg_ppc\",\n  ROUND((\n    1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n  ), 3) AS \"avg_carat\"\nFROM temp.\"reuse_012_c3\"\nGROUP BY\n  __g0\nORDER BY\n  avg_ppc DESC",
+      "S14": "SELECT\n  __g1 AS \"Color\",\n  SUM(__a0) AS \"n\",\n  ROUND((\n    1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)\n  ), 2) AS \"avg_ppc\",\n  ROUND((\n    1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n  ), 3) AS \"avg_carat\"\nFROM temp.\"reuse_012_c3\"\nGROUP BY\n  __g1\nORDER BY\n  __g1",
+      "S15": "SELECT\n  __g2 AS \"Clarity\",\n  SUM(__a0) AS \"n\",\n  ROUND((\n    1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)\n  ), 2) AS \"avg_ppc\",\n  ROUND((\n    1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n  ), 3) AS \"avg_carat\"\nFROM temp.\"reuse_012_c3\"\nGROUP BY\n  __g2\nORDER BY\n  __g2",
+      "S16": "WITH b AS (\n  SELECT \n    \"Price (USD)\" AS price,\n    \"Carat (diamond weight)\" AS carat,\n    \"Cut (quality)\" AS cut,\n    \"Color\" AS color,\n    \"Clarity\" AS clarity,\n    CASE \n      WHEN \"Carat (diamond weight)\" <= 0.5 THEN '<=0.5'\n      WHEN \"Carat (diamond weight)\" <= 1.0 THEN '0.51-1.0'\n      WHEN \"Carat (diamond weight)\" <= 1.5 THEN '1.01-1.5'\n      ELSE '>1.5'\n    END AS interval\n  FROM sheet1\n)\nSELECT interval, cut, COUNT(*) AS n, ROUND(AVG(price/carat),2) AS avg_ppc\nFROM b\nGROUP BY interval, cut\nORDER BY interval, avg_ppc DESC",
+      "S17": "WITH b AS (\n  SELECT \n    \"Price (USD)\" AS price,\n    \"Carat (diamond weight)\" AS carat,\n    \"Cut (quality)\" AS cut,\n    \"Color\" AS color,\n    \"Clarity\" AS clarity,\n    CASE \n      WHEN \"Carat (diamond weight)\" <= 0.5 THEN '<=0.5'\n      WHEN \"Carat (diamond weight)\" <= 1.0 THEN '0.51-1.0'\n      WHEN \"Carat (diamond weight)\" <= 1.5 THEN '1.01-1.5'\n      ELSE '>1.5'\n    END AS interval\n  FROM sheet1\n)\nSELECT interval, color, COUNT(*) AS n, ROUND(AVG(price/carat),2) AS avg_ppc\nFROM b\nGROUP BY interval, color\nORDER BY interval, color",
+      "S18": "WITH b AS (\n  SELECT \n    \"Price (USD)\" AS price,\n    \"Carat (diamond weight)\" AS carat,\n    \"Cut (quality)\" AS cut,\n    \"Color\" AS color,\n    \"Clarity\" AS clarity,\n    CASE \n      WHEN \"Carat (diamond weight)\" <= 0.5 THEN '<=0.5'\n      WHEN \"Carat (diamond weight)\" <= 1.0 THEN '0.51-1.0'\n      WHEN \"Carat (diamond weight)\" <= 1.5 THEN '1.01-1.5'\n      ELSE '>1.5'\n    END AS interval\n  FROM sheet1\n)\nSELECT interval, clarity, COUNT(*) AS n, ROUND(AVG(price/carat),2) AS avg_ppc\nFROM b\nGROUP BY interval, clarity\nORDER BY interval, clarity",
+      "S19": "SELECT * FROM sheet1 LIMIT 5",
+      "S20": "SELECT\n  ROUND(\n    (\n      1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)\n    ) - (\n      1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n    ) * (\n      1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)\n    ),\n    4\n  ) AS \"carat_price_cov\",\n  ROUND(\n    (\n      (\n        1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)\n      ) - (\n        1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n      ) * (\n        1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)\n      )\n    ) / (\n      SQRT(\n        (\n          1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)\n        ) - (\n          1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n        ) * (\n          1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n        )\n      ) * SQRT(\n        (\n          1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)\n        ) - (\n          1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)\n        ) * (\n          1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)\n        )\n      )\n    ),\n    4\n  ) AS \"corr_carat_price\"\nFROM temp.\"reuse_012_c3\"",
+      "S21": "WITH s AS (\n  SELECT \"Price (USD)\" AS price, \"Carat (diamond weight)\" AS carat, \"Depth percentage\" AS depth,\n         \"Table percentage\" AS tbl, \"X-axis length (mm)\" AS x, \"Y-axis width (mm)\" AS y, \"Z-axis depth (mm)\" AS z\n  FROM sheet1\n)\nSELECT 'carat' AS var, ROUND((AVG(carat*price) - AVG(carat)*AVG(price)) / \n    (sqrt(AVG(carat*carat) - AVG(carat)*AVG(carat)) * sqrt(AVG(price*price) - AVG(price)*AVG(price))), 4) AS corr_with_price\nFROM s\nUNION ALL\nSELECT 'depth', ROUND((AVG(depth*price) - AVG(depth)*AVG(price)) / \n    (sqrt(AVG(depth*depth) - AVG(depth)*AVG(depth)) * sqrt(AVG(price*price) - AVG(price)*AVG(price))), 4) FROM s\nUNION ALL\nSELECT 'table', ROUND((AVG(tbl*price) - AVG(tbl)*AVG(price)) / \n    (sqrt(AVG(tbl*tbl) - AVG(tbl)*AVG(tbl)) * sqrt(AVG(price*price) - AVG(price)*AVG(price))), 4) FROM s\nUNION ALL\nSELECT 'x', ROUND((AVG(x*price) - AVG(x)*AVG(price)) / \n    (sqrt(AVG(x*x) - AVG(x)*AVG(x)) * sqrt(AVG(price*price) - AVG(price)*AVG(price))), 4) FROM s\nUNION ALL\nSELECT 'y', ROUND((AVG(y*price) - AVG(y)*AVG(price)) / \n    (sqrt(AVG(y*y) - AVG(y)*AVG(y)) * sqrt(AVG(price*price) - AVG(price)*AVG(price))), 4) FROM s\nUNION ALL\nSELECT 'z', ROUND((AVG(z*price) - AVG(z)*AVG(price)) / \n    (sqrt(AVG(z*z) - AVG(z)*AVG(z)) * sqrt(AVG(price*price) - AVG(price)*AVG(price))), 4) FROM s\nUNION ALL\nSELECT 'log(price) vs log(carat)', ROUND((AVG(ln(carat)*ln(price)) - AVG(ln(carat))*AVG(ln(price))) / \n    (sqrt(AVG(ln(carat)*ln(carat)) - AVG(ln(carat))*AVG(ln(carat))) * sqrt(AVG(ln(price)*ln(price)) - AVG(ln(price))*AVG(ln(price)))), 4) FROM s",
+      "S22": "\n  SELECT \"Carat (diamond weight)\" AS carat, \"Cut (quality)\" AS cut, \"Color\" AS color,\n         \"Clarity\" AS clarity, \"Depth percentage\" AS depth, \"Table percentage\" AS tbl,\n         \"Price (USD)\" AS price\n  FROM sheet1\n"
+    },
+    "dependencies": {
+      "S3": [
+        "C3"
+      ],
+      "S4": [
+        "C3"
+      ],
+      "S5": [
+        "C3"
+      ],
+      "S6": [
+        "C3"
+      ],
+      "S7": [
+        "C3"
+      ],
+      "S9": [],
+      "S10": [],
+      "S11": [
+        "C3"
+      ],
+      "S13": [
+        "C3"
+      ],
+      "S14": [
+        "C3"
+      ],
+      "S15": [
+        "C3"
+      ],
+      "S16": [],
+      "S17": [],
+      "S18": [],
+      "S19": [],
+      "S20": [
+        "C3"
+      ],
+      "S21": [],
+      "S22": []
+    },
+    "correct": true,
+    "checks": [
+      {
+        "sql": "S3",
+        "candidate": "C3",
+        "columns_equal": true,
+        "ok": true,
+        "exact": true,
+        "comparison": "exact_multiset",
+        "aligned_numeric_tolerance_only": false
+      },
+      {
+        "sql": "S4",
+        "candidate": "C3",
+        "columns_equal": true,
+        "ok": true,
+        "exact": true,
+        "comparison": "exact_multiset",
+        "aligned_numeric_tolerance_only": false
+      },
+      {
+        "sql": "S5",
+        "candidate": "C3",
+        "columns_equal": true,
+        "ok": true,
+        "exact": true,
+        "comparison": "ordered_rel1e-12_abs1e-9",
+        "aligned_numeric_tolerance_only": false
+      },
+      {
+        "sql": "S6",
+        "candidate": "C3",
+        "columns_equal": true,
+        "ok": true,
+        "exact": true,
+        "comparison": "ordered_rel1e-12_abs1e-9",
+        "aligned_numeric_tolerance_only": false
+      },
+      {
+        "sql": "S7",
+        "candidate": "C3",
+        "columns_equal": true,
+        "ok": true,
+        "exact": true,
+        "comparison": "ordered_rel1e-12_abs1e-9",
+        "aligned_numeric_tolerance_only": false
+      },
+      {
+        "sql": "S9",
+        "candidate": null,
+        "columns_equal": true,
+        "ok": true,
+        "exact": true,
+        "comparison": "ordered_rel1e-12_abs1e-9",
+        "aligned_numeric_tolerance_only": false
+      },
+      {
+        "sql": "S10",
+        "candidate": null,
+        "columns_equal": true,
+        "ok": true,
+        "exact": true,
+        "comparison": "ordered_rel1e-12_abs1e-9",
+        "aligned_numeric_tolerance_only": false
+      },
+      {
+        "sql": "S11",
+        "candidate": "C3",
+        "columns_equal": true,
+        "ok": true,
+        "exact": true,
+        "comparison": "exact_multiset",
+        "aligned_numeric_tolerance_only": false
+      },
+      {
+        "sql": "S13",
+        "candidate": "C3",
+        "columns_equal": true,
+        "ok": true,
+        "exact": true,
+        "comparison": "ordered_rel1e-12_abs1e-9",
+        "aligned_numeric_tolerance_only": false
+      },
+      {
+        "sql": "S14",
+        "candidate": "C3",
+        "columns_equal": true,
+        "ok": true,
+        "exact": true,
+        "comparison": "ordered_rel1e-12_abs1e-9",
+        "aligned_numeric_tolerance_only": false
+      },
+      {
+        "sql": "S15",
+        "candidate": "C3",
+        "columns_equal": true,
+        "ok": true,
+        "exact": true,
+        "comparison": "ordered_rel1e-12_abs1e-9",
+        "aligned_numeric_tolerance_only": false
+      },
+      {
+        "sql": "S16",
+        "candidate": null,
+        "columns_equal": true,
+        "ok": true,
+        "exact": true,
+        "comparison": "ordered_rel1e-12_abs1e-9",
+        "aligned_numeric_tolerance_only": false
+      },
+      {
+        "sql": "S17",
+        "candidate": null,
+        "columns_equal": true,
+        "ok": true,
+        "exact": true,
+        "comparison": "ordered_rel1e-12_abs1e-9",
+        "aligned_numeric_tolerance_only": false
+      },
+      {
+        "sql": "S18",
+        "candidate": null,
+        "columns_equal": true,
+        "ok": true,
+        "exact": true,
+        "comparison": "ordered_rel1e-12_abs1e-9",
+        "aligned_numeric_tolerance_only": false
+      },
+      {
+        "sql": "S19",
+        "candidate": null,
+        "columns_equal": true,
+        "ok": true,
+        "exact": true,
+        "comparison": "exact_multiset",
+        "aligned_numeric_tolerance_only": false
+      },
+      {
+        "sql": "S20",
+        "candidate": "C3",
+        "columns_equal": true,
+        "ok": true,
+        "exact": true,
+        "comparison": "exact_multiset",
+        "aligned_numeric_tolerance_only": false
+      },
+      {
+        "sql": "S21",
+        "candidate": null,
+        "columns_equal": true,
+        "ok": true,
+        "exact": true,
+        "comparison": "exact_multiset",
+        "aligned_numeric_tolerance_only": false
+      },
+      {
+        "sql": "S22",
+        "candidate": null,
+        "columns_equal": true,
+        "ok": true,
+        "exact": true,
+        "comparison": "exact_multiset",
+        "aligned_numeric_tolerance_only": false
+      }
+    ],
+    "samples": [
+      {
+        "baseline_ms": 797.012428753078,
+        "optimized_ms": 728.4840121865273
+      },
+      {
+        "baseline_ms": 806.2919769436121,
+        "optimized_ms": 725.5000537261367
+      },
+      {
+        "baseline_ms": 795.5671679228544,
+        "optimized_ms": 727.3690849542618
+      },
+      {
+        "baseline_ms": 805.9828262776136,
+        "optimized_ms": 725.1174570992589
+      },
+      {
+        "baseline_ms": 791.918876580894,
+        "optimized_ms": 726.6385462135077
+      }
+    ],
+    "baseline_ms": 797.012428753078,
+    "optimized_ms": 726.6385462135077,
+    "speedup": 1.096848540317998,
+    "saved_ms": 70.37388253957033
+  },
+  "source_run": "/data/nly/Agent-Aware-Trajectory-Level-Query/benchmark/dacomp/fullscale/runs/dsv4flash-db-first-full-01/dacomp-012/attempt-01",
+  "queries": {
+    "S3": {
+      "batch": "dsv4flash-db-first-full-01",
+      "task_id": "dacomp-012",
+      "attempt": "attempt-01",
+      "phase": "agent_trajectory",
+      "call_id": "3ad42e2c4ce7417c8225de681bad9b4d",
+      "parent_call_id": null,
+      "sql_id": "S3",
+      "sequence": 3,
+      "execution_id": "f5a8802d22c542d5a061556f1bab2940",
+      "connection_id": "19fd42c1c45f430bac87be9f0489ea34",
+      "start_time": 1788860850.4194596,
+      "source": "query_db",
+      "sql": "SELECT COUNT(*) AS total_rows FROM sheet1",
+      "parameters": [],
+      "database": "dacomp-012",
+      "dialect": "sqlite",
+      "category": "data",
+      "status": "success",
+      "engine_statements": [
+        "SELECT COUNT(*) AS total_rows FROM sheet1"
+      ],
+      "result_complete": true,
+      "coverage": "wrapper_and_engine_trace",
+      "execute_return_ms": 2.313917502760887,
+      "columns": [
+        "total_rows"
+      ],
+      "declared_result_types": null,
+      "observed_types": [
+        [
+          "int"
+        ]
+      ],
+      "end_time": 1788860850.422487,
+      "row_count": 1,
+      "archived_rows": 1,
+      "result_bytes": 8,
+      "result_file": "results/S3.rows.jsonl",
+      "result_sha256": "a2eb34f9078c3248d4b28a9e31095c6de57fd558c8bab9b45b52cfa3044585db",
+      "fetch_ms": 0.011612661182880402,
+      "execute_fetch_ms": 2.3255301639437675,
+      "encode_write_ms": 0.03543030470609665,
+      "wall_ms": 2.497822977602482
+    },
+    "S4": {
+      "batch": "dsv4flash-db-first-full-01",
+      "task_id": "dacomp-012",
+      "attempt": "attempt-01",
+      "phase": "agent_trajectory",
+      "call_id": "01ad56b1dfb94107b49b91b2629b1223",
+      "parent_call_id": null,
+      "sql_id": "S4",
+      "sequence": 4,
+      "execution_id": "fe15bf9a8a0a47088a610bd1dd99e8a9",
+      "connection_id": "19fd42c1c45f430bac87be9f0489ea34",
+      "start_time": 1788860854.6773355,
+      "source": "query_db",
+      "sql": "SELECT \n  COUNT(*) AS total,\n  SUM(CASE WHEN \"Carat (diamond weight)\" IS NULL THEN 1 ELSE 0 END) AS null_carat,\n  SUM(CASE WHEN \"Cut (quality)\" IS NULL THEN 1 ELSE 0 END) AS null_cut,\n  SUM(CASE WHEN \"Color\" IS NULL THEN 1 ELSE 0 END) AS null_color,\n  SUM(CASE WHEN \"Clarity\" IS NULL THEN 1 ELSE 0 END) AS null_clarity,\n  SUM(CASE WHEN \"Depth percentage\" IS NULL THEN 1 ELSE 0 END) AS null_depth,\n  SUM(CASE WHEN \"Table percentage\" IS NULL THEN 1 ELSE 0 END) AS null_table,\n  SUM(CASE WHEN \"X-axis length (mm)\" IS NULL THEN 1 ELSE 0 END) AS null_x,\n  SUM(CASE WHEN \"Y-axis width (mm)\" IS NULL THEN 1 ELSE 0 END) AS null_y,\n  SUM(CASE WHEN \"Z-axis depth (mm)\" IS NULL THEN 1 ELSE 0 END) AS null_z,\n  SUM(CASE WHEN \"Price (USD)\" IS NULL THEN 1 ELSE 0 END) AS null_price\nFROM sheet1",
+      "parameters": [],
+      "database": "dacomp-012",
+      "dialect": "sqlite",
+      "category": "data",
+      "status": "success",
+      "engine_statements": [
+        "SELECT \n  COUNT(*) AS total,\n  SUM(CASE WHEN \"Carat (diamond weight)\" IS NULL THEN 1 ELSE 0 END) AS null_carat,\n  SUM(CASE WHEN \"Cut (quality)\" IS NULL THEN 1 ELSE 0 END) AS null_cut,\n  SUM(CASE WHEN \"Color\" IS NULL THEN 1 ELSE 0 END) AS null_color,\n  SUM(CASE WHEN \"Clarity\" IS NULL THEN 1 ELSE 0 END) AS null_clarity,\n  SUM(CASE WHEN \"Depth percentage\" IS NULL THEN 1 ELSE 0 END) AS null_depth,\n  SUM(CASE WHEN \"Table percentage\" IS NULL THEN 1 ELSE 0 END) AS null_table,\n  SUM(CASE WHEN \"X-axis length (mm)\" IS NULL THEN 1 ELSE 0 END) AS null_x,\n  SUM(CASE WHEN \"Y-axis width (mm)\" IS NULL THEN 1 ELSE 0 END) AS null_y,\n  SUM(CASE WHEN \"Z-axis depth (mm)\" IS NULL THEN 1 ELSE 0 END) AS null_z,\n  SUM(CASE WHEN \"Price (USD)\" IS NULL THEN 1 ELSE 0 END) AS null_price\nFROM sheet1"
+      ],
+      "result_complete": true,
+      "coverage": "wrapper_and_engine_trace",
+      "execute_return_ms": 26.496700011193752,
+      "columns": [
+        "total",
+        "null_carat",
+        "null_cut",
+        "null_color",
+        "null_clarity",
+        "null_depth",
+        "null_table",
+        "null_x",
+        "null_y",
+        "null_z",
+        "null_price"
+      ],
+      "declared_result_types": null,
+      "observed_types": [
+        [
+          "int"
+        ],
+        [
+          "int"
+        ],
+        [
+          "int"
+        ],
+        [
+          "int"
+        ],
+        [
+          "int"
+        ],
+        [
+          "int"
+        ],
+        [
+          "int"
+        ],
+        [
+          "int"
+        ],
+        [
+          "int"
+        ],
+        [
+          "int"
+        ],
+        [
+          "int"
+        ]
+      ],
+      "end_time": 1788860854.7048025,
+      "row_count": 1,
+      "archived_rows": 1,
+      "result_bytes": 38,
+      "result_file": "results/S4.rows.jsonl",
+      "result_sha256": "fd8a4550141f0afd512ce4ce0f599aac162da749924832c99b07bc0282c0f7c0",
+      "fetch_ms": 0.013511627912521362,
+      "execute_fetch_ms": 26.510211639106274,
+      "encode_write_ms": 0.038759782910346985,
+      "wall_ms": 26.72392502427101
+    },
+    "S5": {
+      "batch": "dsv4flash-db-first-full-01",
+      "task_id": "dacomp-012",
+      "attempt": "attempt-01",
+      "phase": "agent_trajectory",
+      "call_id": "848d88ab21dc4b7d9619791a5ec599ba",
+      "parent_call_id": null,
+      "sql_id": "S5",
+      "sequence": 5,
+      "execution_id": "811a5211dac846a0bae8bed3a2f16305",
+      "connection_id": "19fd42c1c45f430bac87be9f0489ea34",
+      "start_time": 1788860854.7060661,
+      "source": "query_db",
+      "sql": "SELECT \"Cut (quality)\" AS cut, COUNT(*) AS n, MIN(\"Price (USD)\") AS min_price, MAX(\"Price (USD)\") AS max_price, AVG(\"Price (USD)\") AS avg_price FROM sheet1 GROUP BY \"Cut (quality)\" ORDER BY n DESC",
+      "parameters": [],
+      "database": "dacomp-012",
+      "dialect": "sqlite",
+      "category": "data",
+      "status": "success",
+      "engine_statements": [
+        "SELECT \"Cut (quality)\" AS cut, COUNT(*) AS n, MIN(\"Price (USD)\") AS min_price, MAX(\"Price (USD)\") AS max_price, AVG(\"Price (USD)\") AS avg_price FROM sheet1 GROUP BY \"Cut (quality)\" ORDER BY n DESC"
+      ],
+      "result_complete": true,
+      "coverage": "wrapper_and_engine_trace",
+      "execute_return_ms": 24.798539467155933,
+      "columns": [
+        "cut",
+        "n",
+        "min_price",
+        "max_price",
+        "avg_price"
+      ],
+      "declared_result_types": null,
+      "observed_types": [
+        [
+          "str"
+        ],
+        [
+          "int"
+        ],
+        [
+          "int"
+        ],
+        [
+          "int"
+        ],
+        [
+          "float"
+        ]
+      ],
+      "end_time": 1788860854.731686,
+      "row_count": 5,
+      "archived_rows": 5,
+      "result_bytes": 244,
+      "result_file": "results/S5.rows.jsonl",
+      "result_sha256": "89ee7b5e1ca4f327573a37a98899a27d1fc82031062ca7606994473c035e1f5e",
+      "fetch_ms": 0.1475634053349495,
+      "execute_fetch_ms": 24.946102872490883,
+      "encode_write_ms": 0.07519591599702835,
+      "wall_ms": 25.19137319177389
+    },
+    "S6": {
+      "batch": "dsv4flash-db-first-full-01",
+      "task_id": "dacomp-012",
+      "attempt": "attempt-01",
+      "phase": "agent_trajectory",
+      "call_id": "d1648d9777314e62a3cd48ab49fd04a5",
+      "parent_call_id": null,
+      "sql_id": "S6",
+      "sequence": 6,
+      "execution_id": "be7402ade9364a5ebf8305339d62ba1c",
+      "connection_id": "19fd42c1c45f430bac87be9f0489ea34",
+      "start_time": 1788860855.1275392,
+      "source": "query_db",
+      "sql": "SELECT Color, COUNT(*) AS n FROM sheet1 GROUP BY Color ORDER BY Color",
+      "parameters": [],
+      "database": "dacomp-012",
+      "dialect": "sqlite",
+      "category": "data",
+      "status": "success",
+      "engine_statements": [
+        "SELECT Color, COUNT(*) AS n FROM sheet1 GROUP BY Color ORDER BY Color"
+      ],
+      "result_complete": true,
+      "coverage": "wrapper_and_engine_trace",
+      "execute_return_ms": 15.986057929694653,
+      "columns": [
+        "Color",
+        "n"
+      ],
+      "declared_result_types": null,
+      "observed_types": [
+        [
+          "str"
+        ],
+        [
+          "int"
+        ]
+      ],
+      "end_time": 1788860855.1475177,
+      "row_count": 7,
+      "archived_rows": 7,
+      "result_bytes": 85,
+      "result_file": "results/S6.rows.jsonl",
+      "result_sha256": "01d791dcc499cb2dfb9caa1b7c9dd3c25a31ab38306370731ed0db9232a677f4",
+      "fetch_ms": 3.2847486436367035,
+      "execute_fetch_ms": 19.270806573331356,
+      "encode_write_ms": 0.07927697151899338,
+      "wall_ms": 19.502796232700348
+    },
+    "S7": {
+      "batch": "dsv4flash-db-first-full-01",
+      "task_id": "dacomp-012",
+      "attempt": "attempt-01",
+      "phase": "agent_trajectory",
+      "call_id": "f31134f6fea648b9aaa940f320eaaa59",
+      "parent_call_id": null,
+      "sql_id": "S7",
+      "sequence": 7,
+      "execution_id": "cf96ffa3fd9c403f847b8a9b40f45da7",
+      "connection_id": "19fd42c1c45f430bac87be9f0489ea34",
+      "start_time": 1788860855.1492276,
+      "source": "query_db",
+      "sql": "SELECT Clarity, COUNT(*) AS n FROM sheet1 GROUP BY Clarity ORDER BY Clarity",
+      "parameters": [],
+      "database": "dacomp-012",
+      "dialect": "sqlite",
+      "category": "data",
+      "status": "success",
+      "engine_statements": [
+        "SELECT Clarity, COUNT(*) AS n FROM sheet1 GROUP BY Clarity ORDER BY Clarity"
+      ],
+      "result_complete": true,
+      "coverage": "wrapper_and_engine_trace",
+      "execute_return_ms": 15.309374779462814,
+      "columns": [
+        "Clarity",
+        "n"
+      ],
+      "declared_result_types": null,
+      "observed_types": [
+        [
+          "str"
+        ],
+        [
+          "int"
+        ]
+      ],
+      "end_time": 1788860855.1689324,
+      "row_count": 8,
+      "archived_rows": 8,
+      "result_bytes": 113,
+      "result_file": "results/S7.rows.jsonl",
+      "result_sha256": "942bc58164378978e7771ff787b238baee6635896b7ab09e60ac392762e08f1d",
+      "fetch_ms": 3.6136945709586143,
+      "execute_fetch_ms": 18.92306935042143,
+      "encode_write_ms": 0.07321126759052277,
+      "wall_ms": 19.142129458487034
+    },
+    "S9": {
+      "batch": "dsv4flash-db-first-full-01",
+      "task_id": "dacomp-012",
+      "attempt": "attempt-01",
+      "phase": "agent_trajectory",
+      "call_id": "738dd4f9417a4668be540d4466957bc8",
+      "parent_call_id": null,
+      "sql_id": "S9",
+      "sequence": 9,
+      "execution_id": "89a4819ec18347baa2f7281f01837b84",
+      "connection_id": "19fd42c1c45f430bac87be9f0489ea34",
+      "start_time": 1788860860.9136753,
+      "source": "query_db",
+      "sql": "WITH buckets AS (\n  SELECT \n    \"Price (USD)\" AS price,\n    \"Carat (diamond weight)\" AS carat,\n    CASE \n      WHEN \"Carat (diamond weight)\" <= 0.5 THEN 'A: <=0.5 ct'\n      WHEN \"Carat (diamond weight)\" <= 1.0 THEN 'B: 0.51-1.0 ct'\n      WHEN \"Carat (diamond weight)\" <= 1.5 THEN 'C: 1.01-1.5 ct'\n      ELSE 'D: >1.5 ct'\n    END AS interval\n  FROM sheet1\n)\nSELECT interval, carat AS q, price_per_carat\nFROM (\n  SELECT interval, carat, price/carat AS price_per_carat,\n    ROW_NUMBER() OVER (PARTITION BY interval ORDER BY price/carat) AS rn,\n    COUNT(*) OVER (PARTITION BY interval) AS cnt\n  FROM buckets\n)\nWHERE rn IN ((cnt+1)/2, (cnt+2)/2)\nORDER BY interval, q",
+      "parameters": [],
+      "database": "dacomp-012",
+      "dialect": "sqlite",
+      "category": "data",
+      "status": "success",
+      "engine_statements": [
+        "WITH buckets AS (\n  SELECT \n    \"Price (USD)\" AS price,\n    \"Carat (diamond weight)\" AS carat,\n    CASE \n      WHEN \"Carat (diamond weight)\" <= 0.5 THEN 'A: <=0.5 ct'\n      WHEN \"Carat (diamond weight)\" <= 1.0 THEN 'B: 0.51-1.0 ct'\n      WHEN \"Carat (diamond weight)\" <= 1.5 THEN 'C: 1.01-1.5 ct'\n      ELSE 'D: >1.5 ct'\n    END AS interval\n  FROM sheet1\n)\nSELECT interval, carat AS q, price_per_carat\nFROM (\n  SELECT interval, carat, price/carat AS price_per_carat,\n    ROW_NUMBER() OVER (PARTITION BY interval ORDER BY price/carat) AS rn,\n    COUNT(*) OVER (PARTITION BY interval) AS cnt\n  FROM buckets\n)\nWHERE rn IN ((cnt+1)/2, (cnt+2)/2)\nORDER BY interval, q"
+      ],
+      "result_complete": true,
+      "coverage": "wrapper_and_engine_trace",
+      "execute_return_ms": 154.14568968117237,
+      "columns": [
+        "interval",
+        "q",
+        "price_per_carat"
+      ],
+      "declared_result_types": null,
+      "observed_types": [
+        [
+          "str"
+        ],
+        [
+          "float"
+        ],
+        [
+          "float"
+        ]
+      ],
+      "end_time": 1788860861.0694683,
+      "row_count": 5,
+      "archived_rows": 5,
+      "result_bytes": 209,
+      "result_file": "results/S9.rows.jsonl",
+      "result_sha256": "d1649518ead1313c7d5714d27a3ac3298d8f69994355c7bbe287649dc40a813a",
+      "fetch_ms": 0.8445074781775475,
+      "execute_fetch_ms": 154.99019715934992,
+      "encode_write_ms": 0.08291471749544144,
+      "wall_ms": 155.32024577260017
+    },
+    "S10": {
+      "batch": "dsv4flash-db-first-full-01",
+      "task_id": "dacomp-012",
+      "attempt": "attempt-01",
+      "phase": "agent_trajectory",
+      "call_id": "7adfb6dd95424b26a5a7b8289dd220a0",
+      "parent_call_id": null,
+      "sql_id": "S10",
+      "sequence": 10,
+      "execution_id": "5521b61068c948d9b8e9bbf258203c29",
+      "connection_id": "19fd42c1c45f430bac87be9f0489ea34",
+      "start_time": 1788860865.3442097,
+      "source": "query_db",
+      "sql": "WITH buckets AS (\n  SELECT \n    \"Price (USD)\" AS price,\n    \"Carat (diamond weight)\" AS carat,\n    CASE \n      WHEN \"Carat (diamond weight)\" <= 0.5 THEN 'A: <=0.5 ct'\n      WHEN \"Carat (diamond weight)\" <= 1.0 THEN 'B: 0.51-1.0 ct'\n      WHEN \"Carat (diamond weight)\" <= 1.5 THEN 'C: 1.01-1.5 ct'\n      ELSE 'D: >1.5 ct'\n    END AS interval\n  FROM sheet1\n)\nSELECT \n  interval,\n  COUNT(*) AS n,\n  ROUND(AVG(carat),3) AS avg_carat,\n  ROUND(AVG(price),2) AS avg_price,\n  ROUND(AVG(price/carat),2) AS avg_ppc,\n  ROUND(MIN(price/carat),2) AS min_ppc,\n  ROUND(MAX(price/carat),2) AS max_ppc,\n  ROUND(sqrt(AVG((price/carat)*(price/carat)) - AVG(price/carat)*AVG(price/carat)),2) AS sd_ppc,\n  ROUND(AVG(price/carat)/sqrt(AVG((price/carat)*(price/carat)) - AVG(price/carat)*AVG(price/carat)),2) AS cv\nFROM buckets\nGROUP BY interval\nORDER BY interval",
+      "parameters": [],
+      "database": "dacomp-012",
+      "dialect": "sqlite",
+      "category": "data",
+      "status": "success",
+      "engine_statements": [
+        "WITH buckets AS (\n  SELECT \n    \"Price (USD)\" AS price,\n    \"Carat (diamond weight)\" AS carat,\n    CASE \n      WHEN \"Carat (diamond weight)\" <= 0.5 THEN 'A: <=0.5 ct'\n      WHEN \"Carat (diamond weight)\" <= 1.0 THEN 'B: 0.51-1.0 ct'\n      WHEN \"Carat (diamond weight)\" <= 1.5 THEN 'C: 1.01-1.5 ct'\n      ELSE 'D: >1.5 ct'\n    END AS interval\n  FROM sheet1\n)\nSELECT \n  interval,\n  COUNT(*) AS n,\n  ROUND(AVG(carat),3) AS avg_carat,\n  ROUND(AVG(price),2) AS avg_price,\n  ROUND(AVG(price/carat),2) AS avg_ppc,\n  ROUND(MIN(price/carat),2) AS min_ppc,\n  ROUND(MAX(price/carat),2) AS max_ppc,\n  ROUND(sqrt(AVG((price/carat)*(price/carat)) - AVG(price/carat)*AVG(price/carat)),2) AS sd_ppc,\n  ROUND(AVG(price/carat)/sqrt(AVG((price/carat)*(price/carat)) - AVG(price/carat)*AVG(price/carat)),2) AS cv\nFROM buckets\nGROUP BY interval\nORDER BY interval"
+      ],
+      "result_complete": true,
+      "coverage": "wrapper_and_engine_trace",
+      "execute_return_ms": 30.30616231262684,
+      "columns": [
+        "interval",
+        "n",
+        "avg_carat",
+        "avg_price",
+        "avg_ppc",
+        "min_ppc",
+        "max_ppc",
+        "sd_ppc",
+        "cv"
+      ],
+      "declared_result_types": null,
+      "observed_types": [
+        [
+          "str"
+        ],
+        [
+          "int"
+        ],
+        [
+          "float"
+        ],
+        [
+          "float"
+        ],
+        [
+          "float"
+        ],
+        [
+          "float"
+        ],
+        [
+          "float"
+        ],
+        [
+          "float"
+        ],
+        [
+          "float"
+        ]
+      ],
+      "end_time": 1788860865.391348,
+      "row_count": 4,
+      "archived_rows": 4,
+      "result_bytes": 328,
+      "result_file": "results/S10.rows.jsonl",
+      "result_sha256": "741f5c3d9c4f5571924b3de807289e5709c5b96fbc182105aeec9d90e69dd4f1",
+      "fetch_ms": 16.046192497015,
+      "execute_fetch_ms": 46.35235480964184,
+      "encode_write_ms": 0.08853990584611893,
+      "wall_ms": 46.63367662578821
+    },
+    "S11": {
+      "batch": "dsv4flash-db-first-full-01",
+      "task_id": "dacomp-012",
+      "attempt": "attempt-01",
+      "phase": "agent_trajectory",
+      "call_id": "4898186f0b5c4d0382a334b8f4cee7c9",
+      "parent_call_id": null,
+      "sql_id": "S11",
+      "sequence": 11,
+      "execution_id": "fc7209e171b3459ab710d2789050ca64",
+      "connection_id": "19fd42c1c45f430bac87be9f0489ea34",
+      "start_time": 1788860867.8902318,
+      "source": "query_db",
+      "sql": "SELECT \n  MIN(\"Carat (diamond weight)\") AS min_carat,\n  MAX(\"Carat (diamond weight)\") AS max_carat,\n  MIN(\"Price (USD)\") AS min_price,\n  MAX(\"Price (USD)\") AS max_price,\n  ROUND(AVG(\"Carat (diamond weight)\"),3) AS avg_carat,\n  ROUND(AVG(\"Price (USD)\"),2) AS avg_price,\n  ROUND(AVG(\"Price (USD)\"/\"Carat (diamond weight)\"),2) AS avg_ppc,\n  ROUND(AVG(\"Depth percentage\"),2) AS avg_depth,\n  ROUND(AVG(\"Table percentage\"),2) AS avg_table\nFROM sheet1",
+      "parameters": [],
+      "database": "dacomp-012",
+      "dialect": "sqlite",
+      "category": "data",
+      "status": "success",
+      "engine_statements": [
+        "SELECT \n  MIN(\"Carat (diamond weight)\") AS min_carat,\n  MAX(\"Carat (diamond weight)\") AS max_carat,\n  MIN(\"Price (USD)\") AS min_price,\n  MAX(\"Price (USD)\") AS max_price,\n  ROUND(AVG(\"Carat (diamond weight)\"),3) AS avg_carat,\n  ROUND(AVG(\"Price (USD)\"),2) AS avg_price,\n  ROUND(AVG(\"Price (USD)\"/\"Carat (diamond weight)\"),2) AS avg_ppc,\n  ROUND(AVG(\"Depth percentage\"),2) AS avg_depth,\n  ROUND(AVG(\"Table percentage\"),2) AS avg_table\nFROM sheet1"
+      ],
+      "result_complete": true,
+      "coverage": "wrapper_and_engine_trace",
+      "execute_return_ms": 18.70799995958805,
+      "columns": [
+        "min_carat",
+        "max_carat",
+        "min_price",
+        "max_price",
+        "avg_carat",
+        "avg_price",
+        "avg_ppc",
+        "avg_depth",
+        "avg_table"
+      ],
+      "declared_result_types": null,
+      "observed_types": [
+        [
+          "float"
+        ],
+        [
+          "float"
+        ],
+        [
+          "int"
+        ],
+        [
+          "int"
+        ],
+        [
+          "float"
+        ],
+        [
+          "float"
+        ],
+        [
+          "float"
+        ],
+        [
+          "float"
+        ],
+        [
+          "float"
+        ]
+      ],
+      "end_time": 1788860867.9096391,
+      "row_count": 1,
+      "archived_rows": 1,
+      "result_bytes": 62,
+      "result_file": "results/S11.rows.jsonl",
+      "result_sha256": "224a71beb5e9182613da782040e1888b3e5fe9f27cbc09c048eab3fb39928135",
+      "fetch_ms": 0.01293141394853592,
+      "execute_fetch_ms": 18.720931373536587,
+      "encode_write_ms": 0.03322400152683258,
+      "wall_ms": 18.899917602539062
+    },
+    "S13": {
+      "batch": "dsv4flash-db-first-full-01",
+      "task_id": "dacomp-012",
+      "attempt": "attempt-01",
+      "phase": "agent_trajectory",
+      "call_id": "270004422d8c4a15ad23565d3775b928",
+      "parent_call_id": null,
+      "sql_id": "S13",
+      "sequence": 13,
+      "execution_id": "9d05860c30474cc88fd0948942f3b6b0",
+      "connection_id": "19fd42c1c45f430bac87be9f0489ea34",
+      "start_time": 1788861177.2294714,
+      "source": "query_db",
+      "sql": "SELECT \"Cut (quality)\" AS cut, COUNT(*) AS n, ROUND(AVG(\"Price (USD)\"/\"Carat (diamond weight)\"),2) AS avg_ppc, ROUND(AVG(\"Carat (diamond weight)\"),3) AS avg_carat\nFROM sheet1 GROUP BY \"Cut (quality)\" ORDER BY avg_ppc DESC",
+      "parameters": [],
+      "database": "dacomp-012",
+      "dialect": "sqlite",
+      "category": "data",
+      "status": "success",
+      "engine_statements": [
+        "SELECT \"Cut (quality)\" AS cut, COUNT(*) AS n, ROUND(AVG(\"Price (USD)\"/\"Carat (diamond weight)\"),2) AS avg_ppc, ROUND(AVG(\"Carat (diamond weight)\"),3) AS avg_carat\nFROM sheet1 GROUP BY \"Cut (quality)\" ORDER BY avg_ppc DESC"
+      ],
+      "result_complete": true,
+      "coverage": "wrapper_and_engine_trace",
+      "execute_return_ms": 30.5113373324275,
+      "columns": [
+        "cut",
+        "n",
+        "avg_ppc",
+        "avg_carat"
+      ],
+      "declared_result_types": null,
+      "observed_types": [
+        [
+          "str"
+        ],
+        [
+          "int"
+        ],
+        [
+          "float"
+        ],
+        [
+          "float"
+        ]
+      ],
+      "end_time": 1788861177.260834,
+      "row_count": 5,
+      "archived_rows": 5,
+      "result_bytes": 166,
+      "result_file": "results/S13.rows.jsonl",
+      "result_sha256": "fa60501c8f907343a5e2812b97f07f67bcde7de5bc3c1543d6e09b1ae487e26c",
+      "fetch_ms": 0.1261802390217781,
+      "execute_fetch_ms": 30.63751757144928,
+      "encode_write_ms": 0.07337518036365509,
+      "wall_ms": 30.88348638266325
+    },
+    "S14": {
+      "batch": "dsv4flash-db-first-full-01",
+      "task_id": "dacomp-012",
+      "attempt": "attempt-01",
+      "phase": "agent_trajectory",
+      "call_id": "efb979c9efc04177b4824b55820458c6",
+      "parent_call_id": null,
+      "sql_id": "S14",
+      "sequence": 14,
+      "execution_id": "ca2a067b0ac84f438518fcaaff836a0d",
+      "connection_id": "19fd42c1c45f430bac87be9f0489ea34",
+      "start_time": 1788861177.262063,
+      "source": "query_db",
+      "sql": "SELECT Color, COUNT(*) AS n, ROUND(AVG(\"Price (USD)\"/\"Carat (diamond weight)\"),2) AS avg_ppc, ROUND(AVG(\"Carat (diamond weight)\"),3) AS avg_carat\nFROM sheet1 GROUP BY Color ORDER BY Color",
+      "parameters": [],
+      "database": "dacomp-012",
+      "dialect": "sqlite",
+      "category": "data",
+      "status": "success",
+      "engine_statements": [
+        "SELECT Color, COUNT(*) AS n, ROUND(AVG(\"Price (USD)\"/\"Carat (diamond weight)\"),2) AS avg_ppc, ROUND(AVG(\"Carat (diamond weight)\"),3) AS avg_carat\nFROM sheet1 GROUP BY Color ORDER BY Color"
+      ],
+      "result_complete": true,
+      "coverage": "wrapper_and_engine_trace",
+      "execute_return_ms": 18.17581057548523,
+      "columns": [
+        "Color",
+        "n",
+        "avg_ppc",
+        "avg_carat"
+      ],
+      "declared_result_types": null,
+      "observed_types": [
+        [
+          "str"
+        ],
+        [
+          "int"
+        ],
+        [
+          "float"
+        ],
+        [
+          "float"
+        ]
+      ],
+      "end_time": 1788861177.2879379,
+      "row_count": 7,
+      "archived_rows": 7,
+      "result_bytes": 194,
+      "result_file": "results/S14.rows.jsonl",
+      "result_sha256": "aa50029d537ed45d8342d8efc7c46c1f2a96f82c8dffdc425bec4d28619f2e88",
+      "fetch_ms": 7.013944908976555,
+      "execute_fetch_ms": 25.189755484461784,
+      "encode_write_ms": 0.08635316044092178,
+      "wall_ms": 25.43673850595951
+    },
+    "S15": {
+      "batch": "dsv4flash-db-first-full-01",
+      "task_id": "dacomp-012",
+      "attempt": "attempt-01",
+      "phase": "agent_trajectory",
+      "call_id": "2c16f7621e6f44be81158ba4743edf12",
+      "parent_call_id": null,
+      "sql_id": "S15",
+      "sequence": 15,
+      "execution_id": "b8edc3bfb06f4c04b8697079f6c8f807",
+      "connection_id": "19fd42c1c45f430bac87be9f0489ea34",
+      "start_time": 1788861177.2893205,
+      "source": "query_db",
+      "sql": "SELECT Clarity, COUNT(*) AS n, ROUND(AVG(\"Price (USD)\"/\"Carat (diamond weight)\"),2) AS avg_ppc, ROUND(AVG(\"Carat (diamond weight)\"),3) AS avg_carat\nFROM sheet1 GROUP BY Clarity ORDER BY Clarity",
+      "parameters": [],
+      "database": "dacomp-012",
+      "dialect": "sqlite",
+      "category": "data",
+      "status": "success",
+      "engine_statements": [
+        "SELECT Clarity, COUNT(*) AS n, ROUND(AVG(\"Price (USD)\"/\"Carat (diamond weight)\"),2) AS avg_ppc, ROUND(AVG(\"Carat (diamond weight)\"),3) AS avg_carat\nFROM sheet1 GROUP BY Clarity ORDER BY Clarity"
+      ],
+      "result_complete": true,
+      "coverage": "wrapper_and_engine_trace",
+      "execute_return_ms": 19.045501947402954,
+      "columns": [
+        "Clarity",
+        "n",
+        "avg_ppc",
+        "avg_carat"
+      ],
+      "declared_result_types": null,
+      "observed_types": [
+        [
+          "str"
+        ],
+        [
+          "int"
+        ],
+        [
+          "float"
+        ],
+        [
+          "float"
+        ]
+      ],
+      "end_time": 1788861177.3198776,
+      "row_count": 8,
+      "archived_rows": 8,
+      "result_bytes": 239,
+      "result_file": "results/S15.rows.jsonl",
+      "result_sha256": "7a0d4bccf634753cd6bd99684d280fc8442aa611204c182d7b67eb6697160479",
+      "fetch_ms": 10.79510897397995,
+      "execute_fetch_ms": 29.840610921382904,
+      "encode_write_ms": 0.10913051664829254,
+      "wall_ms": 30.12735489755869
+    },
+    "S16": {
+      "batch": "dsv4flash-db-first-full-01",
+      "task_id": "dacomp-012",
+      "attempt": "attempt-01",
+      "phase": "agent_trajectory",
+      "call_id": "f09b4605c68144b08a4f1b882b9925cd",
+      "parent_call_id": null,
+      "sql_id": "S16",
+      "sequence": 16,
+      "execution_id": "21444fcb505746f3b7bc066a69808a5a",
+      "connection_id": "19fd42c1c45f430bac87be9f0489ea34",
+      "start_time": 1788861182.1444461,
+      "source": "query_db",
+      "sql": "WITH b AS (\n  SELECT \n    \"Price (USD)\" AS price,\n    \"Carat (diamond weight)\" AS carat,\n    \"Cut (quality)\" AS cut,\n    \"Color\" AS color,\n    \"Clarity\" AS clarity,\n    CASE \n      WHEN \"Carat (diamond weight)\" <= 0.5 THEN '<=0.5'\n      WHEN \"Carat (diamond weight)\" <= 1.0 THEN '0.51-1.0'\n      WHEN \"Carat (diamond weight)\" <= 1.5 THEN '1.01-1.5'\n      ELSE '>1.5'\n    END AS interval\n  FROM sheet1\n)\nSELECT interval, cut, COUNT(*) AS n, ROUND(AVG(price/carat),2) AS avg_ppc\nFROM b\nGROUP BY interval, cut\nORDER BY interval, avg_ppc DESC",
+      "parameters": [],
+      "database": "dacomp-012",
+      "dialect": "sqlite",
+      "category": "data",
+      "status": "success",
+      "engine_statements": [
+        "WITH b AS (\n  SELECT \n    \"Price (USD)\" AS price,\n    \"Carat (diamond weight)\" AS carat,\n    \"Cut (quality)\" AS cut,\n    \"Color\" AS color,\n    \"Clarity\" AS clarity,\n    CASE \n      WHEN \"Carat (diamond weight)\" <= 0.5 THEN '<=0.5'\n      WHEN \"Carat (diamond weight)\" <= 1.0 THEN '0.51-1.0'\n      WHEN \"Carat (diamond weight)\" <= 1.5 THEN '1.01-1.5'\n      ELSE '>1.5'\n    END AS interval\n  FROM sheet1\n)\nSELECT interval, cut, COUNT(*) AS n, ROUND(AVG(price/carat),2) AS avg_ppc\nFROM b\nGROUP BY interval, cut\nORDER BY interval, avg_ppc DESC"
+      ],
+      "result_complete": true,
+      "coverage": "wrapper_and_engine_trace",
+      "execute_return_ms": 53.09974029660225,
+      "columns": [
+        "interval",
+        "cut",
+        "n",
+        "avg_ppc"
+      ],
+      "declared_result_types": null,
+      "observed_types": [
+        [
+          "str"
+        ],
+        [
+          "str"
+        ],
+        [
+          "int"
+        ],
+        [
+          "float"
+        ]
+      ],
+      "end_time": 1788861182.1985815,
+      "row_count": 20,
+      "archived_rows": 20,
+      "result_bytes": 716,
+      "result_file": "results/S16.rows.jsonl",
+      "result_sha256": "4483d0dce426bb88d8bf1c2ad516163d247ea9a3c1d27723a281ce4365632420",
+      "fetch_ms": 0.18298625946044922,
+      "execute_fetch_ms": 53.2827265560627,
+      "encode_write_ms": 0.17639249563217163,
+      "wall_ms": 53.6480275914073
+    },
+    "S17": {
+      "batch": "dsv4flash-db-first-full-01",
+      "task_id": "dacomp-012",
+      "attempt": "attempt-01",
+      "phase": "agent_trajectory",
+      "call_id": "5c038a44f2f844fe925cee20d47f5ca0",
+      "parent_call_id": null,
+      "sql_id": "S17",
+      "sequence": 17,
+      "execution_id": "5619d74ffe4346789b866a14a955243a",
+      "connection_id": "19fd42c1c45f430bac87be9f0489ea34",
+      "start_time": 1788861183.1794362,
+      "source": "query_db",
+      "sql": "WITH b AS (\n  SELECT \n    \"Price (USD)\" AS price,\n    \"Carat (diamond weight)\" AS carat,\n    \"Cut (quality)\" AS cut,\n    \"Color\" AS color,\n    \"Clarity\" AS clarity,\n    CASE \n      WHEN \"Carat (diamond weight)\" <= 0.5 THEN '<=0.5'\n      WHEN \"Carat (diamond weight)\" <= 1.0 THEN '0.51-1.0'\n      WHEN \"Carat (diamond weight)\" <= 1.5 THEN '1.01-1.5'\n      ELSE '>1.5'\n    END AS interval\n  FROM sheet1\n)\nSELECT interval, color, COUNT(*) AS n, ROUND(AVG(price/carat),2) AS avg_ppc\nFROM b\nGROUP BY interval, color\nORDER BY interval, color",
+      "parameters": [],
+      "database": "dacomp-012",
+      "dialect": "sqlite",
+      "category": "data",
+      "status": "success",
+      "engine_statements": [
+        "WITH b AS (\n  SELECT \n    \"Price (USD)\" AS price,\n    \"Carat (diamond weight)\" AS carat,\n    \"Cut (quality)\" AS cut,\n    \"Color\" AS color,\n    \"Clarity\" AS clarity,\n    CASE \n      WHEN \"Carat (diamond weight)\" <= 0.5 THEN '<=0.5'\n      WHEN \"Carat (diamond weight)\" <= 1.0 THEN '0.51-1.0'\n      WHEN \"Carat (diamond weight)\" <= 1.5 THEN '1.01-1.5'\n      ELSE '>1.5'\n    END AS interval\n  FROM sheet1\n)\nSELECT interval, color, COUNT(*) AS n, ROUND(AVG(price/carat),2) AS avg_ppc\nFROM b\nGROUP BY interval, color\nORDER BY interval, color"
+      ],
+      "result_complete": true,
+      "coverage": "wrapper_and_engine_trace",
+      "execute_return_ms": 42.00705420225859,
+      "columns": [
+        "interval",
+        "color",
+        "n",
+        "avg_ppc"
+      ],
+      "declared_result_types": null,
+      "observed_types": [
+        [
+          "str"
+        ],
+        [
+          "str"
+        ],
+        [
+          "int"
+        ],
+        [
+          "float"
+        ]
+      ],
+      "end_time": 1788861183.2344759,
+      "row_count": 28,
+      "archived_rows": 28,
+      "result_bytes": 863,
+      "result_file": "results/S17.rows.jsonl",
+      "result_sha256": "f640d369af06db09fc9592cba3b05b054a07fdda39629a0ab2986a056d9326c7",
+      "fetch_ms": 12.096834369003773,
+      "execute_fetch_ms": 54.10388857126236,
+      "encode_write_ms": 0.2283826470375061,
+      "wall_ms": 54.51983492821455
+    },
+    "S18": {
+      "batch": "dsv4flash-db-first-full-01",
+      "task_id": "dacomp-012",
+      "attempt": "attempt-01",
+      "phase": "agent_trajectory",
+      "call_id": "5e9a1cda023e4f028e0f5aa321a085a1",
+      "parent_call_id": null,
+      "sql_id": "S18",
+      "sequence": 18,
+      "execution_id": "c4f50b5cb6ca4b9d8b08a1f51ce797fb",
+      "connection_id": "19fd42c1c45f430bac87be9f0489ea34",
+      "start_time": 1788861184.2606392,
+      "source": "query_db",
+      "sql": "WITH b AS (\n  SELECT \n    \"Price (USD)\" AS price,\n    \"Carat (diamond weight)\" AS carat,\n    \"Cut (quality)\" AS cut,\n    \"Color\" AS color,\n    \"Clarity\" AS clarity,\n    CASE \n      WHEN \"Carat (diamond weight)\" <= 0.5 THEN '<=0.5'\n      WHEN \"Carat (diamond weight)\" <= 1.0 THEN '0.51-1.0'\n      WHEN \"Carat (diamond weight)\" <= 1.5 THEN '1.01-1.5'\n      ELSE '>1.5'\n    END AS interval\n  FROM sheet1\n)\nSELECT interval, clarity, COUNT(*) AS n, ROUND(AVG(price/carat),2) AS avg_ppc\nFROM b\nGROUP BY interval, clarity\nORDER BY interval, clarity",
+      "parameters": [],
+      "database": "dacomp-012",
+      "dialect": "sqlite",
+      "category": "data",
+      "status": "success",
+      "engine_statements": [
+        "WITH b AS (\n  SELECT \n    \"Price (USD)\" AS price,\n    \"Carat (diamond weight)\" AS carat,\n    \"Cut (quality)\" AS cut,\n    \"Color\" AS color,\n    \"Clarity\" AS clarity,\n    CASE \n      WHEN \"Carat (diamond weight)\" <= 0.5 THEN '<=0.5'\n      WHEN \"Carat (diamond weight)\" <= 1.0 THEN '0.51-1.0'\n      WHEN \"Carat (diamond weight)\" <= 1.5 THEN '1.01-1.5'\n      ELSE '>1.5'\n    END AS interval\n  FROM sheet1\n)\nSELECT interval, clarity, COUNT(*) AS n, ROUND(AVG(price/carat),2) AS avg_ppc\nFROM b\nGROUP BY interval, clarity\nORDER BY interval, clarity"
+      ],
+      "result_complete": true,
+      "coverage": "wrapper_and_engine_trace",
+      "execute_return_ms": 40.805334225296974,
+      "columns": [
+        "interval",
+        "clarity",
+        "n",
+        "avg_ppc"
+      ],
+      "declared_result_types": null,
+      "observed_types": [
+        [
+          "str"
+        ],
+        [
+          "str"
+        ],
+        [
+          "int"
+        ],
+        [
+          "float"
+        ]
+      ],
+      "end_time": 1788861184.3151383,
+      "row_count": 32,
+      "archived_rows": 32,
+      "result_bytes": 1046,
+      "result_file": "results/S18.rows.jsonl",
+      "result_sha256": "21de7225380fd28f37e6cf4dad25bf7f7121c67732e4c34d8240808145c58914",
+      "fetch_ms": 12.653404846787453,
+      "execute_fetch_ms": 53.45873907208443,
+      "encode_write_ms": 0.2558482810854912,
+      "wall_ms": 53.920445032417774
+    },
+    "S19": {
+      "batch": "dsv4flash-db-first-full-01",
+      "task_id": "dacomp-012",
+      "attempt": "attempt-01",
+      "phase": "agent_trajectory",
+      "call_id": "da9a9898b35d40e59fd4750c276a040c",
+      "parent_call_id": null,
+      "sql_id": "S19",
+      "sequence": 19,
+      "execution_id": "79c8c1b1612b40b4af9d03d9e89f4210",
+      "connection_id": "19fd42c1c45f430bac87be9f0489ea34",
+      "start_time": 1788861186.6710618,
+      "source": "query_db",
+      "sql": "SELECT * FROM sheet1 LIMIT 5",
+      "parameters": [],
+      "database": "dacomp-012",
+      "dialect": "sqlite",
+      "category": "data",
+      "status": "success",
+      "engine_statements": [
+        "SELECT * FROM sheet1 LIMIT 5"
+      ],
+      "result_complete": true,
+      "coverage": "wrapper_and_engine_trace",
+      "execute_return_ms": 0.31650811433792114,
+      "columns": [
+        "Carat (diamond weight)",
+        "Cut (quality)",
+        "Color",
+        "Clarity",
+        "Depth percentage",
+        "Table percentage",
+        "X-axis length (mm)",
+        "Y-axis width (mm)",
+        "Z-axis depth (mm)",
+        "Price (USD)"
+      ],
+      "declared_result_types": null,
+      "observed_types": [
+        [
+          "float"
+        ],
+        [
+          "str"
+        ],
+        [
+          "str"
+        ],
+        [
+          "str"
+        ],
+        [
+          "float"
+        ],
+        [
+          "float"
+        ],
+        [
+          "float"
+        ],
+        [
+          "float"
+        ],
+        [
+          "float"
+        ],
+        [
+          "int"
+        ]
+      ],
+      "end_time": 1788861186.672113,
+      "row_count": 5,
+      "archived_rows": 5,
+      "result_bytes": 327,
+      "result_file": "results/S19.rows.jsonl",
+      "result_sha256": "bf85d3b0649ffe367e41ad65f411d13177574a17213773d14c07434aad91e6d8",
+      "fetch_ms": 0.022839754819869995,
+      "execute_fetch_ms": 0.33934786915779114,
+      "encode_write_ms": 0.08512940257787704,
+      "wall_ms": 0.5445946007966995
+    },
+    "S20": {
+      "batch": "dsv4flash-db-first-full-01",
+      "task_id": "dacomp-012",
+      "attempt": "attempt-01",
+      "phase": "agent_trajectory",
+      "call_id": "074c99b7615f4afca34fffb7b4d51cee",
+      "parent_call_id": null,
+      "sql_id": "S20",
+      "sequence": 20,
+      "execution_id": "554a6c86c5f94e32a1ed4c54a9574170",
+      "connection_id": "19fd42c1c45f430bac87be9f0489ea34",
+      "start_time": 1788861189.8010666,
+      "source": "query_db",
+      "sql": "SELECT \n  ROUND(AVG(\"Carat (diamond weight)\" * \"Price (USD)\") - AVG(\"Carat (diamond weight)\") * AVG(\"Price (USD)\"), 4) AS carat_price_cov,\n  ROUND((AVG(\"Carat (diamond weight)\" * \"Price (USD)\") - AVG(\"Carat (diamond weight)\") * AVG(\"Price (USD)\")) / \n    (sqrt(AVG(\"Carat (diamond weight)\"*\"Carat (diamond weight)\") - AVG(\"Carat (diamond weight)\")*AVG(\"Carat (diamond weight)\")) * \n     sqrt(AVG(\"Price (USD)\"*\"Price (USD)\") - AVG(\"Price (USD)\")*AVG(\"Price (USD)\"))), 4) AS corr_carat_price\nFROM sheet1",
+      "parameters": [],
+      "database": "dacomp-012",
+      "dialect": "sqlite",
+      "category": "data",
+      "status": "success",
+      "engine_statements": [
+        "SELECT \n  ROUND(AVG(\"Carat (diamond weight)\" * \"Price (USD)\") - AVG(\"Carat (diamond weight)\") * AVG(\"Price (USD)\"), 4) AS carat_price_cov,\n  ROUND((AVG(\"Carat (diamond weight)\" * \"Price (USD)\") - AVG(\"Carat (diamond weight)\") * AVG(\"Price (USD)\")) / \n    (sqrt(AVG(\"Carat (diamond weight)\"*\"Carat (diamond weight)\") - AVG(\"Carat (diamond weight)\")*AVG(\"Carat (diamond weight)\")) * \n     sqrt(AVG(\"Price (USD)\"*\"Price (USD)\") - AVG(\"Price (USD)\")*AVG(\"Price (USD)\"))), 4) AS corr_carat_price\nFROM sheet1"
+      ],
+      "result_complete": true,
+      "coverage": "wrapper_and_engine_trace",
+      "execute_return_ms": 15.81230666488409,
+      "columns": [
+        "carat_price_cov",
+        "corr_carat_price"
+      ],
+      "declared_result_types": null,
+      "observed_types": [
+        [
+          "float"
+        ],
+        [
+          "float"
+        ]
+      ],
+      "end_time": 1788861189.8175902,
+      "row_count": 1,
+      "archived_rows": 1,
+      "result_bytes": 20,
+      "result_file": "results/S20.rows.jsonl",
+      "result_sha256": "e544ffd3605c04d25ff3398d04565f30f06f12cb8d98ddc75790c8c2812a1b7f",
+      "fetch_ms": 0.012087635695934296,
+      "execute_fetch_ms": 15.824394300580025,
+      "encode_write_ms": 0.02915225923061371,
+      "wall_ms": 16.016025096178055
+    },
+    "S21": {
+      "batch": "dsv4flash-db-first-full-01",
+      "task_id": "dacomp-012",
+      "attempt": "attempt-01",
+      "phase": "agent_trajectory",
+      "call_id": "cbd5fcef6e0e43a093f1ec605cadf790",
+      "parent_call_id": null,
+      "sql_id": "S21",
+      "sequence": 21,
+      "execution_id": "7836dbff9d54430cad3e2ed3b569c7e2",
+      "connection_id": "19fd42c1c45f430bac87be9f0489ea34",
+      "start_time": 1788861197.0509093,
+      "source": "query_db",
+      "sql": "WITH s AS (\n  SELECT \"Price (USD)\" AS price, \"Carat (diamond weight)\" AS carat, \"Depth percentage\" AS depth,\n         \"Table percentage\" AS tbl, \"X-axis length (mm)\" AS x, \"Y-axis width (mm)\" AS y, \"Z-axis depth (mm)\" AS z\n  FROM sheet1\n)\nSELECT 'carat' AS var, ROUND((AVG(carat*price) - AVG(carat)*AVG(price)) / \n    (sqrt(AVG(carat*carat) - AVG(carat)*AVG(carat)) * sqrt(AVG(price*price) - AVG(price)*AVG(price))), 4) AS corr_with_price\nFROM s\nUNION ALL\nSELECT 'depth', ROUND((AVG(depth*price) - AVG(depth)*AVG(price)) / \n    (sqrt(AVG(depth*depth) - AVG(depth)*AVG(depth)) * sqrt(AVG(price*price) - AVG(price)*AVG(price))), 4) FROM s\nUNION ALL\nSELECT 'table', ROUND((AVG(tbl*price) - AVG(tbl)*AVG(price)) / \n    (sqrt(AVG(tbl*tbl) - AVG(tbl)*AVG(tbl)) * sqrt(AVG(price*price) - AVG(price)*AVG(price))), 4) FROM s\nUNION ALL\nSELECT 'x', ROUND((AVG(x*price) - AVG(x)*AVG(price)) / \n    (sqrt(AVG(x*x) - AVG(x)*AVG(x)) * sqrt(AVG(price*price) - AVG(price)*AVG(price))), 4) FROM s\nUNION ALL\nSELECT 'y', ROUND((AVG(y*price) - AVG(y)*AVG(price)) / \n    (sqrt(AVG(y*y) - AVG(y)*AVG(y)) * sqrt(AVG(price*price) - AVG(price)*AVG(price))), 4) FROM s\nUNION ALL\nSELECT 'z', ROUND((AVG(z*price) - AVG(z)*AVG(price)) / \n    (sqrt(AVG(z*z) - AVG(z)*AVG(z)) * sqrt(AVG(price*price) - AVG(price)*AVG(price))), 4) FROM s\nUNION ALL\nSELECT 'log(price) vs log(carat)', ROUND((AVG(ln(carat)*ln(price)) - AVG(ln(carat))*AVG(ln(price))) / \n    (sqrt(AVG(ln(carat)*ln(carat)) - AVG(ln(carat))*AVG(ln(carat))) * sqrt(AVG(ln(price)*ln(price)) - AVG(ln(price))*AVG(ln(price)))), 4) FROM s",
+      "parameters": [],
+      "database": "dacomp-012",
+      "dialect": "sqlite",
+      "category": "data",
+      "status": "success",
+      "engine_statements": [
+        "WITH s AS (\n  SELECT \"Price (USD)\" AS price, \"Carat (diamond weight)\" AS carat, \"Depth percentage\" AS depth,\n         \"Table percentage\" AS tbl, \"X-axis length (mm)\" AS x, \"Y-axis width (mm)\" AS y, \"Z-axis depth (mm)\" AS z\n  FROM sheet1\n)\nSELECT 'carat' AS var, ROUND((AVG(carat*price) - AVG(carat)*AVG(price)) / \n    (sqrt(AVG(carat*carat) - AVG(carat)*AVG(carat)) * sqrt(AVG(price*price) - AVG(price)*AVG(price))), 4) AS corr_with_price\nFROM s\nUNION ALL\nSELECT 'depth', ROUND((AVG(depth*price) - AVG(depth)*AVG(price)) / \n    (sqrt(AVG(depth*depth) - AVG(depth)*AVG(depth)) * sqrt(AVG(price*price) - AVG(price)*AVG(price))), 4) FROM s\nUNION ALL\nSELECT 'table', ROUND((AVG(tbl*price) - AVG(tbl)*AVG(price)) / \n    (sqrt(AVG(tbl*tbl) - AVG(tbl)*AVG(tbl)) * sqrt(AVG(price*price) - AVG(price)*AVG(price))), 4) FROM s\nUNION ALL\nSELECT 'x', ROUND((AVG(x*price) - AVG(x)*AVG(price)) / \n    (sqrt(AVG(x*x) - AVG(x)*AVG(x)) * sqrt(AVG(price*price) - AVG(price)*AVG(price))), 4) FROM s\nUNION ALL\nSELECT 'y', ROUND((AVG(y*price) - AVG(y)*AVG(price)) / \n    (sqrt(AVG(y*y) - AVG(y)*AVG(y)) * sqrt(AVG(price*price) - AVG(price)*AVG(price))), 4) FROM s\nUNION ALL\nSELECT 'z', ROUND((AVG(z*price) - AVG(z)*AVG(price)) / \n    (sqrt(AVG(z*z) - AVG(z)*AVG(z)) * sqrt(AVG(price*price) - AVG(price)*AVG(price))), 4) FROM s\nUNION ALL\nSELECT 'log(price) vs log(carat)', ROUND((AVG(ln(carat)*ln(price)) - AVG(ln(carat))*AVG(ln(price))) / \n    (sqrt(AVG(ln(carat)*ln(carat)) - AVG(ln(carat))*AVG(ln(carat))) * sqrt(AVG(ln(price)*ln(price)) - AVG(ln(price))*AVG(ln(price)))), 4) FROM s"
+      ],
+      "result_complete": true,
+      "coverage": "wrapper_and_engine_trace",
+      "execute_return_ms": 16.239852644503117,
+      "columns": [
+        "var",
+        "corr_with_price"
+      ],
+      "declared_result_types": null,
+      "observed_types": [
+        [
+          "str"
+        ],
+        [
+          "float"
+        ]
+      ],
+      "end_time": 1788861197.172752,
+      "row_count": 7,
+      "archived_rows": 7,
+      "result_bytes": 134,
+      "result_file": "results/S21.rows.jsonl",
+      "result_sha256": "e4b0f24763cbc9df5645d67568634ed6d57db7a4a2b6f5e61d303ac4d824da16",
+      "fetch_ms": 104.78736739605665,
+      "execute_fetch_ms": 121.02722004055977,
+      "encode_write_ms": 0.1027742400765419,
+      "wall_ms": 121.31895963102579
+    },
+    "S22": {
+      "batch": "dsv4flash-db-first-full-01",
+      "task_id": "dacomp-012",
+      "attempt": "attempt-01",
+      "phase": "agent_trajectory",
+      "call_id": "0aa2971e810948f68d90af464b7b5484",
+      "parent_call_id": "0aa2971e810948f68d90af464b7b5484",
+      "sql_id": "S22",
+      "sequence": 22,
+      "execution_id": "54bbd726664d408d8373e13341cafb56",
+      "connection_id": "19fd42c1c45f430bac87be9f0489ea34",
+      "start_time": 1788861209.256889,
+      "source": "python",
+      "sql": "\n  SELECT \"Carat (diamond weight)\" AS carat, \"Cut (quality)\" AS cut, \"Color\" AS color,\n         \"Clarity\" AS clarity, \"Depth percentage\" AS depth, \"Table percentage\" AS tbl,\n         \"Price (USD)\" AS price\n  FROM sheet1\n",
+      "parameters": [],
+      "database": "dacomp-012",
+      "dialect": "sqlite",
+      "category": "data",
+      "status": "success",
+      "engine_statements": [
+        "\n  SELECT \"Carat (diamond weight)\" AS carat, \"Cut (quality)\" AS cut, \"Color\" AS color,\n         \"Clarity\" AS clarity, \"Depth percentage\" AS depth, \"Table percentage\" AS tbl,\n         \"Price (USD)\" AS price\n  FROM sheet1\n"
+      ],
+      "result_complete": true,
+      "coverage": "wrapper_and_engine_trace",
+      "execute_return_ms": 0.34752488136291504,
+      "columns": [
+        "carat",
+        "cut",
+        "color",
+        "clarity",
+        "depth",
+        "tbl",
+        "price"
+      ],
+      "declared_result_types": null,
+      "observed_types": [
+        [
+          "float"
+        ],
+        [
+          "str"
+        ],
+        [
+          "str"
+        ],
+        [
+          "str"
+        ],
+        [
+          "float"
+        ],
+        [
+          "float"
+        ],
+        [
+          "int"
+        ]
+      ],
+      "end_time": 1788861209.7815742,
+      "row_count": 53595,
+      "archived_rows": 53595,
+      "result_bytes": 2518354,
+      "result_file": "results/S22.rows.jsonl",
+      "result_sha256": "7880793015dc3f78d601c3a8dc3f26b0bfe93aaa01acef2f7161367dd45012b9",
+      "fetch_ms": 76.92291494458914,
+      "execute_fetch_ms": 77.27043982595205,
+      "encode_write_ms": 428.62851079553366,
+      "wall_ms": 523.9613652229309
+    }
+  }
+}

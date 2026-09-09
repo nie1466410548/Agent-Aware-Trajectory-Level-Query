@@ -1,0 +1,148 @@
+{
+  "id": "C14",
+  "type": "common filtered view",
+  "source_status": "not_verified_cap",
+  "source_candidates": [
+    "C14"
+  ],
+  "description": "Same single source and complete filter; original filter retained.",
+  "table": "temp.\"reuse_017_c14\"",
+  "build": "CREATE TEMP TABLE \"reuse_017_c14\" AS\nSELECT * FROM \"order_information\" WHERE \"Product Category\" = 'Home & Furniture' AND \"Discount\" <> 'xxx' AND \"Quantity\" <> 'abc' AND NOT \"Quantity\" IS NULL",
+  "indexes": [],
+  "covered": [
+    "S65",
+    "S66"
+  ],
+  "rewrites": {
+    "S65": "SELECT\n  SUBSTRING(\"Order Date\", 1, 4) AS \"yr\",\n  AVG(CAST(\"Discount\" AS REAL)) AS \"avg_discount\",\n  AVG(CAST(\"Quantity\" AS REAL) * CAST(\"Discount\" AS REAL)) AS \"avg_qty_discount\"\nFROM temp.\"reuse_017_c14\" AS order_information\nWHERE\n  \"Product Category\" = 'Home & Furniture'\n  AND \"Discount\" <> 'xxx'\n  AND \"Quantity\" <> 'abc'\n  AND NOT \"Quantity\" IS NULL\nGROUP BY\n  yr\nORDER BY\n  yr",
+    "S66": "SELECT\n  \"Product\" AS \"Product\",\n  AVG(CAST(\"Discount\" AS REAL)) AS \"avg_discount\",\n  AVG(CAST(\"Quantity\" AS REAL) * CAST(\"Discount\" AS REAL)) AS \"avg_qty_discount\"\nFROM temp.\"reuse_017_c14\" AS order_information\nWHERE\n  \"Product Category\" = 'Home & Furniture'\n  AND \"Discount\" <> 'xxx'\n  AND \"Quantity\" <> 'abc'\n  AND NOT \"Quantity\" IS NULL\nGROUP BY\n  \"Product\"\nORDER BY\n  avg_qty_discount DESC"
+  },
+  "existing_result": false,
+  "checks": [
+    {
+      "sql": "S65",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 7.637813687324524
+    },
+    {
+      "sql": "S66",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 7.196352817118168
+    }
+  ],
+  "build_ms_validation": 10.345879942178726,
+  "rows": 10309,
+  "columns": [
+    "Customer ID",
+    "Order ID",
+    "Order Date",
+    "Month",
+    "Shipping Method",
+    "Product Category",
+    "Product",
+    "Sales",
+    "Quantity",
+    "Discount",
+    "profit",
+    "Shipping Cost",
+    "Order Priority"
+  ],
+  "safe": [
+    "S65",
+    "S66"
+  ],
+  "excluded": [],
+  "status": "verified",
+  "performance": {
+    "repeats": 5,
+    "samples": [
+      {
+        "build_ms": 10.267662815749645,
+        "original_ms": 22.01614249497652,
+        "rewrite_ms": 14.794834889471531,
+        "original_by_sql": {
+          "S65": 11.223171837627888,
+          "S66": 10.792970657348633
+        },
+        "rewrite_by_sql": {
+          "S65": 7.609792053699493,
+          "S66": 7.1850428357720375
+        }
+      },
+      {
+        "build_ms": 10.601155459880829,
+        "original_ms": 21.6929754242301,
+        "rewrite_ms": 14.780457131564617,
+        "original_by_sql": {
+          "S65": 11.069081723690033,
+          "S66": 10.623893700540066
+        },
+        "rewrite_by_sql": {
+          "S65": 7.6108817011117935,
+          "S66": 7.169575430452824
+        }
+      },
+      {
+        "build_ms": 10.258904658257961,
+        "original_ms": 21.869574673473835,
+        "rewrite_ms": 14.801605604588985,
+        "original_by_sql": {
+          "S65": 11.148576624691486,
+          "S66": 10.720998048782349
+        },
+        "rewrite_by_sql": {
+          "S65": 7.608921267092228,
+          "S66": 7.1926843374967575
+        }
+      },
+      {
+        "build_ms": 10.588469915091991,
+        "original_ms": 21.70855738222599,
+        "rewrite_ms": 14.750008471310139,
+        "original_by_sql": {
+          "S65": 11.070945300161839,
+          "S66": 10.637612082064152
+        },
+        "rewrite_by_sql": {
+          "S65": 7.591696456074715,
+          "S66": 7.158312015235424
+        }
+      },
+      {
+        "build_ms": 10.264823213219643,
+        "original_ms": 21.845977753400803,
+        "rewrite_ms": 14.791072346270084,
+        "original_by_sql": {
+          "S65": 11.147910729050636,
+          "S66": 10.698067024350166
+        },
+        "rewrite_by_sql": {
+          "S65": 7.608137093484402,
+          "S66": 7.182935252785683
+        }
+      }
+    ],
+    "baseline_ms": 21.845977753400803,
+    "build_ms": 10.267662815749645,
+    "reads_ms": 14.791072346270084,
+    "total_ms": 25.062497705221176,
+    "saved_ms": -3.2165199518203735,
+    "speedup": 0.8716600400465957,
+    "original_by_sql": {
+      "S65": 11.147910729050636,
+      "S66": 10.698067024350166
+    },
+    "rewrite_by_sql": {
+      "S65": 7.608921267092228,
+      "S66": 7.182935252785683
+    }
+  }
+}

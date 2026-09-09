@@ -1,0 +1,137 @@
+{
+  "id": "C5",
+  "type": "common subexpression",
+  "source_status": "not_verified_cap",
+  "source_candidates": [
+    "C5"
+  ],
+  "description": "Identical self-contained CTE body across queries.",
+  "table": "temp.\"reuse_018_c5\"",
+  "build": "CREATE TEMP TABLE \"reuse_018_c5\" AS\nSELECT \"Customer ID\", SUM(profit) AS profit FROM order_information WHERE \"Product Category\" = 'Fashion' GROUP BY \"Customer ID\"",
+  "indexes": [],
+  "covered": [
+    "S37",
+    "S56"
+  ],
+  "rewrites": {
+    "S37": "WITH cust AS (\n  SELECT\n    \"Customer ID\",\n    gender,\n    \"Customer Segment\"\n  FROM customer_information\n  GROUP BY\n    \"Customer ID\"\n), cust_orders AS (\n  SELECT\n    *\n  FROM temp.\"reuse_018_c5\"\n)\nSELECT\n  c.gender AS \"gender\",\n  COUNT(*) AS \"customers\",\n  COUNT(*) * 100.0 / 795 AS \"pct_of_customers\",\n  SUM(co.profit) AS \"profit\",\n  SUM(co.profit) * 100.0 / (\n    SELECT\n      SUM(profit)\n    FROM cust_orders\n  ) AS \"pct_of_profit\",\n  SUM(co.profit) / COUNT(*) AS \"profit_per_customer\"\nFROM cust AS c\nJOIN cust_orders AS co\n  ON c.\"Customer ID\" = co.\"Customer ID\"\nGROUP BY\n  c.gender",
+    "S56": "WITH cust AS (\n  SELECT\n    \"Customer ID\",\n    gender,\n    age\n  FROM customer_information\n  GROUP BY\n    \"Customer ID\"\n), cust_orders AS (\n  SELECT\n    *\n  FROM temp.\"reuse_018_c5\"\n)\nSELECT\n  c.gender AS \"gender\",\n  c.age AS \"age\",\n  co.profit AS \"profit\"\nFROM cust AS c\nJOIN cust_orders AS co\n  ON c.\"Customer ID\" = co.\"Customer ID\""
+  },
+  "existing_result": false,
+  "checks": [
+    {
+      "sql": "S37",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "exact_multiset",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 30.876636505126953
+    },
+    {
+      "sql": "S56",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "exact_multiset",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 31.38665296137333
+    }
+  ],
+  "build_ms_validation": 20.645963959395885,
+  "rows": 795,
+  "columns": [
+    "Customer ID",
+    "profit"
+  ],
+  "safe": [
+    "S37",
+    "S56"
+  ],
+  "excluded": [],
+  "status": "verified",
+  "performance": {
+    "repeats": 5,
+    "samples": [
+      {
+        "build_ms": 20.594273693859577,
+        "original_ms": 103.21641899645329,
+        "rewrite_ms": 62.16129567474127,
+        "original_by_sql": {
+          "S37": 51.477622240781784,
+          "S56": 51.7387967556715
+        },
+        "rewrite_by_sql": {
+          "S37": 30.79204075038433,
+          "S56": 31.369254924356937
+        }
+      },
+      {
+        "build_ms": 20.539212971925735,
+        "original_ms": 102.99247968941927,
+        "rewrite_ms": 62.18111980706453,
+        "original_by_sql": {
+          "S37": 51.35163012892008,
+          "S56": 51.64084956049919
+        },
+        "rewrite_by_sql": {
+          "S37": 30.918234959244728,
+          "S56": 31.262884847819805
+        }
+      },
+      {
+        "build_ms": 20.559118129312992,
+        "original_ms": 103.12892869114876,
+        "rewrite_ms": 62.18087859451771,
+        "original_by_sql": {
+          "S37": 51.330747082829475,
+          "S56": 51.79818160831928
+        },
+        "rewrite_by_sql": {
+          "S37": 30.9569938108325,
+          "S56": 31.223884783685207
+        }
+      },
+      {
+        "build_ms": 20.62787115573883,
+        "original_ms": 102.74899564683437,
+        "rewrite_ms": 62.294487841427326,
+        "original_by_sql": {
+          "S37": 51.16074625402689,
+          "S56": 51.588249392807484
+        },
+        "rewrite_by_sql": {
+          "S37": 31.168789602816105,
+          "S56": 31.12569823861122
+        }
+      },
+      {
+        "build_ms": 20.715893246233463,
+        "original_ms": 103.238376788795,
+        "rewrite_ms": 62.255953438580036,
+        "original_by_sql": {
+          "S37": 51.54974292963743,
+          "S56": 51.68863385915756
+        },
+        "rewrite_by_sql": {
+          "S37": 31.028391793370247,
+          "S56": 31.22756164520979
+        }
+      }
+    ],
+    "baseline_ms": 103.12892869114876,
+    "build_ms": 20.594273693859577,
+    "reads_ms": 62.18111980706453,
+    "total_ms": 82.75556936860085,
+    "saved_ms": 20.373359322547913,
+    "speedup": 1.2461871687668913,
+    "original_by_sql": {
+      "S37": 51.35163012892008,
+      "S56": 51.68863385915756
+    },
+    "rewrite_by_sql": {
+      "S37": 30.9569938108325,
+      "S56": 31.22756164520979
+    }
+  }
+}

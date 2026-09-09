@@ -1,0 +1,191 @@
+{
+  "id": "C3",
+  "type": "aggregate MV",
+  "source_status": "verified",
+  "source_candidates": [
+    "C3"
+  ],
+  "description": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+  "table": "temp.\"reuse_019_c3\"",
+  "build": "CREATE TEMP TABLE \"reuse_019_c3\" AS\nSELECT \"Inventory Status (Normal/Frozen/Scrapped)\" AS __g0, \"Inventory Alert Status\" AS __g1, \"Inventory Discrepancy Rate\" AS __g2, COUNT(*) AS __a0, MIN(\"Last Inbound Date\") AS __a1, MAX(\"Last Inbound Date\") AS __a2, MIN(\"Last Outbound Date\") AS __a3, MAX(\"Last Outbound Date\") AS __a4 FROM \"inventory_management\"  GROUP BY \"Inventory Status (Normal/Frozen/Scrapped)\", \"Inventory Alert Status\", \"Inventory Discrepancy Rate\"",
+  "indexes": [],
+  "covered": [
+    "S9",
+    "S10",
+    "S20",
+    "S26"
+  ],
+  "rewrites": {
+    "S9": "SELECT\n  __g0 AS \"status\",\n  SUM(__a0) AS \"cnt\"\nFROM temp.\"reuse_019_c3\"\nGROUP BY\n  __g0",
+    "S10": "SELECT\n  __g1 AS \"alert\",\n  SUM(__a0) AS \"cnt\"\nFROM temp.\"reuse_019_c3\"\nGROUP BY\n  __g1",
+    "S20": "SELECT\n  MIN(__a1) AS \"min_in\",\n  MAX(__a2) AS \"max_in\",\n  MIN(__a3) AS \"min_out\",\n  MAX(__a4) AS \"max_out\"\nFROM temp.\"reuse_019_c3\"",
+    "S26": "SELECT\n  __g2 AS \"Inventory Discrepancy Rate\",\n  SUM(__a0) AS \"cnt\"\nFROM temp.\"reuse_019_c3\"\nGROUP BY\n  __g2\nORDER BY\n  cnt DESC\nLIMIT 15"
+  },
+  "existing_result": false,
+  "checks": [
+    {
+      "sql": "S9",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "exact_multiset",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 0.14463812112808228
+    },
+    {
+      "sql": "S10",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "exact_multiset",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 0.16572512686252594
+    },
+    {
+      "sql": "S20",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "exact_multiset",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 0.1266738399863243
+    },
+    {
+      "sql": "S26",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 0.29055774211883545
+    }
+  ],
+  "build_ms_validation": 1.4175428077578545,
+  "rows": 401,
+  "columns": [
+    "__g0",
+    "__g1",
+    "__g2",
+    "__a0",
+    "__a1",
+    "__a2",
+    "__a3",
+    "__a4"
+  ],
+  "safe": [
+    "S9",
+    "S10",
+    "S20",
+    "S26"
+  ],
+  "excluded": [],
+  "status": "verified",
+  "performance": {
+    "repeats": 5,
+    "samples": [
+      {
+        "build_ms": 1.3686083257198334,
+        "original_ms": 0.7125772535800934,
+        "rewrite_ms": 0.6788177415728569,
+        "original_by_sql": {
+          "S9": 0.16190577298402786,
+          "S10": 0.16053393483161926,
+          "S20": 0.11717993766069412,
+          "S26": 0.27295760810375214
+        },
+        "rewrite_by_sql": {
+          "S9": 0.14486536383628845,
+          "S10": 0.15170499682426453,
+          "S20": 0.11946260929107666,
+          "S26": 0.26278477162122726
+        }
+      },
+      {
+        "build_ms": 1.3251341879367828,
+        "original_ms": 0.6316518411040306,
+        "rewrite_ms": 0.6641475483775139,
+        "original_by_sql": {
+          "S9": 0.13777334243059158,
+          "S10": 0.1342007890343666,
+          "S20": 0.09508337825536728,
+          "S26": 0.26459433138370514
+        },
+        "rewrite_by_sql": {
+          "S9": 0.14348234981298447,
+          "S10": 0.14565512537956238,
+          "S20": 0.10932609438896179,
+          "S26": 0.26568397879600525
+        }
+      },
+      {
+        "build_ms": 1.3522515073418617,
+        "original_ms": 0.7097348570823669,
+        "rewrite_ms": 0.6661461666226387,
+        "original_by_sql": {
+          "S9": 0.1621190458536148,
+          "S10": 0.1604035496711731,
+          "S20": 0.11697597801685333,
+          "S26": 0.2702362835407257
+        },
+        "rewrite_by_sql": {
+          "S9": 0.14356523752212524,
+          "S10": 0.1456383615732193,
+          "S20": 0.11039618402719498,
+          "S26": 0.2665463835000992
+        }
+      },
+      {
+        "build_ms": 1.3142796233296394,
+        "original_ms": 0.6306162104010582,
+        "rewrite_ms": 0.6681662052869797,
+        "original_by_sql": {
+          "S9": 0.1369202509522438,
+          "S10": 0.1392420381307602,
+          "S20": 0.09137485176324844,
+          "S26": 0.26307906955480576
+        },
+        "rewrite_by_sql": {
+          "S9": 0.14607515186071396,
+          "S10": 0.15243515372276306,
+          "S20": 0.1089954748749733,
+          "S26": 0.26066042482852936
+        }
+      },
+      {
+        "build_ms": 1.3132067397236824,
+        "original_ms": 0.7157959043979645,
+        "rewrite_ms": 0.6642034277319908,
+        "original_by_sql": {
+          "S9": 0.15968270599842072,
+          "S10": 0.1625344157218933,
+          "S20": 0.11629890650510788,
+          "S26": 0.27727987617254257
+        },
+        "rewrite_by_sql": {
+          "S9": 0.14313682913780212,
+          "S10": 0.15052501112222672,
+          "S20": 0.11017825454473495,
+          "S26": 0.260363332927227
+        }
+      }
+    ],
+    "baseline_ms": 0.7097348570823669,
+    "build_ms": 1.3251341879367828,
+    "reads_ms": 0.6661461666226387,
+    "total_ms": 1.9892817363142967,
+    "saved_ms": -1.2795468792319298,
+    "speedup": 0.35677945668839756,
+    "original_by_sql": {
+      "S9": 0.15968270599842072,
+      "S10": 0.1604035496711731,
+      "S20": 0.11629890650510788,
+      "S26": 0.2702362835407257
+    },
+    "rewrite_by_sql": {
+      "S9": 0.14356523752212524,
+      "S10": 0.15052501112222672,
+      "S20": 0.11017825454473495,
+      "S26": 0.26278477162122726
+    }
+  }
+}

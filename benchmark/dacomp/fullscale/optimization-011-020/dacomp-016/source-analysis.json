@@ -1,0 +1,259 @@
+{
+  "fingerprint": "935a7ac08762f6f5b780ff96273a8000ea672900e18105493abc17a835596e2e",
+  "analysis_source_version": "4149cfd747df5ad7975bcf7bfebb19711ca02612368286f1be74721a4688c687",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"sheet1\" WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018",
+      "covered": [
+        "S7",
+        "S11"
+      ],
+      "rewrites": {
+        "S7": "SELECT \"Year\", \"Region Name\", \"Surface Water Supply (100 million m³)\", \"Groundwater Supply (100 million m³)\", \"Total Water Supply (100 million m³)\" FROM temp.reuse_candidate AS sheet1 WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018 ORDER BY \"Year\"",
+        "S11": "SELECT \"Year\", ROUND(\"Surface Water Supply (100 million m³)\" / NULLIF(\"Groundwater Supply (100 million m³)\", 0), 4) AS \"Surface_to_Groundwater_Ratio\", \"Surface Water Supply (100 million m³)\" AS \"Surface\", \"Groundwater Supply (100 million m³)\" AS \"Groundwater\", \"Total Water Supply (100 million m³)\" AS \"Total\" FROM temp.reuse_candidate AS sheet1 WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018 ORDER BY \"Year\""
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S7",
+      "later_reuses": 1,
+      "denominator": 15,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788862454.3355584,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"sheet1\" WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018",
+          "phase": "offline_validation",
+          "start_time": 1788862454.3358006,
+          "status": "execute_returned",
+          "end_time": 1788862454.336182
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788862454.3361864,
+          "status": "execute_returned",
+          "end_time": 1788862454.3362038
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788862454.3362098,
+          "status": "execute_returned",
+          "end_time": 1788862454.3362238
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT \"Year\", \"Region Name\", \"Surface Water Supply (100 million m³)\", \"Groundwater Supply (100 million m³)\", \"Total Water Supply (100 million m³)\" FROM temp.reuse_candidate AS sheet1 WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018 ORDER BY \"Year\"",
+          "phase": "offline_validation",
+          "start_time": 1788862454.3362472,
+          "status": "execute_returned",
+          "end_time": 1788862454.3362803
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT \"Year\", ROUND(\"Surface Water Supply (100 million m³)\" / NULLIF(\"Groundwater Supply (100 million m³)\", 0), 4) AS \"Surface_to_Groundwater_Ratio\", \"Surface Water Supply (100 million m³)\" AS \"Surface\", \"Groundwater Supply (100 million m³)\" AS \"Groundwater\", \"Total Water Supply (100 million m³)\" AS \"Total\" FROM temp.reuse_candidate AS sheet1 WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018 ORDER BY \"Year\"",
+          "phase": "offline_validation",
+          "start_time": 1788862454.3369353,
+          "status": "execute_returned",
+          "end_time": 1788862454.3370018
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"sheet1\" WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018",
+          "time": 1788862454.336042,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788862454.336201,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788862454.3362207,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Year\", \"Region Name\", \"Surface Water Supply (100 million m³)\", \"Groundwater Supply (100 million m³)\", \"Total Water Supply (100 million m³)\" FROM temp.reuse_candidate AS sheet1 WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018 ORDER BY \"Year\"",
+          "time": 1788862454.33627,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Year\", ROUND(\"Surface Water Supply (100 million m³)\" / NULLIF(\"Groundwater Supply (100 million m³)\", 0), 4) AS \"Surface_to_Groundwater_Ratio\", \"Surface Water Supply (100 million m³)\" AS \"Surface\", \"Groundwater Supply (100 million m³)\" AS \"Groundwater\", \"Total Water Supply (100 million m³)\" AS \"Total\" FROM temp.reuse_candidate AS sheet1 WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018 ORDER BY \"Year\"",
+          "time": 1788862454.3369818,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.38537755608558655,
+      "intermediate_rows": 14,
+      "intermediate_columns": [
+        "Year",
+        "Region Code",
+        "Region Name",
+        "Total Water Supply (100 million m³)",
+        "Surface Water Supply (100 million m³)",
+        "Groundwater Supply (100 million m³)",
+        "Other Water Supply (100 million m³)",
+        "Total Water Consumption (100 million m³) ",
+        "Agricultural Water Consumption (100 million m³)",
+        "Industrial Water Consumption (100 million m³)",
+        "Domestic Water Consumption (100 million m³)",
+        "Ecological Water Consumption (100 million m³)",
+        "Per Capita Water Consumption (m³/person)"
+      ],
+      "validation_ended_at": 1788862454.337895,
+      "checks": [
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT \"Year\", \"Region Name\", \"Surface Water Supply (100 million m³)\", \"Groundwater Supply (100 million m³)\", \"Total Water Supply (100 million m³)\" FROM temp.reuse_candidate AS sheet1 WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018 ORDER BY \"Year\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6848862394690514
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT \"Year\", ROUND(\"Surface Water Supply (100 million m³)\" / NULLIF(\"Groundwater Supply (100 million m³)\", 0), 4) AS \"Surface_to_Groundwater_Ratio\", \"Surface Water Supply (100 million m³)\" AS \"Surface\", \"Groundwater Supply (100 million m³)\" AS \"Groundwater\", \"Total Water Supply (100 million m³)\" AS \"Total\" FROM temp.reuse_candidate AS sheet1 WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018 ORDER BY \"Year\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.9088665246963501
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "common filtered view",
+      "existing_result": false,
+      "build_sql": "SELECT * FROM \"economic_indicator_data\" WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018",
+      "covered": [
+        "S8",
+        "S16"
+      ],
+      "rewrites": {
+        "S8": "SELECT \"Year\", \"Region Name\", \"Urbanization rate (%)\" FROM temp.reuse_candidate AS economic_indicator_data WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018 ORDER BY \"Year\"",
+        "S16": "/* Check per capita GDP and industrial value added for China */ SELECT \"Year\", \"Per capita GDP (yuan/person)\", \"Industrial value added (100 million yuan)\", \"Fixed asset investment (100 million yuan)\", \"Urbanization rate (%)\" FROM temp.reuse_candidate AS economic_indicator_data WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018 ORDER BY \"Year\""
+      },
+      "status": "verified",
+      "reason": "Same single source and complete filter; original filter retained.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S8",
+      "later_reuses": 1,
+      "denominator": 15,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788862454.3379078,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"economic_indicator_data\" WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018",
+          "phase": "offline_validation",
+          "start_time": 1788862454.338071,
+          "status": "execute_returned",
+          "end_time": 1788862454.338287
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788862454.3382902,
+          "status": "execute_returned",
+          "end_time": 1788862454.3383043
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788862454.3383143,
+          "status": "execute_returned",
+          "end_time": 1788862454.3383262
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT \"Year\", \"Region Name\", \"Urbanization rate (%)\" FROM temp.reuse_candidate AS economic_indicator_data WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018 ORDER BY \"Year\"",
+          "phase": "offline_validation",
+          "start_time": 1788862454.33834,
+          "status": "execute_returned",
+          "end_time": 1788862454.3383648
+        },
+        {
+          "sequence": 5,
+          "sql": "/* Check per capita GDP and industrial value added for China */ SELECT \"Year\", \"Per capita GDP (yuan/person)\", \"Industrial value added (100 million yuan)\", \"Fixed asset investment (100 million yuan)\", \"Urbanization rate (%)\" FROM temp.reuse_candidate AS economic_indicator_data WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018 ORDER BY \"Year\"",
+          "phase": "offline_validation",
+          "start_time": 1788862454.3389468,
+          "status": "execute_returned",
+          "end_time": 1788862454.3389874
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT * FROM \"economic_indicator_data\" WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018",
+          "time": 1788862454.3381944,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788862454.3383017,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788862454.3383234,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT \"Year\", \"Region Name\", \"Urbanization rate (%)\" FROM temp.reuse_candidate AS economic_indicator_data WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018 ORDER BY \"Year\"",
+          "time": 1788862454.3383572,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "/* Check per capita GDP and industrial value added for China */ SELECT \"Year\", \"Per capita GDP (yuan/person)\", \"Industrial value added (100 million yuan)\", \"Fixed asset investment (100 million yuan)\", \"Urbanization rate (%)\" FROM temp.reuse_candidate AS economic_indicator_data WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018 ORDER BY \"Year\"",
+          "time": 1788862454.3389761,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 0.2185693010687828,
+      "intermediate_rows": 14,
+      "intermediate_columns": [
+        "Year",
+        "Region Code",
+        "Region Name",
+        "Per capita GDP (yuan/person)",
+        "Industrial value added (100 million yuan)",
+        "Fixed asset investment (100 million yuan)",
+        "Urbanization rate (%)"
+      ],
+      "validation_ended_at": 1788862454.3396766,
+      "checks": [
+        {
+          "sql_id": "S8",
+          "rewritten_sql": "SELECT \"Year\", \"Region Name\", \"Urbanization rate (%)\" FROM temp.reuse_candidate AS economic_indicator_data WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018 ORDER BY \"Year\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6046080961823463
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "/* Check per capita GDP and industrial value added for China */ SELECT \"Year\", \"Per capita GDP (yuan/person)\", \"Industrial value added (100 million yuan)\", \"Fixed asset investment (100 million yuan)\", \"Urbanization rate (%)\" FROM temp.reuse_candidate AS economic_indicator_data WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018 ORDER BY \"Year\"",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 0.6883852183818817
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+{
+  "id": "C1",
+  "type": "common filtered view",
+  "source_status": "verified",
+  "source_candidates": [
+    "C1"
+  ],
+  "description": "Same single source and complete filter; original filter retained.",
+  "table": "temp.\"reuse_016_c1\"",
+  "build": "CREATE TEMP TABLE \"reuse_016_c1\" AS\nSELECT * FROM \"sheet1\" WHERE \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018",
+  "indexes": [],
+  "covered": [
+    "S7",
+    "S11"
+  ],
+  "rewrites": {
+    "S7": "SELECT\n  \"Year\" AS \"Year\",\n  \"Region Name\" AS \"Region Name\",\n  \"Surface Water Supply (100 million m³)\" AS \"Surface Water Supply (100 million m³)\",\n  \"Groundwater Supply (100 million m³)\" AS \"Groundwater Supply (100 million m³)\",\n  \"Total Water Supply (100 million m³)\" AS \"Total Water Supply (100 million m³)\"\nFROM temp.\"reuse_016_c1\" AS sheet1\nWHERE\n  \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018\nORDER BY\n  \"Year\"",
+    "S11": "SELECT\n  \"Year\" AS \"Year\",\n  ROUND(\n    \"Surface Water Supply (100 million m³)\" / NULLIF(\"Groundwater Supply (100 million m³)\", 0),\n    4\n  ) AS \"Surface_to_Groundwater_Ratio\",\n  \"Surface Water Supply (100 million m³)\" AS \"Surface\",\n  \"Groundwater Supply (100 million m³)\" AS \"Groundwater\",\n  \"Total Water Supply (100 million m³)\" AS \"Total\"\nFROM temp.\"reuse_016_c1\" AS sheet1\nWHERE\n  \"Region Name\" = 'China' AND \"Year\" BETWEEN 2005 AND 2018\nORDER BY\n  \"Year\""
+  },
+  "existing_result": false,
+  "checks": [
+    {
+      "sql": "S7",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 0.053631141781806946
+    },
+    {
+      "sql": "S11",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 0.08144136518239975
+    }
+  ],
+  "build_ms_validation": 0.16726180911064148,
+  "rows": 14,
+  "columns": [
+    "Year",
+    "Region Code",
+    "Region Name",
+    "Total Water Supply (100 million m³)",
+    "Surface Water Supply (100 million m³)",
+    "Groundwater Supply (100 million m³)",
+    "Other Water Supply (100 million m³)",
+    "Total Water Consumption (100 million m³) ",
+    "Agricultural Water Consumption (100 million m³)",
+    "Industrial Water Consumption (100 million m³)",
+    "Domestic Water Consumption (100 million m³)",
+    "Ecological Water Consumption (100 million m³)",
+    "Per Capita Water Consumption (m³/person)"
+  ],
+  "safe": [
+    "S7",
+    "S11"
+  ],
+  "excluded": [],
+  "status": "verified",
+  "performance": {
+    "repeats": 5,
+    "samples": [
+      {
+        "build_ms": 0.12223981320858002,
+        "original_ms": 0.1569623127579689,
+        "rewrite_ms": 0.09371526539325714,
+        "original_by_sql": {
+          "S7": 0.07767137140035629,
+          "S11": 0.07929094135761261
+        },
+        "rewrite_by_sql": {
+          "S7": 0.04398170858621597,
+          "S11": 0.04973355680704117
+        }
+      },
+      {
+        "build_ms": 0.11902768164873123,
+        "original_ms": 0.10666903108358383,
+        "rewrite_ms": 0.10419636964797974,
+        "original_by_sql": {
+          "S7": 0.05276035517454147,
+          "S11": 0.05390867590904236
+        },
+        "rewrite_by_sql": {
+          "S7": 0.04322454333305359,
+          "S11": 0.06097182631492615
+        }
+      },
+      {
+        "build_ms": 0.12140348553657532,
+        "original_ms": 0.15546195209026337,
+        "rewrite_ms": 0.090855173766613,
+        "original_by_sql": {
+          "S7": 0.07528066635131836,
+          "S11": 0.08018128573894501
+        },
+        "rewrite_by_sql": {
+          "S7": 0.04228297621011734,
+          "S11": 0.048572197556495667
+        }
+      },
+      {
+        "build_ms": 0.11847633868455887,
+        "original_ms": 0.11269375681877136,
+        "rewrite_ms": 0.09124726057052612,
+        "original_by_sql": {
+          "S7": 0.0552348792552948,
+          "S11": 0.05745887756347656
+        },
+        "rewrite_by_sql": {
+          "S7": 0.043414533138275146,
+          "S11": 0.04783272743225098
+        }
+      },
+      {
+        "build_ms": 0.11402461677789688,
+        "original_ms": 0.15399791300296783,
+        "rewrite_ms": 0.09911507368087769,
+        "original_by_sql": {
+          "S7": 0.0753253698348999,
+          "S11": 0.07867254316806793
+        },
+        "rewrite_by_sql": {
+          "S7": 0.049454160034656525,
+          "S11": 0.04966091364622116
+        }
+      }
+    ],
+    "baseline_ms": 0.15399791300296783,
+    "build_ms": 0.11902768164873123,
+    "reads_ms": 0.09371526539325714,
+    "total_ms": 0.21313969045877457,
+    "saved_ms": -0.05914177745580673,
+    "speedup": 0.7225210502628279,
+    "original_by_sql": {
+      "S7": 0.07528066635131836,
+      "S11": 0.07867254316806793
+    },
+    "rewrite_by_sql": {
+      "S7": 0.043414533138275146,
+      "S11": 0.04966091364622116
+    }
+  }
+}

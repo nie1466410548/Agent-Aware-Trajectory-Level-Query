@@ -1,0 +1,361 @@
+{
+  "id": "C3",
+  "type": "aggregate MV",
+  "source_status": "verified",
+  "source_candidates": [
+    "C3"
+  ],
+  "description": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+  "table": "temp.\"reuse_012_c3\"",
+  "build": "CREATE TEMP TABLE \"reuse_012_c3\" AS\nSELECT \"Cut (quality)\" AS __g0, color AS __g1, clarity AS __g2, COUNT(*) AS __a0, SUM(CASE WHEN \"Carat (diamond weight)\" IS NULL THEN 1 ELSE 0 END) AS __a1, SUM(CASE WHEN \"Cut (quality)\" IS NULL THEN 1 ELSE 0 END) AS __a2, SUM(CASE WHEN \"Color\" IS NULL THEN 1 ELSE 0 END) AS __a3, SUM(CASE WHEN \"Clarity\" IS NULL THEN 1 ELSE 0 END) AS __a4, SUM(CASE WHEN \"Depth percentage\" IS NULL THEN 1 ELSE 0 END) AS __a5, SUM(CASE WHEN \"Table percentage\" IS NULL THEN 1 ELSE 0 END) AS __a6, SUM(CASE WHEN \"X-axis length (mm)\" IS NULL THEN 1 ELSE 0 END) AS __a7, SUM(CASE WHEN \"Y-axis width (mm)\" IS NULL THEN 1 ELSE 0 END) AS __a8, SUM(CASE WHEN \"Z-axis depth (mm)\" IS NULL THEN 1 ELSE 0 END) AS __a9, SUM(CASE WHEN \"Price (USD)\" IS NULL THEN 1 ELSE 0 END) AS __a10, MIN(\"Price (USD)\") AS __a11, MAX(\"Price (USD)\") AS __a12, SUM(\"Price (USD)\") AS __a13_sum, COUNT(\"Price (USD)\") AS __a13_n, MIN(\"Carat (diamond weight)\") AS __a14, MAX(\"Carat (diamond weight)\") AS __a15, SUM(\"Carat (diamond weight)\") AS __a16_sum, COUNT(\"Carat (diamond weight)\") AS __a16_n, SUM(\"Price (USD)\" / \"Carat (diamond weight)\") AS __a17_sum, COUNT(\"Price (USD)\" / \"Carat (diamond weight)\") AS __a17_n, SUM(\"Depth percentage\") AS __a18_sum, COUNT(\"Depth percentage\") AS __a18_n, SUM(\"Table percentage\") AS __a19_sum, COUNT(\"Table percentage\") AS __a19_n, SUM(\"Carat (diamond weight)\" * \"Price (USD)\") AS __a20_sum, COUNT(\"Carat (diamond weight)\" * \"Price (USD)\") AS __a20_n, SUM(\"Carat (diamond weight)\" * \"Carat (diamond weight)\") AS __a21_sum, COUNT(\"Carat (diamond weight)\" * \"Carat (diamond weight)\") AS __a21_n, SUM(\"Price (USD)\" * \"Price (USD)\") AS __a22_sum, COUNT(\"Price (USD)\" * \"Price (USD)\") AS __a22_n FROM \"sheet1\"  GROUP BY \"Cut (quality)\", color, clarity",
+  "indexes": [],
+  "covered": [
+    "S3",
+    "S4",
+    "S5",
+    "S6",
+    "S7",
+    "S11",
+    "S13",
+    "S14",
+    "S15",
+    "S20"
+  ],
+  "rewrites": {
+    "S3": "SELECT\n  SUM(__a0) AS \"total_rows\"\nFROM temp.\"reuse_012_c3\"",
+    "S4": "SELECT\n  SUM(__a0) AS \"total\",\n  SUM(__a1) AS \"null_carat\",\n  SUM(__a2) AS \"null_cut\",\n  SUM(__a3) AS \"null_color\",\n  SUM(__a4) AS \"null_clarity\",\n  SUM(__a5) AS \"null_depth\",\n  SUM(__a6) AS \"null_table\",\n  SUM(__a7) AS \"null_x\",\n  SUM(__a8) AS \"null_y\",\n  SUM(__a9) AS \"null_z\",\n  SUM(__a10) AS \"null_price\"\nFROM temp.\"reuse_012_c3\"",
+    "S5": "SELECT\n  __g0 AS \"cut\",\n  SUM(__a0) AS \"n\",\n  MIN(__a11) AS \"min_price\",\n  MAX(__a12) AS \"max_price\",\n  (\n    1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)\n  ) AS \"avg_price\"\nFROM temp.\"reuse_012_c3\"\nGROUP BY\n  __g0\nORDER BY\n  n DESC",
+    "S6": "SELECT\n  __g1 AS \"Color\",\n  SUM(__a0) AS \"n\"\nFROM temp.\"reuse_012_c3\"\nGROUP BY\n  __g1\nORDER BY\n  __g1",
+    "S7": "SELECT\n  __g2 AS \"Clarity\",\n  SUM(__a0) AS \"n\"\nFROM temp.\"reuse_012_c3\"\nGROUP BY\n  __g2\nORDER BY\n  __g2",
+    "S11": "SELECT\n  MIN(__a14) AS \"min_carat\",\n  MAX(__a15) AS \"max_carat\",\n  MIN(__a11) AS \"min_price\",\n  MAX(__a12) AS \"max_price\",\n  ROUND((\n    1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n  ), 3) AS \"avg_carat\",\n  ROUND((\n    1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)\n  ), 2) AS \"avg_price\",\n  ROUND((\n    1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)\n  ), 2) AS \"avg_ppc\",\n  ROUND((\n    1.0 * SUM(__a18_sum) / NULLIF(SUM(__a18_n), 0)\n  ), 2) AS \"avg_depth\",\n  ROUND((\n    1.0 * SUM(__a19_sum) / NULLIF(SUM(__a19_n), 0)\n  ), 2) AS \"avg_table\"\nFROM temp.\"reuse_012_c3\"",
+    "S13": "SELECT\n  __g0 AS \"cut\",\n  SUM(__a0) AS \"n\",\n  ROUND((\n    1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)\n  ), 2) AS \"avg_ppc\",\n  ROUND((\n    1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n  ), 3) AS \"avg_carat\"\nFROM temp.\"reuse_012_c3\"\nGROUP BY\n  __g0\nORDER BY\n  avg_ppc DESC",
+    "S14": "SELECT\n  __g1 AS \"Color\",\n  SUM(__a0) AS \"n\",\n  ROUND((\n    1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)\n  ), 2) AS \"avg_ppc\",\n  ROUND((\n    1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n  ), 3) AS \"avg_carat\"\nFROM temp.\"reuse_012_c3\"\nGROUP BY\n  __g1\nORDER BY\n  __g1",
+    "S15": "SELECT\n  __g2 AS \"Clarity\",\n  SUM(__a0) AS \"n\",\n  ROUND((\n    1.0 * SUM(__a17_sum) / NULLIF(SUM(__a17_n), 0)\n  ), 2) AS \"avg_ppc\",\n  ROUND((\n    1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n  ), 3) AS \"avg_carat\"\nFROM temp.\"reuse_012_c3\"\nGROUP BY\n  __g2\nORDER BY\n  __g2",
+    "S20": "SELECT\n  ROUND(\n    (\n      1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)\n    ) - (\n      1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n    ) * (\n      1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)\n    ),\n    4\n  ) AS \"carat_price_cov\",\n  ROUND(\n    (\n      (\n        1.0 * SUM(__a20_sum) / NULLIF(SUM(__a20_n), 0)\n      ) - (\n        1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n      ) * (\n        1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)\n      )\n    ) / (\n      SQRT(\n        (\n          1.0 * SUM(__a21_sum) / NULLIF(SUM(__a21_n), 0)\n        ) - (\n          1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n        ) * (\n          1.0 * SUM(__a16_sum) / NULLIF(SUM(__a16_n), 0)\n        )\n      ) * SQRT(\n        (\n          1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)\n        ) - (\n          1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)\n        ) * (\n          1.0 * SUM(__a13_sum) / NULLIF(SUM(__a13_n), 0)\n        )\n      )\n    ),\n    4\n  ) AS \"corr_carat_price\"\nFROM temp.\"reuse_012_c3\""
+  },
+  "existing_result": false,
+  "checks": [
+    {
+      "sql": "S3",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "exact_multiset",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 0.04102382808923721
+    },
+    {
+      "sql": "S4",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "exact_multiset",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 0.16540195792913437
+    },
+    {
+      "sql": "S5",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 0.2558548003435135
+    },
+    {
+      "sql": "S6",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 0.15421118587255478
+    },
+    {
+      "sql": "S7",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 0.151059590280056
+    },
+    {
+      "sql": "S11",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "exact_multiset",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 0.23625046014785767
+    },
+    {
+      "sql": "S13",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 0.24594739079475403
+    },
+    {
+      "sql": "S14",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 0.2477439120411873
+    },
+    {
+      "sql": "S15",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 0.2534594386816025
+    },
+    {
+      "sql": "S20",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "exact_multiset",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 0.2348683774471283
+    }
+  ],
+  "build_ms_validation": 151.13481041043997,
+  "rows": 276,
+  "columns": [
+    "__g0",
+    "__g1",
+    "__g2",
+    "__a0",
+    "__a1",
+    "__a2",
+    "__a3",
+    "__a4",
+    "__a5",
+    "__a6",
+    "__a7",
+    "__a8",
+    "__a9",
+    "__a10",
+    "__a11",
+    "__a12",
+    "__a13_sum",
+    "__a13_n",
+    "__a14",
+    "__a15",
+    "__a16_sum",
+    "__a16_n",
+    "__a17_sum",
+    "__a17_n",
+    "__a18_sum",
+    "__a18_n",
+    "__a19_sum",
+    "__a19_n",
+    "__a20_sum",
+    "__a20_n",
+    "__a21_sum",
+    "__a21_n",
+    "__a22_sum",
+    "__a22_n"
+  ],
+  "safe": [
+    "S3",
+    "S4",
+    "S5",
+    "S6",
+    "S7",
+    "S11",
+    "S13",
+    "S14",
+    "S15",
+    "S20"
+  ],
+  "excluded": [],
+  "status": "verified",
+  "performance": {
+    "repeats": 5,
+    "samples": [
+      {
+        "build_ms": 148.6473958939314,
+        "original_ms": 219.34961155056953,
+        "rewrite_ms": 1.7263730987906456,
+        "original_by_sql": {
+          "S3": 0.8385879918932915,
+          "S4": 25.200591422617435,
+          "S5": 26.871582493185997,
+          "S6": 22.02864270657301,
+          "S7": 22.12731260806322,
+          "S11": 18.761438317596912,
+          "S13": 27.924083173274994,
+          "S14": 29.582702554762363,
+          "S15": 29.904043301939964,
+          "S20": 16.110626980662346
+        },
+        "rewrite_by_sql": {
+          "S3": 0.041124410927295685,
+          "S4": 0.13428181409835815,
+          "S5": 0.21922215819358826,
+          "S6": 0.12212153524160385,
+          "S7": 0.1377025619149208,
+          "S11": 0.20885467529296875,
+          "S13": 0.21617207676172256,
+          "S14": 0.2163611352443695,
+          "S15": 0.22506434470415115,
+          "S20": 0.20546838641166687
+        }
+      },
+      {
+        "build_ms": 152.2616120055318,
+        "original_ms": 223.3261177316308,
+        "rewrite_ms": 1.7150770872831345,
+        "original_by_sql": {
+          "S3": 0.77084731310606,
+          "S4": 25.051556527614594,
+          "S5": 26.855298317968845,
+          "S6": 22.53463678061962,
+          "S7": 23.929656483232975,
+          "S11": 17.598526552319527,
+          "S13": 28.186428360641003,
+          "S14": 32.02410228550434,
+          "S15": 31.448465771973133,
+          "S20": 14.926599338650703
+        },
+        "rewrite_by_sql": {
+          "S3": 0.03946758806705475,
+          "S4": 0.13538170605897903,
+          "S5": 0.21722912788391113,
+          "S6": 0.12329407036304474,
+          "S7": 0.13055745512247086,
+          "S11": 0.21236296743154526,
+          "S13": 0.21757464855909348,
+          "S14": 0.21623168140649796,
+          "S15": 0.22394023835659027,
+          "S20": 0.199037604033947
+        }
+      },
+      {
+        "build_ms": 148.69609009474516,
+        "original_ms": 220.73812782764435,
+        "rewrite_ms": 1.7196331173181534,
+        "original_by_sql": {
+          "S3": 0.7908092811703682,
+          "S4": 25.46760533004999,
+          "S5": 26.879807934165,
+          "S6": 22.009392268955708,
+          "S7": 22.072809748351574,
+          "S11": 18.776155076920986,
+          "S13": 28.060310520231724,
+          "S14": 29.559417627751827,
+          "S15": 31.016758643090725,
+          "S20": 16.105061396956444
+        },
+        "rewrite_by_sql": {
+          "S3": 0.04045199602842331,
+          "S4": 0.1345546916127205,
+          "S5": 0.22361241281032562,
+          "S6": 0.12283399701118469,
+          "S7": 0.12981798499822617,
+          "S11": 0.20748283714056015,
+          "S13": 0.21649524569511414,
+          "S14": 0.22273696959018707,
+          "S15": 0.22447481751441956,
+          "S20": 0.1971721649169922
+        }
+      },
+      {
+        "build_ms": 152.18276809901,
+        "original_ms": 223.51231053471565,
+        "rewrite_ms": 1.7145974561572075,
+        "original_by_sql": {
+          "S3": 0.7699457928538322,
+          "S4": 24.97821021825075,
+          "S5": 26.873278431594372,
+          "S6": 22.613070905208588,
+          "S7": 23.961927741765976,
+          "S11": 17.592880874872208,
+          "S13": 28.214692138135433,
+          "S14": 32.02999383211136,
+          "S15": 31.636071391403675,
+          "S20": 14.842239208519459
+        },
+        "rewrite_by_sql": {
+          "S3": 0.04194676876068115,
+          "S4": 0.13505667448043823,
+          "S5": 0.21712761372327805,
+          "S6": 0.12227240949869156,
+          "S7": 0.12950319796800613,
+          "S11": 0.20773708820343018,
+          "S13": 0.22223778069019318,
+          "S14": 0.2164570614695549,
+          "S15": 0.2231951802968979,
+          "S20": 0.19906368106603622
+        }
+      },
+      {
+        "build_ms": 148.77241477370262,
+        "original_ms": 219.17689312249422,
+        "rewrite_ms": 1.7134882509708405,
+        "original_by_sql": {
+          "S3": 0.7903920486569405,
+          "S4": 25.164698250591755,
+          "S5": 26.911956258118153,
+          "S6": 22.061940282583237,
+          "S7": 22.154493257403374,
+          "S11": 18.74767057597637,
+          "S13": 27.891164645552635,
+          "S14": 29.498109593987465,
+          "S15": 29.860506765544415,
+          "S20": 16.095961444079876
+        },
+        "rewrite_by_sql": {
+          "S3": 0.04050321877002716,
+          "S4": 0.13443175703287125,
+          "S5": 0.22474490106105804,
+          "S6": 0.12267474085092545,
+          "S7": 0.12871529906988144,
+          "S11": 0.20708609372377396,
+          "S13": 0.21649058908224106,
+          "S14": 0.21587777882814407,
+          "S15": 0.22820569574832916,
+          "S20": 0.19475817680358887
+        }
+      }
+    ],
+    "baseline_ms": 220.73812782764435,
+    "build_ms": 148.77241477370262,
+    "reads_ms": 1.7150770872831345,
+    "total_ms": 150.48590302467346,
+    "saved_ms": 70.25222480297089,
+    "speedup": 1.4668359187867082,
+    "original_by_sql": {
+      "S3": 0.7903920486569405,
+      "S4": 25.164698250591755,
+      "S5": 26.873278431594372,
+      "S6": 22.061940282583237,
+      "S7": 22.154493257403374,
+      "S11": 18.74767057597637,
+      "S13": 28.060310520231724,
+      "S14": 29.582702554762363,
+      "S15": 31.016758643090725,
+      "S20": 16.095961444079876
+    },
+    "rewrite_by_sql": {
+      "S3": 0.04050321877002716,
+      "S4": 0.1345546916127205,
+      "S5": 0.21922215819358826,
+      "S6": 0.12267474085092545,
+      "S7": 0.12981798499822617,
+      "S11": 0.20773708820343018,
+      "S13": 0.21649524569511414,
+      "S14": 0.2163611352443695,
+      "S15": 0.22447481751441956,
+      "S20": 0.199037604033947
+    }
+  }
+}

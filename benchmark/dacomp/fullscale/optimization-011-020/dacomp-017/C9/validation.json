@@ -1,0 +1,140 @@
+{
+  "id": "C9",
+  "type": "aggregate MV",
+  "source_status": "not_verified_cap",
+  "source_candidates": [
+    "C9"
+  ],
+  "description": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+  "table": "temp.\"reuse_017_c9\"",
+  "build": "CREATE TEMP TABLE \"reuse_017_c9\" AS\nSELECT \"Quantity\" AS __g0, SUBSTRING(\"Order Date\", 1, 4) AS __g1, COUNT(*) AS __a0, SUM(profit) AS __a1, SUM(sales) AS __a2 FROM \"order_information\" WHERE \"Product Category\" = 'Home & Furniture' AND \"Product\" = 'Umbrellas' GROUP BY \"Quantity\", SUBSTRING(\"Order Date\", 1, 4)",
+  "indexes": [],
+  "covered": [
+    "S37",
+    "S39"
+  ],
+  "rewrites": {
+    "S37": "SELECT\n  __g0 AS \"Quantity\",\n  SUM(__a0) AS \"n\",\n  SUM(__a1) AS \"profit\",\n  SUM(__a2) AS \"sales\",\n  ROUND(SUM(__a1) * 1.0 / SUM(__a2), 4) AS \"margin\"\nFROM temp.\"reuse_017_c9\"\nGROUP BY\n  __g0\nORDER BY\n  __g0",
+    "S39": "SELECT\n  __g1 AS \"yr\",\n  __g0 AS \"Quantity\",\n  SUM(__a0) AS \"n\"\nFROM temp.\"reuse_017_c9\"\nGROUP BY\n  __g1,\n  __g0\nORDER BY\n  yr,\n  __g0"
+  },
+  "existing_result": false,
+  "checks": [
+    {
+      "sql": "S37",
+      "columns_equal": true,
+      "ok": true,
+      "exact": false,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": true,
+      "replay_ms": 0.05734246224164963
+    },
+    {
+      "sql": "S39",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 0.06903335452079773
+    }
+  ],
+  "build_ms_validation": 5.478633567690849,
+  "rows": 15,
+  "columns": [
+    "__g0",
+    "__g1",
+    "__a0",
+    "__a1",
+    "__a2"
+  ],
+  "safe": [
+    "S37",
+    "S39"
+  ],
+  "excluded": [],
+  "status": "verified",
+  "performance": {
+    "repeats": 5,
+    "samples": [
+      {
+        "build_ms": 5.401890724897385,
+        "original_ms": 10.283934883773327,
+        "rewrite_ms": 0.10336749255657196,
+        "original_by_sql": {
+          "S37": 5.020026117563248,
+          "S39": 5.263908766210079
+        },
+        "rewrite_by_sql": {
+          "S37": 0.05587097257375717,
+          "S39": 0.04749651998281479
+        }
+      },
+      {
+        "build_ms": 5.489123053848743,
+        "original_ms": 10.178268887102604,
+        "rewrite_ms": 0.10515190660953522,
+        "original_by_sql": {
+          "S37": 4.967046901583672,
+          "S39": 5.211221985518932
+        },
+        "rewrite_by_sql": {
+          "S37": 0.05742069333791733,
+          "S39": 0.04773121327161789
+        }
+      },
+      {
+        "build_ms": 5.405749194324017,
+        "original_ms": 10.293903760612011,
+        "rewrite_ms": 0.10366272181272507,
+        "original_by_sql": {
+          "S37": 5.017010495066643,
+          "S39": 5.276893265545368
+        },
+        "rewrite_by_sql": {
+          "S37": 0.0563720241189003,
+          "S39": 0.04729069769382477
+        }
+      },
+      {
+        "build_ms": 5.462776869535446,
+        "original_ms": 10.217941366136074,
+        "rewrite_ms": 0.1050364226102829,
+        "original_by_sql": {
+          "S37": 4.970725625753403,
+          "S39": 5.247215740382671
+        },
+        "rewrite_by_sql": {
+          "S37": 0.05685538053512573,
+          "S39": 0.048181042075157166
+        }
+      },
+      {
+        "build_ms": 5.394892767071724,
+        "original_ms": 10.466957464814186,
+        "rewrite_ms": 0.10402314364910126,
+        "original_by_sql": {
+          "S37": 5.10695856064558,
+          "S39": 5.359998904168606
+        },
+        "rewrite_by_sql": {
+          "S37": 0.05639810115098953,
+          "S39": 0.047625042498111725
+        }
+      }
+    ],
+    "baseline_ms": 10.283934883773327,
+    "build_ms": 5.405749194324017,
+    "reads_ms": 0.10402314364910126,
+    "total_ms": 5.509411916136742,
+    "saved_ms": 4.774522967636585,
+    "speedup": 1.8666120886064608,
+    "original_by_sql": {
+      "S37": 5.017010495066643,
+      "S39": 5.263908766210079
+    },
+    "rewrite_by_sql": {
+      "S37": 0.05639810115098953,
+      "S39": 0.047625042498111725
+    }
+  }
+}

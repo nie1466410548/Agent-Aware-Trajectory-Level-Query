@@ -1,0 +1,165 @@
+{
+  "id": "C2",
+  "type": "common subexpression",
+  "source_status": "verified",
+  "source_candidates": [
+    "C2"
+  ],
+  "description": "Identical self-contained CTE body across queries.",
+  "table": "temp.\"reuse_012_c2\"",
+  "build": "CREATE TEMP TABLE \"reuse_012_c2\" AS\nSELECT \"Price (USD)\" AS price, \"Carat (diamond weight)\" AS carat, \"Cut (quality)\" AS cut, \"Color\" AS color, \"Clarity\" AS clarity, CASE WHEN \"Carat (diamond weight)\" <= 0.5 THEN '<=0.5' WHEN \"Carat (diamond weight)\" <= 1.0 THEN '0.51-1.0' WHEN \"Carat (diamond weight)\" <= 1.5 THEN '1.01-1.5' ELSE '>1.5' END AS interval FROM sheet1",
+  "indexes": [],
+  "covered": [
+    "S16",
+    "S17",
+    "S18"
+  ],
+  "rewrites": {
+    "S16": "WITH b AS (\n  SELECT\n    *\n  FROM temp.\"reuse_012_c2\"\n)\nSELECT\n  interval AS \"interval\",\n  cut AS \"cut\",\n  COUNT(*) AS \"n\",\n  ROUND(AVG(price / carat), 2) AS \"avg_ppc\"\nFROM b\nGROUP BY\n  interval,\n  cut\nORDER BY\n  interval,\n  avg_ppc DESC",
+    "S17": "WITH b AS (\n  SELECT\n    *\n  FROM temp.\"reuse_012_c2\"\n)\nSELECT\n  interval AS \"interval\",\n  color AS \"color\",\n  COUNT(*) AS \"n\",\n  ROUND(AVG(price / carat), 2) AS \"avg_ppc\"\nFROM b\nGROUP BY\n  interval,\n  color\nORDER BY\n  interval,\n  color",
+    "S18": "WITH b AS (\n  SELECT\n    *\n  FROM temp.\"reuse_012_c2\"\n)\nSELECT\n  interval AS \"interval\",\n  clarity AS \"clarity\",\n  COUNT(*) AS \"n\",\n  ROUND(AVG(price / carat), 2) AS \"avg_ppc\"\nFROM b\nGROUP BY\n  interval,\n  clarity\nORDER BY\n  interval,\n  clarity"
+  },
+  "existing_result": false,
+  "checks": [
+    {
+      "sql": "S16",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 46.807561069726944
+    },
+    {
+      "sql": "S17",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 48.545606434345245
+    },
+    {
+      "sql": "S18",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 47.017346136271954
+    }
+  ],
+  "build_ms_validation": 18.469741567969322,
+  "rows": 53595,
+  "columns": [
+    "price",
+    "carat",
+    "cut",
+    "color",
+    "clarity",
+    "interval"
+  ],
+  "safe": [
+    "S16",
+    "S17",
+    "S18"
+  ],
+  "excluded": [],
+  "status": "verified",
+  "performance": {
+    "repeats": 5,
+    "samples": [
+      {
+        "build_ms": 18.49560346454382,
+        "original_ms": 156.45540412515402,
+        "rewrite_ms": 143.56032013893127,
+        "original_by_sql": {
+          "S16": 51.047489047050476,
+          "S17": 52.68387123942375,
+          "S18": 52.72404383867979
+        },
+        "rewrite_by_sql": {
+          "S16": 46.65984306484461,
+          "S17": 48.451559618115425,
+          "S18": 48.44891745597124
+        }
+      },
+      {
+        "build_ms": 20.172743126749992,
+        "original_ms": 161.80963907390833,
+        "rewrite_ms": 143.64557899534702,
+        "original_by_sql": {
+          "S16": 53.817045874893665,
+          "S17": 54.030006751418114,
+          "S18": 53.96258644759655
+        },
+        "rewrite_by_sql": {
+          "S16": 46.593135222792625,
+          "S17": 48.47757797688246,
+          "S18": 48.57486579567194
+        }
+      },
+      {
+        "build_ms": 18.48791167140007,
+        "original_ms": 156.10441099852324,
+        "rewrite_ms": 143.6202023178339,
+        "original_by_sql": {
+          "S16": 50.852786749601364,
+          "S17": 52.61151399463415,
+          "S18": 52.64011025428772
+        },
+        "rewrite_by_sql": {
+          "S16": 46.60480469465256,
+          "S17": 48.437424935400486,
+          "S18": 48.57797268778086
+        }
+      },
+      {
+        "build_ms": 20.146274007856846,
+        "original_ms": 161.69799771159887,
+        "rewrite_ms": 143.28021183609962,
+        "original_by_sql": {
+          "S16": 53.76039259135723,
+          "S17": 53.9455097168684,
+          "S18": 53.99209540337324
+        },
+        "rewrite_by_sql": {
+          "S16": 46.43340315669775,
+          "S17": 48.38163033127785,
+          "S18": 48.46517834812403
+        }
+      },
+      {
+        "build_ms": 18.73989589512348,
+        "original_ms": 155.9476377442479,
+        "rewrite_ms": 143.57135817408562,
+        "original_by_sql": {
+          "S16": 50.70895608514547,
+          "S17": 52.6033379137516,
+          "S18": 52.63534374535084
+        },
+        "rewrite_by_sql": {
+          "S16": 46.83278128504753,
+          "S17": 48.272524029016495,
+          "S18": 48.46605286002159
+        }
+      }
+    ],
+    "baseline_ms": 156.45540412515402,
+    "build_ms": 18.73989589512348,
+    "reads_ms": 143.57135817408562,
+    "total_ms": 162.3112540692091,
+    "saved_ms": -5.85584994405508,
+    "speedup": 0.9639220953738786,
+    "original_by_sql": {
+      "S16": 51.047489047050476,
+      "S17": 52.68387123942375,
+      "S18": 52.72404383867979
+    },
+    "rewrite_by_sql": {
+      "S16": 46.60480469465256,
+      "S17": 48.437424935400486,
+      "S18": 48.46605286002159
+    }
+  }
+}

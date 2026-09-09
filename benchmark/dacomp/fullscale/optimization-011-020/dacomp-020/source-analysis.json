@@ -1,0 +1,418 @@
+{
+  "fingerprint": "122bd11470870f447f75e0432d549c02b899044a643c4075733aa304e9322ef2",
+  "analysis_source_version": "137755501552fe8ea7bbf826ebe885ecb43e379fd75a9d2f6a8df25a75139b5f",
+  "method": "exact SQL, identical CTE, identical single-table filter, decomposable single-table aggregate; maximum three correctness checks",
+  "candidates": [
+    {
+      "type": "exact-result reuse",
+      "existing_result": true,
+      "producer": "S17",
+      "covered": [
+        "S17",
+        "S18"
+      ],
+      "build_sql": null,
+      "rewrites": {},
+      "status": "verified",
+      "reason": "Identical normalized SQL and parameters; archive equality checked.",
+      "candidate_id": "C1",
+      "offline": true,
+      "earliest_build_before": "S17",
+      "later_reuses": 1,
+      "denominator": 15,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788863645.5897539,
+      "validation_sql_attempts": [],
+      "validation_engine_trace": [],
+      "intermediate_rows": 1000,
+      "validation_ended_at": 1788863645.6113255,
+      "checks": [
+        {
+          "sql_id": "S18",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset"
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    },
+    {
+      "type": "aggregate MV",
+      "existing_result": false,
+      "build_sql": "SELECT \"Mental health score\" AS __g0, \"Gender\" AS __g1, \"Part-time job\" AS __g2, \"Diet quality\" AS __g3, \"Parents' education level\" AS __g4, \"Internet quality\" AS __g5, \"Extracurricular activity participation\" AS __g6, COUNT(*) AS __a0, MIN(\"Mental health score\") AS __a1, MAX(\"Mental health score\") AS __a2, SUM(\"Mental health score\") AS __a3_sum, COUNT(\"Mental health score\") AS __a3_n, MIN(\"Exam score\") AS __a4, MAX(\"Exam score\") AS __a5, SUM(\"Exam score\") AS __a6_sum, COUNT(\"Exam score\") AS __a6_n, SUM(\"Exam score\" * \"Exam score\") AS __a7_sum, COUNT(\"Exam score\" * \"Exam score\") AS __a7_n, SUM(CASE WHEN \"Age\" IS NULL THEN 1 ELSE 0 END) AS __a8, SUM(CASE WHEN \"Daily study time\" IS NULL THEN 1 ELSE 0 END) AS __a9, SUM(CASE WHEN \"Social media usage time\" IS NULL THEN 1 ELSE 0 END) AS __a10, SUM(CASE WHEN \"Attendance rate\" IS NULL THEN 1 ELSE 0 END) AS __a11, SUM(CASE WHEN \"Sleep duration\" IS NULL THEN 1 ELSE 0 END) AS __a12, SUM(CASE WHEN \"Exercise frequency\" IS NULL THEN 1 ELSE 0 END) AS __a13, SUM(CASE WHEN \"Mental health score\" IS NULL THEN 1 ELSE 0 END) AS __a14, SUM(CASE WHEN \"Exam score\" IS NULL THEN 1 ELSE 0 END) AS __a15, SUM(CASE WHEN \"Part-time job\" IS NULL THEN 1 ELSE 0 END) AS __a16, SUM(CASE WHEN \"Gender\" IS NULL THEN 1 ELSE 0 END) AS __a17, SUM(CASE WHEN \"Internet quality\" IS NULL THEN 1 ELSE 0 END) AS __a18, SUM(CASE WHEN \"Diet quality\" IS NULL THEN 1 ELSE 0 END) AS __a19, MIN(\"Daily study time\") AS __a20, MAX(\"Daily study time\") AS __a21, SUM(\"Daily study time\") AS __a22_sum, COUNT(\"Daily study time\") AS __a22_n, MIN(\"Social media usage time\") AS __a23, MAX(\"Social media usage time\") AS __a24, SUM(\"Social media usage time\") AS __a25_sum, COUNT(\"Social media usage time\") AS __a25_n, MIN(\"Attendance rate\") AS __a26, MAX(\"Attendance rate\") AS __a27, SUM(\"Attendance rate\") AS __a28_sum, COUNT(\"Attendance rate\") AS __a28_n, MIN(\"Sleep duration\") AS __a29, MAX(\"Sleep duration\") AS __a30, SUM(\"Sleep duration\") AS __a31_sum, COUNT(\"Sleep duration\") AS __a31_n, MIN(\"Exercise frequency\") AS __a32, MAX(\"Exercise frequency\") AS __a33, SUM(\"Exercise frequency\") AS __a34_sum, COUNT(\"Exercise frequency\") AS __a34_n, MIN(\"Age\") AS __a35, MAX(\"Age\") AS __a36, SUM(\"Age\") AS __a37_sum, COUNT(\"Age\") AS __a37_n FROM \"sheet1\"  GROUP BY \"Mental health score\", \"Gender\", \"Part-time job\", \"Diet quality\", \"Parents' education level\", \"Internet quality\", \"Extracurricular activity participation\"",
+      "covered": [
+        "S4",
+        "S5",
+        "S7",
+        "S9",
+        "S10",
+        "S11",
+        "S12",
+        "S13",
+        "S14",
+        "S15",
+        "S16"
+      ],
+      "rewrites": {
+        "S4": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+        "S5": "SELECT MIN(__a1) AS min_mh, MAX(__a2) AS max_mh, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_mh, MIN(__a4) AS min_exam, MAX(__a5) AS max_exam, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_exam FROM temp.reuse_candidate",
+        "S7": "SELECT __g0 AS mh, SUM(__a0) AS n, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 3) AS avg_exam, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) - (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) * (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 3) AS var_exam FROM temp.reuse_candidate GROUP BY __g0 ORDER BY mh",
+        "S9": "SELECT __g1 AS \"Gender\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1",
+        "S10": "SELECT __g2 AS \"Part-time job\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2",
+        "S11": "SELECT __g3 AS \"Diet quality\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3",
+        "S12": "SELECT __g4 AS \"Parents' education level\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4",
+        "S13": "SELECT __g5 AS \"Internet quality\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5",
+        "S14": "SELECT __g6 AS \"Extracurricular activity participation\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6",
+        "S15": "SELECT SUM(__a8) AS age_null, SUM(__a9) AS study_null, SUM(__a10) AS sm_null, SUM(__a11) AS att_null, SUM(__a12) AS sleep_null, SUM(__a13) AS ex_null, SUM(__a14) AS mh_null, SUM(__a15) AS exam_null, SUM(__a16) AS pt_null, SUM(__a17) AS gender_null, SUM(__a18) AS iq_null, SUM(__a19) AS diet_null FROM temp.reuse_candidate",
+        "S16": "SELECT MIN(__a20) AS mn_study, MAX(__a21) AS mx_study, (1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)) AS avg_study, MIN(__a23) AS mn_sm, MAX(__a24) AS mx_sm, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_sm, MIN(__a26) AS mn_att, MAX(__a27) AS mx_att, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_att, MIN(__a29) AS mn_sleep, MAX(__a30) AS mx_sleep, (1.0 * SUM(__a31_sum) / NULLIF(SUM(__a31_n), 0)) AS avg_sleep, MIN(__a32) AS mn_ex, MAX(__a33) AS mx_ex, (1.0 * SUM(__a34_sum) / NULLIF(SUM(__a34_n), 0)) AS avg_ex, MIN(__a35) AS mn_age, MAX(__a36) AS mx_age, (1.0 * SUM(__a37_sum) / NULLIF(SUM(__a37_n), 0)) AS avg_age FROM temp.reuse_candidate"
+      },
+      "status": "rejected_result_mismatch",
+      "reason": "Union of grouping keys; decomposable aggregate states; AVG uses SUM and non-NULL COUNT.",
+      "candidate_id": "C2",
+      "offline": true,
+      "earliest_build_before": "S4",
+      "later_reuses": 10,
+      "denominator": 15,
+      "coverage_includes_trigger": true,
+      "phase": "offline_validation",
+      "validation_started_at": 1788863645.5693526,
+      "validation_sql_attempts": [
+        {
+          "sequence": 1,
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Mental health score\" AS __g0, \"Gender\" AS __g1, \"Part-time job\" AS __g2, \"Diet quality\" AS __g3, \"Parents' education level\" AS __g4, \"Internet quality\" AS __g5, \"Extracurricular activity participation\" AS __g6, COUNT(*) AS __a0, MIN(\"Mental health score\") AS __a1, MAX(\"Mental health score\") AS __a2, SUM(\"Mental health score\") AS __a3_sum, COUNT(\"Mental health score\") AS __a3_n, MIN(\"Exam score\") AS __a4, MAX(\"Exam score\") AS __a5, SUM(\"Exam score\") AS __a6_sum, COUNT(\"Exam score\") AS __a6_n, SUM(\"Exam score\" * \"Exam score\") AS __a7_sum, COUNT(\"Exam score\" * \"Exam score\") AS __a7_n, SUM(CASE WHEN \"Age\" IS NULL THEN 1 ELSE 0 END) AS __a8, SUM(CASE WHEN \"Daily study time\" IS NULL THEN 1 ELSE 0 END) AS __a9, SUM(CASE WHEN \"Social media usage time\" IS NULL THEN 1 ELSE 0 END) AS __a10, SUM(CASE WHEN \"Attendance rate\" IS NULL THEN 1 ELSE 0 END) AS __a11, SUM(CASE WHEN \"Sleep duration\" IS NULL THEN 1 ELSE 0 END) AS __a12, SUM(CASE WHEN \"Exercise frequency\" IS NULL THEN 1 ELSE 0 END) AS __a13, SUM(CASE WHEN \"Mental health score\" IS NULL THEN 1 ELSE 0 END) AS __a14, SUM(CASE WHEN \"Exam score\" IS NULL THEN 1 ELSE 0 END) AS __a15, SUM(CASE WHEN \"Part-time job\" IS NULL THEN 1 ELSE 0 END) AS __a16, SUM(CASE WHEN \"Gender\" IS NULL THEN 1 ELSE 0 END) AS __a17, SUM(CASE WHEN \"Internet quality\" IS NULL THEN 1 ELSE 0 END) AS __a18, SUM(CASE WHEN \"Diet quality\" IS NULL THEN 1 ELSE 0 END) AS __a19, MIN(\"Daily study time\") AS __a20, MAX(\"Daily study time\") AS __a21, SUM(\"Daily study time\") AS __a22_sum, COUNT(\"Daily study time\") AS __a22_n, MIN(\"Social media usage time\") AS __a23, MAX(\"Social media usage time\") AS __a24, SUM(\"Social media usage time\") AS __a25_sum, COUNT(\"Social media usage time\") AS __a25_n, MIN(\"Attendance rate\") AS __a26, MAX(\"Attendance rate\") AS __a27, SUM(\"Attendance rate\") AS __a28_sum, COUNT(\"Attendance rate\") AS __a28_n, MIN(\"Sleep duration\") AS __a29, MAX(\"Sleep duration\") AS __a30, SUM(\"Sleep duration\") AS __a31_sum, COUNT(\"Sleep duration\") AS __a31_n, MIN(\"Exercise frequency\") AS __a32, MAX(\"Exercise frequency\") AS __a33, SUM(\"Exercise frequency\") AS __a34_sum, COUNT(\"Exercise frequency\") AS __a34_n, MIN(\"Age\") AS __a35, MAX(\"Age\") AS __a36, SUM(\"Age\") AS __a37_sum, COUNT(\"Age\") AS __a37_n FROM \"sheet1\"  GROUP BY \"Mental health score\", \"Gender\", \"Part-time job\", \"Diet quality\", \"Parents' education level\", \"Internet quality\", \"Extracurricular activity participation\"",
+          "phase": "offline_validation",
+          "start_time": 1788863645.5695882,
+          "status": "execute_returned",
+          "end_time": 1788863645.5753317
+        },
+        {
+          "sequence": 2,
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788863645.575337,
+          "status": "execute_returned",
+          "end_time": 1788863645.5753584
+        },
+        {
+          "sequence": 3,
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "phase": "offline_validation",
+          "start_time": 1788863645.5753639,
+          "status": "execute_returned",
+          "end_time": 1788863645.5753827
+        },
+        {
+          "sequence": 4,
+          "sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788863645.5754454,
+          "status": "execute_returned",
+          "end_time": 1788863645.5755098
+        },
+        {
+          "sequence": 5,
+          "sql": "SELECT MIN(__a1) AS min_mh, MAX(__a2) AS max_mh, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_mh, MIN(__a4) AS min_exam, MAX(__a5) AS max_exam, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_exam FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788863645.5759096,
+          "status": "execute_returned",
+          "end_time": 1788863645.576226
+        },
+        {
+          "sequence": 6,
+          "sql": "SELECT __g0 AS mh, SUM(__a0) AS n, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 3) AS avg_exam, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) - (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) * (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 3) AS var_exam FROM temp.reuse_candidate GROUP BY __g0 ORDER BY mh",
+          "phase": "offline_validation",
+          "start_time": 1788863645.5771813,
+          "status": "execute_returned",
+          "end_time": 1788863645.5774693
+        },
+        {
+          "sequence": 7,
+          "sql": "SELECT __g1 AS \"Gender\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1",
+          "phase": "offline_validation",
+          "start_time": 1788863645.5786092,
+          "status": "execute_returned",
+          "end_time": 1788863645.5788097
+        },
+        {
+          "sequence": 8,
+          "sql": "SELECT __g2 AS \"Part-time job\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2",
+          "phase": "offline_validation",
+          "start_time": 1788863645.5793352,
+          "status": "execute_returned",
+          "end_time": 1788863645.5795522
+        },
+        {
+          "sequence": 9,
+          "sql": "SELECT __g3 AS \"Diet quality\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3",
+          "phase": "offline_validation",
+          "start_time": 1788863645.5800252,
+          "status": "execute_returned",
+          "end_time": 1788863645.5802374
+        },
+        {
+          "sequence": 10,
+          "sql": "SELECT __g4 AS \"Parents' education level\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4",
+          "phase": "offline_validation",
+          "start_time": 1788863645.5807498,
+          "status": "execute_returned",
+          "end_time": 1788863645.5810294
+        },
+        {
+          "sequence": 11,
+          "sql": "SELECT __g5 AS \"Internet quality\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5",
+          "phase": "offline_validation",
+          "start_time": 1788863645.5815861,
+          "status": "execute_returned",
+          "end_time": 1788863645.5818057
+        },
+        {
+          "sequence": 12,
+          "sql": "SELECT __g6 AS \"Extracurricular activity participation\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6",
+          "phase": "offline_validation",
+          "start_time": 1788863645.5823321,
+          "status": "execute_returned",
+          "end_time": 1788863645.5825527
+        },
+        {
+          "sequence": 13,
+          "sql": "SELECT SUM(__a8) AS age_null, SUM(__a9) AS study_null, SUM(__a10) AS sm_null, SUM(__a11) AS att_null, SUM(__a12) AS sleep_null, SUM(__a13) AS ex_null, SUM(__a14) AS mh_null, SUM(__a15) AS exam_null, SUM(__a16) AS pt_null, SUM(__a17) AS gender_null, SUM(__a18) AS iq_null, SUM(__a19) AS diet_null FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788863645.583037,
+          "status": "execute_returned",
+          "end_time": 1788863645.5834084
+        },
+        {
+          "sequence": 14,
+          "sql": "SELECT MIN(__a20) AS mn_study, MAX(__a21) AS mx_study, (1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)) AS avg_study, MIN(__a23) AS mn_sm, MAX(__a24) AS mx_sm, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_sm, MIN(__a26) AS mn_att, MAX(__a27) AS mx_att, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_att, MIN(__a29) AS mn_sleep, MAX(__a30) AS mx_sleep, (1.0 * SUM(__a31_sum) / NULLIF(SUM(__a31_n), 0)) AS avg_sleep, MIN(__a32) AS mn_ex, MAX(__a33) AS mx_ex, (1.0 * SUM(__a34_sum) / NULLIF(SUM(__a34_n), 0)) AS avg_ex, MIN(__a35) AS mn_age, MAX(__a36) AS mx_age, (1.0 * SUM(__a37_sum) / NULLIF(SUM(__a37_n), 0)) AS avg_age FROM temp.reuse_candidate",
+          "phase": "offline_validation",
+          "start_time": 1788863645.5870743,
+          "status": "execute_returned",
+          "end_time": 1788863645.5878806
+        }
+      ],
+      "validation_engine_trace": [
+        {
+          "sql": "CREATE TEMP TABLE reuse_candidate AS SELECT \"Mental health score\" AS __g0, \"Gender\" AS __g1, \"Part-time job\" AS __g2, \"Diet quality\" AS __g3, \"Parents' education level\" AS __g4, \"Internet quality\" AS __g5, \"Extracurricular activity participation\" AS __g6, COUNT(*) AS __a0, MIN(\"Mental health score\") AS __a1, MAX(\"Mental health score\") AS __a2, SUM(\"Mental health score\") AS __a3_sum, COUNT(\"Mental health score\") AS __a3_n, MIN(\"Exam score\") AS __a4, MAX(\"Exam score\") AS __a5, SUM(\"Exam score\") AS __a6_sum, COUNT(\"Exam score\") AS __a6_n, SUM(\"Exam score\" * \"Exam score\") AS __a7_sum, COUNT(\"Exam score\" * \"Exam score\") AS __a7_n, SUM(CASE WHEN \"Age\" IS NULL THEN 1 ELSE 0 END) AS __a8, SUM(CASE WHEN \"Daily study time\" IS NULL THEN 1 ELSE 0 END) AS __a9, SUM(CASE WHEN \"Social media usage time\" IS NULL THEN 1 ELSE 0 END) AS __a10, SUM(CASE WHEN \"Attendance rate\" IS NULL THEN 1 ELSE 0 END) AS __a11, SUM(CASE WHEN \"Sleep duration\" IS NULL THEN 1 ELSE 0 END) AS __a12, SUM(CASE WHEN \"Exercise frequency\" IS NULL THEN 1 ELSE 0 END) AS __a13, SUM(CASE WHEN \"Mental health score\" IS NULL THEN 1 ELSE 0 END) AS __a14, SUM(CASE WHEN \"Exam score\" IS NULL THEN 1 ELSE 0 END) AS __a15, SUM(CASE WHEN \"Part-time job\" IS NULL THEN 1 ELSE 0 END) AS __a16, SUM(CASE WHEN \"Gender\" IS NULL THEN 1 ELSE 0 END) AS __a17, SUM(CASE WHEN \"Internet quality\" IS NULL THEN 1 ELSE 0 END) AS __a18, SUM(CASE WHEN \"Diet quality\" IS NULL THEN 1 ELSE 0 END) AS __a19, MIN(\"Daily study time\") AS __a20, MAX(\"Daily study time\") AS __a21, SUM(\"Daily study time\") AS __a22_sum, COUNT(\"Daily study time\") AS __a22_n, MIN(\"Social media usage time\") AS __a23, MAX(\"Social media usage time\") AS __a24, SUM(\"Social media usage time\") AS __a25_sum, COUNT(\"Social media usage time\") AS __a25_n, MIN(\"Attendance rate\") AS __a26, MAX(\"Attendance rate\") AS __a27, SUM(\"Attendance rate\") AS __a28_sum, COUNT(\"Attendance rate\") AS __a28_n, MIN(\"Sleep duration\") AS __a29, MAX(\"Sleep duration\") AS __a30, SUM(\"Sleep duration\") AS __a31_sum, COUNT(\"Sleep duration\") AS __a31_n, MIN(\"Exercise frequency\") AS __a32, MAX(\"Exercise frequency\") AS __a33, SUM(\"Exercise frequency\") AS __a34_sum, COUNT(\"Exercise frequency\") AS __a34_n, MIN(\"Age\") AS __a35, MAX(\"Age\") AS __a36, SUM(\"Age\") AS __a37_sum, COUNT(\"Age\") AS __a37_n FROM \"sheet1\"  GROUP BY \"Mental health score\", \"Gender\", \"Part-time job\", \"Diet quality\", \"Parents' education level\", \"Internet quality\", \"Extracurricular activity participation\"",
+          "time": 1788863645.569938,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT COUNT(*) FROM temp.reuse_candidate",
+          "time": 1788863645.5753531,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "PRAGMA temp.table_info(reuse_candidate)",
+          "time": 1788863645.5753796,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "time": 1788863645.5754585,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a1) AS min_mh, MAX(__a2) AS max_mh, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_mh, MIN(__a4) AS min_exam, MAX(__a5) AS max_exam, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_exam FROM temp.reuse_candidate",
+          "time": 1788863645.5759625,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g0 AS mh, SUM(__a0) AS n, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 3) AS avg_exam, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) - (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) * (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 3) AS var_exam FROM temp.reuse_candidate GROUP BY __g0 ORDER BY mh",
+          "time": 1788863645.5772495,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g1 AS \"Gender\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1",
+          "time": 1788863645.578641,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g2 AS \"Part-time job\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2",
+          "time": 1788863645.579365,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g3 AS \"Diet quality\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3",
+          "time": 1788863645.5800533,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g4 AS \"Parents' education level\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4",
+          "time": 1788863645.5807796,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g5 AS \"Internet quality\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5",
+          "time": 1788863645.5816166,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT __g6 AS \"Extracurricular activity participation\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6",
+          "time": 1788863645.5823622,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT SUM(__a8) AS age_null, SUM(__a9) AS study_null, SUM(__a10) AS sm_null, SUM(__a11) AS att_null, SUM(__a12) AS sleep_null, SUM(__a13) AS ex_null, SUM(__a14) AS mh_null, SUM(__a15) AS exam_null, SUM(__a16) AS pt_null, SUM(__a17) AS gender_null, SUM(__a18) AS iq_null, SUM(__a19) AS diet_null FROM temp.reuse_candidate",
+          "time": 1788863645.5830846,
+          "phase": "offline_validation"
+        },
+        {
+          "sql": "SELECT MIN(__a20) AS mn_study, MAX(__a21) AS mx_study, (1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)) AS avg_study, MIN(__a23) AS mn_sm, MAX(__a24) AS mx_sm, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_sm, MIN(__a26) AS mn_att, MAX(__a27) AS mx_att, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_att, MIN(__a29) AS mn_sleep, MAX(__a30) AS mx_sleep, (1.0 * SUM(__a31_sum) / NULLIF(SUM(__a31_n), 0)) AS avg_sleep, MIN(__a32) AS mn_ex, MAX(__a33) AS mx_ex, (1.0 * SUM(__a34_sum) / NULLIF(SUM(__a34_n), 0)) AS avg_ex, MIN(__a35) AS mn_age, MAX(__a36) AS mx_age, (1.0 * SUM(__a37_sum) / NULLIF(SUM(__a37_n), 0)) AS avg_age FROM temp.reuse_candidate",
+          "time": 1788863645.5871701,
+          "phase": "offline_validation"
+        }
+      ],
+      "build_ms": 5.748686380684376,
+      "intermediate_rows": 724,
+      "intermediate_columns": [
+        "__g0",
+        "__g1",
+        "__g2",
+        "__g3",
+        "__g4",
+        "__g5",
+        "__g6",
+        "__a0",
+        "__a1",
+        "__a2",
+        "__a3_sum",
+        "__a3_n",
+        "__a4",
+        "__a5",
+        "__a6_sum",
+        "__a6_n",
+        "__a7_sum",
+        "__a7_n",
+        "__a8",
+        "__a9",
+        "__a10",
+        "__a11",
+        "__a12",
+        "__a13",
+        "__a14",
+        "__a15",
+        "__a16",
+        "__a17",
+        "__a18",
+        "__a19",
+        "__a20",
+        "__a21",
+        "__a22_sum",
+        "__a22_n",
+        "__a23",
+        "__a24",
+        "__a25_sum",
+        "__a25_n",
+        "__a26",
+        "__a27",
+        "__a28_sum",
+        "__a28_n",
+        "__a29",
+        "__a30",
+        "__a31_sum",
+        "__a31_n",
+        "__a32",
+        "__a33",
+        "__a34_sum",
+        "__a34_n",
+        "__a35",
+        "__a36",
+        "__a37_sum",
+        "__a37_n"
+      ],
+      "validation_ended_at": 1788863645.5897427,
+      "checks": [
+        {
+          "sql_id": "S4",
+          "rewritten_sql": "SELECT SUM(__a0) AS total_rows FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.46101491898298264
+        },
+        {
+          "sql_id": "S5",
+          "rewritten_sql": "SELECT MIN(__a1) AS min_mh, MAX(__a2) AS max_mh, (1.0 * SUM(__a3_sum) / NULLIF(SUM(__a3_n), 0)) AS avg_mh, MIN(__a4) AS min_exam, MAX(__a5) AS max_exam, (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) AS avg_exam FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 1.2690695002675056
+        },
+        {
+          "sql_id": "S7",
+          "rewritten_sql": "SELECT __g0 AS mh, SUM(__a0) AS n, ROUND((1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 3) AS avg_exam, ROUND((1.0 * SUM(__a7_sum) / NULLIF(SUM(__a7_n), 0)) - (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)) * (1.0 * SUM(__a6_sum) / NULLIF(SUM(__a6_n), 0)), 3) AS var_exam FROM temp.reuse_candidate GROUP BY __g0 ORDER BY mh",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "ordered_numeric_tolerance",
+          "replay_ms": 1.425592228770256
+        },
+        {
+          "sql_id": "S9",
+          "rewritten_sql": "SELECT __g1 AS \"Gender\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g1",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.7223682478070259
+        },
+        {
+          "sql_id": "S10",
+          "rewritten_sql": "SELECT __g2 AS \"Part-time job\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g2",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.6891470402479172
+        },
+        {
+          "sql_id": "S11",
+          "rewritten_sql": "SELECT __g3 AS \"Diet quality\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g3",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.7226169109344482
+        },
+        {
+          "sql_id": "S12",
+          "rewritten_sql": "SELECT __g4 AS \"Parents' education level\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g4",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.8276822045445442
+        },
+        {
+          "sql_id": "S13",
+          "rewritten_sql": "SELECT __g5 AS \"Internet quality\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g5",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.7441872730851173
+        },
+        {
+          "sql_id": "S14",
+          "rewritten_sql": "SELECT __g6 AS \"Extracurricular activity participation\", SUM(__a0) AS n FROM temp.reuse_candidate GROUP BY __g6",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 0.7029920816421509
+        },
+        {
+          "sql_id": "S15",
+          "rewritten_sql": "SELECT SUM(__a8) AS age_null, SUM(__a9) AS study_null, SUM(__a10) AS sm_null, SUM(__a11) AS att_null, SUM(__a12) AS sleep_null, SUM(__a13) AS ex_null, SUM(__a14) AS mh_null, SUM(__a15) AS exam_null, SUM(__a16) AS pt_null, SUM(__a17) AS gender_null, SUM(__a18) AS iq_null, SUM(__a19) AS diet_null FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": true,
+          "comparison": "exact_multiset",
+          "replay_ms": 4.035417921841145
+        },
+        {
+          "sql_id": "S16",
+          "rewritten_sql": "SELECT MIN(__a20) AS mn_study, MAX(__a21) AS mx_study, (1.0 * SUM(__a22_sum) / NULLIF(SUM(__a22_n), 0)) AS avg_study, MIN(__a23) AS mn_sm, MAX(__a24) AS mx_sm, (1.0 * SUM(__a25_sum) / NULLIF(SUM(__a25_n), 0)) AS avg_sm, MIN(__a26) AS mn_att, MAX(__a27) AS mx_att, (1.0 * SUM(__a28_sum) / NULLIF(SUM(__a28_n), 0)) AS avg_att, MIN(__a29) AS mn_sleep, MAX(__a30) AS mx_sleep, (1.0 * SUM(__a31_sum) / NULLIF(SUM(__a31_n), 0)) AS avg_sleep, MIN(__a32) AS mn_ex, MAX(__a33) AS mx_ex, (1.0 * SUM(__a34_sum) / NULLIF(SUM(__a34_n), 0)) AS avg_ex, MIN(__a35) AS mn_age, MAX(__a36) AS mx_age, (1.0 * SUM(__a37_sum) / NULLIF(SUM(__a37_n), 0)) AS avg_age FROM temp.reuse_candidate",
+          "columns_equal": true,
+          "rows_equal": false,
+          "comparison": "exact_multiset",
+          "replay_ms": 2.5914479047060013
+        }
+      ],
+      "cost_conclusion": "Not benchmarked; correctness alone does not establish net speedup."
+    }
+  ]
+}

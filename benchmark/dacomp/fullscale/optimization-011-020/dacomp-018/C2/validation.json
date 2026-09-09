@@ -1,0 +1,283 @@
+{
+  "id": "C2",
+  "type": "common subexpression",
+  "source_status": "verified",
+  "source_candidates": [
+    "C2"
+  ],
+  "description": "Identical self-contained CTE body across queries.",
+  "table": "temp.\"reuse_018_c2\"",
+  "build": "CREATE TEMP TABLE \"reuse_018_c2\" AS\nSELECT \"Customer ID\", COUNT(*) AS orders, SUM(Sales) AS sales, SUM(profit) AS profit FROM order_information WHERE \"Product Category\" = 'Fashion' GROUP BY \"Customer ID\"",
+  "indexes": [],
+  "covered": [
+    "S20",
+    "S21",
+    "S22",
+    "S23",
+    "S24",
+    "S25",
+    "S27",
+    "S28"
+  ],
+  "rewrites": {
+    "S20": "WITH cust AS (\n  SELECT\n    \"Customer ID\",\n    \"Customer Segment\",\n    gender,\n    age,\n    \"Education Level\",\n    \"Marital Status\",\n    Region,\n    Country,\n    City\n  FROM customer_information\n  GROUP BY\n    \"Customer ID\"\n), cust_orders AS (\n  SELECT\n    *\n  FROM temp.\"reuse_018_c2\"\n)\nSELECT\n  c.gender AS \"gender\",\n  COUNT(*) AS \"customers\",\n  SUM(co.orders) AS \"fashion_orders\",\n  SUM(co.sales) AS \"sales\",\n  SUM(co.profit) AS \"profit\",\n  SUM(co.profit) / COUNT(*) AS \"profit_per_customer\",\n  SUM(co.orders) / COUNT(*) AS \"orders_per_customer\",\n  AVG(co.profit / co.orders) AS \"avg_profit_per_order\"\nFROM cust AS c\nJOIN cust_orders AS co\n  ON c.\"Customer ID\" = co.\"Customer ID\"\nGROUP BY\n  c.gender\nORDER BY\n  profit DESC",
+    "S21": "WITH cust AS (\n  SELECT\n    \"Customer ID\",\n    \"Customer Segment\",\n    gender,\n    age,\n    \"Education Level\",\n    \"Marital Status\",\n    Region,\n    Country,\n    City\n  FROM customer_information\n  GROUP BY\n    \"Customer ID\"\n), cust_orders AS (\n  SELECT\n    *\n  FROM temp.\"reuse_018_c2\"\n), agebuckets AS (\n  SELECT\n    \"Customer ID\",\n    CASE\n      WHEN age < 25\n      THEN '18-24'\n      WHEN age < 35\n      THEN '25-34'\n      WHEN age < 45\n      THEN '35-44'\n      WHEN age < 55\n      THEN '45-54'\n      WHEN age < 65\n      THEN '55-64'\n      ELSE '65+'\n    END AS age_group\n  FROM cust\n)\nSELECT\n  b.age_group AS \"age_group\",\n  COUNT(*) AS \"customers\",\n  SUM(co.orders) AS \"orders\",\n  SUM(co.profit) AS \"profit\",\n  SUM(co.profit) / COUNT(*) AS \"profit_per_customer\",\n  SUM(co.orders) / COUNT(*) AS \"orders_per_customer\",\n  AVG(co.profit / co.orders) AS \"avg_profit_per_order\"\nFROM agebuckets AS b\nJOIN cust_orders AS co\n  ON b.\"Customer ID\" = co.\"Customer ID\"\nGROUP BY\n  b.age_group\nORDER BY\n  profit_per_customer DESC",
+    "S22": "WITH cust AS (\n  SELECT\n    \"Customer ID\",\n    \"Customer Segment\",\n    gender,\n    age,\n    \"Education Level\",\n    \"Marital Status\",\n    Region,\n    Country,\n    City\n  FROM customer_information\n  GROUP BY\n    \"Customer ID\"\n), cust_orders AS (\n  SELECT\n    *\n  FROM temp.\"reuse_018_c2\"\n)\nSELECT\n  c.\"Education Level\" AS \"Education Level\",\n  COUNT(*) AS \"customers\",\n  SUM(co.orders) AS \"orders\",\n  SUM(co.profit) AS \"profit\",\n  SUM(co.profit) / COUNT(*) AS \"profit_per_customer\",\n  SUM(co.orders) / COUNT(*) AS \"orders_per_customer\",\n  AVG(co.profit / co.orders) AS \"avg_profit_per_order\"\nFROM cust AS c\nJOIN cust_orders AS co\n  ON c.\"Customer ID\" = co.\"Customer ID\"\nGROUP BY\n  c.\"Education Level\"\nORDER BY\n  profit DESC",
+    "S23": "WITH cust AS (\n  SELECT\n    \"Customer ID\",\n    \"Customer Segment\",\n    gender,\n    age,\n    \"Education Level\",\n    \"Marital Status\",\n    Region,\n    Country,\n    City\n  FROM customer_information\n  GROUP BY\n    \"Customer ID\"\n), cust_orders AS (\n  SELECT\n    *\n  FROM temp.\"reuse_018_c2\"\n)\nSELECT\n  c.\"Marital Status\" AS \"Marital Status\",\n  COUNT(*) AS \"customers\",\n  SUM(co.orders) AS \"orders\",\n  SUM(co.profit) AS \"profit\",\n  SUM(co.profit) / COUNT(*) AS \"profit_per_customer\",\n  SUM(co.orders) / COUNT(*) AS \"orders_per_customer\",\n  AVG(co.profit / co.orders) AS \"avg_profit_per_order\"\nFROM cust AS c\nJOIN cust_orders AS co\n  ON c.\"Customer ID\" = co.\"Customer ID\"\nGROUP BY\n  c.\"Marital Status\"\nORDER BY\n  profit DESC",
+    "S24": "WITH cust AS (\n  SELECT\n    \"Customer ID\",\n    \"Customer Segment\",\n    gender,\n    age,\n    \"Education Level\",\n    \"Marital Status\",\n    Region,\n    Country,\n    City\n  FROM customer_information\n  GROUP BY\n    \"Customer ID\"\n), cust_orders AS (\n  SELECT\n    *\n  FROM temp.\"reuse_018_c2\"\n)\nSELECT\n  c.Region AS \"Region\",\n  COUNT(*) AS \"customers\",\n  SUM(co.orders) AS \"orders\",\n  SUM(co.profit) AS \"profit\",\n  SUM(co.profit) / COUNT(*) AS \"profit_per_customer\",\n  SUM(co.orders) / COUNT(*) AS \"orders_per_customer\"\nFROM cust AS c\nJOIN cust_orders AS co\n  ON c.\"Customer ID\" = co.\"Customer ID\"\nGROUP BY\n  c.Region\nORDER BY\n  profit DESC",
+    "S25": "WITH cust AS (\n  SELECT\n    \"Customer ID\",\n    Region,\n    Country,\n    City\n  FROM customer_information\n  GROUP BY\n    \"Customer ID\"\n), cust_orders AS (\n  SELECT\n    *\n  FROM temp.\"reuse_018_c2\"\n)\nSELECT\n  c.Country AS \"Country\",\n  COUNT(*) AS \"customers\",\n  SUM(co.orders) AS \"orders\",\n  SUM(co.profit) AS \"profit\",\n  SUM(co.profit) / COUNT(*) AS \"profit_per_customer\"\nFROM cust AS c\nJOIN cust_orders AS co\n  ON c.\"Customer ID\" = co.\"Customer ID\"\nGROUP BY\n  c.Country\nORDER BY\n  profit DESC",
+    "S27": "WITH cust AS (\n  SELECT\n    \"Customer ID\",\n    \"Customer Segment\",\n    gender,\n    age,\n    Region,\n    Country\n  FROM customer_information\n  GROUP BY\n    \"Customer ID\"\n), cust_orders AS (\n  SELECT\n    *\n  FROM temp.\"reuse_018_c2\"\n)\nSELECT\n  c.gender AS \"gender\",\n  c.\"Customer Segment\" AS \"Customer Segment\",\n  COUNT(*) AS \"customers\",\n  SUM(co.orders) AS \"orders\",\n  SUM(co.profit) AS \"profit\",\n  SUM(co.profit) / COUNT(*) AS \"profit_per_customer\",\n  SUM(co.orders) / COUNT(*) AS \"orders_per_customer\"\nFROM cust AS c\nJOIN cust_orders AS co\n  ON c.\"Customer ID\" = co.\"Customer ID\"\nGROUP BY\n  c.gender,\n  c.\"Customer Segment\"\nORDER BY\n  profit_per_customer DESC",
+    "S28": "WITH cust AS (\n  SELECT\n    \"Customer ID\",\n    gender,\n    age,\n    \"Customer Segment\"\n  FROM customer_information\n  GROUP BY\n    \"Customer ID\"\n), cust_orders AS (\n  SELECT\n    *\n  FROM temp.\"reuse_018_c2\"\n)\nSELECT\n  c.gender AS \"gender\",\n  CASE WHEN c.age < 35 THEN 'under35' ELSE '35plus' END AS \"age_group\",\n  COUNT(*) AS \"customers\",\n  SUM(co.profit) AS \"profit\",\n  SUM(co.profit) / COUNT(*) AS \"profit_per_customer\",\n  SUM(co.orders) / COUNT(*) AS \"orders_per_customer\"\nFROM cust AS c\nJOIN cust_orders AS co\n  ON c.\"Customer ID\" = co.\"Customer ID\"\nGROUP BY\n  c.gender,\n  age_group\nORDER BY\n  profit_per_customer DESC"
+  },
+  "existing_result": false,
+  "checks": [
+    {
+      "sql": "S20",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 42.71120764315128
+    },
+    {
+      "sql": "S21",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 43.11026819050312
+    },
+    {
+      "sql": "S22",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 43.190754018723965
+    },
+    {
+      "sql": "S23",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 42.756359092891216
+    },
+    {
+      "sql": "S24",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 42.74890013039112
+    },
+    {
+      "sql": "S25",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 33.654497005045414
+    },
+    {
+      "sql": "S27",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 36.15904599428177
+    },
+    {
+      "sql": "S28",
+      "columns_equal": true,
+      "ok": true,
+      "exact": true,
+      "comparison": "ordered_rel1e-12_abs1e-9",
+      "aligned_numeric_tolerance_only": false,
+      "replay_ms": 32.32941962778568
+    }
+  ],
+  "build_ms_validation": 23.07254448533058,
+  "rows": 795,
+  "columns": [
+    "Customer ID",
+    "orders",
+    "sales",
+    "profit"
+  ],
+  "safe": [
+    "S20",
+    "S21",
+    "S22",
+    "S23",
+    "S24",
+    "S25",
+    "S27",
+    "S28"
+  ],
+  "excluded": [],
+  "status": "verified",
+  "performance": {
+    "repeats": 5,
+    "samples": [
+      {
+        "build_ms": 23.003483191132545,
+        "original_ms": 496.7814162373543,
+        "rewrite_ms": 314.14411310106516,
+        "original_by_sql": {
+          "S20": 65.77738281339407,
+          "S21": 65.3823222965002,
+          "S22": 65.00033941119909,
+          "S23": 65.01414533704519,
+          "S24": 65.65668806433678,
+          "S25": 56.241581216454506,
+          "S27": 58.851650916039944,
+          "S28": 54.85730618238449
+        },
+        "rewrite_by_sql": {
+          "S20": 42.35523007810116,
+          "S21": 42.458074167370796,
+          "S22": 42.34030190855265,
+          "S23": 42.488664388656616,
+          "S24": 42.5848662853241,
+          "S25": 33.585009165108204,
+          "S27": 36.1785925924778,
+          "S28": 32.15337451547384
+        }
+      },
+      {
+        "build_ms": 22.969184443354607,
+        "original_ms": 493.8625078648329,
+        "rewrite_ms": 314.52518329024315,
+        "original_by_sql": {
+          "S20": 65.30196219682693,
+          "S21": 64.85239136964083,
+          "S22": 64.71298076212406,
+          "S23": 64.71750885248184,
+          "S24": 65.09366817772388,
+          "S25": 56.00307509303093,
+          "S27": 58.607262559235096,
+          "S28": 54.5736588537693
+        },
+        "rewrite_by_sql": {
+          "S20": 42.59731154888868,
+          "S21": 42.48028341680765,
+          "S22": 42.301760986447334,
+          "S23": 42.314856313169,
+          "S24": 42.50077810138464,
+          "S25": 33.6273992434144,
+          "S27": 36.35212033987045,
+          "S28": 32.35067334026098
+        }
+      },
+      {
+        "build_ms": 23.0973232537508,
+        "original_ms": 496.52255047112703,
+        "rewrite_ms": 314.4847610965371,
+        "original_by_sql": {
+          "S20": 65.46835042536259,
+          "S21": 65.42917899787426,
+          "S22": 65.10864943265915,
+          "S23": 64.98711742460728,
+          "S24": 65.52402582019567,
+          "S25": 56.233881041407585,
+          "S27": 58.891079388558865,
+          "S28": 54.880267940461636
+        },
+        "rewrite_by_sql": {
+          "S20": 42.34498459845781,
+          "S21": 42.4604918807745,
+          "S22": 42.52721555531025,
+          "S23": 42.31768008321524,
+          "S24": 42.70841181278229,
+          "S25": 33.585239201784134,
+          "S27": 36.30584850907326,
+          "S28": 32.23488945513964
+        }
+      },
+      {
+        "build_ms": 22.987469099462032,
+        "original_ms": 495.34681998193264,
+        "rewrite_ms": 314.28561732172966,
+        "original_by_sql": {
+          "S20": 65.34422095865011,
+          "S21": 65.16536977142096,
+          "S22": 64.93969354778528,
+          "S23": 64.96140919625759,
+          "S24": 65.37379510700703,
+          "S25": 56.083270348608494,
+          "S27": 58.705706149339676,
+          "S28": 54.7733549028635
+        },
+        "rewrite_by_sql": {
+          "S20": 42.40976367145777,
+          "S21": 42.53550060093403,
+          "S22": 42.3215189948678,
+          "S23": 42.217498645186424,
+          "S24": 42.45076607912779,
+          "S25": 33.732776530086994,
+          "S27": 36.324731074273586,
+          "S28": 32.29306172579527
+        }
+      },
+      {
+        "build_ms": 23.057379759848118,
+        "original_ms": 496.514655649662,
+        "rewrite_ms": 314.74641896784306,
+        "original_by_sql": {
+          "S20": 65.77378325164318,
+          "S21": 65.68959727883339,
+          "S22": 65.53167570382357,
+          "S23": 64.87690936774015,
+          "S24": 65.03679417073727,
+          "S25": 56.1783229932189,
+          "S27": 58.71498957276344,
+          "S28": 54.71258331090212
+        },
+        "rewrite_by_sql": {
+          "S20": 42.47437510639429,
+          "S21": 42.52241086214781,
+          "S22": 42.33851283788681,
+          "S23": 42.51593630760908,
+          "S24": 42.54284594208002,
+          "S25": 33.58469158411026,
+          "S27": 36.38170100748539,
+          "S28": 32.385945320129395
+        }
+      }
+    ],
+    "baseline_ms": 496.514655649662,
+    "build_ms": 23.003483191132545,
+    "reads_ms": 314.4847610965371,
+    "total_ms": 337.49436773359776,
+    "saved_ms": 159.02028791606426,
+    "speedup": 1.4711790865843053,
+    "original_by_sql": {
+      "S20": 65.46835042536259,
+      "S21": 65.3823222965002,
+      "S22": 65.00033941119909,
+      "S23": 64.96140919625759,
+      "S24": 65.37379510700703,
+      "S25": 56.1783229932189,
+      "S27": 58.71498957276344,
+      "S28": 54.7733549028635
+    },
+    "rewrite_by_sql": {
+      "S20": 42.40976367145777,
+      "S21": 42.48028341680765,
+      "S22": 42.33851283788681,
+      "S23": 42.31768008321524,
+      "S24": 42.54284594208002,
+      "S25": 33.585239201784134,
+      "S27": 36.324731074273586,
+      "S28": 32.29306172579527
+    }
+  }
+}
