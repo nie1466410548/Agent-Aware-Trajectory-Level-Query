@@ -1,1 +1,0 @@
-SELECT "Featured", "Description", "Floor Plan", "Area", "Orientation", "Floor", "Decoration", "Location", "Watch Count", "Showings", "Date Published", "Price", "Price/sqm", "Remarks" FROM temp."reuse_015_c3";

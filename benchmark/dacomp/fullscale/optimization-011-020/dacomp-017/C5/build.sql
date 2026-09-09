@@ -1,3 +1,0 @@
--- Execute once before S17; retain this connection for subsequent reads.
-CREATE TEMP TABLE "reuse_017_c5" AS
-SELECT "Discount" AS __g0, "Shipping Method" AS __g1, SUBSTRING("Order Date", 1, 4) AS __g2, "Product" AS __g3, "Quantity" AS __g4, "Order Priority" AS __g5, "Customer ID" AS __g6, COUNT(*) AS __a0, SUM(profit * 1.0 / sales) AS __a1_sum, COUNT(profit * 1.0 / sales) AS __a1_n, SUM(profit) AS __a2, SUM(sales) AS __a3, SUM(profit) AS __a4_sum, COUNT(profit) AS __a4_n, SUM(sales) AS __a5_sum, COUNT(sales) AS __a5_n FROM "order_information" WHERE "Product Category" = 'Home & Furniture' GROUP BY "Discount", "Shipping Method", SUBSTRING("Order Date", 1, 4), "Product", "Quantity", "Order Priority", "Customer ID";

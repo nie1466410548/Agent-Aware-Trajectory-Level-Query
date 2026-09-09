@@ -1,1 +1,0 @@
-SELECT "Task Owner", "task_type", "total_tasks", "completed_tasks", "completion_rate", "on_time_rate", "quality_norm", "priority_weighted_completion", "hours_efficiency", "rework_avoidance", "hp_total", "hp_completed", "hp_on_time", "avg_diff" FROM temp."reuse_013_c2";
