@@ -1,0 +1,1 @@
+Deterministic integration check only; no Agent analysis or official grading.

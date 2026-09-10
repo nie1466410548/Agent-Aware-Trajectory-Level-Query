@@ -4,6 +4,8 @@ Research notes, slides, experiment tooling, and recorded Data Analysis Agent SQL
 
 ## Start here
 
+- [Agent DB Tool prototype: SQL + future-access interface](agent_db_tool/README.md)
+- [FAD predictions versus actual later SQL: four-task content review](benchmark/dacomp/tool-prototype/v0.2/trajectory-review/REPORT.md)
 - [Five-RQ workload characterization](benchmark/fullbench/reports/characterization/REPORT.md)
 - [Task-level characterization CSV](benchmark/fullbench/reports/characterization/task-characterization.csv)
 - [Query and materialization evidence](benchmark/fullbench/reports/characterization/EVIDENCE.md)

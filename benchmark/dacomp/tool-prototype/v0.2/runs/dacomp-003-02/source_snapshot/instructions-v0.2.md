@@ -1,0 +1,73 @@
+Use db_query to submit ONE read-only SQLite SQL statement together with structured future_access.
+Pass future_access as a NESTED JSON OBJECT in tool arguments, never a serialized JSON string.
+columns is also an OBJECT with status and items, never a bare array. Even none/unknown operation
+fields MUST include items: []. These are argument formatting requirements, not analysis steps.
+FAD describes potential accesses AFTER this SQL returns until the task ends. Derive it from the
+TASK GOAL, current analysis stage, observed results and your existing future plans. Current SQL
+is context, NOT the source from which to copy a forecast. A current schema/sample query may
+coexist with future grouping or aggregation already planned for later analysis.
+
+For each planned access, separately identify tables, columns, filters, joins, group_by and
+aggregations. Include the known grouping dimensions and measures from your plan even when
+some filter values depend on results not yet available. Do not label everything unknown
+just because the query has not been written. Do not invent plans or execute extra queries
+in order to fill fields or make predictions come true. Plans are revisable, not commitments.
+
+Examples of translating an EXISTING plan (not prescribed analysis routes):
+- Compare total revenue by product: group_by product; aggregations sum(revenue).
+- Count monthly orders, one row per order: group_by time_bucket(date,month); count(*).
+- Inspect low-profit individual orders: filters for known profit criteria, group_by/aggregations none.
+- Compare products but measure undecided: product group_by known; aggregation unknown.
+- Analyze a result-selected province by product revenue: product grouping and sum(revenue)
+  known; province filter value unknown. Keep the known columns and operations.
+
+EVERY candidate requires tables, columns, filters, joins, group_by, aggregations and priority.
+All five operation fields use {"status":...,"items":[...]}:
+known/partial require NONEMPTY items; unknown/none require EMPTY items.
+known means the details of this candidate are known, NOT that it will certainly occur.
+partial means items are incomplete internally or more items may be added. Preserve known parts.
+none means that operation is not planned; unknown means undecided. Do not output prose.
+
+Column names use actual table.column identifiers from the supplied schema, not SQL aliases.
+Include ALL columns referenced by filters, joins, grouping or aggregates in columns.items.
+columns=none is allowed ONLY for pure COUNT(*) without filters, joins, grouping or other measures.
+Provide table names even for COUNT(*).
+
+filters.items contains exactly ONE root tree when known/partial:
+{"type":"predicate","column":"sales.region","op":"like","value":{"status":"known","literal":"South%"}}
+AND/OR roots use {"type":"and","items":[predicate1,predicate2]} (or "or"); up to 3 logical levels.
+Supported operators: eq,ne,lt,le,gt,ge,in,between,like,is_null,is_not_null.
+Unknown value is {"status":"unknown"}, not null or a guessed placeholder; outer filters must be partial.
+Known value is {"status":"known","literal":...}. IN takes a nonempty array; BETWEEN exactly two
+non-null values; LIKE takes a string. Null tests take known literal null. Other comparisons use
+non-null scalar values. A partial tree is NOT a complete executable predicate.
+
+group_by items are {"type":"column","column":"sales.product"} or
+{"type":"time_bucket","column":"sales.date","unit":"month"} (year/month/day).
+All items in ONE candidate are joint grouping dimensions, not alternatives.
+Different likely grouping patterns belong to DIFFERENT candidates; both may have likelihood high.
+
+aggregations items use {"function":"sum","column":"sales.revenue"}.
+Functions: sum,count,avg,min,max,count_distinct. count(*) uses column "*"; count(column)
+counts non-null values; count_distinct names one input column. Multiple aggregates belong together.
+Complex unsupported expressions: preserve expressible parts with partial, or unknown when no part
+can be represented. Do not put SQL expressions in a column name.
+
+joins.items: {"type":"inner","conditions":[{"left_column":"sales.product_id","op":"eq","right_column":"products.id"}]}.
+Types inner/left/right/full; conditions within a join are conjunctive equijoins. Complex joins
+may be partial/unknown. Qualify all referenced columns and list both tables.
+
+Candidate priority high/medium/low means importance, not probability or urgency. Optional likelihood
+high/medium/low means chance of at least one occurrence in the remaining task. Candidates can all
+occur and their likelihoods do not sum to one. At most {max_candidates} candidates, no minimum quota.
+FAD status provided requires coverage partial_plan or remaining_task and nonempty candidates.
+Otherwise status unknown or no_further_access requires candidates=[] and NO coverage.
+Each call replaces the previous set. No description, condition, unknown-reason prose or other free
+text is part of FAD. Task reasoning stays with the Agent; the database consumes only structured data.
+
+Complete FORMAT example using a hypothetical schema sales(product,revenue). Do not copy its
+analysis route or identifiers into your task. Here SELECT 1 is the current SQL and the candidate
+describes an independently planned LATER access:
+{"sql":"SELECT 1","future_access":{"status":"provided","coverage":"partial_plan","candidates":[{"tables":["sales"],"columns":{"status":"known","items":["sales.product","sales.revenue"]},"filters":{"status":"none","items":[]},"joins":{"status":"none","items":[]},"group_by":{"status":"known","items":[{"type":"column","column":"sales.product"}]},"aggregations":{"status":"known","items":[{"function":"sum","column":"sales.revenue"}]},"priority":"high"}]}}
+When no further data access is planned, the format is:
+{"sql":"SELECT 1","future_access":{"status":"no_further_access","candidates":[]}}
