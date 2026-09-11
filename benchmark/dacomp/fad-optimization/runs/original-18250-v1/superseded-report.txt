@@ -1,0 +1,4678 @@
+# FAD驱动数据库优化验证结果
+
+## DAComp-006：原始18,250行
+
+**本次实现没有获得数据库端净收益。三种方式都加快了一部分SQL，但全部优化成本计入后，整段轨迹耗时增加。**
+
+输入为已保存的006轨迹：30次SQL尝试，29次成功；Q10原本调用SQLite不支持的STDEV，两组保留同一失败。这里没有调用Agent，不含模型生成FAD的延时。对照组也接收、校验并记录FAD，只是不创建优化对象。
+
+### 整个任务到底快了多少
+
+每种方式各20对独立实验，共60对、120次回放。下表总耗时为20次的中位数；“增加比例”为每对相对变化的中位数。单位毫秒。
+
+| 数据库处理方式 | 对照组总耗时 | 优化组总耗时 | 耗时增加比例 | 比对照快的实验 |
+|---|---:|---:|---:|---:|
+| 仅建索引 | 414.7 | 512.6 | 23.5% | 0/20 |
+| 仅建汇总表 | 414.0 | 557.0 | 34.6% | 0/20 |
+| 索引＋汇总表 | 414.7 | 637.5 | 53.5% | 0/20 |
+
+配对净节省 = 同一对的对照耗时 − 优化耗时，负数表示变慢。95%区间采用固定种子的10,000次配对重采样，保留每对关联，不把120次当作互不相关的样本：
+
+| 方式 | 配对净节省中位数 | 95%区间 | 最小～最大 | 加速倍数（小于1为变慢） |
+|---|---:|---:|---:|---:|
+| 仅建索引 | -97.4 ms | [-98.7, -96.5] ms | [-106.3, -91.3] ms | 0.809× |
+| 仅建汇总表 | -143.4 ms | [-144.9, -142.2] ms | [-149.1, -133.6] ms | 0.743× |
+| 索引＋汇总表 | -221.9 ms | [-225.0, -219.7] ms | [-229.7, -215.4] ms | 0.651× |
+
+### 时间花在哪里
+
+以下按每种方式各自的20对结果计算中位数。各分段中位数不一定精确加成总耗时。SQL时间包含完整结果读取和逐行写入结果文件；“决策及构建”已经包含估计扫描、建对象和失败尝试，不要再次加上对象表中的构建时间。
+
+| 时间部分（ms） | 索引：对照 → 优化 | 汇总表：对照 → 优化 | 组合：对照 → 优化 |
+|---|---:|---:|---:|
+| SQL执行与完整结果归档 | 244.9 → 221.5 | 244.8 → 221.9 | 245.1 → 184.4 |
+| FAD解码、格式/目录校验及列引用汇总 | 153.9 → 154.9 | 153.6 → 157.2 | 153.7 → 156.7 |
+| SQL编译检查、匹配改写及浮点保护 | 3.0 → 66.1 | 3.0 → 121.7 | 3.0 → 191.5 |
+| 优化决策、估计扫描与对象构建 | 0.2 → 54.5 | 0.2 → 42.7 | 0.2 → 88.4 |
+| 清理优化对象 | 0.0 → 2.0 | 0.0 → 0.1 | 0.0 → 2.2 |
+| 共同初始化、结构化日志、空间检查与关闭 | 12.6 → 13.0 | 12.6 → 13.0 | 12.5 → 13.4 |
+
+- 仅建索引：SQL本身合计省约 **23.4 ms**，但任务总耗时增加约 **97.4 ms**。
+- 仅建汇总表：SQL本身合计省约 **22.6 ms**，但任务总耗时增加约 **143.4 ms**。
+- 索引＋汇总表：SQL本身合计省约 **61.2 ms**，但任务总耗时增加约 **221.9 ms**。
+
+这里最明显的限制是：原始数据很小，单条SQL通常只需几毫秒；本次Python原型逐轮做SQL解析、结构匹配及保守检查，成本超过省下的扫描时间。这个结果说明当前实现和策略在该规模不划算，不能据此声称FAD没有预测价值，也不能用单条查询加速代替任务净收益。
+
+### 结果是否一致、实验是否独立
+
+- 先用独立诊断副本验证，再开始正式计时；正式实验结束后再次逐条核对所有结果。60对全部通过，29条成功查询的列名、列顺序、行数、重复行和数值一致；Q10失败状态和错误也一致。
+- 有ORDER BY时逐行比较，否则比较保留重复行的多重集合。浮点绝对容差1e-7、相对容差1e-9；没有放宽到容忍整数位变化。
+- 每次新数据库副本、新进程、新任务连接，预热完整基础表后关闭预热连接，再开始计时。两组都如此。这是统一预热实验，不是操作系统冷缓存实验。
+- 60对顺序及每对AB/BA顺序由固定种子随机生成，串行执行，计时进程固定到同一逻辑CPU。对象每次重新构建，优化时间不跨实验摊销。共享机器不声称独占。
+- 对象只能在本轮SQL结束后由本轮已到达FAD触发，不能用于本轮SQL。控制器不读取未来SQL或离线命中分析；每轮日志保存查询前可用对象。
+- 下载/复制/预热属于共同准备，计时外单列；优化所需统计扫描、建表/建索引、检查、归档与清理全部计时。没有异步工作或虚构的Agent思考空档。
+
+**校准中的失败也保留了：** 初次索引运行在Q13、Q15将一个ROUND结果从40455变成40454。原因是索引改变浮点累加顺序。正式版本对当前SQL含ROUND和聚合、且基础表原先无索引的情况恢复全表读取；汇总表构建也保持该读取路径。这个保护没有按Q编号特判，成本和牺牲的索引机会都反映在正式结果里。Q10曾被SQL解析器重印函数名导致错误文本变化，现统一先检查原SQL，原本失败的SQL保持原样执行。
+
+### 哪些FAD建出了对象，后来谁用了
+
+下表构建时间包含为估计空间所做的扫描。占用空间是独立诊断测得的已使用页增长（包含页管理开销），不是文件长度增长；两个索引合计使用1180 KiB，但复用了原库空闲页，主库文件没有变大。实际使用依据独立诊断运行的EXPLAIN QUERY PLAN；汇总表还必须在实际执行SQL中出现。正式运行逐轮改写、可用对象及结果均与诊断核对。
+
+#### 仅建索引
+
+| 对象 | 哪轮FAD促成构建 | 构建耗时 | 后续实际使用SQL | 占用空间 |
+|---|---|---:|---|---:|
+| 索引1 | Q1、Q2；Q2结束后建立 | 17.2 ms | [Q3](#q3)、[Q4](#q4)、[Q20](#q20)、[Q29](#q29) | 272 KiB |
+| 索引2 | Q3、Q4；Q4结束后建立 | 34.9 ms | [Q5](#q5)、[Q6](#q6)、[Q7](#q7)、[Q8](#q8)、[Q9](#q9)、[Q16](#q16)、[Q18](#q18)、[Q21](#q21)、[Q22](#q22)、[Q23](#q23)、[Q27](#q27) | 908 KiB |
+
+**索引1：FAD中明确的访问内容与实际DDL**
+
+```sql
+CREATE INDEX "fad_i_056518e0debea191" ON "sheet1"(strftime('%Y-%m', "Date"))
+```
+
+**索引2：FAD中明确的访问内容与实际DDL**
+
+```sql
+CREATE INDEX "fad_i_53031e39633ac74e" ON "sheet1"("Destination" COLLATE NOCASE, strftime('%Y-%m', "Date"))
+```
+
+#### 仅建汇总表
+
+| 对象 | 哪轮FAD促成构建 | 构建耗时 | 后续实际使用SQL | 占用空间 |
+|---|---|---:|---|---:|
+| 汇总表1 | Q1、Q2；Q2结束后建立 | 22.6 ms | **未使用** | 8 KiB |
+| 汇总表2 | Q4、Q5；Q5结束后建立 | 17.2 ms | [Q13](#q13)、[Q15](#q15)、[Q21](#q21) | 12 KiB |
+
+**汇总表1：FAD中明确的访问内容与实际DDL**
+
+```sql
+CREATE TEMP TABLE "fad_m_cf64ff7bd49b2a08" AS SELECT strftime('%Y-%m', "Date") AS "g0", SUM("Profit") AS "a0" FROM "sheet1" NOT INDEXED GROUP BY strftime('%Y-%m', "Date")
+```
+
+**汇总表2：FAD中明确的访问内容与实际DDL**
+
+```sql
+CREATE TEMP TABLE "fad_m_85081ec051408661" AS SELECT "Consigned Product" AS "g0", strftime('%Y-%m', "Date") AS "g1", SUM("Profit") AS "a0", SUM("Sales Quantity") AS "a1", SUM("Total Logistics Revenue") AS "a2" FROM "sheet1" NOT INDEXED WHERE "Destination" LIKE 'South China%' GROUP BY "Consigned Product", strftime('%Y-%m', "Date")
+```
+
+#### 索引＋汇总表
+
+| 对象 | 哪轮FAD促成构建 | 构建耗时 | 后续实际使用SQL | 占用空间 |
+|---|---|---:|---|---:|
+| 索引1 | Q1、Q2；Q2结束后建立 | 17.1 ms | [Q3](#q3)、[Q4](#q4)、[Q20](#q20)、[Q29](#q29) | 272 KiB |
+| 索引2 | Q3、Q4；Q4结束后建立 | 34.9 ms | [Q5](#q5)、[Q6](#q6)、[Q7](#q7)、[Q8](#q8)、[Q9](#q9)、[Q16](#q16)、[Q18](#q18)、[Q23](#q23)、[Q27](#q27) | 908 KiB |
+| 汇总表3 | Q4、Q5；Q5结束后建立 | 17.0 ms | [Q13](#q13)、[Q15](#q15)、[Q21](#q21) | 16 KiB |
+| 汇总表4 | Q3、Q8；Q8结束后建立 | 15.0 ms | [Q14](#q14)、[Q22](#q22) | 52 KiB |
+
+**索引1：FAD中明确的访问内容与实际DDL**
+
+```sql
+CREATE INDEX "fad_i_056518e0debea191" ON "sheet1"(strftime('%Y-%m', "Date"))
+```
+
+**索引2：FAD中明确的访问内容与实际DDL**
+
+```sql
+CREATE INDEX "fad_i_53031e39633ac74e" ON "sheet1"("Destination" COLLATE NOCASE, strftime('%Y-%m', "Date"))
+```
+
+**汇总表3：FAD中明确的访问内容与实际DDL**
+
+```sql
+CREATE TEMP TABLE "fad_m_85081ec051408661" AS SELECT "Consigned Product" AS "g0", strftime('%Y-%m', "Date") AS "g1", SUM("Profit") AS "a0", SUM("Sales Quantity") AS "a1", SUM("Total Logistics Revenue") AS "a2" FROM "sheet1" NOT INDEXED WHERE "Destination" LIKE 'South China%' GROUP BY "Consigned Product", strftime('%Y-%m', "Date")
+```
+
+**汇总表4：FAD中明确的访问内容与实际DDL**
+
+```sql
+CREATE TEMP TABLE "fad_m_6767133fae334ebe" AS SELECT "Destination" AS "g0", strftime('%Y-%m', "Date") AS "g1", SUM("Profit") AS "a0" FROM "sheet1" NOT INDEXED WHERE "Destination" LIKE 'South China%' GROUP BY "Destination", strftime('%Y-%m', "Date")
+```
+
+未使用的典型对象是“无过滤的月度利润汇总表”：Q1/Q2预测了该模式，但后续月度查询实际加了华南过滤，且常要求更多指标。首版不猜过滤范围、不补未预测指标，因此不能复用。仅汇总表模式下它占去一个名额，仍完整承担构建成本。其余候选因为没有再次出现、已有对象达到数量上限，或所需指标未被覆盖，没有继续构建；详细原因在逐轮日志中。
+
+组合模式每轮也只建一个对象，因此前两次先建索引，随后建出的两个汇总表与“仅汇总表”模式不同。这是同一选择规则的结果，不是人为给组合模式另选后续查询。
+
+### 每轮SQL：用了什么，快了多少
+
+每轮列出原SQL、该轮FAD、执行前已有对象的实际使用、该轮结束后的新动作。查询耗时只比较本条SQL；整段任务是否划算以上面的总耗时为准。单位毫秒，中位数来自每种方式各自的20对实验。
+
+<a id="q1"></a>
+#### Q1
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT Destination, COUNT(*) AS cnt FROM sheet1 GROUP BY Destination ORDER BY cnt DESC
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 9.40 → 9.42 | 原表 | 无新对象 |
+| 仅建汇总表 | 9.42 → 9.42 | 原表 | 无新对象 |
+| 索引＋汇总表 | 9.44 → 9.41 | 原表 | 无新对象 |
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Destination",
+          "sheet1.Date"
+        ]
+      },
+      "filters": {
+        "status": "none",
+        "items": []
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "column",
+            "column": "sheet1.Destination"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "count",
+            "column": "*"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Destination",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "none",
+        "items": []
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q2"></a>
+#### Q2
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT MIN(Date) AS min_date, MAX(Date) AS max_date, COUNT(*) AS total_rows FROM sheet1
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 2.35 → 2.34 | 原表 | 建立索引1 |
+| 仅建汇总表 | 2.35 → 2.36 | 原表 | 建立汇总表1 |
+| 索引＋汇总表 | 2.35 → 2.34 | 原表 | 建立索引1 |
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Profit",
+          "sheet1.Destination"
+        ]
+      },
+      "filters": {
+        "status": "none",
+        "items": []
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q3"></a>
+#### Q3
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT strftime('%Y-%m', Date) AS month, SUM(Profit) AS total_profit, COUNT(*) AS orders, SUM("Total Logistics Revenue") AS revenue, SUM("Total Logistics Cost") AS cost, SUM("Sales Quantity") AS qty FROM sheet1 WHERE Destination LIKE 'South China%' GROUP BY month ORDER BY month
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 7.45 → 4.28 | 索引1 | 无新对象 |
+| 仅建汇总表 | 7.46 → 7.48 | 原表 | 无新对象 |
+| 索引＋汇总表 | 7.48 → 4.30 | 索引1 | 无新对象 |
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Destination",
+          "sheet1.Profit",
+          "sheet1.Total Logistics Revenue",
+          "sheet1.Total Logistics Cost",
+          "sheet1.Sales Quantity"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Destination",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Destination"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q4"></a>
+#### Q4
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT strftime('%Y-%m', Date) AS month, Destination, SUM(Profit) AS profit, COUNT(*) AS orders FROM sheet1 WHERE Destination LIKE 'South China%' GROUP BY month, Destination ORDER BY month, Destination
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 15.16 → 14.01 | 索引1 | 建立索引2 |
+| 仅建汇总表 | 15.19 → 15.19 | 原表 | 无新对象 |
+| 索引＋汇总表 | 15.21 → 14.06 | 索引1 | 建立索引2 |
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Destination",
+          "sheet1.Profit",
+          "sheet1.Total Logistics Revenue",
+          "sheet1.Total Logistics Cost"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Sales Quantity"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Total Logistics Revenue"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Destination",
+          "sheet1.Profit",
+          "sheet1.Total Logistics Revenue",
+          "sheet1.Total Logistics Cost"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "avg",
+            "column": "sheet1.Profit Margin"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Discount Amount"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Logistics Unit Price"
+          }
+        ]
+      },
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q5"></a>
+#### Q5
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT DISTINCT "Consigned Product" FROM sheet1 WHERE Destination LIKE 'South China%' ORDER BY 1
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 3.85 → 4.84 | 索引2 | 无新对象 |
+| 仅建汇总表 | 3.85 → 3.90 | 原表 | 建立汇总表2 |
+| 索引＋汇总表 | 3.87 → 4.83 | 索引2 | 建立汇总表3 |
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Destination",
+          "sheet1.Profit",
+          "sheet1.Sales Quantity",
+          "sheet1.Total Logistics Revenue"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Sales Quantity"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Total Logistics Revenue"
+          }
+        ]
+      },
+      "priority": "high"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q6"></a>
+#### Q6
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT DISTINCT Destination FROM sheet1 WHERE Destination LIKE 'South China%' ORDER BY Destination
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 4.34 → 2.08 | 索引2 | 无新对象 |
+| 仅建汇总表 | 4.35 → 4.38 | 原表 | 无新对象 |
+| 索引＋汇总表 | 4.35 → 2.11 | 索引2 | 无新对象 |
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Profit",
+          "sheet1.Sales Quantity",
+          "sheet1.Total Logistics Revenue",
+          "sheet1.Total Logistics Cost"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Total Logistics Revenue"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Total Logistics Cost"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Discount Amount"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Sales Quantity"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Total Logistics Revenue"
+          }
+        ]
+      },
+      "priority": "high"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q7"></a>
+#### Q7
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT strftime('%Y-%m', Date) AS month, "Consigned Product", SUM(Profit) AS profit, SUM("Sales Quantity") AS qty, SUM("Total Logistics Revenue") AS rev, SUM("Total Logistics Cost") AS cost FROM sheet1 WHERE Destination LIKE 'South China%' GROUP BY month, "Consigned Product" ORDER BY month, "Consigned Product"
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 10.32 → 9.56 | 索引2 | 无新对象 |
+| 仅建汇总表 | 10.32 → 10.38 | 原表 | 无新对象 |
+| 索引＋汇总表 | 10.35 → 9.65 | 索引2 | 无新对象 |
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Profit",
+          "sheet1.Sales Quantity",
+          "sheet1.Total Logistics Revenue",
+          "sheet1.Total Logistics Cost"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Sales Quantity"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Total Logistics Revenue"
+          }
+        ]
+      },
+      "priority": "high"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q8"></a>
+#### Q8
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT Destination FROM (SELECT DISTINCT Destination FROM sheet1 WHERE Destination LIKE 'South China%') ORDER BY Destination
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 3.46 → 1.27 | 索引2 | 无新对象 |
+| 仅建汇总表 | 3.44 → 3.48 | 原表 | 无新对象 |
+| 索引＋汇总表 | 3.45 → 1.29 | 索引2 | 建立汇总表4 |
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Destination",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Destination"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q9"></a>
+#### Q9
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT strftime('%Y-%m', Date) AS month, SUM("Total Logistics Revenue") AS revenue, SUM("List Price Revenue") AS list_price, SUM("Logistics Value-Added Service Revenue") AS vas_revenue, SUM("Discount Amount") AS discount, SUM("Total Logistics Cost") AS cost, SUM("Freight Cost") AS freight, SUM("Warehousing Cost") AS warehousing, SUM("Other Operating Costs") AS other_cost, SUM(Profit) AS profit, SUM("Sales Quantity") AS qty, COUNT(*) AS orders FROM sheet1 WHERE Destination LIKE 'South China%' GROUP BY month ORDER BY month
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 10.25 → 10.04 | 索引2 | 无新对象 |
+| 仅建汇总表 | 10.26 → 10.29 | 原表 | 无新对象 |
+| 索引＋汇总表 | 10.25 → 10.05 | 索引2 | 无新对象 |
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Total Logistics Revenue",
+          "sheet1.Total Logistics Cost",
+          "sheet1.Profit",
+          "sheet1.Sales Quantity",
+          "sheet1.Discount Amount",
+          "sheet1.List Price Revenue",
+          "sheet1.Logistics Value-Added Service Revenue",
+          "sheet1.Freight Cost",
+          "sheet1.Warehousing Cost",
+          "sheet1.Other Operating Costs"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Total Logistics Revenue"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Total Logistics Cost"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Sales Quantity"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Discount Amount"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.List Price Revenue"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Logistics Value-Added Service Revenue"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Freight Cost"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Warehousing Cost"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Other Operating Costs"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Destination",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Destination"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q10"></a>
+#### Q10
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT 
+  ROUND(AVG(profit), 0) AS avg_profit,
+  ROUND(STDEV(profit), 0) AS std_profit,
+  ROUND(STDEV(profit)/AVG(profit)*100, 1) AS cv_profit_pct,
+  ROUND(AVG(revenue), 0) AS avg_revenue,
+  ROUND(STDEV(revenue), 0) AS std_revenue,
+  ROUND(STDEV(revenue)/AVG(revenue)*100, 1) AS cv_revenue_pct,
+  ROUND(AVG(cost), 0) AS avg_cost,
+  ROUND(STDEV(cost), 0) AS std_cost,
+  ROUND(STDEV(cost)/AVG(cost)*100, 1) AS cv_cost_pct,
+  ROUND(AVG(qty), 0) AS avg_qty,
+  ROUND(STDEV(qty), 0) AS std_qty,
+  ROUND(STDEV(qty)/AVG(qty)*100, 1) AS cv_qty_pct
+FROM (
+  SELECT strftime('%Y-%m', Date) AS month, 
+    SUM(Profit) AS profit, 
+    SUM("Total Logistics Revenue") AS revenue, 
+    SUM("Total Logistics Cost") AS cost,
+    SUM("Sales Quantity") AS qty
+  FROM sheet1 
+  WHERE Destination LIKE 'South China%' 
+  GROUP BY month
+)
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 0.05 → 0.05 | 保留原始失败：STDEV不受支持 | 无新对象 |
+| 仅建汇总表 | 0.05 → 0.05 | 保留原始失败：STDEV不受支持 | 无新对象 |
+| 索引＋汇总表 | 0.05 → 0.05 | 保留原始失败：STDEV不受支持 | 无新对象 |
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Destination",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Destination"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Profit",
+          "sheet1.Total Logistics Revenue",
+          "sheet1.Total Logistics Cost",
+          "sheet1.Sales Quantity"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "none",
+        "items": []
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "avg",
+            "column": "sheet1.Profit Margin"
+          }
+        ]
+      },
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q11"></a>
+#### Q11
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT strftime('%Y-%m', Date) AS month, ROUND(AVG("Profit Margin")*100, 2) AS avg_profit_margin_pct, SUM("Discount Amount")/SUM("Total Logistics Revenue")*100 AS discount_rate_pct, SUM("Logistics Value-Added Service Revenue")/SUM("Total Logistics Revenue")*100 AS vas_rate_pct FROM sheet1 WHERE Destination LIKE 'South China%' GROUP BY month ORDER BY month
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 7.48 → 7.61 | 原表 | 无新对象 |
+| 仅建汇总表 | 7.50 → 7.59 | 原表 | 无新对象 |
+| 索引＋汇总表 | 7.49 → 7.58 | 原表 | 无新对象 |
+
+本轮索引路径触发浮点保护，对原先无索引的基础表使用NOT INDEXED；具体执行SQL保存在该轮事件中。
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Destination",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Destination"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q12"></a>
+#### Q12
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT 
+  ROUND(AVG(profit), 0) AS avg_profit,
+  ROUND(SQRT(AVG(profit*profit) - AVG(profit)*AVG(profit)), 0) AS std_profit,
+  ROUND(SQRT(AVG(profit*profit) - AVG(profit)*AVG(profit))/AVG(profit)*100, 1) AS cv_profit_pct,
+  ROUND(AVG(revenue), 0) AS avg_revenue,
+  ROUND(SQRT(AVG(revenue*revenue) - AVG(revenue)*AVG(revenue)), 0) AS std_revenue,
+  ROUND(SQRT(AVG(revenue*revenue) - AVG(revenue)*AVG(revenue))/AVG(revenue)*100, 1) AS cv_revenue_pct,
+  ROUND(AVG(cost), 0) AS avg_cost,
+  ROUND(SQRT(AVG(cost*cost) - AVG(cost)*AVG(cost)), 0) AS std_cost,
+  ROUND(SQRT(AVG(cost*cost) - AVG(cost)*AVG(cost))/AVG(cost)*100, 1) AS cv_cost_pct,
+  ROUND(AVG(qty), 0) AS avg_qty,
+  ROUND(SQRT(AVG(qty*qty) - AVG(qty)*AVG(qty)), 0) AS std_qty,
+  ROUND(SQRT(AVG(qty*qty) - AVG(qty)*AVG(qty))/AVG(qty)*100, 1) AS cv_qty_pct,
+  ROUND(AVG(orders), 0) AS avg_orders,
+  ROUND(SQRT(AVG(orders*orders) - AVG(orders)*AVG(orders)), 0) AS std_orders,
+  ROUND(SQRT(AVG(orders*orders) - AVG(orders)*AVG(orders))/AVG(orders)*100, 1) AS cv_orders_pct
+FROM (
+  SELECT strftime('%Y-%m', Date) AS month, 
+    SUM(Profit) AS profit, 
+    SUM("Total Logistics Revenue") AS revenue, 
+    SUM("Total Logistics Cost") AS cost,
+    SUM("Sales Quantity") AS qty,
+    COUNT(*) AS orders
+  FROM sheet1 
+  WHERE Destination LIKE 'South China%' 
+  GROUP BY month
+)
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 7.42 → 7.50 | 原表 | 无新对象 |
+| 仅建汇总表 | 7.40 → 7.50 | 原表 | 无新对象 |
+| 索引＋汇总表 | 7.40 → 7.49 | 原表 | 无新对象 |
+
+本轮索引路径触发浮点保护，对原先无索引的基础表使用NOT INDEXED；具体执行SQL保存在该轮事件中。
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Destination",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Destination"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q13"></a>
+#### Q13
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT "Consigned Product", 
+  ROUND(AVG(profit),0) AS avg_monthly_profit,
+  ROUND(SQRT(AVG(profit*profit)-AVG(profit)*AVG(profit)),0) AS std_monthly_profit,
+  ROUND(SQRT(AVG(profit*profit)-AVG(profit)*AVG(profit))/AVG(profit)*100,1) AS cv_pct,
+  MIN(profit) AS min_m, MAX(profit) AS max_m,
+  ROUND(MAX(profit)-MIN(profit),0) AS range_m,
+  SUM(profit) AS total_profit,
+  SUM(qty) AS total_qty
+FROM (
+  SELECT strftime('%Y-%m', Date) AS month, "Consigned Product" AS product, 
+    SUM(Profit) AS profit, SUM("Sales Quantity") AS qty
+  FROM sheet1 WHERE Destination LIKE 'South China%'
+  GROUP BY month, product
+)
+GROUP BY product ORDER BY std_monthly_profit DESC
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 8.66 → 8.75 | 原表 | 无新对象 |
+| 仅建汇总表 | 8.66 → 0.38 | 汇总表2 | 无新对象 |
+| 索引＋汇总表 | 8.65 → 0.38 | 汇总表3 | 无新对象 |
+
+<details><summary>仅建汇总表：实际改写后SQL</summary>
+
+```sql
+SELECT "Consigned Product", ROUND(AVG(profit), 0) AS avg_monthly_profit, ROUND(SQRT(AVG(profit * profit) - AVG(profit) * AVG(profit)), 0) AS std_monthly_profit, ROUND(SQRT(AVG(profit * profit) - AVG(profit) * AVG(profit)) / AVG(profit) * 100, 1) AS cv_pct, MIN(profit) AS min_m, MAX(profit) AS max_m, ROUND(MAX(profit) - MIN(profit), 0) AS range_m, SUM(profit) AS total_profit, SUM(qty) AS total_qty FROM (SELECT "g1" AS "month", "g0" AS "product", "a0" AS "profit", "a1" AS "qty" FROM fad_m_85081ec051408661) GROUP BY product ORDER BY std_monthly_profit DESC
+```
+
+</details>
+
+<details><summary>索引＋汇总表：实际改写后SQL</summary>
+
+```sql
+SELECT "Consigned Product", ROUND(AVG(profit), 0) AS avg_monthly_profit, ROUND(SQRT(AVG(profit * profit) - AVG(profit) * AVG(profit)), 0) AS std_monthly_profit, ROUND(SQRT(AVG(profit * profit) - AVG(profit) * AVG(profit)) / AVG(profit) * 100, 1) AS cv_pct, MIN(profit) AS min_m, MAX(profit) AS max_m, ROUND(MAX(profit) - MIN(profit), 0) AS range_m, SUM(profit) AS total_profit, SUM(qty) AS total_qty FROM (SELECT "g1" AS "month", "g0" AS "product", "a0" AS "profit", "a1" AS "qty" FROM fad_m_85081ec051408661) GROUP BY product ORDER BY std_monthly_profit DESC
+```
+
+</details>
+
+本轮索引路径触发浮点保护，对原先无索引的基础表使用NOT INDEXED；具体执行SQL保存在该轮事件中。
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Destination",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Destination"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Profit",
+          "sheet1.Sales Quantity",
+          "sheet1.Total Logistics Revenue",
+          "sheet1.Total Logistics Cost"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Sales Quantity"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Total Logistics Revenue"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Total Logistics Cost"
+          }
+        ]
+      },
+      "priority": "high"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q14"></a>
+#### Q14
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT Destination,
+  ROUND(AVG(profit),0) AS avg_monthly_profit,
+  ROUND(SQRT(AVG(profit*profit)-AVG(profit)*AVG(profit)),0) AS std_monthly_profit,
+  ROUND(SQRT(AVG(profit*profit)-AVG(profit)*AVG(profit))/NULLIF(AVG(profit),0)*100,1) AS cv_pct,
+  ROUND(MAX(profit)-MIN(profit),0) AS range_m,
+  SUM(profit) AS total_profit
+FROM (
+  SELECT strftime('%Y-%m', Date) AS month, Destination, SUM(Profit) AS profit
+  FROM sheet1 WHERE Destination LIKE 'South China%'
+  GROUP BY month, Destination
+)
+GROUP BY Destination ORDER BY std_monthly_profit DESC LIMIT 20
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 9.55 → 9.64 | 原表 | 无新对象 |
+| 仅建汇总表 | 9.57 → 9.67 | 原表 | 无新对象 |
+| 索引＋汇总表 | 9.55 → 0.86 | 汇总表4 | 无新对象 |
+
+<details><summary>索引＋汇总表：实际改写后SQL</summary>
+
+```sql
+SELECT Destination, ROUND(AVG(profit), 0) AS avg_monthly_profit, ROUND(SQRT(AVG(profit * profit) - AVG(profit) * AVG(profit)), 0) AS std_monthly_profit, ROUND(SQRT(AVG(profit * profit) - AVG(profit) * AVG(profit)) / NULLIF(AVG(profit), 0) * 100, 1) AS cv_pct, ROUND(MAX(profit) - MIN(profit), 0) AS range_m, SUM(profit) AS total_profit FROM (SELECT "g1" AS "month", "g0" AS "Destination", "a0" AS "profit" FROM fad_m_6767133fae334ebe) GROUP BY Destination ORDER BY std_monthly_profit DESC LIMIT 20
+```
+
+</details>
+
+本轮索引路径触发浮点保护，对原先无索引的基础表使用NOT INDEXED；具体执行SQL保存在该轮事件中。
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Destination",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Destination"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q15"></a>
+#### Q15
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT product AS prod, 
+  ROUND(AVG(profit),0) AS avg_monthly_profit,
+  ROUND(SQRT(AVG(profit*profit)-AVG(profit)*AVG(profit)),0) AS std_monthly_profit,
+  ROUND(SQRT(AVG(profit*profit)-AVG(profit)*AVG(profit))/NULLIF(AVG(profit),0)*100,1) AS cv_pct,
+  ROUND(MIN(profit),0) AS min_m, ROUND(MAX(profit),0) AS max_m,
+  ROUND(MAX(profit)-MIN(profit),0) AS range_m,
+  SUM(profit) AS total_profit, SUM(qty) AS total_qty
+FROM (
+  SELECT strftime('%Y-%m', Date) AS month, "Consigned Product" AS product, 
+    SUM(Profit) AS profit, SUM("Sales Quantity") AS qty
+  FROM sheet1 WHERE Destination LIKE 'South China%'
+  GROUP BY month, product
+)
+GROUP BY product ORDER BY std_monthly_profit DESC
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 8.66 → 8.78 | 原表 | 无新对象 |
+| 仅建汇总表 | 8.68 → 0.38 | 汇总表2 | 无新对象 |
+| 索引＋汇总表 | 8.67 → 0.38 | 汇总表3 | 无新对象 |
+
+<details><summary>仅建汇总表：实际改写后SQL</summary>
+
+```sql
+SELECT product AS prod, ROUND(AVG(profit), 0) AS avg_monthly_profit, ROUND(SQRT(AVG(profit * profit) - AVG(profit) * AVG(profit)), 0) AS std_monthly_profit, ROUND(SQRT(AVG(profit * profit) - AVG(profit) * AVG(profit)) / NULLIF(AVG(profit), 0) * 100, 1) AS cv_pct, ROUND(MIN(profit), 0) AS min_m, ROUND(MAX(profit), 0) AS max_m, ROUND(MAX(profit) - MIN(profit), 0) AS range_m, SUM(profit) AS total_profit, SUM(qty) AS total_qty FROM (SELECT "g1" AS "month", "g0" AS "product", "a0" AS "profit", "a1" AS "qty" FROM fad_m_85081ec051408661) GROUP BY product ORDER BY std_monthly_profit DESC
+```
+
+</details>
+
+<details><summary>索引＋汇总表：实际改写后SQL</summary>
+
+```sql
+SELECT product AS prod, ROUND(AVG(profit), 0) AS avg_monthly_profit, ROUND(SQRT(AVG(profit * profit) - AVG(profit) * AVG(profit)), 0) AS std_monthly_profit, ROUND(SQRT(AVG(profit * profit) - AVG(profit) * AVG(profit)) / NULLIF(AVG(profit), 0) * 100, 1) AS cv_pct, ROUND(MIN(profit), 0) AS min_m, ROUND(MAX(profit), 0) AS max_m, ROUND(MAX(profit) - MIN(profit), 0) AS range_m, SUM(profit) AS total_profit, SUM(qty) AS total_qty FROM (SELECT "g1" AS "month", "g0" AS "product", "a0" AS "profit", "a1" AS "qty" FROM fad_m_85081ec051408661) GROUP BY product ORDER BY std_monthly_profit DESC
+```
+
+</details>
+
+本轮索引路径触发浮点保护，对原先无索引的基础表使用NOT INDEXED；具体执行SQL保存在该轮事件中。
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Total Logistics Revenue",
+          "sheet1.Profit Margin"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "avg",
+            "column": "sheet1.Profit Margin"
+          }
+        ]
+      },
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q16"></a>
+#### Q16
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT substr(Destination, 1, instr(substr(Destination, 14), '-')+13) AS region, strftime('%Y-%m', Date) AS month, SUM(Profit) AS profit FROM sheet1 WHERE Destination LIKE 'South China%' GROUP BY region, month ORDER BY region, month
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 10.15 → 9.34 | 索引2 | 无新对象 |
+| 仅建汇总表 | 10.14 → 10.26 | 原表 | 无新对象 |
+| 索引＋汇总表 | 10.12 → 9.50 | 索引2 | 无新对象 |
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Destination",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Destination"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Profit",
+          "sheet1.Total Logistics Revenue",
+          "sheet1.Sales Quantity"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Total Logistics Revenue"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Sales Quantity"
+          },
+          {
+            "function": "count",
+            "column": "*"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Profit Margin"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "avg",
+            "column": "sheet1.Profit Margin"
+          },
+          {
+            "function": "min",
+            "column": "sheet1.Profit Margin"
+          },
+          {
+            "function": "max",
+            "column": "sheet1.Profit Margin"
+          }
+        ]
+      },
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q17"></a>
+#### Q17
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT strftime('%Y-%m', Date) AS month, ROUND(SUM("Total Logistics Revenue")/COUNT(*),2) AS rev_per_order, ROUND(SUM("Sales Quantity")/COUNT(*),2) AS qty_per_order, ROUND(SUM("Total Logistics Revenue")/SUM("Sales Quantity"),3) AS rev_per_unit, ROUND(SUM(Profit)/SUM("Sales Quantity"),3) AS profit_per_unit, ROUND(SUM("Total Logistics Cost")/SUM("Sales Quantity"),3) AS cost_per_unit FROM sheet1 WHERE Destination LIKE 'South China%' GROUP BY month ORDER BY month
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 7.45 → 7.57 | 原表 | 无新对象 |
+| 仅建汇总表 | 7.48 → 7.58 | 原表 | 无新对象 |
+| 索引＋汇总表 | 7.48 → 7.60 | 原表 | 无新对象 |
+
+本轮索引路径触发浮点保护，对原先无索引的基础表使用NOT INDEXED；具体执行SQL保存在该轮事件中。
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Profit",
+          "sheet1.Total Logistics Revenue",
+          "sheet1.Sales Quantity"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Total Logistics Revenue"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Sales Quantity"
+          },
+          {
+            "function": "count",
+            "column": "*"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Profit Margin"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "avg",
+            "column": "sheet1.Profit Margin"
+          },
+          {
+            "function": "min",
+            "column": "sheet1.Profit Margin"
+          },
+          {
+            "function": "max",
+            "column": "sheet1.Profit Margin"
+          }
+        ]
+      },
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q18"></a>
+#### Q18
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT CASE WHEN Destination LIKE 'South China-Guangdong%' THEN 'Guangdong' WHEN Destination LIKE 'South China-Guangxi%' THEN 'Guangxi' WHEN Destination LIKE 'South China-Hainan%' THEN 'Hainan' ELSE 'Henan' END AS region, strftime('%Y-%m', Date) AS month, SUM(Profit) AS profit FROM sheet1 WHERE Destination LIKE 'South China%' GROUP BY region, month ORDER BY region, month
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 9.23 → 8.41 | 索引2 | 无新对象 |
+| 仅建汇总表 | 9.20 → 9.31 | 原表 | 无新对象 |
+| 索引＋汇总表 | 9.25 → 8.46 | 索引2 | 无新对象 |
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Destination",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Destination"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Profit Margin",
+          "sheet1.Profit",
+          "sheet1.Total Logistics Revenue"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "and",
+            "items": [
+              {
+                "type": "predicate",
+                "column": "sheet1.Destination",
+                "op": "like",
+                "value": {
+                  "status": "known",
+                  "literal": "South China%"
+                }
+              },
+              {
+                "type": "predicate",
+                "column": "sheet1.Date",
+                "op": "between",
+                "value": {
+                  "status": "known",
+                  "literal": [
+                    "2023-10-01",
+                    "2023-10-31"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "none",
+        "items": []
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "count",
+            "column": "*"
+          },
+          {
+            "function": "min",
+            "column": "sheet1.Profit Margin"
+          },
+          {
+            "function": "max",
+            "column": "sheet1.Profit Margin"
+          },
+          {
+            "function": "avg",
+            "column": "sheet1.Profit Margin"
+          }
+        ]
+      },
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q19"></a>
+#### Q19
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT strftime('%Y-%m', Date) AS month, COUNT(*) AS n, ROUND(AVG("Profit Margin")*100,1) AS avg_margin_pct, ROUND(MIN("Profit Margin")*100,1) AS min_margin_pct, ROUND(MAX("Profit Margin")*100,1) AS max_margin_pct, ROUND(SUM(Profit)/SUM("Total Logistics Revenue")*100,1) AS weighted_margin_pct FROM sheet1 WHERE Destination LIKE 'South China%' GROUP BY month ORDER BY month
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 7.46 → 7.53 | 原表 | 无新对象 |
+| 仅建汇总表 | 7.47 → 7.52 | 原表 | 无新对象 |
+| 索引＋汇总表 | 7.47 → 7.57 | 原表 | 无新对象 |
+
+本轮索引路径触发浮点保护，对原先无索引的基础表使用NOT INDEXED；具体执行SQL保存在该轮事件中。
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Profit Margin",
+          "sheet1.Profit",
+          "sheet1.Total Logistics Revenue"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "and",
+            "items": [
+              {
+                "type": "predicate",
+                "column": "sheet1.Destination",
+                "op": "like",
+                "value": {
+                  "status": "known",
+                  "literal": "South China%"
+                }
+              },
+              {
+                "type": "predicate",
+                "column": "sheet1.Date",
+                "op": "between",
+                "value": {
+                  "status": "known",
+                  "literal": [
+                    "2023-10-01",
+                    "2023-10-31"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "none",
+        "items": []
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "count",
+            "column": "*"
+          },
+          {
+            "function": "min",
+            "column": "sheet1.Profit Margin"
+          },
+          {
+            "function": "max",
+            "column": "sheet1.Profit Margin"
+          },
+          {
+            "function": "avg",
+            "column": "sheet1.Profit Margin"
+          }
+        ]
+      },
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q20"></a>
+#### Q20
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT "Waybill Number", Date, Destination, "Consigned Product", "Sales Quantity", "Total Logistics Revenue", "Total Logistics Cost", Profit, "Profit Margin" FROM sheet1 WHERE Destination LIKE 'South China%' AND strftime('%Y-%m', Date)='2023-10' ORDER BY "Profit Margin" DESC LIMIT 10
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 4.40 → 0.61 | 索引1 | 无新对象 |
+| 仅建汇总表 | 4.41 → 4.45 | 原表 | 无新对象 |
+| 索引＋汇总表 | 4.43 → 0.64 | 索引1 | 无新对象 |
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Profit Margin",
+          "sheet1.Profit",
+          "sheet1.Total Logistics Revenue",
+          "sheet1.Waybill Number",
+          "sheet1.Destination",
+          "sheet1.Consigned Product"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "and",
+            "items": [
+              {
+                "type": "predicate",
+                "column": "sheet1.Destination",
+                "op": "like",
+                "value": {
+                  "status": "known",
+                  "literal": "South China%"
+                }
+              },
+              {
+                "type": "predicate",
+                "column": "sheet1.Date",
+                "op": "between",
+                "value": {
+                  "status": "known",
+                  "literal": [
+                    "2023-10-01",
+                    "2023-10-31"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "none",
+        "items": []
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "count",
+            "column": "*"
+          },
+          {
+            "function": "min",
+            "column": "sheet1.Profit Margin"
+          },
+          {
+            "function": "max",
+            "column": "sheet1.Profit Margin"
+          },
+          {
+            "function": "avg",
+            "column": "sheet1.Profit Margin"
+          }
+        ]
+      },
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q21"></a>
+#### Q21
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT month, 
+  SUM(CASE WHEN prod='Auto parts' THEN profit END) AS auto_parts,
+  SUM(CASE WHEN prod='Bathroom supplies' THEN profit END) AS bathroom,
+  SUM(CASE WHEN prod='Bedding set' THEN profit END) AS bedding,
+  SUM(CASE WHEN prod='Bedroom Furniture' THEN profit END) AS bedroom,
+  SUM(CASE WHEN prod='Computer hardware' THEN profit END) AS computer,
+  SUM(CASE WHEN prod='Home decor items' THEN profit END) AS home_decor,
+  SUM(CASE WHEN prod='Kitchen Appliances' THEN profit END) AS kitchen,
+  SUM(CASE WHEN prod='Office furniture' THEN profit END) AS office
+FROM (
+  SELECT strftime('%Y-%m', Date) AS month, "Consigned Product" AS prod, SUM(Profit) AS profit
+  FROM sheet1 WHERE Destination LIKE 'South China%'
+  GROUP BY month, prod
+) GROUP BY month ORDER BY month
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 8.39 → 7.56 | 索引2 | 无新对象 |
+| 仅建汇总表 | 8.39 → 0.44 | 汇总表2 | 无新对象 |
+| 索引＋汇总表 | 8.40 → 0.44 | 汇总表3 | 无新对象 |
+
+<details><summary>仅建汇总表：实际改写后SQL</summary>
+
+```sql
+SELECT month, SUM(CASE WHEN prod = 'Auto parts' THEN profit END) AS auto_parts, SUM(CASE WHEN prod = 'Bathroom supplies' THEN profit END) AS bathroom, SUM(CASE WHEN prod = 'Bedding set' THEN profit END) AS bedding, SUM(CASE WHEN prod = 'Bedroom Furniture' THEN profit END) AS bedroom, SUM(CASE WHEN prod = 'Computer hardware' THEN profit END) AS computer, SUM(CASE WHEN prod = 'Home decor items' THEN profit END) AS home_decor, SUM(CASE WHEN prod = 'Kitchen Appliances' THEN profit END) AS kitchen, SUM(CASE WHEN prod = 'Office furniture' THEN profit END) AS office FROM (SELECT "g1" AS "month", "g0" AS "prod", "a0" AS "profit" FROM fad_m_85081ec051408661) GROUP BY month ORDER BY month
+```
+
+</details>
+
+<details><summary>索引＋汇总表：实际改写后SQL</summary>
+
+```sql
+SELECT month, SUM(CASE WHEN prod = 'Auto parts' THEN profit END) AS auto_parts, SUM(CASE WHEN prod = 'Bathroom supplies' THEN profit END) AS bathroom, SUM(CASE WHEN prod = 'Bedding set' THEN profit END) AS bedding, SUM(CASE WHEN prod = 'Bedroom Furniture' THEN profit END) AS bedroom, SUM(CASE WHEN prod = 'Computer hardware' THEN profit END) AS computer, SUM(CASE WHEN prod = 'Home decor items' THEN profit END) AS home_decor, SUM(CASE WHEN prod = 'Kitchen Appliances' THEN profit END) AS kitchen, SUM(CASE WHEN prod = 'Office furniture' THEN profit END) AS office FROM (SELECT "g1" AS "month", "g0" AS "prod", "a0" AS "profit" FROM fad_m_85081ec051408661) GROUP BY month ORDER BY month
+```
+
+</details>
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Profit",
+          "sheet1.Sales Quantity"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Sales Quantity"
+          },
+          {
+            "function": "avg",
+            "column": "sheet1.Profit Margin"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Destination",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Destination"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q22"></a>
+#### Q22
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT month, 
+  SUM(CASE WHEN dest LIKE '%Guangdong%' THEN profit END) AS guangdong,
+  SUM(CASE WHEN dest LIKE '%Guangxi%' THEN profit END) AS guangxi,
+  SUM(CASE WHEN dest LIKE '%Hainan%' THEN profit END) AS hainan,
+  SUM(CASE WHEN dest LIKE '%Henan%' THEN profit END) AS henan,
+  SUM(CASE WHEN dest NOT LIKE '%Guangdong%' AND dest NOT LIKE '%Guangxi%' AND dest NOT LIKE '%Hainan%' AND dest NOT LIKE '%Henan%' THEN profit END) AS other
+FROM (
+  SELECT strftime('%Y-%m', Date) AS month, Destination AS dest, SUM(Profit) AS profit
+  FROM sheet1 WHERE Destination LIKE 'South China%'
+  GROUP BY month, dest
+) GROUP BY month ORDER BY month
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 9.90 → 7.78 | 索引2 | 无新对象 |
+| 仅建汇总表 | 9.89 → 9.96 | 原表 | 无新对象 |
+| 索引＋汇总表 | 9.94 → 1.26 | 汇总表4 | 无新对象 |
+
+<details><summary>索引＋汇总表：实际改写后SQL</summary>
+
+```sql
+SELECT month, SUM(CASE WHEN dest LIKE '%Guangdong%' THEN profit END) AS guangdong, SUM(CASE WHEN dest LIKE '%Guangxi%' THEN profit END) AS guangxi, SUM(CASE WHEN dest LIKE '%Hainan%' THEN profit END) AS hainan, SUM(CASE WHEN dest LIKE '%Henan%' THEN profit END) AS henan, SUM(CASE WHEN dest NOT LIKE '%Guangdong%' AND dest NOT LIKE '%Guangxi%' AND dest NOT LIKE '%Hainan%' AND dest NOT LIKE '%Henan%' THEN profit END) AS other FROM (SELECT "g1" AS "month", "g0" AS "dest", "a0" AS "profit" FROM fad_m_6767133fae334ebe) GROUP BY month ORDER BY month
+```
+
+</details>
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Profit",
+          "sheet1.Sales Quantity"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Sales Quantity"
+          },
+          {
+            "function": "avg",
+            "column": "sheet1.Profit Margin"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Destination",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Destination"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q23"></a>
+#### Q23
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT DISTINCT substr(Destination, 14, instr(substr(Destination||'-', 14), '-')-1) AS province FROM sheet1 WHERE Destination LIKE 'South China%' ORDER BY province
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 5.72 → 3.67 | 索引2 | 无新对象 |
+| 仅建汇总表 | 5.71 → 5.75 | 原表 | 无新对象 |
+| 索引＋汇总表 | 5.72 → 3.70 | 索引2 | 无新对象 |
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Destination",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Destination"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q24"></a>
+#### Q24
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT strftime('%Y-%m', Date) AS month, ROUND(AVG("List Price Revenue"/"Sales Quantity"),3) AS avg_unit_list_price, ROUND(AVG("Logistics Unit Price"),3) AS avg_logistics_unit_price, SUM("Discount Amount")/SUM("List Price Revenue")*100 AS discount_rate_pct, SUM("Logistics Value-Added Service Revenue")/(SUM("List Price Revenue")-SUM("Discount Amount"))*100 AS vas_effective_rate_pct FROM sheet1 WHERE Destination LIKE 'South China%' GROUP BY month ORDER BY month
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 7.79 → 7.87 | 原表 | 无新对象 |
+| 仅建汇总表 | 7.76 → 7.85 | 原表 | 无新对象 |
+| 索引＋汇总表 | 7.78 → 7.99 | 原表 | 无新对象 |
+
+本轮索引路径触发浮点保护，对原先无索引的基础表使用NOT INDEXED；具体执行SQL保存在该轮事件中。
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Destination",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Destination"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q25"></a>
+#### Q25
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT substr(Destination, 13, instr(substr(Destination, 13)||'-', '-')-1) AS province, COUNT(*) AS orders, ROUND(SUM(Profit),0) AS total_profit FROM sheet1 WHERE Destination LIKE 'South China%' GROUP BY province ORDER BY total_profit DESC
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 6.19 → 6.22 | 原表 | 无新对象 |
+| 仅建汇总表 | 6.18 → 6.23 | 原表 | 无新对象 |
+| 索引＋汇总表 | 6.18 → 6.35 | 原表 | 无新对象 |
+
+本轮索引路径触发浮点保护，对原先无索引的基础表使用NOT INDEXED；具体执行SQL保存在该轮事件中。
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Destination",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Destination"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q26"></a>
+#### Q26
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT "Consigned Product", ROUND(AVG("Total Logistics Revenue"/"Sales Quantity"),3) AS avg_price_per_unit, ROUND(AVG("Total Logistics Cost"/"Sales Quantity"),3) AS avg_cost_per_unit, ROUND(AVG("Profit"/"Sales Quantity"),3) AS avg_profit_per_unit FROM sheet1 WHERE Destination LIKE 'South China%' GROUP BY "Consigned Product" ORDER BY avg_profit_per_unit DESC
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 5.84 → 5.88 | 原表 | 无新对象 |
+| 仅建汇总表 | 5.85 → 5.87 | 原表 | 无新对象 |
+| 索引＋汇总表 | 5.84 → 5.91 | 原表 | 无新对象 |
+
+本轮索引路径触发浮点保护，对原先无索引的基础表使用NOT INDEXED；具体执行SQL保存在该轮事件中。
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Profit",
+          "sheet1.Sales Quantity",
+          "sheet1.Total Logistics Revenue",
+          "sheet1.Total Logistics Cost"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Sales Quantity"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Total Logistics Revenue"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Total Logistics Cost"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Profit",
+          "sheet1.Profit Margin"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          },
+          {
+            "function": "count",
+            "column": "*"
+          }
+        ]
+      },
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q27"></a>
+#### Q27
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT month,
+  SUM(CASE WHEN province='Guangdong Province' THEN profit END) AS guangdong,
+  SUM(CASE WHEN province='Guangxi' THEN profit END) AS guangxi,
+  SUM(CASE WHEN province='Hainan Province' THEN profit END) AS hainan,
+  SUM(CASE WHEN province='Henan Province' THEN profit END) AS henan,
+  SUM(CASE WHEN province='Hubei Province' THEN profit END) AS hubei,
+  SUM(CASE WHEN province='Hunan Province' THEN profit END) AS hunan
+FROM (
+  SELECT substr(Destination, 13, instr(substr(Destination, 13)||'-', '-')-1) AS province,
+    strftime('%Y-%m', Date) AS month, SUM(Profit) AS profit
+  FROM sheet1 WHERE Destination LIKE 'South China%'
+  GROUP BY province, month
+) GROUP BY month ORDER BY month
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 9.89 → 8.91 | 索引2 | 无新对象 |
+| 仅建汇总表 | 9.84 → 9.94 | 原表 | 无新对象 |
+| 索引＋汇总表 | 9.86 → 9.02 | 索引2 | 无新对象 |
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Destination",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Destination"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q28"></a>
+#### Q28
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT 'Guangdong' AS prov, ROUND(AVG(profit),0) AS avg_p, ROUND(SQRT(AVG(profit*profit)-AVG(profit)*AVG(profit)),0) AS std_p, ROUND(SQRT(AVG(profit*profit)-AVG(profit)*AVG(profit))/AVG(profit)*100,1) AS cv_pct FROM (SELECT strftime('%Y-%m', Date) AS month, SUM(Profit) AS profit FROM sheet1 WHERE Destination LIKE 'South China-Guangdong%' GROUP BY month)
+UNION ALL
+SELECT 'Guangxi', ROUND(AVG(profit),0), ROUND(SQRT(AVG(profit*profit)-AVG(profit)*AVG(profit)),0), ROUND(SQRT(AVG(profit*profit)-AVG(profit)*AVG(profit))/AVG(profit)*100,1) FROM (SELECT strftime('%Y-%m', Date) AS month, SUM(Profit) AS profit FROM sheet1 WHERE Destination LIKE 'South China-Guangxi%' GROUP BY month)
+UNION ALL
+SELECT 'Hainan', ROUND(AVG(profit),0), ROUND(SQRT(AVG(profit*profit)-AVG(profit)*AVG(profit)),0), ROUND(SQRT(AVG(profit*profit)-AVG(profit)*AVG(profit))/AVG(profit)*100,1) FROM (SELECT strftime('%Y-%m', Date) AS month, SUM(Profit) AS profit FROM sheet1 WHERE Destination LIKE 'South China-Hainan%' GROUP BY month)
+UNION ALL
+SELECT 'Henan', ROUND(AVG(profit),0), ROUND(SQRT(AVG(profit*profit)-AVG(profit)*AVG(profit)),0), ROUND(SQRT(AVG(profit*profit)-AVG(profit)*AVG(profit))/AVG(profit)*100,1) FROM (SELECT strftime('%Y-%m', Date) AS month, SUM(Profit) AS profit FROM sheet1 WHERE Destination LIKE 'South China-Henan%' GROUP BY month)
+UNION ALL
+SELECT 'Hubei', ROUND(AVG(profit),0), ROUND(SQRT(AVG(profit*profit)-AVG(profit)*AVG(profit)),0), ROUND(SQRT(AVG(profit*profit)-AVG(profit)*AVG(profit))/AVG(profit)*100,1) FROM (SELECT strftime('%Y-%m', Date) AS month, SUM(Profit) AS profit FROM sheet1 WHERE Destination LIKE 'South China-Hubei%' GROUP BY month)
+UNION ALL
+SELECT 'Hunan', ROUND(AVG(profit),0), ROUND(SQRT(AVG(profit*profit)-AVG(profit)*AVG(profit)),0), ROUND(SQRT(AVG(profit*profit)-AVG(profit)*AVG(profit))/AVG(profit)*100,1) FROM (SELECT strftime('%Y-%m', Date) AS month, SUM(Profit) AS profit FROM sheet1 WHERE Destination LIKE 'South China-Hunan%' GROUP BY month)
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 16.02 → 16.17 | 原表 | 无新对象 |
+| 仅建汇总表 | 16.05 → 16.19 | 原表 | 无新对象 |
+| 索引＋汇总表 | 16.08 → 16.21 | 原表 | 无新对象 |
+
+本轮索引路径触发浮点保护，对原先无索引的基础表使用NOT INDEXED；具体执行SQL保存在该轮事件中。
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Profit",
+          "sheet1.Profit Margin"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          },
+          {
+            "function": "count",
+            "column": "*"
+          }
+        ]
+      },
+      "priority": "medium"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Consigned Product",
+          "sheet1.Profit"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          },
+          {
+            "type": "column",
+            "column": "sheet1.Consigned Product"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Profit"
+          }
+        ]
+      },
+      "priority": "high"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q29"></a>
+#### Q29
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT "Waybill Number", Date, Destination, "Consigned Product", "Total Logistics Revenue", "Total Logistics Cost", Profit, "Profit Margin" FROM sheet1 WHERE Destination LIKE 'South China%' AND strftime('%Y-%m', Date)='2023-08' AND "Profit Margin" < -5 ORDER BY "Profit Margin" LIMIT 5
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 4.29 → 0.48 | 索引1 | 无新对象 |
+| 仅建汇总表 | 4.28 → 4.31 | 原表 | 无新对象 |
+| 索引＋汇总表 | 4.28 → 0.50 | 索引1 | 无新对象 |
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "provided",
+  "coverage": "partial_plan",
+  "candidates": [
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Profit Margin",
+          "sheet1.Profit",
+          "sheet1.Total Logistics Revenue"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "and",
+            "items": [
+              {
+                "type": "predicate",
+                "column": "sheet1.Destination",
+                "op": "like",
+                "value": {
+                  "status": "known",
+                  "literal": "South China%"
+                }
+              },
+              {
+                "type": "predicate",
+                "column": "sheet1.Date",
+                "op": "between",
+                "value": {
+                  "status": "known",
+                  "literal": [
+                    "2023-08-01",
+                    "2023-08-31"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "none",
+        "items": []
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "count",
+            "column": "*"
+          },
+          {
+            "function": "min",
+            "column": "sheet1.Profit Margin"
+          },
+          {
+            "function": "max",
+            "column": "sheet1.Profit Margin"
+          },
+          {
+            "function": "avg",
+            "column": "sheet1.Profit Margin"
+          }
+        ]
+      },
+      "priority": "low"
+    },
+    {
+      "tables": [
+        "sheet1"
+      ],
+      "columns": {
+        "status": "known",
+        "items": [
+          "sheet1.Date",
+          "sheet1.Freight Cost",
+          "sheet1.Warehousing Cost",
+          "sheet1.Other Operating Costs",
+          "sheet1.Total Logistics Cost"
+        ]
+      },
+      "filters": {
+        "status": "known",
+        "items": [
+          {
+            "type": "predicate",
+            "column": "sheet1.Destination",
+            "op": "like",
+            "value": {
+              "status": "known",
+              "literal": "South China%"
+            }
+          }
+        ]
+      },
+      "joins": {
+        "status": "none",
+        "items": []
+      },
+      "group_by": {
+        "status": "known",
+        "items": [
+          {
+            "type": "time_bucket",
+            "column": "sheet1.Date",
+            "unit": "month"
+          }
+        ]
+      },
+      "aggregations": {
+        "status": "known",
+        "items": [
+          {
+            "function": "sum",
+            "column": "sheet1.Freight Cost"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Warehousing Cost"
+          },
+          {
+            "function": "sum",
+            "column": "sheet1.Other Operating Costs"
+          }
+        ]
+      },
+      "priority": "low"
+    }
+  ]
+}
+```
+
+</details>
+
+<a id="q30"></a>
+#### Q30
+
+<details><summary>原SQL</summary>
+
+```sql
+SELECT 'Freight' AS cost_type, ROUND(AVG(val),0) AS avg, ROUND(SQRT(AVG(val*val)-AVG(val)*AVG(val)),0) AS std, ROUND(SQRT(AVG(val*val)-AVG(val)*AVG(val))/AVG(val)*100,1) AS cv_pct FROM (SELECT strftime('%Y-%m', Date) AS month, SUM("Freight Cost") AS val FROM sheet1 WHERE Destination LIKE 'South China%' GROUP BY month)
+UNION ALL
+SELECT 'Warehousing', ROUND(AVG(val),0), ROUND(SQRT(AVG(val*val)-AVG(val)*AVG(val)),0), ROUND(SQRT(AVG(val*val)-AVG(val)*AVG(val))/AVG(val)*100,1) FROM (SELECT strftime('%Y-%m', Date) AS month, SUM("Warehousing Cost") AS val FROM sheet1 WHERE Destination LIKE 'South China%' GROUP BY month)
+UNION ALL
+SELECT 'Other Costs', ROUND(AVG(val),0), ROUND(SQRT(AVG(val*val)-AVG(val)*AVG(val)),0), ROUND(SQRT(AVG(val*val)-AVG(val)*AVG(val))/AVG(val)*100,1) FROM (SELECT strftime('%Y-%m', Date) AS month, SUM("Other Operating Costs") AS val FROM sheet1 WHERE Destination LIKE 'South China%' GROUP BY month)
+UNION ALL
+SELECT 'Orders', ROUND(AVG(val),0), ROUND(SQRT(AVG(val*val)-AVG(val)*AVG(val)),0), ROUND(SQRT(AVG(val*val)-AVG(val)*AVG(val))/AVG(val)*100,1) FROM (SELECT strftime('%Y-%m', Date) AS month, COUNT(*) AS val FROM sheet1 WHERE Destination LIKE 'South China%' GROUP BY month)
+```
+
+</details>
+
+| 方式 | 本条SQL：对照 → 优化 | 查询时实际使用对象 | 本轮SQL之后的构建动作 |
+|---|---:|---|---|
+| 仅建索引 | 23.11 → 23.15 | 原表 | 无新对象 |
+| 仅建汇总表 | 23.12 → 23.26 | 原表 | 无新对象 |
+| 索引＋汇总表 | 23.10 → 23.93 | 原表 | 无新对象 |
+
+本轮索引路径触发浮点保护，对原先无索引的基础表使用NOT INDEXED；具体执行SQL保存在该轮事件中。
+
+<details><summary>本轮Agent原始FAD</summary>
+
+```json
+{
+  "status": "no_further_access",
+  "candidates": []
+}
+```
+
+</details>
+
+### 额外资源与测量边界
+
+| 方式 | 新占用页 | 主库文件增长＋临时库页数 | 进程峰值RSS：对照 → 优化 | CPU时间：对照 → 优化 |
+|---|---:|---:|---:|---:|
+| 仅建索引 | 1180 KiB | 0 KiB | 43.4 → 45.9 MiB | 412.6 → 509.8 ms |
+| 仅建汇总表 | 20 KiB | 20 KiB | 43.4 → 44.3 MiB | 411.9 → 554.1 ms |
+| 索引＋汇总表 | 1248 KiB | 68 KiB | 43.4 → 45.9 MiB | 412.6 → 634.2 ms |
+
+原库自带687个空闲页，共2,813,952字节，索引复用它们，所以文件不增长并不表示索引不占空间。新占用页在独立副本重放动作测量，未混入正式计时；具体记录见space-diagnostic.json。当前预算监控主库文件增长与临时库页数，新占用的空闲页另列；本次实际使用也低于7,507,968字节上限。RSS为整个进程峰值，包含Python库和计时前预热。这些数据不是排序器临时文件的完整峰值。各次进程I/O（read_bytes/write_bytes及rchar/wchar）和准备时间保存在summary.json；完整环境、顺序、数据/代码哈希保存在manifest.json。
+
+### 当前结论与后续范围
+
+A—E的小型固定轨迹验证已经完成：预测可以促成真实复用，但当前Python实现与选择规则在18,250行上没有净收益。尚未运行真实Agent会话，也未扩容。下一步若继续，可按计划做十万行规模敏感性检查，观察扫描收益增长后能否覆盖这些开销；不能把当前负结果改写成已验证提速。
+
+- [正式实验清单、固定顺序与代码快照](../runs/original-18250-v1/manifest.json)
+- [60对实验全部通过的完成记录](../runs/original-18250-v1/COMPLETE.json)
+- [可重算的汇总数字](statistics.json)
+- [独立的对象占用空间诊断](space-diagnostic.json)
+- [最终1800条查询对照与输入、时间顺序审计](../runs/original-18250-v1/AUDIT.json)
+- [实现与复现方式](../../../../agent_db_tool/optimization/README.md)
+- [校准失败记录](../runs/calibration-01/index/correctness.json)
